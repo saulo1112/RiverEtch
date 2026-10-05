@@ -1,0 +1,5 @@
+{
+  "spec": ["test/circuits/**/*.test.ts"],
+  "node-option": ["import=tsx"],
+  "timeout": 120000
+}

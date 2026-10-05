@@ -11,8 +11,10 @@
     "node": "^22.22.2 || >=24.15.0"
   },
   "scripts": {
+    "zk:build": "npm run zk:build -w contracts --",
     "compile": "npm run compile -w contracts",
     "test": "npm run test -w contracts",
+    "test:circuits": "npm run test:circuits -w contracts",
     "test:contracts": "npm run test:contracts -w contracts",
     "lint": "npm run lint:ts && npm run lint:sol",
     "lint:ts": "eslint . --max-warnings=0",
