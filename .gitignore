@@ -1,0 +1,78 @@
+# ---------------------------------------------------------------------------
+# Dependencies
+# ---------------------------------------------------------------------------
+node_modules/
+
+# ---------------------------------------------------------------------------
+# Secrets and local environment (only the committed templates are allowed)
+# ---------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+
+# ---------------------------------------------------------------------------
+# Generic build output and tooling caches
+# ---------------------------------------------------------------------------
+dist/
+coverage/
+*.tsbuildinfo
+.eslintcache
+*.log
+npm-debug.log*
+
+# ---------------------------------------------------------------------------
+# Hardhat (contracts workspace)
+# ---------------------------------------------------------------------------
+contracts/artifacts/
+contracts/cache/
+# TypeChain bindings generated on compile
+contracts/types/
+# Solidity test outputs (gas snapshots, snapshot cheatcodes)
+contracts/.gas-snapshot
+contracts/snapshots/
+# Ignition state for the local in-process chain (Sepolia deployments are kept)
+contracts/ignition/deployments/chain-31337/
+
+# ---------------------------------------------------------------------------
+# circom / snarkjs artifacts: large and reproducible with `npm run zk:build`
+# ---------------------------------------------------------------------------
+contracts/build/
+# Solidity verifiers exported by snarkjs (tied to a specific, uncommitted zkey)
+contracts/src/generated/
+*.ptau
+*.zkey
+*.wtns
+*.r1cs
+*.sym
+*_js/
+*_cpp/
+
+# ---------------------------------------------------------------------------
+# Python (pipeline)
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# ---------------------------------------------------------------------------
+# Satellite and climate data (rasters and grids can be gigabytes)
+# ---------------------------------------------------------------------------
+pipeline/data/
+*.tif
+*.tiff
+*.jp2
+*.nc
+*.SAFE/
+
+# ---------------------------------------------------------------------------
+# OS and editor files
+# ---------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

@@ -1,0 +1,3 @@
+# Prettier already skips everything in .gitignore; these are committed files it must not touch.
+package-lock.json
+pipeline/uv.lock

@@ -1,0 +1,53 @@
+{
+  "name": "climate-change-ieee",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Satellite detection of river turbidity anomalies in Colombia, correlated with extreme rainfall, plus zero-knowledge proofs of discharge-permit compliance on Ethereum.",
+  "type": "module",
+  "workspaces": [
+    "contracts",
+    "web"
+  ],
+  "engines": {
+    "node": "^22.22.2 || >=24.15.0"
+  },
+  "scripts": {
+    "prepare": "husky",
+    "dev": "npm run dev -w web",
+    "build": "npm run build -w web",
+    "zk:build": "npm run zk:build -w contracts --",
+    "compile": "npm run compile -w contracts",
+    "test": "npm run test -w contracts",
+    "test:circuits": "npm run test:circuits -w contracts",
+    "test:contracts": "npm run test:contracts -w contracts",
+    "lint": "npm run lint:ts && npm run lint:sol",
+    "lint:ts": "eslint . --max-warnings=0",
+    "lint:sol": "npm run lint:sol -w contracts",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "pipeline:check": "cd pipeline && uv run ruff format --check . && uv run ruff check . && uv run mypy && uv run pytest",
+    "check": "npm run format:check && npm run lint:sol && npm run zk:build && npm run compile && npm run lint:ts && npm run typecheck && npm test && npm run build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^65.1.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.7",
+    "globals": "^17.13.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9",
+    "prettier-plugin-solidity": "^2.4.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1"
+  },
+  "allowScripts": {
+    "esbuild": false,
+    "bufferutil": false,
+    "utf-8-validate": false,
+    "keccak": false
+  }
+}

@@ -1,0 +1,12 @@
+# Normalize line endings to LF on every platform (Git hooks must have LF to run on Windows).
+* text=auto eol=lf
+
+# Binary files: never normalize or diff as text.
+*.png binary
+*.jpg binary
+*.ico binary
+*.wasm binary
+*.ptau binary
+*.zkey binary
+*.tif binary
+*.tiff binary
