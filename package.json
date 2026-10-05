@@ -1,0 +1,27 @@
+{
+  "name": "climate-change-ieee",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Satellite detection of river turbidity anomalies in Colombia, correlated with extreme rainfall, plus zero-knowledge proofs of discharge-permit compliance on Ethereum.",
+  "type": "module",
+  "workspaces": [],
+  "engines": {
+    "node": "^22.22.2 || >=24.15.0"
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "npm run lint:ts",
+    "lint:ts": "eslint . --max-warnings=0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsdoc": "^65.1.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1"
+  }
+}
