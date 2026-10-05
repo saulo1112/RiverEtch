@@ -1,8 +1,10 @@
 name: CI
 
+# Pull requests cover feature branches; pushes are only built on main, so a branch with an open PR
+# does not burn Actions minutes twice per push. Use "Run workflow" for a branch without a PR.
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
