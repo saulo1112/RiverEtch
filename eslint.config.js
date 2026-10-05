@@ -4,6 +4,8 @@ import js from "@eslint/js";
 import { defineConfig, globalIgnores } from "eslint/config";
 import prettier from "eslint-config-prettier/flat";
 import jsdoc from "eslint-plugin-jsdoc";
+import reactHooks from "eslint-plugin-react-hooks";
+import { reactRefresh } from "eslint-plugin-react-refresh";
 import globals from "globals";
 import tseslint from "typescript-eslint";
 
@@ -86,6 +88,13 @@ export default defineConfig([
         },
       ],
     },
+  },
+
+  // Frontend (web/): React hooks rules, Vite fast-refresh constraints and browser globals.
+  {
+    files: ["web/src/**/*.{ts,tsx}"],
+    extends: [reactHooks.configs.flat.recommended, reactRefresh.configs.vite()],
+    languageOptions: { globals: globals.browser },
   },
 
   // Must stay last: turns off every rule that would fight with Prettier's formatting.
