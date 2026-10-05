@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CIRCOM_VERSION: v2.2.3
+  # Git hooks are for local commits only.
+  HUSKY: "0"
+
+jobs:
+  contracts-web:
+    name: Contracts, circuits & web
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js (version from .nvmrc)
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install circom ${{ env.CIRCOM_VERSION }}
+        run: |
+          curl --fail --silent --show-error --location --retry 3 \
+            --output "$RUNNER_TEMP/circom" \
+            "https://github.com/iden3/circom/releases/download/${CIRCOM_VERSION}/circom-linux-amd64"
+          chmod +x "$RUNNER_TEMP/circom"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+          "$RUNNER_TEMP/circom" --version
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting (Prettier)
+        run: npm run format:check
+
+      - name: Lint Solidity (Solhint + NatSpec)
+        run: npm run lint:sol
+
+      - name: Build circuits (compile, witness, trusted setup, Solidity verifier)
+        run: npm run zk:build
+
+      - name: Compile contracts
+        run: npm run compile
+
+      # After compiling: typed lint rules need the generated TypeChain bindings.
+      - name: Lint TypeScript (ESLint + TSDoc)
+        run: npm run lint:ts
+
+      - name: Type-check
+        run: npm run typecheck
+
+      - name: Circuit tests
+        run: npm run test:circuits
+
+      - name: Contract tests (Solidity + TypeScript)
+        run: npm run test:contracts
+
+      - name: Build frontend
+        run: npm run build
+
+  pipeline:
+    name: Pipeline (Python)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          # Same uv version that wrote uv.lock, so `--locked` cannot fail on a format change.
+          version: "0.12.23"
+          working-directory: pipeline
+
+      - name: Install dependencies (locked)
+        run: uv sync --locked
+
+      - name: Check formatting (ruff)
+        run: uv run ruff format --check .
+
+      - name: Lint (ruff, including docstring rules)
+        run: uv run ruff check .
+
+      - name: Type-check (mypy --strict)
+        run: uv run mypy
+
+      - name: Tests (pytest)
+        run: uv run pytest

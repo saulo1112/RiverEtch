@@ -26,7 +26,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "npm run typecheck --workspaces --if-present",
-    "pipeline:check": "cd pipeline && uv run ruff format --check . && uv run ruff check . && uv run mypy && uv run pytest"
+    "pipeline:check": "cd pipeline && uv run ruff format --check . && uv run ruff check . && uv run mypy && uv run pytest",
+    "check": "npm run format:check && npm run lint:sol && npm run zk:build && npm run compile && npm run lint:ts && npm run typecheck && npm test && npm run build"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
