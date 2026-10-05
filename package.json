@@ -4,15 +4,22 @@
   "private": true,
   "description": "Satellite detection of river turbidity anomalies in Colombia, correlated with extreme rainfall, plus zero-knowledge proofs of discharge-permit compliance on Ethereum.",
   "type": "module",
-  "workspaces": [],
+  "workspaces": [
+    "contracts"
+  ],
   "engines": {
     "node": "^22.22.2 || >=24.15.0"
   },
   "scripts": {
+    "compile": "npm run compile -w contracts",
+    "test": "npm run test -w contracts",
+    "test:contracts": "npm run test:contracts -w contracts",
+    "lint": "npm run lint:ts && npm run lint:sol",
+    "lint:ts": "eslint . --max-warnings=0",
+    "lint:sol": "npm run lint:sol -w contracts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "npm run lint:ts",
-    "lint:ts": "eslint . --max-warnings=0"
+    "typecheck": "npm run typecheck --workspaces --if-present"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -21,7 +28,11 @@
     "eslint-plugin-jsdoc": "^65.1.0",
     "globals": "^17.13.0",
     "prettier": "^3.9.9",
+    "prettier-plugin-solidity": "^2.4.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.71.1"
+  },
+  "allowScripts": {
+    "esbuild": false
   }
 }

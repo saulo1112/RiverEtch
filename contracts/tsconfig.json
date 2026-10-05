@@ -1,0 +1,11 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "module": "node20",
+    "types": ["node", "mocha"],
+    "noEmit": true,
+    // TypeChain bindings generated into types/ use `export namespace`; this workspace's TS
+    // runs through Hardhat/tsx, not Node's type stripping, so the flag is not needed here.
+    "erasableSyntaxOnly": false
+  }
+}
