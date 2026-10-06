@@ -470,19 +470,35 @@ export interface CellTextures {
   readonly orm: CanvasTexture;
 }
 
+/** Cell layout of a solar panel. */
+export interface CellLayout {
+  /** Cells along the panel's X axis. */
+  readonly columns: number;
+  /** Cells along the panel's Z axis. */
+  readonly rows: number;
+  /** Substrate gap between cells, as a share of the texture's shorter side. */
+  readonly gapFraction: number;
+  /** Substrate color between the cells (sRGB hex). */
+  readonly gapColor: string;
+  /** Range of the cells' HSL lightness, in percent. */
+  readonly lightness: readonly [number, number];
+}
+
 /**
- * Draws a solar panel: a bright frame, 6 x 14 cropped-corner cells with gaps, busbars and fine
+ * Draws a solar panel: a bright frame, cropped-corner cells on a light substrate, busbars and fine
  * fingers. Every line is at least two texels wide so it survives mipmapping.
  *
  * @param width - Texture width in texels (along the panel's X axis).
  * @param height - Texture height in texels (along the panel's Z axis).
  * @param anisotropy - Anisotropic filtering level.
+ * @param layout - Cell grid, substrate gap and cell lightness.
  * @returns Albedo, emissive, normal and roughness/metalness maps.
  */
 export function createCellTextures(
   width: number,
   height: number,
   anisotropy: number,
+  layout: CellLayout,
 ): CellTextures {
   const random = mulberry32(0xce11);
   const albedo = createCanvas(width, height);
@@ -503,14 +519,14 @@ export function createCellTextures(
   const frame = Math.max(2, Math.round(Math.min(width, height) * 0.025));
   const innerWidth = width - frame * 2;
   const innerHeight = height - frame * 2;
-  albedo.fillStyle = "#0a0c12";
+  // Substrate between the cells: light enough that the grid reads at hero scale.
+  albedo.fillStyle = layout.gapColor;
   albedo.fillRect(frame, frame, innerWidth, innerHeight);
   orm.fillStyle = `rgb(255,${Math.round(0.7 * 255)},0)`;
   orm.fillRect(frame, frame, innerWidth, innerHeight);
 
-  const columns = 6;
-  const rows = 14;
-  const gap = Math.max(2, Math.round(Math.min(width, height) * 0.012));
+  const { columns, rows } = layout;
+  const gap = Math.max(2, Math.round(Math.min(width, height) * layout.gapFraction));
   const cellWidth = (innerWidth - gap * (columns + 1)) / columns;
   const cellHeight = (innerHeight - gap * (rows + 1)) / rows;
   const crop = Math.min(cellWidth, cellHeight) * 0.14;
@@ -538,9 +554,11 @@ export function createCellTextures(
       const path = cellPath(x, y);
 
       // Deep blue-violet cells with a small per-cell hue and lightness jitter.
+      const [lightnessMin, lightnessMax] = layout.lightness;
       const hue = 221 + random() * 8 + gaussianSample(random) * 3;
-      const lightness = 10 + random() * 2 + gaussianSample(random) * 1.2;
-      albedo.fillStyle = `hsl(${hue.toFixed(1)} 52% ${lightness.toFixed(1)}%)`;
+      const lightness =
+        lightnessMin + random() * (lightnessMax - lightnessMin) + gaussianSample(random) * 1.2;
+      albedo.fillStyle = `hsl(${hue.toFixed(1)} 62% ${lightness.toFixed(1)}%)`;
       albedo.fill(path);
       emissive.fillStyle = "#1b2b6e";
       emissive.fill(path);
@@ -559,7 +577,7 @@ export function createCellTextures(
       // Fine fingers across the cell, then two busbars along it.
       albedo.save();
       albedo.clip(path);
-      albedo.fillStyle = "rgba(150,160,190,0.16)";
+      albedo.fillStyle = "rgba(150,160,190,0.07)";
       for (let fx = x + finger; fx < x + cellWidth; fx += cellWidth / 24) {
         albedo.fillRect(Math.round(fx), y, finger, cellHeight);
       }

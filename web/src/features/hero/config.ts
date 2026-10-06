@@ -223,10 +223,21 @@ export const ORBIT = {
 export const SATELLITE = {
   variant: "A" satisfies SatelliteVariant,
   // Wingtip-to-wingtip span in model units, and its target size on screen at the scan peak
-  // (before foreshortening: the wings are seen at an angle, so ~100 px end to end).
+  // (before foreshortening: the wings are seen at an angle, so ~225 px end to end at 1080p). The
+  // target is capped to a share of the viewport width (portrait screens), then the model scale is
+  // clamped to scaleRange.
   spanUnits: 24,
-  targetSpanPx: 115,
-  scaleRange: [0.7, 1.35],
+  targetSpanPx: 260,
+  maxSpanViewportFraction: 0.4,
+  scaleRange: [1.0, 3.2],
+  // Thermal blankets: model units per foil texture tile (larger shows the creases at hero scale)
+  // and the strength of their relief.
+  foilTileUnits: 6.5,
+  foilNormalScale: 1.05,
+  // Solar cells per panel (columns along the span, rows along the chord), the width of the
+  // substrate gaps between them (share of the texture's shorter side), its color and the cells'
+  // HSL lightness range (percent).
+  cells: { columns: 4, rows: 6, gapFraction: 0.022, gapColor: "#8d96a6", lightness: [12, 15] },
   // Solar-array drive: critically damped spring (rad/s) with a rate limit.
   sada: { omega: 4, maxDegPerS: 12 },
   // Panel glint, solved once per orbit: where on the orbit it happens (relative to Colombia), the
@@ -278,11 +289,13 @@ export const SATELLITE = {
   lights: {
     key: 2.0,
     keyColor: "#fff3e2",
-    rim: 1.6,
+    rim: 2.6,
     rimColor: "#5b8cff",
     earthshine: 0.9,
     earthshineColor: "#86aeff",
-    ambient: 0.12,
+    // Share of the earthshine kept over the night side, so the satellite still reads there.
+    earthshineMin: 0.3,
+    ambient: 0.16,
     ambientColor: "#1b2340",
   },
   // PMREM blur of the procedural room environment.

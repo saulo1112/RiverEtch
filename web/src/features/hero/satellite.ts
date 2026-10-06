@@ -268,8 +268,8 @@ function strut(from: Vector3, to: Vector3, radius: number, segments = 8): Buffer
 // MLI blankets bulge between their taped edges: each face is offset along its normal by
 // a·(1 − u⁴)(1 − v⁴). The zenith face carries the flat radiator, so it barely bulges, and the
 // blankets lie flat under the solar-array drives (±X) and the launch adapter (−Z). UVs are planar
-// per face (4 units per foil tile) with a random offset, so faces neither share nor stretch the
-// crease pattern.
+// per face (SATELLITE.foilTileUnits per foil tile) with a random offset, so faces neither share
+// nor stretch the crease pattern.
 function createPillowedBox(
   width: number,
   height: number,
@@ -310,7 +310,7 @@ function createPillowedBox(
     const bulge = (amplitudes[faceIndex] ?? 0.05) * (1 - u ** 4) * (1 - v ** 4) * pad;
     position.addScaledVector(normal, bulge);
     positions.setXYZ(i, position.x, position.y, position.z);
-    uvs.setXY(i, c1 / 4 + offsetU, c2 / 4 + offsetV);
+    uvs.setXY(i, c1 / SATELLITE.foilTileUnits + offsetU, c2 / SATELLITE.foilTileUnits + offsetV);
   }
   // Faces do not share vertices, so this smooths within each blanket and keeps the edges crisp.
   geometry.computeVertexNormals();
@@ -431,7 +431,7 @@ async function createSatelliteTextures(
   }
   // Nothing has been uploaded to the GPU yet, so an abort here leaves no resources behind.
   await yieldToBrowser(signal);
-  const cells = createCellTextures(preset.cells[0], preset.cells[1], anisotropy);
+  const cells = createCellTextures(preset.cells[0], preset.cells[1], anisotropy, SATELLITE.cells);
   await yieldToBrowser(signal);
   const osr = createOsrTextures(preset.osr, anisotropy);
   return {
@@ -495,7 +495,7 @@ function createMaterials(
     );
 
   return {
-    gold: foil(colors.gold, textures.foil, 0.85),
+    gold: foil(colors.gold, textures.foil, SATELLITE.foilNormalScale),
     silver: foil(colors.silver, textures.silverFoil, 0.45),
     osr: pbr(
       new MeshPhysicalMaterial({
@@ -597,10 +597,28 @@ function buildBus(materials: SatelliteMaterials): { bus: Group; beamAnchor: Obje
   const random = mulberry32(0xb05);
 
   // Body: +X, −X, +Y, −Y, +Z faces in gold, the aft (−Z) face in silver.
-  const body = splitGroups(createPillowedBox(4.0, 3.6, 5.2, random));
+  const size = [4.0, 3.6, 5.2] as const;
+  const body = splitGroups(createPillowedBox(...size, random));
   body.forEach((face, index) => {
     parts.add(index === 5 ? "silver" : "gold", face);
   });
+
+  // Aluminium tape along the twelve edges, where the blankets meet: it keeps the silhouette crisp.
+  const tape = 0.13;
+  for (let axis = 0; axis < 3; axis += 1) {
+    const [a1, a2] = [0, 1, 2].filter((other) => other !== axis) as [number, number];
+    for (const s1 of [-1, 1]) {
+      for (const s2 of [-1, 1]) {
+        const dimensions = [tape, tape, tape];
+        dimensions[axis] = (size[axis] ?? 0) + tape;
+        const center = new Vector3();
+        center.setComponent(a1, (s1 * (size[a1] ?? 0)) / 2);
+        center.setComponent(a2, (s2 * (size[a2] ?? 0)) / 2);
+        const [width = tape, height = tape, depth = tape] = dimensions;
+        parts.add("silver", new BoxGeometry(width, height, depth), compose(center));
+      }
+    }
+  }
 
   // Nadir instrument and its dark aperture.
   parts.add("silver", new BoxGeometry(2.6, 1.3, 3.0, 4, 2, 4), compose(new Vector3(0, -2.45, 0.5)));
@@ -631,6 +649,22 @@ function buildBus(materials: SatelliteMaterials): { bus: Group; beamAnchor: Obje
     "paint",
     new CylinderGeometry(0.24, 0.24, 0.06, 20),
     compose(new Vector3(1.1, 1.84, 1.6)),
+  );
+
+  // Telemetry mast on the zenith face: base plate, thin boom and an omni radome on top.
+  const mastFoot = new Vector3(-1.25, 1.8, 1.7);
+  const mastTop = mastFoot.clone().add(new Vector3(0, 2.3, 0));
+  parts.add("titanium", new CylinderGeometry(0.2, 0.22, 0.06, 16), compose(mastFoot));
+  parts.add("titanium", strut(mastFoot, mastTop, 0.05, 10));
+  parts.add(
+    "paint",
+    new CylinderGeometry(0.12, 0.14, 0.42, 16),
+    compose(mastTop.clone().add(new Vector3(0, 0.21, 0))),
+  );
+  parts.add(
+    "paint",
+    new ConeGeometry(0.12, 0.14, 16),
+    compose(mastTop.clone().add(new Vector3(0, 0.49, 0))),
   );
 
   // Four thruster bells on the aft face.
@@ -1420,7 +1454,11 @@ export async function createSatellite(
 
     // Earthshine from below, only when the ground underneath is lit.
     earthshine.intensity =
-      lightConfig.earthshine * MathUtils.smoothstep(radial.dot(sunDirection), -0.1, 0.5);
+      lightConfig.earthshine *
+      Math.max(
+        lightConfig.earthshineMin,
+        MathUtils.smoothstep(radial.dot(sunDirection), -0.1, 0.5),
+      );
     earthshine.position.copy(state.position).addScaledVector(radial, -50);
     earthshine.target.position.copy(state.position);
     for (const light of aimedLights) {
@@ -1444,8 +1482,12 @@ export async function createSatellite(
     const pixelsPerUnit =
       viewportHeight / (2 * distance * Math.tan(MathUtils.degToRad(fovDeg / 2)));
     const [minScale, maxScale] = SATELLITE.scaleRange;
+    const targetSpan = Math.min(
+      SATELLITE.targetSpanPx,
+      (SATELLITE.maxSpanViewportFraction * drawingBuffer.x) / pixelRatio,
+    );
     state.scale = MathUtils.clamp(
-      SATELLITE.targetSpanPx / (SATELLITE.spanUnits * pixelsPerUnit),
+      targetSpan / (SATELLITE.spanUnits * pixelsPerUnit),
       minScale,
       maxScale,
     );
