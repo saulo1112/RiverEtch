@@ -5,6 +5,7 @@ import "@fontsource-variable/geist-mono";
 import "./ui.css";
 
 import { Copy } from "./Copy.tsx";
+import { Footer } from "./Footer.tsx";
 import { Nav } from "./Nav.tsx";
 
 /** Props of {@link HeroUi}. */
@@ -24,6 +25,7 @@ export function HeroUi({ titleId }: HeroUiProps) {
       <Nav />
       <main className="hero-ui__main">
         <Copy titleId={titleId} />
+        <Footer />
       </main>
     </div>
   );

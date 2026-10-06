@@ -46,7 +46,7 @@
   /* Vertical room: the copy block is centred on the globe (shifted up 3%) but kept 48 px clear of
      the nav and of the bottom row. --copy-half is its half-height; --foot-h the bottom row's. */
   --copy-half: 164px;
-  --foot-h: 112px;
+  --foot-h: 98px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   z-index: 1;
@@ -330,6 +330,136 @@
   transform: translateX(2px);
 }
 
+/*
+ * Bottom row. The strip (on the text column) and the chip (on the right edge) share one bottom
+ * line, the strip's last baseline; the attribution sits under the strip, on the bottom pad.
+ * The row spans the full width and its children take the edges as margins, so the strip's
+ * width (--col, which holds the percentage --gx) resolves against the hero's width, as the
+ * copy's does.
+ */
+.hero-foot {
+  position: absolute;
+  right: 0;
+  bottom: var(--pad-y);
+  left: 0;
+}
+
+.hero-foot__row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.hero-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: var(--col);
+  margin: 0 0 0 var(--edge-l);
+  padding: 0;
+  list-style: none;
+}
+
+.hero-step {
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.hero-step__head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 450;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero-step__icon {
+  flex: none;
+  color: var(--ink-3);
+}
+
+/* Lucide draws on a 24-unit grid with some padding; shift each icon so its ink, not its box,
+   starts on the hairline (left-most ink x at 18 px, less half the 1.5 px stroke). */
+.hero-step--detect .hero-step__icon {
+  margin-left: -1.5px;
+}
+
+.hero-step--explain .hero-step__icon {
+  margin-left: -0.75px;
+}
+
+.hero-step--prove .hero-step__icon {
+  margin-left: -2.25px;
+}
+
+.hero-step__label {
+  display: block;
+}
+
+.hero-step__number {
+  color: var(--text-3);
+}
+
+.hero-step__desc {
+  margin: 6px 0 0;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.45;
+  text-wrap: balance;
+}
+
+.hero-chip {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+  align-items: center;
+  height: 32px;
+  margin: 0 var(--edge-r) 0 0;
+  /* The 1 px glass border is part of the inset: the dot is concentric with the end cap. */
+  padding-inline: 12px 13px;
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.hero-chip__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.hero-chip__text {
+  display: block;
+}
+
+.hero-attribution {
+  margin: 24px var(--edge-r) 0 var(--edge-l);
+  color: var(--text-3);
+  font-size: 11px;
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+
+.hero-step__label,
+.hero-step__desc,
+.hero-chip__text,
+.hero-attribution {
+  text-box: trim-both cap alphabetic;
+}
+
 /* Without text-box trimming, trim the line boxes by hand (Inter Tight and Geist Mono metrics). */
 @supports not (text-box: trim-both cap alphabetic) {
   .hero-eyebrow__text {
@@ -342,6 +472,22 @@
 
   .hero-sub {
     margin-block: calc(24px - 0.41em) -0.41em;
+  }
+
+  .hero-step__label {
+    margin-block: -0.15em;
+  }
+
+  .hero-chip__text {
+    margin-block: -0.136em;
+  }
+
+  .hero-step__desc {
+    margin-block: calc(6px - 0.361em) -0.361em;
+  }
+
+  .hero-attribution {
+    margin-block: calc(24px - 0.286em) -0.286em;
   }
 }
 

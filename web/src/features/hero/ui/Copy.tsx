@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
-import { Fragment } from "react";
 
 import { COPY } from "./content.ts";
+import { Dotted } from "./Dotted.tsx";
 
 /** Props of {@link Copy}. */
 export interface CopyProps {
@@ -20,17 +20,7 @@ export function Copy({ titleId }: CopyProps) {
       <p className="hero-eyebrow">
         <span className="hero-eyebrow__dot" aria-hidden="true" />
         <span className="hero-eyebrow__text">
-          {COPY.eyebrow.map((item, index) => (
-            <Fragment key={item}>
-              {index > 0 ? (
-                <>
-                  {" "}
-                  <span aria-hidden="true">·</span>{" "}
-                </>
-              ) : null}
-              {item}
-            </Fragment>
-          ))}
+          <Dotted items={COPY.eyebrow} />
         </span>
       </p>
       <h1 className="hero-title" id={titleId}>

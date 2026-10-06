@@ -52,3 +52,29 @@ export const COPY = {
   primary: { label: "Explore the case", href: "#detect" } satisfies CallToAction,
   secondary: { label: "How it works", href: "#prove" } satisfies CallToAction,
 } as const;
+
+/** A step of the pipeline, as the hero's strip shows it. */
+export interface Step {
+  /** Stable key; also picks the step's icon. */
+  readonly id: "detect" | "explain" | "prove";
+  /** Two-digit position, shown before the label (the list itself is ordered). */
+  readonly number: string;
+  /** Short label, set in capitals by CSS. */
+  readonly label: string;
+  /** One-line description. */
+  readonly description: string;
+}
+
+/** The three steps, in order. */
+export const STEPS: readonly Step[] = [
+  { id: "detect", number: "01", label: "Detect", description: "Sentinel-2 NDTI, anomalies in σ" },
+  { id: "explain", number: "02", label: "Explain", description: "Rainfall filter (CHIRPS)" },
+  { id: "prove", number: "03", label: "Prove", description: "Groth16 proof on Sepolia" },
+];
+
+/** Status chip: the area and the imagery the scene shows. Static; never claims to be live. */
+export const STATUS = ["Colombia", "Sentinel-2 L2A"] as const;
+
+/** Credits for the scene's data, shown under the strip. */
+export const ATTRIBUTION =
+  "Earth imagery: NASA Earth Observatory (Blue Marble). Boundaries: Natural Earth.";
