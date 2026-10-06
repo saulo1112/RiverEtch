@@ -23,7 +23,7 @@ import {
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
-import { COLOMBIA_DIRECTION, latLngToVector3 } from "./colombia.ts";
+import { COLOMBIA_DIRECTION, COLOMBIA_RINGS, latLngToVector3 } from "./colombia.ts";
 import {
   ATMOSPHERE,
   CAMERA,
@@ -846,8 +846,38 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     (window as HeroQAWindow).__heroQA = {
       stats: () => {
         camera.updateMatrixWorld();
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const toPixels = (point: Vector3): [number, number] => {
+          projected.copy(point).project(camera);
+          return [((projected.x + 1) / 2) * width, ((1 - projected.y) / 2) * height];
+        };
+        // Wingtip to wingtip on screen, and Colombia's on-screen bounding box.
+        let satelliteSpanPx: number | null = null;
+        if (satellite !== null) {
+          const { position, attitude, scale } = satellite.state;
+          const half = new Vector3(1, 0, 0).applyQuaternion(attitude).multiplyScalar(12 * scale);
+          const [ax, ay] = toPixels(position.clone().add(half));
+          const [bx, by] = toPixels(position.clone().sub(half));
+          satelliteSpanPx = Math.hypot(ax - bx, ay - by);
+        }
+        let minX = Number.POSITIVE_INFINITY;
+        let maxX = Number.NEGATIVE_INFINITY;
+        let minY = Number.POSITIVE_INFINITY;
+        let maxY = Number.NEGATIVE_INFINITY;
+        for (const ring of COLOMBIA_RINGS) {
+          for (const [lng, lat] of ring) {
+            const [x, y] = toPixels(latLngToVector3(lat, lng, GLOBE_RADIUS, new Vector3()));
+            minX = Math.min(minX, x);
+            maxX = Math.max(maxX, x);
+            minY = Math.min(minY, y);
+            maxY = Math.max(maxY, y);
+          }
+        }
         projected.set(0, 0, 0).project(camera);
         return {
+          satelliteSpanPx,
+          colombiaBoxPx: [maxX - minX, maxY - minY],
           sceneTime,
           viewport: [container.clientWidth, container.clientHeight],
           globeCenterPx: [

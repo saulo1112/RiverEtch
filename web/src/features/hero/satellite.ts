@@ -40,7 +40,16 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
 import { COLOMBIA_DIRECTION, COLOMBIA_SURFACE_POINT } from "./colombia.ts";
-import { GEO, GLOBE_RADIUS, ORBIT, SATELLITE, SUN, TRAIL, type QualityPreset } from "./config.ts";
+import {
+  GEO,
+  GLOBE_RADIUS,
+  ORBIT,
+  SATELLITE,
+  SUN,
+  TRAIL,
+  type QualityPreset,
+  type SatelliteVariant,
+} from "./config.ts";
 import { SHOULDER_GLSL } from "./shaders.ts";
 import {
   createCellTextures,
@@ -772,7 +781,8 @@ function buildDish(materials: SatelliteMaterials): {
   return { dish, mount, azimuth, elevation };
 }
 
-function buildModel(materials: SatelliteMaterials): SatelliteModel {
+// Variant A: gold bus, two solar wings, a dish.
+function buildVariantA(materials: SatelliteMaterials): SatelliteModel {
   const root = new Group();
   root.name = "satellite";
   root.matrixAutoUpdate = false;
@@ -801,6 +811,13 @@ function buildModel(materials: SatelliteMaterials): SatelliteModel {
     navLights: [left.navLight, right.navLight, strobe],
   };
 }
+
+// Silhouettes by variant (selected in config.ts); new variants plug in here.
+const MODEL_BUILDERS: Readonly<
+  Record<SatelliteVariant, (materials: SatelliteMaterials) => SatelliteModel>
+> = {
+  A: buildVariantA,
+};
 
 // ---------------------------------------------------------------------------------------------
 // Orbit ring and trail: one ribbon expanded in screen space, no per-frame buffer writes.
@@ -1090,7 +1107,7 @@ export async function createSatellite(
     color: { value: new Color(SUN.color) },
   };
   const materials = createMaterials(textures, environment.texture, preset, glint);
-  const model = buildModel(materials);
+  const model = MODEL_BUILDERS[SATELLITE.variant](materials);
   const ribbon = createOrbitRibbon(preset.ribbonSamples);
   const ribbonUniforms = (ribbon.material as ShaderMaterial).uniforms as {
     uAngle: { value: number };
