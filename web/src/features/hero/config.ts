@@ -19,6 +19,16 @@ export interface QualityPreset {
   readonly shellSegments: readonly [number, number];
   /** Number of procedural stars. */
   readonly stars: number;
+  /** Foil texture size and crease count. */
+  readonly foil: { readonly size: number; readonly creases: number };
+  /** Solar-cell texture size (width, height). */
+  readonly cells: readonly [number, number];
+  /** Radiator texture size. */
+  readonly osr: number;
+  /** Thin-film iridescence on the solar cells and lenses. */
+  readonly iridescence: boolean;
+  /** Samples of the orbit ring and trail ribbon. */
+  readonly ribbonSamples: number;
 }
 
 /** Quality presets: `high` for desktops, `low` for weak GPUs and `?quality=low`. */
@@ -29,6 +39,11 @@ export const QUALITY_PRESETS: Readonly<Record<QualityName, QualityPreset>> = {
     globeCurvature: 2,
     shellSegments: [128, 64],
     stars: 4000,
+    foil: { size: 512, creases: 70 },
+    cells: [768, 960],
+    osr: 512,
+    iridescence: true,
+    ribbonSamples: 720,
   },
   low: {
     dprCap: 1,
@@ -36,6 +51,11 @@ export const QUALITY_PRESETS: Readonly<Record<QualityName, QualityPreset>> = {
     globeCurvature: 4,
     shellSegments: [64, 32],
     stars: 1800,
+    foil: { size: 256, creases: 40 },
+    cells: [384, 480],
+    osr: 256,
+    iridescence: false,
+    ribbonSamples: 360,
   },
 };
 
@@ -145,14 +165,74 @@ export const CAMERA = {
   drift: { latDeg: 0.3, latPeriodS: 23, lngDeg: 0.45, lngPeriodS: 31 },
 } as const;
 
-/** Visual tokens shared by the CSS layers and the WebGL scene. */
-export const PALETTE = {
-  space: "#02040a",
+/**
+ * Orbit: near-polar (98°), descending over Colombia on every pass because the Earth is static.
+ * The altitude is exaggerated (0.34 R) so the satellite, beam and footprint read at hero scale.
+ */
+export const ORBIT = {
+  inclinationDeg: 98,
+  radius: 134,
+  periodS: 50,
+  // Scene time of the first pass over Colombia.
+  peakTimeS: 9,
+  // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp: slow over Colombia, fast on the far side.
+  warp: [0.6, 0.075],
+  // Small yaw steering, as real Earth-observation satellites do.
+  yawSteerDeg: 3.9,
 } as const;
 
-/** Satellite options (built from milestone 3 on). */
+/** Satellite model, materials and lights. */
 export const SATELLITE = {
   variant: "A" satisfies SatelliteVariant,
+  // Wingtip-to-wingtip span in model units, and its target size on screen at the scan peak
+  // (before foreshortening: the wings are seen at an angle, so ~100 px end to end).
+  spanUnits: 24,
+  targetSpanPx: 115,
+  scaleRange: [0.7, 1.35],
+  // Solar-array drive: critically damped spring (rad/s) with a rate limit.
+  sada: { omega: 4, maxDegPerS: 12 },
+  colors: {
+    gold: "#e8b65a",
+    silver: "#d6dae0",
+    osr: "#d7dee6",
+    panelBack: "#1e2125",
+    frame: "#c4c8cc",
+    titanium: "#8a8d91",
+    anodize: "#0d0e10",
+    paint: "#eceae3",
+    lens: "#05060a",
+    aperture: "#020203",
+  },
+  lights: {
+    key: 3.2,
+    keyColor: "#fff3e2",
+    rim: 1.6,
+    rimColor: "#5b8cff",
+    earthshine: 0.9,
+    earthshineColor: "#86aeff",
+    ambient: 0.12,
+    ambientColor: "#1b2340",
+  },
+  // PMREM blur of the procedural room environment.
+  environmentBlur: 0.04,
+  // Luminance shoulder that keeps the body below the bloom threshold.
+  shoulderKnee: 0.62,
+  shoulderMax: 0.88,
+} as const;
+
+/** Orbit ring and the fading trail behind the satellite (one ribbon mesh). */
+export const TRAIL = {
+  ringColor: "#7fa6ff",
+  // Ring brightness: base plus a boost on the arc facing the camera.
+  ringGain: [0.1, 0.12],
+  trailColor: "#cfe4ff",
+  trailGain: 0.8,
+  // Trail decay constant, gap behind the satellite and maximum length (radians of orbit).
+  decay: 0.279,
+  gap: 0.026,
+  length: 1.22,
+  // Line width in CSS px for the ring and the trail head.
+  widthPx: [1, 2],
 } as const;
 
 /** URL options read once when the hero mounts. */

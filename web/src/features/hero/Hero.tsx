@@ -54,11 +54,14 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [environment] = useState(detectEnvironment);
-  const [status, setStatus] = useState<HeroStatus>(() =>
-    environment.webgl2 ? "loading" : "fallback",
-  );
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotion);
-  const { quality, frozenTime } = environment.url;
+  const { quality, frozenTime, lab } = environment.url;
+  // "Ready" belongs to one mount: a re-mount (e.g. a reduced-motion change) shows the poster again
+  // until the new scene has rendered.
+  const mountKey = `${quality}|${String(frozenTime)}|${String(reducedMotion)}|${String(lab)}`;
+  const [readyKey, setReadyKey] = useState<string | null>(null);
+  const [failed, setFailed] = useState(!environment.webgl2);
+  const status: HeroStatus = failed ? "fallback" : readyKey === mountKey ? "ready" : "loading";
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -75,38 +78,44 @@ export function Hero() {
       }
       dispose?.();
       dispose = null;
-      setStatus("fallback");
+      setFailed(true);
     };
 
-    // globe.gl and three live in their own chunk, loaded only when the hero can render.
-    import("./globe.ts")
-      .then(({ mountHero }) => {
-        if (cancelled) {
-          return;
-        }
-        dispose = mountHero(stage, {
-          quality,
-          reducedMotion,
-          frozenTime,
-          cssTarget: section,
-          onReady: () => {
-            setStatus("ready");
-          },
-          onError: fail,
-        }).dispose;
-      })
-      .catch((error: unknown) => {
-        if (!cancelled) {
-          fail(error);
-        }
-      });
+    const key = `${quality}|${String(frozenTime)}|${String(reducedMotion)}|${String(lab)}`;
+    const onReady = () => {
+      setReadyKey(key);
+    };
+    // The scene lives in its own chunk (globe.gl and three), loaded only when it can render.
+    const mount: Promise<void> = lab
+      ? import("./lab.ts").then(({ mountSatelliteLab }) => {
+          if (!cancelled) {
+            dispose = mountSatelliteLab(stage, { quality, onReady });
+          }
+        })
+      : import("./globe.ts").then(({ mountHero }) => {
+          if (!cancelled) {
+            dispose = mountHero(stage, {
+              quality,
+              reducedMotion,
+              frozenTime,
+              cssTarget: section,
+              onReady,
+              onError: fail,
+            }).dispose;
+          }
+        });
+    mount.catch((error: unknown) => {
+      if (!cancelled) {
+        fail(error);
+      }
+    });
 
     return () => {
       cancelled = true;
       dispose?.();
       dispose = null;
     };
-  }, [environment.webgl2, quality, frozenTime, reducedMotion]);
+  }, [environment.webgl2, quality, frozenTime, reducedMotion, lab]);
 
   return (
     <section

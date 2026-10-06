@@ -32,6 +32,7 @@ import {
   SUN,
   type QualityName,
 } from "./config.ts";
+import { createSatellite, type SatelliteRig } from "./satellite.ts";
 import { DITHER_GLSL, SHOULDER_GLSL } from "./shaders.ts";
 import { createStarfield } from "./starfield.ts";
 import { createFallbackEarthTexture, loadTexture } from "./textures.ts";
@@ -62,13 +63,15 @@ interface HeroQAWindow extends Window {
   __heroQA?: { readonly stats: () => Record<string, unknown> };
 }
 
-/** Unit vector from the Earth towards the sun (world space, fixed). */
-export const SUN_DIRECTION: Readonly<Vector3> = new Vector3(...SUN.dir).normalize();
+// Unit vector from the Earth towards the sun (world space, fixed).
+const SUN_DIRECTION: Readonly<Vector3> = new Vector3(...SUN.dir).normalize();
 
 // Scratch objects reused every frame.
 const cameraPosition = new Vector3();
 const lookTarget = new Vector3();
 const projected = new Vector3();
+const settledCamera = new Vector3();
+const drawingBuffer = new Vector2();
 
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
@@ -269,7 +272,7 @@ function createAtmosphere(segments: readonly [number, number]): Mesh {
   });
   const mesh = new Mesh(geometry, material);
   mesh.name = "atmosphere";
-  mesh.renderOrder = 5;
+  mesh.renderOrder = 1;
   return mesh;
 }
 
@@ -352,6 +355,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     uNightLights: { value: number };
   };
   const ownedTextures = new Set<Texture>();
+  let satellite: SatelliteRig | null = null;
 
   // Camera rig state. `sceneTime` starts when the Earth texture is ready.
   let sceneTime = 0;
@@ -391,6 +395,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
 
     // Project the globe center from the settled pose, then shift the view so it lands on the goal.
     poseCamera(Number.POSITIVE_INFINITY, false);
+    settledCamera.copy(camera.position);
     camera.near = CAMERA.near;
     camera.far = CAMERA.far;
     camera.fov = CAMERA.fovDeg;
@@ -404,8 +409,18 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     viewShift.width = width;
     viewShift.height = height;
     syncProjection();
+    frameSatellite();
     cssTarget.style.setProperty("--globe-x", `${(goal.x * 100).toFixed(2)}%`);
     cssTarget.style.setProperty("--globe-y", `${(goal.y * 100).toFixed(2)}%`);
+  }
+
+  function frameSatellite(): void {
+    const height = Math.max(1, container.clientHeight);
+    drawingBuffer.set(
+      Math.floor(Math.max(1, container.clientWidth) * pixelRatio),
+      Math.floor(height * pixelRatio),
+    );
+    satellite?.setFraming(settledCamera, height, CAMERA.fovDeg, drawingBuffer, pixelRatio);
   }
 
   // Places the camera for scene time `timeS`; `withMotion` adds parallax and drift.
@@ -480,7 +495,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
 
   function renderFrame(timestamp: number | undefined): void {
     timer.update(timestamp);
-    const dt = Math.min(timer.getDelta(), 1 / 30);
+    // Clamp both ends: the first frame after a reset can report a slightly negative delta.
+    const dt = MathUtils.clamp(timer.getDelta(), 0, 1 / 30);
     if (animate) {
       sceneTime += dt;
     } else {
@@ -500,6 +516,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     syncProjection();
     poseCamera(sceneTime, !options.reducedMotion);
     starfield.update(sceneTime);
+    satellite?.update(sceneTime, dt, camera.position);
     composer.render(dt);
     if (!readyNotified && earthUniforms.uDayMap.value !== null) {
       readyNotified = true;
@@ -598,17 +615,25 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   }
 
   async function loadSurface(): Promise<void> {
-    const [day, water] = await Promise.allSettled([
+    const [day, water, rig] = await Promise.allSettled([
       loadTexture(preset.earthTexture, renderer, signal, "color"),
       loadTexture(EARTH_WATER_TEXTURE, renderer, signal, "data"),
+      createSatellite(renderer, preset, signal),
     ]);
     if (signal.aborted) {
-      for (const result of [day, water]) {
+      for (const result of [day, water, rig]) {
         if (result.status === "fulfilled") {
           result.value.dispose();
         }
       }
       return;
+    }
+    if (rig.status === "fulfilled") {
+      satellite = rig.value;
+      heroRoot.add(...satellite.objects);
+      frameSatellite();
+    } else if (import.meta.env.DEV) {
+      console.error("[hero] Could not build the satellite.", rig.reason);
     }
     if (day.status === "fulfilled") {
       earthUniforms.uDayMap.value = adopt(day.value);
@@ -623,6 +648,16 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     }
     if (water.status === "fulfilled") {
       earthUniforms.uWaterMask.value = adopt(water.value);
+    }
+
+    // Compile every program up front, so the first pass over Colombia does not hitch.
+    try {
+      await renderer.compileAsync(scene, camera);
+    } catch {
+      // Compilation errors surface again on the first render; nothing to do here.
+    }
+    if (disposed) {
+      return;
     }
 
     started = true;
@@ -667,6 +702,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
             ((1 - projected.y) / 2) * container.clientHeight,
           ],
           baseDistance,
+          satelliteScale: satellite?.state.scale ?? null,
+          satelliteAngleDeg: satellite === null ? null : MathUtils.radToDeg(satellite.state.angle),
           exposure: renderer.toneMappingExposure,
           drawCalls: renderer.info.render.calls,
           triangles: renderer.info.render.triangles,
@@ -687,6 +724,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       timer.dispose();
 
       scene.remove(heroRoot);
+      satellite?.dispose();
       starfield.dispose();
       atmosphere.geometry.dispose();
       (atmosphere.material as ShaderMaterial).dispose();
