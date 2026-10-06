@@ -138,9 +138,10 @@ export const EARTH = {
   glintRoughness: 0.22,
   glintGain: 0.17,
   glintMax: 0.8,
-  // Night side: residual albedo light, a faint navy floor and the optional night-lights gain.
-  nightAmbient: [0.006, 0.009, 0.016],
-  nightTint: [0.0012, 0.0024, 0.0065],
+  // Night side: residual albedo light (moon- and airglow-like, enough to read the continents), a
+  // deep-navy floor and the optional night-lights gain.
+  nightAmbient: [0.04, 0.05, 0.085],
+  nightTint: [0.005, 0.01, 0.026],
   nightLightsGain: 0.9,
   // Darkens the globe away from Colombia (1 = off).
   focusVignette: 0.92,
