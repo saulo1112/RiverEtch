@@ -16,7 +16,7 @@
  * mirror CAMERA.globeCenterDesktop / globeCenterPortrait for the poster and the no-WebGL case.
  */
 .hero > * {
-  --gx: var(--globe-x, 60%);
+  --gx: var(--globe-x, 64%);
   --gy: var(--globe-y, 56%);
   /* Disc diameter, as the scene frames it (CAMERA.discFraction of the height, capped by width). */
   --d: min(72cqh, 88cqw);
@@ -25,7 +25,7 @@
 @container hero (aspect-ratio < 1) {
   .hero > * {
     --gx: var(--globe-x, 50%);
-    --gy: var(--globe-y, 50%);
+    --gy: var(--globe-y, 30%);
   }
 }
 
