@@ -167,7 +167,8 @@ void main() {
   color *= mix(uFocusVignette, 1.0, smoothstep(0.55, 0.85, dot(normal, uFocusDirection)));
   color = heroShoulder(color, uShoulder.x, uShoulder.y);
 
-  // Sun glint on water (GGX with Schlick Fresnel); allowed to exceed the bloom threshold.
+  // Sun glint on water (GGX with Schlick Fresnel). A soft cap keeps the lobe's shape (a hard clip
+  // would flatten its core) and keeps it below the bloom threshold, so it does not flare.
   vec3 halfVector = normalize(uSunDirection + viewDirection);
   float nDotH = saturate(dot(normal, halfVector));
   float alpha = uGlint.x * uGlint.x;
@@ -175,7 +176,8 @@ void main() {
   float denominator = nDotH * nDotH * (alpha2 - 1.0) + 1.0;
   float distribution = alpha2 / (PI * denominator * denominator);
   float fresnel = 0.02 + 0.98 * pow(1.0 - saturate(dot(viewDirection, halfVector)), 5.0);
-  color += uSunColor * min(distribution * fresnel * uGlint.y * water * lambert, uGlint.z);
+  float glint = distribution * fresnel * uGlint.y * water * lambert;
+  color += uSunColor * uGlint.z * (1.0 - exp(-glint / uGlint.z));
 
   gl_FragColor = vec4(heroDither(color, gl_FragCoord.xy), 1.0);
   #include <tonemapping_fragment>

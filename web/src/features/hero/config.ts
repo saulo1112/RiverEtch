@@ -133,10 +133,11 @@ export const EARTH = {
   // Strength of the sunset tint near the terminator.
   twilightTint: 0.2,
   twilightColor: "#ff9a5a",
-  // GGX roughness of the ocean sun glint, its gain and its cap (linear).
+  // GGX roughness of the ocean sun glint, its gain and its soft cap (linear). The cap stays below
+  // the bloom threshold (POST.bloom.threshold), so the glint reads as sunlight on water, not a flare.
   glintRoughness: 0.22,
-  glintGain: 0.25,
-  glintMax: 1.1,
+  glintGain: 0.17,
+  glintMax: 0.8,
   // Night side: residual albedo light, a faint navy floor and the optional night-lights gain.
   nightAmbient: [0.006, 0.009, 0.016],
   nightTint: [0.0012, 0.0024, 0.0065],
@@ -337,9 +338,9 @@ export const SCAN = {
 } as const;
 
 /**
- * Bloom (high preset). Only light sources and glints exceed the threshold: nav lights, panel and
- * ocean glints, the beam's aperture, the scan line and stroke, fresh heat and new rings. Every
- * surface material stays below it through a luminance shoulder.
+ * Bloom (high preset). Only light sources and glints exceed the threshold: nav lights, the panel
+ * glint, the beam's aperture, the scan line and stroke, fresh heat and new rings. Every surface
+ * material stays below it through a luminance shoulder, and the ocean glint through its soft cap.
  */
 export const POST = {
   bloom: { strength: 0.55, radius: 0.45, threshold: 0.92 },
