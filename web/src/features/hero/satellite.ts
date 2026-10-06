@@ -47,6 +47,7 @@ import {
   SATELLITE,
   SUN,
   TRAIL,
+  type HeroEffect,
   type QualityPreset,
   type SatelliteVariant,
 } from "./config.ts";
@@ -1089,12 +1090,15 @@ function angleDelta(from: number, to: number): number {
  * @param renderer - Renderer used for the environment map and texture limits.
  * @param preset - Quality preset.
  * @param signal - Aborts the build between texture slices (before anything touches the GPU).
+ * @param disabledEffects - Effects switched off for QA: `strobe`, `glint` (brightness only, the
+ *   arrays still move) and `bloom` (the low preset's glow sprites).
  * @returns The rig, ready to add to the scene.
  */
 export async function createSatellite(
   renderer: WebGLRenderer,
   preset: QualityPreset,
   signal?: AbortSignal,
+  disabledEffects: ReadonlySet<HeroEffect> = new Set(),
 ): Promise<SatelliteRig> {
   const anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   const textures = await createSatelliteTextures(preset, anisotropy, signal);
@@ -1127,7 +1131,7 @@ export async function createSatellite(
   const aimedLights = [key, rim, earthshine] as const;
 
   // Without bloom (low preset), additive sprites stand in for the glow of the lights and glints.
-  const glowTexture = preset.bloom ? null : createGlowTexture();
+  const glowTexture = preset.bloom || disabledEffects.has("bloom") ? null : createGlowTexture();
   const halos: Sprite[] = [];
   const addHalo = (parent: Object3D, color: Color, x: number): Sprite => {
     const halo = new Sprite(
@@ -1156,6 +1160,12 @@ export async function createSatellite(
           addHalo(array, new Color(SUN.color), Math.sign(array.position.x) * 5.5),
         );
   const { navLights: navConfig } = SATELLITE;
+  for (const light of model.navLights) {
+    if (light.name === "navLight.strobe" && disabledEffects.has("strobe")) {
+      light.visible = false;
+    }
+  }
+  const glintGain = disabledEffects.has("glint") ? 0 : 1;
   const navColors = [
     new Color(...navConfig.red),
     new Color(...navConfig.green),
@@ -1297,7 +1307,7 @@ export async function createSatellite(
     const glintSigma = MathUtils.degToRad(SATELLITE.glint.sigmaDeg);
     const glintLevel = still
       ? 0
-      : Math.exp(-((panelNormal.angleTo(halfVector) / glintSigma) ** 2)) * (1 - shadow);
+      : Math.exp(-((panelNormal.angleTo(halfVector) / glintSigma) ** 2)) * (1 - shadow) * glintGain;
     state.glint = glintLevel;
     glint.strength.value = SATELLITE.glint.peak * glintLevel;
     for (const halo of glintHalos) {

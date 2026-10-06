@@ -347,6 +347,18 @@ export const POST = {
   contextRestoreTimeoutMs: 2000,
 } as const;
 
+/** An effect that `?off=` can disable in development builds, to isolate it during QA. */
+export type HeroEffect = "rings" | "strobe" | "glint" | "oceanGlint" | "bloom" | "heat";
+
+const HERO_EFFECTS: readonly HeroEffect[] = [
+  "rings",
+  "strobe",
+  "glint",
+  "oceanGlint",
+  "bloom",
+  "heat",
+];
+
 /** URL options read once when the hero mounts. */
 export interface HeroUrlOptions {
   /** Quality preset forced by `?quality=`, or the default. */
@@ -355,13 +367,15 @@ export interface HeroUrlOptions {
   readonly lab: boolean;
   /** Frozen scene time from `?t=<seconds>` (development builds only), otherwise null. */
   readonly frozenTime: number | null;
+  /** Effects disabled by `?off=rings,strobe,…` (development builds only), otherwise empty. */
+  readonly disabledEffects: ReadonlySet<HeroEffect>;
 }
 
 /**
  * Parses the hero's URL options.
  *
  * @param search - A `location.search` string such as `"?quality=low"`.
- * @returns The quality preset, lab flag and optional frozen time.
+ * @returns The quality preset, lab flag, optional frozen time and disabled effects.
  */
 export function parseHeroUrlOptions(search: string): HeroUrlOptions {
   const params = new URLSearchParams(search);
@@ -370,10 +384,12 @@ export function parseHeroUrlOptions(search: string): HeroUrlOptions {
     qualityParam === "low" || qualityParam === "high" ? qualityParam : DEFAULT_QUALITY;
   const timeParam = params.get("t");
   const time = timeParam === null ? Number.NaN : Number(timeParam);
+  const off = import.meta.env.DEV ? (params.get("off") ?? "").split(",") : [];
 
   return {
     quality,
     lab: params.get("lab") === "satellite",
     frozenTime: import.meta.env.DEV && Number.isFinite(time) ? time : null,
+    disabledEffects: new Set(HERO_EFFECTS.filter((effect) => off.includes(effect))),
   };
 }

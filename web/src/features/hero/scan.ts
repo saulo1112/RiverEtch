@@ -24,7 +24,7 @@ import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
 
 import { COLOMBIA_DIRECTION, COLOMBIA_RINGS, latLngToVector3 } from "./colombia.ts";
-import { GEO, GLOBE_RADIUS, SCAN, type QualityPreset } from "./config.ts";
+import { GEO, GLOBE_RADIUS, SCAN, type HeroEffect, type QualityPreset } from "./config.ts";
 import {
   COLOMBIA_ORBIT_ANGLE,
   ORBIT_NODE,
@@ -203,6 +203,7 @@ uniform vec3 uCyan;
 uniform vec3 uRamp[5];
 uniform vec3 uContourColor;
 uniform float uIntensity;
+uniform float uHeat; // 0 hides the heat map (cap, glow and rivers stay)
 uniform float uCap;
 uniform float uOld;
 uniform float uFront;
@@ -236,15 +237,15 @@ void main() {
   float track = wrapPi(atan(dot(direction, uOrbitQuadrature), dot(direction, uOrbitNode)) - uColombiaAngle);
   float revealed = smoothstep(uFront + 0.004, uFront - 0.012, track) * uSweep;
   float visible = max(uOld, revealed);
-  float fresh = step(track, uFront) * exp(-(uFront - track) / 0.02) * uSweep;
+  float fresh = step(track, uFront) * exp(-(uFront - track) / 0.02) * uSweep * uHeat;
 
   vec3 ramp = heatRamp(heat);
   float bands = heat * 6.0;
   float contour = 1.0 - smoothstep(0.0, 1.5 * fwidth(bands), abs(fract(bands + 0.5) - 0.5));
   ramp = mix(ramp, uContourColor, 0.18 * contour * step(0.15, heat));
 
-  float heatAlpha = smoothstep(0.06, 0.3, heat) * (0.35 + 0.6 * heat) * visible * mask;
-  vec3 heatEmission = ramp * heat * (0.45 * fresh + 0.12 * visible) * mask;
+  float heatAlpha = smoothstep(0.06, 0.3, heat) * (0.35 + 0.6 * heat) * visible * mask * uHeat;
+  vec3 heatEmission = ramp * heat * (0.45 * fresh + 0.12 * visible) * mask * uHeat;
   float capAlpha = mask * (0.05 + 0.07 * uCap);
   vec3 glow = uCyan * edgeGlow * edgeGlow
     * (mask * (0.08 + 0.3 * uIntensity) + (1.0 - mask) * (0.04 + 0.18 * uIntensity));
@@ -406,9 +407,14 @@ function overlayMaterial(
  *
  * @param preset - Quality preset (geometry and texture sizes).
  * @param signal - Aborts the data texture generation between slices.
+ * @param disabledEffects - Effects switched off for QA: `rings` and `heat`.
  * @returns The effect, ready to add to the scene.
  */
-export async function createScan(preset: QualityPreset, signal?: AbortSignal): Promise<ScanEffect> {
+export async function createScan(
+  preset: QualityPreset,
+  signal?: AbortSignal,
+  disabledEffects: ReadonlySet<HeroEffect> = new Set(),
+): Promise<ScanEffect> {
   const data: DataTexture = await createColombiaDataTexture(
     preset.scan.data[0],
     preset.scan.data[1],
@@ -484,6 +490,7 @@ export async function createScan(preset: QualityPreset, signal?: AbortSignal): P
       uRamp: { value: SCAN.heat.ramp.map((hex) => new Color(hex)) },
       uContourColor: { value: new Color(SCAN.heat.contourColor) },
       uIntensity: { value: 0 },
+      uHeat: { value: disabledEffects.has("heat") ? 0 : 1 },
       uCap: { value: 0 },
       uOld: { value: SCAN.heat.floor },
       uFront: { value: -SCAN.heat.frontLimit },
@@ -529,6 +536,7 @@ export async function createScan(preset: QualityPreset, signal?: AbortSignal): P
   rings.name = "scanRings";
   rings.renderOrder = 5;
   rings.frustumCulled = false;
+  rings.visible = !disabledEffects.has("rings");
 
   const beamUniforms = beamMaterial.uniforms as {
     uIntensity: Uniform<number>;

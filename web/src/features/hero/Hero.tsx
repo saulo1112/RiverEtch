@@ -55,7 +55,7 @@ export function Hero() {
   const stageRef = useRef<HTMLDivElement>(null);
   const [environment] = useState(detectEnvironment);
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotion);
-  const { quality, frozenTime, lab } = environment.url;
+  const { quality, frozenTime, lab, disabledEffects } = environment.url;
   // "Ready" belongs to one mount: a re-mount (e.g. a reduced-motion change) shows the poster again
   // until the new scene has rendered.
   const mountKey = `${quality}|${String(frozenTime)}|${String(reducedMotion)}|${String(lab)}`;
@@ -98,6 +98,7 @@ export function Hero() {
               quality,
               reducedMotion,
               frozenTime,
+              disabledEffects,
               cssTarget: section,
               onReady,
               onError: fail,
@@ -115,7 +116,7 @@ export function Hero() {
       dispose?.();
       dispose = null;
     };
-  }, [environment.webgl2, quality, frozenTime, reducedMotion, lab]);
+  }, [environment.webgl2, quality, frozenTime, reducedMotion, lab, disabledEffects]);
 
   return (
     <section
