@@ -118,11 +118,15 @@ varying vec3 vNormalView;
 varying vec3 vViewDirection;
 
 void main() {
+  // MSAA shades a partly covered pixel at its centre, which can lie well outside the cone's thin
+  // triangles near the apex. There vAlong is extrapolated far below 0 and the hot spot's exp()
+  // overflows to +Inf; the bloom then spreads that one pixel over the frame as a flash. Clamp it.
+  float along = clamp(vAlong, 0.0, 1.0);
   float facing = pow(abs(dot(normalize(vNormalView), normalize(vViewDirection))), 1.3);
-  float body = mix(1.0, 0.35, smoothstep(0.0, 0.6, vAlong)) + 0.35 * smoothstep(0.82, 1.0, vAlong);
-  float wave = 0.5 + 0.5 * sin(6.2831853 * (vAlong * uLength / uShape.z + uTime * uShape.w));
+  float body = mix(1.0, 0.35, smoothstep(0.0, 0.6, along)) + 0.35 * smoothstep(0.82, 1.0, along);
+  float wave = 0.5 + 0.5 * sin(6.2831853 * (along * uLength / uShape.z + uTime * uShape.w));
   float stripe = 0.68 + 0.32 * smoothstep(0.55, 1.0, wave);
-  float hot = uShape.y * exp(-vAlong * uLength / 0.9);
+  float hot = uShape.y * exp(-along * uLength / 0.9);
   vec3 color = uColor * (uShape.x * body * stripe * facing + hot) * uIntensity;
   gl_FragColor = vec4(color, max(color.r, max(color.g, color.b)));
   #include <tonemapping_fragment>
