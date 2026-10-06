@@ -31,6 +31,7 @@ import {
   TorusGeometry,
   Vector2,
   Vector3,
+  Vector4,
   type Material,
   type Texture,
   type WebGLRenderer,
@@ -323,12 +324,42 @@ const SHOULDER_CACHE_KEY = "hero-satellite-shoulder";
 const GLINT_CACHE_KEY = "hero-satellite-panel-glint";
 
 interface GlintUniforms {
+  /** Peak brightness, already scaled by the eclipse (0 when off). */
   readonly strength: { value: number };
   readonly color: { value: Color };
+  /** Angle from the reflection lobe at the untwisted station: about the wing axis, along the span. */
+  readonly error: { value: Vector2 };
+  /** Lobe width (rad), twist (rad per unit of span), untwisted station, cell tilt gain. */
+  readonly shape: { value: Vector4 };
 }
 
+// Span of the cell-covered panels along each wing's array axis (model units), from buildWing.
+const PANEL_ROOT = 1.4;
+const PANEL_TIP = 9.61;
+
+const GLINT_VERTEX = /* glsl */ `
+#include <begin_vertex>
+vHeroSpan = abs(position.x);`;
+
+// The emissive map is non-zero on the cells only, so frames and busbars stay dark. Each cell's own
+// tilt (normal map) and a slight twist along the span make the reflection reach each cell and each
+// station a moment apart: the gleam travels along the wing as a band instead of lighting the plate.
+const GLINT_FRAGMENT = /* glsl */ `
+#ifdef USE_EMISSIVEMAP
+  float heroCellMask = step(0.002, dot(texture2D(emissiveMap, vEmissiveMapUv).rgb, vec3(0.3333)));
+  #ifdef USE_NORMALMAP
+    vec2 heroTilt = (texture2D(normalMap, vNormalMapUv).xy * 2.0 - 1.0) * heroGlintShape.w;
+  #else
+    vec2 heroTilt = vec2(0.0);
+  #endif
+  float heroAlong = heroGlintError.x + heroGlintShape.y * (vHeroSpan - heroGlintShape.z) + heroTilt.y;
+  float heroAcross = heroGlintError.y + heroTilt.x;
+  float heroLobe = exp(-(heroAlong * heroAlong + heroAcross * heroAcross) / (heroGlintShape.x * heroGlintShape.x));
+  outgoingLight += heroGlintColor * heroGlint * heroLobe * heroCellMask;
+#endif`;
+
 // Soft luminance clamp before the opaque output, so the body never feeds the bloom pass. With
-// `glint`, the solar cells add the sun's reflection after the clamp, so the glint can bloom.
+// `glint`, the solar cells add the sun's reflection after the clamp.
 function withShoulder<T extends Material>(material: T, glint?: GlintUniforms): T {
   const knee = SATELLITE.shoulderKnee.toFixed(3);
   const max = SATELLITE.shoulderMax.toFixed(3);
@@ -338,19 +369,28 @@ function withShoulder<T extends Material>(material: T, glint?: GlintUniforms): T
     if (glint !== undefined) {
       shader.uniforms.heroGlint = glint.strength;
       shader.uniforms.heroGlintColor = glint.color;
-      header += "\nuniform float heroGlint;\nuniform vec3 heroGlintColor;";
-      // The emissive map is non-zero on the cells only, so frames and busbars do not flash.
-      output += `
-#ifdef USE_EMISSIVEMAP
-  float heroCellMask = step(0.002, dot(texture2D(emissiveMap, vEmissiveMapUv).rgb, vec3(0.3333)));
-  outgoingLight += heroGlintColor * heroGlint * heroCellMask;
-#endif`;
+      shader.uniforms.heroGlintError = glint.error;
+      shader.uniforms.heroGlintShape = glint.shape;
+      header += `
+uniform float heroGlint;
+uniform vec3 heroGlintColor;
+uniform vec2 heroGlintError;
+uniform vec4 heroGlintShape;
+varying float vHeroSpan;`;
+      output += GLINT_FRAGMENT;
+      shader.vertexShader = shader.vertexShader
+        .replace("#include <common>", "#include <common>\nvarying float vHeroSpan;")
+        .replace("#include <begin_vertex>", GLINT_VERTEX);
     }
     const patched = shader.fragmentShader
       .replace("#include <common>", header)
       .replace("#include <opaque_fragment>", `${output}\n#include <opaque_fragment>`);
-    if (import.meta.env.DEV && !patched.includes("heroShoulder(outgoingLight")) {
-      console.error("[hero] Satellite shoulder injection failed; three's shader chunks changed.");
+    if (
+      import.meta.env.DEV &&
+      (!patched.includes("heroShoulder(outgoingLight") ||
+        (glint !== undefined && !shader.vertexShader.includes("vHeroSpan = ")))
+    ) {
+      console.error("[hero] Satellite shader injection failed; three's shader chunks changed.");
     }
     shader.fragmentShader = patched;
   };
@@ -482,15 +522,19 @@ function createMaterials(
         metalness: 1,
         roughnessMap: textures.cells.orm,
         metalnessMap: textures.cells.orm,
-        clearcoat: 1,
-        clearcoatRoughness: 0.06,
+        // The sun's mirror reflection on the cover glass is the glint band (GLINT_FRAGMENT). The
+        // physical layers keep a soft sheen only: as mirrors, a flat panel lit by a directional
+        // sun and the room's light boxes turns into one white plate for as long as it faces them.
+        specularIntensity: 0.15,
+        clearcoat: 0.15,
+        clearcoatRoughness: 0.4,
         // Thin anti-reflective film: a faint blue sheen rather than a rainbow.
         iridescence: preset.iridescence ? 0.35 : 0,
         iridescenceIOR: 1.3,
         iridescenceThicknessRange: [100, 110],
       }),
       // Space is black: keep the room's reflection faint so the cells stay deep blue.
-      0.1,
+      0.04,
       glint,
     ),
     panelBack: pbr(
@@ -1015,7 +1059,9 @@ const yaw = new Quaternion();
 const toCamera = new Vector3();
 const reference = new Vector3();
 const halfVector = new Vector3();
-const panelNormal = new Vector3();
+const arrayAttitude = new Quaternion();
+const arrayRotation = new Quaternion();
+const arrayEuler = new Euler();
 const dishTarget = new Vector3();
 const inverseAttitude = new Quaternion();
 
@@ -1106,9 +1152,19 @@ export async function createSatellite(
   signal?.throwIfAborted();
 
   let environment = renderEnvironment(renderer);
+  const { glint: glintConfig } = SATELLITE;
   const glint: GlintUniforms = {
     strength: { value: 0 },
     color: { value: new Color(SUN.color) },
+    error: { value: new Vector2(Math.PI, 0) },
+    shape: {
+      value: new Vector4(
+        MathUtils.degToRad(glintConfig.sigmaDeg),
+        MathUtils.degToRad(glintConfig.twistDeg) / (PANEL_TIP - PANEL_ROOT),
+        (PANEL_ROOT + PANEL_TIP) / 2,
+        glintConfig.cellTilt,
+      ),
+    },
   };
   const materials = createMaterials(textures, environment.texture, preset, glint);
   const model = MODEL_BUILDERS[SATELLITE.variant](materials);
@@ -1159,6 +1215,7 @@ export async function createSatellite(
       : model.wingArrays.map((array) =>
           addHalo(array, new Color(SUN.color), Math.sign(array.position.x) * 5.5),
         );
+  const twistPerUnit = glint.shape.value.y;
   const { navLights: navConfig } = SATELLITE;
   for (const light of model.navLights) {
     if (light.name === "navLight.strobe" && disabledEffects.has("strobe")) {
@@ -1246,9 +1303,11 @@ export async function createSatellite(
     inverseAttitude.copy(state.attitude).invert();
     const sunLocal = reference.copy(sunDirection).applyQuaternion(inverseAttitude);
     const sunTrack = Math.atan2(sunLocal.z, sunLocal.y);
-    const fromGlint = angleDelta(glintAngle, angle) / MathUtils.degToRad(SATELLITE.glint.windowDeg);
+    const fromGlint = angleDelta(glintAngle, angle) / MathUtils.degToRad(glintConfig.windowDeg);
     const feather = Math.abs(fromGlint) < 1 ? 0.5 * (1 + Math.cos(Math.PI * fromGlint)) : 0;
-    const arrayTarget = sunTrack + glintOffset * feather;
+    // The arrays sweep through the glint attitude instead of dwelling on it, so the gleam is brief.
+    const sweep = MathUtils.degToRad(glintConfig.sweepDeg) * fromGlint;
+    const arrayTarget = sunTrack + (glintOffset + sweep) * feather;
 
     // Dish: track Colombia while it is above the horizon, otherwise stow.
     let azimuthTarget = 0;
@@ -1295,23 +1354,36 @@ export async function createSatellite(
     }
     key.intensity = lightConfig.key * (1 - shadow);
 
-    // Glint strength from the angle between the panel normal and the sun/camera half vector.
-    panelNormal
-      .set(
-        -Math.sin(cant),
-        Math.cos(cant) * Math.cos(array.angle),
-        Math.cos(cant) * Math.sin(array.angle),
-      )
-      .applyQuaternion(state.attitude);
-    halfVector.subVectors(cameraPosition, state.position).normalize().add(sunDirection).normalize();
-    const glintSigma = MathUtils.degToRad(SATELLITE.glint.sigmaDeg);
-    const glintLevel = still
-      ? 0
-      : Math.exp(-((panelNormal.angleTo(halfVector) / glintSigma) ** 2)) * (1 - shadow) * glintGain;
+    // Glint: the sun/camera half vector in the array's frame, where the cells face +Y. Its angles
+    // about the wing axis and along the span drive the lobe in the cells' shader.
+    arrayAttitude
+      .copy(state.attitude)
+      .multiply(arrayRotation.setFromEuler(arrayEuler.set(array.angle, 0, cant)))
+      .invert();
+    halfVector
+      .subVectors(cameraPosition, state.position)
+      .normalize()
+      .add(sunDirection)
+      .normalize()
+      .applyQuaternion(arrayAttitude);
+    const errorAlong = Math.atan2(halfVector.z, halfVector.y);
+    const errorAcross = Math.asin(MathUtils.clamp(halfVector.x, -1, 1));
+    const visibleGlint = still ? 0 : (1 - shadow) * glintGain;
+    const glintSigma = glint.shape.value.x;
+    const glintLevel =
+      Math.exp(-(errorAlong ** 2 + errorAcross ** 2) / glintSigma ** 2) * visibleGlint;
     state.glint = glintLevel;
-    glint.strength.value = SATELLITE.glint.peak * glintLevel;
+    glint.strength.value = glintConfig.peak * visibleGlint;
+    glint.error.value.set(errorAlong, errorAcross);
+    // The low preset's halo sits on the band and stays small.
+    const station = MathUtils.clamp(
+      glint.shape.value.z - errorAlong / twistPerUnit,
+      PANEL_ROOT,
+      PANEL_TIP,
+    );
     for (const halo of glintHalos) {
-      halo.scale.setScalar(5 * glintLevel);
+      halo.position.x = Math.sign(halo.position.x) * station;
+      halo.scale.setScalar(glintConfig.haloScale * glintLevel);
     }
 
     // Nav lights: red and green Gaussian pulses, a double-flash strobe.

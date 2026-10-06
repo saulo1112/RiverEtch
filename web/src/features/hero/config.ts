@@ -230,14 +230,23 @@ export const SATELLITE = {
   // Solar-array drive: critically damped spring (rad/s) with a rate limit.
   sada: { omega: 4, maxDegPerS: 12 },
   // Panel glint, solved once per orbit: where on the orbit it happens (relative to Colombia), the
-  // largest cant and array offset used to aim it, the feather window, its angular width and peak.
+  // largest cant and array offset used to aim it, and the feather window. The arrays sweep through
+  // the glint attitude by ±sweepDeg over that window, so the gleam is brief. The reflection lobe
+  // is sigmaDeg wide; a twist of twistDeg from root to tip and each cell's tilt (cellTilt times the
+  // normal map) make it travel along the wing as a band. `peak` is its linear brightness, kept
+  // below the bloom threshold so the cells never clip to white; haloScale sizes the low preset's
+  // sprite.
   glint: {
     orbitOffsetDeg: 30,
     cantMaxDeg: 22,
     offsetMaxDeg: 35,
     windowDeg: 20,
-    sigmaDeg: 3,
-    peak: 1.5,
+    sweepDeg: 24,
+    sigmaDeg: 1.2,
+    twistDeg: 8,
+    cellTilt: 1,
+    peak: 0.8,
+    haloScale: 2,
   },
   // Dish tracks Colombia while it is above the horizon, otherwise it stows.
   dish: { omega: 1.6, maxDegPerS: 12, maxElevationDeg: 75 },

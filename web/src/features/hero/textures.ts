@@ -552,8 +552,8 @@ export function createCellTextures(
       );
       normal.fillStyle = `rgb(${tiltX},${tiltY},255)`;
       normal.fill(path);
-      // Glassy cells: a tight glint instead of a broad sheen.
-      orm.fillStyle = `rgb(255,${Math.round(0.08 * 255)},0)`;
+      // Cover glass: a broad, faint sheen. The sun's mirror glint is drawn separately as a band.
+      orm.fillStyle = `rgb(255,${Math.round(0.5 * 255)},0)`;
       orm.fill(path);
 
       // Fine fingers across the cell, then two busbars along it.
