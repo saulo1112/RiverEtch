@@ -1,11 +1,5 @@
 :root {
-  color-scheme: light dark;
-  --bg: #f8fafc;
-  --surface: #ffffff;
-  --text: #0f172a;
-  --muted: #475569;
-  --accent: #0e7490;
-  --border: #e2e8f0;
+  color-scheme: dark;
   font-family:
     system-ui,
     -apple-system,
@@ -13,88 +7,15 @@
     Roboto,
     sans-serif;
   line-height: 1.5;
-  color: var(--text);
-  background: var(--bg);
+  background: #02040a;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b1220;
-    --surface: #111a2e;
-    --text: #e2e8f0;
-    --muted: #94a3b8;
-    --accent: #22d3ee;
-    --border: #1e293b;
-  }
-}
-
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
 body {
   margin: 0;
-}
-
-.app {
-  max-width: 64rem;
-  margin: 0 auto;
-  padding: 2rem 1.5rem;
-}
-
-.app-header {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-}
-
-.app-header h1 {
-  margin: 0;
-  font-size: 1.75rem;
-}
-
-.tagline {
-  margin: 0.25rem 0 0;
-  color: var(--muted);
-}
-
-.layers {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
-  gap: 1rem;
-}
-
-.layer-card {
-  padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  background: var(--surface);
-}
-
-.layer-card h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.1rem;
-}
-
-.layer-card p {
-  margin: 0 0 1rem;
-  color: var(--muted);
-}
-
-.badge {
-  display: inline-block;
-  padding: 0.15rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  color: var(--accent);
-  border: 1px solid var(--accent);
-}
-
-.app-footer {
-  margin-top: 2rem;
-  color: var(--muted);
-  font-size: 0.85rem;
 }
