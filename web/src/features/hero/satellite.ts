@@ -26,6 +26,8 @@ import {
   Quaternion,
   ShaderMaterial,
   SphereGeometry,
+  Sprite,
+  SpriteMaterial,
   TorusGeometry,
   Vector2,
   Vector3,
@@ -37,11 +39,13 @@ import {
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
+import { COLOMBIA_DIRECTION, COLOMBIA_SURFACE_POINT } from "./colombia.ts";
 import { GEO, GLOBE_RADIUS, ORBIT, SATELLITE, SUN, TRAIL, type QualityPreset } from "./config.ts";
 import { SHOULDER_GLSL } from "./shaders.ts";
 import {
   createCellTextures,
   createFoilTextures,
+  createGlowTexture,
   createOsrTextures,
   mulberry32,
   yieldToBrowser,
@@ -250,8 +254,11 @@ function strut(from: Vector3, to: Vector3, radius: number, segments = 8): Buffer
   return geometry;
 }
 
-// MLI blankets bulge between their taped edges: offset each face along its normal by
-// a·(1 − u⁴)(1 − v⁴) and tilt the normals by the analytic gradient.
+// MLI blankets bulge between their taped edges: each face is offset along its normal by
+// a·(1 − u⁴)(1 − v⁴). The zenith face carries the flat radiator, so it barely bulges, and the
+// blankets lie flat under the solar-array drives (±X) and the launch adapter (−Z). UVs are planar
+// per face (4 units per foil tile) with a random offset, so faces neither share nor stretch the
+// crease pattern.
 function createPillowedBox(
   width: number,
   height: number,
@@ -261,8 +268,12 @@ function createPillowedBox(
   const geometry = new BoxGeometry(width, height, depth, 10, 9, 13);
   const positions = geometry.getAttribute("position");
   const normals = geometry.getAttribute("normal");
+  const uvs = geometry.getAttribute("uv");
   const half = [width / 2, height / 2, depth / 2];
-  const amplitudes = Array.from({ length: 6 }, () => 0.04 + 0.02 * random());
+  const amplitudes = Array.from({ length: 6 }, (_, face) =>
+    face === 2 ? 0.015 : 0.09 + 0.04 * random(),
+  );
+  const offsets = Array.from({ length: 6 }, () => [random(), random()] as const);
   const position = new Vector3();
   const normal = new Vector3();
   for (let i = 0; i < positions.count; i += 1) {
@@ -271,20 +282,27 @@ function createPillowedBox(
     const axis = Math.abs(normal.x) > 0.5 ? 0 : Math.abs(normal.y) > 0.5 ? 1 : 2;
     const tangentAxes = [0, 1, 2].filter((a) => a !== axis);
     const [a1 = 0, a2 = 1] = tangentAxes;
-    const h1 = half[a1] ?? 1;
-    const h2 = half[a2] ?? 1;
-    const u = position.getComponent(a1) / h1;
-    const v = position.getComponent(a2) / h2;
+    const c1 = position.getComponent(a1);
+    const c2 = position.getComponent(a2);
+    const u = c1 / (half[a1] ?? 1);
+    const v = c2 / (half[a2] ?? 1);
     const faceIndex = axis * 2 + (normal.getComponent(axis) > 0 ? 0 : 1);
-    const amplitude = amplitudes[faceIndex] ?? 0.05;
-    const bulge = amplitude * (1 - u ** 4) * (1 - v ** 4);
+    const [offsetU = 0, offsetV = 0] = offsets[faceIndex] ?? [];
+    // Flat pads under the mounts.
+    const radius = Math.hypot(c1, c2);
+    const pad =
+      faceIndex <= 1
+        ? MathUtils.smoothstep(radius, 0.4, 0.9)
+        : faceIndex === 5
+          ? MathUtils.smoothstep(radius, 1.15, 1.6)
+          : 1;
+    const bulge = (amplitudes[faceIndex] ?? 0.05) * (1 - u ** 4) * (1 - v ** 4) * pad;
     position.addScaledVector(normal, bulge);
-    const slope1 = ((amplitude * -4 * u ** 3) / h1) * (1 - v ** 4);
-    const slope2 = ((amplitude * -4 * v ** 3) / h2) * (1 - u ** 4);
-    normal.setComponent(a1, -slope1).setComponent(a2, -slope2).normalize();
     positions.setXYZ(i, position.x, position.y, position.z);
-    normals.setXYZ(i, normal.x, normal.y, normal.z);
+    uvs.setXY(i, c1 / 4 + offsetU, c2 / 4 + offsetV);
   }
+  // Faces do not share vertices, so this smooths within each blanket and keeps the edges crisp.
+  geometry.computeVertexNormals();
   return geometry;
 }
 
@@ -292,25 +310,42 @@ function createPillowedBox(
 // Materials.
 
 const SHOULDER_CACHE_KEY = "hero-satellite-shoulder";
+const GLINT_CACHE_KEY = "hero-satellite-panel-glint";
 
-// Soft luminance clamp before the opaque output, so the body never feeds the bloom pass.
-function withShoulder<T extends Material>(material: T): T {
+interface GlintUniforms {
+  readonly strength: { value: number };
+  readonly color: { value: Color };
+}
+
+// Soft luminance clamp before the opaque output, so the body never feeds the bloom pass. With
+// `glint`, the solar cells add the sun's reflection after the clamp, so the glint can bloom.
+function withShoulder<T extends Material>(material: T, glint?: GlintUniforms): T {
   const knee = SATELLITE.shoulderKnee.toFixed(3);
   const max = SATELLITE.shoulderMax.toFixed(3);
   material.onBeforeCompile = (shader) => {
-    const source = shader.fragmentShader;
-    const patched = source
-      .replace("#include <common>", `#include <common>\n${SHOULDER_GLSL}`)
-      .replace(
-        "#include <opaque_fragment>",
-        `outgoingLight = heroShoulder(outgoingLight, ${knee}, ${max});\n#include <opaque_fragment>`,
-      );
+    let header = `#include <common>\n${SHOULDER_GLSL}`;
+    let output = `outgoingLight = heroShoulder(outgoingLight, ${knee}, ${max});`;
+    if (glint !== undefined) {
+      shader.uniforms.heroGlint = glint.strength;
+      shader.uniforms.heroGlintColor = glint.color;
+      header += "\nuniform float heroGlint;\nuniform vec3 heroGlintColor;";
+      // The emissive map is non-zero on the cells only, so frames and busbars do not flash.
+      output += `
+#ifdef USE_EMISSIVEMAP
+  float heroCellMask = step(0.002, dot(texture2D(emissiveMap, vEmissiveMapUv).rgb, vec3(0.3333)));
+  outgoingLight += heroGlintColor * heroGlint * heroCellMask;
+#endif`;
+    }
+    const patched = shader.fragmentShader
+      .replace("#include <common>", header)
+      .replace("#include <opaque_fragment>", `${output}\n#include <opaque_fragment>`);
     if (import.meta.env.DEV && !patched.includes("heroShoulder(outgoingLight")) {
       console.error("[hero] Satellite shoulder injection failed; three's shader chunks changed.");
     }
     shader.fragmentShader = patched;
   };
-  material.customProgramCacheKey = () => SHOULDER_CACHE_KEY;
+  material.customProgramCacheKey = () =>
+    glint === undefined ? SHOULDER_CACHE_KEY : GLINT_CACHE_KEY;
   return material;
 }
 
@@ -375,20 +410,25 @@ function createMaterials(
   textures: SatelliteTextures,
   environment: Texture,
   preset: QualityPreset,
+  glint: GlintUniforms,
 ): SatelliteMaterials {
   const { colors } = SATELLITE;
   // Rotate the room so its brightest panels sit towards the sun.
   const environmentRotation = new Euler().setFromQuaternion(
     new Quaternion().setFromUnitVectors(UP, new Vector3(...SUN.dir).normalize()),
   );
-  const pbr = <T extends MeshStandardMaterial>(material: T, envIntensity: number): T => {
+  const pbr = <T extends MeshStandardMaterial>(
+    material: T,
+    envIntensity: number,
+    glintHook?: GlintUniforms,
+  ): T => {
     material.envMap = environment;
     material.envMapIntensity = envIntensity;
     material.envMapRotation.copy(environmentRotation);
-    return withShoulder(material);
+    return withShoulder(material, glintHook);
   };
 
-  const foil = (color: string, maps: SatelliteTextures["silverFoil"]) =>
+  const foil = (color: string, maps: SatelliteTextures["silverFoil"], normalScale: number) =>
     pbr(
       new MeshPhysicalMaterial({
         color,
@@ -399,14 +439,14 @@ function createMaterials(
         aoMap: maps.orm,
         aoMapIntensity: 0.6,
         normalMap: maps.normal,
-        normalScale: new Vector2(0.85, 0.85),
+        normalScale: new Vector2(normalScale, normalScale),
       }),
       0.55,
     );
 
   return {
-    gold: foil(colors.gold, textures.foil),
-    silver: foil(colors.silver, textures.silverFoil),
+    gold: foil(colors.gold, textures.foil, 0.85),
+    silver: foil(colors.silver, textures.silverFoil, 0.45),
     osr: pbr(
       new MeshPhysicalMaterial({
         color: colors.osr,
@@ -418,7 +458,7 @@ function createMaterials(
         clearcoat: 1,
         clearcoatRoughness: 0.03,
       }),
-      0.9,
+      0.6,
     ),
     cells: pbr(
       new MeshPhysicalMaterial({
@@ -434,12 +474,14 @@ function createMaterials(
         metalnessMap: textures.cells.orm,
         clearcoat: 1,
         clearcoatRoughness: 0.06,
+        // Thin anti-reflective film: a faint blue sheen rather than a rainbow.
         iridescence: preset.iridescence ? 0.35 : 0,
-        iridescenceIOR: 2,
-        iridescenceThicknessRange: [90, 140],
+        iridescenceIOR: 1.3,
+        iridescenceThicknessRange: [100, 110],
       }),
       // Space is black: keep the room's reflection faint so the cells stay deep blue.
       0.1,
+      glint,
     ),
     panelBack: pbr(
       new MeshStandardMaterial({ color: colors.panelBack, roughness: 0.45, metalness: 0.15 }),
@@ -451,7 +493,7 @@ function createMaterials(
     ),
     frame: pbr(
       new MeshStandardMaterial({ color: colors.frame, roughness: 0.3, metalness: 1 }),
-      0.8,
+      0.5,
     ),
     titanium: pbr(
       new MeshStandardMaterial({ color: colors.titanium, roughness: 0.38, metalness: 1 }),
@@ -490,6 +532,7 @@ interface SatelliteModel {
   readonly root: Group;
   readonly wingArrays: readonly Group[];
   readonly beamAnchor: Object3D;
+  readonly dishMount: Group;
   readonly dishAzimuth: Group;
   readonly dishElevation: Group;
   readonly navLights: readonly Mesh[];
@@ -509,9 +552,9 @@ function buildBus(materials: SatelliteMaterials): { bus: Group; beamAnchor: Obje
   parts.add("silver", new BoxGeometry(2.6, 1.3, 3.0, 4, 2, 4), compose(new Vector3(0, -2.45, 0.5)));
   parts.add("aperture", new BoxGeometry(1.8, 0.06, 0.55), compose(new Vector3(0, -3.11, 0.9)));
 
-  // Radiator mirror on the zenith face.
-  const radiator = new PlaneGeometry(3.4, 3.0);
-  parts.add("osr", radiator, compose(new Vector3(0, 1.87, -0.8), new Euler(-Math.PI / 2, 0, 0)));
+  // Radiator mirror on the zenith face, clear of the star trackers and the GPS patch.
+  const radiator = new PlaneGeometry(3.0, 1.6);
+  parts.add("osr", radiator, compose(new Vector3(0, 1.83, -0.6), new Euler(-Math.PI / 2, 0, 0)));
 
   // Two star trackers, canted out and aft: body, open baffle and lens.
   for (const side of [-1, 1]) {
@@ -533,7 +576,7 @@ function buildBus(materials: SatelliteMaterials): { bus: Group; beamAnchor: Obje
   parts.add(
     "paint",
     new CylinderGeometry(0.24, 0.24, 0.06, 20),
-    compose(new Vector3(1.1, 1.9, 1.6)),
+    compose(new Vector3(1.1, 1.84, 1.6)),
   );
 
   // Four thruster bells on the aft face.
@@ -574,7 +617,8 @@ function buildWing(
   direction: 1 | -1,
   materials: SatelliteMaterials,
 ): { wing: Group; array: Group; navLight: Mesh } {
-  const name = direction === 1 ? "wingR" : "wingL";
+  // Facing the direction of flight (+Z) with zenith up (+Y), +X is port (left).
+  const name = direction === 1 ? "wingL" : "wingR";
   const wing = new Group();
   wing.name = name;
   wing.position.set(2.0 * direction, 0, 0);
@@ -638,12 +682,12 @@ function buildWing(
   }
   array.add(parts.build(`${name}.panels`, materials));
 
-  // Navigation light at the wingtip: red on the left wing, green on the right.
+  // Navigation light at the wingtip: red on port (+X), green on starboard (−X).
   const navLight = new Mesh(
     new SphereGeometry(0.08, 12, 8),
-    new MeshBasicMaterial({ color: direction === 1 ? 0x34ff8a : 0xff3b30 }),
+    new MeshBasicMaterial({ color: direction === 1 ? 0xff3b30 : 0x34ff8a }),
   );
-  navLight.name = direction === 1 ? "navLight.green" : "navLight.red";
+  navLight.name = direction === 1 ? "navLight.red" : "navLight.green";
   navLight.position.set(9.66 * direction, 0.03, 1.2);
   array.add(navLight);
 
@@ -652,6 +696,7 @@ function buildWing(
 
 function buildDish(materials: SatelliteMaterials): {
   dish: Group;
+  mount: Group;
   azimuth: Group;
   elevation: Group;
 } {
@@ -661,11 +706,11 @@ function buildDish(materials: SatelliteMaterials): {
 
   // Boom at 45° between nadir and ram.
   const boomAxis = new Vector3(0, -1, 1).normalize();
-  const boomLength = 1.1;
+  const boomLength = 0.75;
   const boom = createPartList();
   boom.add(
-    "cfrp",
-    strut(new Vector3(0, 0, 0), boomAxis.clone().multiplyScalar(boomLength), 0.07, 10),
+    "titanium",
+    strut(new Vector3(0, 0, 0), boomAxis.clone().multiplyScalar(boomLength), 0.14, 10),
   );
   dish.add(boom.build("dish.boom", materials));
 
@@ -683,8 +728,13 @@ function buildDish(materials: SatelliteMaterials): {
   azimuth.add(elevation);
 
   const parts = createPartList();
-  parts.add("titanium", new CylinderGeometry(0.12, 0.12, 0.18, 12));
-  // Parabolic reflector y = r²/3.52 (focal length 0.88), white front and gold back.
+  // Gimbal hub, reaching up into the reflector's back.
+  parts.add(
+    "titanium",
+    new CylinderGeometry(0.14, 0.14, 0.23, 12),
+    compose(new Vector3(0, 0.025, 0)),
+  );
+  // Parabolic reflector y = r²/3.52 (focal length 0.88), painted white on both sides.
   const focal = 0.88;
   const profile: Vector2[] = [];
   for (let i = 0; i <= 12; i += 1) {
@@ -696,7 +746,7 @@ function buildDish(materials: SatelliteMaterials): {
     profile.map((point) => new Vector2(point.x, point.y - 0.02)),
     48,
   );
-  parts.add("gold", back);
+  parts.add("paint", back);
   const rimY = (1.1 * 1.1) / (4 * focal) + 0.15;
   parts.add(
     "frame",
@@ -719,7 +769,7 @@ function buildDish(materials: SatelliteMaterials): {
   );
   elevation.add(parts.build("dish.reflector", materials));
 
-  return { dish, azimuth, elevation };
+  return { dish, mount, azimuth, elevation };
 }
 
 function buildModel(materials: SatelliteMaterials): SatelliteModel {
@@ -728,9 +778,9 @@ function buildModel(materials: SatelliteMaterials): SatelliteModel {
   root.matrixAutoUpdate = false;
 
   const { bus, beamAnchor } = buildBus(materials);
-  const left = buildWing(-1, materials);
-  const right = buildWing(1, materials);
-  const { dish, azimuth, elevation } = buildDish(materials);
+  const left = buildWing(1, materials);
+  const right = buildWing(-1, materials);
+  const { dish, mount, azimuth, elevation } = buildDish(materials);
 
   const strobe = new Mesh(
     new SphereGeometry(0.08, 12, 8),
@@ -745,6 +795,7 @@ function buildModel(materials: SatelliteMaterials): SatelliteModel {
     root,
     wingArrays: [left.array, right.array],
     beamAnchor,
+    dishMount: mount,
     dishAzimuth: azimuth,
     dishElevation: elevation,
     navLights: [left.navLight, right.navLight, strobe],
@@ -769,10 +820,15 @@ varying float vTrail;
 varying float vEdge;
 varying float vHalfWidth;
 varying float vNear;
+varying float vClear;
 
 void main() {
   float behind = mod(uAngle - aAngle + 6.2831853, 6.2831853);
-  vTrail = exp(-behind / uTrailShape.x) * step(uTrailShape.y, behind) * step(behind, uTrailShape.z);
+  // The trail fades in behind the satellite and the ring stays clear of its body.
+  vTrail = exp(-behind / uTrailShape.x)
+    * smoothstep(uTrailShape.y, 2.0 * uTrailShape.y, behind)
+    * step(behind, uTrailShape.z);
+  vClear = smoothstep(0.03, 0.12, min(behind, 6.2831853 - behind));
 
   vec4 clip = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
   vec4 ahead = projectionMatrix * modelViewMatrix * vec4(position + aTangent, 1.0);
@@ -803,10 +859,11 @@ varying float vTrail;
 varying float vEdge;
 varying float vHalfWidth;
 varying float vNear;
+varying float vClear;
 
 void main() {
   float coverage = saturate(vHalfWidth - abs(vEdge));
-  vec3 ring = uRingColor * (uRingGain.x + uRingGain.y * vNear);
+  vec3 ring = uRingColor * (uRingGain.x + uRingGain.y * vNear) * vClear;
   vec3 color = mix(ring, uTrailColor * uTrailGain, vTrail) * coverage;
   gl_FragColor = vec4(color, max(color.r, max(color.g, color.b)));
   #include <tonemapping_fragment>
@@ -891,6 +948,8 @@ export interface SatelliteState {
   readonly aperture: Vector3;
   /** Current model scale. */
   scale: number;
+  /** Panel glint level, 0..1. */
+  glint: number;
 }
 
 /** The satellite, its lights and its orbit ribbon. */
@@ -904,9 +963,10 @@ export interface SatelliteRig {
    *
    * @param timeS - Scene time in seconds.
    * @param dt - Frame time in seconds (already clamped).
-   * @param cameraPosition - Current camera position, for the rim light.
+   * @param cameraPosition - Current camera position, for the rim light and the glint.
+   * @param still - Reduced-motion still: steady nav lights, no glint.
    */
-  readonly update: (timeS: number, dt: number, cameraPosition: Vector3) => void;
+  readonly update: (timeS: number, dt: number, cameraPosition: Vector3, still?: boolean) => void;
   /**
    * Re-derives the on-screen size after a resize.
    *
@@ -923,6 +983,8 @@ export interface SatelliteRig {
     drawingBuffer: Vector2,
     pixelRatio: number,
   ) => void;
+  /** Re-renders the environment map after the WebGL context was restored. */
+  readonly restoreAfterContextLoss: () => void;
   /** Releases geometries, materials, textures and the environment map. */
   readonly dispose: () => void;
 }
@@ -934,6 +996,69 @@ const basis = new Matrix4();
 const yaw = new Quaternion();
 const toCamera = new Vector3();
 const reference = new Vector3();
+const halfVector = new Vector3();
+const panelNormal = new Vector3();
+const dishTarget = new Vector3();
+const inverseAttitude = new Quaternion();
+
+// Critically damped spring with a rate limit, in place; `wrap` takes the shortest way round.
+interface Spring {
+  angle: number;
+  velocity: number;
+}
+
+function stepSpring(
+  spring: Spring,
+  target: number,
+  omega: number,
+  maxRate: number,
+  dt: number,
+  wrap: boolean,
+): void {
+  const error = wrap ? angleDelta(spring.angle, target) : target - spring.angle;
+  spring.velocity += (omega * omega * error - 2 * omega * spring.velocity) * dt;
+  spring.velocity = MathUtils.clamp(spring.velocity, -maxRate, maxRate);
+  spring.angle += spring.velocity * dt;
+}
+
+// Gaussian pulse every `period` seconds, `sigma` seconds wide.
+function pulse(timeS: number, period: number, sigma: number): number {
+  const phase = ((timeS % period) + period) % period;
+  const distance = Math.min(phase, period - phase);
+  return Math.exp(-0.5 * (distance / sigma) ** 2);
+}
+
+// A dark procedural room, pre-filtered for PBR reflections. Space is black: the room's walls and
+// boxes are darkened and only its light panels remain, so metal shows moving highlights over a
+// dark reflection instead of a lit studio.
+function renderEnvironment(renderer: WebGLRenderer): WebGLRenderTarget {
+  const pmrem = new PMREMGenerator(renderer);
+  const room = new RoomEnvironment();
+  room.traverse((object) => {
+    if (object instanceof Mesh && object.material instanceof MeshStandardMaterial) {
+      object.material.color.setHex(0x0b0e16);
+    }
+  });
+  try {
+    return pmrem.fromScene(room, SATELLITE.environmentBlur);
+  } finally {
+    room.dispose();
+    pmrem.dispose();
+  }
+}
+
+// Nadir-pointing attitude with yaw steering: X = orbit normal (wings), Y = zenith, Z = flight.
+function attitudeAt(
+  angle: number,
+  zenith: Vector3,
+  flight: Vector3,
+  target: Quaternion,
+): Quaternion {
+  basis.makeBasis(ORBIT_NORMAL, zenith, flight);
+  target.setFromRotationMatrix(basis);
+  yaw.setFromAxisAngle(UP, MathUtils.degToRad(ORBIT.yawSteerDeg) * Math.sin(angle));
+  return target.multiply(yaw);
+}
 
 // Shortest signed angle from `from` to `to`.
 function angleDelta(from: number, to: number): number {
@@ -959,17 +1084,12 @@ export async function createSatellite(
   // The renderer may have been disposed while the textures were generated.
   signal?.throwIfAborted();
 
-  const pmrem = new PMREMGenerator(renderer);
-  const room = new RoomEnvironment();
-  let environment: WebGLRenderTarget;
-  try {
-    environment = pmrem.fromScene(room, SATELLITE.environmentBlur);
-  } finally {
-    room.dispose();
-    pmrem.dispose();
-  }
-
-  const materials = createMaterials(textures, environment.texture, preset);
+  let environment = renderEnvironment(renderer);
+  const glint: GlintUniforms = {
+    strength: { value: 0 },
+    color: { value: new Color(SUN.color) },
+  };
+  const materials = createMaterials(textures, environment.texture, preset, glint);
   const model = buildModel(materials);
   const ribbon = createOrbitRibbon(preset.ribbonSamples);
   const ribbonUniforms = (ribbon.material as ShaderMaterial).uniforms as {
@@ -989,6 +1109,74 @@ export async function createSatellite(
   ambient.name = "satellite.ambient";
   const aimedLights = [key, rim, earthshine] as const;
 
+  // Without bloom (low preset), additive sprites stand in for the glow of the lights and glints.
+  const glowTexture = preset.bloom ? null : createGlowTexture();
+  const halos: Sprite[] = [];
+  const addHalo = (parent: Object3D, color: Color, x: number): Sprite => {
+    const halo = new Sprite(
+      new SpriteMaterial({
+        map: glowTexture,
+        color,
+        blending: AdditiveBlending,
+        depthWrite: false,
+        transparent: true,
+      }),
+    );
+    halo.position.set(x, 0.1, 0);
+    halo.scale.setScalar(0);
+    parent.add(halo);
+    halos.push(halo);
+    return halo;
+  };
+  const navHalos =
+    glowTexture === null
+      ? []
+      : model.navLights.map((light) => addHalo(light, new Color(0xffffff), 0));
+  const glintHalos =
+    glowTexture === null
+      ? []
+      : model.wingArrays.map((array) =>
+          addHalo(array, new Color(SUN.color), Math.sign(array.position.x) * 5.5),
+        );
+  const { navLights: navConfig } = SATELLITE;
+  const navColors = [
+    new Color(...navConfig.red),
+    new Color(...navConfig.green),
+    new Color(navConfig.strobe, navConfig.strobe, navConfig.strobe),
+  ];
+
+  // Panel glint: a cant and an array offset that put the sun's reflection on the camera once per
+  // orbit, while the satellite is high in the frame against black space.
+  const glintAngle = colombiaAngle + MathUtils.degToRad(SATELLITE.glint.orbitOffsetDeg);
+  let glintCant = 0;
+  let glintOffset = 0;
+  // Solved in the satellite's own frame (yaw steering included), from the settled camera.
+  const glintAttitude = new Quaternion();
+  function solveGlint(referenceCamera: Vector3): void {
+    const { cantMaxDeg, offsetMaxDeg } = SATELLITE.glint;
+    orbitDirection(glintAngle, radial);
+    orbitVelocityDirection(glintAngle, velocity);
+    attitudeAt(glintAngle, radial, velocity, glintAttitude).invert();
+    scratchPosition.copy(radial).multiplyScalar(ORBIT.radius);
+    halfVector
+      .subVectors(referenceCamera, scratchPosition)
+      .normalize()
+      .add(sunDirection)
+      .normalize()
+      .applyQuaternion(glintAttitude);
+    const sunLocal = reference.copy(sunDirection).applyQuaternion(glintAttitude);
+    const cantMax = MathUtils.degToRad(cantMaxDeg);
+    glintCant = MathUtils.clamp(
+      -Math.asin(MathUtils.clamp(halfVector.x, -1, 1)),
+      -cantMax,
+      cantMax,
+    );
+    const sunTrack = Math.atan2(sunLocal.z, sunLocal.y);
+    const halfTrack = Math.atan2(halfVector.z, halfVector.y);
+    const offsetMax = MathUtils.degToRad(offsetMaxDeg);
+    glintOffset = MathUtils.clamp(angleDelta(sunTrack, halfTrack), -offsetMax, offsetMax);
+  }
+
   const state: SatelliteState = {
     angle: 0,
     radial: new Vector3(),
@@ -996,14 +1184,21 @@ export async function createSatellite(
     attitude: new Quaternion(),
     aperture: new Vector3(),
     scale: 1,
+    glint: 0,
   };
 
-  let arrayAngle = 0;
-  let arrayVelocity = 0;
+  const array: Spring = { angle: 0, velocity: 0 };
+  const dishAzimuth: Spring = { angle: 0, velocity: 0 };
+  const dishElevation: Spring = { angle: 0, velocity: 0 };
   let initialized = false;
   const maxArrayRate = MathUtils.degToRad(SATELLITE.sada.maxDegPerS);
+  const maxDishRate = MathUtils.degToRad(SATELLITE.dish.maxDegPerS);
+  const maxDishElevation = MathUtils.degToRad(SATELLITE.dish.maxElevationDeg);
+  // Colombia is below the satellite's horizon beyond this angle from the nadir.
+  const horizonAngle = Math.acos(GLOBE_RADIUS / ORBIT.radius);
+  const inverseMount = model.dishMount.quaternion.clone().invert();
 
-  function update(timeS: number, dt: number, cameraPosition: Vector3): void {
+  function update(timeS: number, dt: number, cameraPosition: Vector3, still = false): void {
     const angle = orbitAngle(timeS);
     state.angle = angle;
     orbitDirection(angle, radial);
@@ -1011,11 +1206,7 @@ export async function createSatellite(
     state.radial.copy(radial);
     state.position.copy(radial).multiplyScalar(ORBIT.radius);
 
-    // Nadir-pointing attitude: X = orbit normal (wings), Y = zenith, Z = ram; small yaw steering.
-    basis.makeBasis(ORBIT_NORMAL, radial, velocity);
-    model.root.quaternion.setFromRotationMatrix(basis);
-    yaw.setFromAxisAngle(UP, MathUtils.degToRad(ORBIT.yawSteerDeg) * Math.sin(angle));
-    model.root.quaternion.multiply(yaw);
+    attitudeAt(angle, radial, velocity, model.root.quaternion);
     state.attitude.copy(model.root.quaternion);
     model.root.position.copy(state.position);
     model.root.scale.setScalar(state.scale);
@@ -1023,20 +1214,46 @@ export async function createSatellite(
     // Updates the anchor's ancestors (including the root) before reading its world position.
     model.beamAnchor.getWorldPosition(state.aperture);
 
-    // Solar arrays track the sun about the wing axis (critically damped, rate limited).
-    const sunTrackAngle = Math.atan2(sunDirection.dot(velocity), sunDirection.dot(radial));
-    if (!initialized) {
-      arrayAngle = sunTrackAngle;
+    // Solar arrays track the sun about the wing axis (critically damped, rate limited), feathered
+    // towards the glint attitude near the glint point.
+    inverseAttitude.copy(state.attitude).invert();
+    const sunLocal = reference.copy(sunDirection).applyQuaternion(inverseAttitude);
+    const sunTrack = Math.atan2(sunLocal.z, sunLocal.y);
+    const fromGlint = angleDelta(glintAngle, angle) / MathUtils.degToRad(SATELLITE.glint.windowDeg);
+    const feather = Math.abs(fromGlint) < 1 ? 0.5 * (1 + Math.cos(Math.PI * fromGlint)) : 0;
+    const arrayTarget = sunTrack + glintOffset * feather;
+
+    // Dish: track Colombia while it is above the horizon, otherwise stow.
+    let azimuthTarget = 0;
+    let elevationTarget = 0;
+    if (radial.angleTo(COLOMBIA_DIRECTION) < horizonAngle) {
+      dishTarget
+        .subVectors(COLOMBIA_SURFACE_POINT, state.position)
+        .normalize()
+        .applyQuaternion(inverseAttitude)
+        .applyQuaternion(inverseMount);
+      elevationTarget = Math.min(Math.acos(MathUtils.clamp(dishTarget.y, -1, 1)), maxDishElevation);
+      azimuthTarget = Math.atan2(dishTarget.x, dishTarget.z);
+    }
+
+    if (!initialized || dt === 0) {
+      array.angle = arrayTarget;
+      dishAzimuth.angle = azimuthTarget;
+      dishElevation.angle = elevationTarget;
       initialized = true;
+    } else {
+      const { sada, dish } = SATELLITE;
+      stepSpring(array, arrayTarget, sada.omega, maxArrayRate, dt, true);
+      stepSpring(dishAzimuth, azimuthTarget, dish.omega, maxDishRate, dt, true);
+      stepSpring(dishElevation, elevationTarget, dish.omega, maxDishRate, dt, false);
     }
-    const { omega } = SATELLITE.sada;
-    const error = angleDelta(arrayAngle, sunTrackAngle);
-    arrayVelocity += (omega * omega * error - 2 * omega * arrayVelocity) * dt;
-    arrayVelocity = MathUtils.clamp(arrayVelocity, -maxArrayRate, maxArrayRate);
-    arrayAngle += arrayVelocity * dt;
-    for (const array of model.wingArrays) {
-      array.rotation.x = arrayAngle;
+    // The cant also feathers in, so the panels only tilt out of plane around the glint.
+    const cant = glintCant * feather;
+    for (const wingArray of model.wingArrays) {
+      wingArray.rotation.set(array.angle, 0, cant);
     }
+    model.dishAzimuth.rotation.y = dishAzimuth.angle;
+    model.dishElevation.rotation.x = dishElevation.angle;
 
     // Eclipse: the Earth's shadow is a cylinder behind it along the sun direction.
     const alongSun = state.position.dot(sunDirection);
@@ -1050,6 +1267,50 @@ export async function createSatellite(
       shadow = 1 - MathUtils.smoothstep(offAxis, GLOBE_RADIUS - 2, GLOBE_RADIUS + 2);
     }
     key.intensity = lightConfig.key * (1 - shadow);
+
+    // Glint strength from the angle between the panel normal and the sun/camera half vector.
+    panelNormal
+      .set(
+        -Math.sin(cant),
+        Math.cos(cant) * Math.cos(array.angle),
+        Math.cos(cant) * Math.sin(array.angle),
+      )
+      .applyQuaternion(state.attitude);
+    halfVector.subVectors(cameraPosition, state.position).normalize().add(sunDirection).normalize();
+    const glintSigma = MathUtils.degToRad(SATELLITE.glint.sigmaDeg);
+    const glintLevel = still
+      ? 0
+      : Math.exp(-((panelNormal.angleTo(halfVector) / glintSigma) ** 2)) * (1 - shadow);
+    state.glint = glintLevel;
+    glint.strength.value = SATELLITE.glint.peak * glintLevel;
+    for (const halo of glintHalos) {
+      halo.scale.setScalar(5 * glintLevel);
+    }
+
+    // Nav lights: red and green Gaussian pulses, a double-flash strobe.
+    const sigma = navConfig.pulseMs / 1000;
+    const strobePhase =
+      ((timeS % navConfig.strobePeriodS) + navConfig.strobePeriodS) % navConfig.strobePeriodS;
+    const levels = still
+      ? [navConfig.still, navConfig.still, navConfig.still / navConfig.strobe]
+      : [
+          pulse(timeS, navConfig.redPeriodS, sigma),
+          pulse(timeS + 0.7, navConfig.greenPeriodS, sigma),
+          Math.exp(-strobePhase / 0.035) +
+            (strobePhase > 0.16 ? 0.7 * Math.exp(-(strobePhase - 0.16) / 0.035) : 0),
+        ];
+    model.navLights.forEach((light, index) => {
+      const level = Math.max(levels[index] ?? 0, navConfig.resting);
+      const color = navColors[index];
+      if (color !== undefined) {
+        (light.material as MeshBasicMaterial).color.copy(color).multiplyScalar(level);
+      }
+      const halo = navHalos[index];
+      if (halo !== undefined) {
+        halo.scale.setScalar((index === 2 ? 2 : 1.4) * level);
+        halo.material.color.copy(color ?? halo.material.color).multiplyScalar(0.25);
+      }
+    });
     key.position.copy(state.position).addScaledVector(sunDirection, 50);
     key.target.position.copy(state.position);
 
@@ -1091,6 +1352,7 @@ export async function createSatellite(
     );
     ribbonUniforms.uResolution.value.copy(drawingBuffer);
     ribbonUniforms.uPixelRatio.value = pixelRatio;
+    solveGlint(referenceCamera);
   }
 
   return {
@@ -1108,6 +1370,16 @@ export async function createSatellite(
     state,
     update,
     setFraming,
+    restoreAfterContextLoss() {
+      const restored = renderEnvironment(renderer);
+      for (const material of Object.values(materials)) {
+        if (material instanceof MeshStandardMaterial) {
+          material.envMap = restored.texture;
+        }
+      }
+      environment.dispose();
+      environment = restored;
+    },
     dispose() {
       const disposedMaterials = new Set<Material>();
       model.root.traverse((object) => {
@@ -1129,6 +1401,10 @@ export async function createSatellite(
       for (const light of aimedLights) {
         light.dispose();
       }
+      for (const halo of halos) {
+        halo.material.dispose();
+      }
+      glowTexture?.dispose();
     },
   };
 }

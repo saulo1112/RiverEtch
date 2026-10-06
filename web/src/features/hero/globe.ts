@@ -8,6 +8,7 @@ import {
   BackSide,
   Color,
   Group,
+  HalfFloatType,
   MathUtils,
   Mesh,
   PerspectiveCamera,
@@ -16,8 +17,11 @@ import {
   Timer,
   Vector2,
   Vector3,
+  WebGLRenderTarget,
   type Texture,
 } from "three";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
 import { COLOMBIA_DIRECTION, latLngToVector3 } from "./colombia.ts";
 import {
@@ -28,6 +32,7 @@ import {
   EARTH_WATER_TEXTURE,
   GEO,
   GLOBE_RADIUS,
+  POST,
   QUALITY_PRESETS,
   SCAN,
   SUN,
@@ -301,7 +306,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       animateIn: false,
       waitForGlobeReady: false,
       rendererConfig: {
-        antialias: true,
+        // With bloom the scene renders into a multisampled target instead.
+        antialias: !preset.bloom,
         alpha: true,
         premultipliedAlpha: true,
         stencil: false,
@@ -334,12 +340,30 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   controls.disconnect();
 
   const renderer = globe.renderer();
+  // Count every pass of a frame together (reset once per frame in renderFrame).
+  renderer.info.autoReset = false;
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = options.reducedMotion ? 1 : 0;
-  const pixelRatio = Math.min(window.devicePixelRatio, preset.dprCap);
+  let pixelRatio = Math.min(window.devicePixelRatio, preset.dprCap);
   renderer.setPixelRatio(pixelRatio);
   const composer = globe.postProcessingComposer();
   composer.setPixelRatio(pixelRatio);
+
+  // High preset: globe.gl's composer only holds a render pass, so render into a multisampled
+  // half-float target and add bloom plus an output pass (tone mapping and sRGB) after it. Low
+  // preset: the render pass draws straight to the antialiased canvas and glows use sprites.
+  let bloomPass: UnrealBloomPass | null = null;
+  let outputPass: OutputPass | null = null;
+  if (preset.bloom) {
+    const samples = pixelRatio < 1.25 ? 4 : pixelRatio < 1.75 ? 2 : 0;
+    composer.reset(new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples }));
+    composer.setPixelRatio(pixelRatio);
+    const { strength, radius, threshold } = POST.bloom;
+    bloomPass = new UnrealBloomPass(new Vector2(1, 1), strength, radius, threshold);
+    outputPass = new OutputPass();
+    composer.addPass(bloomPass);
+    composer.addPass(outputPass);
+  }
 
   const camera = globe.camera() as PerspectiveCamera;
   camera.up.set(0, 1, 0);
@@ -374,6 +398,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   let rafId = 0;
   let running = false;
   let started = false;
+  let onScreen = true;
+  let contextLost = false;
+  let contextTimer = 0;
   let readyNotified = false;
   let disposed = false;
   const timer = new Timer();
@@ -525,8 +552,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     syncProjection();
     poseCamera(sceneTime, !options.reducedMotion);
     starfield.update(sceneTime);
+    renderer.info.reset();
     if (satellite !== null) {
-      satellite.update(sceneTime, dt, camera.position);
+      satellite.update(sceneTime, dt, camera.position, options.reducedMotion);
       if (!animate) {
         scan?.snap(options.reducedMotion);
       }
@@ -545,7 +573,15 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   }
 
   function start(): void {
-    if (running || disposed || !started || !animate || document.hidden) {
+    if (
+      running ||
+      disposed ||
+      !started ||
+      !animate ||
+      document.hidden ||
+      !onScreen ||
+      contextLost
+    ) {
       return;
     }
     running = true;
@@ -589,6 +625,74 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     },
     { signal },
   );
+
+  // Pause while the hero is scrolled out of view.
+  const intersectionObserver = new IntersectionObserver(
+    (entries) => {
+      onScreen = entries.some((entry) => entry.isIntersecting);
+      if (onScreen) {
+        start();
+      } else {
+        stop();
+      }
+    },
+    { threshold: 0 },
+  );
+  intersectionObserver.observe(cssTarget);
+
+  // Context loss: wait briefly for a restore, otherwise hand over to the CSS fallback.
+  const canvas = renderer.domElement;
+  canvas.addEventListener(
+    "webglcontextlost",
+    (event) => {
+      event.preventDefault();
+      contextLost = true;
+      stop();
+      contextTimer = window.setTimeout(() => {
+        options.onError(new Error("The WebGL context was lost and not restored."));
+      }, POST.contextRestoreTimeoutMs);
+    },
+    { signal },
+  );
+  canvas.addEventListener(
+    "webglcontextrestored",
+    () => {
+      window.clearTimeout(contextTimer);
+      contextLost = false;
+      // Textures re-upload from their sources; the environment map has to be re-rendered.
+      satellite?.restoreAfterContextLoss();
+      if (animate) {
+        start();
+      } else {
+        renderStill();
+      }
+    },
+    { signal },
+  );
+
+  // Follow device-pixel-ratio changes (moving the window to another screen, zooming).
+  function watchPixelRatio(): void {
+    const query = window.matchMedia(`(resolution: ${String(window.devicePixelRatio)}dppx)`);
+    query.addEventListener(
+      "change",
+      () => {
+        if (disposed) {
+          return;
+        }
+        pixelRatio = Math.min(window.devicePixelRatio, preset.dprCap);
+        renderer.setPixelRatio(pixelRatio);
+        composer.setPixelRatio(pixelRatio);
+        starfield.setPixelRatio(pixelRatio);
+        layout();
+        if (!running && started) {
+          renderStill();
+        }
+        watchPixelRatio();
+      },
+      { once: true, signal },
+    );
+  }
+  watchPixelRatio();
 
   if (!options.reducedMotion) {
     window.addEventListener(
@@ -683,10 +787,37 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     }
 
     started = true;
-    if (animate && !document.hidden) {
+    if (animate) {
       start();
     } else {
       renderStill();
+    }
+    void loadDetailTexture();
+  }
+
+  // Swaps in the sharper Earth map once the scene runs; the upload happens before the swap.
+  async function loadDetailTexture(): Promise<void> {
+    if (preset.earthTextureDetail === null) {
+      return;
+    }
+    try {
+      const detail = await loadTexture(preset.earthTextureDetail, renderer, signal, "color");
+      if (signal.aborted || contextLost) {
+        detail.dispose();
+        return;
+      }
+      renderer.initTexture(detail);
+      const previous = earthUniforms.uDayMap.value;
+      earthUniforms.uDayMap.value = adopt(detail);
+      if (previous !== null) {
+        ownedTextures.delete(previous);
+        previous.dispose();
+      }
+      if (!running && started) {
+        renderStill();
+      }
+    } catch {
+      // Keep the first map.
     }
   }
 
@@ -725,6 +856,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           ],
           baseDistance,
           satelliteScale: satellite?.state.scale ?? null,
+          glint: satellite?.state.glint ?? null,
           scanPhase: scan?.status.phase ?? null,
           scanIntensity: scan?.status.intensity ?? null,
           satelliteAngleDeg: satellite === null ? null : MathUtils.radToDeg(satellite.state.angle),
@@ -744,6 +876,13 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
         for (let t = fromS; t <= toS; t += stepS) {
           satellite.update(t, stepS, camera.position);
           scan.update(t, stepS, satellite.state);
+          if (satellite.state.glint > 0.05) {
+            transitions.push([
+              Number(t.toFixed(2)),
+              "glint",
+              Number(satellite.state.glint.toFixed(3)),
+            ]);
+          }
           if (scan.status.phase !== previous) {
             previous = scan.status.phase;
             transitions.push([
@@ -766,7 +905,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       disposed = true;
       stop();
       lifetime.abort();
+      window.clearTimeout(contextTimer);
       resizeObserver.disconnect();
+      intersectionObserver.disconnect();
       timer.dispose();
 
       scene.remove(heroRoot);
@@ -779,6 +920,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
         texture.dispose();
       }
       earthMaterial.dispose();
+      bloomPass?.dispose();
+      outputPass?.dispose();
 
       globe._destructor();
       renderer.forceContextLoss();

@@ -280,7 +280,7 @@ export async function createFoilTextures(
 
   // 2. Worley F2 - F1 at two scales: flat facets separated by V-shaped folds, like crumpled foil.
   for (const [cells, weight] of [
-    [5, 0.3],
+    [3, 0.45],
     [12, 0.16],
   ] as const) {
     const featureX = new Float32Array(cells * cells);
@@ -325,8 +325,8 @@ export async function createFoilTextures(
     const angle = ((random() < 0.5 ? 25 : 115) + gaussianSample(random) * 18) * (Math.PI / 180);
     const length = size * (0.15 + 0.35 * random());
     const amplitude = (random() < 0.5 ? -1 : 1) * (0.04 + 0.1 * random());
-    const halfWidth = (4 + 8 * random()) * texel;
-    const sharp = random() < 0.4;
+    const halfWidth = (10 + 16 * random()) * texel;
+    const sharp = random() < 0.15;
     const centerX = random() * size;
     const centerY = random() * size;
     const dirX = Math.cos(angle);
@@ -438,7 +438,8 @@ export async function createFoilTextures(
       const cavity = Math.max((blurred[i] ?? 0) - h, 0);
       const laplacian = Math.abs(4 * h - at(x + 1, y) - at(x - 1, y) - at(x, y + 1) - at(x, y - 1));
       ormData[i * 4] = Math.round(MathUtils.clamp(1 - cavity * 5, 0.45, 1) * 255);
-      ormData[i * 4 + 1] = Math.round((0.26 + 0.1 * Math.min(laplacian * 30, 1)) * 255);
+      // Rough enough that the key light breaks into foil sparkle instead of a flat glare.
+      ormData[i * 4 + 1] = Math.round((0.42 + 0.12 * Math.min(laplacian * 30, 1)) * 255);
       ormData[i * 4 + 2] = 255;
       ormData[i * 4 + 3] = 255;
 
@@ -537,8 +538,8 @@ export function createCellTextures(
       const path = cellPath(x, y);
 
       // Deep blue-violet cells with a small per-cell hue and lightness jitter.
-      const hue = 232 + random() * 14 + gaussianSample(random) * 3;
-      const lightness = 15 + random() * 3 + gaussianSample(random) * 1.2;
+      const hue = 221 + random() * 8 + gaussianSample(random) * 3;
+      const lightness = 10 + random() * 2 + gaussianSample(random) * 1.2;
       albedo.fillStyle = `hsl(${hue.toFixed(1)} 52% ${lightness.toFixed(1)}%)`;
       albedo.fill(path);
       emissive.fillStyle = "#1b2b6e";
@@ -551,7 +552,8 @@ export function createCellTextures(
       );
       normal.fillStyle = `rgb(${tiltX},${tiltY},255)`;
       normal.fill(path);
-      orm.fillStyle = `rgb(255,${Math.round(0.22 * 255)},0)`;
+      // Glassy cells: a tight glint instead of a broad sheen.
+      orm.fillStyle = `rgb(255,${Math.round(0.08 * 255)},0)`;
       orm.fill(path);
 
       // Fine fingers across the cell, then two busbars along it.
@@ -568,7 +570,7 @@ export function createCellTextures(
         albedo.fillRect(x, by, cellWidth, busbar);
         emissive.fillStyle = "#000000";
         emissive.fillRect(x, by, cellWidth, busbar);
-        orm.fillStyle = `rgb(255,${Math.round(0.3 * 255)},255)`;
+        orm.fillStyle = `rgb(255,${Math.round(0.3 * 255)},0)`;
         orm.fillRect(x, by, cellWidth, busbar);
       }
     }
@@ -611,9 +613,9 @@ export function createOsrTextures(size: number, anisotropy: number): OsrTextures
   const seam = Math.max(2, Math.round(size / 160));
   const tileWidth = size / columns;
   const tileHeight = size / rows;
-  // Tile tilts of about 1.5 degrees (sigma), so neighbouring mirrors catch the light differently.
+  // Tile tilts of about 0.8 degrees (sigma), so neighbouring mirrors catch the light differently.
   const tilt = () =>
-    Math.round(128 + MathUtils.clamp(gaussianSample(random) * 0.026, -0.06, 0.06) * 127);
+    Math.round(128 + MathUtils.clamp(gaussianSample(random) * 0.014, -0.04, 0.04) * 127);
   for (let row = 0; row < rows; row += 1) {
     for (let column = 0; column < columns; column += 1) {
       const x = Math.round(column * tileWidth) + seam;
@@ -631,6 +633,31 @@ export function createOsrTextures(size: number, anisotropy: number): OsrTextures
     normal: configureCanvasTexture(normal.canvas, false, anisotropy),
     orm: configureCanvasTexture(orm.canvas, false, anisotropy),
   };
+}
+
+/**
+ * Soft round glow for additive sprites (used instead of bloom on the low preset).
+ *
+ * @returns A 128 x 128 white radial falloff in the alpha channel.
+ */
+export function createGlowTexture(): CanvasTexture {
+  const size = 128;
+  const context = createCanvas(size, size);
+  const gradient = context.createRadialGradient(
+    size / 2,
+    size / 2,
+    0,
+    size / 2,
+    size / 2,
+    size / 2,
+  );
+  gradient.addColorStop(0, "rgba(255,255,255,1)");
+  gradient.addColorStop(0.2, "rgba(255,255,255,0.55)");
+  gradient.addColorStop(0.5, "rgba(255,255,255,0.12)");
+  gradient.addColorStop(1, "rgba(255,255,255,0)");
+  context.fillStyle = gradient;
+  context.fillRect(0, 0, size, size);
+  return new CanvasTexture(context.canvas);
 }
 
 // ---------------------------------------------------------------------------------------------

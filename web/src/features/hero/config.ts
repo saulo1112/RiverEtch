@@ -11,8 +11,12 @@ export type SatelliteVariant = "A";
 export interface QualityPreset {
   /** Upper bound for the device pixel ratio. */
   readonly dprCap: number;
-  /** Earth color map in `public/textures/`. */
+  /** Earth color map in `public/textures/`, used for the first frames. */
   readonly earthTexture: string;
+  /** Sharper Earth map swapped in once the scene runs, or null to keep the first one. */
+  readonly earthTextureDetail: string | null;
+  /** Bloom through the post-processing composer; without it, glows use additive sprites. */
+  readonly bloom: boolean;
   /** globe.gl sphere tessellation, in degrees per segment (lower is finer). */
   readonly globeCurvature: number;
   /** Atmosphere shell segments (width, height). */
@@ -49,6 +53,8 @@ export const QUALITY_PRESETS: Readonly<Record<QualityName, QualityPreset>> = {
   high: {
     dprCap: 2,
     earthTexture: "earth-day-2k.jpg",
+    earthTextureDetail: "earth-day-4k.jpg",
+    bloom: true,
     globeCurvature: 2,
     shellSegments: [128, 64],
     stars: 4000,
@@ -68,6 +74,8 @@ export const QUALITY_PRESETS: Readonly<Record<QualityName, QualityPreset>> = {
   low: {
     dprCap: 1,
     earthTexture: "earth-day-2k.jpg",
+    earthTextureDetail: null,
+    bloom: false,
     globeCurvature: 4,
     shellSegments: [64, 32],
     stars: 1800,
@@ -184,7 +192,7 @@ export const CAMERA = {
   discFraction: 0.72,
   // Where the globe center lands on screen, as fractions of the viewport (0,0 = top-left).
   // Desktop leaves the left side free for future content; portrait screens center it.
-  globeCenterDesktop: { x: 0.62, y: 0.52 },
+  globeCenterDesktop: { x: 0.6, y: 0.56 },
   globeCenterPortrait: { x: 0.5, y: 0.5 },
   // Intro dolly-in: duration, extra distance, extra longitude and latitude it starts from.
   intro: { durationS: 3.6, distanceGain: 0.55, lngDeg: 20, latDeg: 6, exposureS: 1.4 },
@@ -220,10 +228,35 @@ export const SATELLITE = {
   scaleRange: [0.7, 1.35],
   // Solar-array drive: critically damped spring (rad/s) with a rate limit.
   sada: { omega: 4, maxDegPerS: 12 },
+  // Panel glint, solved once per orbit: where on the orbit it happens (relative to Colombia), the
+  // largest cant and array offset used to aim it, the feather window, its angular width and peak.
+  glint: {
+    orbitOffsetDeg: 30,
+    cantMaxDeg: 22,
+    offsetMaxDeg: 35,
+    windowDeg: 20,
+    sigmaDeg: 3,
+    peak: 1.5,
+  },
+  // Dish tracks Colombia while it is above the horizon, otherwise it stows.
+  dish: { omega: 1.6, maxDegPerS: 12, maxElevationDeg: 75 },
+  // Nav lights: periods (s), pulse width (ms), HDR peak colors (linear) and resting level.
+  navLights: {
+    redPeriodS: 1.9,
+    greenPeriodS: 2.3,
+    strobePeriodS: 1.6,
+    pulseMs: 70,
+    red: [4, 0.25, 0.18],
+    green: [0.25, 4, 1.1],
+    strobe: 9,
+    resting: 0.03,
+    // Steady level for the reduced-motion still.
+    still: 0.6,
+  },
   colors: {
-    gold: "#e8b65a",
+    gold: "#d99b3a",
     silver: "#d6dae0",
-    osr: "#d7dee6",
+    osr: "#aab2bc",
     panelBack: "#1e2125",
     frame: "#c4c8cc",
     titanium: "#8a8d91",
@@ -233,7 +266,7 @@ export const SATELLITE = {
     aperture: "#020203",
   },
   lights: {
-    key: 3.2,
+    key: 2.0,
     keyColor: "#fff3e2",
     rim: 1.6,
     rimColor: "#5b8cff",
@@ -255,10 +288,10 @@ export const TRAIL = {
   // Ring brightness: base plus a boost on the arc facing the camera.
   ringGain: [0.1, 0.12],
   trailColor: "#cfe4ff",
-  trailGain: 0.8,
+  trailGain: 0.5,
   // Trail decay constant, gap behind the satellite and maximum length (radians of orbit).
   decay: 0.279,
-  gap: 0.026,
+  gap: 0.055,
   length: 1.22,
   // Line width in CSS px for the ring and the trail head.
   widthPx: [1, 2],
@@ -301,6 +334,17 @@ export const SCAN = {
   // Reduced-motion still: orbit angle relative to Colombia (radians) and camera push-in.
   stillOffsetRad: -0.1,
   cameraPush: 0.025,
+} as const;
+
+/**
+ * Bloom (high preset). Only light sources and glints exceed the threshold: nav lights, panel and
+ * ocean glints, the beam's aperture, the scan line and stroke, fresh heat and new rings. Every
+ * surface material stays below it through a luminance shoulder.
+ */
+export const POST = {
+  bloom: { strength: 0.55, radius: 0.45, threshold: 0.92 },
+  // A context lost for longer than this falls back to the CSS planet.
+  contextRestoreTimeoutMs: 2000,
 } as const;
 
 /** URL options read once when the hero mounts. */
