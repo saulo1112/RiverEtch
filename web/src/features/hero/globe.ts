@@ -29,10 +29,12 @@ import {
   GEO,
   GLOBE_RADIUS,
   QUALITY_PRESETS,
+  SCAN,
   SUN,
   type QualityName,
 } from "./config.ts";
-import { createSatellite, type SatelliteRig } from "./satellite.ts";
+import { createSatellite, timeForOrbitOffset, type SatelliteRig } from "./satellite.ts";
+import { createScan, type ScanEffect } from "./scan.ts";
 import { DITHER_GLSL, SHOULDER_GLSL } from "./shaders.ts";
 import { createStarfield } from "./starfield.ts";
 import { createFallbackEarthTexture, loadTexture } from "./textures.ts";
@@ -60,7 +62,10 @@ export interface HeroHandle {
 }
 
 interface HeroQAWindow extends Window {
-  __heroQA?: { readonly stats: () => Record<string, unknown> };
+  __heroQA?: {
+    readonly stats: () => Record<string, unknown>;
+    readonly simulate: (fromS: number, toS: number, stepS: number) => unknown[];
+  };
 }
 
 // Unit vector from the Earth towards the sun (world space, fixed).
@@ -356,6 +361,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   };
   const ownedTextures = new Set<Texture>();
   let satellite: SatelliteRig | null = null;
+  let scan: ScanEffect | null = null;
 
   // Camera rig state. `sceneTime` starts when the Earth texture is ready.
   let sceneTime = 0;
@@ -373,8 +379,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   const timer = new Timer();
   timer.connect(document);
   const animate = !options.reducedMotion && options.frozenTime === null;
-  // Reduced motion shows the settled composition: intro finished, no drift.
-  const stillTime = CAMERA.intro.durationS;
+  // Reduced motion shows one settled frame near the scan climax (intro finished, no drift).
+  const stillTime = Math.max(timeForOrbitOffset(SCAN.stillOffsetRad), CAMERA.intro.durationS);
 
   // View-offset shift (px) that moves the globe center to its configured screen position.
   const viewShift = { x: 0, y: 0, width: 1, height: 1 };
@@ -421,6 +427,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       Math.floor(height * pixelRatio),
     );
     satellite?.setFraming(settledCamera, height, CAMERA.fovDeg, drawingBuffer, pixelRatio);
+    scan?.setResolution(Math.max(1, container.clientWidth), height);
   }
 
   // Places the camera for scene time `timeS`; `withMotion` adds parallax and drift.
@@ -428,7 +435,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     const { intro, parallax, drift } = CAMERA;
     const progress = MathUtils.clamp(timeS / intro.durationS, 0, 1);
     const dolly = easeInOutCubic(progress);
-    const distance = baseDistance * (1 + intro.distanceGain * (1 - easeOutQuart(progress)));
+    const push = withMotion ? SCAN.cameraPush * (scan?.status.push ?? 0) : 0;
+    const distance =
+      baseDistance * (1 + intro.distanceGain * (1 - easeOutQuart(progress))) * (1 - push);
     let lat = CAMERA.viewLatDeg * widthWeight - intro.latDeg * (1 - easeOutCubic(progress));
     let lng =
       GEO.colombiaCentroid.lng + CAMERA.viewLngOffsetDeg * widthWeight + intro.lngDeg * (1 - dolly);
@@ -516,7 +525,13 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     syncProjection();
     poseCamera(sceneTime, !options.reducedMotion);
     starfield.update(sceneTime);
-    satellite?.update(sceneTime, dt, camera.position);
+    if (satellite !== null) {
+      satellite.update(sceneTime, dt, camera.position);
+      if (!animate) {
+        scan?.snap(options.reducedMotion);
+      }
+      scan?.update(sceneTime, dt, satellite.state);
+    }
     composer.render(dt);
     if (!readyNotified && earthUniforms.uDayMap.value !== null) {
       readyNotified = true;
@@ -615,18 +630,25 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   }
 
   async function loadSurface(): Promise<void> {
-    const [day, water, rig] = await Promise.allSettled([
+    const [day, water, rig, effect] = await Promise.allSettled([
       loadTexture(preset.earthTexture, renderer, signal, "color"),
       loadTexture(EARTH_WATER_TEXTURE, renderer, signal, "data"),
       createSatellite(renderer, preset, signal),
+      createScan(preset, signal),
     ]);
     if (signal.aborted) {
-      for (const result of [day, water, rig]) {
+      for (const result of [day, water, rig, effect]) {
         if (result.status === "fulfilled") {
           result.value.dispose();
         }
       }
       return;
+    }
+    if (effect.status === "fulfilled") {
+      scan = effect.value;
+      heroRoot.add(...scan.objects);
+    } else if (import.meta.env.DEV) {
+      console.error("[hero] Could not build the scan effect.", effect.reason);
     }
     if (rig.status === "fulfilled") {
       satellite = rig.value;
@@ -703,11 +725,35 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           ],
           baseDistance,
           satelliteScale: satellite?.state.scale ?? null,
+          scanPhase: scan?.status.phase ?? null,
+          scanIntensity: scan?.status.intensity ?? null,
           satelliteAngleDeg: satellite === null ? null : MathUtils.radToDeg(satellite.state.angle),
           exposure: renderer.toneMappingExposure,
           drawCalls: renderer.info.render.calls,
           triangles: renderer.info.render.triangles,
         };
+      },
+      // Runs the satellite and the scan state machine over a time range without rendering, and
+      // returns the phase transitions (headless browsers render too slowly to watch a full orbit).
+      simulate: (fromS, toS, stepS) => {
+        const transitions: unknown[] = [];
+        if (satellite === null || scan === null) {
+          return transitions;
+        }
+        let previous = "";
+        for (let t = fromS; t <= toS; t += stepS) {
+          satellite.update(t, stepS, camera.position);
+          scan.update(t, stepS, satellite.state);
+          if (scan.status.phase !== previous) {
+            previous = scan.status.phase;
+            transitions.push([
+              Number(t.toFixed(2)),
+              previous,
+              Number(scan.status.intensity.toFixed(3)),
+            ]);
+          }
+        }
+        return transitions;
       },
     };
   }
@@ -724,6 +770,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       timer.dispose();
 
       scene.remove(heroRoot);
+      scan?.dispose();
       satellite?.dispose();
       starfield.dispose();
       atmosphere.geometry.dispose();

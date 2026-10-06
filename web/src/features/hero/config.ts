@@ -29,6 +29,19 @@ export interface QualityPreset {
   readonly iridescence: boolean;
   /** Samples of the orbit ring and trail ribbon. */
   readonly ribbonSamples: number;
+  /** Scan effect resolution. */
+  readonly scan: {
+    /** Colombia data texture size (longitude, latitude). */
+    readonly data: readonly [number, number];
+    /** Colombia patch grid segments (longitude, latitude). */
+    readonly patchSegments: readonly [number, number];
+    /** Footprint grid segments (cross-track, along-track). */
+    readonly footprintSegments: readonly [number, number];
+    /** Ring plane segments per side. */
+    readonly ringSegments: number;
+    /** Radial segments of the beam cone. */
+    readonly coneRadial: number;
+  };
 }
 
 /** Quality presets: `high` for desktops, `low` for weak GPUs and `?quality=low`. */
@@ -44,6 +57,13 @@ export const QUALITY_PRESETS: Readonly<Record<QualityName, QualityPreset>> = {
     osr: 512,
     iridescence: true,
     ribbonSamples: 720,
+    scan: {
+      data: [768, 1024],
+      patchSegments: [64, 80],
+      footprintSegments: [48, 64],
+      ringSegments: 96,
+      coneRadial: 48,
+    },
   },
   low: {
     dprCap: 1,
@@ -56,6 +76,13 @@ export const QUALITY_PRESETS: Readonly<Record<QualityName, QualityPreset>> = {
     osr: 256,
     iridescence: false,
     ribbonSamples: 360,
+    scan: {
+      data: [384, 512],
+      patchSegments: [32, 40],
+      footprintSegments: [24, 32],
+      ringSegments: 48,
+      coneRadial: 32,
+    },
   },
 };
 
@@ -75,6 +102,8 @@ export const GLOBE_RADIUS = 100;
 export const GEO = {
   // Area-weighted centroid of mainland Colombia (Natural Earth 1:50m).
   colombiaCentroid: { lat: 3.914, lng: -73.081 },
+  // Lat/lng box of the scan patch (mainland and Gorgona; San Andrés lies outside and is omitted).
+  patch: { lngMin: -80.5, lngMax: -65.5, latMin: -5.5, latMax: 13.5 },
 } as const;
 
 /**
@@ -233,6 +262,45 @@ export const TRAIL = {
   length: 1.22,
   // Line width in CSS px for the ring and the trail head.
   widthPx: [1, 2],
+} as const;
+
+/** Scan effect: state machine, beam, footprint, Colombia patch, border stroke and rings. */
+export const SCAN = {
+  // Intensity I = 1 − smoothstep(ψ, in, out), ψ = angle between the nadir and Colombia's centroid.
+  intensityDeg: [7, 30],
+  // State machine thresholds on I (idle → approach → scan → leave → idle), and the lock ring.
+  thresholds: { approach: 0.03, scan: 0.65, leave: 0.55, lock: 0.4 },
+  // Damping rates (1/s) of the smoothed drivers.
+  damping: { beam: 8, strokeRise: 3, strokeFall: 1.2, cap: 3, push: 1.5 },
+  colors: { beam: "#8fe6ff", instrument: "#22d3ee", rings: "#5fe3ff" },
+  beam: {
+    // Footprint semi-axes on the ground (scene units) and how far the base sinks below it.
+    crossTrack: 9.5,
+    alongTrack: 4.2,
+    sink: 1.2,
+    // Body brightness, aperture hot spot, stripe length (units) and speed (1/s).
+    bodyGain: 0.6,
+    hot: 1.2,
+    stripeLength: 2.6,
+    stripeSpeed: 1.4,
+  },
+  footprint: { crossTrackRad: 0.095, alongTrackRad: 0.042 },
+  stroke: { idle: 0.35, gain: 1.0, widthPx: [1.25, 1.7] },
+  rings: { slots: 3, lifeS: 2.8, cadenceS: 1.25, maxRadiusRad: 0.18, extentRad: 0.2, gain: 0.8 },
+  heat: {
+    // Heat left over after a pass decays to `floor` with time constant `agingS`.
+    agingS: 9,
+    floor: 0.35,
+    // Limit of the push-broom front (radians of orbit either side of Colombia).
+    frontLimit: 0.4,
+    ramp: ["#0e5f73", "#15a6b5", "#e8b23a", "#ff6b2c", "#ffe2a8"],
+    contourColor: "#ffe9c4",
+  },
+  // Radii of the overlays (globe radius 100), ordered so they never z-fight.
+  radii: { patch: 100.35, stroke: 100.5, footprint: 100.6, rings: 100.7 },
+  // Reduced-motion still: orbit angle relative to Colombia (radians) and camera push-in.
+  stillOffsetRad: -0.1,
+  cameraPush: 0.025,
 } as const;
 
 /** URL options read once when the hero mounts. */

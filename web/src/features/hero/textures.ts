@@ -12,6 +12,9 @@ import {
   type WebGLRenderer,
 } from "three";
 
+import { COLOMBIA_RINGS, HOTSPOTS, RIVERS } from "./colombia.ts";
+import { GEO } from "./config.ts";
+
 /**
  * Deterministic pseudo-random generator (mulberry32), so procedural textures look the same on
  * every load.
@@ -628,4 +631,245 @@ export function createOsrTextures(size: number, anisotropy: number): OsrTextures
     normal: configureCanvasTexture(normal.canvas, false, anisotropy),
     orm: configureCanvasTexture(orm.canvas, false, anisotropy),
   };
+}
+
+// ---------------------------------------------------------------------------------------------
+// Colombia data texture for the scan patch.
+
+// Separable box blur with clamped edges, in place.
+function boxBlur(grid: Float32Array, width: number, height: number, radius: number): void {
+  const temp = new Float32Array(grid.length);
+  const taps = radius * 2 + 1;
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let sum = 0;
+      for (let k = -radius; k <= radius; k += 1) {
+        sum += grid[y * width + MathUtils.clamp(x + k, 0, width - 1)] ?? 0;
+      }
+      temp[y * width + x] = sum / taps;
+    }
+  }
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let sum = 0;
+      for (let k = -radius; k <= radius; k += 1) {
+        sum += temp[MathUtils.clamp(y + k, 0, height - 1) * width + x] ?? 0;
+      }
+      grid[y * width + x] = sum / taps;
+    }
+  }
+}
+
+function normalizeMax(grid: Float32Array): void {
+  let max = 0;
+  for (const value of grid) {
+    max = Math.max(max, value);
+  }
+  if (max > 0) {
+    for (let i = 0; i < grid.length; i += 1) {
+      grid[i] = (grid[i] ?? 0) / max;
+    }
+  }
+}
+
+/**
+ * Builds Colombia's data texture over the scan patch ({@link GEO.patch}): R = country mask,
+ * G = heat, B = border glow, A = river lines. The heat is ILLUSTRATIVE, NOT MEASURED: seeded blobs
+ * along the main rivers ({@link RIVERS}) and river towns ({@link HOTSPOTS}). Rows run south to
+ * north, so the texture keeps `flipY = false`.
+ *
+ * @param width - Texture width in texels (longitude).
+ * @param height - Texture height in texels (latitude).
+ * @param signal - Aborts the generation between slices.
+ * @returns An RGBA8 data texture with mipmaps.
+ */
+export async function createColombiaDataTexture(
+  width: number,
+  height: number,
+  signal?: AbortSignal,
+): Promise<DataTexture> {
+  const { lngMin, lngMax, latMin, latMax } = GEO.patch;
+  const lngSpan = lngMax - lngMin;
+  const latSpan = latMax - latMin;
+  const canvasX = (lng: number) => ((lng - lngMin) / lngSpan) * width;
+  const canvasY = (lat: number) => ((latMax - lat) / latSpan) * height;
+  const context = createCanvas(width, height, true);
+  const count = width * height;
+
+  // Reads the red channel into a south-to-north grid.
+  const readChannel = (): Float32Array => {
+    const pixels = context.getImageData(0, 0, width, height).data;
+    const grid = new Float32Array(count);
+    for (let row = 0; row < height; row += 1) {
+      const source = (height - 1 - row) * width * 4;
+      for (let x = 0; x < width; x += 1) {
+        grid[row * width + x] = (pixels[source + x * 4] ?? 0) / 255;
+      }
+    }
+    return grid;
+  };
+  const clear = () => {
+    context.fillStyle = "#000000";
+    context.fillRect(0, 0, width, height);
+  };
+  const traceCountry = () => {
+    context.beginPath();
+    for (const ring of COLOMBIA_RINGS) {
+      ring.forEach(([lng, lat], index) => {
+        if (index === 0) {
+          context.moveTo(canvasX(lng), canvasY(lat));
+        } else {
+          context.lineTo(canvasX(lng), canvasY(lat));
+        }
+      });
+      context.closePath();
+    }
+  };
+
+  // R: mask.
+  clear();
+  context.fillStyle = "#ffffff";
+  traceCountry();
+  context.fill();
+  const mask = readChannel();
+
+  // B: border glow, a thin stroke blurred three times.
+  clear();
+  context.strokeStyle = "#ffffff";
+  context.lineJoin = "round";
+  context.lineWidth = 2.2 * (width / 768);
+  traceCountry();
+  context.stroke();
+  const glow = readChannel();
+  for (let pass = 0; pass < 3; pass += 1) {
+    boxBlur(glow, width, height, Math.max(1, Math.round(4 * (width / 768))));
+  }
+  normalizeMax(glow);
+
+  // A: faint river lines inside the country.
+  clear();
+  context.lineWidth = Math.max(1, 1.2 * (width / 768));
+  for (const river of RIVERS) {
+    context.beginPath();
+    river.points.forEach(([lat, lng], index) => {
+      if (index === 0) {
+        context.moveTo(canvasX(lng), canvasY(lat));
+      } else {
+        context.lineTo(canvasX(lng), canvasY(lat));
+      }
+    });
+    context.stroke();
+  }
+  const rivers = readChannel();
+  await yieldToBrowser(signal);
+
+  // G: heat. Anisotropic Gaussian blobs along the rivers plus round hotspots.
+  const random = mulberry32(170);
+  const heat = new Float32Array(count);
+  const texelsPerDegree = { x: width / lngSpan, y: height / latSpan };
+  const addBlob = (
+    lat: number,
+    lng: number,
+    along: readonly [number, number],
+    sigmaAlong: number,
+    sigmaAcross: number,
+    amplitude: number,
+  ) => {
+    const reach = 3 * Math.max(sigmaAlong, sigmaAcross);
+    const x0 = Math.max(0, Math.floor((lng - reach - lngMin) * texelsPerDegree.x));
+    const x1 = Math.min(width - 1, Math.ceil((lng + reach - lngMin) * texelsPerDegree.x));
+    const y0 = Math.max(0, Math.floor((lat - reach - latMin) * texelsPerDegree.y));
+    const y1 = Math.min(height - 1, Math.ceil((lat + reach - latMin) * texelsPerDegree.y));
+    const [ux, uy] = along;
+    for (let y = y0; y <= y1; y += 1) {
+      const dLat = latMin + (y + 0.5) / texelsPerDegree.y - lat;
+      for (let x = x0; x <= x1; x += 1) {
+        const dLng = lngMin + (x + 0.5) / texelsPerDegree.x - lng;
+        const a = (dLng * ux + dLat * uy) / sigmaAlong;
+        const c = (-dLng * uy + dLat * ux) / sigmaAcross;
+        heat[y * width + x] =
+          (heat[y * width + x] ?? 0) + amplitude * Math.exp(-0.5 * (a * a + c * c));
+      }
+    }
+  };
+
+  const totalBlobs = 22;
+  for (const river of RIVERS) {
+    // Cumulative length of the course, in degrees.
+    const lengths = [0];
+    for (let i = 1; i < river.points.length; i += 1) {
+      const [latA = 0, lngA = 0] = river.points[i - 1] ?? [];
+      const [latB = 0, lngB = 0] = river.points[i] ?? [];
+      lengths.push((lengths[i - 1] ?? 0) + Math.hypot(latB - latA, lngB - lngA));
+    }
+    const total = lengths[lengths.length - 1] ?? 1;
+    const blobs = Math.max(1, Math.round(totalBlobs * river.weight));
+    for (let b = 0; b < blobs; b += 1) {
+      const target = (0.1 + 0.85 * random()) * total;
+      let segment = 1;
+      while (segment < lengths.length - 1 && (lengths[segment] ?? 0) < target) {
+        segment += 1;
+      }
+      const [latA = 0, lngA = 0] = river.points[segment - 1] ?? [];
+      const [latB = 0, lngB = 0] = river.points[segment] ?? [];
+      const start = lengths[segment - 1] ?? 0;
+      const span = (lengths[segment] ?? 1) - start || 1;
+      const t = (target - start) / span;
+      const segmentLength = Math.hypot(latB - latA, lngB - lngA) || 1;
+      const sigmaAlong = 0.25 + 0.4 * random();
+      addBlob(
+        latA + (latB - latA) * t + (random() - 0.5) * 0.3,
+        lngA + (lngB - lngA) * t + (random() - 0.5) * 0.3,
+        [(lngB - lngA) / segmentLength, (latB - latA) / segmentLength],
+        sigmaAlong,
+        sigmaAlong * (0.3 + 0.2 * random()),
+        0.35 + 0.65 * random() ** 1.5,
+      );
+    }
+  }
+  for (const hotspot of HOTSPOTS) {
+    const sigma = hotspot.radiusDeg / 2.5;
+    addBlob(hotspot.at[0], hotspot.at[1], [1, 0], sigma, sigma, hotspot.weight);
+  }
+  await yieldToBrowser(signal);
+
+  // Break up the blobs with fbm (1.2° base period), soft-saturate, clip to the country.
+  const basePeriod = Math.ceil(Math.max(lngSpan, latSpan) / 1.2);
+  const octaves = [1, 2, 4, 8].map((scale) => ({
+    period: basePeriod * scale,
+    noise: createTileableNoise(basePeriod * scale, random),
+  }));
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let value = 0;
+      let amplitude = 0.5;
+      for (const { period, noise } of octaves) {
+        value += amplitude * noise((x / width) * period, (y / height) * period);
+        amplitude *= 0.5;
+      }
+      const i = y * width + x;
+      const saturated = 1 - Math.exp(-1.6 * (heat[i] ?? 0) * (0.75 + 0.5 * value));
+      heat[i] = saturated * (mask[i] ?? 0);
+    }
+  }
+  normalizeMax(heat);
+  // Steeper falloff, so the blobs read as hotspots instead of a wash.
+  for (let i = 0; i < count; i += 1) {
+    heat[i] = (heat[i] ?? 0) ** 1.5;
+  }
+
+  const data = new Uint8Array(count * 4);
+  for (let i = 0; i < count; i += 1) {
+    data[i * 4] = Math.round((mask[i] ?? 0) * 255);
+    data[i * 4 + 1] = Math.round((heat[i] ?? 0) * 255);
+    data[i * 4 + 2] = Math.round((glow[i] ?? 0) * 255);
+    data[i * 4 + 3] = Math.round((rivers[i] ?? 0) * (mask[i] ?? 0) * 255);
+  }
+  const texture = new DataTexture(data, width, height);
+  texture.colorSpace = NoColorSpace;
+  texture.magFilter = LinearFilter;
+  texture.minFilter = LinearMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  texture.needsUpdate = true;
+  return texture;
 }
