@@ -8,14 +8,20 @@ import "./case.css";
 import { useEffect, useRef, useState } from "react";
 
 import { IMAGERY, TERRAIN } from "./config.ts";
+import { CASE_COPY } from "./content.ts";
 import { loadCaseMap } from "./loadMap.ts";
 import type { CaseMapHandle } from "./map.ts";
+import { AlertCard } from "./panels/AlertCard.tsx";
+import { Legend } from "./panels/Legend.tsx";
+import { Timeline } from "./panels/Timeline.tsx";
 import type { CaseData } from "./types.ts";
 
 /** Props of {@link CaseView}. */
 export interface CaseViewProps {
   /** The case to show. */
   readonly data: CaseData;
+  /** Called by "Back to the globe". */
+  readonly onBack: () => void;
 }
 
 interface CaseQAWindow extends Window {
@@ -33,11 +39,12 @@ function wantsStubTiles(): boolean {
 }
 
 /**
- * Full-viewport case view: the map of the site and its attribution.
+ * Full-viewport case view: the map of the site, the alert, legend and timeline panels, and the
+ * map attribution.
  *
  * @returns The case view.
  */
-export function CaseView({ data }: CaseViewProps) {
+export function CaseView({ data, onBack }: CaseViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const [mapStatus, setMapStatus] = useState<MapStatus>("loading");
 
@@ -95,13 +102,19 @@ export function CaseView({ data }: CaseViewProps) {
   }, [data]);
 
   return (
-    <section className="case-view" data-map={mapStatus} aria-label={data.site.name}>
+    <section className="case-view" data-map={mapStatus} data-panels="shown">
       <div className="case-view__map" ref={mapRef} aria-hidden="true" />
       <div className="case-view__shade case-view__shade--top" aria-hidden="true" />
       <div className="case-view__shade case-view__shade--bottom" aria-hidden="true" />
+      <div className="case-view__panels">
+        <AlertCard data={data} onBack={onBack} />
+        <Legend />
+        <Timeline data={data} />
+      </div>
       <p className="case-view__attribution">
         <a href={IMAGERY.homepage} target="_blank" rel="noopener noreferrer">
           {IMAGERY.attribution}
+          <span className="case-visually-hidden"> {CASE_COPY.externalHint}</span>
         </a>
         {" · "}
         {TERRAIN.attribution}

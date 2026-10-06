@@ -3,6 +3,7 @@
 // synthetic meander through the placeholder site, not the surveyed course of the Atrato, and every
 // number below comes from a seeded generator. The UI labels it "Illustrative sample data".
 import { CASE_SITE } from "./site.ts";
+import { mean, windowMean } from "./stats.ts";
 import type {
   AnomalySummary,
   CaseData,
@@ -180,29 +181,13 @@ function buildRainfall(): RainfallDay[] {
   });
 }
 
-function mean(values: readonly number[]): number {
-  return values.reduce((sum, value) => sum + value, 0) / values.length;
-}
-
-// Mean of the valid samples on one side of the split, or null when all are cloudy.
-function windowMean(
-  scene: NdtiScene,
-  sampleProgress: readonly number[],
-  side: "upstream" | "downstream",
-): number | null {
-  const values = scene.values.filter((value, index): value is number => {
-    const p = sampleProgress[index] ?? 0;
-    const inWindow = side === "upstream" ? p < NDTI.split : p >= NDTI.split;
-    return value !== null && inWindow;
-  });
-  return values.length === 0 ? null : mean(values);
-}
-
 function summarize(
   scenes: readonly NdtiScene[],
   sampleProgress: readonly number[],
 ): { anomaly: AnomalySummary; stats: ReachStats } {
-  const downstream = scenes.map((scene) => windowMean(scene, sampleProgress, "downstream"));
+  const downstream = scenes.map((scene) =>
+    windowMean(scene, sampleProgress, NDTI.split, "downstream"),
+  );
   const baseline = downstream
     .slice(0, BASELINE_SCENES)
     .filter((value): value is number => value !== null);
@@ -213,7 +198,8 @@ function summarize(
   const lastIndex = scenes.length - 1;
   const last = scenes[lastIndex];
   const lastDownstream = downstream[lastIndex];
-  const lastUpstream = last === undefined ? null : windowMean(last, sampleProgress, "upstream");
+  const lastUpstream =
+    last === undefined ? null : windowMean(last, sampleProgress, NDTI.split, "upstream");
   if (last === undefined || lastDownstream == null || lastUpstream === null) {
     throw new Error("The illustrative fixture needs a clear last scene.");
   }
