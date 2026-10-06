@@ -35,6 +35,18 @@
   --wallet-inset: 10px;
   --edge-l: calc(var(--pad-x) + var(--logo-inset));
   --edge-r: calc(var(--pad-x) + var(--wallet-inset));
+  /*
+   * Text column: the brief's min(36cqw, 600px), but never closer than --clear to the globe's
+   * limb. --gx resolves against the hero's width and --d is the scene's disc diameter, so the
+   * limb clearance holds by construction at any landscape size.
+   */
+  --clear: 32px;
+  --fit: calc(var(--gx) - var(--d) / 2 - var(--clear) - var(--edge-l));
+  --col: min(36cqw, 600px, var(--fit));
+  /* Vertical room: the copy block is centred on the globe (shifted up 3%) but kept 48 px clear of
+     the nav and of the bottom row. --copy-half is its half-height; --foot-h the bottom row's. */
+  --copy-half: 164px;
+  --foot-h: 112px;
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   z-index: 1;
@@ -154,7 +166,8 @@
   display: flex;
   align-items: center;
   height: var(--nav-h);
-  padding-inline: var(--logo-inset) var(--wallet-inset);
+  /* The glass border is part of the inset. */
+  padding-inline: calc(var(--logo-inset) - 1px) calc(var(--wallet-inset) - 1px);
   border-radius: 999px;
 }
 
@@ -204,6 +217,132 @@
   padding-inline: 12px 14px;
   border-color: rgb(240 246 255 / 0.16);
   font-size: 14px;
+}
+
+/* Headline block. Text boxes are trimmed to cap height and baseline, so the gaps below are
+   measured on the letters, not on line boxes. */
+.hero-copy {
+  position: absolute;
+  top: clamp(
+    calc(var(--pad-y) + var(--nav-h) + 48px + var(--copy-half)),
+    calc(var(--gy) - 3%),
+    calc(100% - var(--pad-y) - var(--foot-h) - 48px - var(--copy-half))
+  );
+  left: var(--edge-l);
+  width: var(--col);
+  translate: 0 -50%;
+}
+
+.hero-eyebrow,
+.hero-title,
+.hero-sub {
+  margin: 0;
+}
+
+.hero-eyebrow__text,
+.hero-title,
+.hero-sub {
+  text-box: trim-both cap alphabetic;
+}
+
+.hero-eyebrow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 450;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero-eyebrow__text {
+  display: block;
+}
+
+.hero-eyebrow__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.hero-title {
+  margin-top: 24px;
+  color: var(--text-1);
+  font-size: clamp(40px, 4cqw, 68px);
+  font-weight: 560;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.hero-title__line {
+  display: block;
+  /* Hang each line by its first letter's side bearing (Inter Tight at 560): the stem of "P" sits
+     on the edge and the round "S" overshoots it slightly, as optical alignment wants. */
+  margin-left: -0.024em;
+  white-space: nowrap;
+}
+
+/* Second sentence: primary at 62% opacity. */
+.hero-title__line--quiet {
+  margin-left: -0.047em;
+  color: rgb(240 246 255 / 0.595);
+}
+
+.hero-sub {
+  max-width: min(44ch, 30cqw);
+  margin-top: 24px;
+  color: var(--text-2);
+  font-size: 17px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 32px;
+}
+
+.hero-btn--solid {
+  padding-inline: 22px 18px;
+  background-color: var(--cta-bg);
+  color: var(--cta-ink);
+  font-weight: 560;
+}
+
+.hero-btn--solid:hover {
+  background-color: #fff;
+}
+
+.hero-btn--solid svg {
+  transition: transform 160ms var(--ease);
+}
+
+.hero-btn--solid:hover svg {
+  transform: translateX(2px);
+}
+
+/* Without text-box trimming, trim the line boxes by hand (Inter Tight and Geist Mono metrics). */
+@supports not (text-box: trim-both cap alphabetic) {
+  .hero-eyebrow__text {
+    margin-block: -0.15em;
+  }
+
+  .hero-title {
+    margin-block: calc(24px - 0.146em) -0.146em;
+  }
+
+  .hero-sub {
+    margin-block: calc(24px - 0.41em) -0.41em;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

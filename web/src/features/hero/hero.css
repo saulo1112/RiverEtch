@@ -18,6 +18,8 @@
 .hero > * {
   --gx: var(--globe-x, 60%);
   --gy: var(--globe-y, 56%);
+  /* Disc diameter, as the scene frames it (CAMERA.discFraction of the height, capped by width). */
+  --d: min(72cqh, 88cqw);
 }
 
 @container hero (aspect-ratio < 1) {
@@ -64,7 +66,6 @@
 }
 
 .hero__planet {
-  --d: min(72cqh, 88cqw);
   position: absolute;
   left: var(--gx);
   top: var(--gy);

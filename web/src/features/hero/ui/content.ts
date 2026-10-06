@@ -31,3 +31,24 @@ export const NAV = {
   externalHint: "(opens in a new tab)",
   wallet: "Connect wallet",
 } as const;
+
+/** A call to action: a placeholder in-page link for now. */
+export interface CallToAction {
+  /** Visible label. */
+  readonly label: string;
+  /** Target anchor. */
+  readonly href: string;
+}
+
+/**
+ * Headline block. The eyebrow items are written in sentence case and set in capitals by CSS, so
+ * screen readers read words, not letters.
+ */
+export const COPY = {
+  eyebrow: ["Sentinel-2", "Zero-knowledge", "Sepolia"],
+  title: ["See the river.", "Prove the permit."],
+  subtitle:
+    "Satellites flag turbidity anomalies in Colombian rivers. Permit holders answer with a zero-knowledge proof, without revealing their data.",
+  primary: { label: "Explore the case", href: "#detect" } satisfies CallToAction,
+  secondary: { label: "How it works", href: "#prove" } satisfies CallToAction,
+} as const;
