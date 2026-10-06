@@ -1,8 +1,9 @@
 import "./hero.css";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 
 import { parseHeroUrlOptions, type HeroUrlOptions } from "./config.ts";
+import { HeroUi } from "./ui/HeroUi.tsx";
 
 // "loading" shows the CSS poster, "ready" fades the WebGL stage in, "fallback" keeps the poster.
 type HeroStatus = "loading" | "ready" | "fallback";
@@ -45,14 +46,15 @@ function getReducedMotion(): boolean {
 }
 
 /**
- * Full-viewport hero: a lit 3D Earth with a satellite scanning Colombia, over a starfield. Falls
- * back to a CSS planet when WebGL2 is unavailable.
+ * Full-viewport hero: a lit 3D Earth with a satellite scanning Colombia, over a starfield, with the
+ * UI overlay on top. Falls back to a CSS planet when WebGL2 is unavailable.
  *
  * @returns The hero section.
  */
 export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
   const [environment] = useState(detectEnvironment);
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotion);
   const { quality, frozenTime, lab, disabledEffects } = environment.url;
@@ -123,17 +125,19 @@ export function Hero() {
       ref={sectionRef}
       className="hero"
       data-hero-state={status}
-      role="img"
-      aria-label="Animated globe: a satellite orbits the Earth and scans Colombia's rivers."
+      data-hero-quality={quality}
+      aria-labelledby={titleId}
     >
-      <div className="hero__sky" />
+      {/* Decorative layers: the scene and its CSS stand-ins carry no information. */}
+      <div className="hero__sky" aria-hidden="true" />
       <div className="hero__poster" aria-hidden="true">
         <div className="hero__planet">
           <span className="hero__marker" />
         </div>
       </div>
-      <div className="hero__stage" ref={stageRef} />
-      <div className="hero__vignette" />
+      <div className="hero__stage" ref={stageRef} aria-hidden="true" />
+      <div className="hero__vignette" aria-hidden="true" />
+      <HeroUi titleId={titleId} />
     </section>
   );
 }

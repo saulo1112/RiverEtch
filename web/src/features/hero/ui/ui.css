@@ -1,0 +1,100 @@
+/*
+ * Hero UI layer. Tokens and styles are scoped under .hero-ui; the overlay is a direct child of
+ * .hero, so `.hero > div` already stretches it over the section and `.hero > *` gives it the
+ * globe centre (--gx/--gy) and the disc size (--d) written by the scene.
+ */
+
+.hero > .hero-ui {
+  /* Text: one cool-white ramp. --text-3 is the lightest text that still reaches 4.5:1 over the
+     sky; --ink-3 is for non-text marks only (icons, hairlines). */
+  --text-1: rgb(240 246 255 / 0.96);
+  --text-2: rgb(240 246 255 / 0.68);
+  --text-3: rgb(240 246 255 / 0.56);
+  --ink-3: rgb(240 246 255 / 0.44);
+  --hairline: rgb(240 246 255 / 0.14);
+  /* The only accent: tiny details (dots, focus ring, link hover). */
+  --accent: #22d3ee;
+  --cta-bg: #f4f8ff;
+  --cta-ink: #04101f;
+  --glass-bg: rgb(255 255 255 / 0.05);
+  --glass-border: rgb(255 255 255 / 0.1);
+  --glass-solid: rgb(8 14 32 / 0.72);
+  --glass-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 12px 40px rgb(0 0 0 / 0.35);
+  --glass-filter: blur(18px) saturate(140%);
+
+  --font-text: "Inter Tight Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Frame: the brief's pads, capped to a centred 1760 px frame on ultrawide screens. */
+  --pad-x: max(clamp(24px, 4.2vw, 80px), (100cqw - 1760px) / 2);
+  --pad-y: clamp(20px, 3vh, 36px);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  z-index: 1;
+  /* The overlay never blocks the scene; only controls take the pointer. */
+  pointer-events: none;
+  color: var(--text-1);
+  font-family: var(--font-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hero-ui a,
+.hero-ui button {
+  pointer-events: auto;
+}
+
+.hero-ui :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.hero-ui__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Frosted glass: the nav pill and the status chip only. */
+.hero-ui__glass {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero-ui__glass {
+    background: var(--glass-solid);
+  }
+}
+
+.hero[data-hero-quality="low"] .hero-ui__glass {
+  background: var(--glass-solid);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .hero-ui__glass {
+    background: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-ui *,
+  .hero-ui *::before,
+  .hero-ui *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
