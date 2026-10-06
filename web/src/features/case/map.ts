@@ -29,6 +29,19 @@ export interface CreateCaseMapOptions {
   readonly stubTiles: boolean;
 }
 
+/** How the final view fits around the panels. */
+export interface FinalFrame {
+  /** Insets (CSS px) that center the site in the part of the map the panels leave free. */
+  readonly padding: {
+    readonly top: number;
+    readonly bottom: number;
+    readonly left: number;
+    readonly right: number;
+  };
+  /** Added to the site's final zoom (negative where the free area is too short for the reach). */
+  readonly zoomOffset: number;
+}
+
 /** A screen position in CSS pixels, relative to the map container. */
 export interface ScreenPoint {
   /** Pixels from the left edge. */
@@ -46,11 +59,20 @@ export interface CaseMapHandle {
    *
    * @param durationMs - Flight duration.
    * @param easing - Easing of the flight, from 0..1 to 0..1.
+   * @param frame - Where to center the site, and a zoom adjustment, for the panels' free area.
    * @returns Resolves when the flight ends or is interrupted.
    */
-  readonly flyToFinal: (durationMs: number, easing: (t: number) => number) => Promise<void>;
-  /** Stops any flight and jumps to the final pose. */
-  readonly jumpToFinal: () => void;
+  readonly flyToFinal: (
+    durationMs: number,
+    easing: (t: number) => number,
+    frame: FinalFrame,
+  ) => Promise<void>;
+  /**
+   * Stops any flight and jumps to the final pose.
+   *
+   * @param frame - Where to center the site, and a zoom adjustment, for the panels' free area.
+   */
+  readonly jumpToFinal: (frame: FinalFrame) => void;
   /**
    * Draws the river from upstream to downstream.
    *
@@ -259,6 +281,11 @@ export async function createCaseMap(
   const { site } = data;
   const center: [number, number] = [site.center[0], site.center[1]];
   const final = { center, zoom: site.finalZoom, pitch: site.pitch, bearing: site.bearing };
+  const framed = (frame: FinalFrame) => ({
+    ...final,
+    zoom: final.zoom + frame.zoomOffset,
+    padding: frame.padding,
+  });
   const stops = riverStops(data);
   let reveal = start === "final" ? 1 : 0;
 
@@ -334,7 +361,7 @@ export async function createCaseMap(
 
   const handle: CaseMapHandle = {
     ready,
-    flyToFinal(durationMs, easing) {
+    flyToFinal(durationMs, easing, frame) {
       endFlight();
       if (disposed) {
         return Promise.resolve();
@@ -342,15 +369,15 @@ export async function createCaseMap(
       return new Promise<void>((resolve) => {
         settleFlight = resolve;
         // `essential`: the caller already handles reduced motion.
-        map.easeTo({ ...final, duration: durationMs, easing, essential: true });
+        map.easeTo({ ...framed(frame), duration: durationMs, easing, essential: true });
       });
     },
-    jumpToFinal() {
+    jumpToFinal(frame) {
       if (disposed) {
         return;
       }
       map.stop();
-      map.jumpTo(final);
+      map.jumpTo(framed(frame));
       endFlight();
     },
     revealRiver(durationMs) {

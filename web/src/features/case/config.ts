@@ -77,6 +77,8 @@ export const MAP_LOOK = {
 export const FLIGHT = {
   // Crossfade from the globe to the map once the dive reached the handoff and the map is ready.
   crossfadeMs: 700,
+  // What is underneath goes this long after the crossfade's CSS transition should have ended.
+  crossfadeMarginMs: 80,
   // Without a dive (no WebGL scene yet) and with reduced motion: a quick crossfade instead.
   quickCrossfadeMs: 300,
   reducedCrossfadeMs: 200,

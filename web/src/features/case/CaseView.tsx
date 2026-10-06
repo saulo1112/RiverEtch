@@ -13,7 +13,7 @@ import { cubicBezier } from "../../lib/easing.ts";
 import { FLIGHT, IMAGERY, MAP_LOOK, TERRAIN } from "./config.ts";
 import { CASE_COPY } from "./content.ts";
 import { loadCaseMap } from "./loadMap.ts";
-import type { CaseMapHandle } from "./map.ts";
+import type { CaseMapHandle, FinalFrame } from "./map.ts";
 import { AlertCard } from "./panels/AlertCard.tsx";
 import { Legend } from "./panels/Legend.tsx";
 import { Timeline } from "./panels/Timeline.tsx";
@@ -61,6 +61,70 @@ type MapStatus = "loading" | "ready" | "failed";
 
 const flyEase = cubicBezier(...FLIGHT.flyEase);
 
+// Screen size (px) of the reach at the final pose, the least free room the site keeps between
+// the panels, the most the final zoom backs off where even that is too small (phones), and the
+// gap kept around panels.
+const REACH_SIZE = { width: 220, height: 300 };
+const MIN_FREE = { width: 160, height: 140 };
+const MAX_ZOOM_BACKOFF = 1.5;
+const PANEL_GAP = 12;
+
+// Shrinks two opposite insets proportionally so at least `min` px stay free between them.
+function keepFree(a: number, b: number, size: number, min: number): [number, number] {
+  const excess = a + b + min - size;
+  if (excess <= 0 || a + b === 0) {
+    return [a, b];
+  }
+  const keep = Math.max(0, 1 - excess / (a + b));
+  return [a * keep, b * keep];
+}
+
+/**
+ * Fits the final view around the panels. A panel in the left or right column insets that side;
+ * a panel across the middle insets the top or the bottom, by the half it sits in. Where the free
+ * rectangle is smaller than the reach, the zoom backs off. Layout boxes are used, so the panels'
+ * hidden offset does not count.
+ *
+ * @param root - The case view element (null before mount: no padding).
+ * @returns Map padding in CSS pixels and a zoom offset.
+ */
+function finalFrame(root: HTMLElement | null): FinalFrame {
+  const width = root?.clientWidth ?? window.innerWidth;
+  const height = root?.clientHeight ?? window.innerHeight;
+  let top = 0;
+  let bottom = 0;
+  let left = 0;
+  let right = 0;
+  for (const panel of root?.querySelectorAll<HTMLElement>(".case-panel") ?? []) {
+    const panelLeft = panel.offsetLeft;
+    const panelRight = panelLeft + panel.offsetWidth;
+    const panelTop = panel.offsetTop;
+    const panelBottom = panelTop + panel.offsetHeight;
+    if (panelRight < width / 2) {
+      left = Math.max(left, panelRight + PANEL_GAP);
+    } else if (panelLeft > width / 2) {
+      right = Math.max(right, width - panelLeft + PANEL_GAP);
+    } else if (panelTop + panelBottom < height) {
+      top = Math.max(top, panelBottom + PANEL_GAP);
+    } else {
+      bottom = Math.max(bottom, height - panelTop + PANEL_GAP);
+    }
+  }
+  const freeWidth = Math.max(60, width - left - right);
+  const freeHeight = Math.max(60, height - top - bottom);
+  const shortfall = Math.max(
+    0,
+    Math.log2(REACH_SIZE.width / freeWidth),
+    Math.log2(REACH_SIZE.height / freeHeight),
+  );
+  [left, right] = keepFree(left, right, width, MIN_FREE.width);
+  [top, bottom] = keepFree(top, bottom, height, MIN_FREE.height);
+  return {
+    padding: { top, bottom, left, right },
+    zoomOffset: -Math.min(MAX_ZOOM_BACKOFF, shortfall),
+  };
+}
+
 // `?tiles=stub` (development only) draws generated tiles instead of fetching real ones.
 function wantsStubTiles(): boolean {
   return import.meta.env.DEV && new URLSearchParams(window.location.search).get("tiles") === "stub";
@@ -84,6 +148,7 @@ export function CaseView({
   onLanded,
   onBack,
 }: CaseViewProps) {
+  const rootRef = useRef<HTMLElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const handleRef = useRef<CaseMapHandle | null>(null);
@@ -146,7 +211,7 @@ export function CaseView({
         }
         // Skipped while the map was loading: it started at the handoff pose.
         if (startsOnFinal()) {
-          created.jumpToFinal();
+          created.jumpToFinal(finalFrame(rootRef.current));
           created.revealRiver(0);
         }
         await created.ready;
@@ -181,10 +246,11 @@ export function CaseView({
       return undefined;
     }
     markFlight("crossfade");
+    // A small margin past the CSS transition, so the globe never leaves before it is covered.
     const timer = window.setTimeout(() => {
       setCrossfaded(true);
       notifyCrossfaded();
-    }, crossfadeMs);
+    }, crossfadeMs + FLIGHT.crossfadeMarginMs);
     return () => {
       window.clearTimeout(timer);
     };
@@ -207,7 +273,7 @@ export function CaseView({
         setFlightLanded(true);
       }
     };
-    void handle?.flyToFinal(FLIGHT.flyMs, flyEase).then(() => {
+    void handle?.flyToFinal(FLIGHT.flyMs, flyEase, finalFrame(rootRef.current)).then(() => {
       flightDone = true;
       land();
     });
@@ -241,7 +307,7 @@ export function CaseView({
   // Skip: straight to the final pose with the whole river.
   useEffect(() => {
     if (skip) {
-      handleRef.current?.jumpToFinal();
+      handleRef.current?.jumpToFinal(finalFrame(rootRef.current));
       handleRef.current?.revealRiver(0);
     }
   }, [skip]);
@@ -255,6 +321,7 @@ export function CaseView({
   const style = { "--crossfade": `${String(crossfadeMs)}ms` } as CSSProperties;
   return (
     <section
+      ref={rootRef}
       className="case-view"
       aria-labelledby="case-site-title"
       style={style}
@@ -269,6 +336,9 @@ export function CaseView({
       <div className="case-view__shade case-view__shade--top" aria-hidden="true" />
       <div className="case-view__shade case-view__shade--bottom" aria-hidden="true" />
       <div className="case-view__haze" aria-hidden="true" />
+      {mapStatus === "failed" ? (
+        <p className="case-view__note">{CASE_COPY.mapUnavailable}</p>
+      ) : null}
       <div className="case-view__panels">
         <AlertCard data={data} headingRef={headingRef} onBack={onBack} />
         <Legend />

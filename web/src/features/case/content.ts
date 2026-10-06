@@ -25,6 +25,7 @@ export const CASE_COPY = {
   onset: "Anomaly onset",
   cloudy: "cloud / no data",
   externalHint: "(opens in a new tab)",
+  mapUnavailable: "The map could not load in this browser.",
   announceCase: "Case view:",
   announceBack: "Back to the globe.",
 } as const;

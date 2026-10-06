@@ -11,16 +11,16 @@ export interface TimelineProps {
   readonly data: CaseData;
 }
 
-// Chart geometry (CSS px). Two lanes share one time axis: scenes above, rainfall below.
-const HEIGHT = 150;
+// Chart geometry (CSS px). Two lanes share one time axis: scenes above, rainfall below; the lanes
+// share whatever height the plot gets from case.css (150 px, less on short screens).
 const PAD_X = 8;
-const SCENES = { top: 22, height: 38 };
-const RAIN = { top: 88, height: 38 };
-const AXIS_Y = 146;
+const LANE_TOP = 22;
+const LABEL_SPACE = 28;
+const AXIS_SPACE = 24;
 const DOT_RADIUS = 4.5;
 
-function useWidth(ref: RefObject<HTMLElement | null>): number {
-  const [width, setWidth] = useState(0);
+function useSize(ref: RefObject<HTMLElement | null>): { width: number; height: number } {
+  const [size, setSize] = useState({ width: 0, height: 0 });
   useEffect(() => {
     const element = ref.current;
     if (element === null) {
@@ -28,7 +28,10 @@ function useWidth(ref: RefObject<HTMLElement | null>): number {
     }
     const observer = new ResizeObserver(([entry]) => {
       if (entry !== undefined) {
-        setWidth(Math.round(entry.contentRect.width));
+        setSize({
+          width: Math.round(entry.contentRect.width),
+          height: Math.round(entry.contentRect.height),
+        });
       }
     });
     observer.observe(element);
@@ -36,7 +39,7 @@ function useWidth(ref: RefObject<HTMLElement | null>): number {
       observer.disconnect();
     };
   }, [ref]);
-  return width;
+  return size;
 }
 
 // A column with a 2 px rounded top and a square base.
@@ -63,8 +66,12 @@ function columnPath(x: number, width: number, base: number, height: number): str
  */
 export function Timeline({ data }: TimelineProps) {
   const plotRef = useRef<HTMLDivElement>(null);
-  const width = useWidth(plotRef);
+  const { width, height } = useSize(plotRef);
   const hatchId = useId();
+  const laneHeight = Math.max(12, (height - LANE_TOP - LABEL_SPACE - AXIS_SPACE) / 2);
+  const scenesLane = { top: LANE_TOP, height: laneHeight };
+  const rainLane = { top: LANE_TOP + laneHeight + LABEL_SPACE, height: laneHeight };
+  const axisY = height - 4;
 
   const start = data.rainfall[0]?.date ?? data.anomaly.sceneDate;
   const end = data.rainfall.at(-1)?.date ?? data.anomaly.sceneDate;
@@ -76,7 +83,7 @@ export function Timeline({ data }: TimelineProps) {
     date: scene.date,
     ndti: windowMean(scene, data.sampleProgress, data.stats.splitProgress, "downstream"),
   }));
-  const sceneY = (ndti: number) => SCENES.top + (1 - ndtiPosition(ndti)) * SCENES.height;
+  const sceneY = (ndti: number) => scenesLane.top + (1 - ndtiPosition(ndti)) * scenesLane.height;
   // The line between consecutive clear scenes; a cloudy scene breaks it.
   let trend = "";
   let drawing = false;
@@ -93,7 +100,7 @@ export function Timeline({ data }: TimelineProps) {
   const slot = plotWidth / data.rainfall.length;
   const barWidth = Math.min(24, Math.max(1.5, slot * 0.6));
   const lastRain = data.rainfall.at(-1);
-  const rainBase = RAIN.top + RAIN.height;
+  const rainBase = rainLane.top + rainLane.height;
 
   // Month starts inside the window, between the two end labels.
   const ticks: string[] = [];
@@ -117,8 +124,8 @@ export function Timeline({ data }: TimelineProps) {
         {data.illustrative ? <p className="case-chip">{CASE_COPY.illustrativeLabel}</p> : null}
       </header>
       <div className="case-timeline__plot" ref={plotRef}>
-        {width > 0 ? (
-          <svg width={width} height={HEIGHT} viewBox={`0 0 ${width} ${HEIGHT}`} aria-hidden="true">
+        {width > 0 && height > 0 ? (
+          <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
             <defs>
               <pattern
                 id={hatchId}
@@ -131,10 +138,10 @@ export function Timeline({ data }: TimelineProps) {
               </pattern>
             </defs>
 
-            <text className="case-timeline__lane" x={PAD_X} y={SCENES.top - 10}>
+            <text className="case-timeline__lane" x={PAD_X} y={scenesLane.top - 10}>
               {CASE_COPY.laneScenes}
             </text>
-            <text className="case-timeline__lane" x={PAD_X} y={RAIN.top - 10}>
+            <text className="case-timeline__lane" x={PAD_X} y={rainLane.top - 10}>
               {CASE_COPY.laneRain}
             </text>
 
@@ -142,13 +149,13 @@ export function Timeline({ data }: TimelineProps) {
               className="case-timeline__onset"
               x1={onsetX}
               x2={onsetX}
-              y1={SCENES.top - 6}
+              y1={scenesLane.top - 6}
               y2={rainBase}
             />
             <text
               className="case-timeline__onset-label"
               x={onsetX + (onsetLabelEnd ? -6 : 6)}
-              y={SCENES.top - 10}
+              y={scenesLane.top - 10}
               textAnchor={onsetLabelEnd ? "end" : "start"}
             >
               {CASE_COPY.onset}
@@ -162,7 +169,7 @@ export function Timeline({ data }: TimelineProps) {
               y2={rainBase + 0.5}
             />
             {data.rainfall.map((day) => {
-              const height = (day.mm / maxRain) * RAIN.height;
+              const height = (day.mm / maxRain) * rainLane.height;
               if (height < 0.5) {
                 return null;
               }
@@ -182,7 +189,7 @@ export function Timeline({ data }: TimelineProps) {
               <text
                 className="case-timeline__value"
                 x={x(lastRain.date) - barWidth / 2 - 4}
-                y={rainBase - (lastRain.mm / maxRain) * RAIN.height - 2}
+                y={rainBase - (lastRain.mm / maxRain) * rainLane.height - 2}
                 textAnchor="end"
               >
                 {lastRain.mm.toFixed(1)}
@@ -196,7 +203,7 @@ export function Timeline({ data }: TimelineProps) {
                   key={scene.date}
                   className="case-timeline__cloud"
                   cx={x(scene.date)}
-                  cy={SCENES.top + SCENES.height / 2}
+                  cy={scenesLane.top + scenesLane.height / 2}
                   r={DOT_RADIUS}
                   fill={`url(#${hatchId})`}
                 />
@@ -212,7 +219,7 @@ export function Timeline({ data }: TimelineProps) {
               ),
             )}
 
-            <text className="case-timeline__tick" x={PAD_X} y={AXIS_Y}>
+            <text className="case-timeline__tick" x={PAD_X} y={axisY}>
               {formatDate(start)}
             </text>
             {ticks.map((tick) => (
@@ -220,13 +227,13 @@ export function Timeline({ data }: TimelineProps) {
                 key={tick}
                 className="case-timeline__tick"
                 x={x(tick)}
-                y={AXIS_Y}
+                y={axisY}
                 textAnchor="middle"
               >
                 {formatDate(tick)}
               </text>
             ))}
-            <text className="case-timeline__tick" x={width - PAD_X} y={AXIS_Y} textAnchor="end">
+            <text className="case-timeline__tick" x={width - PAD_X} y={axisY} textAnchor="end">
               {formatDate(end)}
             </text>
           </svg>

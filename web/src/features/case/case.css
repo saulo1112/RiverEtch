@@ -98,6 +98,19 @@
   }
 }
 
+/* Shown instead of the map when MapLibre cannot start (no WebGL, chunk failed to load). */
+.case-view__note {
+  position: absolute;
+  top: 50%;
+  right: var(--pad-x);
+  left: var(--pad-x);
+  margin: 0;
+  color: var(--text-3);
+  font-size: 13px;
+  text-align: center;
+  translate: 0 -50%;
+}
+
 /* Skip (flythrough only): over everything, bottom right. */
 .case-skip {
   position: fixed;
@@ -331,6 +344,13 @@
   line-height: 1.4;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/* The focus target when the view lands: a ring that hugs the text. */
+.case-alert__site:focus-visible {
+  width: fit-content;
+  border-radius: 4px;
+  outline-offset: 4px;
 }
 
 .case-alert__site-note {
@@ -567,6 +587,56 @@
 .case-timeline__hatch {
   stroke: rgb(150 162 186 / 0.8);
   stroke-width: 1.5;
+}
+
+/* Below 1280 px the attribution wraps to two lines: keep the timeline clear of it. */
+@media (max-width: 1279px) {
+  .case-view__panels {
+    padding-bottom: calc(var(--pad-y) + 30px);
+  }
+}
+
+/* Short landscape screens: compact alert and a shorter timeline, so everything fits the height. */
+@media (min-width: 761px) and (max-height: 760px) {
+  .case-view__panels {
+    gap: 12px;
+  }
+
+  .case-alert {
+    padding: 14px 18px 12px;
+  }
+
+  .case-alert__head {
+    margin-top: 10px;
+  }
+
+  .case-alert__title {
+    font-size: 19px;
+  }
+
+  .case-alert__rows {
+    margin-top: 10px;
+  }
+
+  .case-alert__row {
+    padding: 7px 0;
+  }
+
+  .case-alert__challenge {
+    height: 36px;
+  }
+
+  .case-alert__hint {
+    display: none;
+  }
+
+  .case-timeline {
+    padding-block: 10px 8px;
+  }
+
+  .case-timeline__plot {
+    height: 112px;
+  }
 }
 
 /* Phones and narrow portrait screens: one column, compact panels, the legend on two rows above
