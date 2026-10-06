@@ -199,7 +199,10 @@
   flex: none;
   gap: 10px;
   align-items: center;
-  border-radius: 4px;
+  /* Same treatment as the links: padding for the hit area and focus ring, offset by margin. */
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border-radius: 10px;
   color: var(--text-1);
   font-size: 16px;
   font-weight: 560;
@@ -221,7 +224,11 @@
 }
 
 .hero-nav__link {
-  border-radius: 4px;
+  /* A 33 px hit area and a roomier focus ring; the negative margin keeps the text in place. */
+  display: block;
+  margin: -8px -10px;
+  padding: 8px 10px;
+  border-radius: 8px;
   color: var(--text-2);
   font-size: 14px;
   font-weight: 500;
@@ -310,15 +317,15 @@
 
 .hero-title__line {
   display: block;
-  /* Hang each line by its first letter's side bearing (Inter Tight at 560): the stem of "P" sits
-     on the edge and the round "S" overshoots it slightly, as optical alignment wants. */
-  margin-left: -0.024em;
+  /* Hang each line by its first letter's side bearing (Inter Tight at 560, measured on rendered
+     ink): the stem of "P" and the curve of "S" both land on the edge. */
+  margin-left: -0.03em;
   white-space: nowrap;
 }
 
 /* Second sentence: primary at 62% opacity. */
 .hero-title__line--quiet {
-  margin-left: -0.047em;
+  margin-left: -0.055em;
   color: rgb(240 246 255 / 0.595);
 }
 
@@ -375,7 +382,6 @@
   display: flex;
   gap: 24px;
   align-items: flex-end;
-  justify-content: space-between;
 }
 
 .hero-steps {
@@ -453,7 +459,8 @@
   gap: 8px;
   align-items: center;
   height: 32px;
-  margin: 0 var(--edge-r) 0 0;
+  /* Auto: stays on the right edge even when it is the row's only item (strip hidden). */
+  margin: 0 var(--edge-r) 0 auto;
   /* The 1 px glass border is part of the inset: the dot is concentric with the end cap. */
   padding-inline: 12px 13px;
   border-radius: 999px;
@@ -574,9 +581,10 @@
   }
 
   /* Without descriptions the label is the strip's last line: end the row on its baseline (the
-     label's cap height is centred on the 18 px icon), so the chip still sits on it. */
+     label's cap height, 0.71em in Geist Mono, is centred on the 18 px icon), so the chip still
+     sits on it. */
   .hero-step__head {
-    margin-bottom: calc((1cap - 18px) / 2);
+    margin-bottom: calc((0.71em - 18px) / 2);
   }
 }
 
