@@ -1,0 +1,28 @@
+/*
+ * Design tokens shared by the hero overlay and the case view (zero specificity, so either can
+ * override one locally): one cool-white text ramp, a single accent, the frosted-glass recipe, the
+ * type families and the UI easing. Always dark.
+ */
+:where(.hero-ui, .case-view) {
+  /* Text: one cool-white ramp. --text-3 is the lightest text that still reaches 4.5:1 over the
+     sky; --ink-3 is for non-text marks only (icons, hairlines). */
+  --text-1: rgb(240 246 255 / 0.96);
+  --text-2: rgb(240 246 255 / 0.68);
+  --text-3: rgb(240 246 255 / 0.56);
+  --ink-3: rgb(240 246 255 / 0.44);
+  --hairline: rgb(240 246 255 / 0.14);
+  /* The only accent: tiny details (dots, focus ring, link hover). */
+  --accent: #22d3ee;
+  --cta-bg: #f4f8ff;
+  --cta-ink: #04101f;
+  --glass-bg: rgb(255 255 255 / 0.05);
+  --glass-border: rgb(255 255 255 / 0.1);
+  --glass-solid: rgb(8 14 32 / 0.72);
+  --glass-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 12px 40px rgb(0 0 0 / 0.35);
+  --glass-filter: blur(18px) saturate(140%);
+
+  --font-text: "Inter Tight Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}

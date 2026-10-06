@@ -2,6 +2,7 @@
 // status chip) laid over the scene. Nothing here is wired to data, the wallet or the scan state.
 import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/geist-mono";
+import "../../../styles/tokens.css";
 import "./ui.css";
 
 import { Copy } from "./Copy.tsx";

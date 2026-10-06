@@ -1,0 +1,80 @@
+/* Case view: the map under night shades, with glass panels on top. Always dark. */
+
+.case-view {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  isolation: isolate;
+  background: #02040a;
+  color: var(--text-1);
+  font-family: var(--font-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --pad-x: clamp(16px, 2.4vw, 40px);
+  --pad-y: clamp(16px, 2.6vh, 32px);
+}
+
+.case-view :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* MapLibre makes its container `position: relative`; keep it full-bleed. */
+.case-view > .case-view__map {
+  position: absolute;
+  inset: 0;
+}
+
+/* Night shades above and below, so the glass panels read over bright imagery. */
+.case-view__shade {
+  position: absolute;
+  right: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.case-view__shade--top {
+  top: 0;
+  height: clamp(160px, 30vh, 320px);
+  background: linear-gradient(
+    to bottom,
+    rgb(2 4 10 / 0.78),
+    rgb(2 4 10 / 0.34) 55%,
+    rgb(2 4 10 / 0)
+  );
+}
+
+.case-view__shade--bottom {
+  bottom: 0;
+  height: clamp(200px, 38vh, 400px);
+  background: linear-gradient(to top, rgb(2 4 10 / 0.86), rgb(2 4 10 / 0.42) 50%, rgb(2 4 10 / 0));
+}
+
+/* Compact attribution (MapLibre's own control is off). */
+.case-view__attribution {
+  position: absolute;
+  right: var(--pad-x);
+  bottom: 6px;
+  left: var(--pad-x);
+  margin: 0;
+  color: var(--text-3);
+  font-size: 10.5px;
+  line-height: 1.35;
+  text-align: right;
+  text-wrap: pretty;
+}
+
+.case-view__attribution a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgb(240 246 255 / 0.3);
+  text-underline-offset: 2px;
+}
+
+.case-view__attribution a:hover {
+  color: var(--text-2);
+}

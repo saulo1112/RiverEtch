@@ -1,7 +1,7 @@
 /*
- * Hero UI layer. Tokens and styles are scoped under .hero-ui; the overlay is a direct child of
- * .hero, so `.hero > div` already stretches it over the section and `.hero > *` gives it the
- * globe centre (--gx/--gy) and the disc size (--d) written by the scene.
+ * Hero UI layer. Styles are scoped under .hero-ui (shared tokens: styles/tokens.css); the overlay
+ * is a direct child of .hero, so `.hero > div` already stretches it over the section and
+ * `.hero > *` gives it the globe centre (--gx/--gy) and the disc size (--d) written by the scene.
  */
 
 /* Registered so they compute to pixels on .hero-ui, against the hero container, and inherit as
@@ -19,25 +19,7 @@
 }
 
 .hero > .hero-ui {
-  /* Text: one cool-white ramp. --text-3 is the lightest text that still reaches 4.5:1 over the
-     sky; --ink-3 is for non-text marks only (icons, hairlines). */
-  --text-1: rgb(240 246 255 / 0.96);
-  --text-2: rgb(240 246 255 / 0.68);
-  --text-3: rgb(240 246 255 / 0.56);
-  --ink-3: rgb(240 246 255 / 0.44);
-  --hairline: rgb(240 246 255 / 0.14);
-  /* The only accent: tiny details (dots, focus ring, link hover). */
-  --accent: #22d3ee;
-  --cta-bg: #f4f8ff;
-  --cta-ink: #04101f;
-  --glass-bg: rgb(255 255 255 / 0.05);
-  --glass-border: rgb(255 255 255 / 0.1);
-  --glass-solid: rgb(8 14 32 / 0.72);
-  --glass-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 12px 40px rgb(0 0 0 / 0.35);
-  --glass-filter: blur(18px) saturate(140%);
-
-  --font-text: "Inter Tight Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-mono: "Geist Mono Variable", "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+  /* Colors, glass and type come from styles/tokens.css (shared with the case view). */
 
   /* Frame: the brief's pads, capped to a centred 1760 px frame on ultrawide screens. */
   --hero-w: 100cqw;
@@ -70,7 +52,6 @@
   --copy-y: calc(var(--gy) - 3%);
   --copy-half: 164px;
   --foot-h: 98px;
-  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   z-index: 1;
   /* The overlay never blocks the scene; only controls take the pointer. */
