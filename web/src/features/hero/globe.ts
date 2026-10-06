@@ -36,6 +36,7 @@ import {
   QUALITY_PRESETS,
   SCAN,
   SUN,
+  type HeroEffect,
   type QualityName,
 } from "./config.ts";
 import { createSatellite, timeForOrbitOffset, type SatelliteRig } from "./satellite.ts";
@@ -52,6 +53,8 @@ export interface MountHeroOptions {
   readonly reducedMotion: boolean;
   /** Scene time to freeze at (development QA), or null to animate normally. */
   readonly frozenTime: number | null;
+  /** Effects switched off for QA (`?off=`, development builds only). */
+  readonly disabledEffects: ReadonlySet<HeroEffect>;
   /** Element that receives the CSS custom properties driving the sky layers. */
   readonly cssTarget: HTMLElement;
   /** Called once the first frame with the Earth texture has been rendered. */
@@ -164,7 +167,8 @@ void main() {
   color *= mix(uFocusVignette, 1.0, smoothstep(0.55, 0.85, dot(normal, uFocusDirection)));
   color = heroShoulder(color, uShoulder.x, uShoulder.y);
 
-  // Sun glint on water (GGX with Schlick Fresnel); allowed to exceed the bloom threshold.
+  // Sun glint on water (GGX with Schlick Fresnel). A soft cap keeps the lobe's shape (a hard clip
+  // would flatten its core) and keeps it below the bloom threshold, so it does not flare.
   vec3 halfVector = normalize(uSunDirection + viewDirection);
   float nDotH = saturate(dot(normal, halfVector));
   float alpha = uGlint.x * uGlint.x;
@@ -172,7 +176,8 @@ void main() {
   float denominator = nDotH * nDotH * (alpha2 - 1.0) + 1.0;
   float distribution = alpha2 / (PI * denominator * denominator);
   float fresnel = 0.02 + 0.98 * pow(1.0 - saturate(dot(viewDirection, halfVector)), 5.0);
-  color += uSunColor * min(distribution * fresnel * uGlint.y * water * lambert, uGlint.z);
+  float glint = distribution * fresnel * uGlint.y * water * lambert;
+  color += uSunColor * uGlint.z * (1.0 - exp(-glint / uGlint.z));
 
   gl_FragColor = vec4(heroDither(color, gl_FragCoord.xy), 1.0);
   #include <tonemapping_fragment>
@@ -229,7 +234,7 @@ void main() {
 }
 `;
 
-function createEarthMaterial(): ShaderMaterial {
+function createEarthMaterial(oceanGlint: boolean): ShaderMaterial {
   return new ShaderMaterial({
     name: "earth",
     uniforms: {
@@ -249,7 +254,9 @@ function createEarthMaterial(): ShaderMaterial {
       uFocusVignette: { value: EARTH.focusVignette },
       uSaturation: { value: EARTH.saturation },
       uTerminator: { value: new Vector2(...EARTH.terminator) },
-      uGlint: { value: new Vector3(EARTH.glintRoughness, EARTH.glintGain, EARTH.glintMax) },
+      uGlint: {
+        value: new Vector3(EARTH.glintRoughness, oceanGlint ? EARTH.glintGain : 0, EARTH.glintMax),
+      },
       uShoulder: { value: new Vector2(EARTH.shoulderKnee, EARTH.shoulderMax) },
     },
     vertexShader: earthVertexShader,
@@ -296,7 +303,7 @@ function createAtmosphere(segments: readonly [number, number]): Mesh {
  */
 export function mountHero(container: HTMLElement, options: MountHeroOptions): HeroHandle {
   const preset = QUALITY_PRESETS[options.quality];
-  const { cssTarget } = options;
+  const { cssTarget, disabledEffects } = options;
   const lifetime = new AbortController();
   const { signal } = lifetime;
 
@@ -322,7 +329,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   // globe.gl starts its own loops on creation; this module drives rendering instead.
   globe.pauseAnimation();
 
-  const earthMaterial = createEarthMaterial();
+  const earthMaterial = createEarthMaterial(!disabledEffects.has("oceanGlint"));
   globe
     .enablePointerInteraction(false)
     .backgroundColor("rgba(0,0,0,0)")
@@ -360,6 +367,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     composer.setPixelRatio(pixelRatio);
     const { strength, radius, threshold } = POST.bloom;
     bloomPass = new UnrealBloomPass(new Vector2(1, 1), strength, radius, threshold);
+    // `?off=bloom` keeps the same target and output pass, so only the bloom itself changes.
+    bloomPass.enabled = !disabledEffects.has("bloom");
     outputPass = new OutputPass();
     composer.addPass(bloomPass);
     composer.addPass(outputPass);
@@ -737,8 +746,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     const [day, water, rig, effect] = await Promise.allSettled([
       loadTexture(preset.earthTexture, renderer, signal, "color"),
       loadTexture(EARTH_WATER_TEXTURE, renderer, signal, "data"),
-      createSatellite(renderer, preset, signal),
-      createScan(preset, signal),
+      createSatellite(renderer, preset, signal, disabledEffects),
+      createScan(preset, signal, disabledEffects),
     ]);
     if (signal.aborted) {
       for (const result of [day, water, rig, effect]) {

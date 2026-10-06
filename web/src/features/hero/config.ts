@@ -133,13 +133,15 @@ export const EARTH = {
   // Strength of the sunset tint near the terminator.
   twilightTint: 0.2,
   twilightColor: "#ff9a5a",
-  // GGX roughness of the ocean sun glint, its gain and its cap (linear).
+  // GGX roughness of the ocean sun glint, its gain and its soft cap (linear). The cap stays below
+  // the bloom threshold (POST.bloom.threshold), so the glint reads as sunlight on water, not a flare.
   glintRoughness: 0.22,
-  glintGain: 0.25,
-  glintMax: 1.1,
-  // Night side: residual albedo light, a faint navy floor and the optional night-lights gain.
-  nightAmbient: [0.006, 0.009, 0.016],
-  nightTint: [0.0012, 0.0024, 0.0065],
+  glintGain: 0.17,
+  glintMax: 0.8,
+  // Night side: residual albedo light (moon- and airglow-like, enough to read the continents), a
+  // deep-navy floor and the optional night-lights gain.
+  nightAmbient: [0.04, 0.05, 0.085],
+  nightTint: [0.005, 0.01, 0.026],
   nightLightsGain: 0.9,
   // Darkens the globe away from Colombia (1 = off).
   focusVignette: 0.92,
@@ -203,18 +205,23 @@ export const CAMERA = {
 } as const;
 
 /**
- * Orbit: near-polar (98°), descending over Colombia on every pass because the Earth is static.
- * The altitude is exaggerated (0.34 R) so the satellite, beam and footprint read at hero scale.
+ * Orbit: prograde and low-inclination, ascending over Colombia on every pass because the Earth is
+ * static, so the satellite crosses the frame left to right, climbing slightly. The altitude is
+ * exaggerated (0.34 R) so the satellite, beam and footprint read at hero scale.
  */
 export const ORBIT = {
-  inclinationDeg: 98,
+  // The single orbit knob. A real Earth-observation orbit would be sun-synchronous (~98°, like
+  // Sentinel-2), but it crosses the frame top to bottom; it was dropped purely for composition.
+  // Keep it well above 0: from this camera a near-equatorial orbit collapses into a flat line.
+  inclinationDeg: 30,
   radius: 134,
   periodS: 50,
   // Scene time of the first pass over Colombia.
   peakTimeS: 9,
   // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp: slow over Colombia, fast on the far side.
   warp: [0.6, 0.075],
-  // Small yaw steering, as real Earth-observation satellites do.
+  // Small yaw steering, as real Earth-observation satellites do: its amplitude on a polar orbit,
+  // scaled by sin(inclination).
   yawSteerDeg: 3.9,
 } as const;
 
@@ -222,21 +229,41 @@ export const ORBIT = {
 export const SATELLITE = {
   variant: "A" satisfies SatelliteVariant,
   // Wingtip-to-wingtip span in model units, and its target size on screen at the scan peak
-  // (before foreshortening: the wings are seen at an angle, so ~100 px end to end).
+  // (before foreshortening: the wings are seen at an angle, so ~225 px end to end at 1080p). The
+  // target is capped to a share of the viewport width (portrait screens), then the model scale is
+  // clamped to scaleRange.
   spanUnits: 24,
-  targetSpanPx: 115,
-  scaleRange: [0.7, 1.35],
+  targetSpanPx: 260,
+  maxSpanViewportFraction: 0.4,
+  scaleRange: [1.0, 3.2],
+  // Thermal blankets: model units per foil texture tile (larger shows the creases at hero scale)
+  // and the strength of their relief.
+  foilTileUnits: 6.5,
+  foilNormalScale: 1.05,
+  // Solar cells per panel (columns along the span, rows along the chord), the width of the
+  // substrate gaps between them (share of the texture's shorter side), its color and the cells'
+  // HSL lightness range (percent).
+  cells: { columns: 4, rows: 6, gapFraction: 0.022, gapColor: "#8d96a6", lightness: [12, 15] },
   // Solar-array drive: critically damped spring (rad/s) with a rate limit.
   sada: { omega: 4, maxDegPerS: 12 },
   // Panel glint, solved once per orbit: where on the orbit it happens (relative to Colombia), the
-  // largest cant and array offset used to aim it, the feather window, its angular width and peak.
+  // largest cant and array offset used to aim it, and the feather window. The arrays sweep through
+  // the glint attitude by ±sweepDeg over that window, so the gleam is brief. The reflection lobe
+  // is sigmaDeg wide; a twist of twistDeg from root to tip and each cell's tilt (cellTilt times the
+  // normal map) make it travel along the wing as a band. `peak` is its linear brightness, kept
+  // below the bloom threshold so the cells never clip to white; haloScale sizes the low preset's
+  // sprite.
   glint: {
-    orbitOffsetDeg: 30,
+    orbitOffsetDeg: 55,
     cantMaxDeg: 22,
     offsetMaxDeg: 35,
     windowDeg: 20,
-    sigmaDeg: 3,
-    peak: 1.5,
+    sweepDeg: 24,
+    sigmaDeg: 1.2,
+    twistDeg: 8,
+    cellTilt: 1,
+    peak: 0.8,
+    haloScale: 2,
   },
   // Dish tracks Colombia while it is above the horizon, otherwise it stows.
   dish: { omega: 1.6, maxDegPerS: 12, maxElevationDeg: 75 },
@@ -268,11 +295,13 @@ export const SATELLITE = {
   lights: {
     key: 2.0,
     keyColor: "#fff3e2",
-    rim: 1.6,
+    rim: 2.6,
     rimColor: "#5b8cff",
     earthshine: 0.9,
     earthshineColor: "#86aeff",
-    ambient: 0.12,
+    // Share of the earthshine kept over the night side, so the satellite still reads there.
+    earthshineMin: 0.3,
+    ambient: 0.16,
     ambientColor: "#1b2340",
   },
   // PMREM blur of the procedural room environment.
@@ -321,6 +350,9 @@ export const SCAN = {
   stroke: { idle: 0.35, gain: 1.0, widthPx: [1.25, 1.7] },
   rings: { slots: 3, lifeS: 2.8, cadenceS: 1.25, maxRadiusRad: 0.18, extentRad: 0.2, gain: 0.8 },
   heat: {
+    // The illustrative heat map along the rivers has no meaning in the hero yet: hidden (and not
+    // generated) unless this is true. The cyan cap, border glow, stroke and rivers always show.
+    visible: false as boolean,
     // Heat left over after a pass decays to `floor` with time constant `agingS`.
     agingS: 9,
     floor: 0.35,
@@ -337,15 +369,27 @@ export const SCAN = {
 } as const;
 
 /**
- * Bloom (high preset). Only light sources and glints exceed the threshold: nav lights, panel and
- * ocean glints, the beam's aperture, the scan line and stroke, fresh heat and new rings. Every
- * surface material stays below it through a luminance shoulder.
+ * Bloom (high preset). Only light sources and glints exceed the threshold: nav lights, the panel
+ * glint, the beam's aperture, the scan line and stroke, and fresh heat when shown. Every surface
+ * material stays below it through a luminance shoulder, and the ocean glint through its soft cap.
  */
 export const POST = {
   bloom: { strength: 0.55, radius: 0.45, threshold: 0.92 },
   // A context lost for longer than this falls back to the CSS planet.
   contextRestoreTimeoutMs: 2000,
 } as const;
+
+/** An effect that `?off=` can disable in development builds, to isolate it during QA. */
+export type HeroEffect = "rings" | "strobe" | "glint" | "oceanGlint" | "bloom" | "heat";
+
+const HERO_EFFECTS: readonly HeroEffect[] = [
+  "rings",
+  "strobe",
+  "glint",
+  "oceanGlint",
+  "bloom",
+  "heat",
+];
 
 /** URL options read once when the hero mounts. */
 export interface HeroUrlOptions {
@@ -355,13 +399,15 @@ export interface HeroUrlOptions {
   readonly lab: boolean;
   /** Frozen scene time from `?t=<seconds>` (development builds only), otherwise null. */
   readonly frozenTime: number | null;
+  /** Effects disabled by `?off=rings,strobe,…` (development builds only), otherwise empty. */
+  readonly disabledEffects: ReadonlySet<HeroEffect>;
 }
 
 /**
  * Parses the hero's URL options.
  *
  * @param search - A `location.search` string such as `"?quality=low"`.
- * @returns The quality preset, lab flag and optional frozen time.
+ * @returns The quality preset, lab flag, optional frozen time and disabled effects.
  */
 export function parseHeroUrlOptions(search: string): HeroUrlOptions {
   const params = new URLSearchParams(search);
@@ -370,10 +416,12 @@ export function parseHeroUrlOptions(search: string): HeroUrlOptions {
     qualityParam === "low" || qualityParam === "high" ? qualityParam : DEFAULT_QUALITY;
   const timeParam = params.get("t");
   const time = timeParam === null ? Number.NaN : Number(timeParam);
+  const off = import.meta.env.DEV ? (params.get("off") ?? "").split(",") : [];
 
   return {
     quality,
     lab: params.get("lab") === "satellite",
     frozenTime: import.meta.env.DEV && Number.isFinite(time) ? time : null,
+    disabledEffects: new Set(HERO_EFFECTS.filter((effect) => off.includes(effect))),
   };
 }

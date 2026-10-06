@@ -1,5 +1,5 @@
 // Procedural Earth-observation satellite (variant A: gold bus, two solar wings, a dish) on a
-// near-polar orbit over Colombia, plus its fading trail and orbit ring. Units: globe radius 100.
+// low-inclination orbit over Colombia, plus its fading trail and orbit ring. Units: globe radius 100.
 import {
   AdditiveBlending,
   AmbientLight,
@@ -31,6 +31,7 @@ import {
   TorusGeometry,
   Vector2,
   Vector3,
+  Vector4,
   type Material,
   type Texture,
   type WebGLRenderer,
@@ -47,6 +48,7 @@ import {
   SATELLITE,
   SUN,
   TRAIL,
+  type HeroEffect,
   type QualityPreset,
   type SatelliteVariant,
 } from "./config.ts";
@@ -67,8 +69,10 @@ import {
 
 const inclination = MathUtils.degToRad(ORBIT.inclinationDeg);
 const centroidLat = MathUtils.degToRad(GEO.colombiaCentroid.lat);
-// Argument of latitude over Colombia: the descending solution of sin(lat) = sin(i)·sin(u).
-const colombiaAngle = Math.PI - Math.asin(Math.sin(centroidLat) / Math.sin(inclination));
+// Argument of latitude over Colombia: the ascending solution of sin(lat) = sin(i)·sin(u). From the
+// camera (south-east of Colombia) the descending solution lies almost edge-on and collapses into a
+// line; the ascending one is an open ellipse crossed left to right.
+const colombiaAngle = Math.asin(Math.sin(centroidLat) / Math.sin(inclination));
 // Longitude of the ascending node that puts that point on Colombia's centroid.
 const nodeLng =
   MathUtils.degToRad(GEO.colombiaCentroid.lng) -
@@ -266,8 +270,8 @@ function strut(from: Vector3, to: Vector3, radius: number, segments = 8): Buffer
 // MLI blankets bulge between their taped edges: each face is offset along its normal by
 // a·(1 − u⁴)(1 − v⁴). The zenith face carries the flat radiator, so it barely bulges, and the
 // blankets lie flat under the solar-array drives (±X) and the launch adapter (−Z). UVs are planar
-// per face (4 units per foil tile) with a random offset, so faces neither share nor stretch the
-// crease pattern.
+// per face (SATELLITE.foilTileUnits per foil tile) with a random offset, so faces neither share
+// nor stretch the crease pattern.
 function createPillowedBox(
   width: number,
   height: number,
@@ -308,7 +312,7 @@ function createPillowedBox(
     const bulge = (amplitudes[faceIndex] ?? 0.05) * (1 - u ** 4) * (1 - v ** 4) * pad;
     position.addScaledVector(normal, bulge);
     positions.setXYZ(i, position.x, position.y, position.z);
-    uvs.setXY(i, c1 / 4 + offsetU, c2 / 4 + offsetV);
+    uvs.setXY(i, c1 / SATELLITE.foilTileUnits + offsetU, c2 / SATELLITE.foilTileUnits + offsetV);
   }
   // Faces do not share vertices, so this smooths within each blanket and keeps the edges crisp.
   geometry.computeVertexNormals();
@@ -322,12 +326,42 @@ const SHOULDER_CACHE_KEY = "hero-satellite-shoulder";
 const GLINT_CACHE_KEY = "hero-satellite-panel-glint";
 
 interface GlintUniforms {
+  /** Peak brightness, already scaled by the eclipse (0 when off). */
   readonly strength: { value: number };
   readonly color: { value: Color };
+  /** Angle from the reflection lobe at the untwisted station: about the wing axis, along the span. */
+  readonly error: { value: Vector2 };
+  /** Lobe width (rad), twist (rad per unit of span), untwisted station, cell tilt gain. */
+  readonly shape: { value: Vector4 };
 }
 
+// Span of the cell-covered panels along each wing's array axis (model units), from buildWing.
+const PANEL_ROOT = 1.4;
+const PANEL_TIP = 9.61;
+
+const GLINT_VERTEX = /* glsl */ `
+#include <begin_vertex>
+vHeroSpan = abs(position.x);`;
+
+// The emissive map is non-zero on the cells only, so frames and busbars stay dark. Each cell's own
+// tilt (normal map) and a slight twist along the span make the reflection reach each cell and each
+// station a moment apart: the gleam travels along the wing as a band instead of lighting the plate.
+const GLINT_FRAGMENT = /* glsl */ `
+#ifdef USE_EMISSIVEMAP
+  float heroCellMask = step(0.002, dot(texture2D(emissiveMap, vEmissiveMapUv).rgb, vec3(0.3333)));
+  #ifdef USE_NORMALMAP
+    vec2 heroTilt = (texture2D(normalMap, vNormalMapUv).xy * 2.0 - 1.0) * heroGlintShape.w;
+  #else
+    vec2 heroTilt = vec2(0.0);
+  #endif
+  float heroAlong = heroGlintError.x + heroGlintShape.y * (vHeroSpan - heroGlintShape.z) + heroTilt.y;
+  float heroAcross = heroGlintError.y + heroTilt.x;
+  float heroLobe = exp(-(heroAlong * heroAlong + heroAcross * heroAcross) / (heroGlintShape.x * heroGlintShape.x));
+  outgoingLight += heroGlintColor * heroGlint * heroLobe * heroCellMask;
+#endif`;
+
 // Soft luminance clamp before the opaque output, so the body never feeds the bloom pass. With
-// `glint`, the solar cells add the sun's reflection after the clamp, so the glint can bloom.
+// `glint`, the solar cells add the sun's reflection after the clamp.
 function withShoulder<T extends Material>(material: T, glint?: GlintUniforms): T {
   const knee = SATELLITE.shoulderKnee.toFixed(3);
   const max = SATELLITE.shoulderMax.toFixed(3);
@@ -337,19 +371,28 @@ function withShoulder<T extends Material>(material: T, glint?: GlintUniforms): T
     if (glint !== undefined) {
       shader.uniforms.heroGlint = glint.strength;
       shader.uniforms.heroGlintColor = glint.color;
-      header += "\nuniform float heroGlint;\nuniform vec3 heroGlintColor;";
-      // The emissive map is non-zero on the cells only, so frames and busbars do not flash.
-      output += `
-#ifdef USE_EMISSIVEMAP
-  float heroCellMask = step(0.002, dot(texture2D(emissiveMap, vEmissiveMapUv).rgb, vec3(0.3333)));
-  outgoingLight += heroGlintColor * heroGlint * heroCellMask;
-#endif`;
+      shader.uniforms.heroGlintError = glint.error;
+      shader.uniforms.heroGlintShape = glint.shape;
+      header += `
+uniform float heroGlint;
+uniform vec3 heroGlintColor;
+uniform vec2 heroGlintError;
+uniform vec4 heroGlintShape;
+varying float vHeroSpan;`;
+      output += GLINT_FRAGMENT;
+      shader.vertexShader = shader.vertexShader
+        .replace("#include <common>", "#include <common>\nvarying float vHeroSpan;")
+        .replace("#include <begin_vertex>", GLINT_VERTEX);
     }
     const patched = shader.fragmentShader
       .replace("#include <common>", header)
       .replace("#include <opaque_fragment>", `${output}\n#include <opaque_fragment>`);
-    if (import.meta.env.DEV && !patched.includes("heroShoulder(outgoingLight")) {
-      console.error("[hero] Satellite shoulder injection failed; three's shader chunks changed.");
+    if (
+      import.meta.env.DEV &&
+      (!patched.includes("heroShoulder(outgoingLight") ||
+        (glint !== undefined && !shader.vertexShader.includes("vHeroSpan = ")))
+    ) {
+      console.error("[hero] Satellite shader injection failed; three's shader chunks changed.");
     }
     shader.fragmentShader = patched;
   };
@@ -390,7 +433,7 @@ async function createSatelliteTextures(
   }
   // Nothing has been uploaded to the GPU yet, so an abort here leaves no resources behind.
   await yieldToBrowser(signal);
-  const cells = createCellTextures(preset.cells[0], preset.cells[1], anisotropy);
+  const cells = createCellTextures(preset.cells[0], preset.cells[1], anisotropy, SATELLITE.cells);
   await yieldToBrowser(signal);
   const osr = createOsrTextures(preset.osr, anisotropy);
   return {
@@ -454,7 +497,7 @@ function createMaterials(
     );
 
   return {
-    gold: foil(colors.gold, textures.foil, 0.85),
+    gold: foil(colors.gold, textures.foil, SATELLITE.foilNormalScale),
     silver: foil(colors.silver, textures.silverFoil, 0.45),
     osr: pbr(
       new MeshPhysicalMaterial({
@@ -481,15 +524,19 @@ function createMaterials(
         metalness: 1,
         roughnessMap: textures.cells.orm,
         metalnessMap: textures.cells.orm,
-        clearcoat: 1,
-        clearcoatRoughness: 0.06,
+        // The sun's mirror reflection on the cover glass is the glint band (GLINT_FRAGMENT). The
+        // physical layers keep a soft sheen only: as mirrors, a flat panel lit by a directional
+        // sun and the room's light boxes turns into one white plate for as long as it faces them.
+        specularIntensity: 0.15,
+        clearcoat: 0.15,
+        clearcoatRoughness: 0.4,
         // Thin anti-reflective film: a faint blue sheen rather than a rainbow.
         iridescence: preset.iridescence ? 0.35 : 0,
         iridescenceIOR: 1.3,
         iridescenceThicknessRange: [100, 110],
       }),
       // Space is black: keep the room's reflection faint so the cells stay deep blue.
-      0.1,
+      0.04,
       glint,
     ),
     panelBack: pbr(
@@ -552,10 +599,28 @@ function buildBus(materials: SatelliteMaterials): { bus: Group; beamAnchor: Obje
   const random = mulberry32(0xb05);
 
   // Body: +X, −X, +Y, −Y, +Z faces in gold, the aft (−Z) face in silver.
-  const body = splitGroups(createPillowedBox(4.0, 3.6, 5.2, random));
+  const size = [4.0, 3.6, 5.2] as const;
+  const body = splitGroups(createPillowedBox(...size, random));
   body.forEach((face, index) => {
     parts.add(index === 5 ? "silver" : "gold", face);
   });
+
+  // Aluminium tape along the twelve edges, where the blankets meet: it keeps the silhouette crisp.
+  const tape = 0.13;
+  for (let axis = 0; axis < 3; axis += 1) {
+    const [a1, a2] = [0, 1, 2].filter((other) => other !== axis) as [number, number];
+    for (const s1 of [-1, 1]) {
+      for (const s2 of [-1, 1]) {
+        const dimensions = [tape, tape, tape];
+        dimensions[axis] = (size[axis] ?? 0) + tape;
+        const center = new Vector3();
+        center.setComponent(a1, (s1 * (size[a1] ?? 0)) / 2);
+        center.setComponent(a2, (s2 * (size[a2] ?? 0)) / 2);
+        const [width = tape, height = tape, depth = tape] = dimensions;
+        parts.add("silver", new BoxGeometry(width, height, depth), compose(center));
+      }
+    }
+  }
 
   // Nadir instrument and its dark aperture.
   parts.add("silver", new BoxGeometry(2.6, 1.3, 3.0, 4, 2, 4), compose(new Vector3(0, -2.45, 0.5)));
@@ -586,6 +651,22 @@ function buildBus(materials: SatelliteMaterials): { bus: Group; beamAnchor: Obje
     "paint",
     new CylinderGeometry(0.24, 0.24, 0.06, 20),
     compose(new Vector3(1.1, 1.84, 1.6)),
+  );
+
+  // Telemetry mast on the zenith face: base plate, thin boom and an omni radome on top.
+  const mastFoot = new Vector3(-1.25, 1.8, 1.7);
+  const mastTop = mastFoot.clone().add(new Vector3(0, 2.3, 0));
+  parts.add("titanium", new CylinderGeometry(0.2, 0.22, 0.06, 16), compose(mastFoot));
+  parts.add("titanium", strut(mastFoot, mastTop, 0.05, 10));
+  parts.add(
+    "paint",
+    new CylinderGeometry(0.12, 0.14, 0.42, 16),
+    compose(mastTop.clone().add(new Vector3(0, 0.21, 0))),
+  );
+  parts.add(
+    "paint",
+    new ConeGeometry(0.12, 0.14, 16),
+    compose(mastTop.clone().add(new Vector3(0, 0.49, 0))),
   );
 
   // Four thruster bells on the aft face.
@@ -1014,7 +1095,9 @@ const yaw = new Quaternion();
 const toCamera = new Vector3();
 const reference = new Vector3();
 const halfVector = new Vector3();
-const panelNormal = new Vector3();
+const arrayAttitude = new Quaternion();
+const arrayRotation = new Quaternion();
+const arrayEuler = new Euler();
 const dishTarget = new Vector3();
 const inverseAttitude = new Quaternion();
 
@@ -1073,7 +1156,10 @@ function attitudeAt(
 ): Quaternion {
   basis.makeBasis(ORBIT_NORMAL, zenith, flight);
   target.setFromRotationMatrix(basis);
-  yaw.setFromAxisAngle(UP, MathUtils.degToRad(ORBIT.yawSteerDeg) * Math.sin(angle));
+  yaw.setFromAxisAngle(
+    UP,
+    MathUtils.degToRad(ORBIT.yawSteerDeg) * Math.sin(inclination) * Math.sin(angle),
+  );
   return target.multiply(yaw);
 }
 
@@ -1089,12 +1175,15 @@ function angleDelta(from: number, to: number): number {
  * @param renderer - Renderer used for the environment map and texture limits.
  * @param preset - Quality preset.
  * @param signal - Aborts the build between texture slices (before anything touches the GPU).
+ * @param disabledEffects - Effects switched off for QA: `strobe`, `glint` (brightness only, the
+ *   arrays still move) and `bloom` (the low preset's glow sprites).
  * @returns The rig, ready to add to the scene.
  */
 export async function createSatellite(
   renderer: WebGLRenderer,
   preset: QualityPreset,
   signal?: AbortSignal,
+  disabledEffects: ReadonlySet<HeroEffect> = new Set(),
 ): Promise<SatelliteRig> {
   const anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   const textures = await createSatelliteTextures(preset, anisotropy, signal);
@@ -1102,9 +1191,19 @@ export async function createSatellite(
   signal?.throwIfAborted();
 
   let environment = renderEnvironment(renderer);
+  const { glint: glintConfig } = SATELLITE;
   const glint: GlintUniforms = {
     strength: { value: 0 },
     color: { value: new Color(SUN.color) },
+    error: { value: new Vector2(Math.PI, 0) },
+    shape: {
+      value: new Vector4(
+        MathUtils.degToRad(glintConfig.sigmaDeg),
+        MathUtils.degToRad(glintConfig.twistDeg) / (PANEL_TIP - PANEL_ROOT),
+        (PANEL_ROOT + PANEL_TIP) / 2,
+        glintConfig.cellTilt,
+      ),
+    },
   };
   const materials = createMaterials(textures, environment.texture, preset, glint);
   const model = MODEL_BUILDERS[SATELLITE.variant](materials);
@@ -1127,7 +1226,7 @@ export async function createSatellite(
   const aimedLights = [key, rim, earthshine] as const;
 
   // Without bloom (low preset), additive sprites stand in for the glow of the lights and glints.
-  const glowTexture = preset.bloom ? null : createGlowTexture();
+  const glowTexture = preset.bloom || disabledEffects.has("bloom") ? null : createGlowTexture();
   const halos: Sprite[] = [];
   const addHalo = (parent: Object3D, color: Color, x: number): Sprite => {
     const halo = new Sprite(
@@ -1155,7 +1254,14 @@ export async function createSatellite(
       : model.wingArrays.map((array) =>
           addHalo(array, new Color(SUN.color), Math.sign(array.position.x) * 5.5),
         );
+  const twistPerUnit = glint.shape.value.y;
   const { navLights: navConfig } = SATELLITE;
+  for (const light of model.navLights) {
+    if (light.name === "navLight.strobe" && disabledEffects.has("strobe")) {
+      light.visible = false;
+    }
+  }
+  const glintGain = disabledEffects.has("glint") ? 0 : 1;
   const navColors = [
     new Color(...navConfig.red),
     new Color(...navConfig.green),
@@ -1236,9 +1342,11 @@ export async function createSatellite(
     inverseAttitude.copy(state.attitude).invert();
     const sunLocal = reference.copy(sunDirection).applyQuaternion(inverseAttitude);
     const sunTrack = Math.atan2(sunLocal.z, sunLocal.y);
-    const fromGlint = angleDelta(glintAngle, angle) / MathUtils.degToRad(SATELLITE.glint.windowDeg);
+    const fromGlint = angleDelta(glintAngle, angle) / MathUtils.degToRad(glintConfig.windowDeg);
     const feather = Math.abs(fromGlint) < 1 ? 0.5 * (1 + Math.cos(Math.PI * fromGlint)) : 0;
-    const arrayTarget = sunTrack + glintOffset * feather;
+    // The arrays sweep through the glint attitude instead of dwelling on it, so the gleam is brief.
+    const sweep = MathUtils.degToRad(glintConfig.sweepDeg) * fromGlint;
+    const arrayTarget = sunTrack + (glintOffset + sweep) * feather;
 
     // Dish: track Colombia while it is above the horizon, otherwise stow.
     let azimuthTarget = 0;
@@ -1285,23 +1393,36 @@ export async function createSatellite(
     }
     key.intensity = lightConfig.key * (1 - shadow);
 
-    // Glint strength from the angle between the panel normal and the sun/camera half vector.
-    panelNormal
-      .set(
-        -Math.sin(cant),
-        Math.cos(cant) * Math.cos(array.angle),
-        Math.cos(cant) * Math.sin(array.angle),
-      )
-      .applyQuaternion(state.attitude);
-    halfVector.subVectors(cameraPosition, state.position).normalize().add(sunDirection).normalize();
-    const glintSigma = MathUtils.degToRad(SATELLITE.glint.sigmaDeg);
-    const glintLevel = still
-      ? 0
-      : Math.exp(-((panelNormal.angleTo(halfVector) / glintSigma) ** 2)) * (1 - shadow);
+    // Glint: the sun/camera half vector in the array's frame, where the cells face +Y. Its angles
+    // about the wing axis and along the span drive the lobe in the cells' shader.
+    arrayAttitude
+      .copy(state.attitude)
+      .multiply(arrayRotation.setFromEuler(arrayEuler.set(array.angle, 0, cant)))
+      .invert();
+    halfVector
+      .subVectors(cameraPosition, state.position)
+      .normalize()
+      .add(sunDirection)
+      .normalize()
+      .applyQuaternion(arrayAttitude);
+    const errorAlong = Math.atan2(halfVector.z, halfVector.y);
+    const errorAcross = Math.asin(MathUtils.clamp(halfVector.x, -1, 1));
+    const visibleGlint = still ? 0 : (1 - shadow) * glintGain;
+    const glintSigma = glint.shape.value.x;
+    const glintLevel =
+      Math.exp(-(errorAlong ** 2 + errorAcross ** 2) / glintSigma ** 2) * visibleGlint;
     state.glint = glintLevel;
-    glint.strength.value = SATELLITE.glint.peak * glintLevel;
+    glint.strength.value = glintConfig.peak * visibleGlint;
+    glint.error.value.set(errorAlong, errorAcross);
+    // The low preset's halo sits on the band and stays small.
+    const station = MathUtils.clamp(
+      glint.shape.value.z - errorAlong / twistPerUnit,
+      PANEL_ROOT,
+      PANEL_TIP,
+    );
     for (const halo of glintHalos) {
-      halo.scale.setScalar(5 * glintLevel);
+      halo.position.x = Math.sign(halo.position.x) * station;
+      halo.scale.setScalar(glintConfig.haloScale * glintLevel);
     }
 
     // Nav lights: red and green Gaussian pulses, a double-flash strobe.
@@ -1338,7 +1459,11 @@ export async function createSatellite(
 
     // Earthshine from below, only when the ground underneath is lit.
     earthshine.intensity =
-      lightConfig.earthshine * MathUtils.smoothstep(radial.dot(sunDirection), -0.1, 0.5);
+      lightConfig.earthshine *
+      Math.max(
+        lightConfig.earthshineMin,
+        MathUtils.smoothstep(radial.dot(sunDirection), -0.1, 0.5),
+      );
     earthshine.position.copy(state.position).addScaledVector(radial, -50);
     earthshine.target.position.copy(state.position);
     for (const light of aimedLights) {
@@ -1362,8 +1487,12 @@ export async function createSatellite(
     const pixelsPerUnit =
       viewportHeight / (2 * distance * Math.tan(MathUtils.degToRad(fovDeg / 2)));
     const [minScale, maxScale] = SATELLITE.scaleRange;
+    const targetSpan = Math.min(
+      SATELLITE.targetSpanPx,
+      (SATELLITE.maxSpanViewportFraction * drawingBuffer.x) / pixelRatio,
+    );
     state.scale = MathUtils.clamp(
-      SATELLITE.targetSpanPx / (SATELLITE.spanUnits * pixelsPerUnit),
+      targetSpan / (SATELLITE.spanUnits * pixelsPerUnit),
       minScale,
       maxScale,
     );

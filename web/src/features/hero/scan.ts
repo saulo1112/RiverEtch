@@ -1,6 +1,7 @@
 // Colombia scan effect. As the satellite passes overhead, its sensor beam lands on the country, a
-// push-broom line sweeps across it revealing an illustrative turbidity heat map along the main
-// rivers, the border glows and rings pulse out from the centroid. Driven by a small state machine.
+// push-broom line sweeps across it, the border glows and rings pulse out from the centroid. An
+// illustrative turbidity heat map along the main rivers can be revealed behind the push-broom line
+// (SCAN.heat.visible, off in the hero for now). Driven by a small state machine.
 import {
   AdditiveBlending,
   Color,
@@ -24,7 +25,7 @@ import { LineSegments2 } from "three/addons/lines/LineSegments2.js";
 import { LineSegmentsGeometry } from "three/addons/lines/LineSegmentsGeometry.js";
 
 import { COLOMBIA_DIRECTION, COLOMBIA_RINGS, latLngToVector3 } from "./colombia.ts";
-import { GEO, GLOBE_RADIUS, SCAN, type QualityPreset } from "./config.ts";
+import { GEO, GLOBE_RADIUS, SCAN, type HeroEffect, type QualityPreset } from "./config.ts";
 import {
   COLOMBIA_ORBIT_ANGLE,
   ORBIT_NODE,
@@ -118,11 +119,15 @@ varying vec3 vNormalView;
 varying vec3 vViewDirection;
 
 void main() {
+  // MSAA shades a partly covered pixel at its centre, which can lie well outside the cone's thin
+  // triangles near the apex. There vAlong is extrapolated far below 0 and the hot spot's exp()
+  // overflows to +Inf; the bloom then spreads that one pixel over the frame as a flash. Clamp it.
+  float along = clamp(vAlong, 0.0, 1.0);
   float facing = pow(abs(dot(normalize(vNormalView), normalize(vViewDirection))), 1.3);
-  float body = mix(1.0, 0.35, smoothstep(0.0, 0.6, vAlong)) + 0.35 * smoothstep(0.82, 1.0, vAlong);
-  float wave = 0.5 + 0.5 * sin(6.2831853 * (vAlong * uLength / uShape.z + uTime * uShape.w));
+  float body = mix(1.0, 0.35, smoothstep(0.0, 0.6, along)) + 0.35 * smoothstep(0.82, 1.0, along);
+  float wave = 0.5 + 0.5 * sin(6.2831853 * (along * uLength / uShape.z + uTime * uShape.w));
   float stripe = 0.68 + 0.32 * smoothstep(0.55, 1.0, wave);
-  float hot = uShape.y * exp(-vAlong * uLength / 0.9);
+  float hot = uShape.y * exp(-along * uLength / 0.9);
   vec3 color = uColor * (uShape.x * body * stripe * facing + hot) * uIntensity;
   gl_FragColor = vec4(color, max(color.r, max(color.g, color.b)));
   #include <tonemapping_fragment>
@@ -203,6 +208,7 @@ uniform vec3 uCyan;
 uniform vec3 uRamp[5];
 uniform vec3 uContourColor;
 uniform float uIntensity;
+uniform float uHeat; // 0 hides the heat map (cap, glow and rivers stay)
 uniform float uCap;
 uniform float uOld;
 uniform float uFront;
@@ -236,15 +242,15 @@ void main() {
   float track = wrapPi(atan(dot(direction, uOrbitQuadrature), dot(direction, uOrbitNode)) - uColombiaAngle);
   float revealed = smoothstep(uFront + 0.004, uFront - 0.012, track) * uSweep;
   float visible = max(uOld, revealed);
-  float fresh = step(track, uFront) * exp(-(uFront - track) / 0.02) * uSweep;
+  float fresh = step(track, uFront) * exp(-(uFront - track) / 0.02) * uSweep * uHeat;
 
   vec3 ramp = heatRamp(heat);
   float bands = heat * 6.0;
   float contour = 1.0 - smoothstep(0.0, 1.5 * fwidth(bands), abs(fract(bands + 0.5) - 0.5));
   ramp = mix(ramp, uContourColor, 0.18 * contour * step(0.15, heat));
 
-  float heatAlpha = smoothstep(0.06, 0.3, heat) * (0.35 + 0.6 * heat) * visible * mask;
-  vec3 heatEmission = ramp * heat * (0.45 * fresh + 0.12 * visible) * mask;
+  float heatAlpha = smoothstep(0.06, 0.3, heat) * (0.35 + 0.6 * heat) * visible * mask * uHeat;
+  vec3 heatEmission = ramp * heat * (0.45 * fresh + 0.12 * visible) * mask * uHeat;
   float capAlpha = mask * (0.05 + 0.07 * uCap);
   vec3 glow = uCyan * edgeGlow * edgeGlow
     * (mask * (0.08 + 0.3 * uIntensity) + (1.0 - mask) * (0.04 + 0.18 * uIntensity));
@@ -402,16 +408,24 @@ function overlayMaterial(
 
 /**
  * Builds the scan effect: beam, footprint, Colombia patch (cap, glow and heat), border stroke and
- * ring pulses. The heat map is illustrative (blobs along the main rivers), not measured data.
+ * ring pulses. The heat map is illustrative (blobs along the main rivers), not measured data, and
+ * stays hidden unless {@link SCAN}.heat.visible is set.
  *
  * @param preset - Quality preset (geometry and texture sizes).
  * @param signal - Aborts the data texture generation between slices.
+ * @param disabledEffects - Effects switched off for QA: `rings` and `heat`.
  * @returns The effect, ready to add to the scene.
  */
-export async function createScan(preset: QualityPreset, signal?: AbortSignal): Promise<ScanEffect> {
+export async function createScan(
+  preset: QualityPreset,
+  signal?: AbortSignal,
+  disabledEffects: ReadonlySet<HeroEffect> = new Set(),
+): Promise<ScanEffect> {
+  const heatVisible = SCAN.heat.visible && !disabledEffects.has("heat");
   const data: DataTexture = await createColombiaDataTexture(
     preset.scan.data[0],
     preset.scan.data[1],
+    { heat: heatVisible },
     signal,
   );
   const cyan = new Color(SCAN.colors.instrument);
@@ -484,6 +498,7 @@ export async function createScan(preset: QualityPreset, signal?: AbortSignal): P
       uRamp: { value: SCAN.heat.ramp.map((hex) => new Color(hex)) },
       uContourColor: { value: new Color(SCAN.heat.contourColor) },
       uIntensity: { value: 0 },
+      uHeat: { value: heatVisible ? 1 : 0 },
       uCap: { value: 0 },
       uOld: { value: SCAN.heat.floor },
       uFront: { value: -SCAN.heat.frontLimit },
@@ -529,6 +544,7 @@ export async function createScan(preset: QualityPreset, signal?: AbortSignal): P
   rings.name = "scanRings";
   rings.renderOrder = 5;
   rings.frustumCulled = false;
+  rings.visible = !disabledEffects.has("rings");
 
   const beamUniforms = beamMaterial.uniforms as {
     uIntensity: Uniform<number>;

@@ -470,19 +470,35 @@ export interface CellTextures {
   readonly orm: CanvasTexture;
 }
 
+/** Cell layout of a solar panel. */
+export interface CellLayout {
+  /** Cells along the panel's X axis. */
+  readonly columns: number;
+  /** Cells along the panel's Z axis. */
+  readonly rows: number;
+  /** Substrate gap between cells, as a share of the texture's shorter side. */
+  readonly gapFraction: number;
+  /** Substrate color between the cells (sRGB hex). */
+  readonly gapColor: string;
+  /** Range of the cells' HSL lightness, in percent. */
+  readonly lightness: readonly [number, number];
+}
+
 /**
- * Draws a solar panel: a bright frame, 6 x 14 cropped-corner cells with gaps, busbars and fine
+ * Draws a solar panel: a bright frame, cropped-corner cells on a light substrate, busbars and fine
  * fingers. Every line is at least two texels wide so it survives mipmapping.
  *
  * @param width - Texture width in texels (along the panel's X axis).
  * @param height - Texture height in texels (along the panel's Z axis).
  * @param anisotropy - Anisotropic filtering level.
+ * @param layout - Cell grid, substrate gap and cell lightness.
  * @returns Albedo, emissive, normal and roughness/metalness maps.
  */
 export function createCellTextures(
   width: number,
   height: number,
   anisotropy: number,
+  layout: CellLayout,
 ): CellTextures {
   const random = mulberry32(0xce11);
   const albedo = createCanvas(width, height);
@@ -503,14 +519,14 @@ export function createCellTextures(
   const frame = Math.max(2, Math.round(Math.min(width, height) * 0.025));
   const innerWidth = width - frame * 2;
   const innerHeight = height - frame * 2;
-  albedo.fillStyle = "#0a0c12";
+  // Substrate between the cells: light enough that the grid reads at hero scale.
+  albedo.fillStyle = layout.gapColor;
   albedo.fillRect(frame, frame, innerWidth, innerHeight);
   orm.fillStyle = `rgb(255,${Math.round(0.7 * 255)},0)`;
   orm.fillRect(frame, frame, innerWidth, innerHeight);
 
-  const columns = 6;
-  const rows = 14;
-  const gap = Math.max(2, Math.round(Math.min(width, height) * 0.012));
+  const { columns, rows } = layout;
+  const gap = Math.max(2, Math.round(Math.min(width, height) * layout.gapFraction));
   const cellWidth = (innerWidth - gap * (columns + 1)) / columns;
   const cellHeight = (innerHeight - gap * (rows + 1)) / rows;
   const crop = Math.min(cellWidth, cellHeight) * 0.14;
@@ -538,9 +554,11 @@ export function createCellTextures(
       const path = cellPath(x, y);
 
       // Deep blue-violet cells with a small per-cell hue and lightness jitter.
+      const [lightnessMin, lightnessMax] = layout.lightness;
       const hue = 221 + random() * 8 + gaussianSample(random) * 3;
-      const lightness = 10 + random() * 2 + gaussianSample(random) * 1.2;
-      albedo.fillStyle = `hsl(${hue.toFixed(1)} 52% ${lightness.toFixed(1)}%)`;
+      const lightness =
+        lightnessMin + random() * (lightnessMax - lightnessMin) + gaussianSample(random) * 1.2;
+      albedo.fillStyle = `hsl(${hue.toFixed(1)} 62% ${lightness.toFixed(1)}%)`;
       albedo.fill(path);
       emissive.fillStyle = "#1b2b6e";
       emissive.fill(path);
@@ -552,14 +570,14 @@ export function createCellTextures(
       );
       normal.fillStyle = `rgb(${tiltX},${tiltY},255)`;
       normal.fill(path);
-      // Glassy cells: a tight glint instead of a broad sheen.
-      orm.fillStyle = `rgb(255,${Math.round(0.08 * 255)},0)`;
+      // Cover glass: a broad, faint sheen. The sun's mirror glint is drawn separately as a band.
+      orm.fillStyle = `rgb(255,${Math.round(0.5 * 255)},0)`;
       orm.fill(path);
 
       // Fine fingers across the cell, then two busbars along it.
       albedo.save();
       albedo.clip(path);
-      albedo.fillStyle = "rgba(150,160,190,0.16)";
+      albedo.fillStyle = "rgba(150,160,190,0.07)";
       for (let fx = x + finger; fx < x + cellWidth; fx += cellWidth / 24) {
         albedo.fillRect(Math.round(fx), y, finger, cellHeight);
       }
@@ -707,12 +725,15 @@ function normalizeMax(grid: Float32Array): void {
  *
  * @param width - Texture width in texels (longitude).
  * @param height - Texture height in texels (latitude).
+ * @param options - `heat: false` leaves the heat channel at zero and skips its generation.
+ * @param options.heat - Whether to generate the heat channel.
  * @param signal - Aborts the generation between slices.
  * @returns An RGBA8 data texture with mipmaps.
  */
 export async function createColombiaDataTexture(
   width: number,
   height: number,
+  options: { readonly heat: boolean },
   signal?: AbortSignal,
 ): Promise<DataTexture> {
   const { lngMin, lngMax, latMin, latMax } = GEO.patch;
@@ -790,100 +811,105 @@ export async function createColombiaDataTexture(
   const rivers = readChannel();
   await yieldToBrowser(signal);
 
-  // G: heat. Anisotropic Gaussian blobs along the rivers plus round hotspots.
-  const random = mulberry32(170);
-  const heat = new Float32Array(count);
-  const texelsPerDegree = { x: width / lngSpan, y: height / latSpan };
-  const addBlob = (
-    lat: number,
-    lng: number,
-    along: readonly [number, number],
-    sigmaAlong: number,
-    sigmaAcross: number,
-    amplitude: number,
-  ) => {
-    const reach = 3 * Math.max(sigmaAlong, sigmaAcross);
-    const x0 = Math.max(0, Math.floor((lng - reach - lngMin) * texelsPerDegree.x));
-    const x1 = Math.min(width - 1, Math.ceil((lng + reach - lngMin) * texelsPerDegree.x));
-    const y0 = Math.max(0, Math.floor((lat - reach - latMin) * texelsPerDegree.y));
-    const y1 = Math.min(height - 1, Math.ceil((lat + reach - latMin) * texelsPerDegree.y));
-    const [ux, uy] = along;
-    for (let y = y0; y <= y1; y += 1) {
-      const dLat = latMin + (y + 0.5) / texelsPerDegree.y - lat;
-      for (let x = x0; x <= x1; x += 1) {
-        const dLng = lngMin + (x + 0.5) / texelsPerDegree.x - lng;
-        const a = (dLng * ux + dLat * uy) / sigmaAlong;
-        const c = (-dLng * uy + dLat * ux) / sigmaAcross;
-        heat[y * width + x] =
-          (heat[y * width + x] ?? 0) + amplitude * Math.exp(-0.5 * (a * a + c * c));
+  // G: heat. Anisotropic Gaussian blobs along the rivers plus round hotspots. Skipped (all zero)
+  // while the hero hides the heat map; kept for the future river-anomaly markers.
+  const buildHeat = async (): Promise<Float32Array> => {
+    const random = mulberry32(170);
+    const heat = new Float32Array(count);
+    const texelsPerDegree = { x: width / lngSpan, y: height / latSpan };
+    const addBlob = (
+      lat: number,
+      lng: number,
+      along: readonly [number, number],
+      sigmaAlong: number,
+      sigmaAcross: number,
+      amplitude: number,
+    ) => {
+      const reach = 3 * Math.max(sigmaAlong, sigmaAcross);
+      const x0 = Math.max(0, Math.floor((lng - reach - lngMin) * texelsPerDegree.x));
+      const x1 = Math.min(width - 1, Math.ceil((lng + reach - lngMin) * texelsPerDegree.x));
+      const y0 = Math.max(0, Math.floor((lat - reach - latMin) * texelsPerDegree.y));
+      const y1 = Math.min(height - 1, Math.ceil((lat + reach - latMin) * texelsPerDegree.y));
+      const [ux, uy] = along;
+      for (let y = y0; y <= y1; y += 1) {
+        const dLat = latMin + (y + 0.5) / texelsPerDegree.y - lat;
+        for (let x = x0; x <= x1; x += 1) {
+          const dLng = lngMin + (x + 0.5) / texelsPerDegree.x - lng;
+          const a = (dLng * ux + dLat * uy) / sigmaAlong;
+          const c = (-dLng * uy + dLat * ux) / sigmaAcross;
+          heat[y * width + x] =
+            (heat[y * width + x] ?? 0) + amplitude * Math.exp(-0.5 * (a * a + c * c));
+        }
+      }
+    };
+
+    const totalBlobs = 22;
+    for (const river of RIVERS) {
+      // Cumulative length of the course, in degrees.
+      const lengths = [0];
+      for (let i = 1; i < river.points.length; i += 1) {
+        const [latA = 0, lngA = 0] = river.points[i - 1] ?? [];
+        const [latB = 0, lngB = 0] = river.points[i] ?? [];
+        lengths.push((lengths[i - 1] ?? 0) + Math.hypot(latB - latA, lngB - lngA));
+      }
+      const total = lengths[lengths.length - 1] ?? 1;
+      const blobs = Math.max(1, Math.round(totalBlobs * river.weight));
+      for (let b = 0; b < blobs; b += 1) {
+        const target = (0.1 + 0.85 * random()) * total;
+        let segment = 1;
+        while (segment < lengths.length - 1 && (lengths[segment] ?? 0) < target) {
+          segment += 1;
+        }
+        const [latA = 0, lngA = 0] = river.points[segment - 1] ?? [];
+        const [latB = 0, lngB = 0] = river.points[segment] ?? [];
+        const start = lengths[segment - 1] ?? 0;
+        const span = (lengths[segment] ?? 1) - start || 1;
+        const t = (target - start) / span;
+        const segmentLength = Math.hypot(latB - latA, lngB - lngA) || 1;
+        const sigmaAlong = 0.25 + 0.4 * random();
+        addBlob(
+          latA + (latB - latA) * t + (random() - 0.5) * 0.3,
+          lngA + (lngB - lngA) * t + (random() - 0.5) * 0.3,
+          [(lngB - lngA) / segmentLength, (latB - latA) / segmentLength],
+          sigmaAlong,
+          sigmaAlong * (0.3 + 0.2 * random()),
+          0.35 + 0.65 * random() ** 1.5,
+        );
       }
     }
+    for (const hotspot of HOTSPOTS) {
+      const sigma = hotspot.radiusDeg / 2.5;
+      addBlob(hotspot.at[0], hotspot.at[1], [1, 0], sigma, sigma, hotspot.weight);
+    }
+    await yieldToBrowser(signal);
+
+    // Break up the blobs with fbm (1.2° base period), soft-saturate, clip to the country.
+    const basePeriod = Math.ceil(Math.max(lngSpan, latSpan) / 1.2);
+    const octaves = [1, 2, 4, 8].map((scale) => ({
+      period: basePeriod * scale,
+      noise: createTileableNoise(basePeriod * scale, random),
+    }));
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        let value = 0;
+        let amplitude = 0.5;
+        for (const { period, noise } of octaves) {
+          value += amplitude * noise((x / width) * period, (y / height) * period);
+          amplitude *= 0.5;
+        }
+        const i = y * width + x;
+        const saturated = 1 - Math.exp(-1.6 * (heat[i] ?? 0) * (0.75 + 0.5 * value));
+        heat[i] = saturated * (mask[i] ?? 0);
+      }
+    }
+    normalizeMax(heat);
+    // Steeper falloff, so the blobs read as hotspots instead of a wash.
+    for (let i = 0; i < count; i += 1) {
+      heat[i] = (heat[i] ?? 0) ** 1.5;
+    }
+    return heat;
   };
-
-  const totalBlobs = 22;
-  for (const river of RIVERS) {
-    // Cumulative length of the course, in degrees.
-    const lengths = [0];
-    for (let i = 1; i < river.points.length; i += 1) {
-      const [latA = 0, lngA = 0] = river.points[i - 1] ?? [];
-      const [latB = 0, lngB = 0] = river.points[i] ?? [];
-      lengths.push((lengths[i - 1] ?? 0) + Math.hypot(latB - latA, lngB - lngA));
-    }
-    const total = lengths[lengths.length - 1] ?? 1;
-    const blobs = Math.max(1, Math.round(totalBlobs * river.weight));
-    for (let b = 0; b < blobs; b += 1) {
-      const target = (0.1 + 0.85 * random()) * total;
-      let segment = 1;
-      while (segment < lengths.length - 1 && (lengths[segment] ?? 0) < target) {
-        segment += 1;
-      }
-      const [latA = 0, lngA = 0] = river.points[segment - 1] ?? [];
-      const [latB = 0, lngB = 0] = river.points[segment] ?? [];
-      const start = lengths[segment - 1] ?? 0;
-      const span = (lengths[segment] ?? 1) - start || 1;
-      const t = (target - start) / span;
-      const segmentLength = Math.hypot(latB - latA, lngB - lngA) || 1;
-      const sigmaAlong = 0.25 + 0.4 * random();
-      addBlob(
-        latA + (latB - latA) * t + (random() - 0.5) * 0.3,
-        lngA + (lngB - lngA) * t + (random() - 0.5) * 0.3,
-        [(lngB - lngA) / segmentLength, (latB - latA) / segmentLength],
-        sigmaAlong,
-        sigmaAlong * (0.3 + 0.2 * random()),
-        0.35 + 0.65 * random() ** 1.5,
-      );
-    }
-  }
-  for (const hotspot of HOTSPOTS) {
-    const sigma = hotspot.radiusDeg / 2.5;
-    addBlob(hotspot.at[0], hotspot.at[1], [1, 0], sigma, sigma, hotspot.weight);
-  }
-  await yieldToBrowser(signal);
-
-  // Break up the blobs with fbm (1.2° base period), soft-saturate, clip to the country.
-  const basePeriod = Math.ceil(Math.max(lngSpan, latSpan) / 1.2);
-  const octaves = [1, 2, 4, 8].map((scale) => ({
-    period: basePeriod * scale,
-    noise: createTileableNoise(basePeriod * scale, random),
-  }));
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      let value = 0;
-      let amplitude = 0.5;
-      for (const { period, noise } of octaves) {
-        value += amplitude * noise((x / width) * period, (y / height) * period);
-        amplitude *= 0.5;
-      }
-      const i = y * width + x;
-      const saturated = 1 - Math.exp(-1.6 * (heat[i] ?? 0) * (0.75 + 0.5 * value));
-      heat[i] = saturated * (mask[i] ?? 0);
-    }
-  }
-  normalizeMax(heat);
-  // Steeper falloff, so the blobs read as hotspots instead of a wash.
-  for (let i = 0; i < count; i += 1) {
-    heat[i] = (heat[i] ?? 0) ** 1.5;
-  }
+  const heat = options.heat ? await buildHeat() : new Float32Array(count);
 
   const data = new Uint8Array(count * 4);
   for (let i = 0; i < count; i += 1) {
