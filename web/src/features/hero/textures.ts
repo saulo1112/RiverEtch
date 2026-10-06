@@ -2,6 +2,7 @@ import {
   CanvasTexture,
   ImageBitmapLoader,
   LinearMipmapLinearFilter,
+  NoColorSpace,
   SRGBColorSpace,
   Texture,
   type WebGLRenderer,
@@ -27,30 +28,36 @@ export function mulberry32(seed: number): () => number {
 }
 
 /**
- * Loads a color texture from `public/textures/`, decoding it off the main thread.
+ * Loads a texture from `public/textures/`, decoding it off the main thread.
  *
  * @param fileName - File name inside `public/textures/`.
  * @param renderer - Renderer used to read the maximum anisotropy.
  * @param signal - Aborts the load when the hero unmounts.
- * @returns An sRGB texture with mipmaps; the ImageBitmap is closed when the texture is disposed.
+ * @param kind - `"color"` for sRGB images, `"data"` for masks that must not be color-converted.
+ * @returns A texture with mipmaps; its ImageBitmap is closed when the texture is disposed.
  */
-export async function loadColorTexture(
+export async function loadTexture(
   fileName: string,
   renderer: WebGLRenderer,
   signal: AbortSignal,
+  kind: "color" | "data",
 ): Promise<Texture> {
   const loader = new ImageBitmapLoader();
-  loader.setOptions({ imageOrientation: "flipY" });
+  loader.setOptions({
+    imageOrientation: "flipY",
+    premultiplyAlpha: "none",
+    colorSpaceConversion: kind === "data" ? "none" : "default",
+  });
   const bitmap = await loader.loadAsync(`${import.meta.env.BASE_URL}textures/${fileName}`);
   if (signal.aborted) {
     bitmap.close();
-    throw signal.reason;
+    throw new DOMException("Hero unmounted while loading a texture.", "AbortError");
   }
 
   const texture = new Texture(bitmap);
   // The bitmap is already flipped at decode time.
   texture.flipY = false;
-  texture.colorSpace = SRGBColorSpace;
+  texture.colorSpace = kind === "color" ? SRGBColorSpace : NoColorSpace;
   texture.minFilter = LinearMipmapLinearFilter;
   texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
   texture.needsUpdate = true;

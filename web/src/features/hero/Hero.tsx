@@ -51,6 +51,7 @@ function getReducedMotion(): boolean {
  * @returns The hero section.
  */
 export function Hero() {
+  const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const [environment] = useState(detectEnvironment);
   const [status, setStatus] = useState<HeroStatus>(() =>
@@ -60,8 +61,9 @@ export function Hero() {
   const { quality, frozenTime } = environment.url;
 
   useEffect(() => {
+    const section = sectionRef.current;
     const stage = stageRef.current;
-    if (stage === null || !environment.webgl2) {
+    if (section === null || stage === null || !environment.webgl2) {
       return undefined;
     }
 
@@ -86,6 +88,7 @@ export function Hero() {
           quality,
           reducedMotion,
           frozenTime,
+          cssTarget: section,
           onReady: () => {
             setStatus("ready");
           },
@@ -107,6 +110,7 @@ export function Hero() {
 
   return (
     <section
+      ref={sectionRef}
       className="hero"
       data-hero-state={status}
       role="img"

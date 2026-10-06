@@ -11,16 +11,19 @@
   background: #02040a;
 }
 
-/* Globe center on screen; mirrors CAMERA.globeCenterDesktop / globeCenterPortrait in config.ts. */
+/*
+ * Globe center on screen. The scene writes --globe-x/--globe-y from config.ts; the fallbacks
+ * mirror CAMERA.globeCenterDesktop / globeCenterPortrait for the poster and the no-WebGL case.
+ */
 .hero > * {
-  --gx: 62%;
-  --gy: 52%;
+  --gx: var(--globe-x, 62%);
+  --gy: var(--globe-y, 52%);
 }
 
 @container hero (aspect-ratio < 1) {
   .hero > * {
-    --gx: 50%;
-    --gy: 50%;
+    --gx: var(--globe-x, 50%);
+    --gy: var(--globe-y, 50%);
   }
 }
 
@@ -41,6 +44,7 @@
     ),
     radial-gradient(55% 45% at 10% 6%, rgb(140 175 255 / 0.06), transparent 60%),
     linear-gradient(180deg, #01030a, #030919 42%, #06143a 78%, #0a2361);
+  /* Mouse parallax; --px/--py are written by the scene (CAMERA.parallax.cssShiftPx). */
   transform: translate3d(calc(var(--px, 0) * -8px), calc(var(--py, 0) * -5px), 0);
 }
 
