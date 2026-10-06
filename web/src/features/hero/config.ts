@@ -206,6 +206,26 @@ export const CAMERA = {
 } as const;
 
 /**
+ * Dive from the settled hero pose to a top-down (nadir, north-up) view of a site, where the case map
+ * takes over (HeroHandle.dive).
+ */
+export const DIVE = {
+  durationS: 3.2,
+  // cubic-bezier: a slow start, then a long ease-out that settles on the site.
+  ease: [0.5, 0, 0.1, 1],
+  // Share of the dive over which the satellite, orbit, scan overlays and atmosphere fade out (the
+  // camera crosses the orbit and the atmosphere shell on the way down).
+  fadeEnd: 0.35,
+  // The ocean sun glint fades over this part of the dive: the flat map that takes over has none.
+  glintFade: [0.3, 0.85],
+  // Margin between the frame's corners and the horizon at the handoff (degrees): on very wide
+  // screens the camera goes lower, so the limb never shows.
+  horizonMarginDeg: 2,
+  // Closest the camera may get to the surface (scene units).
+  minAltitude: 4,
+} as const;
+
+/**
  * Orbit: prograde and low-inclination, ascending over Colombia on every pass because the Earth is
  * static, so the satellite crosses the frame left to right, climbing slightly. The altitude is
  * exaggerated (0.34 R) so the satellite, beam and footprint read at hero scale.

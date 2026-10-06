@@ -23,10 +23,12 @@ import {
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
+import { cubicBezier } from "../../lib/easing.ts";
 import { COLOMBIA_DIRECTION, COLOMBIA_RINGS, latLngToVector3 } from "./colombia.ts";
 import {
   ATMOSPHERE,
   CAMERA,
+  DIVE,
   EARTH,
   EARTH_NIGHT_TEXTURE,
   EARTH_WATER_TEXTURE,
@@ -39,6 +41,7 @@ import {
   type HeroEffect,
   type QualityName,
 } from "./config.ts";
+import { divePose, handoffFrame } from "./dive.ts";
 import { createSatellite, timeForOrbitOffset, type SatelliteRig } from "./satellite.ts";
 import { createScan, type ScanEffect } from "./scan.ts";
 import { DITHER_GLSL, SHOULDER_GLSL } from "./shaders.ts";
@@ -63,8 +66,49 @@ export interface MountHeroOptions {
   readonly onError: (error: unknown) => void;
 }
 
+/** Where {@link HeroHandle.dive} takes the camera. */
+export interface DiveTarget {
+  /** Site latitude in degrees. */
+  readonly lat: number;
+  /** Site longitude in degrees. */
+  readonly lng: number;
+  /** Web Mercator zoom (512 px tiles) the top-down view should match at the handoff. */
+  readonly zoom: number;
+}
+
+/** Options for {@link HeroHandle.dive}. */
+export interface DiveOptions {
+  /** Dive duration in seconds (defaults to `DIVE.durationS`). */
+  readonly durationS?: number;
+  /** Called every rendered frame of the dive with its linear progress, 0..1. */
+  readonly onProgress?: (progress: number) => void;
+}
+
+/** A running dive. */
+export interface DiveHandle {
+  /** Resolves when the camera reaches the handoff pose, or when the dive is cancelled or the scene disposed. */
+  readonly done: Promise<void>;
+  /** Stops the dive where it is (the camera holds that pose) and resolves `done`. */
+  readonly cancel: () => void;
+  /**
+   * The zoom the handoff pose matches: the requested one, or a larger one on very wide screens,
+   * where the camera goes lower to keep the horizon out of the frame.
+   */
+  readonly handoffZoom: number;
+}
+
 /** Handle returned by {@link mountHero}. */
 export interface HeroHandle {
+  /**
+   * Flies the camera from its current pose down to a top-down, north-up view of a site, centered
+   * (the globe's off-center framing blends out), while the satellite, orbit, scan overlays and
+   * atmosphere fade away and the parallax and drift stop. The camera then holds that pose.
+   *
+   * @param target - Site and handoff zoom.
+   * @param options - Duration and a progress callback.
+   * @returns The running dive.
+   */
+  readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle;
   /** Stops the scene and releases every GPU resource; safe to call more than once. */
   readonly dispose: () => void;
 }
@@ -73,7 +117,22 @@ interface HeroQAWindow extends Window {
   __heroQA?: {
     readonly stats: () => Record<string, unknown>;
     readonly simulate: (fromS: number, toS: number, stepS: number) => unknown[];
+    readonly project: (lat: number, lng: number) => [number, number];
+    readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle;
   };
+}
+
+interface DiveState {
+  readonly fromPosition: Vector3;
+  readonly fromTarget: Vector3;
+  readonly site: Vector3;
+  readonly lat: number;
+  readonly zoom: number;
+  readonly durationS: number;
+  readonly onProgress: ((progress: number) => void) | undefined;
+  elapsedS: number;
+  settled: boolean;
+  readonly resolve: () => void;
 }
 
 // Unit vector from the Earth towards the sun (world space, fixed).
@@ -89,6 +148,7 @@ const drawingBuffer = new Vector2();
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
+const diveEase = cubicBezier(...DIVE.ease);
 
 const earthVertexShader = /* glsl */ `
 varying vec2 vUv;
@@ -330,6 +390,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   globe.pauseAnimation();
 
   const earthMaterial = createEarthMaterial(!disabledEffects.has("oceanGlint"));
+  // Ocean glint (roughness, gain, cap); the dive fades its gain, since the flat map has no glint.
+  const earthGlint = (earthMaterial.uniforms as { uGlint: { value: Vector3 } }).uGlint.value;
+  const earthGlintGain = earthGlint.y;
   globe
     .enablePointerInteraction(false)
     .backgroundColor("rgba(0,0,0,0)")
@@ -383,6 +446,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   scene.add(heroRoot);
 
   const atmosphere = createAtmosphere(preset.shellSegments);
+  const atmosphereUniforms = (atmosphere.material as ShaderMaterial).uniforms as {
+    uIntensity: { value: number };
+  };
   const starfield = createStarfield(preset.stars, pixelRatio);
   heroRoot.add(starfield.object, atmosphere);
 
@@ -420,6 +486,11 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
 
   // View-offset shift (px) that moves the globe center to its configured screen position.
   const viewShift = { x: 0, y: 0, width: 1, height: 1 };
+  // Share of that shift in use: 1 normally, blended to 0 (centered) by the dive.
+  let viewBlend = 1;
+  let dive: DiveState | null = null;
+  // Opacity of the satellite, orbit, scan overlays and atmosphere (the dive fades them out).
+  let overlayFade = 1;
 
   function layout(): void {
     const width = Math.max(1, container.clientWidth);
@@ -495,11 +566,13 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   // restore ours before every render.
   function syncProjection(): void {
     const view = camera.view;
+    const offsetX = viewShift.x * viewBlend;
+    const offsetY = viewShift.y * viewBlend;
     const viewMatches =
       view !== null &&
       view.enabled &&
-      view.offsetX === viewShift.x &&
-      view.offsetY === viewShift.y &&
+      view.offsetX === offsetX &&
+      view.offsetY === offsetY &&
       view.fullWidth === viewShift.width &&
       view.fullHeight === viewShift.height;
     if (
@@ -517,8 +590,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     camera.setViewOffset(
       viewShift.width,
       viewShift.height,
-      viewShift.x,
-      viewShift.y,
+      offsetX,
+      offsetY,
       viewShift.width,
       viewShift.height,
     );
@@ -538,17 +611,68 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     cssTarget.style.setProperty("--py", pointer.y.toFixed(3));
   }
 
+  function setOverlayFade(alpha: number): void {
+    if (alpha === overlayFade) {
+      return;
+    }
+    overlayFade = alpha;
+    atmosphereUniforms.uIntensity.value = ATMOSPHERE.intensity * alpha;
+    atmosphere.visible = alpha > 0;
+    satellite?.setFade(alpha);
+    scan?.setFade(alpha);
+  }
+
+  // Advances the dive by `frameS` seconds of wall-clock time and poses the camera.
+  function advanceDive(state: DiveState, frameS: number): void {
+    if (!state.settled) {
+      state.elapsedS = Math.min(state.durationS, state.elapsedS + frameS);
+    }
+    const progress = state.durationS > 0 ? state.elapsedS / state.durationS : 1;
+    const k = diveEase(progress);
+    const { distance } = handoffFrame(
+      state.zoom,
+      state.lat,
+      Math.max(1, container.clientWidth),
+      Math.max(1, container.clientHeight),
+      CAMERA.fovDeg,
+    );
+    divePose(
+      k,
+      state.fromPosition,
+      state.fromTarget,
+      state.site,
+      distance,
+      cameraPosition,
+      lookTarget,
+    );
+    camera.position.copy(cameraPosition);
+    camera.lookAt(lookTarget);
+    viewBlend = 1 - k;
+    setOverlayFade(1 - MathUtils.smoothstep(progress, 0, DIVE.fadeEnd));
+    earthGlint.y = earthGlintGain * (1 - MathUtils.smoothstep(progress, ...DIVE.glintFade));
+    if (!state.settled) {
+      state.onProgress?.(progress);
+      if (progress >= 1) {
+        state.settled = true;
+        state.resolve();
+      }
+    }
+  }
+
   function renderFrame(timestamp: number | undefined): void {
     timer.update(timestamp);
-    // Clamp both ends: the first frame after a reset can report a slightly negative delta.
-    const dt = MathUtils.clamp(timer.getDelta(), 0, 1 / 30);
+    // Clamp both ends: the first frame after a reset can report a slightly negative delta. The
+    // dive runs on wall-clock time (bounded), so a slow GPU does not stretch it; the scene's own
+    // motion keeps the 1/30 s cap.
+    const frameS = MathUtils.clamp(timer.getDelta(), 0, 0.25);
+    const dt = Math.min(frameS, 1 / 30);
     if (animate) {
       sceneTime += dt;
     } else {
       sceneTime = options.frozenTime ?? stillTime;
     }
 
-    if (!options.reducedMotion) {
+    if (!options.reducedMotion && dive === null) {
       const damping = CAMERA.parallax.damping;
       pointer.x = MathUtils.damp(pointer.x, pointerTarget.x, damping, dt);
       pointer.y = MathUtils.damp(pointer.y, pointerTarget.y, damping, dt);
@@ -558,8 +682,12 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       );
     }
 
+    if (dive === null) {
+      poseCamera(sceneTime, !options.reducedMotion);
+    } else {
+      advanceDive(dive, frameS);
+    }
     syncProjection();
-    poseCamera(sceneTime, !options.reducedMotion);
     starfield.update(sceneTime);
     renderer.info.reset();
     if (satellite !== null) {
@@ -586,7 +714,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       running ||
       disposed ||
       !started ||
-      !animate ||
+      (!animate && dive === null) ||
       document.hidden ||
       !onScreen ||
       contextLost
@@ -760,12 +888,18 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     if (effect.status === "fulfilled") {
       scan = effect.value;
       heroRoot.add(...scan.objects);
+      if (overlayFade < 1) {
+        scan.setFade(overlayFade);
+      }
     } else if (import.meta.env.DEV) {
       console.error("[hero] Could not build the scan effect.", effect.reason);
     }
     if (rig.status === "fulfilled") {
       satellite = rig.value;
       heroRoot.add(...satellite.objects);
+      if (overlayFade < 1) {
+        satellite.setFade(overlayFade);
+      }
       frameSatellite();
     } else if (import.meta.env.DEV) {
       console.error("[hero] Could not build the satellite.", rig.reason);
@@ -850,6 +984,61 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   void loadSurface();
   void loadNightLights();
 
+  function startDive(target: DiveTarget, diveOptions: DiveOptions = {}): DiveHandle {
+    // Start from exactly the pose of the last frame (motion included).
+    if (dive === null) {
+      poseCamera(sceneTime, !options.reducedMotion);
+    }
+    const { zoom } = handoffFrame(
+      target.zoom,
+      target.lat,
+      Math.max(1, container.clientWidth),
+      Math.max(1, container.clientHeight),
+      CAMERA.fovDeg,
+    );
+    if (dive !== null && !dive.settled) {
+      dive.settled = true;
+      dive.resolve();
+    }
+    let resolveDone: (() => void) | undefined;
+    const done = new Promise<void>((settle) => {
+      resolveDone = settle;
+    });
+    const state: DiveState = {
+      fromPosition: camera.position.clone(),
+      fromTarget: lookTarget.clone(),
+      site: latLngToVector3(target.lat, target.lng, 1, new Vector3()),
+      lat: target.lat,
+      zoom: target.zoom,
+      durationS: Math.max(0, diveOptions.durationS ?? DIVE.durationS),
+      onProgress: diveOptions.onProgress,
+      elapsedS: 0,
+      settled: false,
+      resolve: () => {
+        resolveDone?.();
+      },
+    };
+    dive = state;
+    if (disposed || !started || document.hidden || !onScreen || contextLost) {
+      // Nothing renders (still loading, hidden, off-screen or without a context), so the dive
+      // could not progress: it settles at once.
+      state.settled = true;
+      state.resolve();
+    } else {
+      start();
+    }
+    return {
+      done,
+      handoffZoom: zoom,
+      cancel() {
+        if (!state.settled) {
+          state.settled = true;
+          state.resolve();
+        }
+      },
+    };
+  }
+
   if (import.meta.env.DEV) {
     // Development-only QA hook for headless screenshots.
     (window as HeroQAWindow).__heroQA = {
@@ -900,6 +1089,10 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           scanIntensity: scan?.status.intensity ?? null,
           satelliteAngleDeg: satellite === null ? null : MathUtils.radToDeg(satellite.state.angle),
           exposure: renderer.toneMappingExposure,
+          diveProgress: dive === null ? null : dive.elapsedS / Math.max(1e-6, dive.durationS),
+          overlayFade,
+          viewBlend,
+          cameraAltitude: camera.position.length() - GLOBE_RADIUS,
           drawCalls: renderer.info.render.calls,
           triangles: renderer.info.render.triangles,
         };
@@ -933,15 +1126,30 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
         }
         return transitions;
       },
+      dive: startDive,
+      // Screen position (CSS px) of a geographic point with the current camera.
+      project: (lat, lng) => {
+        camera.updateMatrixWorld();
+        projected.copy(latLngToVector3(lat, lng, GLOBE_RADIUS, new Vector3())).project(camera);
+        return [
+          ((projected.x + 1) / 2) * container.clientWidth,
+          ((1 - projected.y) / 2) * container.clientHeight,
+        ];
+      },
     };
   }
 
   return {
+    dive: startDive,
     dispose(): void {
       if (disposed) {
         return;
       }
       disposed = true;
+      if (dive !== null && !dive.settled) {
+        dive.settled = true;
+        dive.resolve();
+      }
       stop();
       lifetime.abort();
       window.clearTimeout(contextTimer);
