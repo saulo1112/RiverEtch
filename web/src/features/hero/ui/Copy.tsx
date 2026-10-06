@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 
 import { COPY } from "./content.ts";
 import { Dotted } from "./Dotted.tsx";
+import { useLift } from "./useLift.ts";
 
 /** Props of {@link Copy}. */
 export interface CopyProps {
@@ -15,6 +16,8 @@ export interface CopyProps {
  * @returns The headline block.
  */
 export function Copy({ titleId }: CopyProps) {
+  const primaryLift = useLift<HTMLAnchorElement>();
+  const secondaryLift = useLift<HTMLAnchorElement>();
   return (
     <div className="hero-copy">
       <p className="hero-eyebrow">
@@ -29,11 +32,19 @@ export function Copy({ titleId }: CopyProps) {
       </h1>
       <p className="hero-sub">{COPY.subtitle}</p>
       <div className="hero-ctas">
-        <a className="hero-btn hero-btn--solid" href={COPY.primary.href}>
+        <a
+          ref={primaryLift}
+          className="hero-btn hero-btn--solid hero-btn--lift"
+          href={COPY.primary.href}
+        >
           {COPY.primary.label}
           <ArrowRight size={16} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
         </a>
-        <a className="hero-btn hero-btn--ghost" href={COPY.secondary.href}>
+        <a
+          ref={secondaryLift}
+          className="hero-btn hero-btn--ghost hero-btn--lift"
+          href={COPY.secondary.href}
+        >
           {COPY.secondary.label}
         </a>
       </div>
