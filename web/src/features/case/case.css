@@ -16,6 +16,23 @@
 
   --pad-x: clamp(16px, 2.4vw, 40px);
   --pad-y: clamp(16px, 2.6vh, 32px);
+
+  /* Hidden (but rendering, so tiles load) until the flythrough crossfades it in over the globe. */
+  opacity: 0;
+  transition: opacity var(--crossfade, 700ms) ease-in-out;
+}
+
+.case-view:not([data-visible="true"]) {
+  pointer-events: none;
+}
+
+.case-view[data-visible="true"] {
+  opacity: 1;
+}
+
+.case-view[data-instant="true"],
+.case-view[data-instant="true"] .case-panel {
+  transition: none;
 }
 
 .case-view :focus-visible {
@@ -52,6 +69,69 @@
   bottom: 0;
   height: clamp(200px, 38vh, 400px);
   background: linear-gradient(to top, rgb(2 4 10 / 0.86), rgb(2 4 10 / 0.42) 50%, rgb(2 4 10 / 0));
+}
+
+/* A barely visible haze that swells and clears during the crossfade, like passing a cloud deck. */
+.case-view__haze {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(70% 60% at 50% 50%, rgb(190 215 255 / 0.08), transparent 72%);
+  pointer-events: none;
+}
+
+.case-view[data-haze="true"] .case-view__haze {
+  animation: case-haze var(--crossfade, 700ms) ease-out both;
+}
+
+@keyframes case-haze {
+  0% {
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Skip (flythrough only): over everything, bottom right. */
+.case-skip {
+  position: fixed;
+  right: clamp(16px, 2.4vw, 40px);
+  bottom: clamp(16px, 2.6vh, 32px);
+  z-index: 3;
+  gap: 10px;
+  height: 40px;
+  padding-inline: 16px 12px;
+  border-radius: 999px;
+  color: var(--text-1);
+  font-family: var(--font-text);
+  animation: case-skip-in 240ms ease-out both;
+}
+
+.case-skip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.case-skip__key {
+  padding: 3px 6px;
+  border: 1px solid rgb(240 246 255 / 0.22);
+  border-radius: 6px;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1;
+}
+
+@keyframes case-skip-in {
+  from {
+    opacity: 0;
+  }
 }
 
 /* Compact attribution (MapLibre's own control is off). */
@@ -568,5 +648,13 @@
 @media (prefers-reduced-motion: reduce) {
   .case-panel {
     transition: none;
+  }
+
+  .case-view__haze {
+    display: none;
+  }
+
+  .case-skip {
+    animation: none;
   }
 }

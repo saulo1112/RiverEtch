@@ -1,9 +1,9 @@
 /*
- * Design tokens shared by the hero overlay and the case view (zero specificity, so either can
- * override one locally): one cool-white text ramp, a single accent, the frosted-glass recipe, the
- * type families and the UI easing. Always dark.
+ * Design tokens shared by the hero overlay, the case view and the flythrough's Skip button (zero
+ * specificity, so any of them can override one locally): one cool-white text ramp, a single
+ * accent, the frosted-glass recipe, the type families and the UI easing. Always dark.
  */
-:where(.hero-ui, .case-view) {
+:where(.hero-ui, .case-view, .case-skip) {
   /* Text: one cool-white ramp. --text-3 is the lightest text that still reaches 4.5:1 over the
      sky; --ink-3 is for non-text marks only (icons, hairlines). */
   --text-1: rgb(240 246 255 / 0.96);

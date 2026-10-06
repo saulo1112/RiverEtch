@@ -25,6 +25,8 @@ export const CASE_COPY = {
   onset: "Anomaly onset",
   cloudy: "cloud / no data",
   externalHint: "(opens in a new tab)",
+  announceCase: "Case view:",
+  announceBack: "Back to the globe.",
 } as const;
 
 const dayMonth = new Intl.DateTimeFormat("en-GB", {

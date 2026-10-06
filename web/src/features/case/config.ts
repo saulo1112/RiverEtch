@@ -69,3 +69,27 @@ export const MAP_LOOK = {
     revealMs: 1400,
   },
 } as const;
+
+/**
+ * Flythrough timeline (hero to case map), in milliseconds unless noted. The hero's dive itself is
+ * `DIVE` in features/hero/config.ts (3.2 s); the hero UI fade (350 ms) lives in hero.css.
+ */
+export const FLIGHT = {
+  // Crossfade from the globe to the map once the dive reached the handoff and the map is ready.
+  crossfadeMs: 700,
+  // Without a dive (no WebGL scene yet) and with reduced motion: a quick crossfade instead.
+  quickCrossfadeMs: 300,
+  reducedCrossfadeMs: 200,
+  // The map's tilt and zoom onto the reach: a soft start (the dive ends at rest), then a long
+  // ease-out.
+  flyMs: 3600,
+  flyEase: [0.3, 0, 0.12, 1],
+  // Shares of the map flight at which the river draws itself and the panels slide in.
+  riverAt: 0.5,
+  panelsAt: 0.7,
+  // Panel slide: duration and stagger (case.css mirrors both).
+  panelMs: 320,
+  panelStaggerMs: 70,
+  // The Skip button appears this long after the flight starts.
+  skipDelayMs: 400,
+} as const;

@@ -132,16 +132,20 @@ function byZoom(pairs: readonly number[]): ExpressionSpecification {
   return ["interpolate", ["exponential", 1.4], ["zoom"], ...pairs] as ExpressionSpecification;
 }
 
+interface TileUrls {
+  readonly imagery: string;
+  readonly dem: string;
+}
+
 function buildStyle(
   data: CaseData,
   stops: readonly RiverStop[],
   reveal: number,
-  stubTiles: boolean,
+  tiles: TileUrls,
 ): StyleSpecification {
-  const imageryTiles = stubTiles ? "stub://imagery/{z}/{x}/{y}" : IMAGERY.tiles;
   const dem: RasterDEMSourceSpecification = {
     type: "raster-dem",
-    tiles: [stubTiles ? "stub://dem/{z}/{x}/{y}" : TERRAIN.tiles],
+    tiles: [tiles.dem],
     encoding: TERRAIN.encoding,
     tileSize: TERRAIN.tileSize,
     maxzoom: TERRAIN.maxzoom,
@@ -153,7 +157,7 @@ function buildStyle(
     sources: {
       [SOURCE.imagery]: {
         type: "raster",
-        tiles: [imageryTiles],
+        tiles: [tiles.imagery],
         tileSize: IMAGERY.tileSize,
         maxzoom: IMAGERY.maxzoom,
       },
@@ -243,10 +247,13 @@ export async function createCaseMap(
   options: CreateCaseMapOptions,
 ): Promise<CaseMapHandle> {
   const { data, start, handoffZoom } = options;
+  // `import.meta.env.DEV` is a build-time constant: production drops the stub branch entirely.
   const stubTiles = import.meta.env.DEV && options.stubTiles;
+  let tiles: TileUrls = { imagery: IMAGERY.tiles, dem: TERRAIN.tiles };
   if (stubTiles) {
     const { registerStubTiles } = await import("./stubTiles.ts");
     registerStubTiles();
+    tiles = { imagery: "stub://imagery/{z}/{x}/{y}", dem: "stub://dem/{z}/{x}/{y}" };
   }
 
   const { site } = data;
@@ -257,7 +264,7 @@ export async function createCaseMap(
 
   const map = new MapLibreMap({
     container,
-    style: buildStyle(data, stops, reveal, stubTiles),
+    style: buildStyle(data, stops, reveal, tiles),
     ...(start === "final" ? final : { center, zoom: handoffZoom, pitch: 0, bearing: 0 }),
     interactive: false,
     attributionControl: false,

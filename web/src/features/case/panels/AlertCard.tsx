@@ -43,7 +43,7 @@ export function AlertCard({ data, headingRef, onBack }: AlertCardProps) {
         {CASE_COPY.back}
       </button>
       <article className="case-alert case-glass" aria-labelledby="case-alert-title">
-        <h1 className="case-alert__site" ref={headingRef} tabIndex={-1}>
+        <h1 className="case-alert__site" id="case-site-title" ref={headingRef} tabIndex={-1}>
           {data.site.name}
           <span className="case-alert__site-note"> · {CASE_COPY.placeholderSite}</span>
         </h1>

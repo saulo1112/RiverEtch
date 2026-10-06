@@ -8,15 +8,22 @@ import { useLift } from "./useLift.ts";
 export interface CopyProps {
   /** Id of the headline, which labels the hero section. */
   readonly titleId: string;
+  /** "Explore the case": starts the flythrough. */
+  readonly onExplore?: () => void;
+  /** The pointer or the focus reached "Explore the case": warm up the case view. */
+  readonly onWarmUp?: () => void;
+  /** Focus "Explore the case" on mount (back from the case view). */
+  readonly focusExplore?: boolean;
 }
 
 /**
- * The hero's text column: eyebrow, two-line headline, subtitle and the two calls to action.
+ * The hero's text column: eyebrow, two-line headline, subtitle and the two calls to action ("Explore
+ * the case" starts the flythrough; "How it works" is still a placeholder link).
  *
  * @returns The headline block.
  */
-export function Copy({ titleId }: CopyProps) {
-  const primaryLift = useLift<HTMLAnchorElement>();
+export function Copy({ titleId, onExplore, onWarmUp, focusExplore = false }: CopyProps) {
+  const primaryLift = useLift<HTMLButtonElement>();
   const secondaryLift = useLift<HTMLAnchorElement>();
   return (
     <div className="hero-copy">
@@ -32,14 +39,19 @@ export function Copy({ titleId }: CopyProps) {
       </h1>
       <p className="hero-sub">{COPY.subtitle}</p>
       <div className="hero-ctas">
-        <a
+        <button
           ref={primaryLift}
+          type="button"
           className="hero-btn hero-btn--solid hero-btn--lift"
-          href={COPY.primary.href}
+          onClick={onExplore}
+          onPointerEnter={onWarmUp}
+          onFocus={onWarmUp}
+          // Only when coming back from the case view, so keyboard focus is not lost.
+          autoFocus={focusExplore}
         >
           {COPY.primary.label}
           <ArrowRight size={16} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
-        </a>
+        </button>
         <a
           ref={secondaryLift}
           className="hero-btn hero-btn--ghost hero-btn--lift"
