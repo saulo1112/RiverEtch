@@ -4,6 +4,8 @@ import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/geist-mono";
 import "./ui.css";
 
+import { Nav } from "./Nav.tsx";
+
 /** Props of {@link HeroUi}. */
 export interface HeroUiProps {
   /** Id for the headline, which labels the hero section (`aria-labelledby`). */
@@ -18,6 +20,7 @@ export interface HeroUiProps {
 export function HeroUi({ titleId }: HeroUiProps) {
   return (
     <div className="hero-ui" data-title-id={titleId}>
+      <Nav />
       <main className="hero-ui__main" />
     </div>
   );

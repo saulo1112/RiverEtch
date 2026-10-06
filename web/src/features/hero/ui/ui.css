@@ -28,6 +28,13 @@
   /* Frame: the brief's pads, capped to a centred 1760 px frame on ultrawide screens. */
   --pad-x: max(clamp(24px, 4.2vw, 80px), (100cqw - 1760px) / 2);
   --pad-y: clamp(20px, 3vh, 36px);
+  /* Nav pill: the 20 px mark sits 18 px in (concentric with the 28 px end cap) and the 36 px
+     wallet button 10 px in, so the content lines are those insets from the frame. */
+  --nav-h: 56px;
+  --logo-inset: 18px;
+  --wallet-inset: 10px;
+  --edge-l: calc(var(--pad-x) + var(--logo-inset));
+  --edge-r: calc(var(--pad-x) + var(--wallet-inset));
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
   z-index: 1;
@@ -88,6 +95,115 @@
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+}
+
+/* Buttons: 12 px radius; ghosts are outlined, never blurred. */
+.hero-btn {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  margin: 0;
+  padding-inline: 20px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  transition:
+    color 160ms var(--ease),
+    background-color 160ms var(--ease),
+    border-color 160ms var(--ease),
+    transform 160ms var(--ease);
+}
+
+.hero-btn:active {
+  transform: scale(0.98);
+}
+
+.hero-btn svg {
+  flex: none;
+}
+
+.hero-btn--ghost {
+  border-color: rgb(240 246 255 / 0.22);
+  background-color: transparent;
+  color: var(--text-1);
+}
+
+.hero-btn--ghost:hover {
+  border-color: rgb(240 246 255 / 0.36);
+  background-color: rgb(255 255 255 / 0.04);
+}
+
+/* Navigation pill. */
+.hero-nav {
+  position: absolute;
+  top: var(--pad-y);
+  right: var(--pad-x);
+  left: var(--pad-x);
+  display: flex;
+  align-items: center;
+  height: var(--nav-h);
+  padding-inline: var(--logo-inset) var(--wallet-inset);
+  border-radius: 999px;
+}
+
+.hero-nav__brand {
+  display: inline-flex;
+  flex: none;
+  gap: 10px;
+  align-items: center;
+  border-radius: 4px;
+  color: var(--text-1);
+  font-size: 16px;
+  font-weight: 560;
+  letter-spacing: -0.012em;
+  text-decoration: none;
+}
+
+.hero-logo {
+  display: block;
+  flex: none;
+}
+
+.hero-nav__links {
+  display: flex;
+  gap: 28px;
+  margin: 0 0 0 40px;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-nav__link {
+  border-radius: 4px;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 160ms var(--ease);
+}
+
+.hero-nav__link:hover {
+  color: var(--accent);
+}
+
+.hero-nav__wallet {
+  gap: 6px;
+  height: 36px;
+  margin-left: auto;
+  padding-inline: 12px 14px;
+  border-color: rgb(240 246 255 / 0.16);
+  font-size: 14px;
 }
 
 @media (prefers-reduced-motion: reduce) {
