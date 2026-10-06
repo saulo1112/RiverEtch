@@ -1,6 +1,7 @@
 // Colombia scan effect. As the satellite passes overhead, its sensor beam lands on the country, a
-// push-broom line sweeps across it revealing an illustrative turbidity heat map along the main
-// rivers, the border glows and rings pulse out from the centroid. Driven by a small state machine.
+// push-broom line sweeps across it, the border glows and rings pulse out from the centroid. An
+// illustrative turbidity heat map along the main rivers can be revealed behind the push-broom line
+// (SCAN.heat.visible, off in the hero for now). Driven by a small state machine.
 import {
   AdditiveBlending,
   Color,
@@ -407,7 +408,8 @@ function overlayMaterial(
 
 /**
  * Builds the scan effect: beam, footprint, Colombia patch (cap, glow and heat), border stroke and
- * ring pulses. The heat map is illustrative (blobs along the main rivers), not measured data.
+ * ring pulses. The heat map is illustrative (blobs along the main rivers), not measured data, and
+ * stays hidden unless {@link SCAN}.heat.visible is set.
  *
  * @param preset - Quality preset (geometry and texture sizes).
  * @param signal - Aborts the data texture generation between slices.
@@ -419,9 +421,11 @@ export async function createScan(
   signal?: AbortSignal,
   disabledEffects: ReadonlySet<HeroEffect> = new Set(),
 ): Promise<ScanEffect> {
+  const heatVisible = SCAN.heat.visible && !disabledEffects.has("heat");
   const data: DataTexture = await createColombiaDataTexture(
     preset.scan.data[0],
     preset.scan.data[1],
+    { heat: heatVisible },
     signal,
   );
   const cyan = new Color(SCAN.colors.instrument);
@@ -494,7 +498,7 @@ export async function createScan(
       uRamp: { value: SCAN.heat.ramp.map((hex) => new Color(hex)) },
       uContourColor: { value: new Color(SCAN.heat.contourColor) },
       uIntensity: { value: 0 },
-      uHeat: { value: disabledEffects.has("heat") ? 0 : 1 },
+      uHeat: { value: heatVisible ? 1 : 0 },
       uCap: { value: 0 },
       uOld: { value: SCAN.heat.floor },
       uFront: { value: -SCAN.heat.frontLimit },

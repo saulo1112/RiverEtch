@@ -344,6 +344,9 @@ export const SCAN = {
   stroke: { idle: 0.35, gain: 1.0, widthPx: [1.25, 1.7] },
   rings: { slots: 3, lifeS: 2.8, cadenceS: 1.25, maxRadiusRad: 0.18, extentRad: 0.2, gain: 0.8 },
   heat: {
+    // The illustrative heat map along the rivers has no meaning in the hero yet: hidden (and not
+    // generated) unless this is true. The cyan cap, border glow, stroke and rivers always show.
+    visible: false as boolean,
     // Heat left over after a pass decays to `floor` with time constant `agingS`.
     agingS: 9,
     floor: 0.35,
@@ -361,7 +364,7 @@ export const SCAN = {
 
 /**
  * Bloom (high preset). Only light sources and glints exceed the threshold: nav lights, the panel
- * glint, the beam's aperture, the scan line and stroke, fresh heat and new rings. Every surface
+ * glint, the beam's aperture, the scan line and stroke, and fresh heat when shown. Every surface
  * material stays below it through a luminance shoulder, and the ocean glint through its soft cap.
  */
 export const POST = {

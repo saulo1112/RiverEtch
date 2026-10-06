@@ -725,12 +725,15 @@ function normalizeMax(grid: Float32Array): void {
  *
  * @param width - Texture width in texels (longitude).
  * @param height - Texture height in texels (latitude).
+ * @param options - `heat: false` leaves the heat channel at zero and skips its generation.
+ * @param options.heat - Whether to generate the heat channel.
  * @param signal - Aborts the generation between slices.
  * @returns An RGBA8 data texture with mipmaps.
  */
 export async function createColombiaDataTexture(
   width: number,
   height: number,
+  options: { readonly heat: boolean },
   signal?: AbortSignal,
 ): Promise<DataTexture> {
   const { lngMin, lngMax, latMin, latMax } = GEO.patch;
@@ -808,100 +811,105 @@ export async function createColombiaDataTexture(
   const rivers = readChannel();
   await yieldToBrowser(signal);
 
-  // G: heat. Anisotropic Gaussian blobs along the rivers plus round hotspots.
-  const random = mulberry32(170);
-  const heat = new Float32Array(count);
-  const texelsPerDegree = { x: width / lngSpan, y: height / latSpan };
-  const addBlob = (
-    lat: number,
-    lng: number,
-    along: readonly [number, number],
-    sigmaAlong: number,
-    sigmaAcross: number,
-    amplitude: number,
-  ) => {
-    const reach = 3 * Math.max(sigmaAlong, sigmaAcross);
-    const x0 = Math.max(0, Math.floor((lng - reach - lngMin) * texelsPerDegree.x));
-    const x1 = Math.min(width - 1, Math.ceil((lng + reach - lngMin) * texelsPerDegree.x));
-    const y0 = Math.max(0, Math.floor((lat - reach - latMin) * texelsPerDegree.y));
-    const y1 = Math.min(height - 1, Math.ceil((lat + reach - latMin) * texelsPerDegree.y));
-    const [ux, uy] = along;
-    for (let y = y0; y <= y1; y += 1) {
-      const dLat = latMin + (y + 0.5) / texelsPerDegree.y - lat;
-      for (let x = x0; x <= x1; x += 1) {
-        const dLng = lngMin + (x + 0.5) / texelsPerDegree.x - lng;
-        const a = (dLng * ux + dLat * uy) / sigmaAlong;
-        const c = (-dLng * uy + dLat * ux) / sigmaAcross;
-        heat[y * width + x] =
-          (heat[y * width + x] ?? 0) + amplitude * Math.exp(-0.5 * (a * a + c * c));
+  // G: heat. Anisotropic Gaussian blobs along the rivers plus round hotspots. Skipped (all zero)
+  // while the hero hides the heat map; kept for the future river-anomaly markers.
+  const buildHeat = async (): Promise<Float32Array> => {
+    const random = mulberry32(170);
+    const heat = new Float32Array(count);
+    const texelsPerDegree = { x: width / lngSpan, y: height / latSpan };
+    const addBlob = (
+      lat: number,
+      lng: number,
+      along: readonly [number, number],
+      sigmaAlong: number,
+      sigmaAcross: number,
+      amplitude: number,
+    ) => {
+      const reach = 3 * Math.max(sigmaAlong, sigmaAcross);
+      const x0 = Math.max(0, Math.floor((lng - reach - lngMin) * texelsPerDegree.x));
+      const x1 = Math.min(width - 1, Math.ceil((lng + reach - lngMin) * texelsPerDegree.x));
+      const y0 = Math.max(0, Math.floor((lat - reach - latMin) * texelsPerDegree.y));
+      const y1 = Math.min(height - 1, Math.ceil((lat + reach - latMin) * texelsPerDegree.y));
+      const [ux, uy] = along;
+      for (let y = y0; y <= y1; y += 1) {
+        const dLat = latMin + (y + 0.5) / texelsPerDegree.y - lat;
+        for (let x = x0; x <= x1; x += 1) {
+          const dLng = lngMin + (x + 0.5) / texelsPerDegree.x - lng;
+          const a = (dLng * ux + dLat * uy) / sigmaAlong;
+          const c = (-dLng * uy + dLat * ux) / sigmaAcross;
+          heat[y * width + x] =
+            (heat[y * width + x] ?? 0) + amplitude * Math.exp(-0.5 * (a * a + c * c));
+        }
+      }
+    };
+
+    const totalBlobs = 22;
+    for (const river of RIVERS) {
+      // Cumulative length of the course, in degrees.
+      const lengths = [0];
+      for (let i = 1; i < river.points.length; i += 1) {
+        const [latA = 0, lngA = 0] = river.points[i - 1] ?? [];
+        const [latB = 0, lngB = 0] = river.points[i] ?? [];
+        lengths.push((lengths[i - 1] ?? 0) + Math.hypot(latB - latA, lngB - lngA));
+      }
+      const total = lengths[lengths.length - 1] ?? 1;
+      const blobs = Math.max(1, Math.round(totalBlobs * river.weight));
+      for (let b = 0; b < blobs; b += 1) {
+        const target = (0.1 + 0.85 * random()) * total;
+        let segment = 1;
+        while (segment < lengths.length - 1 && (lengths[segment] ?? 0) < target) {
+          segment += 1;
+        }
+        const [latA = 0, lngA = 0] = river.points[segment - 1] ?? [];
+        const [latB = 0, lngB = 0] = river.points[segment] ?? [];
+        const start = lengths[segment - 1] ?? 0;
+        const span = (lengths[segment] ?? 1) - start || 1;
+        const t = (target - start) / span;
+        const segmentLength = Math.hypot(latB - latA, lngB - lngA) || 1;
+        const sigmaAlong = 0.25 + 0.4 * random();
+        addBlob(
+          latA + (latB - latA) * t + (random() - 0.5) * 0.3,
+          lngA + (lngB - lngA) * t + (random() - 0.5) * 0.3,
+          [(lngB - lngA) / segmentLength, (latB - latA) / segmentLength],
+          sigmaAlong,
+          sigmaAlong * (0.3 + 0.2 * random()),
+          0.35 + 0.65 * random() ** 1.5,
+        );
       }
     }
+    for (const hotspot of HOTSPOTS) {
+      const sigma = hotspot.radiusDeg / 2.5;
+      addBlob(hotspot.at[0], hotspot.at[1], [1, 0], sigma, sigma, hotspot.weight);
+    }
+    await yieldToBrowser(signal);
+
+    // Break up the blobs with fbm (1.2° base period), soft-saturate, clip to the country.
+    const basePeriod = Math.ceil(Math.max(lngSpan, latSpan) / 1.2);
+    const octaves = [1, 2, 4, 8].map((scale) => ({
+      period: basePeriod * scale,
+      noise: createTileableNoise(basePeriod * scale, random),
+    }));
+    for (let y = 0; y < height; y += 1) {
+      for (let x = 0; x < width; x += 1) {
+        let value = 0;
+        let amplitude = 0.5;
+        for (const { period, noise } of octaves) {
+          value += amplitude * noise((x / width) * period, (y / height) * period);
+          amplitude *= 0.5;
+        }
+        const i = y * width + x;
+        const saturated = 1 - Math.exp(-1.6 * (heat[i] ?? 0) * (0.75 + 0.5 * value));
+        heat[i] = saturated * (mask[i] ?? 0);
+      }
+    }
+    normalizeMax(heat);
+    // Steeper falloff, so the blobs read as hotspots instead of a wash.
+    for (let i = 0; i < count; i += 1) {
+      heat[i] = (heat[i] ?? 0) ** 1.5;
+    }
+    return heat;
   };
-
-  const totalBlobs = 22;
-  for (const river of RIVERS) {
-    // Cumulative length of the course, in degrees.
-    const lengths = [0];
-    for (let i = 1; i < river.points.length; i += 1) {
-      const [latA = 0, lngA = 0] = river.points[i - 1] ?? [];
-      const [latB = 0, lngB = 0] = river.points[i] ?? [];
-      lengths.push((lengths[i - 1] ?? 0) + Math.hypot(latB - latA, lngB - lngA));
-    }
-    const total = lengths[lengths.length - 1] ?? 1;
-    const blobs = Math.max(1, Math.round(totalBlobs * river.weight));
-    for (let b = 0; b < blobs; b += 1) {
-      const target = (0.1 + 0.85 * random()) * total;
-      let segment = 1;
-      while (segment < lengths.length - 1 && (lengths[segment] ?? 0) < target) {
-        segment += 1;
-      }
-      const [latA = 0, lngA = 0] = river.points[segment - 1] ?? [];
-      const [latB = 0, lngB = 0] = river.points[segment] ?? [];
-      const start = lengths[segment - 1] ?? 0;
-      const span = (lengths[segment] ?? 1) - start || 1;
-      const t = (target - start) / span;
-      const segmentLength = Math.hypot(latB - latA, lngB - lngA) || 1;
-      const sigmaAlong = 0.25 + 0.4 * random();
-      addBlob(
-        latA + (latB - latA) * t + (random() - 0.5) * 0.3,
-        lngA + (lngB - lngA) * t + (random() - 0.5) * 0.3,
-        [(lngB - lngA) / segmentLength, (latB - latA) / segmentLength],
-        sigmaAlong,
-        sigmaAlong * (0.3 + 0.2 * random()),
-        0.35 + 0.65 * random() ** 1.5,
-      );
-    }
-  }
-  for (const hotspot of HOTSPOTS) {
-    const sigma = hotspot.radiusDeg / 2.5;
-    addBlob(hotspot.at[0], hotspot.at[1], [1, 0], sigma, sigma, hotspot.weight);
-  }
-  await yieldToBrowser(signal);
-
-  // Break up the blobs with fbm (1.2° base period), soft-saturate, clip to the country.
-  const basePeriod = Math.ceil(Math.max(lngSpan, latSpan) / 1.2);
-  const octaves = [1, 2, 4, 8].map((scale) => ({
-    period: basePeriod * scale,
-    noise: createTileableNoise(basePeriod * scale, random),
-  }));
-  for (let y = 0; y < height; y += 1) {
-    for (let x = 0; x < width; x += 1) {
-      let value = 0;
-      let amplitude = 0.5;
-      for (const { period, noise } of octaves) {
-        value += amplitude * noise((x / width) * period, (y / height) * period);
-        amplitude *= 0.5;
-      }
-      const i = y * width + x;
-      const saturated = 1 - Math.exp(-1.6 * (heat[i] ?? 0) * (0.75 + 0.5 * value));
-      heat[i] = saturated * (mask[i] ?? 0);
-    }
-  }
-  normalizeMax(heat);
-  // Steeper falloff, so the blobs read as hotspots instead of a wash.
-  for (let i = 0; i < count; i += 1) {
-    heat[i] = (heat[i] ?? 0) ** 1.5;
-  }
+  const heat = options.heat ? await buildHeat() : new Float32Array(count);
 
   const data = new Uint8Array(count * 4);
   for (let i = 0; i < count; i += 1) {
