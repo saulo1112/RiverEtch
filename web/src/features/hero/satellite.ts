@@ -1,5 +1,5 @@
 // Procedural Earth-observation satellite (variant A: gold bus, two solar wings, a dish) on a
-// near-polar orbit over Colombia, plus its fading trail and orbit ring. Units: globe radius 100.
+// low-inclination orbit over Colombia, plus its fading trail and orbit ring. Units: globe radius 100.
 import {
   AdditiveBlending,
   AmbientLight,
@@ -69,8 +69,10 @@ import {
 
 const inclination = MathUtils.degToRad(ORBIT.inclinationDeg);
 const centroidLat = MathUtils.degToRad(GEO.colombiaCentroid.lat);
-// Argument of latitude over Colombia: the descending solution of sin(lat) = sin(i)·sin(u).
-const colombiaAngle = Math.PI - Math.asin(Math.sin(centroidLat) / Math.sin(inclination));
+// Argument of latitude over Colombia: the ascending solution of sin(lat) = sin(i)·sin(u). From the
+// camera (south-east of Colombia) the descending solution lies almost edge-on and collapses into a
+// line; the ascending one is an open ellipse crossed left to right.
+const colombiaAngle = Math.asin(Math.sin(centroidLat) / Math.sin(inclination));
 // Longitude of the ascending node that puts that point on Colombia's centroid.
 const nodeLng =
   MathUtils.degToRad(GEO.colombiaCentroid.lng) -
@@ -1154,7 +1156,10 @@ function attitudeAt(
 ): Quaternion {
   basis.makeBasis(ORBIT_NORMAL, zenith, flight);
   target.setFromRotationMatrix(basis);
-  yaw.setFromAxisAngle(UP, MathUtils.degToRad(ORBIT.yawSteerDeg) * Math.sin(angle));
+  yaw.setFromAxisAngle(
+    UP,
+    MathUtils.degToRad(ORBIT.yawSteerDeg) * Math.sin(inclination) * Math.sin(angle),
+  );
   return target.multiply(yaw);
 }
 

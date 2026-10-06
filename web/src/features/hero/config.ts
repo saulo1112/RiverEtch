@@ -204,18 +204,23 @@ export const CAMERA = {
 } as const;
 
 /**
- * Orbit: near-polar (98°), descending over Colombia on every pass because the Earth is static.
- * The altitude is exaggerated (0.34 R) so the satellite, beam and footprint read at hero scale.
+ * Orbit: prograde and low-inclination, ascending over Colombia on every pass because the Earth is
+ * static, so the satellite crosses the frame left to right, climbing slightly. The altitude is
+ * exaggerated (0.34 R) so the satellite, beam and footprint read at hero scale.
  */
 export const ORBIT = {
-  inclinationDeg: 98,
+  // The single orbit knob. A real Earth-observation orbit would be sun-synchronous (~98°, like
+  // Sentinel-2), but it crosses the frame top to bottom; it was dropped purely for composition.
+  // Keep it well above 0: from this camera a near-equatorial orbit collapses into a flat line.
+  inclinationDeg: 30,
   radius: 134,
   periodS: 50,
   // Scene time of the first pass over Colombia.
   peakTimeS: 9,
   // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp: slow over Colombia, fast on the far side.
   warp: [0.6, 0.075],
-  // Small yaw steering, as real Earth-observation satellites do.
+  // Small yaw steering, as real Earth-observation satellites do: its amplitude on a polar orbit,
+  // scaled by sin(inclination).
   yawSteerDeg: 3.9,
 } as const;
 
@@ -248,7 +253,7 @@ export const SATELLITE = {
   // below the bloom threshold so the cells never clip to white; haloScale sizes the low preset's
   // sprite.
   glint: {
-    orbitOffsetDeg: 30,
+    orbitOffsetDeg: 55,
     cantMaxDeg: 22,
     offsetMaxDeg: 35,
     windowDeg: 20,
