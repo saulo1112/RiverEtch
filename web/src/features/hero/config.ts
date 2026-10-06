@@ -193,9 +193,10 @@ export const CAMERA = {
   // Globe disc diameter as a fraction of the viewport height (also bounded by the width).
   discFraction: 0.72,
   // Where the globe center lands on screen, as fractions of the viewport (0,0 = top-left).
-  // Desktop leaves the left side free for future content; portrait screens center it.
-  globeCenterDesktop: { x: 0.6, y: 0.56 },
-  globeCenterPortrait: { x: 0.5, y: 0.5 },
+  // Desktop leaves the left side to the headline (and keeps the orbit's lower-left arc clear of
+  // it); portrait screens raise the globe so the headline fits underneath. hero.css mirrors both.
+  globeCenterDesktop: { x: 0.64, y: 0.56 },
+  globeCenterPortrait: { x: 0.5, y: 0.3 },
   // Intro dolly-in: duration, extra distance, extra longitude and latitude it starts from.
   intro: { durationS: 3.6, distanceGain: 0.55, lngDeg: 20, latDeg: 6, exposureS: 1.4 },
   // Mouse parallax (degrees at the hero edge) and its damping rate (1/s).

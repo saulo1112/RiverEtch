@@ -1,0 +1,719 @@
+/*
+ * Hero UI layer. Tokens and styles are scoped under .hero-ui; the overlay is a direct child of
+ * .hero, so `.hero > div` already stretches it over the section and `.hero > *` gives it the
+ * globe centre (--gx/--gy) and the disc size (--d) written by the scene.
+ */
+
+/* Registered so they compute to pixels on .hero-ui, against the hero container, and inherit as
+   lengths: inside the copy column (itself a container) they still mean the hero's size. */
+@property --hero-w {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+
+@property --pad-x {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 24px;
+}
+
+.hero > .hero-ui {
+  /* Text: one cool-white ramp. --text-3 is the lightest text that still reaches 4.5:1 over the
+     sky; --ink-3 is for non-text marks only (icons, hairlines). */
+  --text-1: rgb(240 246 255 / 0.96);
+  --text-2: rgb(240 246 255 / 0.68);
+  --text-3: rgb(240 246 255 / 0.56);
+  --ink-3: rgb(240 246 255 / 0.44);
+  --hairline: rgb(240 246 255 / 0.14);
+  /* The only accent: tiny details (dots, focus ring, link hover). */
+  --accent: #22d3ee;
+  --cta-bg: #f4f8ff;
+  --cta-ink: #04101f;
+  --glass-bg: rgb(255 255 255 / 0.05);
+  --glass-border: rgb(255 255 255 / 0.1);
+  --glass-solid: rgb(8 14 32 / 0.72);
+  --glass-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12), 0 12px 40px rgb(0 0 0 / 0.35);
+  --glass-filter: blur(18px) saturate(140%);
+
+  --font-text: "Inter Tight Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono Variable", "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Frame: the brief's pads, capped to a centred 1760 px frame on ultrawide screens. */
+  --hero-w: 100cqw;
+  --pad-x: max(clamp(24px, 4.2vw, 80px), (100cqw - 1760px) / 2);
+  --pad-y: clamp(20px, 3vh, 36px);
+  /* Nav pill: the 20 px mark sits 18 px in (concentric with the 28 px end cap) and the 36 px
+     wallet button 10 px in, so the content lines are those insets from the frame. */
+  --nav-h: 56px;
+  --logo-inset: 18px;
+  --wallet-inset: 10px;
+  --edge-l: calc(var(--pad-x) + var(--logo-inset));
+  --edge-r: calc(var(--pad-x) + var(--wallet-inset));
+  /*
+   * Text column: the brief's min(36cqw, 600px), but never closer than --clear to the globe's
+   * limb. --gx is a percentage of the hero's width (it resolves on elements whose containing
+   * block spans the hero) and --d is the scene's disc diameter, so the limb clearance holds by
+   * construction at any landscape size.
+   */
+  --clear: 32px;
+  --fit: calc(var(--gx) - var(--d) / 2 - var(--clear) - var(--edge-l));
+  --col: min(var(--hero-w) * 0.36, 600px, var(--fit));
+  --title-size: clamp(40px, var(--hero-w) * 0.04, 68px);
+  /* Vertical rhythm of the copy, measured on the letters (eyebrow, title, subtitle, buttons). */
+  --gap-title: 24px;
+  --gap-sub: 24px;
+  --gap-ctas: 32px;
+  /* Vertical room: the copy block is centred at --copy-y (on the globe, shifted up 3%) but kept
+     48 px clear of the nav and of the bottom row. --copy-half is its half-height (measured per
+     tier, rounded up); --foot-h the bottom row's height above the bottom pad. */
+  --copy-y: calc(var(--gy) - 3%);
+  --copy-half: 164px;
+  --foot-h: 98px;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  z-index: 1;
+  /* The overlay never blocks the scene; only controls take the pointer. */
+  pointer-events: none;
+  color: var(--text-1);
+  font-family: var(--font-text);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.hero-ui a,
+.hero-ui button {
+  pointer-events: auto;
+}
+
+.hero-ui :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+.hero-ui__visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Frosted glass: the nav pill and the status chip only. */
+.hero-ui__glass {
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  box-shadow: var(--glass-shadow);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .hero-ui__glass {
+    background: var(--glass-solid);
+  }
+}
+
+.hero[data-hero-quality="low"] .hero-ui__glass {
+  background: var(--glass-solid);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .hero-ui__glass {
+    background: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Buttons: 12 px radius; ghosts are outlined, never blurred. */
+.hero-btn {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  margin: 0;
+  padding-inline: 20px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: inherit;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  appearance: none;
+  transition:
+    color 160ms var(--ease),
+    background-color 160ms var(--ease),
+    border-color 160ms var(--ease),
+    transform 160ms var(--ease);
+}
+
+.hero-btn:active {
+  transform: scale(0.98);
+}
+
+.hero-btn svg {
+  flex: none;
+}
+
+.hero-btn--ghost {
+  border-color: rgb(240 246 255 / 0.22);
+  background-color: transparent;
+  color: var(--text-1);
+}
+
+.hero-btn--ghost:hover {
+  border-color: rgb(240 246 255 / 0.36);
+  background-color: rgb(255 255 255 / 0.04);
+}
+
+/* Navigation pill. */
+.hero-nav {
+  position: absolute;
+  top: var(--pad-y);
+  right: var(--pad-x);
+  left: var(--pad-x);
+  display: flex;
+  align-items: center;
+  height: var(--nav-h);
+  /* The glass border is part of the inset. */
+  padding-inline: calc(var(--logo-inset) - 1px) calc(var(--wallet-inset) - 1px);
+  border-radius: 999px;
+}
+
+.hero-nav__brand {
+  display: inline-flex;
+  flex: none;
+  gap: 10px;
+  align-items: center;
+  /* Same treatment as the links: padding for the hit area and focus ring, offset by margin. */
+  margin: -6px -8px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  color: var(--text-1);
+  font-size: 16px;
+  font-weight: 560;
+  letter-spacing: -0.012em;
+  text-decoration: none;
+}
+
+.hero-logo {
+  display: block;
+  flex: none;
+}
+
+.hero-nav__links {
+  display: flex;
+  gap: 28px;
+  margin: 0 0 0 40px;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-nav__link {
+  /* A 33 px hit area and a roomier focus ring; the negative margin keeps the text in place. */
+  display: block;
+  margin: -8px -10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 160ms var(--ease);
+}
+
+.hero-nav__link:hover {
+  color: var(--accent);
+}
+
+.hero-nav__wallet {
+  gap: 6px;
+  height: 36px;
+  margin-left: auto;
+  padding-inline: 12px 14px;
+  border-color: rgb(240 246 255 / 0.16);
+  font-size: 14px;
+}
+
+/* Headline block. Text boxes are trimmed to cap height and baseline, so the gaps below are
+   measured on the letters, not on line boxes. */
+.hero-copy {
+  position: absolute;
+  top: clamp(
+    calc(var(--pad-y) + var(--nav-h) + 48px + var(--copy-half)),
+    var(--copy-y),
+    calc(100% - var(--pad-y) - var(--foot-h) - 48px - var(--copy-half))
+  );
+  left: var(--edge-l);
+  width: var(--col);
+  translate: 0 -50%;
+  /* A container, so the headline can size itself to the column (cqi below). */
+  container: hero-copy / inline-size;
+}
+
+.hero-eyebrow,
+.hero-title,
+.hero-sub {
+  margin: 0;
+}
+
+.hero-eyebrow__text,
+.hero-title,
+.hero-sub {
+  text-box: trim-both cap alphabetic;
+}
+
+.hero-eyebrow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 450;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero-eyebrow__text {
+  display: block;
+}
+
+.hero-eyebrow__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.hero-title {
+  margin-top: var(--gap-title);
+  color: var(--text-1);
+  /* The brief's clamp(40px, 4vw, 68px), shrunk where the column cannot hold the longer line
+     ("Prove the permit." sets about 7.1em wide). */
+  font-size: max(32px, min(var(--title-size), 100cqi / 7.2));
+  font-weight: 560;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.hero-title__line {
+  display: block;
+  /* Hang each line by its first letter's side bearing (Inter Tight at 560, measured on rendered
+     ink): the stem of "P" and the curve of "S" both land on the edge. */
+  margin-left: -0.03em;
+  white-space: nowrap;
+}
+
+/* Second sentence: primary at 62% opacity. */
+.hero-title__line--quiet {
+  margin-left: -0.055em;
+  color: rgb(240 246 255 / 0.595);
+}
+
+.hero-sub {
+  max-width: min(44ch, var(--hero-w) * 0.3);
+  margin-top: var(--gap-sub);
+  color: var(--text-2);
+  font-size: 17px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.hero-ctas {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: var(--gap-ctas);
+}
+
+.hero-btn--solid {
+  padding-inline: 22px 18px;
+  background-color: var(--cta-bg);
+  color: var(--cta-ink);
+  font-weight: 560;
+}
+
+.hero-btn--solid:hover {
+  background-color: #fff;
+}
+
+.hero-btn--solid svg {
+  transition: transform 160ms var(--ease);
+}
+
+.hero-btn--solid:hover svg {
+  transform: translateX(2px);
+}
+
+/*
+ * Bottom row. The strip (on the text column) and the chip (on the right edge) share one bottom
+ * line, the strip's last baseline; the attribution sits under the strip, on the bottom pad.
+ * The row spans the full width and its children take the edges as margins, so the strip's
+ * width (--col, which holds the percentage --gx) resolves against the hero's width, as the
+ * copy's does.
+ */
+.hero-foot {
+  position: absolute;
+  right: 0;
+  bottom: var(--pad-y);
+  left: 0;
+}
+
+.hero-foot__row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-end;
+}
+
+.hero-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  width: var(--col);
+  /* Never narrower than the labels need (descriptions wrap instead, see contain below). */
+  min-width: max-content;
+  margin: 0 0 0 var(--edge-l);
+  padding: 0;
+  list-style: none;
+}
+
+.hero-step {
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.hero-step__head {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin: 0;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 450;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.hero-step__icon {
+  flex: none;
+  color: var(--ink-3);
+}
+
+/* Lucide draws on a 24-unit grid with some padding; shift each icon so its ink, not its box,
+   starts on the hairline (left-most ink x at 18 px, less half the 1.5 px stroke). */
+.hero-step--detect .hero-step__icon {
+  margin-left: -1.5px;
+}
+
+.hero-step--explain .hero-step__icon {
+  margin-left: -0.75px;
+}
+
+.hero-step--prove .hero-step__icon {
+  margin-left: -2.25px;
+}
+
+.hero-step__label {
+  display: block;
+}
+
+.hero-step__number {
+  color: var(--text-3);
+}
+
+.hero-step__desc {
+  margin: 6px 0 0;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.45;
+  text-wrap: balance;
+  /* Wraps to the column instead of widening the strip. */
+  contain: inline-size;
+}
+
+.hero-chip {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+  align-items: center;
+  height: 32px;
+  /* Auto: stays on the right edge even when it is the row's only item (strip hidden). */
+  margin: 0 var(--edge-r) 0 auto;
+  /* The 1 px glass border is part of the inset: the dot is concentric with the end cap. */
+  padding-inline: 12px 13px;
+  border-radius: 999px;
+  color: var(--text-2);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.hero-chip__dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.hero-chip__text {
+  display: block;
+}
+
+.hero-attribution {
+  margin: 24px var(--edge-r) 0 var(--edge-l);
+  color: var(--text-3);
+  font-size: 11px;
+  line-height: 1.3;
+  text-wrap: pretty;
+}
+
+.hero-step__label,
+.hero-step__desc,
+.hero-chip__text,
+.hero-attribution {
+  text-box: trim-both cap alphabetic;
+}
+
+/*
+ * Responsive tiers. The scene switches its framing at an aspect ratio of 1 of the hero box, so
+ * every tier is a container query on the hero, never a viewport media query.
+ */
+
+/* Narrow landscape: tablets, and screens squarer than 3:2. The column narrows to 30% of the width
+   and keeps the globe's clearance; the headline shrinks with it. The orbit's lower-left arc
+   reaches past the limb from about 0.06 of the diameter above the globe's centre, so the copy
+   ends above that point (plus --ring-slack, the part of the copy that is narrower than the arc's
+   reach) when centring would take it lower. */
+@container hero (aspect-ratio >= 1) and ((width < 1280px) or (aspect-ratio < 1.5)) {
+  .hero > .hero-ui {
+    --col: min(var(--hero-w) * 0.3, var(--fit));
+    --copy-y: min(
+      var(--gy) - 3%,
+      var(--gy) - var(--d) * 0.06 - var(--copy-half) + var(--ring-slack, 0px)
+    );
+  }
+}
+
+/* Squarish landscape (under 6:5): the globe leaves no readable column, so the copy takes a fixed
+   width over its limb, on a night scrim that fades out towards the globe. */
+@container hero (aspect-ratio >= 1) and (aspect-ratio < 1.2) {
+  .hero > .hero-ui {
+    --col: min(320px, var(--hero-w) - var(--edge-l) - var(--edge-r));
+  }
+
+  .hero-ui::before {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: calc(var(--edge-l) + var(--col) + 160px);
+    background: linear-gradient(
+      to right,
+      rgb(2 4 10 / 0.86),
+      rgb(2 4 10 / 0.8) calc(100% - 200px),
+      rgb(2 4 10 / 0.5) calc(100% - 110px),
+      rgb(2 4 10 / 0)
+    );
+    content: "";
+  }
+}
+
+/* Short landscape screens: the compact rhythm and steps without descriptions. */
+@container hero (aspect-ratio >= 1) and (height < 760px) {
+  .hero > .hero-ui {
+    --gap-title: 16px;
+    --gap-sub: 20px;
+    --gap-ctas: 24px;
+    --copy-half: 148px;
+    --foot-h: 58px;
+  }
+}
+
+/* Under 1280 px wide: no section links, stacked calls to action of equal width, steps without
+   descriptions and the compact rhythm. */
+@container hero (width < 1280px) {
+  .hero > .hero-ui {
+    --gap-title: 16px;
+    --gap-sub: 20px;
+    --gap-ctas: 24px;
+    --copy-half: 164px;
+    --foot-h: 58px;
+    /* The stacked buttons are narrower than the column and pass left of the orbit's arc. */
+    --ring-slack: 132px;
+  }
+
+  .hero-nav__links {
+    display: none;
+  }
+
+  .hero-ctas {
+    flex-direction: column;
+    align-items: stretch;
+    width: max-content;
+  }
+}
+
+@container hero (width < 1280px) or (height < 760px) {
+  .hero-step__desc {
+    display: none;
+  }
+
+  /* Without descriptions the label is the strip's last line: end the row on its baseline (the
+     label's cap height, 0.71em in Geist Mono, is centred on the 18 px icon), so the chip still
+     sits on it. */
+  .hero-step__head {
+    margin-bottom: calc((0.71em - 18px) / 2);
+  }
+}
+
+/* Very short landscape screens: the strip goes; the chip and the attribution stay. */
+@container hero (aspect-ratio >= 1) and (height < 640px) {
+  .hero > .hero-ui {
+    --foot-h: 32px;
+  }
+
+  .hero-steps {
+    display: none;
+  }
+}
+
+/* A column too narrow for the eyebrow on one line drops it (phones, small tablets). */
+@container hero-copy (width < 345px) {
+  .hero-eyebrow {
+    display: none;
+  }
+
+  .hero-title {
+    --gap-title: 0px;
+  }
+}
+
+/*
+ * Portrait: the globe sits high (CAMERA.globeCenterPortrait) and the copy is stacked at the
+ * bottom, in flow with the attribution, on a night scrim (short phones overlap the globe's lower
+ * limb). Full-width stacked calls to action; no links, strip, chip or blur.
+ */
+@container hero (aspect-ratio < 1) {
+  .hero > .hero-ui {
+    --gap-title: 16px;
+    --gap-sub: 20px;
+    --gap-ctas: 24px;
+  }
+
+  .hero-ui__glass {
+    background: var(--glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .hero-nav__links,
+  .hero-foot__row {
+    display: none;
+  }
+
+  .hero-ui__main {
+    position: absolute;
+    right: 0;
+    bottom: var(--pad-y);
+    left: 0;
+  }
+
+  .hero-ui__main::before {
+    position: absolute;
+    z-index: -1;
+    inset: -144px 0 calc(-1 * var(--pad-y));
+    background: linear-gradient(
+      to bottom,
+      rgb(2 4 10 / 0),
+      rgb(2 4 10 / 0.55) 72px,
+      rgb(2 4 10 / 0.82) 144px,
+      rgb(2 4 10 / 0.9)
+    );
+    content: "";
+  }
+
+  .hero-copy {
+    position: static;
+    width: auto;
+    max-width: 480px;
+    margin-inline: var(--edge-l);
+    translate: none;
+  }
+
+  .hero-sub {
+    max-width: none;
+    font-size: 16px;
+  }
+
+  .hero-ctas {
+    flex-direction: column;
+    align-items: stretch;
+    width: auto;
+  }
+
+  .hero-foot {
+    position: static;
+  }
+}
+
+/* Without text-box trimming, trim the line boxes by hand (Inter Tight and Geist Mono metrics). */
+@supports not (text-box: trim-both cap alphabetic) {
+  .hero-eyebrow__text {
+    margin-block: -0.15em;
+  }
+
+  .hero-title {
+    margin-block: calc(var(--gap-title) - 0.146em) -0.146em;
+  }
+
+  .hero-sub {
+    margin-block: calc(var(--gap-sub) - 0.41em) -0.41em;
+  }
+
+  .hero-step__label {
+    margin-block: -0.15em;
+  }
+
+  .hero-chip__text {
+    margin-block: -0.136em;
+  }
+
+  .hero-step__desc {
+    margin-block: calc(6px - 0.361em) -0.361em;
+  }
+
+  .hero-attribution {
+    margin-block: calc(24px - 0.286em) -0.286em;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-ui *,
+  .hero-ui *::before,
+  .hero-ui *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
