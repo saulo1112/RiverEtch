@@ -10,7 +10,7 @@ stac:
   page_size: 100
   sources:
     earth-search:
-      url: https://earth-search.aws.amazon.com/v1
+      url: https://earth-search.aws.element84.com/v1
       collection: sentinel-2-l2a
       assets: { scl: scl, red: red, green: green, swir16: swir16 }
     planetary-computer:

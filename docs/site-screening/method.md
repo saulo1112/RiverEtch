@@ -256,3 +256,6 @@ Corrections made before any real run (no results existed):
   - Open-Meteo hourly values are treated as the sum over the hour ending at their timestamp,
     as the API documents (an earlier one-hour shift was removed);
   - rainy months use only the days inside the study period.
+- 2026-10-07, after a first real run that could not start (no data read, no results):
+  the Earth Search address `earth-search.aws.amazon.com` does not resolve in DNS; the
+  screening now uses Element 84's documented host, `earth-search.aws.element84.com/v1`.
