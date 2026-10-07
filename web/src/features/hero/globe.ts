@@ -26,6 +26,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { cubicBezier } from "../../lib/easing.ts";
 import { COLOMBIA_DIRECTION, COLOMBIA_RINGS, latLngToVector3 } from "./colombia.ts";
 import {
+  ASCENT,
   ATMOSPHERE,
   CAMERA,
   DIVE,
@@ -41,7 +42,8 @@ import {
   type HeroEffect,
   type QualityName,
 } from "./config.ts";
-import { divePose, handoffFrame } from "./dive.ts";
+import { divePose } from "./dive.ts";
+import { handoffFrame } from "./handoff.ts";
 import { createSatellite, timeForOrbitOffset, type SatelliteRig } from "./satellite.ts";
 import { createScan, type ScanEffect } from "./scan.ts";
 import { DITHER_GLSL, SHOULDER_GLSL } from "./shaders.ts";
@@ -64,6 +66,12 @@ export interface MountHeroOptions {
   readonly onReady: () => void;
   /** Called when WebGL fails after mounting; the caller should show the fallback. */
   readonly onError: (error: unknown) => void;
+  /**
+   * Start parked at the top-down view of this site, as a dive leaves it (the way back from the
+   * case view): no intro, overlays hidden, the camera held until {@link HeroHandle.ascend}. The
+   * scene then reports ready only once its sharpest Earth map is in. Ignored without animation.
+   */
+  readonly arriveFrom?: DiveTarget | null;
 }
 
 /** Where {@link HeroHandle.dive} takes the camera. */
@@ -97,6 +105,22 @@ export interface DiveHandle {
   readonly handoffZoom: number;
 }
 
+/** Options for {@link HeroHandle.ascend}. */
+export interface AscentOptions {
+  /** Rise duration in seconds (defaults to `ASCENT.durationS`). */
+  readonly durationS?: number;
+  /** Called every rendered frame of the rise with its linear progress, 0..1. */
+  readonly onProgress?: (progress: number) => void;
+}
+
+/** A running rise. */
+export interface AscentHandle {
+  /** Resolves when the camera is back on the hero framing (or at once if nothing was parked). */
+  readonly done: Promise<void>;
+  /** Jumps to the end of the rise (Skip). */
+  readonly finish: () => void;
+}
+
 /** Handle returned by {@link mountHero}. */
 export interface HeroHandle {
   /**
@@ -109,6 +133,15 @@ export interface HeroHandle {
    * @returns The running dive.
    */
   readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle;
+  /**
+   * Lifts the camera parked by `arriveFrom` back to the hero framing along the dive's path in
+   * reverse, converging on the live pose (parallax and drift included), so the scene's normal
+   * motion takes over seamlessly; the overlays and the globe's off-center framing come back.
+   *
+   * @param options - Duration and a progress callback.
+   * @returns The running rise.
+   */
+  readonly ascend: (options?: AscentOptions) => AscentHandle;
   /** Stops the scene and releases every GPU resource; safe to call more than once. */
   readonly dispose: () => void;
 }
@@ -119,20 +152,31 @@ interface HeroQAWindow extends Window {
     readonly simulate: (fromS: number, toS: number, stepS: number) => unknown[];
     readonly project: (lat: number, lng: number) => [number, number];
     readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle;
+    readonly ascend: (options?: AscentOptions) => AscentHandle;
   };
 }
 
+// A camera trip between the hero framing and the top-down view of a site: "down" is the dive
+// (from a snapshot of the pose it left), "up" the rise (onto the live pose, recomputed into
+// `fromPosition`/`fromTarget` every frame). An "up" trip starts parked until ascend().
 interface DiveState {
+  readonly direction: "down" | "up";
   readonly fromPosition: Vector3;
   readonly fromTarget: Vector3;
   readonly site: Vector3;
   readonly lat: number;
   readonly zoom: number;
-  readonly durationS: number;
-  readonly onProgress: ((progress: number) => void) | undefined;
+  // "down": overlay opacity, framing blend and glint share at the start, so a dive that begins
+  // part-way through a rise continues from there instead of snapping back to full.
+  readonly fadeFrom: number;
+  readonly blendFrom: number;
+  readonly glintFrom: number;
+  durationS: number;
+  onProgress: ((progress: number) => void) | undefined;
   elapsedS: number;
+  parked: boolean;
   settled: boolean;
-  readonly resolve: () => void;
+  resolve: () => void;
 }
 
 // Unit vector from the Earth towards the sun (world space, fixed).
@@ -149,6 +193,7 @@ const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2);
 const diveEase = cubicBezier(...DIVE.ease);
+const ascentEase = cubicBezier(...ASCENT.ease);
 
 const earthVertexShader = /* glsl */ `
 varying vec2 vUv;
@@ -491,6 +536,30 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   let dive: DiveState | null = null;
   // Opacity of the satellite, orbit, scan overlays and atmosphere (the dive fades them out).
   let overlayFade = 1;
+  // Coming back from the case view: parked over the site, past the intro, overlays hidden.
+  const arrival = animate ? (options.arriveFrom ?? null) : null;
+  if (arrival !== null) {
+    sceneTime = CAMERA.intro.durationS;
+    renderer.toneMappingExposure = 1;
+    viewBlend = 0;
+    dive = {
+      direction: "up",
+      fromPosition: new Vector3(),
+      fromTarget: new Vector3(),
+      site: latLngToVector3(arrival.lat, arrival.lng, 1, new Vector3()),
+      lat: arrival.lat,
+      zoom: arrival.zoom,
+      fadeFrom: 1,
+      blendFrom: 1,
+      glintFrom: 1,
+      durationS: ASCENT.durationS,
+      onProgress: undefined,
+      elapsedS: 0,
+      parked: true,
+      settled: false,
+      resolve: () => undefined,
+    };
+  }
 
   function layout(): void {
     const width = Math.max(1, container.clientWidth);
@@ -539,6 +608,13 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
 
   // Places the camera for scene time `timeS`; `withMotion` adds parallax and drift.
   function poseCamera(timeS: number, withMotion: boolean): void {
+    computePose(timeS, withMotion, cameraPosition, lookTarget);
+    camera.position.copy(cameraPosition);
+    camera.lookAt(lookTarget);
+  }
+
+  // The hero framing at scene time `timeS`: camera position and look-at point.
+  function computePose(timeS: number, withMotion: boolean, position: Vector3, target: Vector3) {
     const { intro, parallax, drift } = CAMERA;
     const progress = MathUtils.clamp(timeS / intro.durationS, 0, 1);
     const dolly = easeInOutCubic(progress);
@@ -554,12 +630,10 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       lat += drift.latDeg * Math.sin((2 * Math.PI * timeS) / drift.latPeriodS);
       lng += drift.lngDeg * Math.sin((2 * Math.PI * timeS) / drift.lngPeriodS + 1.1);
     }
-    latLngToVector3(lat, lng, distance, cameraPosition);
-    lookTarget
+    latLngToVector3(lat, lng, distance, position);
+    target
       .copy(COLOMBIA_DIRECTION)
       .multiplyScalar(CAMERA.targetFactor * widthWeight * dolly * GLOBE_RADIUS);
-    camera.position.copy(cameraPosition);
-    camera.lookAt(lookTarget);
   }
 
   // globe.gl's debounced digests reset `far` (from its sky radius) and clear the view offset;
@@ -622,13 +696,18 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     scan?.setFade(alpha);
   }
 
-  // Advances the dive by `frameS` seconds of wall-clock time and poses the camera.
+  // Advances the dive or the rise by `frameS` seconds of wall-clock time and poses the camera.
   function advanceDive(state: DiveState, frameS: number): void {
-    if (!state.settled) {
+    if (!state.settled && !state.parked) {
       state.elapsedS = Math.min(state.durationS, state.elapsedS + frameS);
     }
     const progress = state.durationS > 0 ? state.elapsedS / state.durationS : 1;
-    const k = diveEase(progress);
+    const up = state.direction === "up";
+    // k: how far along from the hero framing (0) to the top-down view (1).
+    const k = up ? 1 - ascentEase(progress) : diveEase(progress);
+    if (up) {
+      computePose(sceneTime, !options.reducedMotion, state.fromPosition, state.fromTarget);
+    }
     const { distance } = handoffFrame(
       state.zoom,
       state.lat,
@@ -647,14 +726,24 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     );
     camera.position.copy(cameraPosition);
     camera.lookAt(lookTarget);
-    viewBlend = 1 - k;
-    setOverlayFade(1 - MathUtils.smoothstep(progress, 0, DIVE.fadeEnd));
-    earthGlint.y = earthGlintGain * (1 - MathUtils.smoothstep(progress, ...DIVE.glintFade));
-    if (!state.settled) {
+    viewBlend = up ? 1 - k : state.blendFrom * (1 - k);
+    if (up) {
+      setOverlayFade(MathUtils.smoothstep(progress, ...ASCENT.fadeIn));
+      earthGlint.y = earthGlintGain * MathUtils.smoothstep(progress, ...ASCENT.glintIn);
+    } else {
+      setOverlayFade(state.fadeFrom * (1 - MathUtils.smoothstep(progress, 0, DIVE.fadeEnd)));
+      earthGlint.y =
+        state.glintFrom * earthGlintGain * (1 - MathUtils.smoothstep(progress, ...DIVE.glintFade));
+    }
+    if (!state.settled && !state.parked) {
       state.onProgress?.(progress);
       if (progress >= 1) {
         state.settled = true;
         state.resolve();
+        // Back on the live pose: the normal loop takes over from the next frame.
+        if (up && dive === state) {
+          dive = null;
+        }
       }
     }
   }
@@ -672,7 +761,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       sceneTime = options.frozenTime ?? stillTime;
     }
 
-    if (!options.reducedMotion && dive === null) {
+    if (!options.reducedMotion && (dive === null || dive.direction === "up")) {
       const damping = CAMERA.parallax.damping;
       pointer.x = MathUtils.damp(pointer.x, pointerTarget.x, damping, dt);
       pointer.y = MathUtils.damp(pointer.y, pointerTarget.y, damping, dt);
@@ -929,13 +1018,20 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       return;
     }
 
+    // Coming back from the case view, the first frames are the close top-down view: wait for the
+    // sharp map, so it does not swap in visibly during the rise. (start() ignores a disposed scene.)
+    if (arrival !== null) {
+      await loadDetailTexture();
+    }
     started = true;
     if (animate) {
       start();
     } else {
       renderStill();
     }
-    void loadDetailTexture();
+    if (arrival === null) {
+      void loadDetailTexture();
+    }
   }
 
   // Swaps in the sharper Earth map once the scene runs; the upload happens before the swap.
@@ -1005,14 +1101,19 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       resolveDone = settle;
     });
     const state: DiveState = {
+      direction: "down",
       fromPosition: camera.position.clone(),
       fromTarget: lookTarget.clone(),
       site: latLngToVector3(target.lat, target.lng, 1, new Vector3()),
       lat: target.lat,
       zoom: target.zoom,
+      fadeFrom: overlayFade,
+      blendFrom: viewBlend,
+      glintFrom: earthGlintGain > 0 ? earthGlint.y / earthGlintGain : 1,
       durationS: Math.max(0, diveOptions.durationS ?? DIVE.durationS),
       onProgress: diveOptions.onProgress,
       elapsedS: 0,
+      parked: false,
       settled: false,
       resolve: () => {
         resolveDone?.();
@@ -1034,6 +1135,60 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
         if (!state.settled) {
           state.settled = true;
           state.resolve();
+        }
+      },
+    };
+  }
+
+  // Ends a rise at once: the hero framing, overlays and glint back, the normal loop in charge.
+  function settleAscent(state: DiveState): void {
+    state.elapsedS = state.durationS;
+    state.parked = false;
+    if (!state.settled) {
+      state.settled = true;
+      state.resolve();
+    }
+    if (dive === state) {
+      dive = null;
+    }
+    viewBlend = 1;
+    setOverlayFade(1);
+    earthGlint.y = earthGlintGain;
+  }
+
+  function startAscend(ascentOptions: AscentOptions = {}): AscentHandle {
+    const state = dive;
+    if (state?.direction !== "up" || !state.parked) {
+      return { done: Promise.resolve(), finish: () => undefined };
+    }
+    let resolveDone: (() => void) | undefined;
+    const done = new Promise<void>((settle) => {
+      resolveDone = settle;
+    });
+    state.resolve = () => {
+      resolveDone?.();
+    };
+    state.durationS = Math.max(0, ascentOptions.durationS ?? ASCENT.durationS);
+    state.onProgress = ascentOptions.onProgress;
+    state.parked = false;
+    if (disposed || !started || document.hidden || !onScreen || contextLost) {
+      // Nothing renders, so the rise could not progress: land on the hero framing at once.
+      settleAscent(state);
+    } else {
+      start();
+    }
+    return {
+      done,
+      finish() {
+        if (state.settled) {
+          return;
+        }
+        if (running) {
+          // The next frame lands on the live pose and hands over to the normal loop.
+          state.elapsedS = state.durationS;
+        } else {
+          settleAscent(state);
+          renderStill();
         }
       },
     };
@@ -1089,6 +1244,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           scanIntensity: scan?.status.intensity ?? null,
           satelliteAngleDeg: satellite === null ? null : MathUtils.radToDeg(satellite.state.angle),
           exposure: renderer.toneMappingExposure,
+          diveDirection: dive?.direction ?? null,
+          diveParked: dive?.parked ?? null,
           diveProgress: dive === null ? null : dive.elapsedS / Math.max(1e-6, dive.durationS),
           overlayFade,
           viewBlend,
@@ -1127,6 +1284,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
         return transitions;
       },
       dive: startDive,
+      ascend: startAscend,
       // Screen position (CSS px) of a geographic point with the current camera.
       project: (lat, lng) => {
         camera.updateMatrixWorld();
@@ -1141,6 +1299,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
 
   return {
     dive: startDive,
+    ascend: startAscend,
     dispose(): void {
       if (disposed) {
         return;

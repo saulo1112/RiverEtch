@@ -210,9 +210,12 @@ export const CAMERA = {
  * takes over (HeroHandle.dive).
  */
 export const DIVE = {
-  durationS: 3.2,
+  durationS: 2.6,
   // cubic-bezier: a slow start, then a long ease-out that settles on the site.
   ease: [0.5, 0, 0.1, 1],
+  // Share of the dive after which the map may take over: the ease-out's tail moves the camera by
+  // well under 1 %, so the crossfade can start without waiting for the last, still frames.
+  handoffAt: 0.94,
   // Share of the dive over which the satellite, orbit, scan overlays and atmosphere fade out (the
   // camera crosses the orbit and the atmosphere shell on the way down).
   fadeEnd: 0.35,
@@ -223,6 +226,20 @@ export const DIVE = {
   horizonMarginDeg: 2,
   // Closest the camera may get to the surface (scene units).
   minAltitude: 4,
+} as const;
+
+/**
+ * The way back (HeroHandle.ascend): from the top-down view of the site up to the hero framing, the
+ * dive's path in reverse, ending on the live (drifting) hero pose.
+ */
+export const ASCENT = {
+  durationS: 2.2,
+  // cubic-bezier: leaves the site gently, then settles into the hero framing.
+  ease: [0.45, 0, 0.2, 1],
+  // Shares of the rise over which the satellite, orbit, scan overlays and atmosphere fade back in
+  // (once the camera is above the orbit) and the ocean glint returns.
+  fadeIn: [0.55, 1],
+  glintIn: [0.15, 0.7],
 } as const;
 
 /**

@@ -74,11 +74,26 @@ export interface CaseMapHandle {
    */
   readonly jumpToFinal: (frame: FinalFrame) => void;
   /**
-   * Draws the river from upstream to downstream.
+   * Eases back to the top-down handoff pose (site centered, pitch 0, bearing 0, no padding), where
+   * the globe takes over on the way back.
    *
-   * @param durationMs - Reveal duration; 0 shows the whole reach at once.
+   * @param durationMs - Flight duration.
+   * @param easing - Easing of the flight, from 0..1 to 0..1.
+   * @param zoom - Handoff zoom, matching the globe's top-down view for this viewport.
+   * @returns Resolves when the flight ends or is interrupted.
    */
-  readonly revealRiver: (durationMs: number) => void;
+  readonly flyToHandoff: (
+    durationMs: number,
+    easing: (t: number) => number,
+    zoom: number,
+  ) => Promise<void>;
+  /**
+   * Draws the river from upstream to downstream (`to` 1), or retracts it back upstream (`to` 0).
+   *
+   * @param to - Share of the reach to show at the end, 0..1.
+   * @param durationMs - Duration; 0 jumps there at once.
+   */
+  readonly animateRiver: (to: number, durationMs: number) => void;
   /**
    * Projects a geographic point with the current camera.
    *
@@ -380,13 +395,33 @@ export async function createCaseMap(
       map.jumpTo(framed(frame));
       endFlight();
     },
-    revealRiver(durationMs) {
+    flyToHandoff(durationMs, easing, zoom) {
+      endFlight();
+      if (disposed) {
+        return Promise.resolve();
+      }
+      return new Promise<void>((resolve) => {
+        settleFlight = resolve;
+        map.easeTo({
+          center,
+          zoom,
+          pitch: 0,
+          bearing: 0,
+          padding: { top: 0, bottom: 0, left: 0, right: 0 },
+          duration: durationMs,
+          easing,
+          essential: true,
+        });
+      });
+    },
+    animateRiver(to, durationMs) {
       cancelAnimationFrame(revealFrame);
       if (disposed) {
         return;
       }
+      const target = Math.min(1, Math.max(0, to));
       if (durationMs <= 0) {
-        reveal = 1;
+        reveal = target;
         applyReveal();
         return;
       }
@@ -394,8 +429,8 @@ export async function createCaseMap(
       const startTime = performance.now();
       const step = (now: number) => {
         const t = Math.min(1, (now - startTime) / durationMs);
-        // Ease-out (sine): the line slows down as it reaches the downstream end.
-        reveal = from + (1 - from) * Math.sin((t * Math.PI) / 2);
+        // Ease-out (sine): the line's end slows down as it arrives.
+        reveal = from + (target - from) * Math.sin((t * Math.PI) / 2);
         applyReveal();
         if (t < 1) {
           revealFrame = requestAnimationFrame(step);

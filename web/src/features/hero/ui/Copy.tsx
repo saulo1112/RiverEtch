@@ -1,4 +1,5 @@
 import { ArrowRight } from "lucide-react";
+import { useCallback, useEffect, useRef } from "react";
 
 import { COPY } from "./content.ts";
 import { Dotted } from "./Dotted.tsx";
@@ -12,7 +13,7 @@ export interface CopyProps {
   readonly onExplore?: () => void;
   /** The pointer or the focus reached "Explore the case": warm up the case view. */
   readonly onWarmUp?: () => void;
-  /** Focus "Explore the case" on mount (back from the case view). */
+  /** Focus "Explore the case" when this turns true (back from the case view). */
   readonly focusExplore?: boolean;
 }
 
@@ -24,6 +25,21 @@ export interface CopyProps {
  */
 export function Copy({ titleId, onExplore, onWarmUp, focusExplore = false }: CopyProps) {
   const primaryLift = useLift<HTMLButtonElement>();
+  const exploreRef = useRef<HTMLButtonElement | null>(null);
+  const primaryRef = useCallback(
+    (element: HTMLButtonElement | null) => {
+      exploreRef.current = element;
+      return primaryLift(element);
+    },
+    [primaryLift],
+  );
+  // After the way back the overlay was inert until now, so focus moves here explicitly (an
+  // autoFocus on mount would land on an inert button).
+  useEffect(() => {
+    if (focusExplore) {
+      exploreRef.current?.focus({ preventScroll: true });
+    }
+  }, [focusExplore]);
   const secondaryLift = useLift<HTMLAnchorElement>();
   return (
     <div className="hero-copy">
@@ -40,14 +56,12 @@ export function Copy({ titleId, onExplore, onWarmUp, focusExplore = false }: Cop
       <p className="hero-sub">{COPY.subtitle}</p>
       <div className="hero-ctas">
         <button
-          ref={primaryLift}
+          ref={primaryRef}
           type="button"
           className="hero-btn hero-btn--solid hero-btn--lift"
           onClick={onExplore}
           onPointerEnter={onWarmUp}
           onFocus={onWarmUp}
-          // Only when coming back from the case view, so keyboard focus is not lost.
-          autoFocus={focusExplore}
         >
           {COPY.primary.label}
           <ArrowRight size={16} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />

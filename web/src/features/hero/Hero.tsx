@@ -2,6 +2,7 @@ import "./hero.css";
 
 import {
   useEffect,
+  useEffectEvent,
   useId,
   useImperativeHandle,
   useRef,
@@ -11,7 +12,14 @@ import {
 } from "react";
 
 import { parseHeroUrlOptions, type HeroUrlOptions } from "./config.ts";
-import type { DiveHandle, DiveOptions, DiveTarget, HeroHandle } from "./globe.ts";
+import type {
+  AscentHandle,
+  AscentOptions,
+  DiveHandle,
+  DiveOptions,
+  DiveTarget,
+  HeroHandle,
+} from "./globe.ts";
 import { HeroUi } from "./ui/HeroUi.tsx";
 
 /** What the hero exposes to its parent (through `ref`). */
@@ -25,6 +33,13 @@ export interface HeroApi {
    *   fallback, or the satellite lab), in which case the caller crossfades instead.
    */
   readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle | null;
+  /**
+   * Lifts the camera parked by `arriveFrom` back to the hero framing (see `HeroHandle.ascend`).
+   *
+   * @param options - Duration and progress callback.
+   * @returns The running rise, or null when no 3D scene is showing.
+   */
+  readonly ascend: (options?: AscentOptions) => AscentHandle | null;
 }
 
 /** Props of {@link Hero}. */
@@ -37,8 +52,17 @@ export interface HeroProps {
   readonly onExplore?: () => void;
   /** The pointer or the focus reached "Explore the case": warm up the case view. */
   readonly onWarmUp?: () => void;
-  /** Focus "Explore the case" on mount (back from the case view). */
+  /** Focus "Explore the case" (back from the case view, once the UI shows again). */
   readonly focusExplore?: boolean;
+  /**
+   * Mount parked at the top-down view of this site (the way back from the case view): no intro,
+   * the camera held until `HeroApi.ascend`. Read on mount only.
+   */
+  readonly arriveFrom?: DiveTarget | null;
+  /** On the way back: the UI and the vignette stay hidden (and the UI inert) until this clears. */
+  readonly returning?: boolean;
+  /** The scene can be shown: its first frame rendered, or the CSS fallback in place. */
+  readonly onSceneReady?: () => void;
 }
 
 // "loading" shows the CSS poster, "ready" fades the WebGL stage in, "fallback" keeps the poster.
@@ -88,12 +112,22 @@ function getReducedMotion(): boolean {
  *
  * @returns The hero section.
  */
-export function Hero({ ref, leaving = false, onExplore, onWarmUp, focusExplore }: HeroProps) {
+export function Hero({
+  ref,
+  leaving = false,
+  onExplore,
+  onWarmUp,
+  focusExplore,
+  arriveFrom = null,
+  returning = false,
+  onSceneReady,
+}: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<HeroHandle | null>(null);
   const titleId = useId();
   const [environment] = useState(detectEnvironment);
+  const [arrival] = useState(arriveFrom);
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotion);
   const { quality, frozenTime, lab, disabledEffects } = environment.url;
   // "Ready" belongs to one mount: a re-mount (e.g. a reduced-motion change) shows the poster again
@@ -108,9 +142,20 @@ export function Hero({ ref, leaving = false, onExplore, onWarmUp, focusExplore }
     () => ({
       dive: (target, options) =>
         status === "ready" ? (sceneRef.current?.dive(target, options) ?? null) : null,
+      ascend: (options) =>
+        status === "ready" ? (sceneRef.current?.ascend(options) ?? null) : null,
     }),
     [status],
   );
+
+  const notifySceneReady = useEffectEvent(() => {
+    onSceneReady?.();
+  });
+  useEffect(() => {
+    if (status !== "loading") {
+      notifySceneReady();
+    }
+  }, [status]);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -152,6 +197,7 @@ export function Hero({ ref, leaving = false, onExplore, onWarmUp, focusExplore }
               cssTarget: section,
               onReady,
               onError: fail,
+              arriveFrom: arrival,
             });
             sceneRef.current = scene;
             dispose = scene.dispose;
@@ -169,7 +215,7 @@ export function Hero({ ref, leaving = false, onExplore, onWarmUp, focusExplore }
       dispose = null;
       sceneRef.current = null;
     };
-  }, [environment.webgl2, quality, frozenTime, reducedMotion, lab, disabledEffects]);
+  }, [environment.webgl2, quality, frozenTime, reducedMotion, lab, disabledEffects, arrival]);
 
   return (
     <section
@@ -178,6 +224,7 @@ export function Hero({ ref, leaving = false, onExplore, onWarmUp, focusExplore }
       data-hero-state={status}
       data-hero-quality={quality}
       data-hero-leaving={leaving}
+      data-hero-returning={returning}
       aria-labelledby={titleId}
     >
       {/* Decorative layers: the scene and its CSS stand-ins carry no information. */}
@@ -191,7 +238,7 @@ export function Hero({ ref, leaving = false, onExplore, onWarmUp, focusExplore }
       <div className="hero__vignette" aria-hidden="true" />
       <HeroUi
         titleId={titleId}
-        leaving={leaving}
+        leaving={leaving || returning}
         onExplore={onExplore}
         onWarmUp={onWarmUp}
         focusExplore={focusExplore}
