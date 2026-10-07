@@ -156,9 +156,13 @@ rule. A ranking that changes under these checks is reported as fragile.
      older implies 0.
    - A scene with a disagreeing or missing offset is listed and **not used**. A wrong +0.1 keeps
      water plausible but pulls NDTI toward zero.
+   - _Amended after the first real runs:_ an item flagged `earthsearch:boa_offset_applied`
+     already carries the offset in its pixels and gets offset 0 (see [Deviations](#deviations)).
 3. **Empirical check.** In each sub-reach, the median red and green reflectance of all water
    pixels (before the darkness and glint guards of step 4) must lie in (0, 0.3]. Otherwise the
-   scene is excluded and listed.
+   scene is excluded and listed. _Amended after the first real runs:_ the median B11 of the same
+   pixels must also lie in [−0.03, 0.08], because water absorbs SWIR (see
+   [Deviations](#deviations)).
 4. **Pixels.** A pixel is used if all of these hold:
    - it is inside the eroded sub-reach;
    - its SCL is not no-data and not invalid, whatever class SCL gives the water;
@@ -284,3 +288,33 @@ Corrections made before any real run (no results existed):
 - 2026-10-07, after a first real run that could not start (no data read, no results):
   the Earth Search address `earth-search.aws.amazon.com` does not resolve in DNS; the
   screening now uses Element 84's documented host, `earth-search.aws.element84.com/v1`.
+
+Changes made after real results had been seen:
+
+- 2026-10-07, reflectance offset applied twice (results seen: runs 2 and 6, stage 2 at
+  `sinu-urra` and the post-hoc masks).
+  - **Evidence.** The median B11 of water pixels at Urrá was below −0.05 in 22 of the 27 scenes
+    where it could be computed (most between −0.06 and −0.086). Water absorbs SWIR, so its B11
+    reflectance is near 0. The same shift explains two other observations:
+    - 13 dry-season Urrá scenes were excluded for negative red reflectance;
+    - the post-hoc MNDWI mask found 16 always-water pixels where SCL found 34,354 (the Betania
+      reservoir). An offset applied twice turns MNDWI's sign over water.
+  - **Cause, as inferred from the pixels.** Earth Search items flagged
+    `earthsearch:boa_offset_applied: true` already carry the −0.1 offset in their pixel values,
+    while their `raster:bands` still list it. This reading comes from the pixels, not from
+    documentation; the new B11 check guards against the opposite reading.
+  - **Change.**
+    - Flagged items now use offset 0. Their scaling status is reported as `offset-in-pixels`.
+    - Stage 2 excludes and lists any scene whose median water B11 lies outside [−0.03, 0.08]
+      (`stage2.water_swir16_range`). An offset applied twice gives about −0.1 and a missing one
+      about +0.1.
+    - The post-hoc MNDWI mask skips any acquisition whose 0.5th-percentile B11 (water and shade)
+      is below −0.03, and reports how many it skipped.
+  - **Effect.**
+    - Stage 1 and the pre-registered score use SCL only and do not change.
+    - The stage-2 and post-hoc results of runs 2 and 6 are superseded. They remain in the git
+      history (commits `aeb8472` and `17fa25b`).
+- 2026-10-07, sites added after the first real run: the two mining benchmarks (B), the dredging
+  reach (C) and the control (D) were planned from the start. Their research was blocked when the
+  build session's web-search budget ran out, and they joined after the dam sites had been run.
+  No rule, threshold or weight changed with them.
