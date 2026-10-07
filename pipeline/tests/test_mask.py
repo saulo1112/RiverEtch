@@ -155,6 +155,19 @@ def test_corridor_keeps_both_branches_of_a_braid_but_not_distant_lakes() -> None
     assert not geom.corridor[360, 650]  # lake 3 km away
 
 
+def test_corridor_drops_water_joined_to_the_river_only_outside_the_band() -> None:
+    river = np.zeros((400, 1000), dtype=bool)
+    draw(river, [(200, 10), (200, 990)], half=3)
+    river[220:227, 400:461] = True  # a pit ~400-500 m from the centerline
+    # Its only link to the river is a ditch that loops 1.2 km away before rejoining.
+    draw(river, [(226, 430), (260, 430), (260, 560), (203, 560)], half=0)
+    geom = derive(frequency(river), (200, 12), (200, 988))
+    assert geom.failed is None and geom.corridor is not None
+    assert not geom.corridor[223, 430]  # inside the band, but not main channel
+    assert geom.corridor[215, 560]  # the ditch next to the river still joins inside the band
+    assert geom.corridor[200, 430]
+
+
 def test_threshold_fallback_reconnects_a_river_scl_rarely_calls_water() -> None:
     river = np.zeros((300, 1000), dtype=bool)
     draw(river, [(150, 10), (150, 990)], half=3)

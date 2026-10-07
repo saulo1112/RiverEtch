@@ -210,10 +210,24 @@ def component(mask: BoolArray, seed: RowCol) -> BoolArray:
     Returns:
         The connected region.
     """
+    return connected_to(mask, [seed])
+
+
+def connected_to(mask: BoolArray, seeds: Sequence[RowCol]) -> BoolArray:
+    """The 4-connected regions of ``mask`` that contain any of the seeds.
+
+    Args:
+        mask: Candidate pixels.
+        seeds: Pixels to grow from (those outside the mask are ignored).
+
+    Returns:
+        The connected regions.
+    """
     out = np.zeros_like(mask)
     rows, cols = mask.shape
-    queue = deque([seed])
-    out[seed] = True
+    queue = deque(seed for seed in seeds if mask[seed])
+    for seed in queue:
+        out[seed] = True
     while queue:
         r, c = queue.popleft()
         for nr, nc in ((r - 1, c), (r + 1, c), (r, c - 1), (r, c + 1)):
@@ -609,11 +623,15 @@ def _finish(
     pixels = np.argwhere(region & river).astype(np.int64)
     nearest, dist = nearest_on_path(pixels, path_arr)
     keep = dist * resolution <= corridor_half_width_m
-    corridor = np.zeros(region.shape, dtype=bool)
+    band = np.zeros(region.shape, dtype=bool)
     corridor_chain = np.full(region.shape, np.nan)
     kept = pixels[keep]
-    corridor[kept[:, 0], kept[:, 1]] = True
+    band[kept[:, 0], kept[:, 1]] = True
     corridor_chain[kept[:, 0], kept[:, 1]] = chainage[nearest[keep]]
+    # Main channel only: water inside the band but joined to the river only outside it (a pit or
+    # pond linked by a long ditch, a loop of a tributary) is not corridor.
+    corridor = connected_to(band, path)
+    corridor_chain[~corridor] = np.nan
 
     shifts = {
         "upstream_anchor": up_shift_px * resolution,
