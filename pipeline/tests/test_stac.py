@@ -57,8 +57,19 @@ def test_parse_item_reads_identity_projection_and_scaling() -> None:
     assert scene.epsg == 32618
     assert set(scene.assets) == {"scl", "red", "green", "swir16"}
     assert scene.assets["red"].href.endswith("/B04.tif")
+    # The fixture item says its pixels already carry the BOA offset: it is not applied again.
+    assert scene.boa_offset_applied is True
+    assert reflectance_scaling(scene, "red") == (0.0001, 0.0)
+    assert scene.scaling_status() == "offset-in-pixels"
+
+
+def test_offset_is_applied_when_the_pixels_do_not_carry_it() -> None:
+    scene = parse_item(item(**{"earthsearch:boa_offset_applied": False}), ES_KEYS)
     assert reflectance_scaling(scene, "red") == (0.0001, -0.1)
     assert scene.scaling_status() == "ok"
+    data = item()
+    del data["properties"]["earthsearch:boa_offset_applied"]
+    assert reflectance_scaling(parse_item(data, ES_KEYS), "red") == (0.0001, -0.1)
 
 
 def test_parse_item_reads_proj_code_and_mgrs_from_the_id() -> None:

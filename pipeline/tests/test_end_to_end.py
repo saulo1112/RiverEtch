@@ -114,7 +114,10 @@ class FakeSource:
             if not start <= day <= end:
                 continue
             old = day < date(2022, 1, 25)
-            variant = "n" if old else "o"
+            # Newer items alternate: pixels that already carry the BOA offset (flagged, as Earth
+            # Search does; their listed -0.1 must not be applied again) and pixels that need it.
+            in_pixels = not old and k % 2 == 0
+            variant = "n" if old or in_pixels else "o"
             offset = 0.0 if old else -0.1
             baseline = 3.01 if old else 5.09
             pattern = f"normal{k % 3}"
@@ -148,7 +151,7 @@ class FakeSource:
                     mgrs_tile="18NUL",
                     relative_orbit=25,
                     processing_baseline=baseline,
-                    boa_offset_applied=not old,
+                    boa_offset_applied=in_pixels,
                     cloud_cover=10.0,
                     epsg=epsg,
                     bbox=SITES[site_id][1],

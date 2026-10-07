@@ -3,7 +3,8 @@
 NDTI = (red - green) / (red + green) on surface reflectance. It is a relative index: its level
 is not comparable between sites, only changes within one sub-reach mean anything, and it is never
 converted to turbidity units. Reflectance is DN * scale + offset with each item's own scale and
-offset; a scene whose median water reflectance is not small and positive is excluded and listed.
+offset; a scene whose water is not near 0 in B11 and small and positive in red and green is
+excluded and listed.
 """
 
 from __future__ import annotations
@@ -143,13 +144,18 @@ def subreach_ndti(
     enough = int(water.sum()) >= cfg.clear.min_valid_px_10m
     red_median = float(np.median(red[water])) if enough else math.nan
     green_median = float(np.median(green[water])) if enough else math.nan
-    base = water & np.isfinite(swir) & ((red + green) > cfg.stage2.rg_floor)
+    with_swir = water & np.isfinite(swir)
+    enough_swir = int(with_swir.sum()) >= cfg.clear.min_valid_px_10m
+    swir_median = float(np.median(swir[with_swir])) if enough_swir else math.nan
+    base = with_swir & ((red + green) > cfg.stage2.rg_floor)
     glint = base & (swir > cfg.stage2.swir16_max)
     use = base & ~glint
     n = int(use.sum())
     glint_share = float(glint.sum()) / int(base.sum()) if base.any() else math.nan
     if n < cfg.clear.min_valid_px_10m:
-        return SubreachNdti(n, math.nan, red_median, green_median, math.nan, math.nan, glint_share)
+        return SubreachNdti(
+            n, math.nan, red_median, green_median, swir_median, math.nan, glint_share
+        )
     r, g = red[use], green[use]
     ndti = (r - g) / (r + g)
     return SubreachNdti(
@@ -157,7 +163,7 @@ def subreach_ndti(
         ndti=float(np.median(ndti)),
         red=red_median,
         green=green_median,
-        swir16=float(np.median(swir[use])),
+        swir16=swir_median,
         class6_share=float(np.isin(scl[use], cfg.scl.water).mean()),
         glint_share=glint_share,
     )
@@ -166,8 +172,10 @@ def subreach_ndti(
 def reflectance_problem(sub: dict[str, SubreachNdti], cfg: ScreeningConfig) -> str:
     """Why a scene's water reflectance is implausible (empty if it is fine).
 
-    Water should be dark: small and positive in red and green. Negative or large values point to
-    a wrong offset, cloud or haze the SCL missed, or a misplaced mask.
+    Water absorbs SWIR, so its B11 reflectance is near 0: a median far below 0 means the BOA
+    offset was applied twice, far above it that the offset is missing (or strong glint). Water
+    should also be dark: small and positive in red and green. Negative or large values there
+    point to a wrong offset, cloud or haze the SCL missed, or a misplaced mask.
 
     Args:
         sub: Statistics per sub-reach.
@@ -176,6 +184,13 @@ def reflectance_problem(sub: dict[str, SubreachNdti], cfg: ScreeningConfig) -> s
     Returns:
         A reason, or an empty string.
     """
+    low, high = cfg.stage2.water_swir16_range
+    for name, s in sub.items():
+        if math.isfinite(s.swir16) and not (low <= s.swir16 <= high):
+            return (
+                f"{name} median B11 water reflectance {s.swir16:.3f} outside [{low}, {high}]"
+                " (offset suspect)"
+            )
     top = cfg.stage2.water_reflectance_max
     for name, s in sub.items():
         for band, value in (("red", s.red), ("green", s.green)):

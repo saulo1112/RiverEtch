@@ -67,6 +67,19 @@ def test_implausible_water_reflectance_is_reported() -> None:
     assert "outside" in reflectance_problem(stats, CONFIG)
 
 
+def test_an_offset_applied_twice_is_caught_by_water_b11() -> None:
+    # Turbid water read with the BOA offset applied twice: red and green stay positive and pass,
+    # but B11, near 0 for any water, drops to about -0.09.
+    river, subs = geometry()
+    red, green, swir, scl = bands(river, 0.12 - 0.1, 0.11 - 0.1, 0.01 - 0.1)
+    stats = {"upstream": subreach_ndti(red, green, swir, scl, subs[0], 1, CONFIG)}
+    assert stats["upstream"].swir16 == pytest.approx(-0.09)
+    assert "B11 water" in reflectance_problem(stats, CONFIG)
+    red, green, swir, scl = bands(river, 0.12, 0.11, 0.01)
+    right = {"upstream": subreach_ndti(red, green, swir, scl, subs[0], 1, CONFIG)}
+    assert reflectance_problem(right, CONFIG) == ""
+
+
 def test_robust_z_is_leave_one_out_with_a_mad_floor() -> None:
     days = [date(2023, 1, 1 + i) for i in range(20)]
     values = [0.1] * 19 + [0.5]

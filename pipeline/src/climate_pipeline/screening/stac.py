@@ -3,7 +3,10 @@
 Reflectance scaling is never hard-coded: each asset's ``raster:bands`` scale and offset are read
 from its own item and cross-checked against the processing baseline (baseline 04.00, from
 2022-01-25, introduced a -1000 DN offset, i.e. -0.1 in reflectance). A disagreement is flagged,
-not silently fixed; stage 2 then decides on the empirical water-reflectance check.
+not silently fixed. An item marked ``earthsearch:boa_offset_applied`` already has that offset in
+its pixel values, so it is not applied a second time. Stage 2's empirical check (water must be
+dark in red and green and near 0 in B11) catches any item whose metadata still disagree with its
+pixels.
 """
 
 from __future__ import annotations
@@ -74,8 +77,10 @@ class Scene:
         """Compare the reflectance assets' offsets with what the processing baseline implies.
 
         Returns:
-            ``"ok"``, ``"missing"`` (no scale/offset on a reflectance asset), ``"conflict"``
-            (offset disagrees with the baseline) or ``"unknown-baseline"``.
+            ``"ok"`` (the offset is applied to the pixel values), ``"offset-in-pixels"`` (the item
+            says the offset is already in its pixel values), ``"missing"`` (no scale/offset on a
+            reflectance asset), ``"conflict"`` (offset disagrees with the baseline) or
+            ``"unknown-baseline"``.
         """
         refs = [self.assets[name] for name in REFLECTANCE_ASSETS if name in self.assets]
         if any(ref.scale is None or ref.offset is None for ref in refs):
@@ -89,7 +94,7 @@ class Scene:
         )
         if any(abs((ref.offset or 0.0) - expected) > 1e-9 for ref in refs):
             return "conflict"
-        return "ok"
+        return "offset-in-pixels" if self.boa_offset_applied and expected else "ok"
 
 
 @dataclass(frozen=True)
@@ -246,7 +251,10 @@ def reflectance_scaling(scene: Scene, name: str) -> tuple[float, float]:
         name: Logical asset name (``red``, ``green`` or ``swir16``).
 
     Returns:
-        ``(scale, offset)`` such that reflectance = DN * scale + offset.
+        ``(scale, offset)`` such that reflectance = DN * scale + offset. The offset is 0 when the
+        item says it is already in the pixel values (``earthsearch:boa_offset_applied``): its
+        ``raster:bands`` offset describes the original product, and applying it again would make
+        water about 0.1 too dark.
 
     Raises:
         ScalingError: If the asset is missing or carries no scale/offset (never guessed).
@@ -254,7 +262,7 @@ def reflectance_scaling(scene: Scene, name: str) -> tuple[float, float]:
     ref = scene.assets.get(name)
     if ref is None or ref.scale is None or ref.offset is None:
         raise ScalingError(f"{scene.item_id}: {name} has no raster:bands scale/offset")
-    return ref.scale, ref.offset
+    return ref.scale, 0.0 if scene.boa_offset_applied else ref.offset
 
 
 # ----------------------------------------------------------------------------------------------

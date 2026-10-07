@@ -164,6 +164,8 @@ def exclusion_category(reason: str) -> str:
     """
     if reason.startswith("scaling") or "raster:bands" in reason:
         return "scaling metadata"
+    if "B11 water" in reason:
+        return "B11 water check (offset suspect)"
     if "reflectance" in reason:
         return "implausible water reflectance"
     if reason.startswith("too few"):

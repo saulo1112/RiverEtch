@@ -122,17 +122,17 @@ def test_posthoc_mndwi_mask_recovers_a_river_scl_calls_soil(tmp_path: Path) -> N
     draw(river, [(grid.height // 2, 8), (grid.height // 2, grid.width - 8)], half=4)
     fine = np.repeat(np.repeat(river, 2, axis=0), 2, axis=1)
     write(tmp_path / "scl.tif", np.where(river, 5, 4).astype(np.uint8), grid)
-    # Turbid water: green 0.09 well above SWIR 0.01 (MNDWI > 0); land: SWIR above green.
+    # Turbid water: green 0.09 well above SWIR 0.01 (MNDWI > 0); land: SWIR above green. The
+    # pixels already carry the BOA offset, as Earth Search's flagged items do.
     green = np.where(fine, 0.09, 0.07)
     swir = np.where(river, 0.01, 0.25)
-    write(
-        tmp_path / "green.tif", ((green + 0.1) / 1e-4).astype(np.uint16), grid.with_resolution(10.0)
-    )
-    write(tmp_path / "swir.tif", ((swir + 0.1) / 1e-4).astype(np.uint16), grid)
+    write(tmp_path / "green.tif", (green / 1e-4).astype(np.uint16), grid.with_resolution(10.0))
+    write(tmp_path / "swir.tif", (swir / 1e-4).astype(np.uint16), grid)
     epsg = grid.epsg
 
     class Source:
         name = "local"
+        flagged = True
 
         def search(self, *args: object) -> list[Scene]:
             return [
@@ -143,7 +143,7 @@ def test_posthoc_mndwi_mask_recovers_a_river_scl_calls_soil(tmp_path: Path) -> N
                     mgrs_tile="18NUL",
                     relative_orbit=25,
                     processing_baseline=5.09,
-                    boa_offset_applied=True,
+                    boa_offset_applied=self.flagged,
                     cloud_cover=0.0,
                     epsg=epsg,
                     bbox=bbox,
@@ -179,3 +179,11 @@ def test_posthoc_mndwi_mask_recovers_a_river_scl_calls_soil(tmp_path: Path) -> N
     posthoc = run_stage1(site, CONFIG.posthoc(), Source(), reader, None, workers=2)
     assert posthoc.geometry.failed is None and posthoc.mask_source == "mndwi"
     assert posthoc.summary["clear"] == 0 and posthoc.summary["observable"] == 25
+    assert posthoc.summary["mndwi_skipped_b11"] == 0
+
+    # Unflagged items get the listed -0.1 a second time: water B11 turns about -0.09, MNDWI
+    # flips sign over water, and the B11 check skips every acquisition instead of using it.
+    unflagged = Source()
+    unflagged.flagged = False
+    twice = run_stage1(site, CONFIG.posthoc(), unflagged, reader, None, workers=2)
+    assert twice.summary["mndwi_skipped_b11"] == 25 and twice.geometry.failed is not None

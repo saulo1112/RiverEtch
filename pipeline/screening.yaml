@@ -64,6 +64,9 @@ stage2:
   rg_floor: 0.01 # red + green reflectance; darker pixels make NDTI unstable
   swir16_max: 0.05 # B11 reflectance; above it a water pixel is likely glint or mixed
   water_reflectance_max: 0.3 # median water red or green above this (or <= 0): scene excluded
+  # Median B11 of water pixels: water absorbs SWIR, so it is near 0. A BOA offset applied twice
+  # gives about -0.1, a missing one about +0.1; glint can raise it a little, hence 0.08.
+  water_swir16_range: [-0.03, 0.08]
   max_scenes_per_site: 400
 
 rain:

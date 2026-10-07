@@ -96,6 +96,7 @@ class Stage1Result:
     rain: list[RainSeries]
     rainy_months: tuple[int, ...]
     mask_source: str = "scl"
+    mndwi_skipped: int = 0
     summary: dict[str, object] = field(default_factory=dict)
 
 
@@ -277,6 +278,7 @@ def summarize(result: Stage1Result, cfg: ScreeningConfig) -> dict[str, object]:
         "river": result.site.river,
         "geometry_failed": geom.failed or "",
         "mask_source": result.mask_source,
+        "mndwi_skipped_b11": result.mndwi_skipped,
         "water_frequency_threshold": geom.threshold,
         "frequency_histogram": " ".join(str(c) for c in geom.frequency_histogram),
         "reach_length_km": round(geom.reach_length_m / 1000, 2),
@@ -386,9 +388,10 @@ def run_stage1(
             stack.update(scl)
     geometry = derive_site_geometry(site, cfg, grid, stack.frequency(cfg.mask.min_observations))
     mask_source = "scl"
+    mndwi_skipped = 0
     if geometry.failed is not None and cfg.mask.source == "scl-then-mndwi":
         log.info("%s: SCL mask failed (%s); trying the MNDWI mask", site.id, geometry.failed)
-        freq = mndwi_frequency(acquisitions, reader, grid, cfg, workers)
+        freq, mndwi_skipped = mndwi_frequency(acquisitions, reader, grid, cfg, workers)
         fallback = derive_site_geometry(site, cfg, grid, freq)
         geometry = dataclasses.replace(
             fallback,
@@ -431,6 +434,7 @@ def run_stage1(
         acquisitions=acquisitions,
         geometry=geometry,
         mask_source=mask_source,
+        mndwi_skipped=mndwi_skipped,
         scenes=scenes,
         rain=rain_series,
         rainy_months=rainy_months(
@@ -473,12 +477,14 @@ def mndwi_frequency(
     grid: Grid,
     cfg: ScreeningConfig,
     workers: int,
-) -> NDArray[np.float64]:
+) -> tuple[NDArray[np.float64], int]:
     """Share of clear observations with MNDWI > 0 (the declared post-hoc water mask).
 
     MNDWI = (green - SWIR1) / (green + SWIR1), with green averaged to 20 m and both bands
     converted with each item's own scale and offset. Acquisitions whose scaling metadata conflict
-    or are missing are skipped, as in stage 2.
+    or are missing are skipped, as in stage 2. So is an acquisition whose darkest B11 values
+    (the 0.5th percentile of its clear pixels: water and shade) fall below the lower end of the
+    stage-2 water B11 range: an offset applied twice turns MNDWI's sign over water.
 
     Args:
         acquisitions: The site's acquisitions.
@@ -488,9 +494,11 @@ def mndwi_frequency(
         workers: Parallel reads.
 
     Returns:
-        The water frequency (NaN with too few clear observations).
+        The water frequency (NaN with too few clear observations) and how many acquisitions the
+        B11 check skipped.
     """
     excluded = np.array(sorted(set(cfg.scl.invalid) | set(cfg.scl.nodata)))
+    lowest = cfg.stage2.water_swir16_range[0]
     water = np.zeros(grid.shape, dtype=np.int32)
     valid = np.zeros(grid.shape, dtype=np.int32)
     usable = [
@@ -499,23 +507,29 @@ def mndwi_frequency(
         if not any(s.scaling_status() in ("conflict", "missing") for s in a.scenes)
     ]
 
-    def one(acq: Acquisition) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+    def one(acq: Acquisition) -> tuple[NDArray[np.bool_], NDArray[np.bool_]] | None:
         scl, _ = reader.read(acq, "scl", grid)
         green, _ = read_reflectance(reader, acq, "green", grid, read=read_average)
         swir, _ = read_reflectance(reader, acq, "swir16", grid)
         ok = ~np.isin(scl, excluded) & np.isfinite(green) & np.isfinite(swir)
+        if ok.any() and float(np.percentile(swir[ok], 0.5)) < lowest:
+            return None
         with np.errstate(divide="ignore", invalid="ignore"):
             index = (green - swir) / (green + swir)
         return ok, ok & (index > 0)
 
+    skipped = 0
     with ThreadPoolExecutor(max_workers=workers) as pool:
-        for ok, wet in pool.map(one, usable):
-            valid += ok
-            water += wet
+        for counts in pool.map(one, usable):
+            if counts is None:
+                skipped += 1
+                continue
+            valid += counts[0]
+            water += counts[1]
     freq = np.full(grid.shape, np.nan)
     enough = valid >= cfg.mask.min_observations
     freq[enough] = water[enough] / valid[enough]
-    return freq
+    return freq, skipped
 
 
 def derive_site_geometry(

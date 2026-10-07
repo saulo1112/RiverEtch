@@ -250,7 +250,17 @@ class Stage2Config(_Frozen):
     rg_floor: float = Field(ge=0, description="minimum red + green reflectance per pixel")
     swir16_max: float = Field(gt=0, description="pixels above this B11 reflectance are dropped")
     water_reflectance_max: float = Field(gt=0)
+    water_swir16_range: tuple[float, float] = Field(
+        description="median B11 of water pixels outside this range: offset suspect, scene excluded"
+    )
     max_scenes_per_site: int = Field(gt=0)
+
+    @model_validator(mode="after")
+    def _check_swir16_range(self) -> Stage2Config:
+        low, high = self.water_swir16_range
+        if not low < 0 < high:
+            raise ValueError("stage2: water_swir16_range must bracket 0 (water B11 is near 0)")
+        return self
 
 
 class RainConfig(_Frozen):
