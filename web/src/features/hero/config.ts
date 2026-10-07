@@ -229,6 +229,20 @@ export const DIVE = {
 } as const;
 
 /**
+ * The way back (HeroHandle.ascend): from the top-down view of the site up to the hero framing, the
+ * dive's path in reverse, ending on the live (drifting) hero pose.
+ */
+export const ASCENT = {
+  durationS: 2.2,
+  // cubic-bezier: leaves the site gently, then settles into the hero framing.
+  ease: [0.45, 0, 0.2, 1],
+  // Shares of the rise over which the satellite, orbit, scan overlays and atmosphere fade back in
+  // (once the camera is above the orbit) and the ocean glint returns.
+  fadeIn: [0.55, 1],
+  glintIn: [0.15, 0.7],
+} as const;
+
+/**
  * Orbit: prograde and low-inclination, ascending over Colombia on every pass because the Earth is
  * static, so the satellite crosses the frame left to right, climbing slightly. The altitude is
  * exaggerated (0.34 R) so the satellite, beam and footprint read at hero scale.

@@ -13,13 +13,13 @@ import { Nav } from "./Nav.tsx";
 export interface HeroUiProps {
   /** Id for the headline, which labels the hero section (`aria-labelledby`). */
   readonly titleId: string;
-  /** The flythrough has started: the overlay is fading out and takes no input. */
+  /** The overlay is hidden or fading out (the flythrough either way) and takes no input. */
   readonly leaving?: boolean;
   /** "Explore the case": starts the flythrough. */
   readonly onExplore?: () => void;
   /** The pointer or the focus reached "Explore the case". */
   readonly onWarmUp?: () => void;
-  /** Focus "Explore the case" on mount. */
+  /** Focus "Explore the case" (when this turns true). */
   readonly focusExplore?: boolean;
 }
 
