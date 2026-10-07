@@ -11,8 +11,8 @@
     "nechi-zaragoza": "b35522c11e1ff3157468a4c24ca9a33975c9406f9067b2fbabf4d24fd48d6893",
     "sinu-urra": "678e6ef88318765151ded43c20a07c2148c36572891dcc97cbf10804ce5add9b"
   },
-  "finished_utc": "2026-10-07T14:26:56+00:00",
-  "git_commit": "2a8508a6ce1aa5a552f376a27b56cc859de2b6d3",
+  "finished_utc": "2026-10-07T14:47:44+00:00",
+  "git_commit": "b5974509b9181febbf9eb65aaf21822e1e50f7ee",
   "method_blob": "1d4e8c07777703d926b751c5eb2386dde7c62564",
   "method_last_commit": "2a8508a6ce1aa5a552f376a27b56cc859de2b6d3",
   "package_version": "0.1.0",
@@ -45,6 +45,6 @@
     "magdalena-puerto-wilches",
     "sinu-urra"
   ],
-  "started_utc": "2026-10-07T14:25:02+00:00",
+  "started_utc": "2026-10-07T14:46:11+00:00",
   "variant": "pre-registered"
 }
