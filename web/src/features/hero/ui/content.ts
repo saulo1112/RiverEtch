@@ -32,7 +32,7 @@ export const NAV = {
   wallet: "Connect wallet",
 } as const;
 
-/** A call to action: a placeholder in-page link for now. */
+/** A call to action that links somewhere (a placeholder in-page anchor for now). */
 export interface CallToAction {
   /** Visible label. */
   readonly label: string;
@@ -49,7 +49,8 @@ export const COPY = {
   title: ["See the river.", "Prove the permit."],
   subtitle:
     "Satellites flag turbidity anomalies in Colombian rivers. Permit holders answer with a zero-knowledge proof, without revealing their data.",
-  primary: { label: "Explore the case", href: "#detect" } satisfies CallToAction,
+  // A button: it starts the flythrough into the case view.
+  primary: { label: "Explore the case" },
   secondary: { label: "How it works", href: "#prove" } satisfies CallToAction,
 } as const;
 

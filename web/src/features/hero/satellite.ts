@@ -952,6 +952,7 @@ uniform vec3 uRingColor;
 uniform vec2 uRingGain;
 uniform vec3 uTrailColor;
 uniform float uTrailGain;
+uniform float uFade;
 
 varying float vTrail;
 varying float vEdge;
@@ -962,7 +963,7 @@ varying float vClear;
 void main() {
   float coverage = saturate(vHalfWidth - abs(vEdge));
   vec3 ring = uRingColor * (uRingGain.x + uRingGain.y * vNear) * vClear;
-  vec3 color = mix(ring, uTrailColor * uTrailGain, vTrail) * coverage;
+  vec3 color = mix(ring, uTrailColor * uTrailGain, vTrail) * coverage * uFade;
   gl_FragColor = vec4(color, max(color.r, max(color.g, color.b)));
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -1014,6 +1015,7 @@ function createOrbitRibbon(samples: number): Mesh {
       uRingGain: { value: new Vector2(...TRAIL.ringGain) },
       uTrailColor: { value: new Color(TRAIL.trailColor) },
       uTrailGain: { value: TRAIL.trailGain },
+      uFade: { value: 1 },
     },
     vertexShader: ribbonVertexShader,
     fragmentShader: ribbonFragmentShader,
@@ -1081,6 +1083,12 @@ export interface SatelliteRig {
     drawingBuffer: Vector2,
     pixelRatio: number,
   ) => void;
+  /**
+   * Fades the satellite, its glows and the orbit ribbon (the hero's dive), and hides them at 0.
+   *
+   * @param alpha - Opacity multiplier, 0..1.
+   */
+  readonly setFade: (alpha: number) => void;
   /** Re-renders the environment map after the WebGL context was restored. */
   readonly restoreAfterContextLoss: () => void;
   /** Releases geometries, materials, textures and the environment map. */
@@ -1212,6 +1220,7 @@ export async function createSatellite(
     uAngle: { value: number };
     uResolution: { value: Vector2 };
     uPixelRatio: { value: number };
+    uFade: { value: number };
   };
 
   const { lights: lightConfig } = SATELLITE;
@@ -1254,6 +1263,19 @@ export async function createSatellite(
       : model.wingArrays.map((array) =>
           addHalo(array, new Color(SUN.color), Math.sign(array.position.x) * 5.5),
         );
+  // Every material of the model is transparent from the start: at full opacity it renders like an
+  // opaque one, and the dive can then fade it without recompiling a shader mid-flight.
+  const fadeMaterials = new Map<Material, number>();
+  model.root.traverse((object) => {
+    if (object instanceof Mesh || object instanceof Sprite) {
+      const material = object.material as Material;
+      if (!fadeMaterials.has(material)) {
+        material.transparent = true;
+        fadeMaterials.set(material, material.opacity);
+      }
+    }
+  });
+
   const twistPerUnit = glint.shape.value.y;
   const { navLights: navConfig } = SATELLITE;
   for (const light of model.navLights) {
@@ -1516,6 +1538,14 @@ export async function createSatellite(
     state,
     update,
     setFraming,
+    setFade(alpha) {
+      for (const [material, opacity] of fadeMaterials) {
+        material.opacity = opacity * alpha;
+      }
+      ribbonUniforms.uFade.value = alpha;
+      model.root.visible = alpha > 0;
+      ribbon.visible = alpha > 0;
+    },
     restoreAfterContextLoss() {
       const restored = renderEnvironment(renderer);
       for (const material of Object.values(materials)) {

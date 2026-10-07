@@ -71,6 +71,12 @@ export interface ScanEffect {
    * @param height - Viewport height in CSS pixels.
    */
   readonly setResolution: (width: number, height: number) => void;
+  /**
+   * Fades every overlay (the hero's dive) and hides them at 0.
+   *
+   * @param alpha - Opacity multiplier, 0..1.
+   */
+  readonly setFade: (alpha: number) => void;
   /** Releases geometries, materials and the data texture. */
   readonly dispose: () => void;
 }
@@ -108,6 +114,8 @@ void main() {
 const beamFragmentShader = /* glsl */ `
 #include <common>
 
+uniform float uFade; // dive fade, applied to the premultiplied output
+
 uniform vec3 uColor;
 uniform float uIntensity;
 uniform float uLength;
@@ -132,6 +140,7 @@ void main() {
   gl_FragColor = vec4(color, max(color.r, max(color.g, color.b)));
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
+  gl_FragColor *= uFade;
 }
 `;
 
@@ -159,6 +168,8 @@ void main() {
 const footprintFragmentShader = /* glsl */ `
 #include <common>
 
+uniform float uFade; // dive fade, applied to the premultiplied output
+
 uniform vec3 uColor;
 uniform float uIntensity;
 
@@ -182,6 +193,7 @@ void main() {
   gl_FragColor = vec4(color, max(color.r, max(color.g, color.b)));
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
+  gl_FragColor *= uFade;
 }
 `;
 
@@ -202,6 +214,8 @@ void main() {
 
 const patchFragmentShader = /* glsl */ `
 #include <common>
+
+uniform float uFade; // dive fade, applied to the premultiplied output
 
 uniform sampler2D uData; // R mask, G heat, B edge glow, A rivers
 uniform vec3 uCyan;
@@ -273,7 +287,7 @@ void main() {
   #endif
   vec3 encoded = linearToOutputTexel(vec4(straight, 1.0)).rgb * alpha
     + linearToOutputTexel(vec4(emission, 1.0)).rgb;
-  gl_FragColor = vec4(encoded, alpha);
+  gl_FragColor = vec4(encoded, alpha) * uFade;
 }
 `;
 
@@ -299,6 +313,8 @@ void main() {
 const ringsFragmentShader = /* glsl */ `
 #include <common>
 
+uniform float uFade; // dive fade, applied to the premultiplied output
+
 uniform vec3 uColor;
 uniform vec3 uRings[3]; // radius, alpha, width (radians)
 
@@ -316,6 +332,7 @@ void main() {
   gl_FragColor = vec4(color, max(color.r, max(color.g, color.b)));
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
+  gl_FragColor *= uFade;
 }
 `;
 
@@ -386,16 +403,18 @@ function createBorderStroke(): { line: LineSegments2; material: LineMaterial } {
   return { line, material };
 }
 
+// Every overlay shares the effect's `fade` uniform (see ScanEffect.setFade).
 function overlayMaterial(
   name: string,
   vertexShader: string,
   fragmentShader: string,
   uniforms: Record<string, { value: unknown }>,
   additive: boolean,
+  fade: { value: number },
 ): ShaderMaterial {
   return new ShaderMaterial({
     name,
-    uniforms,
+    uniforms: { ...uniforms, uFade: fade },
     vertexShader,
     fragmentShader,
     transparent: true,
@@ -436,6 +455,8 @@ export async function createScan(
     -0.5,
     0,
   );
+  // Shared by every overlay; ScanEffect.setFade drives it (the hero's dive).
+  const fade = { value: 1 };
   const beamMaterial = overlayMaterial(
     "scanBeam",
     beamVertexShader,
@@ -455,6 +476,7 @@ export async function createScan(
       },
     },
     true,
+    fade,
   );
   beamMaterial.side = DoubleSide;
   const beam = new Mesh(beamGeometry, beamMaterial);
@@ -482,6 +504,7 @@ export async function createScan(
       uIntensity: { value: 0 },
     },
     true,
+    fade,
   );
   const footprint = new Mesh(footprintGeometry, footprintMaterial);
   footprint.name = "scanFootprint";
@@ -508,6 +531,7 @@ export async function createScan(
       uColombiaAngle: { value: COLOMBIA_ORBIT_ANGLE },
     },
     false,
+    fade,
   );
   patchMaterial.polygonOffset = true;
   patchMaterial.polygonOffsetFactor = -1;
@@ -536,6 +560,7 @@ export async function createScan(
       uRings: { value: ringSlots },
     },
     true,
+    fade,
   );
   const rings = new Mesh(
     new PlaneGeometry(2, 2, preset.scan.ringSegments, preset.scan.ringSegments),
@@ -544,7 +569,8 @@ export async function createScan(
   rings.name = "scanRings";
   rings.renderOrder = 5;
   rings.frustumCulled = false;
-  rings.visible = !disabledEffects.has("rings");
+  const ringsEnabled = !disabledEffects.has("rings");
+  rings.visible = ringsEnabled;
 
   const beamUniforms = beamMaterial.uniforms as {
     uIntensity: Uniform<number>;
@@ -721,7 +747,7 @@ export async function createScan(
       (SCAN.beam.alongTrack * length) / apertureHeight,
     );
     beam.scale.copy(beamScale);
-    beam.visible = beamLevel > 0.002;
+    beam.visible = beamLevel > 0.002 && fade.value > 0;
     beamUniforms.uIntensity.value = beamLevel;
     beamUniforms.uLength.value = length;
     // The shader multiplies by the stripe speed; wrap to keep float precision.
@@ -743,7 +769,11 @@ export async function createScan(
       SCAN.heat.frontLimit,
     );
 
-    strokeMaterial.color.copy(cyan).multiplyScalar(strokeLevel);
+    strokeMaterial.color.copy(cyan).multiplyScalar(strokeLevel * fade.value);
+    const shown = fade.value > 0;
+    patch.visible = shown;
+    stroke.visible = shown;
+    rings.visible = ringsEnabled && shown;
     const [widthIdle, widthScan] = SCAN.stroke.widthPx;
     strokeMaterial.linewidth = MathUtils.lerp(widthIdle, widthScan, intensity);
 
@@ -778,6 +808,9 @@ export async function createScan(
     },
     setResolution(width, height) {
       strokeMaterial.resolution.set(width, height);
+    },
+    setFade(alpha) {
+      fade.value = alpha;
     },
     dispose() {
       for (const mesh of [beam, footprint, patch, rings]) {

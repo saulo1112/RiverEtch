@@ -1,9 +1,45 @@
 import "./hero.css";
 
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useEffect,
+  useId,
+  useImperativeHandle,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type Ref,
+} from "react";
 
 import { parseHeroUrlOptions, type HeroUrlOptions } from "./config.ts";
+import type { DiveHandle, DiveOptions, DiveTarget, HeroHandle } from "./globe.ts";
 import { HeroUi } from "./ui/HeroUi.tsx";
+
+/** What the hero exposes to its parent (through `ref`). */
+export interface HeroApi {
+  /**
+   * Starts the camera dive to a site (see `HeroHandle.dive` in globe.ts).
+   *
+   * @param target - Site and handoff zoom.
+   * @param options - Duration and progress callback.
+   * @returns The running dive, or null when no 3D scene is showing (still loading, the CSS
+   *   fallback, or the satellite lab), in which case the caller crossfades instead.
+   */
+  readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle | null;
+}
+
+/** Props of {@link Hero}. */
+export interface HeroProps {
+  /** Receives the {@link HeroApi}. */
+  readonly ref?: Ref<HeroApi>;
+  /** The flythrough has started: the UI fades out and takes no input; the scene keeps rendering. */
+  readonly leaving?: boolean;
+  /** "Explore the case": starts the flythrough. */
+  readonly onExplore?: () => void;
+  /** The pointer or the focus reached "Explore the case": warm up the case view. */
+  readonly onWarmUp?: () => void;
+  /** Focus "Explore the case" on mount (back from the case view). */
+  readonly focusExplore?: boolean;
+}
 
 // "loading" shows the CSS poster, "ready" fades the WebGL stage in, "fallback" keeps the poster.
 type HeroStatus = "loading" | "ready" | "fallback";
@@ -47,13 +83,15 @@ function getReducedMotion(): boolean {
 
 /**
  * Full-viewport hero: a lit 3D Earth with a satellite scanning Colombia, over a starfield, with the
- * UI overlay on top. Falls back to a CSS planet when WebGL2 is unavailable.
+ * UI overlay on top. Falls back to a CSS planet when WebGL2 is unavailable. Its scene can dive to
+ * a site for the flythrough into the case view.
  *
  * @returns The hero section.
  */
-export function Hero() {
+export function Hero({ ref, leaving = false, onExplore, onWarmUp, focusExplore }: HeroProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
+  const sceneRef = useRef<HeroHandle | null>(null);
   const titleId = useId();
   const [environment] = useState(detectEnvironment);
   const reducedMotion = useSyncExternalStore(subscribeReducedMotion, getReducedMotion);
@@ -64,6 +102,15 @@ export function Hero() {
   const [readyKey, setReadyKey] = useState<string | null>(null);
   const [failed, setFailed] = useState(!environment.webgl2);
   const status: HeroStatus = failed ? "fallback" : readyKey === mountKey ? "ready" : "loading";
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      dive: (target, options) =>
+        status === "ready" ? (sceneRef.current?.dive(target, options) ?? null) : null,
+    }),
+    [status],
+  );
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -80,6 +127,7 @@ export function Hero() {
       }
       dispose?.();
       dispose = null;
+      sceneRef.current = null;
       setFailed(true);
     };
 
@@ -96,7 +144,7 @@ export function Hero() {
         })
       : import("./globe.ts").then(({ mountHero }) => {
           if (!cancelled) {
-            dispose = mountHero(stage, {
+            const scene = mountHero(stage, {
               quality,
               reducedMotion,
               frozenTime,
@@ -104,7 +152,9 @@ export function Hero() {
               cssTarget: section,
               onReady,
               onError: fail,
-            }).dispose;
+            });
+            sceneRef.current = scene;
+            dispose = scene.dispose;
           }
         });
     mount.catch((error: unknown) => {
@@ -117,6 +167,7 @@ export function Hero() {
       cancelled = true;
       dispose?.();
       dispose = null;
+      sceneRef.current = null;
     };
   }, [environment.webgl2, quality, frozenTime, reducedMotion, lab, disabledEffects]);
 
@@ -126,6 +177,7 @@ export function Hero() {
       className="hero"
       data-hero-state={status}
       data-hero-quality={quality}
+      data-hero-leaving={leaving}
       aria-labelledby={titleId}
     >
       {/* Decorative layers: the scene and its CSS stand-ins carry no information. */}
@@ -137,7 +189,13 @@ export function Hero() {
       </div>
       <div className="hero__stage" ref={stageRef} aria-hidden="true" />
       <div className="hero__vignette" aria-hidden="true" />
-      <HeroUi titleId={titleId} />
+      <HeroUi
+        titleId={titleId}
+        leaving={leaving}
+        onExplore={onExplore}
+        onWarmUp={onWarmUp}
+        focusExplore={focusExplore}
+      />
     </section>
   );
 }

@@ -2,6 +2,7 @@
 // status chip) laid over the scene. Nothing here is wired to data, the wallet or the scan state.
 import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/geist-mono";
+import "../../../styles/tokens.css";
 import "./ui.css";
 
 import { Copy } from "./Copy.tsx";
@@ -12,6 +13,14 @@ import { Nav } from "./Nav.tsx";
 export interface HeroUiProps {
   /** Id for the headline, which labels the hero section (`aria-labelledby`). */
   readonly titleId: string;
+  /** The flythrough has started: the overlay is fading out and takes no input. */
+  readonly leaving?: boolean;
+  /** "Explore the case": starts the flythrough. */
+  readonly onExplore?: () => void;
+  /** The pointer or the focus reached "Explore the case". */
+  readonly onWarmUp?: () => void;
+  /** Focus "Explore the case" on mount. */
+  readonly focusExplore?: boolean;
 }
 
 /**
@@ -19,12 +28,23 @@ export interface HeroUiProps {
  *
  * @returns The overlay.
  */
-export function HeroUi({ titleId }: HeroUiProps) {
+export function HeroUi({
+  titleId,
+  leaving = false,
+  onExplore,
+  onWarmUp,
+  focusExplore = false,
+}: HeroUiProps) {
   return (
-    <div className="hero-ui">
+    <div className="hero-ui" inert={leaving}>
       <Nav />
       <main className="hero-ui__main">
-        <Copy titleId={titleId} />
+        <Copy
+          titleId={titleId}
+          onExplore={onExplore}
+          onWarmUp={onWarmUp}
+          focusExplore={focusExplore}
+        />
         <Footer />
       </main>
     </div>
