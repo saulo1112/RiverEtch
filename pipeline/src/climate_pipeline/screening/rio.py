@@ -167,6 +167,23 @@ def lonlat_rowcol(grid: Grid, lon: float, lat: float) -> tuple[int, int]:
     return grid.rowcol(x, y)
 
 
+def rowcol_lonlat(grid: Grid, row: int, col: int) -> tuple[float, float]:
+    """The WGS84 position of a grid pixel's center.
+
+    Args:
+        grid: The grid.
+        row: Row.
+        col: Column.
+
+    Returns:
+        Longitude and latitude in degrees.
+    """
+    x = grid.x0 + (col + 0.5) * grid.resolution
+    y = grid.y0 - (row + 0.5) * grid.resolution
+    lons, lats = warp_transform(f"EPSG:{grid.epsg}", "EPSG:4326", [x], [y])
+    return float(lons[0]), float(lats[0])
+
+
 def rasterize_polygon(grid: Grid, ring: Sequence[tuple[float, float]]) -> NDArray[np.bool_]:
     """Burn a WGS84 polygon (lon, lat ring) into a boolean grid.
 
