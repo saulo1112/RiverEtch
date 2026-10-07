@@ -15,8 +15,8 @@ rationale:
   river port at the upstream end. 'No identified major pressure' means none was found in these searches,
   not that none exists."
 center:
-  lon: -71.2908
-  lat: 4.825
+  lon: -71.2788
+  lat: 4.8065
   description: Midpoint of the two anchors (approximate reach center)
   basis: computed from the anchors; corrected against the water mask by the run
   source_url: ""
@@ -36,13 +36,15 @@ upstream_anchor:
     garbled town coordinates (1°48′34″N 72°45′37″W), which was discarded.
   source_url: https://en.wikipedia.org/wiki/Orocue_Airport
 downstream_anchor:
-  lon: -71.233
-  lat: 4.86
+  lon: -71.209
+  lat: 4.823
   description:
-    Río Meta about 15 km straight-line downstream of Orocué (est. 18-22 km along the channel),
-    toward the 5°N 71°W Meta-bank point
+    Río Meta main channel near the east edge of the AOI, about 15.8 km straight-line downstream of
+    Orocué. Corrected against the water mask on 2026-10-07 (run 11). The first estimate (4.86, -71.233)
+    lay about 4 km north of the river and the run could not snap it.
   basis:
-    "ESTIMATED, not stated. Orocué Airport (4.7900N, -71.3486W, Wikipedia) is about 45 km straight-line
+    "Read off the SCL water-frequency quick-look of run 11 (river channel at the AOI's east edge).
+    Earlier estimate: ESTIMATED, not stated. Orocué Airport (4.7900N, -71.3486W, Wikipedia) is about 45 km straight-line
     from the 5°N 71°W point, which confluence.org places on the bank of the Río Meta, 5.9 km SSW of Guanapalo.
     This point is about one third of the way along that line. It must be snapped to the main channel with
     the water mask and the along-channel length checked (target 15-25 km). Fallback: end the reach at
@@ -62,8 +64,8 @@ feature:
 confluences: []
 regime_changes: []
 rain_points:
-  - lon: -71.2908
-    lat: 4.825
+  - lon: -71.2788
+    lat: 4.8065
     description: reach center
     basis: computed from the anchors; corrected against the water mask by the run
     source_url: ""
@@ -163,6 +165,8 @@ citations:
       including Orocué.
     verification: One vague summary. The alert's link to Orocué is not confirmed.
 unverified:
+  - "Downstream anchor read off the run-11 water-mask quick-look, not a named place; the reach runs
+    about 16 km straight-line from Orocué and its along-channel length is measured by the run."
   - Upstream anchor Orocué 4.7900N, -71.3486W (airport coordinates, one summary; a mirror summary gave conflicting
     garbled coordinates)
   - Downstream anchor 4.860N, -71.233W is ESTIMATED (one third of the way from Orocué to the 5°N 71°W Meta-bank

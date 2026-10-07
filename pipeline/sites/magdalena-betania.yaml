@@ -15,8 +15,8 @@ rationale:
   October 2022 and April-July 2025. Optional third dam kept alongside Urrá; the screening decides which,
   if either, is observable.
 center:
-  lon: -75.38743
-  lat: 2.77287
+  lon: -75.36968
+  lat: 2.77288
   description: Midpoint of the two anchors (approximate reach center)
   basis: computed from the anchors; corrected against the water mask by the run
   source_url: ""
@@ -34,10 +34,12 @@ upstream_anchor:
   basis: estimated-from-Betania plant (GEM coordinates) and the downstream anchor
   source_url: https://gem.wiki/Betania_hydroelectric_plant
 downstream_anchor:
-  lon: -75.35
+  lon: -75.3145
   lat: 2.83
   description:
-    Río Magdalena just upstream of the Río Neiva confluence (right/east bank; the Río Neiva
+    Río Magdalena main channel at latitude 2.83, corrected against the water mask on 2026-10-07 (run
+    11). The first estimate (-75.35, 2.83) lay about 4 km west of the river, next to a pond, and the run
+    could not connect it. The estimate was meant to sit just upstream of the Río Neiva confluence (right/east bank; the Río Neiva
     drains Algeciras, Campoalegre and Rivera and joins the Magdalena at about 460 m a.s.l.). The position
     is projected about 17 km straight-line (about 20 km along the river) NNE of the Betania plant toward
     Neiva. No source states the confluence coordinates; correct it against the water mask, where the Neiva
@@ -85,8 +87,8 @@ confluences:
       source_url: https://vlex.com.co/vid/resolucion-numero-2335-2022-927275320
 regime_changes: []
 rain_points:
-  - lon: -75.38743
-    lat: 2.77287
+  - lon: -75.36968
+    lat: 2.77288
     description: reach center
     basis: computed from the anchors; corrected against the water mask by the run
     source_url: ""
@@ -223,6 +225,8 @@ citations:
       two searches returned the same statement from this resolution family (2335/2022, 3113/2022
       and others); issuing authority not stated in the summary
 unverified:
+  - "Downstream anchor moved onto the channel from the run-11 water-mask quick-look; whether it lies
+    above or below the Río Neiva confluence is not known."
   - El Quimbo dam coordinates 2.45083 N, -75.56194 W (one search summary of Wikipedia)
   - Betania plant coordinates 2.7082, -75.4298 (single source, gem.wiki; used as the feature and the upstream
     anchor; exact tailrace/spillway outlet position not located)

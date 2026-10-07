@@ -331,3 +331,16 @@ Changes made after real results had been seen:
   - The new reaches got their events. Mining operations that sources place downstream of the
     Nechí reach (La Esperanza, Puerto Nuevo) were left out, because they cannot show in it.
   - No event was dropped for its outcome.
+- 2026-10-07, after run 11 (results seen; the per-site water-mask quick-looks were added for this
+  check):
+  - **Corridor.** The code now keeps only band pixels connected to the centerline inside the band,
+    as stage 1, step 5 says ("main-channel pixels"). Before, any river-mask pixel within the
+    half-width counted, so at the Nechí the downstream sub-reach took in floodplain pits about
+    500 m from the channel that join the river only outside the band.
+  - **Anchors corrected against the water mask**, as the brief asks. Two estimated downstream
+    anchors lay off the river and could not be snapped, so they were moved onto the channel the mask
+    shows:
+    - `meta-orocue`, about 4 km;
+    - `magdalena-betania`, about 4 km.
+
+    No threshold, gate or weight changed.
