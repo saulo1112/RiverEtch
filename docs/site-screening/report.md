@@ -1,10 +1,11 @@
 # Site screening report: choosing the study reach
 
-**Status:** final screening run of 2026-10-07 (Actions run 12, commit `2a8508a`; outputs in
-[results/](results/results.md) and [results-posthoc/](results-posthoc/results.md)). The method was
-pre-registered in [method.md](method.md) before any real run; every later change is listed under
-its [Deviations](method.md#deviations). The real run executed in GitHub Actions, not in the
-development sandbox, which cannot reach the data services (see [Network probe](#network-probe)).
+**Status:** final screening run of 2026-10-07 (Actions run 12, commit `2a8508a`), reproduced byte
+for byte by run 13 on commit `b597450`. Outputs are in [results/](results/results.md) and
+[results-posthoc/](results-posthoc/results.md). The method was pre-registered in
+[method.md](method.md) before any real run; every later change is listed under its
+[Deviations](method.md#deviations). The real run executed in GitHub Actions, not in the development
+sandbox, which cannot reach the data services (see [Network probe](#network-probe)).
 
 > NDTI is a **relative index**. Its level is comparable only within one sub-reach, never between
 > sites, and it is never turbidity in NTU. An anomaly is a departure from the reach's own
@@ -372,8 +373,12 @@ a human decision; this report does not make it.
 - **Same archive every time.** The item-id hashes of the four dam reaches were identical in runs 7,
   11 and 12, and those of all eight reaches in runs 11 and 12. So Earth Search returned the same
   archive each time.
-- **Same numbers on a deterministic re-run.** With the same code, the pre-registered stage-1 rows
-  of the dam reaches were identical in runs 2, 6 and 7.
+- **Same numbers on a deterministic re-run.**
+  - Run 13 re-ran all eight reaches, both variants, with unchanged code, config and catalog. Every
+    CSV, figure and table matches run 12 byte for byte; only the commit and the timestamps in the
+    manifest differ.
+  - Earlier, with the same code, the pre-registered stage-1 rows of the dam reaches were identical
+    in runs 2, 6 and 7.
 - **Re-running.** Use the `Site screening` workflow (Actions, "Run workflow", optionally with a
   subset of sites or dates). Locally, run `uv run climate-pipeline screening --root ..` from
   `pipeline/`; it needs network access to the services above.
