@@ -318,3 +318,16 @@ Changes made after real results had been seen:
   reach (C) and the control (D) were planned from the start. Their research was blocked when the
   build session's web-search budget ran out, and they joined after the dam sites had been run.
   No rule, threshold or weight changed with them.
+- 2026-10-07, event catalog after an adversarial re-check (results seen: the Urrá event
+  outcomes of runs 2 and 6). Each catalog event was searched for independent confirmation, and
+  the outcome is in its `verification` column. Changes:
+  - `sinu-urra-02`: description corrected. The inflow rise it quoted belongs to 21 Jul 2025, so
+    it is now its own event, `sinu-urra-06`.
+  - `sinu-urra-04`: extended to 30 Nov 2025 (four-unit operation, same source).
+  - `sinu-urra-05` (14 Aug 2022) and `magdalena-betania-07` (2-3 Jun 2025) were added.
+  - `magdalena-betania-01` was narrowed from October 2022 to 31 Oct 2022, from its own source.
+  - `cauca-hidroituango-04` and the Salvajina descriptions lost figures no second summary
+    supported.
+  - The new reaches got their events. Mining operations that sources place downstream of the
+    Nechí reach (La Esperanza, Puerto Nuevo) were left out, because they cannot show in it.
+  - No event was dropped for its outcome.
