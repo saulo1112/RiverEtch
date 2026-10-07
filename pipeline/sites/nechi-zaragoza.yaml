@@ -1,0 +1,232 @@
+# Río Nechí, Zaragoza to El Bagre (Bajo Cauca, Antioquia)
+# Category B. Generated from the site research of 2026-10-07 (WebSearch summaries only; see docs/site-screening/report.md).
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: nechi-zaragoza
+name: Río Nechí, Zaragoza to El Bagre (Bajo Cauca, Antioquia)
+river: Río Nechí
+category: B
+rationale:
+  "Mining benchmark. Río Nechí from Zaragoza to El Bagre (Bajo Cauca, Antioquia), upstream of
+  its mouth on the Cauca, so the reach does not carry the Hidroituango-regulated Cauca flow. ANLA lists
+  a licensed alluvial gold-dredging project on the Nechí floodplain in El Bagre, Zaragoza, Caucasia and
+  Nechí (in operation, Resolution 810 of 2001), placed between El Bagre and the San Pedro creek, i.e.
+  mostly downstream of this reach; the operator reports dredging along more than 50 km of the river. Press
+  and police report further dredge activity on the river between El Bagre and Nechí. Dredge ponds and
+  pits on the floodplain may join the water mask; the sub-reaches stay on the main channel. The Río Porce,
+  regulated by hydropower dams upstream, joins the Nechí near or above Zaragoza (position not verified):
+  a possible flow confounder."
+center:
+  lon: -74.84145
+  lat: 7.5441
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -74.895
+  - 7.475
+  - -74.78
+  - 7.62
+upstream_anchor:
+  lon: -74.871
+  lat: 7.494
+  description: Zaragoza (Antioquia) town, 'Puerto Fluvial sobre el Nechí', on the Río Nechí main channel
+  basis:
+    "Stated by source: Wikipedia gives 7°29′38.4″N 74°52′15.6″W for the town. The on-channel point
+    is next to the town and will be snapped to the main channel with the water mask."
+  source_url: https://en.wikipedia.org/wiki/Zaragoza,_Antioquia
+downstream_anchor:
+  lon: -74.8119
+  lat: 7.5942
+  description:
+    El Bagre (Antioquia) town, where the Nechí passes along its eastern edge and the Río Tigüí
+    joins at the urban centre
+  basis:
+    "Stated by source: Wikipedia gives 7°35′39.01″N 74°48′42.84″W for the town. A second result (citypopulation.de/kupi)
+    gives 7°36′17″N 74°48′31″W, about 1.2 km away. The Nechí runs along the town's eastern margin (Hispanopedia),
+    so the on-channel point is slightly east of these coordinates."
+  source_url: https://en.wikipedia.org/wiki/El_Bagre
+feature:
+  lon: -74.841
+  lat: 7.544
+  description:
+    Río Nechí between Zaragoza and El Bagre, a floodplain alluvial gold-dredging reach. The
+    point is the midpoint between the two towns and may lie off the channel.
+  basis:
+    "Estimated: midpoint of Zaragoza (7.4940, -74.8710) and El Bagre (7.5942, -74.8119), coordinates
+    stated by Wikipedia. To be snapped to the channel with the water mask."
+  source_url: https://en.wikipedia.org/wiki/El_Bagre
+confluences:
+  - name: Río Tigüí
+    point:
+      lon: -74.81
+      lat: 7.594
+      description:
+        Río Tigüí joins the Río Nechí at El Bagre's urban centre. It is described as the Nechí's
+        second most important tributary after the Porce. It sits at the downstream anchor, so sub-reaches
+        should stay upstream of it.
+      basis:
+        Estimated from El Bagre's source-stated coordinates. Hispanopedia (Río Tigüí) says the confluence
+        is at El Bagre's urban centre, and Minuto30 reports both the Nechí and Tigüí overflowing at El Bagre.
+      source_url: https://es.hispanopedia.com/wiki/R%C3%ADo_Tig%C3%BC%C3%AD
+regime_changes: []
+rain_points:
+  - lon: -74.84145
+    lat: 7.5441
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  Mineros Aluvial S.A.S BIC is named by ANLA as holder of the licensed dredging project 'Explotación
+  aurífera en la cuenca del río Nechí' (Resolution 810 of 3 Sep 2001); press and police also report dredges
+  operated by others on the river. Reports of activity only.
+regulator:
+  CORANTIOQUIA (Panzenú territorial office), the regional environmental authority named by ANLA;
+  ANLA follows the licensed project.
+backwater_note: ""
+river_width_note:
+  unknown. No source states the channel width. Mineros' 'widths up to 3.5 km' refers to
+  the alluvial deposit and floodplain, not the channel. Wikipedia gives a mean discharge of 830 m3/s at
+  Nechí town, which is consistent with a channel over 100 m wide, but that is an inference, not a measurement.
+climate_note:
+  Bajo Cauca has two rainy seasons, March-May and September-November (to December), with the
+  second one the wettest of the year. Rainfall is lower in December-February and dips mid-year (June-August).
+  This is driven by the trade winds and the migration of the ITCZ. Only one search summary supports this,
+  and it draws on Antioquia early-warning bulletins and a Ramsar document. No source on cloudiness was
+  found. Floods of the Nechí and Tigüí at El Bagre are reported in the press.
+citations:
+  - url: https://www.anla.gov.co/proyectos-de-interes-en-seguimiento/pis-explotacion-aurifera-en-la-cuenca-del-rio-nechi
+    title: ANLA - PIS Explotación aurífera en la cuenca del río Nechí
+    supports:
+      Dredge-based gold project on the Nechí floodplain in El Bagre, Zaragoza, Caucasia and Nechí.
+      Holder Mineros Aluvial S.A.S BIC, in operation, Resolution 810 of 3 Sep 2001. Regional authority CORANTIOQUIA,
+      Panzenú territorial office. Project lies between El Bagre (south) and near the San Pedro creek confluence
+      (north).
+    verification:
+      The same page came back in two searches (two summaries, but one source). The San Pedro
+      creek limit appears in only one summary.
+  - url: https://www.businesswire.com/news/home/20250228147170/en/Mineros-Announces-Updated-Mineral-Reserve-and-Mineral-Resource-Estimates-for-the-Nech-Alluvial-Gold-Property-Colombia
+    title:
+      Mineros Announces Updated Mineral Reserve and Mineral Resource Estimates for the Nechí Alluvial
+      Gold Property (Business Wire, 2025-02-28)
+    supports:
+      100% Mineros-owned property about 190 km NNE of Medellín covering El Bagre, Zaragoza, Caucasia
+      and Nechí. Dredged since 1937. Deposits more than 50 km along the Nechí, up to 3.5 km wide. Suction
+      and bucket-line dredging. Active area about 12.5 km on the east side of the river towards the northern
+      part.
+    verification: Operator press release; it agrees with ANLA on the municipalities and the dredging method.
+  - url: https://en.wikipedia.org/wiki/Zaragoza,_Antioquia
+    title: Zaragoza, Antioquia (Wikipedia)
+    supports: Zaragoza coordinates 7°29′38.4″N 74°52′15.6″W; 'Puerto Fluvial sobre el Nechí'.
+    verification: One search summary.
+  - url: https://en.wikipedia.org/wiki/El_Bagre
+    title: El Bagre (Wikipedia)
+    supports: El Bagre coordinates 7°35′39.01″N 74°48′42.84″W; altitude 57 m; in Bajo Cauca.
+    verification:
+      A second result (citypopulation.de/kupi summary) gives 7°36′17″N 74°48′31″W, roughly consistent
+      at about 1.2 km apart.
+  - url: https://www.citypopulation.de/en/colombia/antioquia/05250__el_bagre/
+    title: El Bagre (citypopulation.de)
+    supports:
+      Second coordinate for El Bagre (about 7°36′17″N 74°48′31″W) and Puerto Claver as a populated
+      place in El Bagre (about 5,584 inhabitants).
+    verification: One search summary, which may have mixed in kupi.com.
+  - url: https://es.hispanopedia.com/wiki/R%C3%ADo_Nech%C3%AD
+    title: Río Nechí (Hispanopedia)
+    supports:
+      The Nechí passes along El Bagre's eastern margin. The river runs past Zaragoza, El Bagre and
+      Nechí. River coordinates 8.096389, -74.770444 (mouth at Nechí town). Length 252 km and basin 14,500
+      km2 (from the width search summary).
+    verification: Two search summaries cite this page.
+  - url: https://es.hispanopedia.com/wiki/R%C3%ADo_Tig%C3%BC%C3%AD
+    title: Río Tigüí (Hispanopedia)
+    supports:
+      The Tigüí joins the Nechí at El Bagre's urban centre and is its second most important tributary
+      after the Porce.
+    verification:
+      One summary; the location is consistent with Minuto30 flood headlines about both rivers
+      at El Bagre.
+  - url: https://www.minuto30.com/amp/el-bagre-bajo-el-agua-desbordamiento-de-rios-nechi-y-tigui-causan-emergencias/1666573/
+    title: "El Bagre bajo el agua: desbordamiento de ríos Nechí y Tigüí causan emergencias (Minuto30)"
+    supports: Overflowing of the Nechí and Tigüí at El Bagre (flood emergencies).
+    verification: Title only; the date was not shown in the summary.
+  - url: https://en.wikipedia.org/wiki/Nech%C3%AD_River
+    title: Nechí River (Wikipedia)
+    supports: Mean discharge 830 m3/s at Nechí. The Porce is a tributary of the Nechí.
+    verification: One summary.
+  - url: https://revistas.unal.edu.co/index.php/gestion/article/view/61513
+    title: Gestión y Ambiente (UNAL, 2017) - cambios de cobertura y expansión minera 2009-2014
+    supports:
+      "Landsat analysis of land-cover change and mining expansion 2009-2014: open-pit mining area
+      grew about six-fold to about 35,070 ha and forest cover fell 7%."
+    verification: One summary. The exact study area (Nechí basin or Bajo Cauca) is not stated in the summary.
+  - url: https://www.noticiasrcn.com/colombia/el-rio-nechi-desaparecio-como-consecuencia-de-la-mineria-ilegal-393501
+    title: Noticias RCN - Río Nechí channel alteration by gold excavation
+    supports:
+      Press describes the Nechí channel in Bajo Cauca as destroyed by gold excavation, with an estimate
+      of 50-60 years for it to recover a normal channel.
+    verification: One summary; date not shown.
+  - url: https://www.elcolombiano.com/antioquia/policia-quema-tres-dramas-en-nechi-antioquia-EL20810712
+    title: El Colombiano - Policía quema tres dragas en Nechí, Antioquia
+    supports:
+      "March 2023: police reported burning three dredges at La Esperanza (Nechí municipality), each
+      said to produce about 7 kg of gold a month and together valued at 4.5 billion pesos."
+    verification:
+      The count of three dredges on the Nechí agrees with the Noticias Caracol title. The March
+      2023 date comes from one summary.
+  - url: https://www.noticiascaracol.com/colombia/destruyen-3-enormes-dragones-usados-en-mineria-ilegal-y-que-contaminaban-con-mercurio-el-rio-nechi-rg10
+    title: Noticias Caracol - three large dredges ('dragones') destroyed on the Río Nechí
+    supports: Independent report of three dredges destroyed on the Río Nechí.
+    verification: Title only; date not shown.
+  - url: https://english.aaj.tv/news/30316794
+    title: Battle in Colombia over river-wrecking gold 'dragons' (AFP via AAJ TV)
+    supports:
+      A senator is quoted saying dredges on the river grew from 20 to over 200 in four years, on
+      stretches between El Bagre and Nechí.
+    verification: One summary; it is unclear which result in that search supplied the quote.
+  - url: https://rsistest.ramsar.org/RISapp/files/27743519/documents/CO2403_lit190118_2__RÉGIMEN_HÍDRICO.docx
+    title: Ramsar CO2403 - Régimen hídrico
+    supports:
+      Two rainy seasons in Bajo Cauca (MAM and SON), wettest in the second half of the year, driven
+      by the ITCZ.
+    verification:
+      One mixed summary that also drew on Antioquia DAGRAN early-warning bulletins; which document
+      says what is uncertain.
+unverified:
+  - Along-channel distance Zaragoza to El Bagre (estimated 15-20 km from a 12.9 km straight line; no source
+    states it). If under 15 km on the water mask, the downstream end needs to move below El Bagre.
+  - Zaragoza coordinates 7.4940, -74.8710 (one Wikipedia summary); which bank the town is on was not established.
+  - Feature midpoint 7.544, -74.841 is estimated, not stated by any source.
+  - Tigüí confluence position 7.594, -74.81 is estimated from El Bagre's town coordinates (confluence stated
+    as at the urban centre by one source).
+  - ANLA's northern project limit 'near the confluence of the San Pedro creek' (one summary); no coordinates
+    for the San Pedro creek.
+  - "'5 bucket dredges and 9 suction dredges' for the main formal company (one summary; source page unclear)."
+  - Mineros' active area of about 12.5 km on the east side towards the northern part (one source, Business
+    Wire).
+  - Open-pit mining area of about 35,070 ha, a six-fold increase 2009-2014 (one summary; study area not
+    confirmed).
+  - Senator Juan Espinal quote, 20 to 200+ dredges between El Bagre and Nechí (one summary).
+  - March 2023 date of the La Esperanza dredge destruction (date from one summary; event corroborated by
+    a second headline).
+  - Mean discharge of 830 m3/s at Nechí (one summary).
+  - Climate seasonality (one mixed summary).
+  - Mining.com headline 'Mineros pauses Nechi Alluvial operations due to anti-gov't protests in Colombia'
+    (https://www.mining.com/?p=1112478). The date was not stated; it could be the 2021 national strike or
+    the March 2023 Bajo Cauca mining strike. If it falls in the window, it is a key operational event. Not
+    listed in events.
+  - Telemedellín headlines about the El Bagre mayor and dredging the Río Nechí channel ('alcalde el bagre
+    dragado rio nechi niveles' / '...invierno'), possibly flood-control dredging of the channel. Undated;
+    not listed in events.
+  - "El Tiempo: a mining dredge capsized in El Bagre, five dead. Undated; not listed in events."
+  - ANLA Resolution 00524 of 04-03-2022 (vLex) appeared for the Nechí query; its content and link to this
+    project are unknown.
+  - "Río Porce: confirmed as the Nechí's main tributary, but where it joins relative to Zaragoza was not
+    established. It may be just upstream of the reach. Whether hydropower regulation on the Porce affects
+    Nechí flow at Zaragoza was not checked; this is a possible flow confounder to verify."
+  - "Puerto Claver: a populated place in El Bagre on the Nechí (about 5,584 inhabitants); no coordinates
+    were found in two searches."
+  - No source states the channel width at the reach.
+  - "Along-channel length Zaragoza to El Bagre: estimated 15-20 km from a 12.9 km straight line; the run
+    measures it on the water mask."
+  - "Río Porce confluence position relative to Zaragoza and the effect of the Porce dams on Nechí flow at
+    the reach: not checked."

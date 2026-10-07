@@ -1,0 +1,213 @@
+# Río Atrato at Quibdó (Río Quito confluence reach)
+# Category B. Generated from the site research of 2026-10-07 (WebSearch summaries only; see docs/site-screening/report.md).
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: atrato-quibdo
+name: Río Atrato at Quibdó (Río Quito confluence reach)
+river: Río Atrato
+category: B
+rationale:
+  "Mining benchmark. Río Atrato at Quibdó (Chocó), from about 8 km above to about 8 km below
+  the town, across the Río Quito confluence 'in front of Quibdó'. Authorities and press report gold-dredge
+  activity and mercury use on the Río Quito (Paimadó, Villa Conto) and dredge-destruction operations under
+  Constitutional Court ruling T-622 of 2016, which recognised the Atrato as a subject of rights. The above-
+  versus below-confluence contrast is the design. Quibdó receives about 8,000 mm of rain a year with no
+  true dry season, so clear scenes are expected to be rare: an unobservable result here means 'not observable',
+  not 'clean'."
+center:
+  lon: -76.66
+  lat: 5.689
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -76.71
+  - 5.6
+  - -76.61
+  - 5.78
+upstream_anchor:
+  lon: -76.645
+  lat: 5.62
+  description:
+    Río Atrato main channel about 8 km (straight line) south of Quibdó, upstream of the Río
+    Quito confluence, on the river route toward Yuto (seat of Atrato municipality, which belonged to Quibdó
+    until 1997; no source-stated coordinates found for Yuto). The water mask must confirm this point is
+    on the Atrato, not on the parallel Río Quito to the west.
+  basis:
+    estimated from Quibdó (5.69188, -76.65835, stated by geodatos.net); not a source-stated place
+    coordinate
+  source_url: https://www.geodatos.net/en/coordinates/colombia/quibdo
+downstream_anchor:
+  lon: -76.675
+  lat: 5.758
+  description:
+    Río Atrato main channel about 7.5-8 km (straight line) NNW of Quibdó, downstream of the
+    Río Quito confluence, on the bearing from Quibdó toward Beté (Medio Atrato seat). Estimated river
+    distance between the anchors is about 18-24 km (straight line about 16 km plus meanders).
+  basis:
+    estimated from Quibdó (5.69188, -76.65835, geodatos.net) and the bearing to Beté (5.989716, -76.733652,
+    findlatitudeandlongitude.com); not a source-stated place coordinate
+  source_url: https://www.findlatitudeandlongitude.com/l/Medio+Atrato+%28Bete%29%2C+Choco%2C+Colombia/513105/
+feature:
+  lon: -76.65835
+  lat: 5.69188
+  description:
+    Quibdó, capital of Chocó, on the bank of the Río Atrato. The Río Quito, where dredge mining
+    is reported, joins the Atrato 'just in front of Quibdó'. This point is the town coordinate; the main
+    channel lies a few hundred meters from it.
+  basis: stated by source (geodatos.net; appeared in two search summaries, likely the same page)
+  source_url: https://www.geodatos.net/en/coordinates/colombia/quibdo
+confluences:
+  - name: Río Quito
+    point:
+      lon: -76.665
+      lat: 5.69
+      description:
+        Río Quito joins the Río Atrato 'just in front of Quibdó' (Semana); EcuRed says it joins
+        near Quibdó. The Río Quito carries reported dredge-mining activity (Paimadó, Villa Conto).
+      basis:
+        position estimated from Quibdó's source-stated coordinates; the confluence location relative
+        to Quibdó is stated by two sources
+      source_url: https://www.semana.com/impacto/articulo/mercurio-en-choco-la-pesca-desaparecio-porque-las-aguas-estan-contaminadas/39096/
+regime_changes: []
+rain_points:
+  - lon: -76.66
+    lat: 5.689
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  No operator, permit holder or contractor is named in the sources found; dredge activity on the
+  Río Quito is reported by the Colombian Military Forces, the National Police and the press. Reports of
+  activity only.
+regulator:
+  Codechocó (Corporación Autónoma Regional para el Desarrollo Sostenible del Chocó), named by
+  two sources.
+backwater_note: ""
+river_width_note:
+  unknown (no source giving a width in meters at Quibdó was found; Billiken describes
+  the Atrato as Colombia's highest-discharge river, and EcuRed says it is navigable up to Quibdó, its
+  main port)
+climate_note:
+  "Quibdó's mean annual rainfall is about 8,050 mm. Hispanopedia gives 8,051.1 mm and calls
+  it the rainiest South American city of more than 100,000 people. Climate-data.org gives roughly the
+  same figure, classifies the climate as Köppen Af (equatorial, no true dry season) and says rain falls
+  almost every day. The monthly figures come from a single summary: October is the wettest month (about
+  871 mm), February the driest (about 333 mm), and May to November each exceed about 750 mm. MeteoWeb
+  describes Chocó as one of the rainiest areas in the world. No source was found that quantifies cloudiness.
+  Persistent cloud is expected from this rainfall regime, so the number of usable Sentinel-2 scenes from
+  2022 to 2025 will be small. The relatively less rainy months (around January to March) are the likeliest
+  clear windows. That last point is an inference, not a source statement."
+citations:
+  - url: https://www.semana.com/impacto/articulo/mercurio-en-choco-la-pesca-desaparecio-porque-las-aguas-estan-contaminadas/39096/
+    title: "Mercurio en Chocó: la pesca desapareció porque las aguas están contaminadas (Semana)"
+    supports:
+      The Río Quito flows into the Atrato just in front of Quibdó; mercury used for gold extraction
+      on the Río Quito; reported decline of fishing
+    verification: one search summary; the confluence location is also supported by EcuRed
+  - url: https://www.ecured.cu/Río_Atrato
+    title: Río Atrato (EcuRed)
+    supports:
+      Quibdó is the principal port of the Atrato on its bank; the Río Quito joins the Atrato near
+      Quibdó; the Atrato flows north to the Gulf of Urabá
+    verification: one search summary; agrees with Semana on the confluence
+  - url: https://insightcrime.org/news/dragons-choco-illegal-gold-mining-colombias-rivers/
+    title: "Dragons of Chocó: gold mining in Colombia's rivers (InSight Crime)"
+    supports:
+      Dredges ('dragones') operate on the Río Quito; Paimadó, on the Río Quito in a municipality
+      next to Quibdó, has seen mining effects for over a decade
+    verification: one search summary (English and Spanish versions of the same outlet)
+  - url: https://www.geodatos.net/en/coordinates/colombia/quibdo
+    title: Quibdó geographic coordinates (geodatos)
+    supports: Quibdó at 5.69188, -76.65835
+    verification:
+      returned in two separate searches, probably from this same page; Wikipedia's Quibdó page
+      appeared alongside it
+  - url: https://en.wikipedia.org/wiki/Quibd%C3%B3
+    title: Quibdó (Wikipedia)
+    supports: Quibdó is the capital of Chocó; approximate position 5.69, -76.66
+    verification: one search summary
+  - url: https://www.findlatitudeandlongitude.com/l/Medio+Atrato+%28Bete%29%2C+Choco%2C+Colombia/513105/
+    title: Medio Atrato (Beté), Chocó, Colombia (findlatitudeandlongitude)
+    supports: Beté at 5.989716, -76.733652 (used only for the downstream bearing)
+    verification: one search summary
+  - url: https://es.hispanopedia.com/wiki/Medio_Atrato
+    title: Medio Atrato (Hispanopedia)
+    supports: Medio Atrato lies on the Atrato about 45 minutes by fast boat from Quibdó; its seat is Beté
+    verification: one search summary; appeared in two searches
+  - url: https://www.swissinfo.ch/spa/el-atrato%2C-un-r%C3%ADo-con-derechos-lastimados-pese-a-hist%C3%B3rico-fallo-en-colombia/87578906
+    title: El Atrato, un río con derechos lastimados pese a histórico fallo en Colombia (Swissinfo/EFE)
+    supports:
+      In 2016 the Constitutional Court declared the Atrato, its basin and tributaries a subject
+      of rights; mercury from gold separation is reported in the river
+    verification: one search summary; the same EFE story appears on radionacional.co and rtvcnoticias.com
+  - url: https://www.ambitojuridico.com/sites/default/files/BancoMedios/Archivos/sent-t-622-16.pdf
+    title: Sentencia T-622 de 2016 (full text, Ámbito Jurídico)
+    supports: Existence of ruling T-622/2016 on the Río Atrato
+    verification: title only; appeared in two searches
+  - url: https://www.revistas.utch.edu.co/ojs/index.php/realidadesjuridicas/article/download/907/980/5400
+    title: Realidades Jurídicas (UTCH) article on Codechocó and deforestation in Río Quito
+    supports:
+      Codechocó is the regional environmental authority; deforestation in Río Quito municipality
+      2016-2024 associated mainly with mining; framed by T-622/2016
+    verification: one search summary
+  - url: https://www.cgfm.mil.co/en/node/30267
+    title: Comando General Fuerzas Militares news item (Operation Átomo)
+    supports:
+      "Operation 'Átomo' at Villa Conto, Río Quito municipality, under T-622: 8 dredges, 2 motors
+      and a backhoe found and destroyed on the Río Quito riverbank"
+    verification: one search summary; no date given in the summary
+  - url: https://www.policia.gov.co/noticia/continuamos-lucha-frontal-contra-mineria-ilegal-en-departamento-del-choco
+    title: "Policía Nacional: operations against mining in Chocó"
+    supports: Chocó Police with the Army, Fiscalía and Codechocó destroyed mining machinery under T-622/2016
+    verification:
+      one search summary; the 'El que la hace la paga' 100-day plan wording suggests 2018, outside
+      the 2022-2025 window
+  - url: https://es.climate-data.org/america-del-sur/colombia/choco/quibdo-4618/
+    title: Clima Quibdó (climate-data.org)
+    supports:
+      About 8,050 mm a year; Köppen Af; wettest month October (about 871 mm), driest February (about
+      333 mm); May to November above 750 mm
+    verification: one search summary; the annual total agrees with Hispanopedia
+  - url: https://es.hispanopedia.com/wiki/Quibd%C3%B3
+    title: Quibdó (Hispanopedia)
+    supports: Mean annual rainfall 8,051.1 mm; no true dry season
+    verification: one search summary; agrees with climate-data.org
+  - url: https://www.meteoweb.eu/2011/05/colombia-quibdo-e-il-choco-una-delle-zone-piu-piovose-del-mondo-con-oltre-20-000mm-annui/64276/
+    title: "Colombia: Quibdó e il Chocó, una delle zone più piovose del mondo (MeteoWeb)"
+    supports: Chocó/Quibdó is among the rainiest areas in the world
+    verification: title only
+  - url: https://billiken.lat/el-mundo/atrato-por-que-es-el-rio-mas-caudaloso-de-colombia/
+    title: "Atrato: ¿por qué es el río más caudaloso de Colombia? (Billiken)"
+    supports:
+      The Atrato is described as Colombia's highest-discharge river (supports the width being adequate
+      qualitatively)
+    verification: title only
+  - url: https://www.abcolombia.org.uk/wp-content/uploads/2023/07/230515-Rio-Quito_SentenciaT622.pdf
+    title: Río Quito – Sentencia T622 (ABColombia, 2023)
+    supports: The Río Quito is discussed in connection with T-622 implementation
+    verification: title only
+unverified:
+  - "Quibdó coordinates 5.69188, -76.65835: two search summaries, but probably the same geodatos page"
+  - "Upstream anchor 5.62, -76.645: estimated offset from Quibdó, not a source-stated place. Must be snapped
+    to the Atrato main channel and checked so it does not fall on the parallel Río Quito"
+  - "Downstream anchor 5.758, -76.675: estimated offset from Quibdó on the bearing to Beté, not a source-stated
+    place. Must be snapped to the Atrato main channel"
+  - Reach length of about 18-24 km along the river between the anchors is an estimate (straight line about
+    16 km plus assumed meanders)
+  - Río Quito confluence position 5.69, -76.665 is estimated. Two sources (Semana, EcuRed) state only that
+    it is in front of or near Quibdó
+  - "Beté coordinates 5.989716, -76.733652: one source (findlatitudeandlongitude)"
+  - Yuto (Atrato municipality seat) coordinates not found. One summary gave 10°04'N 74°12'W, which lies
+    outside Chocó and was discarded
+  - "Monthly climate figures (October about 871 mm, February about 333 mm, May to November above 750 mm):
+    one summary (climate-data.org)"
+  - "Cloudiness: no source quantifies it; persistent cloud is inferred from the rainfall regime"
+  - "Operation 'Átomo' at Villa Conto (8 dredges, 2 motors, backhoe): one source (cgfm.mil.co), date not
+    given, so not entered as a dated event"
+  - "River width at Quibdó: no source found"
+  - Other tributaries near Quibdó (for example Río Cabí, Ichó, Munguidó) were not checked and are not listed
+  - "Paimadó dredge activity: InSight Crime only (Semana separately supports mining and mercury on the Río
+    Quito)"
+  - Both anchors are offsets estimated from Quibdó's coordinates, not named places; the run snaps them to
+    the water mask and the mask quick-look shows whether they sit on the Atrato rather than the parallel
+    lower Río Quito.
