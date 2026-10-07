@@ -93,3 +93,18 @@ def test_stage2_selection_caps_benchmarks_and_adds_the_control() -> None:
 def test_gated_control_is_left_out() -> None:
     sites = [BASE, replace(BASE, site_id="control", category="D", clear=3)]
     assert select_stage2(score_sites(sites, CONFIG), CONFIG) == ["a"]
+
+
+def test_recommendation_skips_benchmarks_and_flags_fragile_rankings() -> None:
+    from climate_pipeline.screening.score import recommend
+
+    sites = [
+        replace(BASE, site_id="mine", category="B", clear_per_year=24, events_with_clear_window=3),
+        replace(BASE, site_id="dam1", category="A", events_with_clear_window=3, width_px_10m=6),
+        replace(BASE, site_id="dam2", category="A", events_with_clear_window=0, width_px_10m=15),
+        replace(BASE, site_id="control", category="D"),
+    ]
+    rec = recommend(score_sites(sites, CONFIG))
+    assert rec.recommended == "dam1" and rec.runner_up == "dam2"
+    assert rec.fragile and any("without events: dam2" in c for c in rec.changes)
+    assert recommend(score_sites([replace(BASE, category="B")], CONFIG)).recommended is None

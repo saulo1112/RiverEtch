@@ -137,6 +137,21 @@ def erode(mask: BoolArray, steps: int) -> BoolArray:
     return out
 
 
+def close(mask: BoolArray, steps: int) -> BoolArray:
+    """Morphological closing (8-neighbourhood): fills gaps up to ``2 * steps`` pixels wide.
+
+    Args:
+        mask: Input mask.
+        steps: Closing radius in pixels.
+
+    Returns:
+        The closed mask (a superset of the input).
+    """
+    if steps <= 0:
+        return mask.copy()
+    return ~dilate(~dilate(mask, steps), steps) | mask
+
+
 def upsample2(mask: BoolArray) -> BoolArray:
     """A 20 m mask on the nested 10 m grid (each pixel becomes 2 x 2).
 
@@ -208,6 +223,70 @@ def component(mask: BoolArray, seed: RowCol) -> BoolArray:
     return out
 
 
+def candidates(mask: BoolArray, rc: RowCol, radius_px: float) -> list[tuple[RowCol, float]]:
+    """Mask pixels within a radius of a point, nearest first.
+
+    Args:
+        mask: Allowed pixels.
+        rc: Row and column of the point (may be outside the grid).
+        radius_px: Search radius in pixels.
+
+    Returns:
+        Pixels with their distances in pixels.
+    """
+    r0, c0 = rc
+    rad = math.ceil(radius_px)
+    rows, cols = mask.shape
+    top, bottom = max(0, r0 - rad), min(rows, r0 + rad + 1)
+    left, right = max(0, c0 - rad), min(cols, c0 + rad + 1)
+    if top >= bottom or left >= right:
+        return []
+    rr, cc = np.nonzero(mask[top:bottom, left:right])
+    d = np.sqrt((rr + top - r0) ** 2.0 + (cc + left - c0) ** 2.0)
+    order = np.argsort(d, kind="stable")
+    return [
+        ((int(rr[i] + top), int(cc[i] + left)), float(d[i])) for i in order if d[i] <= radius_px
+    ]
+
+
+def snap_connected(
+    river: BoolArray, upstream: RowCol, downstream: RowCol, radius_px: float
+) -> tuple[tuple[RowCol, float], tuple[RowCol, float], BoolArray] | str:
+    """Snap both anchors onto one 4-connected river region.
+
+    A pond, a reservoir or a tributary can lie closer to an anchor than the main channel, so the
+    anchors are not snapped independently: regions are tried from the one nearest the upstream
+    anchor outwards, and the first that also comes within the radius of the downstream anchor is
+    used.
+
+    Args:
+        river: River mask.
+        upstream: Upstream anchor pixel.
+        downstream: Downstream anchor pixel.
+        radius_px: Snapping radius in pixels.
+
+    Returns:
+        The snapped anchors with their distances (pixels) and the region, or why it failed (with
+        ``{radius}`` standing for the radius).
+    """
+    up = candidates(river, upstream, radius_px)
+    down = candidates(river, downstream, radius_px)
+    if not up:
+        return "upstream anchor not within {radius} of the river mask"
+    if not down:
+        return "downstream anchor not within {radius} of the river mask"
+    tried = np.zeros_like(river)
+    for rc, dist in up:
+        if tried[rc]:
+            continue
+        region = component(river, rc)
+        tried |= region
+        match = next(((d_rc, d) for d_rc, d in down if region[d_rc]), None)
+        if match is not None:
+            return (rc, dist), match, region
+    return "anchors are not connected by the river mask"
+
+
 _SQRT2 = math.sqrt(2.0)
 _STEPS = [(dr, dc) for dr in (-1, 0, 1) for dc in (-1, 0, 1) if dr or dc]
 
@@ -274,18 +353,20 @@ def path_chainage(path: Sequence[RowCol], resolution: float) -> FloatArray:
 
 
 def nearest_on_path(
-    pixels: NDArray[np.int64], path: NDArray[np.int64], chunk: int = 4096
+    pixels: NDArray[np.int64], path: NDArray[np.int64], chunk: int | None = None
 ) -> tuple[NDArray[np.int64], FloatArray]:
     """For each pixel, the index of the nearest path pixel and the distance to it (pixels).
 
     Args:
         pixels: ``(n, 2)`` rows and columns.
         path: ``(k, 2)`` rows and columns of the centerline.
-        chunk: Pixels per block (bounds memory to chunk x k).
+        chunk: Pixels per block (default: sized to keep about 4 million distances per block).
 
     Returns:
         Indices into ``path`` and Euclidean distances in pixels.
     """
+    if chunk is None:
+        chunk = max(64, 4_000_000 // max(len(path), 1))
     index = np.empty(len(pixels), dtype=np.int64)
     dist = np.empty(len(pixels), dtype=np.float64)
     path_f = path.astype(np.float64)
@@ -296,6 +377,35 @@ def nearest_on_path(
         index[start : start + chunk] = best
         dist[start : start + chunk] = np.sqrt(d2[np.arange(len(block)), best])
     return index, dist
+
+
+def land_ring(sub: BoolArray, river: BoolArray, inner_px: float, outer_px: float) -> BoolArray:
+    """Land pixels whose Euclidean distance to a sub-reach lies in ``[inner_px, outer_px]``.
+
+    Args:
+        sub: The sub-reach.
+        river: River mask (excluded from the ring).
+        inner_px: Inner distance in pixels.
+        outer_px: Outer distance in pixels.
+
+    Returns:
+        The ring.
+    """
+    ring = np.zeros_like(sub)
+    points = np.argwhere(sub).astype(np.int64)
+    if points.size == 0:
+        return ring
+    pad = math.ceil(outer_px)
+    top, left = max(0, int(points[:, 0].min()) - pad), max(0, int(points[:, 1].min()) - pad)
+    bottom = min(sub.shape[0], int(points[:, 0].max()) + pad + 1)
+    right = min(sub.shape[1], int(points[:, 1].max()) + pad + 1)
+    land = np.argwhere(~river[top:bottom, left:right]).astype(np.int64) + np.array([top, left])
+    if land.size == 0:
+        return ring
+    _, dist = nearest_on_path(land, points)
+    keep = land[(dist >= inner_px) & (dist <= outer_px)]
+    ring[keep[:, 0], keep[:, 1]] = True
+    return ring
 
 
 # ----------------------------------------------------------------------------------------------
@@ -419,6 +529,7 @@ def derive_geometry(
     erosion_px_10m: int,
     land_ring_m: tuple[float, float],
     subreach: SubreachConfig,
+    bridge_gap_px: int = 0,
 ) -> RiverGeometry:
     """Derive the river, centerline, corridor and sub-reaches from the water frequency.
 
@@ -439,6 +550,8 @@ def derive_geometry(
         erosion_px_10m: Bank erosion on the 10 m grid before measuring width.
         land_ring_m: Inner and outer distance of the land ring around each sub-reach.
         subreach: Sub-reach settings.
+        bridge_gap_px: Gaps in the mask up to twice this many pixels (bridges, rapids) are
+            bridged for connectivity and the centerline only; sub-reach pixels stay river pixels.
 
     Returns:
         The geometry; ``failed`` says why when no usable sub-reaches exist.
@@ -450,16 +563,14 @@ def derive_geometry(
         river = np.nan_to_num(freq, nan=0.0) >= threshold
         if excluded is not None:
             river &= ~excluded
-        snapped_up = snap(river, upstream, radius)
-        snapped_down = snap(river, downstream, radius)
-        if snapped_up is None or snapped_down is None:
-            which = "upstream" if snapped_up is None else "downstream"
-            last_failure = f"{which} anchor not within {snap_radius_m:.0f} m of the river mask"
+        connected = close(river, bridge_gap_px)
+        if excluded is not None:
+            connected &= ~excluded
+        found = snap_connected(connected, upstream, downstream, radius)
+        if isinstance(found, str):
+            last_failure = found.replace("{radius}", f"{snap_radius_m:.0f} m")
             continue
-        region = component(river, snapped_up[0])
-        if not region[snapped_down[0]]:
-            last_failure = "anchors are not connected by the river mask"
-            continue
+        snapped_up, snapped_down, region = found
         path = shortest_path(region, snapped_up[0], snapped_down[0])
         if path is None:
             last_failure = "no path between the anchors"
@@ -494,7 +605,8 @@ def _finish(
     chainage = path_chainage(path, resolution)
     length = float(chainage[-1])
     path_arr = np.array(path, dtype=np.int64)
-    pixels = np.argwhere(region).astype(np.int64)
+    # Bridged gap pixels connect the channel but are not water: only river pixels can be corridor.
+    pixels = np.argwhere(region & river).astype(np.int64)
     nearest, dist = nearest_on_path(pixels, path_arr)
     keep = dist * resolution <= corridor_half_width_m
     corridor = np.zeros(region.shape, dtype=bool)
@@ -529,13 +641,11 @@ def _finish(
     subreaches = []
     widths: dict[str, float] = {}
     raw_widths: dict[str, float] = {}
-    ring_in = max(1, round(land_ring_m[0] / resolution))
-    ring_out = max(ring_in + 1, round(land_ring_m[1] / resolution))
     for name, (lo, hi) in (("upstream", placement.upstream), ("downstream", placement.downstream)):
         sub = corridor & (corridor_chain >= lo) & (corridor_chain <= hi)
         if not sub.any():
             return dataclasses.replace(base, failed=f"{name} sub-reach is empty")
-        ring = dilate(sub, ring_out) & ~dilate(sub, ring_in) & ~river
+        ring = land_ring(sub, river, land_ring_m[0] / resolution, land_ring_m[1] / resolution)
         subreaches.append(Subreach(name, (lo, hi), sub, ring))
         fine = upsample2(sub)
         length_px10 = (hi - lo) / 10.0

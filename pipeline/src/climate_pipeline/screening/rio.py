@@ -10,6 +10,9 @@ from __future__ import annotations
 
 import hashlib
 import math
+import os
+import threading
+import zipfile
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -32,6 +35,8 @@ GDAL_ENV: dict[str, str | int | bool] = {
     "AWS_REGION": "us-west-2",
     "GDAL_HTTP_MAX_RETRY": 5,
     "GDAL_HTTP_RETRY_DELAY": 2,
+    "GDAL_HTTP_TIMEOUT": 120,
+    "GDAL_HTTP_CONNECTTIMEOUT": 30,
     "GDAL_HTTP_MERGE_CONSECUTIVE_RANGES": "YES",
     "GDAL_HTTP_MULTIPLEX": "YES",
     "CPL_VSIL_CURL_ALLOWED_EXTENSIONS": ".tif,.TIF,.tiff",
@@ -263,15 +268,24 @@ def write_geotiff(
 class AcquisitionReader:
     """Reads one band of an acquisition onto a grid, merging its tiles, with an on-disk cache."""
 
-    def __init__(self, source: SceneSource, cache_dir: Path | None) -> None:
+    def __init__(
+        self,
+        source: SceneSource,
+        cache_dir: Path | None,
+        cache_assets: tuple[str, ...] = ("scl",),
+    ) -> None:
         """Create the reader.
 
         Args:
             source: Signs asset URLs before reading.
             cache_dir: Where to keep compressed reads (None disables caching).
+            cache_assets: Assets worth caching on disk (SCL is read twice; 10 m bands are large).
         """
         self._source = source
         self._cache_dir = cache_dir
+        self._cache_assets = cache_assets
+        self._lock = threading.Lock()
+        self.errors: list[str] = []
 
     def read(
         self,
@@ -282,6 +296,9 @@ class AcquisitionReader:
     ) -> tuple[NDArray[np.generic], dict[str, int]]:
         """Read and merge the acquisition's tiles for one asset (first tile with data wins).
 
+        A tile that fails twice is skipped (its pixels stay no data) and recorded in ``errors``,
+        so one bad file cannot abort a multi-hour run.
+
         Args:
             acquisition: The pass.
             asset: Logical asset name (``scl``, ``red``, ``green``, ``swir16``).
@@ -289,44 +306,73 @@ class AcquisitionReader:
             reader: Function reading one href onto the grid (injectable for tests).
 
         Returns:
-            The merged array (0 = no data) and, per item id, how many pixels it filled.
+            The merged array (0 = no data) and, per item id, how many pixels it filled (-1 when
+            the read failed).
         """
         cache = self._cache_path(acquisition, asset, grid)
         if cache is not None and cache.exists():
-            with np.load(cache) as stored:
-                data = cast(NDArray[np.generic], stored["data"])
-                filled = {
-                    str(k): int(v) for k, v in zip(stored["ids"], stored["counts"], strict=True)
-                }
-            return data, filled
+            try:
+                with np.load(cache) as stored:
+                    data = cast(NDArray[np.generic], stored["data"])
+                    filled = {
+                        str(k): int(v) for k, v in zip(stored["ids"], stored["counts"], strict=True)
+                    }
+                return data, filled
+            except (OSError, ValueError, KeyError, zipfile.BadZipFile):
+                cache.unlink(missing_ok=True)
         merged: NDArray[np.generic] | None = None
         filled = {}
         for scene in acquisition.scenes:
             ref = scene.assets.get(asset)
             if ref is None:
                 continue
-            data = reader(self._source.sign(ref.href), grid)
-            if merged is None:
-                merged = data.copy()
-                filled[scene.item_id] = int(np.count_nonzero(data))
+            tile = self._read_with_retry(scene.item_id, asset, ref.href, grid, reader)
+            if tile is None:
+                filled[scene.item_id] = -1
                 continue
-            gap = (merged == 0) & (data != 0)
-            merged[gap] = data[gap]
+            if merged is None:
+                merged = tile.copy()
+                filled[scene.item_id] = int(np.count_nonzero(tile))
+                continue
+            gap = (merged == 0) & (tile != 0)
+            merged[gap] = tile[gap]
             filled[scene.item_id] = int(np.count_nonzero(gap))
+        failed = any(v < 0 for v in filled.values())
         if merged is None:
             merged = np.zeros(grid.shape, dtype=np.uint16)
-        if cache is not None:
+        if cache is not None and not failed:
             cache.parent.mkdir(parents=True, exist_ok=True)
+            # Write then rename, so a killed run never leaves a truncated cache file behind.
+            partial = cache.with_suffix(f".{threading.get_ident()}.tmp.npz")
             np.savez_compressed(
-                cache,
+                partial,
                 data=merged,
                 ids=np.array(list(filled), dtype=str),
                 counts=np.array(list(filled.values()), dtype=np.int64),
             )
+            os.replace(partial, cache)
         return merged, filled
 
+    def _read_with_retry(
+        self,
+        item_id: str,
+        asset: str,
+        href: str,
+        grid: Grid,
+        reader: Callable[[str, Grid], NDArray[np.generic]],
+    ) -> NDArray[np.generic] | None:
+        for attempt in range(2):
+            try:
+                return reader(self._source.sign(href), grid)
+            except Exception as error:  # GDAL/network errors: retried once, then recorded
+                if attempt == 1:
+                    with self._lock:
+                        self.errors.append(f"{item_id} {asset}: {error}")
+                    return None
+        return None
+
     def _cache_path(self, acquisition: Acquisition, asset: str, grid: Grid) -> Path | None:
-        if self._cache_dir is None:
+        if self._cache_dir is None or asset not in self._cache_assets:
             return None
         items = hashlib.sha256("|".join(s.item_id for s in acquisition.scenes).encode()).hexdigest()
         return self._cache_dir / grid.key() / f"{acquisition.key}_{items[:8]}_{asset}.npz"

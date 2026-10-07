@@ -131,6 +131,20 @@ def is_scored(event: CatalogEvent, cfg: EventConfig, start: date, end: date) -> 
     return event.date_precision in cfg.scored_precisions and last >= start and first <= end
 
 
+def window_days(event: CatalogEvent, cfg: EventConfig) -> int:
+    """Length of an event's window in days (inclusive).
+
+    Args:
+        event: The event.
+        cfg: Window settings.
+
+    Returns:
+        Number of days.
+    """
+    first, last = event_window(event, cfg)
+    return (last - first).days + 1
+
+
 def observable(event: CatalogEvent, cfg: EventConfig, scene_days: Iterable[date]) -> list[date]:
     """The usable scene days inside an event's window.
 
@@ -151,7 +165,7 @@ class EventOutcome:
     """What the imagery shows around one event."""
 
     event: CatalogEvent
-    status: str  # hit | miss | unobservable
+    status: str  # hit | miss | unobservable | insufficient-baseline
     scene_days: tuple[date, ...]
     max_abs_z: float | None
     signal: str
@@ -163,7 +177,10 @@ def evaluate(
     scores: dict[date, dict[str, float]],
     threshold: float,
 ) -> EventOutcome:
-    """Classify an event as hit, miss or unobservable.
+    """Classify an event as hit, miss, unobservable or insufficient baseline.
+
+    Unobservable means no usable scene in the window. Usable scenes whose z-scores could not be
+    computed (too few values for a baseline) give "insufficient-baseline", never a miss.
 
     Args:
         event: The event.
@@ -181,7 +198,8 @@ def evaluate(
             if z == z and (best is None or abs(z) > best):  # z == z skips NaN
                 best, best_signal = abs(z), signal
     if best is None:
-        return EventOutcome(event, "unobservable", tuple(days), None, "")
+        status = "insufficient-baseline" if days else "unobservable"
+        return EventOutcome(event, status, tuple(days), None, "")
     status = "hit" if best >= threshold else "miss"
     return EventOutcome(event, status, tuple(days), best, best_signal)
 
@@ -212,8 +230,9 @@ def chance_rate(
         Share of observable random windows that hit, and how many were observable.
     """
     rng = random.Random(seed)
-    span = (end - start).days - window_days
-    if span <= 0:
+    # Window starts from the period's first day to the last day that still fits the window.
+    span = (end - start).days + 1 - window_days
+    if span < 0:
         return float("nan"), 0
     hits = observed = 0
     for _ in range(shifts):

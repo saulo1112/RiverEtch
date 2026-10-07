@@ -14,6 +14,7 @@ from climate_pipeline.screening.mask import (
     dilate,
     erode,
     histogram,
+    land_ring,
     place_subreaches,
     shortest_path,
     snap,
@@ -207,3 +208,33 @@ def test_confluence_chainage_is_reported() -> None:
     geom = derive(frequency(river), (150, 12), (150, 988), confluences={"tributary": (140, 600)})
     assert geom.confluence_chainage_m["tributary"] == pytest.approx(588 * RES, abs=100)
     assert geom.placement is not None and not geom.placement.confluence_inside
+
+
+def test_anchors_snap_to_the_region_that_connects_them() -> None:
+    river = np.zeros((300, 1000), dtype=bool)
+    draw(river, [(150, 10), (150, 990)], half=3)
+    river[100:120, 0:30] = True  # a pond nearer to the upstream anchor than the river
+    river[100:120, 970:1000] = True  # and another near the downstream anchor
+    geom = derive(frequency(river), (110, 35), (110, 965))
+    assert geom.failed is None
+    assert geom.centerline[0][0] in range(147, 154)
+
+
+def test_land_ring_is_euclidean() -> None:
+    sub = np.zeros((60, 60), dtype=bool)
+    sub[30, 30] = True
+    ring = land_ring(sub, np.zeros_like(sub), 5.0, 20.0)
+    rr, cc = np.nonzero(ring)
+    dist = np.hypot(rr - 30, cc - 30)
+    assert dist.min() >= 5 and dist.max() <= 20
+    assert ring[30, 50] and not ring[50, 50]  # 20 px along an axis, 28 px on the diagonal
+
+
+def test_a_bridge_does_not_break_the_channel_but_is_not_water() -> None:
+    river = np.zeros((300, 1000), dtype=bool)
+    draw(river, [(150, 10), (150, 990)], half=4)
+    river[:, 500:502] = False  # a 40 m bridge across the river
+    assert derive(frequency(river), (150, 12), (150, 988)).failed is not None
+    geom = derive(frequency(river), (150, 12), (150, 988), bridge_gap_px=1)
+    assert geom.failed is None
+    assert geom.corridor is not None and not geom.corridor[:, 500:502].any()

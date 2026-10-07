@@ -35,6 +35,7 @@ mask:
   corridor_half_width_m: 600 # default; wide rivers override it per site
   erosion_px_10m: 1 # default bank erosion at 10 m; canyon reaches override it per site
   land_ring_m: [100, 400] # land ring used to tell turbid water flagged as cloud from cloud
+  bridge_gap_px: 1 # bridges or rapids up to 2 px (40 m) wide do not break connectivity
 
 subreach:
   length_m: 2000

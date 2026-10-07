@@ -44,8 +44,8 @@ def test_client_requests_utc_hourly_rain_and_caches(tmp_path: Path) -> None:
     assert params["hourly"] == "precipitation"
     assert params["timezone"] == "UTC"
     assert params["latitude"] == "5.69" and params["longitude"] == "-76.65"
-    # Open-Meteo stamps the hour's start; the series stores the hour's end.
-    assert str(rain.times[0]) == "2023-01-01T01"
+    # Each value is the rain of the hour ending at its timestamp.
+    assert str(rain.times[0]) == "2023-01-01T00"
     assert np.array_equal(rain.mm, again.mm)
     assert (
         json.loads(next(tmp_path.glob("*.json")).read_text())["hourly"]["time"][0]

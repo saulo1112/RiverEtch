@@ -62,7 +62,7 @@ def main(argv: list[str] | None = None) -> int:
     outputs = run_screening(
         paths,
         source_name=args.source,
-        only_sites=tuple(s for s in args.sites.split(",") if s),
+        only_sites=tuple(s.strip() for s in args.sites.split(",") if s.strip()),
         period=(args.start, args.end) if args.start else None,
         stage2=not args.stage1_only,
         workers=args.workers,

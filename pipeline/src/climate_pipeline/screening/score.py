@@ -217,3 +217,42 @@ def select_stage2(ranked: Sequence[SiteScore], cfg: ScreeningConfig) -> list[str
         chosen.append(s.site_id)
     chosen += [s.site_id for s in ranked if s.category == "D" and s.eligible]
     return chosen
+
+
+RECOMMENDABLE = ("A", "C")
+"""Categories the study reach is chosen from; mining benchmarks (B) and controls (D) are not."""
+
+
+@dataclass(frozen=True)
+class Recommendation:
+    """The pre-registered recommendation and how robust it is to the score's terms."""
+
+    recommended: str | None
+    runner_up: str | None
+    fragile: bool
+    changes: tuple[str, ...]
+
+
+def recommend(ranked: Sequence[SiteScore]) -> Recommendation:
+    """The highest-scoring eligible category A or C site, its runner-up, and a fragility flag.
+
+    The ranking is fragile when dropping any one term, or computing coverage with the observable
+    rule, puts a different site first among the eligible A and C sites.
+
+    Args:
+        ranked: Scores, best first, with ``ranks_without`` filled in.
+
+    Returns:
+        The recommendation.
+    """
+    candidates = [s for s in ranked if s.eligible and s.category in RECOMMENDABLE]
+    if not candidates:
+        return Recommendation(None, None, False, ())
+    top = candidates[0].site_id
+    changes = []
+    for variant in candidates[0].ranks_without:
+        leader = min(candidates, key=lambda s: s.ranks_without.get(variant, len(ranked) + 1))
+        if leader.site_id != top:
+            changes.append(f"without {variant}: {leader.site_id}")
+    runner = candidates[1].site_id if len(candidates) > 1 else None
+    return Recommendation(top, runner, bool(changes), tuple(changes))

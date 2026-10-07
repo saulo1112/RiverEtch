@@ -130,3 +130,55 @@ def test_reader_merges_tiles_and_caches(tmp_path: Path) -> None:
     cached, cached_filled = reader.read(acq, "scl", grid, reader=must_not_read)
     assert np.array_equal(cached, merged)
     assert cached_filled == filled
+
+
+def test_a_failing_tile_is_skipped_recorded_and_not_cached(tmp_path: Path) -> None:
+    grid = site_grid(BBOX)
+    data = np.full(grid.shape, 6, dtype=np.uint8)
+    write_geotiff(tmp_path / "ok.tif", data, grid)
+    acq = Acquisition(
+        "sentinel-2a_2023-01-01_R025",
+        datetime(2023, 1, 1, 15, tzinfo=UTC),
+        "sentinel-2a",
+        25,
+        (scene("bad", str(tmp_path / "missing.tif")), scene("good", str(tmp_path / "ok.tif"))),
+    )
+    reader = AcquisitionReader(PassThrough(), tmp_path / "cache")
+    merged, filled = reader.read(acq, "scl", grid)
+    assert np.all(merged == 6)
+    assert filled["bad"] == -1 and filled["good"] > 0
+    assert len(reader.errors) == 1 and reader.errors[0].startswith("bad scl")
+    assert not list((tmp_path / "cache").rglob("*.npz"))
+
+
+def test_a_corrupt_cache_file_is_read_again(tmp_path: Path) -> None:
+    grid = site_grid(BBOX)
+    write_geotiff(tmp_path / "ok.tif", np.full(grid.shape, 6, dtype=np.uint8), grid)
+    acq = Acquisition(
+        "sentinel-2a_2023-01-01_R025",
+        datetime(2023, 1, 1, 15, tzinfo=UTC),
+        "sentinel-2a",
+        25,
+        (scene("good", str(tmp_path / "ok.tif")),),
+    )
+    reader = AcquisitionReader(PassThrough(), tmp_path / "cache")
+    reader.read(acq, "scl", grid)
+    (cached,) = (tmp_path / "cache").rglob("*.npz")
+    cached.write_bytes(b"truncated")
+    merged, _ = reader.read(acq, "scl", grid)
+    assert np.all(merged == 6)
+
+
+def test_only_listed_assets_are_cached(tmp_path: Path) -> None:
+    grid = site_grid(BBOX)
+    write_geotiff(tmp_path / "ok.tif", np.full(grid.shape, 6, dtype=np.uint8), grid)
+    acq = Acquisition(
+        "sentinel-2a_2023-01-01_R025",
+        datetime(2023, 1, 1, 15, tzinfo=UTC),
+        "sentinel-2a",
+        25,
+        (scene("good", str(tmp_path / "ok.tif")),),
+    )
+    reader = AcquisitionReader(PassThrough(), tmp_path / "cache", cache_assets=())
+    reader.read(acq, "scl", grid)
+    assert not (tmp_path / "cache").exists()

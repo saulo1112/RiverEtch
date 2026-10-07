@@ -189,3 +189,26 @@ def test_planetary_computer_appends_and_caches_the_sas_token() -> None:
     assert source.sign("https://blob/a.tif") == "https://blob/a.tif?sv=1&sig=abc"
     assert source.sign("https://blob/b.tif?x=1") == "https://blob/b.tif?x=1&sv=1&sig=abc"
     assert requests == ["https://pc.test/token/sentinel-2-l2a"]
+
+
+def test_relative_orbit_falls_back_to_the_product_name() -> None:
+    data = item()
+    del data["properties"]["sat:relative_orbit"]
+    data["properties"]["s2:product_uri"] = (
+        "S2B_MSIL2A_20230807T153619_N0509_R025_T18NUL_20230807T195442.SAFE"
+    )
+    assert parse_item(data, ES_KEYS).relative_orbit == 25
+
+
+def test_split_granules_with_the_same_baseline_are_both_kept() -> None:
+    first = parse_item(item(), ES_KEYS)
+    second = parse_item(item(id="S2B_18NUL_20230807_1_L2A"), ES_KEYS)
+    (acquisition,) = group_acquisitions([first, second])
+    assert {s.item_id for s in acquisition.scenes} == {first.item_id, second.item_id}
+
+
+def test_malformed_items_are_skipped() -> None:
+    broken = item()
+    del broken["assets"]["scl"]
+    scenes = stac.parse_items([broken, item(id="S2B_18NUL_20230807_1_L2A")], ES_KEYS)
+    assert [s.item_id for s in scenes] == ["S2B_18NUL_20230807_1_L2A"]

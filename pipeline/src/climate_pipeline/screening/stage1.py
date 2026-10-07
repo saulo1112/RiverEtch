@@ -280,15 +280,13 @@ def summarize(result: Stage1Result, cfg: ScreeningConfig) -> dict[str, object]:
         else math.nan,
         "confluence_inside": bool(geom.placement and geom.placement.confluence_inside),
         "confluence_between": bool(geom.placement and geom.placement.confluence_between),
-        "anchor_shift_up_m": round(geom.anchor_shifts_m.get("upstream_anchor", math.nan)),
-        "anchor_shift_down_m": round(geom.anchor_shifts_m.get("downstream_anchor", math.nan)),
-        "center_shift_m": round(geom.anchor_shifts_m.get("center", math.nan))
-        if math.isfinite(geom.anchor_shifts_m.get("center", math.nan))
-        else math.nan,
+        "anchor_shift_up_m": _round(geom.anchor_shifts_m.get("upstream_anchor", math.nan)),
+        "anchor_shift_down_m": _round(geom.anchor_shifts_m.get("downstream_anchor", math.nan)),
+        "center_shift_m": _round(geom.anchor_shifts_m.get("center", math.nan)),
         "centerline_mid_lon": round(center_lonlat[0], 5) if center_lonlat else math.nan,
         "centerline_mid_lat": round(center_lonlat[1], 5) if center_lonlat else math.nan,
-        "width_px_10m": round(width, 1),
-        "width_px_10m_before_erosion": round(width_raw, 1),
+        "width_px_10m": _round(width, 1),
+        "width_px_10m_before_erosion": _round(width_raw, 1),
         "ndti_unreliable_width": bool(width < cfg.width.unreliable_below_px_10m)
         if width == width
         else True,
@@ -329,6 +327,11 @@ def summarize(result: Stage1Result, cfg: ScreeningConfig) -> dict[str, object]:
         "evidence_sha256": evidence_hash(result.acquisitions),
     }
     return summary
+
+
+def _round(value: float, digits: int = 0) -> float:
+    """Round a finite value; NaN and infinities (e.g. a failed geometry) stay NaN."""
+    return round(value, digits) if math.isfinite(value) else math.nan
 
 
 def _share(items: list[SceneMetrics], test: Callable[[SceneMetrics], bool]) -> float:
@@ -376,7 +379,12 @@ def run_stage1(
     geometry = derive_site_geometry(site, cfg, grid, stack)
     log.info("%s: geometry %s", site.id, geometry.failed or "ok")
 
-    rain_series = fetch_rain(site, rain, start, end) if rain else []
+    rain_series: list[RainSeries] = []
+    if rain:
+        try:
+            rain_series = fetch_rain(site, rain, start, end)
+        except Exception:  # rain is context: its loss is logged and reported, not fatal
+            log.exception("%s: rain unavailable", site.id)
     scenes: list[SceneMetrics] = []
     with ThreadPoolExecutor(max_workers=workers) as pool:
         reads = pool.map(lambda a: reader.read(a, "scl", grid), acquisitions)
@@ -406,8 +414,36 @@ def run_stage1(
         geometry=geometry,
         scenes=scenes,
         rain=rain_series,
-        rainy_months=rainy_months(rain_series[0].daily(cfg.rain.timezone)) if rain_series else (),
+        rainy_months=rainy_months(
+            {
+                d: mm
+                for d, mm in rain_series[0].daily(cfg.rain.timezone).items()
+                if start <= d <= end
+            }
+        )
+        if rain_series
+        else (),
     )
+    result.summary = summarize(result, cfg)
+    return result
+
+
+def failed_stage1(site: SiteConfig, cfg: ScreeningConfig, reason: str) -> Stage1Result:
+    """A stage-1 result for a site that could not be processed (it is gated and reported).
+
+    Args:
+        site: The site.
+        cfg: Screening settings.
+        reason: Why it failed.
+
+    Returns:
+        An empty result whose geometry carries the reason.
+    """
+    grid = site_grid(site.aoi_bbox)
+    geometry = RiverGeometry(
+        grid.resolution, math.nan, [], reason, np.zeros(grid.shape, dtype=bool)
+    )
+    result = Stage1Result(site, grid, [], geometry, [], [], ())
     result.summary = summarize(result, cfg)
     return result
 
@@ -448,6 +484,7 @@ def derive_site_geometry(
         else cfg.mask.erosion_px_10m,
         land_ring_m=cfg.mask.land_ring_m,
         subreach=cfg.subreach,
+        bridge_gap_px=cfg.mask.bridge_gap_px,
     )
 
 

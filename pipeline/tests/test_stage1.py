@@ -95,3 +95,13 @@ def test_gap_and_month_helpers() -> None:
     assert longest_gap_days([date(2022, 3, 1)], start, end) == 305
     keys = month_keys(date(2022, 1, 1), date(2025, 12, 31))
     assert len(keys) == 48 and keys[0] == "2022-01" and keys[-1] == "2025-12"
+
+
+def test_a_failed_site_still_gets_a_summary() -> None:
+    from climate_pipeline.screening.config import load_site
+    from climate_pipeline.screening.stage1 import failed_stage1
+
+    site = load_site(Path(__file__).parents[1] / "sites" / "cauca-salvajina.yaml")
+    result = failed_stage1(site, CONFIG, "error: OSError: unreachable")
+    assert result.summary["geometry_failed"] == "error: OSError: unreachable"
+    assert result.summary["acquisitions"] == 0

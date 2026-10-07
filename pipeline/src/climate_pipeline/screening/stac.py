@@ -9,6 +9,7 @@ not silently fixed; stage 2 then decides on the empirical water-reflectance chec
 from __future__ import annotations
 
 import hashlib
+import logging
 import re
 import threading
 import time
@@ -21,6 +22,11 @@ import httpx
 from pystac_client import Client
 
 from climate_pipeline.screening.config import AssetKeys, StacSourceConfig
+
+log = logging.getLogger(__name__)
+
+HTTP_TIMEOUT_S = 60
+SEARCH_RETRY_PAUSES_S = (5, 30, 120, 0)
 
 LOGICAL_ASSETS = ("scl", "red", "green", "swir16")
 """Bands the screening reads, by logical name (mapped to each source's asset keys)."""
@@ -165,6 +171,18 @@ def _mgrs_tile(item_id: str, props: Mapping[str, Any]) -> str:
     return match.group(1) if match else "unknown"
 
 
+def _relative_orbit(props: Mapping[str, Any]) -> int | None:
+    orbit = props.get("sat:relative_orbit")
+    if isinstance(orbit, int | float):
+        return int(orbit)
+    # Earth Search items may lack the sat extension; the product name carries the orbit (_R025_).
+    for key in ("s2:product_uri", "s2:granule_id", "s2:datatake_id"):
+        match = re.search(r"_R(\d{3})_", str(props.get(key, "")))
+        if match:
+            return int(match.group(1))
+    return None
+
+
 def _asset_ref(asset: Mapping[str, Any], item_epsg: int | None) -> AssetRef:
     bands = asset.get("raster:bands")
     band: Mapping[str, Any] = bands[0] if isinstance(bands, list) and bands else {}
@@ -202,7 +220,6 @@ def parse_item(item: Mapping[str, Any], keys: AssetKeys) -> Scene:
     if "scl" not in assets:
         raise KeyError(f"{item['id']}: no {keys.scl!r} asset")
     stamp = datetime.fromisoformat(str(props["datetime"]))
-    orbit = props.get("sat:relative_orbit")
     cloud = props.get("eo:cloud_cover")
     boa = props.get("earthsearch:boa_offset_applied")
     bbox = item.get("bbox") or (0.0, 0.0, 0.0, 0.0)
@@ -211,7 +228,7 @@ def parse_item(item: Mapping[str, Any], keys: AssetKeys) -> Scene:
         datetime=stamp if stamp.tzinfo else stamp.replace(tzinfo=UTC),
         platform=str(props.get("platform", "unknown")).lower(),
         mgrs_tile=_mgrs_tile(str(item["id"]), props),
-        relative_orbit=int(orbit) if isinstance(orbit, int | float) else None,
+        relative_orbit=_relative_orbit(props),
         processing_baseline=parse_baseline(props.get("s2:processing_baseline")),
         boa_offset_applied=boa if isinstance(boa, bool) else None,
         cloud_cover=float(cloud) if isinstance(cloud, int | float) else None,
@@ -245,8 +262,11 @@ def reflectance_scaling(scene: Scene, name: str) -> tuple[float, float]:
 # ----------------------------------------------------------------------------------------------
 
 
-def _newest(scenes: Iterable[Scene]) -> Scene:
-    return max(scenes, key=lambda s: (s.processing_baseline or 0.0, s.item_id))
+def _newest(scenes: list[Scene]) -> list[Scene]:
+    # All items with the highest baseline: same-baseline copies of one tile can be complementary
+    # partial granules (a datatake split), and merging duplicates is harmless.
+    top = max(s.processing_baseline or 0.0 for s in scenes)
+    return [s for s in scenes if (s.processing_baseline or 0.0) == top]
 
 
 def group_acquisitions(scenes: Iterable[Scene]) -> list[Acquisition]:
@@ -254,7 +274,7 @@ def group_acquisitions(scenes: Iterable[Scene]) -> list[Acquisition]:
 
     Neighbouring MGRS tiles overlap and the archive holds reprocessed copies, so one satellite
     pass can appear as several items. A pass is identified by platform, UTC date and relative
-    orbit; within it each tile keeps its highest processing baseline.
+    orbit; within it each tile keeps the items with its highest processing baseline.
 
     Args:
         scenes: Parsed items.
@@ -269,7 +289,10 @@ def group_acquisitions(scenes: Iterable[Scene]) -> list[Acquisition]:
     acquisitions = []
     for (platform, day, orbit), tiles in passes.items():
         kept = tuple(
-            sorted((_newest(copies) for copies in tiles.values()), key=lambda s: s.mgrs_tile)
+            sorted(
+                (s for copies in tiles.values() for s in _newest(copies)),
+                key=lambda s: (s.mgrs_tile, s.item_id),
+            )
         )
         orbit_label = f"R{orbit:03d}" if orbit is not None else "Rxxx"
         acquisitions.append(
@@ -310,14 +333,42 @@ def _search_dicts(
     end: date,
     page_size: int,
 ) -> list[dict[str, Any]]:
-    client = Client.open(url)
-    search = client.search(
-        collections=[collection],
-        bbox=list(bbox),
-        datetime=f"{start.isoformat()}T00:00:00Z/{end.isoformat()}T23:59:59Z",
-        limit=page_size,
-    )
-    return list(search.items_as_dicts())
+    # The whole search is retried: a failed page part-way through would otherwise lose a site.
+    for attempt, pause in enumerate(SEARCH_RETRY_PAUSES_S):
+        try:
+            client = Client.open(url, timeout=HTTP_TIMEOUT_S)
+            search = client.search(
+                collections=[collection],
+                bbox=list(bbox),
+                datetime=f"{start.isoformat()}T00:00:00Z/{end.isoformat()}T23:59:59Z",
+                limit=page_size,
+            )
+            return list(search.items_as_dicts())
+        except Exception as error:  # network or API errors; retried, then re-raised
+            if attempt == len(SEARCH_RETRY_PAUSES_S) - 1:
+                raise
+            log.warning("STAC search failed (%s); retrying in %s s", error, pause)
+            time.sleep(pause)
+    raise AssertionError("unreachable")
+
+
+def parse_items(items: Iterable[Mapping[str, Any]], keys: AssetKeys) -> list[Scene]:
+    """Parse search results, skipping (and logging) malformed items.
+
+    Args:
+        items: Item dictionaries.
+        keys: Asset keys of the source.
+
+    Returns:
+        The scenes that parsed.
+    """
+    scenes = []
+    for item in items:
+        try:
+            scenes.append(parse_item(item, keys))
+        except (KeyError, TypeError, ValueError) as error:
+            log.warning("skipping item %s: %s", item.get("id", "?"), error)
+    return scenes
 
 
 class EarthSearchSource:
@@ -351,7 +402,7 @@ class EarthSearchSource:
         items = _search_dicts(
             self._config.url, self._config.collection, bbox, start, end, self._page_size
         )
-        return [parse_item(item, self._config.assets) for item in items]
+        return parse_items(items, self._config.assets)
 
     def sign(self, href: str) -> str:
         """Earth Search assets are public: the URL is returned as is.
@@ -408,7 +459,7 @@ class PlanetaryComputerSource:
         items = _search_dicts(
             self._config.url, self._config.collection, bbox, start, end, self._page_size
         )
-        return [parse_item(item, self._config.assets) for item in items]
+        return parse_items(items, self._config.assets)
 
     def sign(self, href: str) -> str:
         """Append a SAS token (cached until shortly before it expires).

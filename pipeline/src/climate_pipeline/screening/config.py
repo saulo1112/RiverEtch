@@ -195,6 +195,9 @@ class MaskConfig(_Frozen):
     corridor_half_width_m: float = Field(gt=0)
     erosion_px_10m: int = Field(ge=0, le=5)
     land_ring_m: tuple[float, float] = Field(description="inner and outer distance from the river")
+    bridge_gap_px: int = Field(
+        default=0, ge=0, le=5, description="close mask gaps up to 2x this (connectivity only)"
+    )
 
 
 class SubreachConfig(_Frozen):

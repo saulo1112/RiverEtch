@@ -33,6 +33,8 @@ SIGNALS = ("upstream", "downstream", "delta")
 MAD_TO_SIGMA = 1.4826
 
 FloatArray = NDArray[np.float64]
+Reflectance = NDArray[np.float32]
+"""Reflectance arrays are float32: a 10 m AOI band is tens of millions of values."""
 
 
 @dataclass(frozen=True)
@@ -93,7 +95,7 @@ class Stage2Scene:
 # ----------------------------------------------------------------------------------------------
 
 
-def to_reflectance(dn: NDArray[np.generic], scale: float, offset: float) -> FloatArray:
+def to_reflectance(dn: NDArray[np.generic], scale: float, offset: float) -> Reflectance:
     """Digital numbers to reflectance (0 is no data and becomes NaN).
 
     Args:
@@ -104,7 +106,7 @@ def to_reflectance(dn: NDArray[np.generic], scale: float, offset: float) -> Floa
     Returns:
         Reflectance.
     """
-    values = dn.astype(np.float64) * scale + offset
+    values = dn.astype(np.float32) * np.float32(scale) + np.float32(offset)
     values[dn == 0] = np.nan
     return values
 
@@ -122,9 +124,9 @@ def repeat2(array: NDArray[np.generic]) -> NDArray[np.generic]:
 
 
 def subreach_ndti(
-    red: FloatArray,
-    green: FloatArray,
-    swir16_20m: FloatArray,
+    red: Reflectance,
+    green: Reflectance,
+    swir16_20m: Reflectance,
     scl_20m: NDArray[np.generic],
     subreach_20m: NDArray[np.bool_],
     erosion_px_10m: int,
@@ -133,7 +135,8 @@ def subreach_ndti(
     """NDTI median over one sub-reach's usable water pixels.
 
     Usable: inside the eroded sub-reach, SCL not invalid or no data (whatever class SCL gives the
-    water), red + green above a floor, and B11 below the glint threshold.
+    water), red, green and B11 all present, red + green above a floor, and B11 at or below the
+    glint threshold.
 
     Args:
         red: Red reflectance on the 10 m grid.
@@ -149,24 +152,29 @@ def subreach_ndti(
     """
     area = erode(upsample2(subreach_20m), erosion_px_10m)
     scl = repeat2(scl_20m)
-    swir = repeat2(swir16_20m).astype(np.float64)
+    swir = repeat2(swir16_20m).astype(np.float32, copy=False)
     excluded = np.array(sorted(set(cfg.scl.invalid) | set(cfg.scl.nodata)))
-    base = area & ~np.isin(scl, excluded) & np.isfinite(red) & np.isfinite(green)
-    base &= (red + green) > cfg.stage2.rg_floor
-    glint = base & np.isfinite(swir) & (swir > cfg.stage2.swir16_max)
+    water = area & ~np.isin(scl, excluded) & np.isfinite(red) & np.isfinite(green)
+    # The plausibility medians use every water pixel, before the darkness and glint guards, so
+    # a wrong offset that makes water dark or negative is reported instead of filtered away.
+    enough = int(water.sum()) >= cfg.clear.min_valid_px_10m
+    red_median = float(np.median(red[water])) if enough else math.nan
+    green_median = float(np.median(green[water])) if enough else math.nan
+    base = water & np.isfinite(swir) & ((red + green) > cfg.stage2.rg_floor)
+    glint = base & (swir > cfg.stage2.swir16_max)
     use = base & ~glint
     n = int(use.sum())
     glint_share = float(glint.sum()) / int(base.sum()) if base.any() else math.nan
     if n < cfg.clear.min_valid_px_10m:
-        return SubreachNdti(n, math.nan, math.nan, math.nan, math.nan, math.nan, glint_share)
+        return SubreachNdti(n, math.nan, red_median, green_median, math.nan, math.nan, glint_share)
     r, g = red[use], green[use]
     ndti = (r - g) / (r + g)
     return SubreachNdti(
         pixels=n,
         ndti=float(np.median(ndti)),
-        red=float(np.median(r)),
-        green=float(np.median(g)),
-        swir16=float(np.nanmedian(swir[use])) if np.isfinite(swir[use]).any() else math.nan,
+        red=red_median,
+        green=green_median,
+        swir16=float(np.median(swir[use])),
         class6_share=float(np.isin(scl[use], cfg.scl.water).mean()),
         glint_share=glint_share,
     )
@@ -270,7 +278,7 @@ def robust_z(
 
 def read_reflectance(
     reader: AcquisitionReader, acquisition: Acquisition, asset: str, grid: Grid
-) -> tuple[FloatArray, list[str]]:
+) -> tuple[Reflectance, list[str]]:
     """Read one band as reflectance, scaling each item with its own metadata before merging.
 
     Args:
@@ -282,7 +290,7 @@ def read_reflectance(
     Returns:
         Reflectance (NaN = no data) and the problems met (items without scaling).
     """
-    merged = np.full(grid.shape, np.nan)
+    merged = np.full(grid.shape, np.nan, dtype=np.float32)
     problems = []
     for scene in acquisition.scenes:
         try:
@@ -339,8 +347,9 @@ def measure_acquisition(
         exclusion = f"scaling {'/'.join(flagged)} in item metadata"
     if not exclusion:
         exclusion = reflectance_problem(sub, cfg)
-    if not exclusion and any(math.isnan(s.ndti) for s in sub.values()):
-        exclusion = "too few usable water pixels after the pixel guards"
+    # A sub-reach with too few pixels is missing for this scene; the scene goes only if both are.
+    if not exclusion and all(math.isnan(s.ndti) for s in sub.values()):
+        exclusion = "too few usable water pixels in both sub-reaches after the pixel guards"
     return Stage2Scene(
         key=acquisition.key,
         datetime=acquisition.datetime,
@@ -477,7 +486,8 @@ def ndti_map(
     excluded = np.array(sorted(set(cfg.scl.invalid) | set(cfg.scl.nodata)))
     use = area & ~np.isin(repeat2(scl), excluded) & np.isfinite(red) & np.isfinite(green)
     use &= (red + green) > cfg.stage2.rg_floor
-    use &= ~(repeat2(swir).astype(np.float64) > cfg.stage2.swir16_max)
+    swir10 = repeat2(swir).astype(np.float32, copy=False)
+    use &= np.isfinite(swir10) & (swir10 <= cfg.stage2.swir16_max)
     out = np.full(grid10.shape, np.nan)
     out[use] = (red[use] - green[use]) / (red[use] + green[use])
     return out

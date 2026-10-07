@@ -16,7 +16,7 @@ from pathlib import Path
 import pandas as pd
 
 from climate_pipeline.screening.events import EventOutcome
-from climate_pipeline.screening.score import TERMS, SiteScore
+from climate_pipeline.screening.score import TERMS, Recommendation, SiteScore
 from climate_pipeline.screening.stage1 import Stage1Result, monthly_counts, scene_rows
 from climate_pipeline.screening.stage2 import SIGNALS, Stage2Result
 
@@ -28,11 +28,13 @@ WITHIN_SITE_NOTE = (
 
 @dataclass
 class ChanceRate:
-    """Hit rate of randomly shifted windows at one site."""
+    """Hit rate of randomly shifted windows of one event's length, at one site."""
 
     site_id: str
     rate: float
     windows: int
+    event_id: str = ""
+    window_days: int = 0
 
 
 @dataclass
@@ -43,6 +45,7 @@ class RunOutputs:
     stage1: list[Stage1Result]
     scores: list[SiteScore]
     selected: list[str]
+    recommendation: Recommendation | None = None
     stage2: list[Stage2Result] = field(default_factory=list)
     outcomes: list[EventOutcome] = field(default_factory=list)
     chance: list[ChanceRate] = field(default_factory=list)
@@ -143,14 +146,42 @@ def stage2_rows(results: Sequence[Stage2Result], threshold: float) -> list[dict[
     return rows
 
 
+EVENT_ROW_COLUMNS = (
+    "event_id", "site_id", "date_start", "date_end", "event_type", "confidence", "status",
+    "scene_days", "max_abs_z", "signal", "rain_coincident_scene", "chance_rate",
+    "chance_windows", "window_days",
+)  # fmt: skip
+
+
+def exclusion_category(reason: str) -> str:
+    """A short category for a stage-2 exclusion reason.
+
+    Args:
+        reason: The exclusion text.
+
+    Returns:
+        The category.
+    """
+    if reason.startswith("scaling") or "raster:bands" in reason:
+        return "scaling metadata"
+    if "reflectance" in reason:
+        return "implausible water reflectance"
+    if reason.startswith("too few"):
+        return "too few water pixels"
+    return "other"
+
+
 def event_rows(
-    outcomes: Sequence[EventOutcome], stage2: Sequence[Stage2Result]
+    outcomes: Sequence[EventOutcome],
+    stage2: Sequence[Stage2Result],
+    chance: Sequence[ChanceRate] = (),
 ) -> list[dict[str, object]]:
     """One row per scored event with its outcome and the rain context of its strongest scene.
 
     Args:
         outcomes: Event outcomes.
         stage2: Stage-2 results (for the rain flag of the scenes in the window).
+        chance: Chance rates per event (same window length).
 
     Returns:
         Rows.
@@ -158,9 +189,11 @@ def event_rows(
     rain_by_day = {
         (r.site.id, s.datetime.date()): s.rain_coincident for r in stage2 for s in r.usable()
     }
+    by_event = {(c.site_id, c.event_id): c for c in chance}
     rows = []
     for o in outcomes:
         e = o.event
+        c = by_event.get((e.site_id, e.event_id))
         rows.append(
             {
                 "event_id": e.event_id,
@@ -176,6 +209,9 @@ def event_rows(
                 "rain_coincident_scene": any(
                     rain_by_day.get((e.site_id, d), False) for d in o.scene_days
                 ),
+                "chance_rate": round(c.rate, 3) if c and math.isfinite(c.rate) else math.nan,
+                "chance_windows": c.windows if c else 0,
+                "window_days": c.window_days if c else 0,
             }
         )
     return rows
@@ -196,8 +232,9 @@ def write_all(outputs: RunOutputs, results_dir: Path, out_dir: Path) -> list[Pat
     out_dir.mkdir(parents=True, exist_ok=True)
     written: list[Path] = []
 
-    def csv(rows: list[dict[str, object]], path: Path) -> None:
-        pd.DataFrame(rows).to_csv(path, index=False)
+    def csv(rows: list[dict[str, object]], path: Path, columns: Sequence[str] = ()) -> None:
+        frame = pd.DataFrame(rows) if rows else pd.DataFrame(columns=list(columns) or ["none"])
+        frame.to_csv(path, index=False)
         written.append(path)
 
     csv([row for r in outputs.stage1 for row in scene_rows(r)], out_dir / "screening_stage1.csv")
@@ -216,8 +253,13 @@ def write_all(outputs: RunOutputs, results_dir: Path, out_dir: Path) -> list[Pat
         csv(
             stage2_rows(outputs.stage2, outputs.anomaly_threshold),
             results_dir / "stage2_scenes.csv",
+            ("site_id", "acquisition", "excluded"),
         )
-    csv(event_rows(outputs.outcomes, outputs.stage2), results_dir / "event_validation.csv")
+    csv(
+        event_rows(outputs.outcomes, outputs.stage2, outputs.chance),
+        results_dir / "event_validation.csv",
+        EVENT_ROW_COLUMNS,
+    )
     manifest_path = results_dir / "run_manifest.json"
     manifest_path.write_text(json.dumps(outputs.manifest, indent=2, sort_keys=True) + "\n")
     written.append(manifest_path)
@@ -225,6 +267,20 @@ def write_all(outputs: RunOutputs, results_dir: Path, out_dir: Path) -> list[Pat
     md.write_text(render_markdown(outputs), encoding="utf-8")
     written.append(md)
     return written
+
+
+def _recommendation_lines(rec: Recommendation | None) -> list[str]:
+    if rec is None or rec.recommended is None:
+        return ["Recommendation (pre-registered rule): no eligible category A or C site."]
+    lines = [
+        f"Recommendation (pre-registered rule: best eligible category A or C site): "
+        f"**{rec.recommended}**; runner-up: {rec.runner_up or 'none'}.",
+    ]
+    if rec.fragile:
+        lines.append(f"The ranking is **fragile**: {'; '.join(rec.changes)}.")
+    else:
+        lines.append("The ranking is robust to dropping any one term.")
+    return lines
 
 
 def render_markdown(outputs: RunOutputs) -> str:
@@ -280,6 +336,16 @@ def render_markdown(outputs: RunOutputs) -> str:
         "",
         f"Stage-2 set (pre-registered rule): {', '.join(outputs.selected) or 'none'}.",
         "",
+        *_recommendation_lines(outputs.recommendation),
+        "",
+        "Sensitivity: rank of each site with one term dropped, or with coverage from the "
+        "observable rule.",
+        "",
+        markdown_table(
+            score_rows(outputs.scores),
+            ["site_id", *(f"rank_without_{k}" for k in (*TERMS, "observable_coverage"))],
+        ),
+        "",
     ]
     if outputs.stage2:
         parts += ["## Stage 2: NDTI anomalies", ""]
@@ -287,7 +353,7 @@ def render_markdown(outputs: RunOutputs) -> str:
         for r in outputs.stage2:
             usable = r.usable()
             anomalies = [s for s in usable if s.anomalous(outputs.anomaly_threshold)]
-            excluded = Counter(s.exclusion.split(" ")[0] for s in r.scenes if not s.usable)
+            excluded = Counter(exclusion_category(s.exclusion) for s in r.scenes if not s.usable)
             rate, n = outputs.false_alarms.get(r.site.id, (math.nan, 0))
             rows.append(
                 {
@@ -323,7 +389,7 @@ def render_markdown(outputs: RunOutputs) -> str:
         parts += ["", "## Event validation", ""]
         parts.append(
             markdown_table(
-                event_rows(outputs.outcomes, outputs.stage2),
+                event_rows(outputs.outcomes, outputs.stage2, outputs.chance),
                 [
                     "event_id",
                     "site_id",
@@ -333,6 +399,7 @@ def render_markdown(outputs: RunOutputs) -> str:
                     "max_abs_z",
                     "signal",
                     "rain_coincident_scene",
+                    "chance_rate",
                 ],
             )
             if outputs.outcomes
@@ -340,16 +407,24 @@ def render_markdown(outputs: RunOutputs) -> str:
         )
         parts += [
             "",
-            "Chance rate (random windows of the same length, away from catalog events):",
+            "Chance rate: share of observable random windows of the same length, away from "
+            "catalog events, that reach the threshold (per event above; per site here for sites "
+            "without scored events):",
             "",
         ]
         parts.append(
             markdown_table(
                 [
-                    {"site_id": c.site_id, "rate": c.rate, "windows": c.windows}
+                    {
+                        "site_id": c.site_id,
+                        "rate": c.rate,
+                        "windows": c.windows,
+                        "window_days": c.window_days,
+                    }
                     for c in outputs.chance
+                    if not c.event_id
                 ],
-                ["site_id", "rate", "windows"],
+                ["site_id", "rate", "windows", "window_days"],
             )
         )
         parts += [
@@ -365,6 +440,8 @@ def render_markdown(outputs: RunOutputs) -> str:
                 ],
                 ["site_id", "rate", "scenes"],
             )
+            if outputs.false_alarms
+            else "No control site was screened in this run, so no false-alarm rate exists."
         )
     if outputs.figures:
         parts += ["", "## Figures", ""] + [

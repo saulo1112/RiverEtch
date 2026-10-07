@@ -102,3 +102,16 @@ def test_chance_rate_is_reproducible_and_avoids_event_windows() -> None:
         1,
     )
     assert m == 0 and blocked != blocked
+
+
+def test_usable_scenes_without_a_baseline_are_not_a_miss() -> None:
+    e = event(date(2023, 6, 10))
+    outcome = evaluate(e, CFG, {date(2023, 6, 12): {}}, threshold=3.0)
+    assert outcome.status == "insufficient-baseline"
+
+
+def test_chance_windows_can_end_on_the_last_day() -> None:
+    last = date(2023, 1, 31)
+    scores = {last: {"delta": 5.0}}
+    rate, n = chance_rate(31, scores, 3.0, date(2023, 1, 1), last, [], 50, 3)
+    assert (rate, n) == (1.0, 50)

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time
 from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -20,6 +21,7 @@ import numpy as np
 from numpy.typing import NDArray
 
 HOUR = np.timedelta64(1, "h")
+RETRY_PAUSES_S = (5, 30, 0)
 
 
 @dataclass(frozen=True)
@@ -147,10 +149,9 @@ class OpenMeteoClient:
         }
         payload = self._get(params)
         hourly: dict[str, Any] = payload["hourly"]
-        # Open-Meteo stamps each value with the start of its hour; store the hour's end instead.
-        ends = np.array(
-            [np.datetime64(t, "h") + HOUR for t in hourly["time"]], dtype="datetime64[h]"
-        )
+        # Open-Meteo's hourly precipitation is the sum over the preceding hour, so each timestamp
+        # is already the end of the hour it describes.
+        ends = np.array([np.datetime64(t, "h") for t in hourly["time"]], dtype="datetime64[h]")
         values = np.array(
             [np.nan if v is None else float(v) for v in hourly["precipitation"]], dtype=np.float64
         )
@@ -162,8 +163,15 @@ class OpenMeteoClient:
         if cache is not None and cache.exists():
             cached: dict[str, Any] = json.loads(cache.read_text(encoding="utf-8"))
             return cached
-        response = self._http.get(self._url, params=params)
-        response.raise_for_status()
+        for attempt, pause in enumerate(RETRY_PAUSES_S):
+            try:
+                response = self._http.get(self._url, params=params)
+                response.raise_for_status()
+                break
+            except httpx.HTTPError:
+                if attempt == len(RETRY_PAUSES_S) - 1:
+                    raise
+                time.sleep(pause)
         payload: dict[str, Any] = response.json()
         if cache is not None:
             cache.parent.mkdir(parents=True, exist_ok=True)

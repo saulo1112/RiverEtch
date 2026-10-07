@@ -60,6 +60,9 @@ investigate. It is never evidence that any actor caused anything.
      the distances are reported.
    - The main channel is the 4-connected river region containing them. 4-connectivity keeps pits
      and floodplain lakes that touch the river only diagonally out.
+   - For connectivity and the centerline only, mask gaps up to 2 pixels (40 m) wide, such as
+     bridges or rapids, are bridged by a morphological closing; bridged pixels are never counted
+     as water.
    - The centerline is the shortest path between the anchors inside that region. Diagonal steps
      must not cut a land corner. Chainage is the distance along the centerline from the upstream
      anchor.
@@ -69,10 +72,10 @@ investigate. It is never evidence that any actor caused anything.
    - Two windows, each 2 km of chainage long.
    - The upstream one starts as close to 1 km below the upstream anchor as possible. The
      downstream one is 5–15 km further, center to center (target 10 km).
-   - Placements are tried in 250 m steps, and the lowest cost wins. Cost = |separation − 10 km|
-     - 2 × (extra distance below the upstream anchor). Placements with a tributary confluence
-       inside a window (± 1 km) are avoided whenever possible; if unavoidable, the site is flagged.
-       A confluence between the windows is reported.
+   - Placements are tried in 250 m steps, and the lowest cost wins, where cost =
+     |separation − 10 km| plus twice the extra distance below the upstream anchor. Placements with
+     a tributary confluence inside a window (± 1 km) are avoided whenever possible; if
+     unavoidable, the site is flagged. A confluence between the windows is reported.
    - **Dams:** the anchors are chosen below the dam and outside the reservoir and its backwater,
      so both sub-reaches are downstream of it.
 7. **Per acquisition and sub-reach**, counted in 10 m pixel equivalents (one 20 m SCL pixel = 4):
@@ -153,8 +156,9 @@ rule. A ranking that changes under these checks is reported as fragile.
      older implies 0.
    - A scene with a disagreeing or missing offset is listed and **not used**. A wrong +0.1 keeps
      water plausible but pulls NDTI toward zero.
-3. **Empirical check.** In each sub-reach, the median red and green water reflectance must lie in
-   (0, 0.3]. Otherwise the scene is excluded and listed.
+3. **Empirical check.** In each sub-reach, the median red and green reflectance of all water
+   pixels (before the darkness and glint guards of step 4) must lie in (0, 0.3]. Otherwise the
+   scene is excluded and listed.
 4. **Pixels.** A pixel is used if all of these hold:
    - it is inside the eroded sub-reach;
    - its SCL is not no-data and not invalid, whatever class SCL gives the water;
@@ -223,5 +227,32 @@ rule. A ranking that changes under these checks is reported as fragile.
 
 ## Deviations
 
-None so far. Any change after the first real run is listed here with its date, what changed, why,
-and whether results were seen before the change.
+Any change after the first real run is listed here with its date, what changed, why, and whether
+results were seen before the change.
+
+Corrections made before any real run (no results existed):
+
+- 2026-10-07, formatting: line wrapping had turned the "+" of the sub-reach placement cost into a
+  Markdown bullet, so the formula read "− 2 ×". The formula is now written out in words; the code
+  always used "+".
+- 2026-10-07, implementation brought in line with this method after a code review:
+  - a sub-reach with too few pixels is now missing for that scene, rather than dropping the
+    whole scene;
+  - pixels without a B11 value are no longer used;
+  - the land ring is measured in Euclidean distance;
+  - the chance rate uses each event's own window length;
+  - a window whose usable scenes all lack a baseline is reported as "insufficient baseline", not
+    "unobservable";
+  - the recommendation rule and the fragility check are now produced in the outputs;
+  - Hidroituango, a canyon reach, uses the 2-pixel bank erosion stated in step 10.
+  - the empirical reflectance check of stage 2 now uses every water pixel, before the darkness
+    and glint guards; otherwise a too-negative offset would hide itself by making water too dark
+    to pass the guards (wording of stage 2, step 3 clarified).
+  - mask gaps up to 40 m wide (bridges, rapids) are bridged for connectivity only (stage 1,
+    step 5), so one bridge cannot fail a site.
+- 2026-10-07, robustness:
+  - anchors are snapped together onto the river region that connects them, so a nearer pond or
+    reservoir cannot take an anchor;
+  - Open-Meteo hourly values are treated as the sum over the hour ending at their timestamp,
+    as the API documents (an earlier one-hour shift was removed);
+  - rainy months use only the days inside the study period.

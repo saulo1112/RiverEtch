@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import math
+import shutil
 import subprocess
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
@@ -28,14 +29,15 @@ from climate_pipeline.screening.events import (
     is_scored,
     load_events,
     observable,
+    window_days,
 )
 from climate_pipeline.screening.plots import MapPanel, plot_maps, plot_series, site_stretch
 from climate_pipeline.screening.rain import OpenMeteoClient
 from climate_pipeline.screening.report import ChanceRate, RunOutputs, write_all
 from climate_pipeline.screening.rio import AcquisitionReader
-from climate_pipeline.screening.score import SiteInputs, score_sites, select_stage2
+from climate_pipeline.screening.score import SiteInputs, recommend, score_sites, select_stage2
 from climate_pipeline.screening.stac import SceneSource, make_source
-from climate_pipeline.screening.stage1 import Stage1Result, run_stage1
+from climate_pipeline.screening.stage1 import Stage1Result, failed_stage1, run_stage1
 from climate_pipeline.screening.stage2 import (
     Stage2Result,
     false_alarm_rate,
@@ -144,15 +146,23 @@ def run_screening(
     if rain is None:
         rain = OpenMeteoClient(cfg.rain.url, cache_dir=paths.out / "cache" / "rain")
     reader = AcquisitionReader(source, paths.out / "cache" / "bands")
+    # Generated outputs only: start clean so nothing from an earlier run survives next to these.
+    shutil.rmtree(paths.results, ignore_errors=True)
 
     stage1: list[Stage1Result] = []
     for site in sites:
-        stage1.append(
-            run_stage1(site, cfg, source, reader, rain, workers, (cfg.period.start, cfg.period.end))
-        )
+        try:
+            result = run_stage1(
+                site, cfg, source, reader, rain, workers, (cfg.period.start, cfg.period.end)
+            )
+        except Exception as error:  # one site's failure must not lose the others
+            log.exception("%s: stage 1 failed", site.id)
+            result = failed_stage1(site, cfg, f"error: {type(error).__name__}: {error}")
+        stage1.append(result)
     by_site = {e: [ev for ev in events if ev.site_id == e] for e in (s.id for s in sites)}
     scores = score_sites([stage1_inputs(r, by_site[r.site.id], cfg) for r in stage1], cfg)
     selected = select_stage2(scores, cfg)
+    recommendation = recommend(scores)
     manifest: dict[str, object] = {
         "package_version": __version__,
         "period_start": cfg.period.start.isoformat(),
@@ -169,23 +179,31 @@ def run_screening(
             str(r.summary["site_id"]): r.summary["evidence_sha256"] for r in stage1
         },
         "started_utc": started.isoformat(timespec="seconds"),
+        "recommended": recommendation.recommended,
+        "runner_up": recommendation.runner_up,
+        "ranking_fragile": recommendation.fragile,
     }
     outputs = RunOutputs(
         manifest=manifest,
         stage1=stage1,
         scores=scores,
         selected=selected,
+        recommendation=recommendation,
         anomaly_threshold=cfg.stage2.anomaly_z,
     )
+    # Stage-1 outputs are written now, so a later failure or timeout does not lose them.
+    manifest["read_errors"] = reader.errors[:100]
+    manifest["finished_utc"] = "stage 1 only so far"
+    write_all(outputs, paths.results, paths.out)
     if stage2:
         figures_dir = paths.results / "figures"
         for result in (r for r in stage1 if r.site.id in selected):
             second = run_stage2(result, reader, cfg, workers)
             outputs.stage2.append(second)
             site_events = by_site[result.site.id]
-            outcomes, chance = _validate_events(second, site_events, cfg)
+            outcomes, chances = _validate_events(second, site_events, cfg)
             outputs.outcomes += outcomes
-            outputs.chance.append(chance)
+            outputs.chance += chances
             if result.site.category == "D":
                 outputs.false_alarms[result.site.id] = false_alarm_rate(
                     second, cfg.stage2.anomaly_z
@@ -193,6 +211,8 @@ def run_screening(
             outputs.figures += _figures(
                 result, second, outcomes, site_events, reader, cfg, figures_dir
             )
+    manifest["read_errors"] = reader.errors[:100]
+    manifest["read_error_count"] = len(reader.errors)
     manifest["finished_utc"] = datetime.now(UTC).isoformat(timespec="seconds")
     write_all(outputs, paths.results, paths.out)
     return outputs
@@ -200,23 +220,25 @@ def run_screening(
 
 def _validate_events(
     result: Stage2Result, events: list[CatalogEvent], cfg: ScreeningConfig
-) -> tuple[list[EventOutcome], ChanceRate]:
+) -> tuple[list[EventOutcome], list[ChanceRate]]:
     start, end = cfg.period.start, cfg.period.end
     scored = [e for e in events if is_scored(e, cfg.events, start, end)]
     scores = result.scores_by_day()
     outcomes = [evaluate(e, cfg.events, scores, cfg.stage2.anomaly_z) for e in scored]
-    window = cfg.events.window_before_days + cfg.events.window_after_days + 1
-    rate, n = chance_rate(
-        window,
-        scores,
-        cfg.stage2.anomaly_z,
-        start,
-        end,
-        [event_window(e, cfg.events) for e in events],
-        cfg.events.chance_shifts,
-        cfg.events.seed,
-    )
-    return outcomes, ChanceRate(result.site.id, rate, n)
+    avoid = [event_window(e, cfg.events) for e in events]
+
+    def chance(days: int, event_id: str) -> ChanceRate:
+        rate, n = chance_rate(
+            days, scores, cfg.stage2.anomaly_z, start, end, avoid,
+            cfg.events.chance_shifts, cfg.events.seed,
+        )  # fmt: skip
+        return ChanceRate(result.site.id, rate, n, event_id, days)
+
+    # One chance rate per scored event, with that event's own window length; sites without
+    # scored events (e.g. the control) get the rate of a single-day event's window.
+    default = cfg.events.window_before_days + cfg.events.window_after_days + 1
+    chances = [chance(window_days(e, cfg.events), e.event_id) for e in scored]
+    return outcomes, chances or [chance(default, "")]
 
 
 def _figures(
