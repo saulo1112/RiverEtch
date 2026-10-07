@@ -181,7 +181,15 @@ class SclConfig(_Frozen):
 class MaskConfig(_Frozen):
     """River mask from the water frequency of the SCL stack."""
 
+    @property
+    def thresholds(self) -> tuple[float, ...]:
+        """The pre-registered threshold followed by its fallbacks."""
+        return (self.water_frequency_min, *self.water_frequency_fallbacks)
+
     water_frequency_min: float = Field(gt=0, lt=1)
+    water_frequency_fallbacks: tuple[float, ...] = Field(
+        default=(), description="lower thresholds tried, in order, if the anchors do not connect"
+    )
     min_observations: int = Field(gt=0)
     snap_radius_m: float = Field(gt=0)
     corridor_half_width_m: float = Field(gt=0)

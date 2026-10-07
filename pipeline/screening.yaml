@@ -29,6 +29,7 @@ scl:
 
 mask:
   water_frequency_min: 0.5 # river = water in at least half of the clear observations
+  water_frequency_fallbacks: [0.35, 0.25] # only if the anchors do not connect at 0.5 (reported)
   min_observations: 20 # clear observations a pixel needs before its frequency counts
   snap_radius_m: 1500 # anchors and the center snap to the mask within this distance
   corridor_half_width_m: 600 # default; wide rivers override it per site
