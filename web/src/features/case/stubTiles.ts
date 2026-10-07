@@ -1,6 +1,8 @@
 // DEVELOPMENT ONLY (`?tiles=stub`): a `stub://` tile protocol that draws tiles on a canvas, so the
 // flythrough can be checked without network access to the imagery and terrain servers. Imagery is a
-// dark checker labelled with its z/x/y; elevation is continuous Terrarium-encoded hills.
+// dark checker labelled with its z/x/y; elevation is continuous Terrarium-encoded hills. Add
+// `&tileDelay=<ms>` to make every tile arrive late, like over a slow network
+// (`window.__stubTileDelay` overrides it at run time).
 import { addProtocol } from "maplibre-gl";
 
 const SIZE = 256;
@@ -51,9 +53,41 @@ function drawElevation(
   context.putImageData(image, 0, 0);
 }
 
+interface StubTilesWindow extends Window {
+  // QA can change the latency mid-session (e.g. a slow network only on the way back).
+  __stubTileDelay?: number;
+}
+
+// The mean latency added to every stub tile: `window.__stubTileDelay` if set, else `?tileDelay=`.
+function tileDelayMs(): number {
+  const override = (window as StubTilesWindow).__stubTileDelay;
+  const value = override ?? Number(new URLSearchParams(window.location.search).get("tileDelay"));
+  return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+// Resolves after `ms`, or rejects with an AbortError when MapLibre cancels the request.
+function wait(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const abort = () => {
+      window.clearTimeout(timer);
+      reject(new DOMException("Tile request aborted", "AbortError"));
+    };
+    const timer = window.setTimeout(() => {
+      signal.removeEventListener("abort", abort);
+      resolve();
+    }, ms);
+    signal.addEventListener("abort", abort, { once: true });
+  });
+}
+
 /** Registers the `stub://imagery/{z}/{x}/{y}` and `stub://dem/{z}/{x}/{y}` tile protocol. */
 export function registerStubTiles(): void {
-  addProtocol("stub", async ({ url }) => {
+  addProtocol("stub", async ({ url }, abortController) => {
+    const delayMs = tileDelayMs();
+    if (delayMs > 0) {
+      // 0.5–1.5× the mean, so tiles trickle in out of order as they do over a network.
+      await wait(delayMs * (0.5 + Math.random()), abortController.signal);
+    }
     const match = /^stub:\/\/(imagery|dem)\/(\d+)\/(\d+)\/(\d+)/.exec(url);
     if (match === null) {
       throw new Error(`Unknown stub tile: ${url}`);
