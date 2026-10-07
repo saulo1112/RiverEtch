@@ -1,0 +1,291 @@
+# Río Cauca below Salvajina dam (Río Ovejas confluence to La Balsa)
+# Category A. Generated from the site research of 2026-10-07 (WebSearch summaries only; see docs/site-screening/report.md).
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: cauca-salvajina
+name: Río Cauca below Salvajina dam (Río Ovejas confluence to La Balsa)
+river: Río Cauca
+category: A
+rationale:
+  "Río Cauca below the Salvajina dam (Suárez, Cauca). Public sources describe a multipurpose
+  reservoir (flood control, dilution, energy) whose daily discharges are programmed jointly by the operator
+  and CVC. The reach runs from the Río Ovejas confluence, about 3.5 km below the dam, to the Cauca-La
+  Balsa gauging station, about 27 km below it. Sources describe a braided or intermediate channel about
+  75-90 m wide at bankfull, close to the width limit for 10 m pixels at low releases. Public sources also
+  report gold mining in the Ovejas basin, a possible non-dam sediment input at the upstream end. Hypothesis
+  under test: reservoir operations give discrete, datable turbidity changes."
+center:
+  lon: -76.64238
+  lat: 3.02769
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -76.716
+  - 2.931
+  - -76.58
+  - 3.11
+upstream_anchor:
+  lon: -76.685
+  lat: 2.965
+  description:
+    Río Ovejas confluence with the Río Cauca, right bank. es.wikipedia puts it 3.5 km downstream
+    of the Salvajina dam, at about 1000 m elevation and just downstream of Suárez town. It marks the boundary
+    between the Suárez and Buenos Aires municipalities. Approximately CVC K3.5.
+  basis:
+    estimated-from-Suárez town (2.954, -76.695; countrycoordinate.com / geocountries) and Salvajina
+    Dam (2.94139, -76.70639; Wikipedia), using the 3.5 km distance stated for the confluence; uncertainty
+    about 1-1.5 km
+  source_url: https://es.wikipedia.org/wiki/R%C3%ADo_Ovejas
+downstream_anchor:
+  lon: -76.59975
+  lat: 3.09038
+  description:
+    La Balsa (corregimiento of Buenos Aires, Cauca, beside the Río Cauca). Site of the CVC
+    hydrometric station Cauca-La Balsa at K27+978 from Salvajina, where the river enters Valle del Cauca.
+  basis:
+    estimated-from-La Balsa hamlet coordinates (Mapcarta 3.09038, -76.59975); the station is assumed
+    to lie on the channel next to the hamlet
+  source_url: https://mapcarta.com/19705290
+feature:
+  lon: -76.70639
+  lat: 2.94139
+  description:
+    Salvajina Dam (Represa/Central Hidroeléctrica Salvajina), Río Cauca, corregimiento Buenos
+    Aires, municipality of Suárez, Cauca. 148 m CFRD, reservoir about 31 km long, completed 1985. GEM
+    gives 2.9435, -76.7079, within about 300 m.
+  basis: source-stated
+  source_url: https://en.wikipedia.org/wiki/Salvajina_Dam
+confluences:
+  - name: Río Ovejas
+    point:
+      lon: -76.685
+      lat: 2.965
+      description:
+        Río Ovejas, right bank, about 3.5 km below Salvajina dam, just downstream of Suárez town;
+        boundary between Suárez and Buenos Aires. Basin about 947 km2. Public sources report gold mining
+        in this basin.
+      basis:
+        estimated-from-Suárez town and Salvajina Dam coordinates plus the 3.5 km distance stated by
+        es.wikipedia Río Ovejas
+      source_url: https://es.wikipedia.org/wiki/R%C3%ADo_Ovejas
+regime_changes: []
+rain_points:
+  - lon: -76.64238
+    lat: 3.02769
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+  - lon: -76.70639
+    lat: 2.94139
+    description: dam / pressure feature
+    basis: source-stated
+    source_url: https://en.wikipedia.org/wiki/Salvajina_Dam
+operator:
+  Celsia Colombia, through its subsidiary EPSA, per public sources; daily discharges are programmed
+  jointly with CVC in the Salvajina operation committee.
+regulator:
+  CVC (Valle del Cauca) co-programs the discharges; CRC is the environmental authority in Cauca
+  department. No source confirmed ANLA's role for Salvajina.
+backwater_note:
+  The Salvajina reservoir (about 31 km long, total volume about 765-909 Mm3 depending on
+  the source, operating levels about 1105-1155 m a.s.l.) lies entirely upstream (south) of the dam, toward
+  Morales municipality. RCN reports describe the reservoir rising to affect the El Embarcadero / Santa
+  Bárbara area of Morales. The study reach starts about 3.5 km below the dam in tailwater at about 1000
+  m elevation, below the reservoir's minimum operating level of 1105 m. It is therefore outside the reservoir
+  and its backwater. The AOI includes the dam toe only so the dam-only segment past Suárez can be checked.
+river_width_note:
+  About 75-90 m at bankfull in the Salvajina-La Balsa sector. The CVC-Univalle executive
+  report gives 75-90 m, and the Ingeniería y Competitividad characterization gives about 80 m at bankfull.
+  For comparison, La Balsa-Juanchito averages about 100 m at bankfull. The reach is above the ~50 m Sentinel-2
+  threshold, but the channel is braided or intermediate with bars. At dry-season releases of about 50-60
+  m3/s, the continuous wetted width may be noticeably narrower and close to the limit. The first ~17 km
+  below the dam lie in a confined valley (Alvarado et al. 2023).
+climate_note:
+  "The upper Cauca has a bimodal rainfall regime. One source gives rainy seasons in March-May
+  and September-November, with less rain in December-February and June-August, linked to the ITCZ. A CVC-derived
+  summary gives rainy periods of April-June and October-December and dry periods of January-March and
+  July-September. Salvajina stores water until about June and releases it from July to support dry-season
+  flows. One source classifies Suárez's climate as Af. No source on cloud frequency was found. In an
+  Andean valley, cloud is likely frequent, so the drier windows (Dec-Feb, Jul-Sep) are probably the best
+  for clear Sentinel-2 scenes. ENSO matters: in El Niño dry seasons releases have been about 53 m3/s (undated
+  El País report), and November 2022 (La Niña) brought high releases and bankfull flow at La Balsa."
+citations:
+  - url: https://en.wikipedia.org/wiki/Salvajina_Dam
+    title: Salvajina Dam - Wikipedia
+    supports:
+      Dam coordinates 2.94139N 76.70639W; corregimiento Buenos Aires, Suárez, Cauca; 148 m CFRD;
+      reservoir 31 km long; 3x90 MW; completed September 1985
+    verification: search summary only, page not opened; coordinates agree with GEM within about 300 m
+  - url: https://gem.wiki/Salvajina_hydroelectric_plant
+    title: Salvajina hydroelectric plant - Global Energy Monitor
+    supports: Coordinates 2.9435, -76.7079; 285 MW; operated by Celsia Colombia; operating since 1985
+    verification: search summary only; coordinates agree with Wikipedia; capacity differs (285 vs 270 MW)
+  - url: https://www.elpais.com.co/valle/cvc-reitera-que-no-habra-racionamiento-de-agua-en-el-departamento-del-valle-0858.html
+    title: CVC reitera que no habrá racionamiento de agua en el departamento del Valle - El País
+    supports:
+      Salvajina in Suárez (north Cauca) is operated by Epsa, a Celsia subsidiary; its main task
+      is regulating Cauca flow
+    verification: search summary only; operator agrees with GEM
+  - url: https://www.elpais.com.co/cali/salvajina-cumple-con-la-funcion-para-la-cual-se-construyo.html
+    title: ¿Salvajina cumple con la función para la cual se construyó? - El País
+    supports:
+      Operation technical committee of CVC and Epsa; joint discharge programming; priority order
+      flood control > pollution relief > energy; store until June, release from July
+    verification: two search summaries from the same article agree
+  - url: https://portal-hidroclimatologico.cvc.gov.co/sites/default/files/informe_diario_geocvc_febrero_13_de_2024.pdf
+    title: Informe diario GeoCVC 13 febrero 2024
+    supports: Cauca-La Balsa station at K27+978; Salvajina at K0; Hormiguero K114+717; Juanchito K222+557
+    verification: several CVC daily-report search summaries agree on K27+978
+  - url: https://www.redalyc.org/journal/2913/291361225005/291361225005.pdf
+    title: Ingeniería y Competitividad article (redalyc 291361225005)
+    supports: La Balsa station is 27 km downstream of Salvajina dam
+    verification: search summary only; consistent with CVC K27+978
+  - url: https://portal-hidroclimatologico.cvc.gov.co/sites/default/files/archivosAdjuntos/informe_ejecutivo_proyecto_modelacion_del_rio_cauca_cvc-univalle_0.pdf
+    title: Caracterización del río Cauca y tributarios - informe ejecutivo proyecto modelación CVC-Univalle
+    supports:
+      Channel width 75-90 m and slope about 7e-4 in Salvajina-La Balsa; Ovejas joins on the right
+      (Suárez/Buenos Aires); Timba joins on the left at the Cauca/Valle boundary
+    verification: search summary only; width roughly agrees with dialnet 9821380 (~80 m)
+  - url: https://dialnet.unirioja.es/descarga/articulo/9821380.pdf
+    title: Caracterización y modelación matemática del río Cauca
+    supports:
+      Bankfull width about 80 m in the upper Salvajina-La Balsa sector; braided or intermediate
+      channel; sector length 27 km; slope 7x10^-4
+    verification: search summary only; agrees approximately with the CVC-Univalle report
+  - url: https://www.redalyc.org/pdf/2913/291323467008.pdf
+    title: Modelación morfológica del río Cauca en el tramo La Balsa - Juanchito
+    supports:
+      La Balsa-Juanchito about 110 km, average bankfull width about 100 m, depth 7.5 m; mean flow
+      at La Balsa 176.7 m3/s
+    verification: search summary only
+  - url: https://mapcarta.com/19705290
+    title: La Balsa Map - Hamlet - Buenos Aires, Cauca, Colombia (Mapcarta)
+    supports: La Balsa hamlet coordinates 3.09038, -76.59975; elevation 1005 m
+    verification: search summary only, single source
+  - url: https://www.komoot.com/highlight/5976051
+    title: La Balsa, Cauca - Komoot highlight
+    supports:
+      La Balsa is beside the Cauca River at about 990 m in Buenos Aires, Cauca; Timba bridge highlight
+      at 1002 m
+    verification: search summary only
+  - url: https://www.countrycoordinate.com/city-suarez-colombia
+    title: GPS coordinates of Suárez, Colombia
+    supports: Suárez town about 2.954, -76.695
+    verification: agrees with geocountries (2.95, -76.70)
+  - url: https://www.geocountries.com/cities/colombia/cauca-department/su%C3%A1rez
+    title: Suárez, Cauca - Geo Countries
+    supports: Suárez 2.95, -76.7; altitude 1081 m; Köppen Af
+    verification: search summary only; coordinates agree with countrycoordinate.com
+  - url: https://es.wikipedia.org/wiki/R%C3%ADo_Ovejas
+    title: Río Ovejas - Wikipedia (es)
+    supports:
+      Ovejas basin about 947 km2; joins the Cauca 3.5 km downstream of Salvajina at about 1000 m;
+      right bank; Suárez/Buenos Aires boundary
+    verification: search summary only; a second search did not confirm the 3.5 km figure
+  - url: https://es.wikipedia.org/wiki/R%C3%ADo_Cauca
+    title: Río Cauca - Wikipedia (es)
+    supports:
+      After leaving Suárez town the Cauca meets the Ovejas on the right bank, which marks the Suárez/Buenos
+      Aires limit
+    verification: search summary only; consistent with the CVC-Univalle report
+  - url: https://repositorio.unicauca.edu.co/handle/123456789/9622?show=full
+    title: Repositorio Universidad del Cauca item 9622
+    supports: Ovejas-Cauca confluence used as a sampling zone in studies of the Salvajina area
+    verification: search summary only
+  - url: https://tramitesdga.cvc.gov.co/sites/default/files/2024-01/BALANCE%20Timba_2022.pdf
+    title: CVC Balance Timba 2022
+    supports: Río Timba is the Valle/Cauca boundary and joins the Cauca on its left bank
+    verification: search summary only; consistent with the CVC-Univalle report
+  - url: https://tramitesdga.cvc.gov.co/sites/default/files/2019-08/Edici%C3%B3n%2078%20de%20agosto%202019.pdf
+    title: CVC Cuentos Verdes edición 78 (agosto 2019)
+    supports:
+      CVC erosion-control rock protection on the left bank of the Cauca along the Timba-La Balsa
+      road
+    verification: two search summaries agree
+  - url: https://www.mdpi.com/2073-4433/12/11/1527
+    title:
+      "Spatio-Temporal Variability of Hydroclimatology in the Upper Cauca River Basin: Pre- and Post-Salvajina
+      Dam Perspective (Atmosphere 2021)"
+    supports:
+      La Balsa station is just downstream of Salvajina; the Nov-Jan discharge series shows a break
+      after 1986
+    verification: two search summaries agree
+  - url: https://doi.org/10.3390/app13127109
+    title:
+      "Upstream and Downstream Changes in the Channel Width and Sinuosity Due to Dam Construction in
+      Tropical Rivers: The Case of Colombia (Applied Sciences 2023)"
+    supports:
+      The first ~17 km below Salvajina are in a confined valley; channel width responds to bank
+      composition
+    verification: search summary only
+  - url: https://cvc.gov.co/boletin-prensa-318-2022
+    title: "CVC boletín 318-2022: Embalse de Salvajina se encuentra en un 54% de su capacidad"
+    supports:
+      November 2022 target of at most 54% volume; 398 Mm3 free capacity; Salvajina regulates 20-30%
+      of Cauca flow
+    verification: search summary only; title states 54%
+  - url: https://portal-hidroclimatologico.cvc.gov.co/sites/default/files/informe_diario_geocvc_noviembre_15_2022.pdf
+    title: Informe diario GeoCVC 15 noviembre 2022
+    supports: Salvajina discharge about 254.9 m3/s on 15 Nov 2022
+    verification: search summary only
+  - url: https://portal-hidroclimatologico.cvc.gov.co/sites/default/files/informe_diario_geocvc_noviembre_24_2022.pdf
+    title: Informe diario GeoCVC 24 noviembre 2022
+    supports: La Balsa at or above bankfull (margin -0.07 m) on 24 Nov 2022
+    verification: search summary only
+  - url: https://portal-hidroclimatologico.cvc.gov.co/sites/default/files/embalse-salvajina-04-02-2022.pdf
+    title: CVC Embalse Salvajina daily report 04-02-2022
+    supports:
+      Operating levels 1105-1155 m a.s.l.; bottom outlet capacity 450 m3/s; total volume 908.621
+      Mm3
+    verification: search summary only
+  - url: https://dialnet.unirioja.es/descarga/articulo/7843284.pdf
+    title: Dialnet article 7843284 (Alto Cauca hydroclimatology)
+    supports: Bimodal regime with rainy MAM and SON and drier DJF and JJA
+    verification: search summary only; a CVC-derived summary gives slightly shifted months
+  - url: https://investigadores.anid.cl/en/public_search/work?id=767559
+    title:
+      Water quality of streams associated with artisanal gold mining; Suárez, Department of Cauca,
+      Colombia
+    supports: High TSS, turbidity and Hg at mining-outlet stations in Suárez (2018-2019)
+    verification: search summary only
+  - url: https://occidente.co/medio-ambiente/mortandad-de-peces-rio-ovejas-suarez-crc-cierre-mina/
+    title: "Mortandad de peces río Ovejas, Suárez: CRC ordena cierre de mina - Diario Occidente"
+    supports:
+      CRC is the environmental authority acting in the Ovejas basin; 29 June 2026 sediment and cyanidation
+      discharge event, outside the study window
+    verification: two search summaries agree
+  - url: https://www.eltiempo.com/colombia/cali/aumenta-el-nivel-del-rio-cauca-y-de-la-represa-la-salvajina-gobernacion-del-cauca-emite-alerta-preventiva-3470501
+    title:
+      "Aumenta el nivel del río Cauca y de la represa La Salvajina: Gobernación del Cauca emite alerta
+      preventiva - El Tiempo"
+    supports:
+      Preventive alert with the reservoir at 92.4%; Celsia contingency protocols for possible controlled
+      discharges (date not given in summaries)
+    verification: several summaries agree on 92.4%; date not established
+unverified:
+  - La Balsa downstream anchor coordinates 3.09038, -76.59975 (Mapcarta only; the CVC station's exact channel
+    position is not stated)
+  - Río Ovejas confluence coordinates 2.965, -76.685 (my estimate from Suárez town and dam coordinates;
+    not stated by any source)
+  - Ovejas confluence 3.5 km below Salvajina at about 1000 m, and Ovejas basin area 947 km2 (single es.wikipedia
+    summary)
+  - Río Timba confluence position (no source gives coordinates; placeholder set at La Balsa hamlet; whether
+    it lies upstream of La Balsa is inferred from Komoot elevations and the CVC road description)
+  - "Reach length 24.5 km (derived: CVC K27+978 minus the 3.5 km Ovejas distance)"
+  - "Channel width figures: 75-90 m (CVC-Univalle summary) and ~80 m bankfull (dialnet 9821380 summary),
+    each from one summary but roughly consistent"
+  - "Installed capacity: 270 MW (Wikipedia, 3x90 MW) vs 285 MW (GEM)"
+  - "Reservoir volume: 764.7 Mm3 (Wikipedia) vs 908.621 Mm3 (CVC daily report)"
+  - Operating levels 1105-1155 m a.s.l. and bottom outlet capacity 450 m3/s (single CVC report summary)
+  - November 2022 target of at most 54% volume and 398 Mm3 free capacity (single CVC bulletin summary)
+  - Salvajina discharge 254.9 m3/s on 2022-11-15 (single CVC daily-report summary)
+  - La Balsa bankfull margin -0.07 m on 2022-11-24 (single CVC daily-report summary)
+  - Juanchito 'historical maximum 8.27 m on 2022-11-11' (single, possibly garbled summary; not used)
+  - Date of the 92.4% reservoir-level preventive alert (El Tiempo / El Nuevo Siglo; year not established,
+    so not used as a regime change)
+  - El Niño dry-season release of about 53 m3/s with about 67 m3/s inflow (El País; undated)
+  - Suárez altitude 1081 m and Köppen Af (single geocountries summary)
+  - Timba bridge elevation 1002 m and La Balsa elevation 990 m (Komoot only)
+  - "Rainy-season months: MAM/SON (dialnet 7843284) vs Apr-Jun/Oct-Dec (CVC-derived summary)"
+  - "Río Timba confluence position: no source states it; left out of the confluence list (it may lie a few
+    km above La Balsa)."

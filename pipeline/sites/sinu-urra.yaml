@@ -1,0 +1,275 @@
+# Río Sinú below Urrá I dam (Tierralta, Córdoba)
+# Category A. Generated from the site research of 2026-10-07 (WebSearch summaries only; see docs/site-screening/report.md).
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: sinu-urra
+name: Río Sinú below Urrá I dam (Tierralta, Córdoba)
+river: Río Sinú
+category: A
+rationale:
+  Río Sinú below the Urrá I dam (Tierralta, Córdoba), about 22 km from the discharge outlet downstream
+  toward the Carrizola sampling station. Public sources describe a free-overflow spillway (crest about
+  130.5 m a.s.l.) and date discharge increases, overflow episodes and operational alerts in 2022 and 2025.
+  No source states the width at the reach (about 160 m is reported at Montería, about 100 km downstream).
+  Optional third dam; kept because it has dated events in the window.
+center:
+  lon: -76.16783
+  lat: 8.06216
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -76.23
+  - 7.99
+  - -76.1
+  - 8.14
+upstream_anchor:
+  lon: -76.19766
+  lat: 8.02131
+  description:
+    About 1 km below the Urrá I outlet, toward the downstream anchor (moved off the dam so
+    it snaps to the river, not the reservoir)
+  basis: estimated-from-Urrá I dam (GEM coordinates) and the downstream anchor
+  source_url: https://manglar.uninorte.edu.co/bitstream/handle/10584/9204/124296.pdf?sequence=1&isAllowed=y
+downstream_anchor:
+  lon: -76.138
+  lat: 8.103
+  description:
+    'Point about 22 km along the river below the Urrá I outlet, about 14 km along the river
+    upstream of the Carrizola sampling station (Tierralta). Carrizola is 36.3 km downstream of the dam
+    at 8°09''40.8"N 76°05''44.8"W (8.1613, -76.0958). The point is linearly interpolated (22/36.3) between
+    the dam and Carrizola, so it is approximate. It must be moved along the water-mask centreline to the
+    22 km mark. Fallback anchor: Carrizola itself, which gives a reach of about 36 km.'
+  basis: estimated-from-Urrá I dam and Carrizola (Tierralta) sampling station
+  source_url: http://www.scielo.org.co/scielo.php?script=sci_arttext&pid=S0122-02682015000300010
+feature:
+  lon: -76.203
+  lat: 8.014
+  description:
+    Urrá I dam and Central Hidroeléctrica Urrá I on the Río Sinú at the Angostura de Urrá (Tierralta
+    municipality, Córdoba). GEM gives 8.012, -76.2021 and Global Energy Observatory gives 8.0155, -76.2049;
+    the value here is their mean (they differ by about 0.4 km).
+  basis: source-stated
+  source_url: https://www.gem.wiki/Urra_1_hydroelectric_plant
+confluences: []
+regime_changes: []
+rain_points:
+  - lon: -76.16783
+    lat: 8.06216
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+  - lon: -76.203
+    lat: 8.014
+    description: dam / pressure feature
+    basis: source-stated
+    source_url: https://www.gem.wiki/Urra_1_hydroelectric_plant
+operator: URRÁ S.A. E.S.P. operates Central Hidroeléctrica Urrá I (340 MW), per public sources.
+regulator:
+  ANLA (environmental licence follow-up) and CVS (regional environmental authority), per public
+  sources.
+backwater_note:
+  The reach lies entirely downstream of the dam, so neither the reservoir nor its backwater
+  can reach it. The Urrá I reservoir (about 7,400 ha per one summary; free-overflow spillway crest at
+  130.5 masl) lies upstream, south and southwest of the dam. It is fed mainly by the Sinú and Verde rivers,
+  and Puerto Frasquillo is a port on its shore about 45 minutes by road from Tierralta. No source found
+  says where the backwater tail ends on the Sinú and Verde arms. That does not matter for a below-dam
+  reach. The south edge of the AOI (7.99) takes in a little reservoir water next to the dam, which should
+  be masked out. No other dam lies downstream on the Sinú.
+river_width_note:
+  Unknown at the reach. One search summary (expreso.ec) gives an average width of about
+  160 m for the Sinú at Montería, roughly 100 km further downstream. MDPI Applied Sciences 13(12):7109
+  (2023) reports that channel width below Urrá I grew by about 17% on average after the dam, but the summary
+  gave no absolute values. Turbine releases of several hundred m3/s (486.3 m3/s on 2022-11-28) and mid-channel
+  islands below the outlet (UNAL) suggest the water is wider than 50 m. That is an inference, not a measurement.
+  The Angostura de Urrá narrows right below the dam may be narrower than 50 m; check this with the water
+  mask.
+climate_note:
+  "Sources give only partial climate information. El Heraldo (31 Jul 2025) says the rainy
+  season runs through November. The migratory-fish study collected ichthyoplankton through the April-October
+  high-water reproductive season. Infobae (Jul 2025) reports that 2025 was unusually wet: inflows were
+  above the historical average from January and there were 26 floods with daily inflows above 700 m3/s.
+  Rain linked to La Niña drove the November 2022 high flows. No source found quantifies cloudiness. The
+  idea that December-March is the drier period with clearer Sentinel-2 scenes is an inference that needs
+  checking against scene cloud statistics."
+citations:
+  - url: https://www.gem.wiki/Urra_1_hydroelectric_plant
+    title: Urra 1 hydroelectric plant - Global Energy Monitor
+    supports:
+      Dam coordinates 8.012, -76.2021; 340 MW, 4 x 85 MW, Río Sinú, Alto Sinú, Córdoba; commissioned
+      2000
+    verification:
+      search summary only, page not opened; coordinates agree within ~0.4 km with Global Energy
+      Observatory
+  - url: https://globalenergyobservatory.org/geoid/43473
+    title: Urra (Alto Sinu) Hydroelectric Power Plant Colombia - GEO
+    supports: Dam coordinates 8.0155, -76.2049
+    verification: search summary only; second independent database agreeing with GEM
+  - url: https://www.anla.gov.co/proyectos-de-interes-en-seguimiento/pis-hidroelectrica-urra-i
+    title: PIS Hidroeléctrica Urrá I - ANLA
+    supports:
+      Dam on the Sinú about 276 km above the mouth and 30 km south of Tierralta; ANLA follow-up
+      of the project (regulator)
+    verification: search summary only; 276 km and 30 km appeared in two separate searches
+  - url: https://www.anla.gov.co/01_anla/noticias/1265-anla-realizo-seguimiento-a-proyecto-hidroelectrico-urra-i
+    title: ANLA realizó seguimiento a proyecto hidroeléctrico Urrá I
+    supports: ANLA as the licensing/environmental follow-up authority
+    verification: search result title only
+  - url: https://www.worldconstructionnetwork.com/analysis/urr-multi-purpose-hydro-project/
+    title: Urrá multi-purpose hydro project
+    supports: Dam 115 km south-west of Montería at the last narrow stretch of the river ('Puerto Pacheco')
+    verification: search summary only
+  - url: http://www.scielo.org.co/scielo.php?script=sci_arttext&pid=S0122-02682015000300010
+    title:
+      Environmental characterization of the reproductive season of migratory fish of the Sinú river
+      (Córdoba, Colombia)
+    supports:
+      Carrizola (Tierralta) sampling site 36.3 km downstream of the dam at 8°09'40.8"N 76°05'44.8"W;
+      sampling 15 Apr-15 Oct 2008 (reproductive/high-water season)
+    verification:
+      search summary only; the 36.3 km distance also appears in the Urrá FAQ result; the coordinates
+      come from this paper only
+  - url: https://urra.com.co/wp-content/uploads/2022/08/Preguntas-Frecuentes-V0822.pdf
+    title: Preguntas Frecuentes - URRÁ S.A. E.S.P. (2022)
+    supports:
+      Carrizola is 36.31 km from the plant; bocachico spawning between Carrizola and the dam; operator
+      name
+    verification: search summary attributed this to the result set; page not opened
+  - url: https://en.wikipedia.org/wiki/Tierralta
+    title: Tierralta - Wikipedia
+    supports: Tierralta town at 8°10'19.2"N 76°03'36"W (8.1736, -76.0592), elevation 51 m
+    verification: search summary only
+  - url: https://manglar.uninorte.edu.co/bitstream/handle/10584/9204/124296.pdf?sequence=1&isAllowed=y
+    title:
+      Modelo de estimación de indicadores morfológicos asociados a cambios en el régimen hidrológico,
+      caso de estudio río Sinú (Uninorte)
+    supports:
+      Study reach of about 62 km from the dam's discharge point (about 69 masl, Angostura de Urrá,
+      about 100 m from the 'Puente Pacheco' station) to the 'Río Nuevo' station (36.13 masl)
+    verification: search summary only
+  - url: https://bffrepositorio.unal.edu.co/server/api/core/bitstreams/4eb7a391-0d26-46ac-ae35-018ff4eaa6a6/content
+    title: Geomorfología y condiciones hidráulicas del sistema fluvial del río Sinú (UNAL)
+    supports:
+      Fluvial islands in the active channel, most common in the high-sinuosity section between the
+      reservoir outlet and Tierralta
+    verification: search summary only
+  - url: https://www.mdpi.com/2076-3417/13/12/7109
+    title:
+      "Upstream and Downstream Changes in the Channel Width and Sinuosity Due to Dam Construction in
+      Tropical Rivers: The Case of Colombia (Applied Sciences 2023)"
+    supports: Sinú width below Urrá I grew about 17% on average after the dam; sinuosity changed about -1.31%
+    verification: search summary only; same paper also listed on DOI and ResearchGate
+  - url: https://www.expreso.ec/actualidad/mundo/monteria-la-ciudad-colombiana-que-hizo-las-paces-con-el-rio-que-la-atraviesa-260000.html
+    title: Montería, la ciudad colombiana que hizo las paces con el río que la atraviesa
+    supports: Sinú average width of about 160 m at Montería (not at the reach)
+    verification: search summary only, single source
+  - url: https://www.elheraldo.co/cordoba/2022/11/28/cordoba-aumentaran-las-descargas-al-rio-sinu-por-el-incremento-de-las-lluvias-958571/
+    title:
+      "Córdoba: aumentarán las descargas al río Sinú por el incremento de las lluvias (El Heraldo,
+      2022-11-28)"
+    supports:
+      Higher discharges announced 28 Nov 2022; inflow 777.70 m3/s, turbine discharge 486.30 m3/s;
+      yellow alert municipalities
+    verification: search summary; the same figures were returned by two separate searches of the same article
+  - url: https://www.eluniversal.com.co/regional/cordoba/2022/11/30/cordoba-en-alerta-naranja-por-incrementos-en-el-sinu/
+    title: Córdoba en alerta naranja por incrementos en el Sinú (El Universal, 2022-11-30)
+    supports:
+      Orange alert; Urrá technical manager says the reservoir is overflowing through the spillway
+      (Nov 2022)
+    verification:
+      search summary only, single source (one summary misdated it to December 2022, but the
+      URL date is 2022-11-30)
+  - url: https://www.infobae.com/colombia/2025/07/13/alerta-roja-en-el-embalse-de-urra-por-incremento-critico-del-caudal-y-riesgo-de-desbordamiento-en-el-rio-sinu-en-cordoba/
+    title: Alerta roja en el embalse de Urrá por incremento crítico del caudal (Infobae, 2025-07-13)
+    supports:
+      Reservoir at 129.9 masl on 13 Jul 2025, overflow crest 130.5 masl; flows above 700 m3/s possible;
+      wet 2025 with 26 floods above 700 m3/s
+    verification:
+      search summary only; the July 2025 alert is also reported by El Heraldo (two results agree
+      that the event happened, but disagree on the alert colour)
+  - url: https://www.elheraldo.co/cordoba/2025/07/21/lluvias-han-causado-aumento-de-caudales-en-embalse-de-urra/
+    title: Lluvias han causado aumento de caudales en embalse de Urrá (El Heraldo, 2025-07-21)
+    supports: July 2025 inflow rise from 470 to 836 m3/s (82%)
+    verification:
+      search summary combined several results; attribution to this article is likely but not
+      certain
+  - url: https://www.elheraldo.co/cordoba/2025/07/31/urra-anuncia-la-disminucion-en-la-generacion-de-energia
+    title: Urrá anuncia la disminución en la generación de energía (El Heraldo, 2025-07-31)
+    supports:
+      Orange operational alert declared 12 Jul and de-escalated 22 Jul 2025; generation cut to 3
+      of 4 units from 1-2 Aug 2025; rainy season through November
+    verification: search summary; the 12 Jul / 22 Jul dates appeared in two separate searches
+  - url: https://www.infobae.com/colombia/2025/11/30/declaran-alerta-naranja-en-ocho-municipios-de-cordoba-por-riesgo-de-rebose-en-el-embalse-urra-i/
+    title:
+      Declaran alerta naranja en ocho municipios de Córdoba por riesgo de rebose en el embalse Urrá
+      I (Infobae, 2025-11-30)
+    supports: "29 Nov 2025 bulletin: reservoir above 130.00 masl; CVS orange alert in eight named municipalities"
+    verification:
+      two results agree on the content (Infobae and an El Tiempo/La Razón/Hoy Diario del Magdalena
+      summary); that second summary misdated it to 2022, but 29 Nov was a Saturday in 2025, not in 2022
+  - url: https://larazon.co/rebose-del-embalse-urra-un-mecanismo-natural-de-seguridad-ante-lluvias-extremas/
+    title: "Rebose del embalse Urrá: un mecanismo natural de seguridad ante lluvias extremas (La Razón)"
+    supports:
+      Spillway has no gates; water overflows by gravity at 130.5 masl; spillway capacity about 9,000
+      m3/s
+    verification: search summary merged several La Razón/El Tiempo results; single-source claims
+  - url: https://www.diariodelsur.com.co/?p=490281
+    title:
+      "Alto riesgo de inundaciones: Urrá confirma descargas extraordinarias al Sinú y activa alerta
+      (Diario del Sur)"
+    supports:
+      Discharge channel capacity 700 m3/s; spillway capacity 9,500 m3/s (differs from La Razón's
+      9,000)
+    verification: search summary only, single source; capacities conflict between sources
+  - url: https://cpt.org/2013/04/24/colombia-navigating-future-around-megaproject
+    title: "COLOMBIA: Navigating the future around a megaproject (CPT)"
+    supports:
+      Puerto Frasquillo is on the reservoir shore about 45 min by road from Tierralta (reservoir
+      side, upstream of the reach)
+    verification: search summary only
+  - url: https://cvs.gov.co/web/wp-content/docs/gestion_riesgo/Actualizaci%C3%B3n_Protocolo_Rio_Sin%C3%BA_2020.pdf
+    title: Actualización Protocolo Río Sinú 2020 (CVS)
+    supports: CVS as the regional authority running the Río Sinú risk protocol
+    verification: search result title only
+  - url: https://larazon.co/embalse-de-urra-comienza-a-rebosar-yse-activa-alerta-roja-operativa/
+    title: Embalse de Urrá comienza a rebosar y se activa alerta roja operativa (La Razón)
+    supports:
+      "Out-of-window context: reservoir above 130.50 masl from 1 Feb (2026), red operational alert,
+      generation suspended from 4 Feb"
+    verification: search summary only; the year is inferred from related 2026-dated results
+unverified:
+  - "Dam coordinates 8.012,-76.2021 (GEM) and 8.0155,-76.2049 (GEO): two databases, seen only in search
+    summaries, possibly drawing on the same underlying source"
+  - "Upstream anchor coordinates (8.014,-76.203): taken from the dam coordinates, no separate outlet coordinates
+    found"
+  - "Downstream anchor coordinates (8.103,-76.138): estimated by linear interpolation between the dam and
+    Carrizola, not stated by any source"
+  - 'Carrizola coordinates 8°09''40.8"N 76°05''44.8"W (8.1613,-76.0958): single paper (scielo 2015) via
+    search summary'
+  - "Reach length 22 km: a design choice; along-river distance not measured"
+  - "Tierralta town coordinates 8.1736,-76.0592: Wikipedia via search summary only"
+  - "Uninorte study: 62 km reach, discharge at about 69 masl, 'Puente Pacheco' station about 100 m from
+    discharge, 'Río Nuevo' station at 36.13 masl: single summary"
+  - "Name conflict: 'Puerto Pacheco' (World Construction Network, dam site) vs 'Puente Pacheco' (Uninorte,
+    hydrometric station)"
+  - "River width about 160 m at Montería: single summary, not at the reach"
+  - "Width increase of 17% below the dam (MDPI 2023): summary only, no absolute widths"
+  - "Spillway overflow ('rebose por vertedero') reported 2022-11-30: single source (El Universal)"
+  - "Inflow 777.70 m3/s and turbine discharge 486.30 m3/s on 2022-11-28: single article (El Heraldo)"
+  - "Reservoir level 129.9 masl on 2025-07-13 and overflow crest 130.5 masl: Infobae summary (the 130.5
+    crest also appears in La Razón and Blu Radio summaries)"
+  - "Alert colour for July 2025: orange operational alert (El Heraldo) vs red alert (Infobae headline)"
+  - "July 2025 inflow rise 470 -> 836 m3/s: single summary"
+  - "Generation reduced to 3 of 4 units from 2025-08-01/02: single source (El Heraldo 2025-07-31)"
+  - "26 floods with daily inflows above 700 m3/s in 2025: single summary (Infobae)"
+  - "Discharge channel capacity 700 m3/s; spillway capacity 9,500 m3/s (Diario del Sur) vs 9,000 m3/s (La
+    Razón): conflicting single summaries"
+  - "Spillway has no gates (free overflow): single summary (La Razón)"
+  - "Reservoir area 7,400 ha: single summary"
+  - "Construction by Skanska with Conciviles: single summary"
+  - "Río Tay and Quebrada de Curucito/Crucito as Sinú tributaries below the reservoir: summaries only, confluence
+    positions unknown, so not listed as confluences"
+  - "Out-of-window 2026-02-01 overflow and 2026-02-04 generation suspension: single summary, year inferred"
+  - Web-search budget ran out before intermediate named places (veredas or bridges about 15-25 km below
+    the dam) could be searched for
+  - "Upstream anchor: moved about 1 km from the dam toward the downstream anchor along a straight line,
+    not along the channel."

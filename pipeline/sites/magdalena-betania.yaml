@@ -1,0 +1,240 @@
+# Río Magdalena below the El Quimbo–Betania dam cascade (Hobo/Yaguará to above the Río Neiva confluence), Huila
+# Category A. Generated from the site research of 2026-10-07 (WebSearch summaries only; see docs/site-screening/report.md).
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: magdalena-betania
+name:
+  Río Magdalena below the El Quimbo–Betania dam cascade (Hobo/Yaguará to above the Río Neiva confluence),
+  Huila
+river: Río Magdalena
+category: A
+rationale:
+  Río Magdalena below the El Quimbo-Betania cascade (Huila). Public sources say El Quimbo releases
+  into the Betania reservoir, so the first free-flowing water below both dams starts at the Betania outlet
+  (Hobo/Yaguará); the reach runs about 20 km downstream and ends just above the Río Neiva confluence.
+  Flow reflects the combined operation of both plants; public sources date spillway-gate operations in
+  October 2022 and April-July 2025. Optional third dam kept alongside Urrá; the screening decides which,
+  if either, is observable.
+center:
+  lon: -75.38743
+  lat: 2.77287
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -75.47
+  - 2.68
+  - -75.3
+  - 2.88
+upstream_anchor:
+  lon: -75.42485
+  lat: 2.71575
+  description:
+    About 1 km below the Betania dam and powerhouse outlet, toward the downstream anchor (moved
+    off the dam so it snaps to the river, not the reservoir)
+  basis: estimated-from-Betania plant (GEM coordinates) and the downstream anchor
+  source_url: https://gem.wiki/Betania_hydroelectric_plant
+downstream_anchor:
+  lon: -75.35
+  lat: 2.83
+  description:
+    Río Magdalena just upstream of the Río Neiva confluence (right/east bank; the Río Neiva
+    drains Algeciras, Campoalegre and Rivera and joins the Magdalena at about 460 m a.s.l.). The position
+    is projected about 17 km straight-line (about 20 km along the river) NNE of the Betania plant toward
+    Neiva. No source states the confluence coordinates; correct it against the water mask, where the Neiva
+    confluence should be visible as a right-bank tributary entry.
+  basis:
+    estimated-from-Betania hydroelectric plant (gem.wiki coordinates 2.7082,-75.4298) and the source-stated
+    Río Neiva right-bank confluence at ~460 m a.s.l.
+  source_url: https://vlex.com.co/vid/resolucion-numero-2335-2022-927275320
+feature:
+  lon: -75.4298
+  lat: 2.7082
+  description:
+    Betania hydroelectric plant/dam (540 MW, operating since 1987, Enel), on the Río Magdalena
+    at the mouth of the Río Yaguará, Hobo/Yaguará, Huila. It is the downstream dam of the El Quimbo (2.45083
+    N, -75.56194 W, Gigante; 151 m CFRD, opened Nov 2015) -> Betania cascade; El Quimbo discharges into
+    the Betania reservoir.
+  basis: source-stated
+  source_url: https://gem.wiki/Betania_hydroelectric_plant
+confluences:
+  - name: Río Neiva
+    point:
+      lon: -75.35
+      lat: 2.83
+      description:
+        Río Neiva (74.75 km long; through Algeciras, Campoalegre, Rivera) joins the Magdalena
+        on the right bank at about 460 m a.s.l., at or just below the proposed downstream anchor; position
+        unconfirmed
+      basis:
+        estimated-from-Betania hydroelectric plant (gem.wiki coordinates) and source-stated confluence
+        elevation
+      source_url: https://vlex.com.co/vid/resolucion-numero-2335-2022-927275320
+regime_changes: []
+rain_points:
+  - lon: -75.38743
+    lat: 2.77287
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+  - lon: -75.4298
+    lat: 2.7082
+    description: dam / pressure feature
+    basis: source-stated
+    source_url: https://gem.wiki/Betania_hydroelectric_plant
+operator: Enel Colombia (formerly Emgesa) operates both El Quimbo and Betania, per public sources.
+regulator:
+  ANLA follows El Quimbo's environmental licence, per public sources; no source found naming
+  the licensing authority for Betania.
+backwater_note:
+  El Quimbo's reservoir is about 55 km long at its normal maximum level (720 m a.s.l.).
+  El Quimbo's outflow and the Río Páez (about 1.3 km below the El Quimbo dam) both enter the tail of the
+  Betania reservoir, so the Magdalena between the two dams is effectively reservoir or backwater, and
+  no free-flowing reach exists immediately below El Quimbo. The Betania reservoir ends at the Betania
+  dam (Hobo/Yaguará, 2.7082 N, -75.4298 W). The study reach starts below this dam, so it lies entirely
+  outside both reservoirs and their backwater. Downstream municipalities named during gate operations
+  are Hobo, Campoalegre, Rivera, Yaguará, Palermo, Aipe, Villavieja and Neiva.
+river_width_note:
+  unknown. No search result stated a width for the Magdalena below Betania. Discharges
+  reported for the reach (about 975 m3/s expected on 2025-04-30; about 2,000 m3/s released on 2025-07-15)
+  suggest the channel is well over 50 m, but this is an inference. Confirm with the Sentinel-2 water mask,
+  especially at low-release periods (low-dispatch days, 2024 dry season).
+climate_note:
+  No source found that describes climate or cloudiness for this reach. The sources describe
+  high-inflow rainy episodes in mid-October 2022, late April 2025, and a persistent rainy period (ola
+  invernal) in June-July 2025, so expect cloud-limited Sentinel-2 coverage around those dates. Cloud frequency
+  is unsourced and should be measured from the scene catalogue (scene cloud cover).
+citations:
+  - url: https://en.wikipedia.org/wiki/El_Quimbo_Dam
+    title: El Quimbo Dam (Wikipedia)
+    supports:
+      El Quimbo coordinates 2.45083 N, -75.56194 W; in Gigante, Huila; 151 m CFRD; construction
+      from Feb 2011; opened Nov 2015; about 69 km south of Neiva
+    verification: search summary only, page not opened; an alchetron mirror appeared in the same results
+  - url: https://docs.upme.gov.co/PromocionSector/ConvocatoriasSTN/UPME-05-2009/Anexo1B_Presentacion_EMGESA_Proyecto_Hidroelectrico_ElQuimbo.pdf
+    title: Anexo 1B Presentación EMGESA Proyecto Hidroeléctrico El Quimbo (UPME)
+    supports:
+      El Quimbo dam about 1,300 m upstream of the Páez-Magdalena confluence; reservoir 55 km long
+      at 720 m a.s.l., 4 km maximum width; Emgesa as developer
+    verification: search summary only, page not opened
+  - url: https://enel.com.co/es/conoce-enel/enel-generacion/el-quimbo/obras-represa-el-quimbo.html
+    title: Obras represa El Quimbo (Enel Colombia)
+    supports:
+      Dam and powerhouse in Gigante; El Quimbo lies upstream of the Betania reservoir; powerhouse
+      about 230 m from the dam base; El Quimbo water discharges into the Betania reservoir
+    verification:
+      search summary only; the discharge-into-Betania statement came from a summary that mixed
+      this page and the UPME presentation, not attributed to one page
+  - url: https://gem.wiki/Betania_hydroelectric_plant
+    title: Betania hydroelectric plant (Global Energy Monitor wiki)
+    supports:
+      Betania coordinates 2.7082, -75.4298 on the Río Magdalena, Hobo, Huila; 540 MW; operating
+      since 1987; owner/operator Enel Generación; 72 m gross head
+    verification: search summary only; appeared in two searches but it is the same single source
+  - url: https://en.wikipedia.org/wiki/Yaguar%C3%A1
+    title: Yaguará (Wikipedia)
+    supports:
+      Betania reservoir lies within Yaguará; Betania dam built where the Río Yaguará empties into
+      the Magdalena; Yaguará town at 2.66611 N, -75.5186 W
+    verification: search summary only, page not opened
+  - url: https://enel.com.co/content/dam/enel-co/español/7-prensa/2022/octubre/operacion-controlada-betania/enel-colombia-opera-de-manera-controlada-y-preventiva-las-compuertas-de-la-central-hidroelectrica-de-betania.pdf
+    title:
+      Enel Colombia opera de manera controlada y preventiva las compuertas de la central hidroeléctrica
+      de Betania (Oct 2022)
+    supports:
+      Betania gate operation from 06:00 on 2022-10-17; reasons (reservoir level rise, low dispatch);
+      downstream advisory
+    verification: search summary only, single source
+  - url: https://www.enel.com.co/content/dam/enel-co/español/7-prensa/2022/octubre/operación-compuertas-quimbo/enel-colombia-opera-de-manera-controlada-y-preventiva-las-compuertas-de-la-central-hidroelectrica-de-quimbo.pdf
+    title:
+      Enel Colombia opera de manera controlada y preventiva las compuertas de la central hidroeléctrica
+      de Quimbo (Oct 2022)
+    supports: El Quimbo gate operation in October 2022
+    verification: result title and URL path only; content not summarized
+  - url: https://www.enel.com.co/content/dam/enel-co/español/7-prensa/2025/abril/embalses-neiva/aumento-caudales-betania.pdf
+    title: Aumento caudales Betania (Enel, April 2025)
+    supports:
+      2025-04-29 notice that Betania gates may open; 2025-04-30 partial, gradual opening from about
+      10:00
+    verification:
+      two results agree (Enel April and May 2025 PDFs plus Blu Radio) on the 2025-04-30 opening;
+      search summaries only
+  - url: https://www.enel.com.co/content/dam/enel-co/español/7-prensa/2025/mayo/compuertas-betania/enel-colombia-confirma-la-apertura-de-compuertas-en-betania.pdf
+    title: Enel Colombia confirma la apertura de compuertas en Betania (May 2025)
+    supports:
+      Partial and gradual Betania gate opening on 2025-04-30 to control reservoir level and damp
+      Páez floods
+    verification: search summary; agrees with the April 2025 Enel PDF and Blu Radio
+  - url: https://www.bluradio.com/nacion/huila-en-maxima-alerta-por-incremento-de-lluvias-y-creciente-del-rio-magdalena-rg10
+    title: Huila en máxima alerta por incremento de lluvias y creciente del río Magdalena (Blu Radio)
+    supports:
+      Expected Magdalena flow of about 975 m3/s with the Betania gate opening; Neiva contingency
+      plan; Huila risk office monitored downstream municipalities
+    verification:
+      search summary only; the 975 m3/s figure appears in summaries that may draw on this one
+      source
+  - url: https://www.hsbnoticias.com/?p=209565
+    title: Alerta en Betania (HSB Noticias)
+    supports:
+      "Downstream municipalities affected/monitored: Hobo, Campoalegre, Rivera, Yaguará, Palermo,
+      Aipe, Villavieja, Neiva"
+    verification: search summary only (combined with Blu Radio in one summary)
+  - url: https://www.enel.com.co/content/dam/enel-co/espa%C3%B1ol/enel-coraz%C3%B3n-de-cundinamarca/boletines/2025/boletin-huila-julio.pdf
+    title: Boletín Huila julio 2025 (Enel)
+    supports:
+      June-July 2025 gate openings at El Quimbo and Betania; peak inflows about 4,279.25 m3/s (Betania)
+      and 2,526.74 m3/s (El Quimbo)
+    verification: search summary only, single source
+  - url: https://www.enel.com.co/content/dam/enel-co/español/7-prensa/2025/julio/huila/aumento-caudales-betania.pdf
+    title: Aumento caudales Betania (Enel, July 2025)
+    supports: 2025-07-15 increase of Betania discharges to about 2,000 m3/s
+    verification: search summary only, single source
+  - url: https://www.enel.com.co/content/dam/enel-co/español/historias/2025/julio/cierre-compuertas-betania-quimbo/enel-colombia-confirma-el-cierre-de-compuertas-centrales-el-quimbo-y-betania.pdf
+    title: Enel Colombia confirma el cierre de compuertas centrales El Quimbo y Betania (July 2025)
+    supports: 2025-07-25 closure of gates at both plants after about two months of operations
+    verification: search summary only, single source
+  - url: https://www.anla.gov.co/proyectos-de-interes-en-seguimiento/pis-proyecto-hidroelectrico-el-quimb
+    title: "ANLA - Proyecto de interés en seguimiento: Proyecto Hidroeléctrico El Quimbo"
+    supports: ANLA follows up the El Quimbo project (environmental authority)
+    verification: result title and URL only
+  - url: https://vlex.com.co/vid/resolucion-n-00899-gaceta-905367065
+    title: Resolución N° 00899 de la Gaceta Ambiental ANLA, 04-05-2022 (vLex)
+    supports: ANLA resolution related to El Quimbo dated 2022-05-04
+    verification: result title only; subject not summarized
+  - url: https://vlex.com.co/vid/resolucion-numero-2335-2022-927275320
+    title: Resolución número 2335 de 2022 (vLex)
+    supports:
+      Río Neiva rises in Algeciras at about 3,100 m, crosses Algeciras, Campoalegre and Rivera,
+      joins the Magdalena on the right bank at about 460 m a.s.l.; 74.75 km long
+    verification:
+      two searches returned the same statement from this resolution family (2335/2022, 3113/2022
+      and others); issuing authority not stated in the summary
+unverified:
+  - El Quimbo dam coordinates 2.45083 N, -75.56194 W (one search summary of Wikipedia)
+  - Betania plant coordinates 2.7082, -75.4298 (single source, gem.wiki; used as the feature and the upstream
+    anchor; exact tailrace/spillway outlet position not located)
+  - Yaguará town coordinates 2.66611 N, -75.5186 W (one summary, Wikipedia)
+  - "Downstream anchor 2.83 N, -75.35 W: estimated projection, not stated by any source"
+  - "Río Neiva confluence position and its distance below Betania (about 20-25 km): estimate only; the 460
+    m a.s.l. elevation and 74.75 km length come from one resolution text"
+  - Río Páez confluence coordinates 2.462 N, -75.555 W (estimated from the El Quimbo coordinates plus the
+    1.3 km offset)
+  - Reach length about 20 km (estimate)
+  - "River width: unknown, no source"
+  - El Quimbo powerhouse about 230 m from the dam base, and El Quimbo discharging into the Betania reservoir
+    (one summary, page not identified)
+  - Betania 72 m gross head, 540 MW, 1,971 million m3 (gem.wiki only)
+  - 975 m3/s expected Magdalena flow on 2025-04-30 (summaries probably from one source)
+  - 2,000 m3/s Betania discharge on 2025-07-15 (one Enel PDF summary)
+  - Peak inflows 4,279.25 m3/s (Betania) and 2,526.74 m3/s (El Quimbo), June-July 2025 (one Enel bulletin
+    summary)
+  - 2025-07-25 gate-closure date (one Enel PDF summary)
+  - 2022-10-17 06:00 Betania gate operation (one Enel PDF summary)
+  - October 2022 El Quimbo gate operation (document title only)
+  - ANLA Resolución 00899 of 2022-05-04 and its relation to El Quimbo (title only)
+  - "Regional CAR (CAM) and the licensing authority for Betania: not confirmed"
+  - El Quimbo reservoir 55 km length at 720 m a.s.l. (one summary of the UPME/Emgesa presentation)
+  - "Non-sourced figures used only in reasoning: Betania normal reservoir level about 561 m a.s.l.; Neiva
+    about 2.93 N, -75.28 W"
+  - "Upstream anchor: moved about 1 km from the dam toward the downstream anchor along a straight line,
+    not along the channel."
+  - Río Yaguará enters the Betania reservoir at the dam (above the reach); left out of the confluence list.

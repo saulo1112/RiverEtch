@@ -1,0 +1,337 @@
+# Río Cauca below Hidroituango: from the powerhouse discharge outlets and Río Ituango confluence to the planned Espíritu Santo dam site
+# Category A. Generated from the site research of 2026-10-07 (WebSearch summaries only; see docs/site-screening/report.md).
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: cauca-hidroituango
+name:
+  "Río Cauca below Hidroituango: from the powerhouse discharge outlets and Río Ituango confluence
+  to the planned Espíritu Santo dam site"
+river: Río Cauca
+category: A
+rationale:
+  "Río Cauca below Hidroituango (Ituango/Briceño, Antioquia), from just below the powerhouse
+  discharge outlets and the Río Ituango confluence toward the planned Espíritu Santo site, about 20 km
+  through the Cauca canyon. Public sources date changes of operating regime in the study window (first
+  generation in November 2022, units 3 and 4 in commercial operation at the end of October 2023); stage-2
+  baselines are split at those dates. No source states the canyon channel width; the water mask decides.
+  Hypothesis under test: reservoir operations give discrete, datable turbidity changes."
+center:
+  lon: -75.5735
+  lat: 7.1835
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -75.67
+  - 7.12
+  - -75.475
+  - 7.25
+upstream_anchor:
+  lon: -75.654
+  lat: 7.136
+  description:
+    Hidroituango powerhouse discharge-tunnel outlets, just below the Río Ituango confluence.
+    Sources say the dam is immediately upstream of the Río Ituango mouth and the discharge tunnels return
+    water to the Cauca about 1,400 m downstream of the intakes. The point is placed about 1.2 km down-valley
+    from the source-stated dam coordinates, toward Puerto Valdivia. Start the analysis about 1 km below
+    the spillway plunge pool to avoid whitewater.
+  basis:
+    estimated-from-Hidroituango dam (source-stated 7.1306 N, 75.6635 W) and the source-stated ~1.4
+    km outlet offset
+  source_url: https://www.medellin.gov.co/es/sala-de-prensa/noticias/hidroituango-es-pura-energia-y-confianza-para-colombia/
+downstream_anchor:
+  lon: -75.493
+  lat: 7.231
+  description:
+    Site of the planned Espíritu Santo hydroelectric project (not built; EPM is studying reactivation).
+    Its EIA and BNamericas place it about 13 km upstream of Puerto Valdivia and 24 km downstream of Hidroituango;
+    El Colombiano says about 18 km. The point is interpolated along the dam-to-Puerto Valdivia line at
+    about 0.64 of the 38 km canyon. Puerto Valdivia bridge is source-stated at 7.287532 N, 75.396959 W.
+  basis:
+    estimated-from-Puerto Valdivia bridge (bridgemeister 7.287532 N, 75.396959 W) and Hidroituango
+    dam coordinates, using the source-stated 13 km above Puerto Valdivia / 24 km below Ituango distances
+  source_url: https://ipt.biodiversidad.co/permisos/resource?r=1387_eia_ph_espiritu_santo
+feature:
+  lon: -75.6635
+  lat: 7.1306
+  description:
+    Hidroituango (Ituango Dam), a 225 m embankment dam on the Río Cauca in the Cañón del Cauca.
+    The main works are in Ituango and Briceño municipalities, about 170 km from Medellín. Mean Cauca flow
+    at the site is about 1,010 m3/s. Wikipedia gives 7.1305667 N, 75.663528 W; GEM wiki gives 7.1347,
+    -75.6624, which agrees within about 0.5 km.
+  basis: source-stated
+  source_url: https://en.wikipedia.org/wiki/Ituango_Dam
+confluences:
+  - name: Río Ituango
+    point:
+      lon: -75.66
+      lat: 7.134
+      description:
+        Río Ituango (left bank). It joins the Cauca immediately downstream of the dam, at the
+        head of the reach; the powerhouse discharge tunnels return water just below this confluence.
+      basis:
+        estimated-from-Hidroituango dam (source-stated coordinates; sources say the dam is immediately
+        upstream of the Río Ituango mouth)
+      source_url: https://hidroituango.com.co/en/proyecto
+regime_changes:
+  - date: "2022-11-26"
+    precision: day
+    description:
+      "Unit 1 synchronized: first generation; part of the Cauca flow starts passing through the
+      turbines and discharge tunnels instead of the spillway (public sources)."
+    source_url: https://forbes.co/actualidad/epm-confirmo-que-primera-turbina-de-hidroituango-fue-sincronizada-con-exito
+  - date: "2023-10-31"
+    precision: day
+    description: Units 3 and 4 in commercial generation (1,200 MW in total), per public sources.
+    source_url: https://www.valoraanalitik.com/turbinas-3-y-4-de-hidroituango-ya-generan-energia-de-manera-comercial/
+rain_points:
+  - lon: -75.5735
+    lat: 7.1835
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+  - lon: -75.6635
+    lat: 7.1306
+    description: dam / pressure feature
+    basis: source-stated
+    source_url: https://en.wikipedia.org/wiki/Ituango_Dam
+operator:
+  Empresas Públicas de Medellín (EPM) operates the plant; the owner is Hidroeléctrica Ituango
+  S.A. E.S.P., per public sources.
+regulator:
+  "ANLA (environmental licence): Resolution 820 of 2018 imposed a preventive measure, lifted
+  by Resolution 457 of 13 March 2025, per public sources."
+backwater_note:
+  The reservoir is about 79 km long (one summary also says 78 km) and lies entirely upstream
+  (south) of the dam, reaching up the canyon through Toledo, Sabanalarga, Peque, Liborina and Buriticá.
+  The proposed reach starts below the dam and the powerhouse outlets, so it is outside the reservoir and
+  its backwater. The AOI's SW corner includes the dam and possibly a little reservoir water just upstream
+  of the dam axis; mask out water upstream of the dam. The planned Espíritu Santo project, 18-24 km downstream,
+  would impound this reach if ever built, but it is not built (EPM is only studying reactivation), so
+  no backwater exists in the reach for 2022-2025.
+river_width_note:
+  unknown. No search result gives a channel width for the Cauca between Hidroituango and
+  Puerto Valdivia. Sources describe this stretch as a narrow, V-shaped canyon (about 38 km from the dam
+  to Puerto Valdivia). The only nearby figure is the 135 m span of the old suspension bridge between Ituango
+  and Briceño, now flooded inside the reservoir, which is not a width measurement. Mean flow is about
+  1,010 m3/s, so the channel is probably above 50 m at normal flow, but it may approach the ~50 m Sentinel-2
+  limit at low flow (e.g. Sep 2023, when the spillway was closed) and in tight canyon bends. Confirm with
+  the water mask.
+climate_note:
+  "The Colombian Andes have a bimodal rainfall regime with rainy seasons in April-May and
+  October-November (Crisis24; bimodal pattern for the Cauca basin at 4-7°N). Climate records show Ituango
+  averaging about 630 mm with 27 rain days in May (weatherapi, single source). Annual totals for Briceño
+  conflict between sources (6,528.7 mm in one, 1,254 mm in another). The UdeA describes the Cauca canyon
+  grading from semi-desert near Santa Fe de Antioquia to rainy country at Valdivia, so this reach is at
+  the wet end. Expect frequent cloud and few clear Sentinel-2 scenes. The idea that the clearest windows
+  are likely Dec-Mar and Jun-Aug is my inference, not sourced. Hydrologic context: very low inflows in
+  Sep 2023 (spillway closed) and the 11 Apr 2025 flood peak."
+citations:
+  - url: https://en.wikipedia.org/wiki/Ituango_Dam
+    title: Ituango Dam (Wikipedia)
+    supports:
+      Dam coordinates 7.1305667 N, 75.663528 W; on the Cauca near Ituango; Ituango and Briceño municipalities;
+      mean flow 1,010 m3/s; 8 x 307 MW units
+    verification: search summary only, page not opened
+  - url: https://gem.wiki/Hidroituango_hydroelectric_plant
+    title: Hidroituango hydroelectric plant (GEM wiki)
+    supports: Coordinates 7.1347, -75.6624, agreeing with Wikipedia within about 0.5 km
+    verification: search summary only; two independent results agree on position
+  - url: https://hidroituango.com.co/en/proyecto
+    title: The Hidroituango Project (project site)
+    supports:
+      Location in the Cañón del Cauca, Ituango/Briceño; dam immediately upstream of the Río Ituango
+      mouth
+    verification:
+      search summary only; the Ituango-confluence statement also appears in the medellin.gov.co
+      result
+  - url: https://www.medellin.gov.co/es/sala-de-prensa/noticias/hidroituango-es-pura-energia-y-confianza-para-colombia/
+    title: Hidroituango es pura energía y confianza para Colombia (Alcaldía de Medellín)
+    supports:
+      Dam immediately upstream of the Río Ituango mouth; discharge tunnels return water about 1,400
+      m downstream of the intakes; reservoir about 79 km; 225 m dam; about 170 km from Medellín
+    verification: search summary only; the 1,400 m and 79 km figures each come from one summary
+  - url: https://es.mongabay.com/2018/06/riesgo-por-hidroituango-preocupa-en-colombia/
+    title: Riesgo por Hidroituango preocupa en Colombia (Mongabay)
+    supports: Puerto Valdivia is about 38 km downstream of the dam and is the nearest settlement downstream
+    verification: search summary only; agrees with Vanguardia
+  - url: https://www.vanguardia.com/colombia/que-es-lo-que-pasa-con-hidroituango-y-el-rio-cauca-aca-le-explicamos-BJ469388
+    title: Qué es lo que pasa con Hidroituango y el río Cauca (Vanguardia)
+    supports:
+      Canyon spans 38 km from the dam site to Puerto Valdivia; main works between Ituango and Puerto
+      Valdivia
+    verification: search summary only; two independent results agree
+  - url: https://m.bridgemeister.com/bridge.php?bid=3601
+    title: "Bridgemeister: Remolino - Puerto Valdivia suspension bridge"
+    supports:
+      Cauca crossing at Puerto Valdivia, 7.287532 N, 75.396959 W; bridge removed 2017-2019, replacement
+      under construction mid-2022
+    verification: search summary only; a second result gives 7.289 N, 75.398 W
+  - url: https://www.citypopulation.de/en/colombia/antioquia/05854__valdivia
+    title: Valdivia (Antioquia) population/geo listing
+    supports: About 7.289 N, 75.398 W for Puerto Valdivia, a population centre of 1,172 in 2018
+    verification:
+      search summary only; the summary said 'Valdivia', so which listed page holds the coordinate
+      is unclear
+  - url: https://www.elcolombiano.com/antioquia/espiritu-santo-la-hidroelectrica-que-revivira-epm-en-el-rio-cauca-LB28291930
+    title: "Espíritu Santo revive: la central vecina de Hidroituango (El Colombiano)"
+    supports:
+      Planned Espíritu Santo central about 18 km downstream of Ituango, before Puerto Valdivia;
+      uses the Río Espíritu Santo confluence; not built, EPM studying reactivation
+    verification: search summary only; the distance differs from the EIA's 24 km
+  - url: https://ipt.biodiversidad.co/permisos/resource?r=1387_eia_ph_espiritu_santo
+    title: Estudio de Impacto Ambiental Proyecto Hidroeléctrico Espíritu Santo (SiB Colombia)
+    supports:
+      Espíritu Santo works in Briceño/Ituango, about 13 km upstream of Puerto Valdivia and 24 km
+      downstream of Ituango
+    verification: search summary only; BNamericas result consistent
+  - url: https://www.bnamericas.com/en/project-profile/espiritu-santo-hydroelectric-plant
+    title: Central Hidroeléctrica Espíritu Santo (BNamericas)
+    supports:
+      Espíritu Santo location relative to Ituango and Puerto Valdivia; jurisdictions Briceño, Ituango,
+      Valdivia, Tarazá
+    verification: search summary only
+  - url: https://es.wikipedia.org/wiki/Brice%C3%B1o_(Antioquia)
+    title: Briceño (Antioquia) (Wikipedia ES)
+    supports:
+      Colonial port of Espíritu Santo at the Espíritu Santo-Cauca confluence, now vereda La Cristalina
+      of Briceño
+    verification: search summary only
+  - url: https://fishbrain.com/fishing-waters/FjPWjPZQ/rio-espiritu-santo
+    title: Río Espíritu Santo (Fishbrain listing)
+    supports: Río Espíritu Santo points at 7°16'0"N 75°25'0"W and 7°05'5"N 75°31'21"W
+    verification: search summary only; low-reliability source; which listing holds which point is unclear
+  - url: https://www.valoraanalitik.com/?p=315160
+    title: EPM cerró vertedero de Central Hidroituango por primera vez en 4 años (Valora Analitik)
+    supports:
+      Spillway fully closed the night of 9 Sep 2023 because of low inflow; left channel reopened
+      08:04 on 10 Sep
+    verification: search summary only; Radio Nacional and El Colombiano results agree
+  - url: https://radionacional.co/noticias-colombia/por-que-cerraron-el-vertedero-de-hidroituango
+    title: Por qué cerraron el vertedero de Hidroituango (Radio Nacional)
+    supports: Sep 2023 spillway closure
+    verification: search summary only; two independent results agree
+  - url: https://forbes.co/actualidad/epm-confirmo-que-primera-turbina-de-hidroituango-fue-sincronizada-con-exito
+    title: EPM confirmó que primera turbina de Hidroituango fue sincronizada con éxito (Forbes Colombia)
+    supports: Unit 1 synchronized at 21:47 on 26 Nov 2022
+    verification: search summary only, single summary
+  - url: https://www.valoraanalitik.com/asi-avanza-hidroituango-un-ano-encendido-primera-turbina/
+    title: Así avanza Hidroituango a un año del encendido de primera turbina (Valora Analitik)
+    supports: Units 1 and 2 in commercial operation on 30 Nov 2022 (CREG 194/20)
+    verification: search summary only; Portafolio and El Espectador results consistent
+  - url: https://www.portafolio.co/economia/infraestructura/hidroituango-lo-que-sigue-tras-entrar-en-operacion-574933
+    title: "Hidroituango: lo que sigue tras entrar en operación (Portafolio)"
+    supports: Start of operation of units 1-2 in late Nov 2022
+    verification: search summary only
+  - url: https://radionacional.co/noticias-colombia/epm-logro-sincronizar-la-unidad-3-de-generacion-de-hidroituango
+    title: EPM logró sincronizar la unidad 3 de generación de Hidroituango (Radio Nacional)
+    supports: Unit 3 synchronized on 22 Oct 2023
+    verification: search summary only; Forbes 2023-10-23 agrees
+  - url: https://forbes.co/2023/10/27/actualidad/hidroituango-entra-en-operacion-con-su-cuarta-turbina
+    title: Hidroituango entra en operación con su cuarta turbina (Forbes Colombia)
+    supports: Unit 4 synchronized on 26 Oct 2023; 1,200 MW total
+    verification: search summary only; Portafolio 591273 agrees
+  - url: https://www.valoraanalitik.com/turbinas-3-y-4-de-hidroituango-ya-generan-energia-de-manera-comercial/
+    title: Turbinas 3 y 4 de Hidroituango ya generan energía de manera comercial (Valora Analitik)
+    supports: Units 3 and 4 commercial on 31 Oct 2023; end of stage 1 at 1,200 MW
+    verification: search summary only; El Universal 2023-10-31 agrees
+  - url: https://www.eluniversal.com.co/colombia/2023/10/31/turbinas-3-y-4-de-la-central-hidroituango-ya-generan-energia-comercialmente/
+    title: Turbinas 3 y 4 de la central Hidroituango ya generan energía comercialmente (El Universal)
+    supports: Commercial operation of units 3-4 on 31 Oct 2023
+    verification: search summary only; two independent results agree
+  - url: https://www.valoraanalitik.com/segunda-etapa-de-hidroituango-entraria-en-operacion-en-diciembre-de-2027/
+    title: Segunda etapa de Hidroituango entraría en operación en diciembre de 2027 (Valora Analitik)
+    supports: Units 5-7 expected in H2 2027 and unit 8 in Q1 2028, so no new units in 2024-2025
+    verification: search summary only
+  - url: https://www.valoraanalitik.com/?p=404431
+    title: EPM taponó definitivamente el túnel de Hidroituango que causó emergencia en 2018 (Valora Analitik)
+    supports: Definitive plug of the right diversion tunnel on 19 Sep 2024
+    verification: search summary only; medellin.gov.co and Portafolio results agree
+  - url: https://www.medellin.gov.co/es/sala-de-prensa/noticias/epm-tapono-definitivamente-el-tunel-de-desviacion-derecho-de-hidroituango/
+    title: EPM taponó definitivamente el túnel de desviación derecho de Hidroituango (Alcaldía de Medellín)
+    supports: 19 Sep 2024 tunnel plug; plug dimensions 33 x 14 x 25 m
+    verification: search summary only; two independent results agree
+  - url: https://www.larepublica.co/empresas/la-anla-levanto-una-medida-preventiva-a-la-sociedad-hidroelectrica-4090552
+    title: La ANLA levantó una medida preventiva a la sociedad hidroeléctrica (La República)
+    supports:
+      ANLA lifted the preventive measure of 1 Jun 2018 (Res. 820) via Res. 457 of 13 Mar 2025; vegetation
+      removal authorized between elevations 408 and 420 m
+    verification: search summary only; Infobae 2025-03-20 agrees on the lifting
+  - url: https://www.infobae.com/colombia/2025/03/20/se-reactiva-hidroituango-epm-confirmo-que-la-hidroelectrica-reanudara-actividades-tras-decision-de-la-anla/
+    title: Se reactiva Hidroituango tras decisión de la ANLA (Infobae)
+    supports: March 2025 ANLA decision; ANLA as the regulator
+    verification: search result title/date only; two independent results agree
+  - url: https://www.anla.gov.co/noticias-anla/la-anla-aclara-que-hidroituango-esta-facultada-para-realizar-las-acciones-necesarias-para-alcanzar-el-total-de-su-capacidad-util
+    title: La ANLA aclara que Hidroituango está facultada para alcanzar su capacidad útil (ANLA)
+    supports: ANLA as the licensing and environmental authority
+    verification: search result title only, page not opened
+  - url: https://telemedellin.tv/?p=123635
+    title: "Telemedellín: Hidroituango and April 2025 flood"
+    supports:
+      "11 Apr 2025: flows of nearly 5,000 m3/s at Bolombolo; reservoir absorbed the peak; controlled
+      releases of about 3,000 m3/s; no downstream flooding"
+    verification:
+      search summary only; EPM's own 2026 page also cites the April 2025 event; figures come
+      from EPM statements
+  - url: https://www.epm.com.co/institucional/sala-de-prensa/noticias-y-novedades/epm-monitoreo-embalses-generacion-temporada-lluvias-2026/
+    title: EPM monitorea sus embalses en temporada de lluvias (EPM)
+    supports: April 2025 inflow of about 5,000 m3/s handled by spillway and controlled generation
+    verification: search summary only; operator source
+  - url: https://www.bloomberglinea.com/2022/11/01/epm-adjudico-a-schrader-camargo-la-terminacion-de-las-obras-de-hidroituango/
+    title: EPM adjudicó a Schrader Camargo la terminación de las obras de Hidroituango (Bloomberg Línea)
+    supports:
+      Schrader Camargo selected for remaining works for units 3-4; CCC Ituango contract ended 30
+      Nov 2022
+    verification: search summary only; Portafolio and La República results agree
+  - url: https://www.portafolio.co/economia/infraestructura/hidroituango-adjudican-a-schrader-camargo-las-turbinas-3-y-4-573384
+    title: "Hidroituango: adjudican a Schrader Camargo las turbinas 3 y 4 (Portafolio)"
+    supports: Contractor named for units 3-4 completion
+    verification: search result title only; two independent results agree
+  - url: https://crisis24.garda.com/fr/product/247856
+    title: Crisis24 alert (Colombia rainy seasons)
+    supports: Rainy seasons typically April-May and October-November
+    verification: search summary only
+  - url: https://www.weatherapi.com/history/may/q/ituango-512242
+    title: May Weather Averages for Ituango (weatherapi)
+    supports: About 630 mm and 27 rain days in May at Ituango
+    verification: search summary only, single low-reliability source
+  - url: https://www.udea.edu.co/wps/portal/udea/web/inicio/udea-noticias/udea-noticia/!ut/p/z0/fUy9DoIwEH4VF8amFbHqSBxMjIODMdDFXMpFT6EHpRAf36KDcXH58v1LIwtpHIx0hUDsoI66NPqy3mzTeZ6pg9KZVrk-ZstVuluczkrupflfiA907zqTS2PZBXwGWbTsA9RDhZAo6H_VjRv88AlnjgNZgj5R77WjiqfW127RE1dkGeoGGgjoE4W1sODYiRhFNlgQgdB7EDBiL9uHKV_NNNt0
+    title: El cañón del río Cauca, tierra de aves (Universidad de Antioquia)
+    supports: Canyon grades from semi-desert near Santa Fe de Antioquia to rainy country at Valdivia
+    verification: search summary only
+  - url: https://portal.amelica.org/ameli/journal/594/5943503005/5943503005.pdf
+    title: A case study in the Cauca River Canyon, Antioquia (AmeliCA)
+    supports: Cauca canyon is a narrow V-shaped canyon with steep slopes (width-risk caveat)
+    verification: search summary only
+  - url: https://www.bridgemeister.com/bridge.php?bid=7775
+    title: "Bridgemeister: Ituango-Briceño suspension bridge"
+    supports:
+      Cauca bridge between Ituango and Briceño with a ~135 m span, flooded behind the dam about
+      2018 (reservoir context, not a width measurement)
+    verification: search summary only
+unverified:
+  - "Upstream anchor 7.136 N, -75.654 W: estimated from the dam coordinates and the ~1.4 km outlet offset,
+    not source-stated"
+  - Discharge tunnels returning water ~1,400 m downstream of the intakes (single search summary, medellin.gov.co)
+  - "Downstream anchor 7.231 N, -75.493 W: interpolated estimate. The Espíritu Santo site distance conflicts:
+    24 km below Ituango / 13 km above Puerto Valdivia (EIA/BNamericas) vs 18 km (El Colombiano)"
+  - "Río Ituango confluence 7.134 N, -75.660 W: estimated from the dam position"
+  - "Río Espíritu Santo confluence ~7.2667 N, -75.4167 W: from a single Fishbrain listing that may not be
+    the mouth; it is unclear whether the confluence is inside the reach or about 4 km above Puerto Valdivia"
+  - "Puerto Valdivia coordinate 7.289 N, -75.398 W: the second source's summary attributed it to 'Valdivia,
+    Antioquia', so its page attribution is ambiguous (Bridgemeister gives 7.287532, -75.396959)"
+  - Reservoir length 79 km (one summary; 78 km also mentioned)
+  - Unit 1 synchronization at 21:47 on 26 Nov 2022 (single summary)
+  - "April 2025 figures (nearly 5,000 m3/s at Bolombolo, ~3,000 m3/s controlled releases): from Telemedellín
+    and EPM's own page, both reporting EPM statements"
+  - ANLA Res. 457 detail on vegetation removal between elevations 408 and 420 m (single summary)
+  - "Corantioquia's role (riparian permit and transfers): single summary"
+  - "Climate figures: Ituango May ~630 mm with 27 rain days (weatherapi); Briceño annual 6,528.7 mm vs 1,254
+    mm (conflicting)"
+  - Reach length ~20 km (estimate from the 38 km dam-to-Puerto Valdivia canyon and the Espíritu Santo site
+    distances)
+  - "River width: no source found"
+  - "Excluded: a result about the Cauca at a record low of 250 m3/s with Hidroituango on two units, which
+    one summary dated to 2024; the linked Telemedellín/Cambio items appear to be from Aug 2026, so it is
+    not used as a 2022-2025 event"
+  - Intermediate discharge tunnel environmental minimum of 450 m3/s and spillway capacity of 22,600 m3/s
+    (2018-2019 context, single summary each; not used)
