@@ -210,9 +210,12 @@ export const CAMERA = {
  * takes over (HeroHandle.dive).
  */
 export const DIVE = {
-  durationS: 3.2,
+  durationS: 2.6,
   // cubic-bezier: a slow start, then a long ease-out that settles on the site.
   ease: [0.5, 0, 0.1, 1],
+  // Share of the dive after which the map may take over: the ease-out's tail moves the camera by
+  // well under 1 %, so the crossfade can start without waiting for the last, still frames.
+  handoffAt: 0.94,
   // Share of the dive over which the satellite, orbit, scan overlays and atmosphere fade out (the
   // camera crosses the orbit and the atmosphere shell on the way down).
   fadeEnd: 0.35,

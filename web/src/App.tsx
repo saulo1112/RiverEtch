@@ -7,6 +7,7 @@ import { loadCaseMap } from "./features/case/loadMap.ts";
 import { markFlight } from "./features/case/qa.ts";
 import { ILLUSTRATIVE_CASE } from "./features/case/sample.ts";
 import { SkipButton } from "./features/case/SkipButton.tsx";
+import { DIVE } from "./features/hero/config.ts";
 import type { DiveHandle } from "./features/hero/globe.ts";
 import { Hero, type HeroApi } from "./features/hero/Hero.tsx";
 
@@ -53,7 +54,8 @@ export function App() {
   const [view, setView] = useState<View>(openCaseView ? "case" : "hero");
   const [flight, setFlight] = useState<Flight | null>(initialFlight);
   const [heroGone, setHeroGone] = useState(openCaseView);
-  const [diveDone, setDiveDone] = useState(false);
+  // The dive is close enough to its top-down pose for the map to take over.
+  const [atHandoff, setAtHandoff] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   // `?view=case` starts landed, like a skipped flight.
   const [skipped, setSkipped] = useState(openCaseView);
@@ -73,7 +75,24 @@ export function App() {
     markFlight("explore");
     const reduced = prefersReducedMotion();
     const target = { lat: site.center[1], lng: site.center[0], zoom: site.handoffZoom };
-    const dive = reduced ? null : (heroRef.current?.dive(target) ?? null);
+    // Once per flight, and only for the current one (a newer flight or Back replaces it).
+    let handedOver = false;
+    const reachHandoff = () => {
+      if (!handedOver && flightCount.current === id) {
+        handedOver = true;
+        markFlight("dive-handoff");
+        setAtHandoff(true);
+      }
+    };
+    const dive = reduced
+      ? null
+      : (heroRef.current?.dive(target, {
+          onProgress: (progress) => {
+            if (progress >= DIVE.handoffAt) {
+              reachHandoff();
+            }
+          },
+        }) ?? null);
     diveRef.current = dive;
     setFlight({
       id,
@@ -85,19 +104,14 @@ export function App() {
           ? FLIGHT.quickCrossfadeMs
           : FLIGHT.crossfadeMs,
     });
-    setDiveDone(dive === null);
+    setAtHandoff(dive === null);
     setMapReady(false);
     setSkipped(false);
     setShowSkip(false);
     setAnnouncement("");
     setView("flying");
-    void dive?.done.then(() => {
-      // Ignore a dive that a newer flight (or Back) has replaced.
-      if (flightCount.current === id) {
-        markFlight("dive-done");
-        setDiveDone(true);
-      }
-    });
+    // Also settles a dive that was cancelled or could not render.
+    void dive?.done.then(reachHandoff);
   };
 
   const skip = useCallback(() => {
@@ -160,7 +174,7 @@ export function App() {
           data={data}
           entrance={flight.entrance}
           handoffZoom={flight.handoffZoom}
-          go={diveDone && mapReady}
+          go={atHandoff && mapReady}
           crossfadeMs={flight.crossfadeMs}
           skip={skipped}
           onReady={() => {
