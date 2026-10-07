@@ -1,0 +1,1 @@
+event_id,site_id,date_start,date_end,event_type,confidence,status,scene_days,max_abs_z,signal,rain_coincident_scene,chance_rate,chance_windows,window_days

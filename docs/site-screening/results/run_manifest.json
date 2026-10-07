@@ -1,0 +1,31 @@
+{
+  "config_sha256": "3e44f89922bd15589730b081e3a3d64487d6b8efb705601f112e7b9186f0a3ab",
+  "events_sha256": "c393b879f0a4c46760703eb1dd64890b969b3c93f7b2e4b83d9f72adea723ee0",
+  "evidence_sha256": {
+    "cauca-hidroituango": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cauca-salvajina": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "magdalena-betania": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "sinu-urra": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "finished_utc": "2026-10-07T08:47:39+00:00",
+  "git_commit": "249ecf25ec2b3473baf0148ec05f305ca77dddfb",
+  "method_blob": "328974aa9e2a8df2af7916e45f7ef8d05af8c249",
+  "method_last_commit": "0545c9cdd9a8243b4b53025b8b2e089004e83db1",
+  "package_version": "0.1.0",
+  "period_end": "2025-12-31",
+  "period_start": "2022-01-01",
+  "ranking_fragile": false,
+  "read_error_count": 0,
+  "read_errors": [],
+  "recommended": null,
+  "runner_up": null,
+  "sites": [
+    "cauca-hidroituango",
+    "cauca-salvajina",
+    "magdalena-betania",
+    "sinu-urra"
+  ],
+  "source": "earth-search",
+  "stage2_sites": [],
+  "started_utc": "2026-10-07T08:37:16+00:00"
+}
