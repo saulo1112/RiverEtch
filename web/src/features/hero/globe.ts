@@ -41,7 +41,8 @@ import {
   type HeroEffect,
   type QualityName,
 } from "./config.ts";
-import { divePose, handoffFrame } from "./dive.ts";
+import { divePose } from "./dive.ts";
+import { handoffFrame } from "./handoff.ts";
 import { createSatellite, timeForOrbitOffset, type SatelliteRig } from "./satellite.ts";
 import { createScan, type ScanEffect } from "./scan.ts";
 import { DITHER_GLSL, SHOULDER_GLSL } from "./shaders.ts";
