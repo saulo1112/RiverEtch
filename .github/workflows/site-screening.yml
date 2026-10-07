@@ -83,7 +83,7 @@ jobs:
           restore-keys: screening-
 
       - name: Start from empty generated outputs
-        run: rm -rf ../docs/site-screening/results
+        run: rm -rf ../docs/site-screening/results ../docs/site-screening/results-posthoc
 
       - name: Run the screening
         env:
@@ -100,6 +100,24 @@ jobs:
           if [ "$STAGE1_ONLY" = "true" ]; then args+=(--stage1-only); fi
           uv run climate-pipeline screening "${args[@]}"
 
+      # Declared in method.md after the first real run; reported next to, never instead of, the
+      # pre-registered results. Reuses the SCL cache of the step above.
+      - name: Run the post-hoc secondary analysis
+        if: ${{ !cancelled() }}
+        env:
+          SITES: ${{ inputs.sites }}
+          START: ${{ inputs.start }}
+          END: ${{ inputs.end }}
+          SOURCE: ${{ inputs.source }}
+          STAGE1_ONLY: ${{ inputs.stage1_only }}
+        run: |
+          args=(--root .. --workers 12 --posthoc)
+          if [ -n "$SITES" ]; then args+=(--sites "$SITES"); fi
+          if [ -n "$START" ]; then args+=(--start "$START" --end "$END"); fi
+          if [ -n "$SOURCE" ]; then args+=(--source "$SOURCE"); fi
+          if [ "$STAGE1_ONLY" = "true" ]; then args+=(--stage1-only); fi
+          uv run climate-pipeline screening "${args[@]}"
+
       - name: Save the SCL and rain cache
         if: always()
         uses: actions/cache/save@v6
@@ -110,9 +128,11 @@ jobs:
       - name: Add the results to the job summary
         if: always()
         run: |
-          if [ -f ../docs/site-screening/results/results.md ]; then
-            cat ../docs/site-screening/results/results.md >> "$GITHUB_STEP_SUMMARY"
-          fi
+          for dir in results results-posthoc; do
+            if [ -f "../docs/site-screening/$dir/results.md" ]; then
+              cat "../docs/site-screening/$dir/results.md" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
 
       - name: Upload the outputs
         if: always()
@@ -121,6 +141,7 @@ jobs:
           name: site-screening-${{ github.run_id }}
           path: |
             docs/site-screening/results/
+            docs/site-screening/results-posthoc/
             pipeline/out/screening_stage1.csv
           if-no-files-found: warn
 
@@ -131,7 +152,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A ../docs/site-screening/results
+          git add -A ../docs/site-screening/results ../docs/site-screening/results-posthoc
           if git diff --cached --quiet; then
             echo "No output changes."
             exit 0
