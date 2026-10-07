@@ -28,6 +28,12 @@ def _parser() -> argparse.ArgumentParser:
     screening.add_argument("--start", type=date.fromisoformat, default=None)
     screening.add_argument("--end", type=date.fromisoformat, default=None)
     screening.add_argument("--stage1-only", action="store_true", help="skip stage 2")
+    screening.add_argument(
+        "--posthoc",
+        action="store_true",
+        help="the declared post-hoc variant (MNDWI mask fallback, observable rule); "
+        "results default to docs/site-screening/results-posthoc",
+    )
     screening.add_argument("--workers", type=int, default=8)
     screening.add_argument(
         "--results", type=Path, default=None, help="where generated tables go (default: docs)"
@@ -57,8 +63,11 @@ def main(argv: list[str] | None = None) -> int:
     from climate_pipeline.screening.run import default_paths, run_screening
 
     paths = default_paths(args.root.resolve())
-    if args.results is not None:
-        paths = type(paths)(**{**paths.__dict__, "results": args.results.resolve()})
+    results = args.results
+    if results is None and args.posthoc:
+        results = paths.results.parent / "results-posthoc"
+    if results is not None:
+        paths = type(paths)(**{**paths.__dict__, "results": results.resolve()})
     outputs = run_screening(
         paths,
         source_name=args.source,
@@ -66,6 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         period=(args.start, args.end) if args.start else None,
         stage2=not args.stage1_only,
         workers=args.workers,
+        posthoc=args.posthoc,
     )
     print(f"stage-2 sites: {', '.join(outputs.selected) or 'none'}; results in {paths.results}")
     return 0

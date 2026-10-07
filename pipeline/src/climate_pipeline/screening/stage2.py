@@ -12,17 +12,18 @@ import logging
 import math
 from collections.abc import Sequence
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from datetime import date, datetime
 
 import numpy as np
 from numpy.typing import NDArray
 
+from climate_pipeline.screening.bands import Reflectance, read_reflectance
 from climate_pipeline.screening.config import ScreeningConfig, SiteConfig
 from climate_pipeline.screening.mask import erode, upsample2
 from climate_pipeline.screening.rain import rain_context
-from climate_pipeline.screening.rio import AcquisitionReader, Grid
-from climate_pipeline.screening.stac import Acquisition, ScalingError, reflectance_scaling
+from climate_pipeline.screening.rio import AcquisitionReader
+from climate_pipeline.screening.stac import Acquisition
 from climate_pipeline.screening.stage1 import Stage1Result
 
 log = logging.getLogger(__name__)
@@ -33,8 +34,6 @@ SIGNALS = ("upstream", "downstream", "delta")
 MAD_TO_SIGMA = 1.4826
 
 FloatArray = NDArray[np.float64]
-Reflectance = NDArray[np.float32]
-"""Reflectance arrays are float32: a 10 m AOI band is tens of millions of values."""
 
 
 @dataclass(frozen=True)
@@ -93,22 +92,6 @@ class Stage2Scene:
 # ----------------------------------------------------------------------------------------------
 # Pixels to NDTI
 # ----------------------------------------------------------------------------------------------
-
-
-def to_reflectance(dn: NDArray[np.generic], scale: float, offset: float) -> Reflectance:
-    """Digital numbers to reflectance (0 is no data and becomes NaN).
-
-    Args:
-        dn: Digital numbers.
-        scale: From the item's ``raster:bands``.
-        offset: From the item's ``raster:bands``.
-
-    Returns:
-        Reflectance.
-    """
-    values = dn.astype(np.float32) * np.float32(scale) + np.float32(offset)
-    values[dn == 0] = np.nan
-    return values
 
 
 def repeat2(array: NDArray[np.generic]) -> NDArray[np.generic]:
@@ -274,36 +257,6 @@ def robust_z(
 # ----------------------------------------------------------------------------------------------
 # Orchestration
 # ----------------------------------------------------------------------------------------------
-
-
-def read_reflectance(
-    reader: AcquisitionReader, acquisition: Acquisition, asset: str, grid: Grid
-) -> tuple[Reflectance, list[str]]:
-    """Read one band as reflectance, scaling each item with its own metadata before merging.
-
-    Args:
-        reader: Cached band reader.
-        acquisition: The pass.
-        asset: ``red``, ``green`` or ``swir16``.
-        grid: Target grid.
-
-    Returns:
-        Reflectance (NaN = no data) and the problems met (items without scaling).
-    """
-    merged = np.full(grid.shape, np.nan, dtype=np.float32)
-    problems = []
-    for scene in acquisition.scenes:
-        try:
-            scale, offset = reflectance_scaling(scene, asset)
-        except ScalingError as error:
-            problems.append(str(error))
-            continue
-        single = replace(acquisition, scenes=(scene,))
-        dn, _ = reader.read(single, asset, grid)
-        values = to_reflectance(dn, scale, offset)
-        gap = np.isnan(merged) & np.isfinite(values)
-        merged[gap] = values[gap]
-    return merged, problems
 
 
 def measure_acquisition(

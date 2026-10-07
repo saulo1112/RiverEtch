@@ -105,3 +105,77 @@ def test_a_failed_site_still_gets_a_summary() -> None:
     result = failed_stage1(site, CONFIG, "error: OSError: unreachable")
     assert result.summary["geometry_failed"] == "error: OSError: unreachable"
     assert result.summary["acquisitions"] == 0
+
+
+def test_posthoc_mndwi_mask_recovers_a_river_scl_calls_soil(tmp_path: Path) -> None:
+    from datetime import UTC, datetime, timedelta
+
+    from climate_pipeline.screening.config import Citation, Point, SiteConfig
+    from climate_pipeline.screening.rio import AcquisitionReader, rowcol_lonlat, site_grid
+    from climate_pipeline.screening.rio import write_geotiff as write
+    from climate_pipeline.screening.stac import AssetRef, Scene
+    from climate_pipeline.screening.stage1 import run_stage1
+
+    bbox = (-76.70, 5.60, -76.57, 5.66)
+    grid = site_grid(bbox)
+    river = np.zeros(grid.shape, dtype=bool)
+    draw(river, [(grid.height // 2, 8), (grid.height // 2, grid.width - 8)], half=4)
+    fine = np.repeat(np.repeat(river, 2, axis=0), 2, axis=1)
+    write(tmp_path / "scl.tif", np.where(river, 5, 4).astype(np.uint8), grid)
+    # Turbid water: green 0.09 well above SWIR 0.01 (MNDWI > 0); land: SWIR above green.
+    green = np.where(fine, 0.09, 0.07)
+    swir = np.where(river, 0.01, 0.25)
+    write(
+        tmp_path / "green.tif", ((green + 0.1) / 1e-4).astype(np.uint16), grid.with_resolution(10.0)
+    )
+    write(tmp_path / "swir.tif", ((swir + 0.1) / 1e-4).astype(np.uint16), grid)
+    epsg = grid.epsg
+
+    class Source:
+        name = "local"
+
+        def search(self, *args: object) -> list[Scene]:
+            return [
+                Scene(
+                    item_id=f"S2A_X_{k}",
+                    datetime=datetime(2022, 1, 5, 15, tzinfo=UTC) + timedelta(days=10 * k),
+                    platform="sentinel-2a",
+                    mgrs_tile="18NUL",
+                    relative_orbit=25,
+                    processing_baseline=5.09,
+                    boa_offset_applied=True,
+                    cloud_cover=0.0,
+                    epsg=epsg,
+                    bbox=bbox,
+                    assets={
+                        "scl": AssetRef(str(tmp_path / "scl.tif"), None, None, 0, epsg),
+                        "green": AssetRef(str(tmp_path / "green.tif"), 1e-4, -0.1, 0, epsg),
+                        "swir16": AssetRef(str(tmp_path / "swir.tif"), 1e-4, -0.1, 0, epsg),
+                    },
+                )
+                for k in range(25)
+            ]
+
+        def sign(self, href: str) -> str:
+            return href
+
+    mid = grid.height // 2
+
+    def pt(col: int, text: str) -> Point:
+        lon, lat = rowcol_lonlat(grid, mid, col)
+        return Point(lon=lon, lat=lat, description=text, basis="synthetic")
+
+    site = SiteConfig(
+        id="synth-soil", name="Synthetic", river="Synthetic", category="A", rationale="test",
+        center=pt(grid.width // 2, "center"), aoi_bbox=bbox,
+        upstream_anchor=pt(10, "up"), downstream_anchor=pt(grid.width - 11, "down"),
+        rain_points=(pt(grid.width // 2, "reach center"),), operator="none", regulator="none",
+        citations=(Citation(url="https://example.test", title="t", supports="s",
+                            verification="v"),),
+    )  # fmt: skip
+    reader = AcquisitionReader(Source(), tmp_path / "cache")
+    primary = run_stage1(site, CONFIG, Source(), reader, None, workers=2)
+    assert primary.geometry.failed is not None and primary.mask_source == "scl"
+    posthoc = run_stage1(site, CONFIG.posthoc(), Source(), reader, None, workers=2)
+    assert posthoc.geometry.failed is None and posthoc.mask_source == "mndwi"
+    assert posthoc.summary["clear"] == 0 and posthoc.summary["observable"] == 25

@@ -82,7 +82,10 @@ def stage1_inputs(
         Score inputs.
     """
     s = result.summary
-    clear_days = [sc.datetime.date() for sc in result.scenes if sc.clear]
+    by_rule = cfg.score.scene_rule == "observable"
+    clear_days = [
+        sc.datetime.date() for sc in result.scenes if (sc.observable if by_rule else sc.clear)
+    ]
     scored = [e for e in events if is_scored(e, cfg.events, cfg.period.start, cfg.period.end)]
 
     def number(key: str) -> float:
@@ -103,6 +106,8 @@ def stage1_inputs(
         median_weaker_subreach_water_px_10m=number("median_weaker_subreach_water_px_10m"),
         confluence_inside=bool(s.get("confluence_inside", False)),
         events_with_clear_window=sum(1 for e in scored if observable(e, cfg.events, clear_days)),
+        observable=int(number("observable")),
+        median_weaker_subreach_valid_px_10m=number("median_weaker_subreach_valid_px_10m"),
     )
 
 
@@ -116,6 +121,7 @@ def run_screening(
     workers: int = 8,
     source: SceneSource | None = None,
     rain: OpenMeteoClient | None = None,
+    posthoc: bool = False,
 ) -> RunOutputs:
     """Run the screening and write its outputs.
 
@@ -128,12 +134,15 @@ def run_screening(
         workers: Parallel reads.
         source: Injected scene source (tests); built from the config otherwise.
         rain: Injected rain client (tests); built from the config otherwise.
+        posthoc: Run the declared post-hoc variant (MNDWI mask fallback, observable rule).
 
     Returns:
         The outputs (also written to disk).
     """
     started = datetime.now(UTC)
     cfg = load_screening_config(paths.config)
+    if posthoc:
+        cfg = cfg.posthoc()
     if period is not None:
         cfg = cfg.model_copy(
             update={"period": cfg.period.model_copy(update={"start": period[0], "end": period[1]})}
@@ -165,6 +174,7 @@ def run_screening(
     recommendation = recommend(scores)
     manifest: dict[str, object] = {
         "package_version": __version__,
+        "variant": "post-hoc (declared in method.md)" if posthoc else "pre-registered",
         "period_start": cfg.period.start.isoformat(),
         "period_end": cfg.period.end.isoformat(),
         "source": name,
@@ -281,7 +291,7 @@ def _figures(
     for label, scene in picks:
         top = max(abs(z) for z in scene.z.values() if math.isfinite(z))
         rain_note = ", rain-coincident" if scene.rain_coincident else ""
-        title = f"{label}: {scene.datetime.date()}, max |z| {top:.1f}{rain_note}"
+        title = f"{label}: {scene.datetime.date()}\nmax |z| {top:.1f}{rain_note}"
         panels.append(MapPanel(title, ndti_map(result, by_key[scene.key], reader, cfg)))
     subs = np.zeros(result.grid.shape, dtype=bool)
     for sub in result.geometry.subreaches:

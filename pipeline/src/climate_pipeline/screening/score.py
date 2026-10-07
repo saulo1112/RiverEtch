@@ -32,6 +32,8 @@ class SiteInputs:
     median_weaker_subreach_water_px_10m: float
     confluence_inside: bool
     events_with_clear_window: int
+    observable: int = 0
+    median_weaker_subreach_valid_px_10m: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -81,11 +83,21 @@ def site_terms(inputs: SiteInputs, cfg: ScreeningConfig) -> dict[str, float]:
         Terms by name.
     """
     w = cfg.width
-    feasibility = _clamp(inputs.median_weaker_subreach_water_px_10m / cfg.score.feasibility_px_full)
+    observable = cfg.score.scene_rule == "observable"
+    weaker_px = (
+        inputs.median_weaker_subreach_valid_px_10m
+        if observable
+        else inputs.median_weaker_subreach_water_px_10m
+    )
+    feasibility = _clamp(weaker_px / cfg.score.feasibility_px_full)
     if inputs.confluence_inside:
         feasibility *= 0.5
     return {
-        "coverage": coverage_term(inputs.clear_per_year, inputs.months_with_clear_pct, cfg),
+        "coverage": coverage_term(
+            inputs.observable_per_year, inputs.months_with_observable_pct, cfg
+        )
+        if observable
+        else coverage_term(inputs.clear_per_year, inputs.months_with_clear_pct, cfg),
         "width": _clamp(
             (inputs.width_px_10m - w.unreliable_below_px_10m)
             / (w.adequate_at_px_10m - w.unreliable_below_px_10m)
@@ -130,8 +142,10 @@ def gates(inputs: SiteInputs, cfg: ScreeningConfig) -> tuple[str, ...]:
         reasons.append(
             f"width {inputs.width_px_10m:.1f} px < {cfg.width.unreliable_below_px_10m:g}"
         )
-    if inputs.clear < cfg.score.min_clear_total:
-        reasons.append(f"{inputs.clear} clear scenes < {cfg.score.min_clear_total}")
+    rule = cfg.score.scene_rule
+    count = inputs.observable if rule == "observable" else inputs.clear
+    if count < cfg.score.min_clear_total:
+        reasons.append(f"{count} {rule} scenes < {cfg.score.min_clear_total}")
     return tuple(reasons)
 
 

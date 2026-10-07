@@ -14,6 +14,7 @@ measures each sub-reach per acquisition. Two scene rules are reported:
 
 from __future__ import annotations
 
+import dataclasses
 import itertools
 import logging
 import math
@@ -26,6 +27,7 @@ from datetime import date, datetime, timedelta
 import numpy as np
 from numpy.typing import NDArray
 
+from climate_pipeline.screening.bands import read_average, read_reflectance
 from climate_pipeline.screening.config import ScreeningConfig, SiteConfig
 from climate_pipeline.screening.mask import FrequencyStack, RiverGeometry, derive_geometry
 from climate_pipeline.screening.rain import OpenMeteoClient, RainSeries, rainy_months
@@ -93,6 +95,7 @@ class Stage1Result:
     scenes: list[SceneMetrics]
     rain: list[RainSeries]
     rainy_months: tuple[int, ...]
+    mask_source: str = "scl"
     summary: dict[str, object] = field(default_factory=dict)
 
 
@@ -252,6 +255,7 @@ def summarize(result: Stage1Result, cfg: ScreeningConfig) -> dict[str, object]:
     months = monthly_counts(scenes, start, end)
     with_data = [s for s in scenes if s.has_data]
     weaker = [min(m.water_px_10m for m in s.sub.values()) for s in clear]
+    weaker_valid = [min(m.valid_px_10m for m in s.sub.values()) for s in observable]
     rainy = set(result.rainy_months)
     by_season: dict[str, list[SceneMetrics]] = {"rainy": [], "dry": []}
     for s in scenes:
@@ -272,6 +276,7 @@ def summarize(result: Stage1Result, cfg: ScreeningConfig) -> dict[str, object]:
         "category": result.site.category,
         "river": result.site.river,
         "geometry_failed": geom.failed or "",
+        "mask_source": result.mask_source,
         "water_frequency_threshold": geom.threshold,
         "frequency_histogram": " ".join(str(c) for c in geom.frequency_histogram),
         "reach_length_km": round(geom.reach_length_m / 1000, 2),
@@ -323,6 +328,9 @@ def summarize(result: Stage1Result, cfg: ScreeningConfig) -> dict[str, object]:
             any(m.suspect_turbid_as_cloud for m in s.sub.values()) for s in scenes
         ),
         "median_weaker_subreach_water_px_10m": float(np.median(weaker)) if weaker else 0.0,
+        "median_weaker_subreach_valid_px_10m": float(np.median(weaker_valid))
+        if weaker_valid
+        else 0.0,
         "scaling_status": " ".join(f"{k}:{v}" for k, v in sorted(scaling.items())),
         "evidence_sha256": evidence_hash(result.acquisitions),
     }
@@ -376,8 +384,18 @@ def run_stage1(
     with ThreadPoolExecutor(max_workers=workers) as pool:
         for scl, _ in pool.map(lambda a: reader.read(a, "scl", grid), acquisitions):
             stack.update(scl)
-    geometry = derive_site_geometry(site, cfg, grid, stack)
-    log.info("%s: geometry %s", site.id, geometry.failed or "ok")
+    geometry = derive_site_geometry(site, cfg, grid, stack.frequency(cfg.mask.min_observations))
+    mask_source = "scl"
+    if geometry.failed is not None and cfg.mask.source == "scl-then-mndwi":
+        log.info("%s: SCL mask failed (%s); trying the MNDWI mask", site.id, geometry.failed)
+        freq = mndwi_frequency(acquisitions, reader, grid, cfg, workers)
+        fallback = derive_site_geometry(site, cfg, grid, freq)
+        geometry = dataclasses.replace(
+            fallback,
+            failed=None if fallback.failed is None else f"SCL and MNDWI masks: {fallback.failed}",
+        )
+        mask_source = "mndwi"
+    log.info("%s: geometry %s (%s mask)", site.id, geometry.failed or "ok", mask_source)
 
     rain_series: list[RainSeries] = []
     if rain:
@@ -412,6 +430,7 @@ def run_stage1(
         grid=grid,
         acquisitions=acquisitions,
         geometry=geometry,
+        mask_source=mask_source,
         scenes=scenes,
         rain=rain_series,
         rainy_months=rainy_months(
@@ -443,21 +462,72 @@ def failed_stage1(site: SiteConfig, cfg: ScreeningConfig, reason: str) -> Stage1
     geometry = RiverGeometry(
         grid.resolution, math.nan, [], reason, np.zeros(grid.shape, dtype=bool)
     )
-    result = Stage1Result(site, grid, [], geometry, [], [], ())
+    result = Stage1Result(site, grid, [], geometry, [], [], (), "none")
     result.summary = summarize(result, cfg)
     return result
 
 
+def mndwi_frequency(
+    acquisitions: list[Acquisition],
+    reader: AcquisitionReader,
+    grid: Grid,
+    cfg: ScreeningConfig,
+    workers: int,
+) -> NDArray[np.float64]:
+    """Share of clear observations with MNDWI > 0 (the declared post-hoc water mask).
+
+    MNDWI = (green - SWIR1) / (green + SWIR1), with green averaged to 20 m and both bands
+    converted with each item's own scale and offset. Acquisitions whose scaling metadata conflict
+    or are missing are skipped, as in stage 2.
+
+    Args:
+        acquisitions: The site's acquisitions.
+        reader: Band reader.
+        grid: The 20 m site grid.
+        cfg: Settings.
+        workers: Parallel reads.
+
+    Returns:
+        The water frequency (NaN with too few clear observations).
+    """
+    excluded = np.array(sorted(set(cfg.scl.invalid) | set(cfg.scl.nodata)))
+    water = np.zeros(grid.shape, dtype=np.int32)
+    valid = np.zeros(grid.shape, dtype=np.int32)
+    usable = [
+        a
+        for a in acquisitions
+        if not any(s.scaling_status() in ("conflict", "missing") for s in a.scenes)
+    ]
+
+    def one(acq: Acquisition) -> tuple[NDArray[np.bool_], NDArray[np.bool_]]:
+        scl, _ = reader.read(acq, "scl", grid)
+        green, _ = read_reflectance(reader, acq, "green", grid, read=read_average)
+        swir, _ = read_reflectance(reader, acq, "swir16", grid)
+        ok = ~np.isin(scl, excluded) & np.isfinite(green) & np.isfinite(swir)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            index = (green - swir) / (green + swir)
+        return ok, ok & (index > 0)
+
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for ok, wet in pool.map(one, usable):
+            valid += ok
+            water += wet
+    freq = np.full(grid.shape, np.nan)
+    enough = valid >= cfg.mask.min_observations
+    freq[enough] = water[enough] / valid[enough]
+    return freq
+
+
 def derive_site_geometry(
-    site: SiteConfig, cfg: ScreeningConfig, grid: Grid, stack: FrequencyStack
+    site: SiteConfig, cfg: ScreeningConfig, grid: Grid, freq: NDArray[np.float64]
 ) -> RiverGeometry:
-    """Derive the river geometry of a site from its accumulated SCL counts.
+    """Derive the river geometry of a site from a water-frequency layer.
 
     Args:
         site: The site (anchors, confluences, exclusions, overrides).
         cfg: Screening settings.
         grid: The 20 m site grid.
-        stack: Accumulated counts.
+        freq: Water frequency (SCL class 6, or MNDWI in the post-hoc analysis).
 
     Returns:
         The geometry.
@@ -467,7 +537,7 @@ def derive_site_geometry(
         burned = rasterize_polygon(grid, polygon.coordinates)
         excluded = burned if excluded is None else excluded | burned
     return derive_geometry(
-        stack.frequency(cfg.mask.min_observations),
+        freq,
         resolution=grid.resolution,
         thresholds=cfg.mask.thresholds,
         upstream=lonlat_rowcol(grid, site.upstream_anchor.lon, site.upstream_anchor.lat),

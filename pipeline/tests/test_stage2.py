@@ -6,13 +6,13 @@ import numpy as np
 import pytest
 from synthetic import draw, frequency
 
+from climate_pipeline.screening.bands import to_reflectance
 from climate_pipeline.screening.config import load_screening_config
 from climate_pipeline.screening.mask import derive_geometry
 from climate_pipeline.screening.stage2 import (
     reflectance_problem,
     robust_z,
     subreach_ndti,
-    to_reflectance,
 )
 
 CONFIG = load_screening_config(Path(__file__).parents[1] / "screening.yaml")

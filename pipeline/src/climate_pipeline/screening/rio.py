@@ -209,13 +209,16 @@ def rasterize_polygon(grid: Grid, ring: Sequence[tuple[float, float]]) -> NDArra
     return cast(NDArray[np.uint8], burned).astype(bool)
 
 
-def read_to_grid(href: str, grid: Grid, nodata: float = 0) -> NDArray[np.generic]:
-    """Read band 1 of a raster onto a grid (nearest neighbour), filling gaps with ``nodata``.
+def read_to_grid(
+    href: str, grid: Grid, nodata: float = 0, resampling: str = "nearest"
+) -> NDArray[np.generic]:
+    """Read band 1 of a raster onto a grid, filling gaps with ``nodata``.
 
     Args:
         href: URL or path of the raster.
         grid: Target grid.
         nodata: Value for pixels the raster does not cover (and its own nodata).
+        resampling: ``nearest`` (classes, same resolution) or ``average`` (finer to coarser).
 
     Returns:
         A ``grid.shape`` array in the raster's data type.
@@ -228,7 +231,7 @@ def read_to_grid(href: str, grid: Grid, nodata: float = 0) -> NDArray[np.generic
             transform=grid.affine(),
             width=grid.width,
             height=grid.height,
-            resampling=Resampling.nearest,
+            resampling=Resampling[resampling],
             src_nodata=src_nodata,
             nodata=nodata,
         ) as vrt:

@@ -198,6 +198,9 @@ class MaskConfig(_Frozen):
     bridge_gap_px: int = Field(
         default=0, ge=0, le=5, description="close mask gaps up to 2x this (connectivity only)"
     )
+    source: Literal["scl", "scl-then-mndwi"] = Field(
+        default="scl", description="'scl-then-mndwi' is the declared post-hoc analysis"
+    )
 
 
 class SubreachConfig(_Frozen):
@@ -298,10 +301,26 @@ class ScoreConfig(_Frozen):
     full_coverage: float = Field(gt=0, le=1)
     stage2_top: int = Field(gt=0)
     stage2_max_benchmarks: int = Field(ge=0)
+    scene_rule: Literal["clear", "observable"] = Field(
+        default="clear", description="'observable' is the declared post-hoc analysis"
+    )
 
 
 class ScreeningConfig(_Frozen):
     """Everything the screening reads from ``screening.yaml``."""
+
+    def posthoc(self) -> ScreeningConfig:
+        """The declared post-hoc variant: MNDWI mask fallback and the observable scene rule.
+
+        Returns:
+            A copy with only those two settings changed.
+        """
+        return self.model_copy(
+            update={
+                "mask": self.mask.model_copy(update={"source": "scl-then-mndwi"}),
+                "score": self.score.model_copy(update={"scene_rule": "observable"}),
+            }
+        )
 
     period: Period
     stac: StacConfig
