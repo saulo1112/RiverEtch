@@ -318,8 +318,10 @@ def test_outputs_are_written_small_and_reproducible(run: tuple[Path, object]) ->
     figures = sorted((results / "figures").glob("*.png"))
     assert [f.name for f in figures] == [
         "synth-control_maps.png",
+        "synth-control_mask.png",
         "synth-control_series.png",
         "synth-dam_maps.png",
+        "synth-dam_mask.png",
         "synth-dam_series.png",
     ]
     assert all(f.stat().st_size < 300_000 for f in figures)

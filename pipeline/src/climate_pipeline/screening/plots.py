@@ -1,7 +1,9 @@
-"""Quick-look figures: NDTI series with rain and events, and NDTI maps (PNG, < 300 KB each).
+"""Quick-look figures (PNG, < 300 KB each): NDTI series, NDTI maps and water masks.
 
-One colormap, labeled "relative index", and one fixed color stretch per site, so maps of the
-same site are comparable with each other and never read as turbidity in physical units.
+The series show rain and events; the mask figure shows the water frequency each site's reach was
+derived from, with its anchors, centerline and sub-reaches. NDTI uses one colormap, labeled
+"relative index", and one fixed color stretch per site, so maps of the same site are comparable
+with each other and never read as turbidity in physical units.
 """
 
 from __future__ import annotations
@@ -23,12 +25,15 @@ from matplotlib.figure import Figure
 from numpy.typing import NDArray
 
 from climate_pipeline.screening.events import CatalogEvent, EventOutcome
+from climate_pipeline.screening.mask import RiverGeometry
 from climate_pipeline.screening.stage2 import Stage2Result
 
 MAX_PNG_BYTES = 300_000
 COLORMAP = "cividis"
 INDEX_LABEL = "NDTI (relative index)"
 STATUS_COLORS = {"hit": "#b2182b", "miss": "#2166ac", "unobservable": "#878787"}
+FREQUENCY_COLORMAP = "Blues"
+SUBREACH_COLORS = {"upstream": "#e66101", "downstream": "#5e3c99"}
 
 
 def save_png(fig: Figure, path: Path, max_bytes: int = MAX_PNG_BYTES) -> int:
@@ -235,4 +240,78 @@ def plot_maps(
     fig.suptitle(
         f"{site_name}: NDTI maps (relative index, fixed stretch for this site)", fontsize=9
     )
+    return save_png(fig, path)
+
+
+def plot_mask(
+    title: str,
+    frequency: NDArray[np.float64],
+    geometry: RiverGeometry,
+    anchors: dict[str, tuple[int, int]],
+    path: Path,
+) -> int:
+    """The water frequency of a site's AOI with its derived reach, to check anchors by eye.
+
+    Args:
+        title: Figure title (site and mask source).
+        frequency: The water-frequency layer the mask came from (20 m grid; NaN = too few
+            observations).
+        geometry: The derived geometry (river region, centerline, sub-reaches), possibly failed.
+        anchors: Configured anchor positions as (row, col), by name.
+        path: Output PNG.
+
+    Returns:
+        The file size in bytes.
+    """
+    step = max(1, math.ceil(max(frequency.shape) / 600))
+    # Steps of 0.1 keep the PNG small and match the histogram bins of the summary.
+    shown = np.floor(frequency[::step, ::step] * 10) / 10
+    rows, cols = shown.shape
+    fig, ax = plt.subplots(figsize=(7.0, 0.8 + 6.2 * min(rows / max(cols, 1), 1.6)))
+    image = ax.imshow(
+        np.ma.masked_invalid(shown),
+        cmap=FREQUENCY_COLORMAP,
+        vmin=0,
+        vmax=1,
+        interpolation="nearest",
+    )
+    if math.isfinite(geometry.threshold):
+        ax.contour(
+            (frequency[::step, ::step] >= geometry.threshold).astype(float),
+            levels=[0.5],
+            colors="#999999",
+            linewidths=0.5,
+        )
+    for sub in geometry.subreaches:
+        ax.contour(
+            sub.mask[::step, ::step].astype(float),
+            levels=[0.5],
+            colors=SUBREACH_COLORS.get(sub.name, "black"),
+            linewidths=1.2,
+        )
+        ax.plot([], [], color=SUBREACH_COLORS.get(sub.name, "black"), label=f"{sub.name} sub-reach")
+    if geometry.centerline:
+        line = np.array(geometry.centerline, dtype=float) / step
+        ax.plot(line[:, 1], line[:, 0], color="#d01c8b", linewidth=0.8, label="centerline")
+        ax.plot(
+            [line[0, 1], line[-1, 1]],
+            [line[0, 0], line[-1, 0]],
+            "o",
+            color="#d01c8b",
+            markersize=4,
+            label="snapped anchors",
+        )
+    for name, (row, col) in anchors.items():
+        ax.plot(col / step, row / step, "x", color="black", markersize=7)
+        ax.annotate(name, (col / step, row / step), fontsize=7, xytext=(4, 4),
+                    textcoords="offset points")  # fmt: skip
+    ax.plot([], [], "x", color="black", label="configured anchors")
+    ax.legend(loc="lower right", fontsize=7, framealpha=0.8)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    threshold = f"threshold {geometry.threshold:g}" if math.isfinite(geometry.threshold) else ""
+    status = f"failed: {geometry.failed}" if geometry.failed else "reach derived"
+    ax.set_title(f"{title}\n{status}; {threshold} (grey outline)", fontsize=8)
+    bar = fig.colorbar(image, ax=ax, shrink=0.7)
+    bar.set_label("water frequency (share of clear observations)")
     return save_png(fig, path)

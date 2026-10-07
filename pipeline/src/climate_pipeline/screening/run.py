@@ -31,10 +31,16 @@ from climate_pipeline.screening.events import (
     observable,
     window_days,
 )
-from climate_pipeline.screening.plots import MapPanel, plot_maps, plot_series, site_stretch
+from climate_pipeline.screening.plots import (
+    MapPanel,
+    plot_maps,
+    plot_mask,
+    plot_series,
+    site_stretch,
+)
 from climate_pipeline.screening.rain import OpenMeteoClient
 from climate_pipeline.screening.report import ChanceRate, RunOutputs, write_all
-from climate_pipeline.screening.rio import AcquisitionReader
+from climate_pipeline.screening.rio import AcquisitionReader, lonlat_rowcol
 from climate_pipeline.screening.score import SiteInputs, recommend, score_sites, select_stage2
 from climate_pipeline.screening.stac import SceneSource, make_source
 from climate_pipeline.screening.stage1 import Stage1Result, failed_stage1, run_stage1
@@ -201,12 +207,13 @@ def run_screening(
         recommendation=recommendation,
         anomaly_threshold=cfg.stage2.anomaly_z,
     )
+    figures_dir = paths.results / "figures"
+    outputs.figures += [_mask_figure(r, figures_dir) for r in stage1 if r.frequency is not None]
     # Stage-1 outputs are written now, so a later failure or timeout does not lose them.
     manifest["read_errors"] = reader.errors[:100]
     manifest["finished_utc"] = "stage 1 only so far"
     write_all(outputs, paths.results, paths.out)
     if stage2:
-        figures_dir = paths.results / "figures"
         for result in (r for r in stage1 if r.site.id in selected):
             second = run_stage2(result, reader, cfg, workers)
             outputs.stage2.append(second)
@@ -309,6 +316,19 @@ def _figures(
     plot_maps(site.name, panels, window, stretch, maps)
     files.append(str(maps))
     return files
+
+
+def _mask_figure(result: Stage1Result, figures_dir: Path) -> str:
+    site = result.site
+    assert result.frequency is not None
+    anchors = {
+        "up": lonlat_rowcol(result.grid, site.upstream_anchor.lon, site.upstream_anchor.lat),
+        "down": lonlat_rowcol(result.grid, site.downstream_anchor.lon, site.downstream_anchor.lat),
+    }
+    path = figures_dir / f"{site.id}_mask.png"
+    title = f"{site.name}\n{result.mask_source.upper()} water frequency"
+    plot_mask(title, result.frequency, result.geometry, anchors, path)
+    return str(path)
 
 
 def default_paths(root: Path) -> RunPaths:

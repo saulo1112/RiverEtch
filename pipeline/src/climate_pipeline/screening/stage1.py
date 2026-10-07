@@ -97,6 +97,7 @@ class Stage1Result:
     rainy_months: tuple[int, ...]
     mask_source: str = "scl"
     mndwi_skipped: int = 0
+    frequency: NDArray[np.float64] | None = None  # the layer the river mask came from
     summary: dict[str, object] = field(default_factory=dict)
 
 
@@ -386,13 +387,15 @@ def run_stage1(
     with ThreadPoolExecutor(max_workers=workers) as pool:
         for scl, _ in pool.map(lambda a: reader.read(a, "scl", grid), acquisitions):
             stack.update(scl)
-    geometry = derive_site_geometry(site, cfg, grid, stack.frequency(cfg.mask.min_observations))
+    frequency = stack.frequency(cfg.mask.min_observations)
+    geometry = derive_site_geometry(site, cfg, grid, frequency)
     mask_source = "scl"
     mndwi_skipped = 0
     if geometry.failed is not None and cfg.mask.source == "scl-then-mndwi":
         log.info("%s: SCL mask failed (%s); trying the MNDWI mask", site.id, geometry.failed)
         freq, mndwi_skipped = mndwi_frequency(acquisitions, reader, grid, cfg, workers)
         fallback = derive_site_geometry(site, cfg, grid, freq)
+        frequency = freq
         geometry = dataclasses.replace(
             fallback,
             failed=None if fallback.failed is None else f"SCL and MNDWI masks: {fallback.failed}",
@@ -435,6 +438,7 @@ def run_stage1(
         geometry=geometry,
         mask_source=mask_source,
         mndwi_skipped=mndwi_skipped,
+        frequency=frequency,
         scenes=scenes,
         rain=rain_series,
         rainy_months=rainy_months(
