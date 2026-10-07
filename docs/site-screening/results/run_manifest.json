@@ -1,5 +1,5 @@
 {
-  "config_sha256": "6bbb31a702bda09fc445ccef21153e2c54b7928f1c599719dbc6d421eaa11dd0",
+  "config_sha256": "f5b6222c20b9183352de6143fdec26fa05c147bc1dc4544c16788328f2b13b6b",
   "events_sha256": "c393b879f0a4c46760703eb1dd64890b969b3c93f7b2e4b83d9f72adea723ee0",
   "evidence_sha256": {
     "cauca-hidroituango": "30e9951cae84e3bf05d06ac7d10273d32c3e0f06c94767a8d168b1d4ef929141",
@@ -7,10 +7,10 @@
     "magdalena-betania": "d710ebb9f5a38e23325032feb672744d21f7c22716c6b4b0f8ad8481836dbb68",
     "sinu-urra": "678e6ef88318765151ded43c20a07c2148c36572891dcc97cbf10804ce5add9b"
   },
-  "finished_utc": "2026-10-07T09:05:20+00:00",
-  "git_commit": "5136c4cc117f5f99c4f52c082269448726d9a418",
-  "method_blob": "4bb4859ad79e9743b792b53124d889200bede234",
-  "method_last_commit": "f2a6a92b20f3c7cd237181fd06d6d90ba643aefd",
+  "finished_utc": "2026-10-07T13:44:01+00:00",
+  "git_commit": "8ad944064be5d1c61fe5e9ec1b19230d47927acd",
+  "method_blob": "9944d6a9600fd151a3446cd62688705de0b3433e",
+  "method_last_commit": "8ad944064be5d1c61fe5e9ec1b19230d47927acd",
   "package_version": "0.1.0",
   "period_end": "2025-12-31",
   "period_start": "2022-01-01",
@@ -34,6 +34,6 @@
   "stage2_sites": [
     "sinu-urra"
   ],
-  "started_utc": "2026-10-07T09:04:15+00:00",
+  "started_utc": "2026-10-07T13:43:10+00:00",
   "variant": "pre-registered"
 }
