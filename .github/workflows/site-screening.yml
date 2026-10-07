@@ -1,0 +1,137 @@
+name: Site screening
+
+# The real site screening (Sentinel-2 L2A from STAC + COGs, Open-Meteo rain), which needs network
+# access the development sandbox does not have. Run it from Actions > Site screening > Run
+# workflow. The outputs (CSVs, results.md, PNG quick-looks under 300 KB, run manifest) are uploaded
+# as an artifact; to publish a run, commit its docs/site-screening/results*/ folders.
+on:
+  workflow_dispatch:
+    inputs:
+      sites:
+        description: "Comma-separated site ids (empty: all sites)"
+        required: false
+        default: ""
+      start:
+        description: "First day, YYYY-MM-DD (empty: the configured period)"
+        required: false
+        default: ""
+      end:
+        description: "Last day, YYYY-MM-DD (empty: the configured period)"
+        required: false
+        default: ""
+      source:
+        description: "STAC source"
+        type: choice
+        options: [earth-search, planetary-computer]
+        default: earth-search
+      stage1_only:
+        description: "Stop after stage 1 and the score"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  # Git hooks are for local commits only.
+  HUSKY: "0"
+
+jobs:
+  screening:
+    name: Screen candidate reaches
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    concurrency:
+      group: site-screening-${{ github.ref }}
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          # Full history: the manifest records the commit that last changed method.md.
+          fetch-depth: 0
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          # Same uv version that wrote uv.lock, so `--locked` cannot fail on a format change.
+          version: "0.12.23"
+          working-directory: pipeline
+
+      - name: Install dependencies (locked)
+        run: uv sync --locked
+
+      # SCL windows and rain responses are cached between runs (reflectance reads are not cached:
+      # they are large and read once). Saved even when the run fails, so a re-run resumes.
+      - name: Restore the SCL and rain cache
+        uses: actions/cache/restore@v6
+        with:
+          path: pipeline/out/cache
+          key: screening-${{ github.run_id }}
+          restore-keys: screening-
+
+      - name: Start from empty generated outputs
+        run: rm -rf ../docs/site-screening/results ../docs/site-screening/results-posthoc
+
+      - name: Run the screening
+        env:
+          SITES: ${{ inputs.sites }}
+          START: ${{ inputs.start }}
+          END: ${{ inputs.end }}
+          SOURCE: ${{ inputs.source }}
+          STAGE1_ONLY: ${{ inputs.stage1_only }}
+        run: |
+          args=(--root .. --workers 12)
+          if [ -n "$SITES" ]; then args+=(--sites "$SITES"); fi
+          if [ -n "$START" ]; then args+=(--start "$START" --end "$END"); fi
+          if [ -n "$SOURCE" ]; then args+=(--source "$SOURCE"); fi
+          if [ "$STAGE1_ONLY" = "true" ]; then args+=(--stage1-only); fi
+          uv run climate-pipeline screening "${args[@]}"
+
+      # Declared in method.md after the first real run; reported next to, never instead of, the
+      # pre-registered results. Reuses the SCL cache of the step above.
+      - name: Run the post-hoc secondary analysis
+        if: ${{ !cancelled() }}
+        env:
+          SITES: ${{ inputs.sites }}
+          START: ${{ inputs.start }}
+          END: ${{ inputs.end }}
+          SOURCE: ${{ inputs.source }}
+          STAGE1_ONLY: ${{ inputs.stage1_only }}
+        run: |
+          args=(--root .. --workers 12 --posthoc)
+          if [ -n "$SITES" ]; then args+=(--sites "$SITES"); fi
+          if [ -n "$START" ]; then args+=(--start "$START" --end "$END"); fi
+          if [ -n "$SOURCE" ]; then args+=(--source "$SOURCE"); fi
+          if [ "$STAGE1_ONLY" = "true" ]; then args+=(--stage1-only); fi
+          uv run climate-pipeline screening "${args[@]}"
+
+      - name: Save the SCL and rain cache
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: pipeline/out/cache
+          key: screening-${{ github.run_id }}
+
+      - name: Add the results to the job summary
+        if: always()
+        run: |
+          for dir in results results-posthoc; do
+            if [ -f "../docs/site-screening/$dir/results.md" ]; then
+              cat "../docs/site-screening/$dir/results.md" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+
+      - name: Upload the outputs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-screening-${{ github.run_id }}
+          path: |
+            docs/site-screening/results/
+            docs/site-screening/results-posthoc/
+            pipeline/out/screening_stage1.csv
+          if-no-files-found: warn

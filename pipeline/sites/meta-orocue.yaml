@@ -1,0 +1,192 @@
+# Río Meta below Orocué (control reach)
+# Category D. Generated from the site research of 2026-10-07 (WebSearch summaries only; see docs/site-screening/report.md).
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: meta-orocue
+name: Río Meta below Orocué (control reach)
+river: Río Meta
+category: D
+rationale:
+  "Control (category D). Río Meta just below Orocué (Casanare), a wide savanna river (at least
+  400 m, more where islands split it, per a historical description) with a December-March dry season.
+  Searches for mining, dredging and large urban or industrial discharge in this reach found none: the
+  Meta navigability project reached only the study stage (ANI, products due December 2024), the oil-related
+  spills found are in the upper basin, and mining results named other rivers. The large reservoirs found
+  in the basin (Chivor, Guavio) are in the Andean departments, far upstream. Orocué itself is a small
+  river port at the upstream end. 'No identified major pressure' means none was found in these searches,
+  not that none exists."
+center:
+  lon: -71.2788
+  lat: 4.8065
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -71.38
+  - 4.75
+  - -71.2
+  - 4.9
+upstream_anchor:
+  lon: -71.3486
+  lat: 4.79
+  description: Orocué (Casanare), river port on the left/north shore of the Río Meta
+  basis:
+    Coordinates of Orocué Airport, which serves the town, stated by Wikipedia as 4°47′24″N 71°20′55″W.
+    Sources say the town is on the shore of the Meta. The channel point at the town waterfront is probably
+    within about 1-2 km and should be snapped to the water mask. One summary of a Wikipedia mirror gave
+    garbled town coordinates (1°48′34″N 72°45′37″W), which was discarded.
+  source_url: https://en.wikipedia.org/wiki/Orocue_Airport
+downstream_anchor:
+  lon: -71.209
+  lat: 4.823
+  description:
+    Río Meta main channel near the east edge of the AOI, about 15.8 km straight-line downstream of
+    Orocué. Corrected against the water mask on 2026-10-07 (run 11). The first estimate (4.86, -71.233)
+    lay about 4 km north of the river and the run could not snap it.
+  basis:
+    "Read off the SCL water-frequency quick-look of run 11 (river channel at the AOI's east edge).
+    Earlier estimate: ESTIMATED, not stated. Orocué Airport (4.7900N, -71.3486W, Wikipedia) is about 45 km straight-line
+    from the 5°N 71°W point, which confluence.org places on the bank of the Río Meta, 5.9 km SSW of Guanapalo.
+    This point is about one third of the way along that line. It must be snapped to the main channel with
+    the water mask and the along-channel length checked (target 15-25 km). Fallback: end the reach at
+    5.0N, -71.0W (stated, on the bank) with the upstream anchor about 20 km upstream."
+  source_url: https://confluence.org/confluence.php?id=7202
+feature:
+  lon: -71.291
+  lat: 4.825
+  description:
+    Midpoint of the Río Meta study reach between Orocué and a point about 15 km (straight line)
+    downstream
+  basis:
+    Estimated as the midpoint of the two anchors. The upstream anchor is Orocué Airport (4°47′24″N
+    71°20′55″W, stated by Wikipedia). The downstream anchor is estimated on the bearing toward the 5°N
+    71°W Meta-bank point (confluence.org). Not stated by any source.
+  source_url: https://en.wikipedia.org/wiki/Orocue_Airport
+confluences: []
+regime_changes: []
+rain_points:
+  - lon: -71.2788
+    lat: 4.8065
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  No major pressure identified in the AOI. ANI contracted structuring studies for Meta navigability
+  (Unión Temporal EIF Navegabilidad Río Meta); no dredging works were found for 2022-2025.
+regulator:
+  Corporinoquia for the Casanare bank (not confirmed by a search result in this run); the opposite-bank
+  authority is unverified.
+backwater_note: ""
+river_width_note:
+  "≥400 m: a historical description says the Meta between Maquivor and the mouth of the
+  Cravo is no less than 400 m wide, and 1,000-1,600 m where islands split the channel (one source, sogeocol
+  'El río Meta'; not a modern measurement; Maquivor's position relative to Orocué not verified). Confirm
+  with the water mask."
+climate_note:
+  Orocué has a tropical savanna climate (Köppen Aw), with moderate to little rainfall from
+  December to March and heavy rainfall from April to November (Wikipedia Orocué article, one summary).
+  December-March is the best window for clear Sentinel-2 scenes. The Colombian Air Force meteorological
+  service issued a sudden-river-rise alert (No. 099) in July 2025 that a summary associates with high
+  Meta River levels.
+citations:
+  - url: https://en.wikipedia.org/wiki/Orocue_Airport
+    title: Orocue Airport (Wikipedia)
+    supports: Orocué Airport serves the town at 4°47′24″N 71°20′55″W (upstream anchor)
+    verification:
+      One search summary. A different summary of a Wikipedia mirror gave conflicting, clearly
+      garbled town coordinates (1°48′34″N 72°45′37″W), which was discarded.
+  - url: https://kaweah.freedombox.rocks/kiwix/wikipedia_en_all_maxi_2023-10/Orocue
+    title: Orocué (Wikipedia mirror)
+    supports: Orocué is on the shore of the Meta River. Climate Aw, little rainfall Dec-Mar, heavy Apr-Nov.
+    verification:
+      "'On the shore of the Meta' appears in several summaries. The climate statement appears
+      in one summary only."
+  - url: https://confluence.org/confluence.php?id=7202
+    title: Degree Confluence Project 5°N 71°W
+    supports:
+      The 5°N 71°W point is on the bank of the Río Meta, 5.9 km SSW of Guanapalo (Casanare), altitude
+      about 121 m; visited 22 March 2023
+    verification: Two summaries, but both from the same single source
+  - url: https://sogeocol.edu.co/documentos/el_rio_meta.pdf
+    title: El río Meta (Sociedad Geográfica de Colombia)
+    supports:
+      Width at least 400 m between Maquivor and the mouth of the Cravo, 1,000-1,600 m where there
+      are islands. Mouth 1,230 m wide between Puerto Carreño and Puerto Páez.
+    verification: One summary of a historical document (also linked as 003_03_el_rio_meta.pdf)
+  - url: https://www.elespectador.com/ambiente/bibo/el-cravo-sur-un-rio-vital/
+    title: El Cravo Sur, un río vital (El Espectador)
+    supports: The Cravo Sur discharges into the Meta in Orocué municipality
+    verification:
+      One summary. The summary did not say which listed result stated this, so this attribution
+      is uncertain.
+  - url: https://dredgingtoday.com/?p=84449
+    title: Contract awarded for Meta River navigability project
+    supports:
+      ANI selected UT EIF Navegabilidad Río Meta for structuring (8.5 billion COP), final products
+      by December 2024. Studies only.
+    verification: One summary. The larepublica and portafolio results cover the same project.
+  - url: https://www.larepublica.co/economia/estos-son-los-10-consorcios-interesados-en-estructurar-la-navegabilidad-del-rio-meta-3679601
+    title: Consorcios interesados en estructurar la navegabilidad del río Meta
+    supports: The navigability project is at the structuring stage (Puerto López-Puerto Carreño)
+    verification: Same search as dredgingtoday. Consistent with it.
+  - url: https://en.wikipedia.org/wiki/La_Primavera_Airport
+    title: La Primavera Airport (Wikipedia)
+    supports:
+      La Primavera Airport at 5.47917N, 70.42056W, town about 6 km SE of the Meta River; the Meta
+      is the Vichada-Casanare boundary
+    verification: One summary
+  - url: https://www.infobae.com/colombia/2026/03/31/operativo-conjunto-frustro-la-explotacion-de-mineria-ilicita-tras-el-decomiso-17-unidades-en-la-orinoquia/
+    title: Operativo conjunto ... decomiso 17 unidades en la Orinoquía (Infobae)
+    supports: 17 mining production units seized in the Amanavén sector of the Guaviare River (Guaviare disqualifier)
+    verification: One summary
+  - url: https://www.cgfm.mil.co/en/multimedia/noticias/inirida-guainia-operations-against-illegal-mining-seven-arrests-and-one-dredger
+    title: "Inírida, Guainía: operations against mining, seven arrests and one dredger (Fuerzas Militares)"
+    supports: Dredge seized near the Coayare-Inírida banks on the Guaviare River (Guaviare disqualifier)
+    verification: One summary. Spanish version of the same page also listed.
+  - url: https://siatac.co/Documentos/Atlas/conflictos/Conflictos%202024/10/SINCHI0010_V2_2024_compressed.pdf
+    title: SINCHI socio-environmental conflicts atlas 2024
+    supports: Gravel extraction on the Guaviare near the El Refugio, Barrancón and La Fuga resguardos
+    verification: One summary
+  - url: https://www.cgfm.mil.co/en/node/30508
+    title: Operation Marfil (Fuerzas Militares)
+    supports:
+      Nine dredge-type devices destroyed in the Puerto Santander/Araracuara area of the Río Caquetá
+      (Caquetá disqualifier)
+    verification: One summary. Date not given.
+  - url: https://www.noticiascaracol.com/colombia/tragedia-ambiental-en-meta-tras-ruptura-de-tuberia-ocasionada-por-actividades-petroleras
+    title: Tragedia ambiental en Meta tras ruptura de tubería (Noticias Caracol)
+    supports:
+      Oil-related wastewater pipe rupture reported in Castilla La Nueva, upper Meta basin, far from
+      the AOI. It was the only pollution result in the Orocué pollution search.
+    verification: One summary
+  - url: https://simfac.fac.mil.co/sites/default/files/alertas/2025-07/ALERTA%20METEOROLOGICA%20POR%20CRECIENTE%20SUBITA%20N%C2%B0%20099.pdf
+    title: Alerta meteorológica por creciente súbita N° 099 (FAC, July 2025)
+    supports:
+      July 2025 sudden-river-rise alert. A summary associates high Meta levels with municipalities
+      including Orocué.
+    verification: One vague summary. The alert's link to Orocué is not confirmed.
+unverified:
+  - "Downstream anchor read off the run-11 water-mask quick-look, not a named place; the reach runs
+    about 16 km straight-line from Orocué and its along-channel length is measured by the run."
+  - Upstream anchor Orocué 4.7900N, -71.3486W (airport coordinates, one summary; a mirror summary gave conflicting
+    garbled coordinates)
+  - Downstream anchor 4.860N, -71.233W is ESTIMATED (one third of the way from Orocué to the 5°N 71°W Meta-bank
+    point), not stated by any source; along-channel distance of 15-25 km not verified
+  - 5°N 71°W lies on the Río Meta bank, 5.9 km SSW of Guanapalo (single source, confluence.org)
+  - Feature midpoint 4.825N, -71.291W (estimated)
+  - Width at least 400 m / 1,000-1,600 m with islands (one historical source; position of Maquivor relative
+    to the reach unknown)
+  - Río Cravo Sur mouth lies in Orocué municipality (one summary; exact position unknown; placeholder coordinates
+    are Orocué's)
+  - Climate Aw with Dec-Mar dry season at Orocué (one summary)
+  - Regulator Corporinoquia (no search result in this run confirmed it; opposite-bank authority unverified)
+  - "No dam within ~100 km upstream: NOT searched in this run (budget). Needs a source."
+  - "No dredging works on the Meta in 2022-2025: based on the ANI structuring contract (studies due Dec
+    2024) and no works found in one search"
+  - July 2025 FAC creciente alert linked to Orocué (one vague summary)
+  - La Primavera Airport coordinates and 6 km distance to the Meta (one summary)
+  - "Guaviare Amanavén seizure (Infobae 2026-03-31), Coayare dredge seizure, and Caquetá Operation Marfil:
+    each from one summary"
+  - "Río Cravo Sur mouth: a source places it in Orocué municipality but not at a point; it is left out of
+    the confluence list rather than placed at a guessed position."
+  - "Distance from the Chivor and Guavio reservoirs to the reach: not stated by a source; both are in Boyacá/Cundinamarca,
+    far west of Orocué."

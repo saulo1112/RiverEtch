@@ -1,0 +1,99 @@
+# Site screening settings. Pre-registered in docs/site-screening/method.md: change a value here
+# only together with the method, before a run, never to tune results after seeing them.
+
+period:
+  start: 2022-01-01
+  end: 2025-12-31
+
+stac:
+  source: earth-search
+  page_size: 100
+  sources:
+    earth-search:
+      url: https://earth-search.aws.element84.com/v1
+      collection: sentinel-2-l2a
+      assets: { scl: scl, red: red, green: green, swir16: swir16 }
+    planetary-computer:
+      url: https://planetarycomputer.microsoft.com/api/stac/v1
+      collection: sentinel-2-l2a
+      assets: { scl: SCL, red: B04, green: B03, swir16: B11 }
+      sas_token_url: https://planetarycomputer.microsoft.com/api/sas/v1/token/sentinel-2-l2a
+
+# Scene classification (Sen2Cor SCL) classes.
+scl:
+  nodata: [0]
+  water: [6]
+  invalid: [1, 3, 8, 9, 10, 11] # saturated, cloud shadow, cloud medium/high, cirrus, snow
+  reported: [2, 7] # dark area pixels, unclassified: reported separately, not invalid
+  cloud: [8, 9, 10]
+
+mask:
+  water_frequency_min: 0.5 # river = water in at least half of the clear observations
+  water_frequency_fallbacks: [0.35, 0.25] # only if the anchors do not connect at 0.5 (reported)
+  min_observations: 20 # clear observations a pixel needs before its frequency counts
+  snap_radius_m: 1500 # anchors and the center snap to the mask within this distance
+  corridor_half_width_m: 600 # default; wide rivers override it per site
+  erosion_px_10m: 1 # default bank erosion at 10 m; canyon reaches override it per site
+  land_ring_m: [100, 400] # land ring used to tell turbid water flagged as cloud from cloud
+  bridge_gap_px: 1 # bridges or rapids up to 2 px (40 m) wide do not break connectivity
+
+subreach:
+  length_m: 2000
+  start_offset_m: 1000 # first sub-reach starts this far below the upstream anchor
+  separation_target_m: 10000 # center to center, along the river
+  separation_min_m: 5000
+  separation_max_m: 15000
+  confluence_buffer_m: 1000
+
+clear:
+  min_valid_px_10m: 200 # per sub-reach, in 10 m pixel equivalents (one 20 m SCL pixel = 4)
+  max_contamination: 0.2
+  min_data_coverage: 0.9 # share of each sub-reach with data (not swath edge or tile gap)
+  suspect_river_cloud_min: 0.5 # cloud classes over the river ...
+  suspect_land_cloud_max: 0.1 # ... while the land ring is clear: turbid water flagged as cloud?
+
+width:
+  unreliable_below_px_10m: 5
+  adequate_at_px_10m: 15
+
+stage2:
+  anomaly_z: 3.0
+  mad_floor: 0.01 # NDTI units: robust sigma never below this
+  min_baseline_n: 12
+  min_season_n: 8
+  rg_floor: 0.01 # red + green reflectance; darker pixels make NDTI unstable
+  swir16_max: 0.05 # B11 reflectance; above it a water pixel is likely glint or mixed
+  water_reflectance_max: 0.3 # median water red or green above this (or <= 0): scene excluded
+  # Median B11 of water pixels: water absorbs SWIR, so it is near 0. A BOA offset applied twice
+  # gives about -0.1, a missing one about +0.1; glint can raise it a little, hence 0.08.
+  water_swir16_range: [-0.03, 0.08]
+  max_scenes_per_site: 400
+
+rain:
+  url: https://archive-api.open-meteo.com/v1/archive
+  windows_h: [24, 72, 168] # sums ending at the acquisition time
+  coincident_window_h: 72
+  coincident_mm: 20 # rain-coincident: > 20 mm in the 72 h before, at any rain point of the site
+  timezone: America/Bogota
+
+events:
+  window_before_days: 2
+  window_after_days: 10
+  scored_precisions: [day, week] # month-precision events are context, not scored
+  chance_shifts: 500
+  seed: 20260101
+
+score:
+  weights:
+    coverage: 0.30
+    width: 0.20
+    tile_integrity: 0.10
+    contrast_feasibility: 0.15
+    events: 0.25
+  clear_per_year_full: 24 # clear scenes per year that earn the full clear-rate half of coverage
+  feasibility_px_full: 400 # median valid 10 m px in the weaker sub-reach for full feasibility
+  events_full: 3 # scored events with a clear scene in their window for the full events term
+  min_clear_total: 24 # gate: fewer clear scenes over the period cannot support a baseline
+  full_coverage: 0.99 # tile integrity: both sub-reaches at least this covered by data
+  stage2_top: 3
+  stage2_max_benchmarks: 1

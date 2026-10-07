@@ -1,0 +1,219 @@
+# Río Magdalena, Puerto Wilches to San Pablo (Cantagallo navigation crossing)
+# Category C. Generated from the site research of 2026-10-07 (WebSearch summaries only; see docs/site-screening/report.md).
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: magdalena-puerto-wilches
+name: Río Magdalena, Puerto Wilches to San Pablo (Cantagallo navigation crossing)
+river: Río Magdalena
+category: C
+rationale:
+  "Dredging reach (category C). Río Magdalena from Puerto Wilches (Santander) to San Pablo (Bolívar),
+  inside the Barrancabermeja-Pinillos sector where Cormagdalena contracted maintenance dredging of the
+  navigation channel for 2024-01-01 to 2026-07-31 (Vanguardia, Portafolio). The reach contains the 'Canta
+  Gallo' critical point named in an undated dredging campaign, and a Cormagdalena dredge worked the Sitio
+  Nuevo sector of Puerto Wilches in early 2023. In the study window the evidence that dredging happened
+  inside this reach is contract-level only: no source found names the crossings dredged in 2024-2025 or
+  their dates. The Río Sogamoso, regulated upstream by the Hidrosogamoso dam, joins above the reach. The
+  channel is wide and carries islands and bars."
+center:
+  lon: -73.90955
+  lat: 7.41235
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -73.95
+  - 7.33
+  - -73.87
+  - 7.49
+upstream_anchor:
+  lon: -73.896
+  lat: 7.3483
+  description: Puerto Wilches (Santander), town on the eastern (right) bank of the Río Magdalena
+  basis:
+    'Stated by source: 7°20''53.81"N 73°53''45.64"W, converted to decimal. Only one search summary
+    gives it. The town riverfront is on the main channel; to be snapped to the water mask.'
+  source_url: https://es.hispanopedia.com/wiki/Puerto_Wilches
+downstream_anchor:
+  lon: -73.9231
+  lat: 7.4764
+  description: San Pablo (Bolívar), town on the western (left) bank of the Río Magdalena
+  basis:
+    "Stated by source: lat 7.4763889, lon -73.9230576. Only one search summary gives it. Whether
+    the riverfront is on the main channel or a side arm must be confirmed on the water mask."
+  source_url: https://term.museum-digital.de/md-de/place/22473?lang=en
+feature:
+  lon: -73.91
+  lat: 7.412
+  description:
+    Cantagallo navigation crossing ('Canta Gallo' critical point) and the surrounding Puerto
+    Wilches–San Pablo stretch of the Barrancabermeja–Pinillos contracted dredging sector
+  basis:
+    "Estimated: midpoint of the two anchors, whose coordinates sources state (Puerto Wilches 7.3483,-73.8960;
+    San Pablo 7.4764,-73.9231). The exact position of the crossing is not stated by any source found."
+  source_url: https://mundomaritimo.cl/noticias/editor/27064
+confluences: []
+regime_changes: []
+rain_points:
+  - lon: -73.90955
+    lat: 7.41235
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  Cormagdalena contracts the maintenance dredging; the contractor named for the 2024-2026 Barrancabermeja-Pinillos/Barranquilla
+  contract is Consorcio PanMar-Vías 2023 (Vanguardia, Portafolio). Cormagdalena also operates its own
+  dredges.
+regulator:
+  Not stated by any source found. Cormagdalena is the river-management and navigation authority;
+  the environmental authority (ANLA, CAS or CSB) is unverified.
+backwater_note: ""
+river_width_note: unknown (no source found within budget)
+climate_note:
+  "No source found states the rainy seasons or cloudiness for this reach explicitly. Dated
+  hydrology reports from sources:
+
+  - El Heraldo, early 2024 (El Niño): Cormagdalena data showed the lowest river level in Barrancabermeja,
+  about 36 cm (minimum in that area 12 cm).
+
+  - Puerto Wilches flood and high-water alerts: floods affecting 454 families (Infobae, 2022-04-10); 'SOS'
+  river-risk alert (Vanguardia, 2024-05-16); 30,000 people at flood risk (Vanguardia, 2025-03-31); red
+  alert for rising river (Vanguardia, 2025-05-08).
+
+  - Barrancabermeja rain alert continuing through March 2026 (Vanguardia, 2026-02-26).
+
+
+  The reports cluster high water in March–May. The usual bimodal regime for the Magdalena Medio (Apr–May
+  and Sep–Nov wet seasons, with persistent cloud) comes from general knowledge, not from a source found
+  here."
+citations:
+  - url: https://www.vanguardia.com/santander/barrancabermeja/nuevo-contrato-para-dragado-del-rio-magdalena-en-barrancabermeja-arrancaria-en-enero-de-2024-FA8233142
+    title:
+      Nuevo contrato para dragado del río Magdalena en Barrancabermeja arrancaría en enero de 2024
+      (Vanguardia)
+    supports:
+      Contract awarded Dec 2023 for the Barrancabermeja–Barranquilla dredging plan; works start
+      2024-01-01 and end 2026-07-31
+    verification: Consistent across several search summaries; start in January 2024 also stated by Portafolio
+  - url: https://www.portafolio.co/economia/infraestructura/cormagdalena-adjudico-el-dragado-para-el-rio-magdalena-tramo-barrancabermeja-pinillos-594390
+    title: Cormagdalena adjudicó el dragado para el río Magdalena tramo Barrancabermeja-Pinillos (Portafolio)
+    supports:
+      Award to Consorcio PanMar-Vías 2023 for maintenance of the navigation channel in the Barrancabermeja–Pinillos
+      sector; 30 months from January 2024; COP 105,709,429,526
+    verification: Two independent outlets (Portafolio, Vanguardia)
+  - url: https://www.vanguardia.com/economia/local/adjudican-el-dragado-para-navegar-entre-barrancabermeja-y-barranquilla-por-el-rio-magdalena-YN8249212
+    title: Adjudican el dragado para navegar entre Barrancabermeja y Barranquilla por el río Magdalena (Vanguardia)
+    supports: Award of the Barrancabermeja–Barranquilla dredging; about 638 km
+    verification: Search summary; consistent with Portafolio
+  - url: https://mundomaritimo.cl/noticias/editor/27064
+    title: Mundo Marítimo news item 27064 (Magdalena dredging campaign)
+    supports:
+      Campaign from 15 July to 15 November removing 525,000 m3 with three mechanical-removal convoys
+      at La Bufalera, Bocas del Río Sogamoso, Patico, Canta Gallo, Yarirí, Canaletal, Sitio Nuevo, Vijagual
+      and Pinillos; Cormagdalena maintenance over 657 km Barrancabermeja–Bocas de Ceniza
+    verification:
+      Two search summaries returned the list, but both seem to trace back to the same Mundo
+      Marítimo item; no year visible
+  - url: https://www.mundomaritimo.cl/noticias/editor/21136
+    title: Mundo Marítimo news item 21136 (Magdalena low water and navigation)
+    supports:
+      Dredging and maintenance needed between San Pablo (Bolívar) and Barrancabermeja (last 40 navigable
+      km); four critical points between Barrancabermeja and Cantagallo at km 631, 594, 607, 618
+    verification: Single search summary; year not given (possibly pre-2022)
+  - url: https://www.vanguardia.com/santander/barrancabermeja/2023/05/07/a-punto-de-tapar-el-chorro-cormagdalena-retiro-la-draga-de-sitio-nuevo/
+    title: A punto de tapar el chorro, Cormagdalena retiró la draga de Sitio Nuevo (Vanguardia, 2023-05-07)
+    supports:
+      A dredge lent for three months to the Sitio Nuevo sector (Puerto Wilches) for a dike-breach
+      emergency was withdrawn; about 370 of 460 m reported done; a breach of about 90 m remained
+    verification: Single search summary; date from the URL
+  - url: https://www.vanguardia.com/santander/barrancabermeja/2025/02/04/nueva-y-moderna-draga-para-el-rio-magdalena-conozca-a-carmen-rita/
+    title: "Nueva y moderna draga para el río Magdalena: conozca a Carmen Rita (Vanguardia, 2025-02-04)"
+    supports:
+      Arrival of the dredge Carmen Rita (COP 26,000 million) to improve draft at strategic points
+      between Barrancabermeja and Barranquilla
+    verification: Two independent outlets (Vanguardia, El Universal) on the same date
+  - url: https://www.eluniversal.com.co/regional/atlantico/2025/02/04/carmen-rita-la-draga-que-llega-para-el-mantenimiento-del-rio-magdalena/
+    title: Carmen Rita, la draga que llega para el mantenimiento del río Magdalena (El Universal, 2025-02-04)
+    supports:
+      Carmen Rita assigned about 150 km of the Magdalena, working alongside the dredge Cormagdalena
+      1
+    verification: Single summary for the 150 km figure
+  - url: https://www.portafolio.co/economia/finanzas/cormagdalena-y-findeter-firman-contrato-para-el-dragado-del-rio-magdalena-en-2023-575903
+    title: Cormagdalena y Findeter firman contrato para el dragado del río Magdalena en 2023 (Portafolio)
+    supports: Cormagdalena–Findeter contract for 2023 dredging of the Magdalena
+    verification: Title also matched by a Vanguardia result (FF6043016); sector not confirmed
+  - url: https://es.hispanopedia.com/wiki/Puerto_Wilches
+    title: Puerto Wilches (Hispanopedia / Spanish Wikipedia mirror)
+    supports: Puerto Wilches coordinates 7°20'53.81"N 73°53'45.64"W; eastern bank of the Magdalena
+    verification:
+      Single search summary (the coordinates could not be tied to one specific result among
+      several)
+  - url: https://term.museum-digital.de/md-de/place/22473?lang=en
+    title: San Pablo, Bolívar (museum-digital place record)
+    supports: San Pablo coordinates lat 7.4763889, lon -73.9230576
+    verification: Single search summary
+  - url: https://www.ecured.cu/Barrancabermeja
+    title: Barrancabermeja (EcuRed)
+    supports:
+      Barrancabermeja coordinates 7°4'11"N 73°51'51"W; Puerto Wilches lies north of Barrancabermeja;
+      Magdalena to the west
+    verification: Single search summary
+  - url: https://www.vanguardia.com/santander/barrancabermeja/un-hechizo-llamado-barrancabermeja-XJ5128426
+    title: Un hechizo llamado Barrancabermeja (Vanguardia)
+    supports: Barrancabermeja territory is watered by the Magdalena, Oponcito, Sogamoso and Colorada rivers
+    verification: Single search summary
+  - url: https://www.elheraldo.co/atlantico/fenomeno-de-el-nino-nivel-del-rio-magdalena-bajo-192-metros-en-el-atlantico-1067383
+    title: "Fenómeno de El Niño: nivel del río Magdalena bajó a 1,92 metros en el Atlántico (El Heraldo)"
+    supports:
+      Per Cormagdalena data, the lowest river level was at Barrancabermeja, about 36 cm (minimum
+      in that area 12 cm)
+    verification: Single search summary; exact date not in the summary (El Niño 2023-24 context)
+  - url: https://www.infobae.com/en/2022/04/10/floods-in-puerto-wilches-santander-leave-454-families-affected/
+    title: Floods in Puerto Wilches, Santander leave 454 families affected (Infobae, 2022-04-10)
+    supports: Flooding at Puerto Wilches in April 2022
+    verification: Single result title
+  - url: https://www.vanguardia.com/santander/barrancabermeja/2025/05/08/alerta-roja-en-puerto-wilches-por-creciente-del-rio-magdalena/
+    title: Alerta roja en Puerto Wilches por creciente del río Magdalena (Vanguardia, 2025-05-08)
+    supports: High-water red alert at Puerto Wilches in May 2025
+    verification: Result title, seen in two searches
+  - url: https://www.vanguardia.com/santander/barrancabermeja/2025/08/30/puerto-wilches-en-emergencia-erosion-del-rio-magdalena-derrumba-locales-comerciales/
+    title:
+      "Puerto Wilches en emergencia: erosión del río Magdalena derrumba locales comerciales (Vanguardia,
+      2025-08-30)"
+    supports:
+      Bank erosion and a sinkhole in the La Boya sector of Puerto Wilches; commercial buildings
+      on the containment wall collapsed
+    verification: Single search summary
+  - url: https://www.lafm.com.co/colombia/gobernador-de-santander-dijo-que-es-necesario-que-se-haga-el-dragado-del-rio-magdalena
+    title: Gobernador de Santander dijo que es necesario que se haga el dragado del río Magdalena (La FM)
+    supports:
+      Requests for dredging because of overflow in several municipalities; islands reported in the
+      channel
+    verification: Single search summary; no date in the summary
+unverified:
+  - 'Puerto Wilches coordinates 7°20''53.81"N 73°53''45.64"W (7.3483, -73.8960): one search summary only'
+  - "San Pablo (Bolívar) coordinates 7.4764, -73.9231: one search summary only; main-channel position unconfirmed"
+  - 'Barrancabermeja coordinates 7°4''11"N 73°51''51"W: one search summary only'
+  - "Río Sogamoso mouth position (7.21, -73.88): pure interpolation between two towns, not stated by any
+    source"
+  - "Feature position (7.412, -73.910): midpoint estimate; the exact position of the Cantagallo crossing
+    is not stated"
+  - That the 'Canta Gallo' critical point lies between Puerto Wilches and San Pablo (inferred from the town
+    of Cantagallo being on the left bank in this stretch)
+  - Along-channel reach length (estimated 15-18 km; straight line about 14.5 km)
+  - "Year of the 15 July–15 November 525,000 m3 campaign (La Bufalera ... Canta Gallo ... Sitio Nuevo ...
+    Pinillos): no year given"
+  - "Year of the report of four critical points between Barrancabermeja and Cantagallo at km 631, 594, 607,
+    618, and of dredging between San Pablo and Barrancabermeja: no year given; one summary"
+  - Location of the Sitio Nuevo sector within Puerto Wilches municipality (inside or outside the reach)
+  - Start month of the 2023 Sitio Nuevo dredge loan (estimated about Feb 2023 from 'three months' before
+    2023-05-07)
+  - "2024 dredging volumes: 3,300,000 m3 planned, 1,900,000 m3 extracted under one contract, and 3,099,106
+    m3 removed in three sectors including the Barrancabermeja–Pinillos channel; the summary did not tie
+    these to a specific result URL, so they are not used as events"
+  - "Carmen Rita assigned about 150 km: one summary"
+  - "Sedimentation rate rising from 7,000 to 23,000 m3/day: one summary, location and date unclear"
+  - "Environmental authority (ANLA / CAS / CSB): not stated by any source found"
+  - "Date of the El Heraldo El Niño low-water report (36 cm at Barrancabermeja): not in the summary; assumed
+    early 2024"
+  - "Río Sogamoso mouth: position not stated by any source (an interpolation put it at 7.21, -73.88, outside
+    the AOI); not listed as a confluence."

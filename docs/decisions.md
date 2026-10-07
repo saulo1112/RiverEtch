@@ -113,3 +113,28 @@ last. Format: context → decision → consequences.
 - **Decision:** Contract tests already use ethers v6. In `web/`, ethers v6 is added with the first
   contract call, through wagmi's documented viem-to-ethers adapter, not as an unused dependency
   of the skeleton.
+
+## D12. Site screening on STAC + COGs and Open-Meteo, run in GitHub Actions (2026-10-07)
+
+- **Context:** Before modelling a permit, the project needs one real study reach. The choice should
+  be data-driven and reproducible, and diversified by pressure type, because gold-mining turbidity
+  in Colombia is well-trodden prior art. The development sandbox cannot reach the STAC APIs,
+  Open-Meteo or CHIRPS.
+- **Decision:**
+  - The screening reads Sentinel-2 L2A from a STAC API: Earth Search v1 by default, Planetary
+    Computer behind the same interface. It reads the cloud-optimized GeoTIFFs with rasterio and
+    takes hourly rain from the Open-Meteo archive. It needs no credentials, unlike the Sentinel
+    Hub route of D4, which stays the plan for operational ingestion.
+  - Every threshold and site is configuration (`pipeline/screening.yaml`, `pipeline/sites/`). The
+    method was pre-registered in `docs/site-screening/method.md` before any real run.
+  - The real run is the `Site screening` workflow. Its small outputs are committed under
+    `docs/site-screening/results/`; rasters and caches never are.
+- **Consequences:**
+  - The screening is reproducible by anyone with the repository and GitHub Actions.
+  - Results carry the method blob, config hash and STAC item-id hashes.
+  - The sandbox runs only the offline tests.
+  - Reflectance scaling cannot be taken from `raster:bands` alone. Earth Search items flagged
+    `earthsearch:boa_offset_applied` already carry the BOA offset in their pixels, and some
+    unflagged Sentinel-2C items do too. Any reader of these COGs (the screening, a future
+    operational pipeline) needs an empirical check, such as water B11 near 0, before using the
+    values.
