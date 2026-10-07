@@ -1,0 +1,5 @@
+rank,site_id,category,coverage,width,tile_integrity,contrast_feasibility,events,score,eligible,gates,coverage_observable_rule,rank_without_coverage,rank_without_width,rank_without_tile_integrity,rank_without_contrast_feasibility,rank_without_events,rank_without_observable_coverage
+1,sinu-urra,A,0.406,0.45,1.0,1.0,0.667,0.629,True,,0.406,1,1,1,1,1,1
+2,cauca-hidroituango,A,0.838,0.0,1.0,1.0,1.0,0.752,False,width 2.6 px < 5,0.838,2,2,2,2,2,2
+3,cauca-salvajina,A,0.563,0.0,1.0,1.0,0.0,0.419,False,width 4.7 px < 5,0.563,3,3,3,3,3,3
+4,magdalena-betania,A,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: SCL and MNDWI masks: anchors are not connected by the river mask; 0 observable scenes < 24,0.0,4,4,4,4,4,4

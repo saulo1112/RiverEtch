@@ -7,10 +7,10 @@
     "magdalena-betania": "d710ebb9f5a38e23325032feb672744d21f7c22716c6b4b0f8ad8481836dbb68",
     "sinu-urra": "678e6ef88318765151ded43c20a07c2148c36572891dcc97cbf10804ce5add9b"
   },
-  "finished_utc": "2026-10-07T08:54:27+00:00",
-  "git_commit": "7e681d95b689f1a5e8cbf5492f7ba962da285696",
-  "method_blob": "f113d7469dc67abc1d0b9ec54e5ea4382fe67386",
-  "method_last_commit": "7e681d95b689f1a5e8cbf5492f7ba962da285696",
+  "finished_utc": "2026-10-07T09:05:20+00:00",
+  "git_commit": "5136c4cc117f5f99c4f52c082269448726d9a418",
+  "method_blob": "4bb4859ad79e9743b792b53124d889200bede234",
+  "method_last_commit": "f2a6a92b20f3c7cd237181fd06d6d90ba643aefd",
   "package_version": "0.1.0",
   "period_end": "2025-12-31",
   "period_start": "2022-01-01",
@@ -34,5 +34,6 @@
   "stage2_sites": [
     "sinu-urra"
   ],
-  "started_utc": "2026-10-07T08:52:01+00:00"
+  "started_utc": "2026-10-07T09:04:15+00:00",
+  "variant": "pre-registered"
 }
