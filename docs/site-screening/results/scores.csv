@@ -1,9 +1,9 @@
 rank,site_id,category,coverage,width,tile_integrity,contrast_feasibility,events,score,eligible,gates,coverage_observable_rule,rank_without_coverage,rank_without_width,rank_without_tile_integrity,rank_without_contrast_feasibility,rank_without_events,rank_without_observable_coverage
-1,magdalena-puerto-wilches,C,0.698,1.0,1.0,1.0,0.0,0.659,True,,0.698,2,2,1,1,1,1
-2,sinu-urra,A,0.406,0.45,1.0,1.0,0.667,0.629,True,,0.406,1,1,2,2,2,2
+1,magdalena-puerto-wilches,C,0.745,1.0,1.0,1.0,0.0,0.673,True,,0.745,2,2,1,1,1,1
+2,sinu-urra,A,0.401,0.45,1.0,1.0,0.667,0.627,True,,0.401,1,1,2,2,2,2
 3,atrato-quibdo,B,0.094,1.0,1.0,1.0,0.0,0.478,False,6 clear scenes < 24,0.094,3,3,3,3,3,3
 4,cauca-hidroituango,A,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: anchors are not connected by the river mask; 0 clear scenes < 24,0.0,4,4,4,4,4,4
 5,cauca-salvajina,A,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: anchors are not connected by the river mask; 0 clear scenes < 24,0.0,5,5,5,5,5,5
-6,magdalena-betania,A,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: downstream anchor not within 1500 m of the river mask; 0 clear scenes < 24,0.0,6,6,6,6,6,6
-7,meta-orocue,D,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: downstream anchor not within 1500 m of the river mask; 0 clear scenes < 24,0.0,7,7,7,7,7,7
+6,magdalena-betania,A,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: anchors are not connected by the river mask; 0 clear scenes < 24,0.0,6,6,6,6,6,6
+7,meta-orocue,D,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: anchors are not connected by the river mask; 0 clear scenes < 24,0.0,7,7,7,7,7,7
 8,nechi-zaragoza,B,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: anchors are not connected by the river mask; 0 clear scenes < 24,0.0,8,8,8,8,8,8

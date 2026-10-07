@@ -1,5 +1,5 @@
 {
-  "config_sha256": "6dc3e9add2d420886ade82ab67de5f40b6913878d187e085b9a11cd79bb9acdd",
+  "config_sha256": "ed5cee179cdb2a3956f1a1607a7d69aeef6a10432b665cd54f31f0b65b7c9464",
   "events_sha256": "eef554292bca112f858ff206a533d0334ac7fa7449646174be9780fa79fb5cf8",
   "evidence_sha256": {
     "atrato-quibdo": "9e06b2195b0d496112ec8c47da9b43a491c230e7d169ec79b20fed646c666a67",
@@ -11,10 +11,10 @@
     "nechi-zaragoza": "b35522c11e1ff3157468a4c24ca9a33975c9406f9067b2fbabf4d24fd48d6893",
     "sinu-urra": "678e6ef88318765151ded43c20a07c2148c36572891dcc97cbf10804ce5add9b"
   },
-  "finished_utc": "2026-10-07T14:08:05+00:00",
-  "git_commit": "58b45bec0a449f357cb4503aacfeda18cb2682a4",
-  "method_blob": "467533b9f488be02ccfab2e4d3cd342c0a286fa3",
-  "method_last_commit": "334d4626f026f5dce12b622c0fe6aa04b5d4b301",
+  "finished_utc": "2026-10-07T14:26:56+00:00",
+  "git_commit": "2a8508a6ce1aa5a552f376a27b56cc859de2b6d3",
+  "method_blob": "1d4e8c07777703d926b751c5eb2386dde7c62564",
+  "method_last_commit": "2a8508a6ce1aa5a552f376a27b56cc859de2b6d3",
   "package_version": "0.1.0",
   "period_end": "2025-12-31",
   "period_start": "2022-01-01",
@@ -45,6 +45,6 @@
     "magdalena-puerto-wilches",
     "sinu-urra"
   ],
-  "started_utc": "2026-10-07T14:06:35+00:00",
+  "started_utc": "2026-10-07T14:25:02+00:00",
   "variant": "pre-registered"
 }

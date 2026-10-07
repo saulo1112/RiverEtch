@@ -1,9 +1,9 @@
 rank,site_id,category,coverage,width,tile_integrity,contrast_feasibility,events,score,eligible,gates,coverage_observable_rule,rank_without_coverage,rank_without_width,rank_without_tile_integrity,rank_without_contrast_feasibility,rank_without_events,rank_without_observable_coverage
-1,magdalena-puerto-wilches,C,0.698,1.0,1.0,1.0,0.0,0.659,True,,0.698,3,3,1,1,1,1
-2,nechi-zaragoza,B,0.521,0.81,1.0,1.0,0.333,0.652,True,,0.521,2,2,2,2,2,2
-3,sinu-urra,A,0.406,0.45,1.0,1.0,0.667,0.629,True,,0.406,1,1,3,3,3,3
-4,cauca-hidroituango,A,0.833,0.0,1.0,1.0,1.0,0.75,False,width 1.2 px < 5,0.833,4,4,4,4,4,4
-5,atrato-quibdo,B,0.094,1.0,1.0,1.0,0.0,0.478,False,6 observable scenes < 24,0.094,5,6,5,5,5,5
-6,cauca-salvajina,A,0.547,0.0,1.0,1.0,0.0,0.414,False,width 3.0 px < 5,0.547,6,5,6,6,6,6
-7,magdalena-betania,A,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: SCL and MNDWI masks: anchors are not connected by the river mask; 0 observable scenes < 24,0.0,7,7,7,7,7,7
-8,meta-orocue,D,0.0,0.0,0.0,0.0,0.0,0.0,False,mask failed: SCL and MNDWI masks: anchors are not connected by the river mask; 0 observable scenes < 24,0.0,8,8,8,8,8,8
+1,magdalena-puerto-wilches,C,0.745,1.0,1.0,1.0,0.0,0.673,True,,0.745,3,4,1,1,1,1
+2,nechi-zaragoza,B,0.521,0.81,1.0,1.0,0.333,0.652,True,,0.521,2,3,2,2,3,2
+3,meta-orocue,D,0.672,1.0,1.0,1.0,0.0,0.652,True,,0.672,4,5,3,3,2,3
+4,sinu-urra,A,0.401,0.45,1.0,1.0,0.667,0.627,True,,0.401,1,2,4,4,4,4
+5,magdalena-betania,A,0.578,0.06,1.0,1.0,0.667,0.602,True,,0.578,5,1,5,5,5,5
+6,cauca-hidroituango,A,0.833,0.0,1.0,1.0,1.0,0.75,False,width 1.2 px < 5,0.833,6,6,6,6,6,6
+7,atrato-quibdo,B,0.094,1.0,1.0,1.0,0.0,0.478,False,6 observable scenes < 24,0.094,7,8,7,7,7,7
+8,cauca-salvajina,A,0.531,0.0,1.0,1.0,0.0,0.409,False,width 3.0 px < 5,0.531,8,7,8,8,8,8
