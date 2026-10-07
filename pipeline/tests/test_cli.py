@@ -10,6 +10,11 @@ def test_version_matches_package_metadata() -> None:
     assert __version__ == version("climate-pipeline")
 
 
-def test_main_reports_scaffold_and_exits_successfully(capsys: pytest.CaptureFixture[str]) -> None:
-    assert main() == 0
-    assert "scaffold only" in capsys.readouterr().out
+def test_main_without_a_command_prints_help(capsys: pytest.CaptureFixture[str]) -> None:
+    assert main([]) == 0
+    assert "screening" in capsys.readouterr().out
+
+
+def test_start_and_end_go_together() -> None:
+    with pytest.raises(SystemExit):
+        main(["screening", "--start", "2022-01-01"])
