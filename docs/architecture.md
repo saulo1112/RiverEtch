@@ -32,7 +32,10 @@ results.
 1. **Area of interest.** River reaches (polygons) on rivers affected by mining, for example
    reaches of the Cauca, Magdalena or Atrato basins (_candidate_ list).
 2. **Imagery.** Sentinel-2 L2A (surface reflectance, 10–20 m) through the Sentinel Hub APIs of the
-   Copernicus Data Space Ecosystem (`sentinelhub-py`; credentials in `pipeline/.env`).
+   Copernicus Data Space Ecosystem (`sentinelhub-py`; credentials in `pipeline/.env`). The site
+   screening that chose the study reach reads the same product from public STAC catalogs and
+   cloud-optimized GeoTIFFs instead (no credentials; see [D12](decisions.md) and
+   [site-screening/method.md](site-screening/method.md)).
 3. **Water and cloud masking.** Keep clear water pixels only (scene classification layer and/or a
    water index such as NDWI).
 4. **Turbidity proxy.** _Candidates:_ red-band reflectance calibrated to turbidity
