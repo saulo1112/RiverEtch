@@ -1,1 +1,5 @@
 event_id,site_id,date_start,date_end,event_type,confidence,status,scene_days,max_abs_z,signal,rain_coincident_scene,chance_rate,chance_windows,window_days
+sinu-urra-01,sinu-urra,2022-11-28,2022-11-30,flow_increase,medium,miss,2022-12-07,0.97,delta,False,0.209,91,15
+sinu-urra-02,sinu-urra,2025-07-12,2025-07-13,contingency,medium,miss,2025-07-14 2025-07-16,0.9,downstream,True,0.214,84,14
+sinu-urra-03,sinu-urra,2025-08-01,2025-08-02,powerhouse_operation,low,unobservable,,,,False,0.214,84,14
+sinu-urra-04,sinu-urra,2025-11-29,2025-11-29,contingency,medium,unobservable,,,,False,0.21,81,13

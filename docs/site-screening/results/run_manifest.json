@@ -1,23 +1,28 @@
 {
-  "config_sha256": "3e44f89922bd15589730b081e3a3d64487d6b8efb705601f112e7b9186f0a3ab",
+  "config_sha256": "6bbb31a702bda09fc445ccef21153e2c54b7928f1c599719dbc6d421eaa11dd0",
   "events_sha256": "c393b879f0a4c46760703eb1dd64890b969b3c93f7b2e4b83d9f72adea723ee0",
   "evidence_sha256": {
-    "cauca-hidroituango": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "cauca-salvajina": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "magdalena-betania": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "sinu-urra": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    "cauca-hidroituango": "30e9951cae84e3bf05d06ac7d10273d32c3e0f06c94767a8d168b1d4ef929141",
+    "cauca-salvajina": "985a7a2a8abfc056002f6c0a5f8a414ac7132e8eab0291c9b7bfa1768515bcb1",
+    "magdalena-betania": "d710ebb9f5a38e23325032feb672744d21f7c22716c6b4b0f8ad8481836dbb68",
+    "sinu-urra": "678e6ef88318765151ded43c20a07c2148c36572891dcc97cbf10804ce5add9b"
   },
-  "finished_utc": "2026-10-07T08:47:39+00:00",
-  "git_commit": "249ecf25ec2b3473baf0148ec05f305ca77dddfb",
-  "method_blob": "328974aa9e2a8df2af7916e45f7ef8d05af8c249",
-  "method_last_commit": "0545c9cdd9a8243b4b53025b8b2e089004e83db1",
+  "finished_utc": "2026-10-07T08:54:27+00:00",
+  "git_commit": "7e681d95b689f1a5e8cbf5492f7ba962da285696",
+  "method_blob": "f113d7469dc67abc1d0b9ec54e5ea4382fe67386",
+  "method_last_commit": "7e681d95b689f1a5e8cbf5492f7ba962da285696",
   "package_version": "0.1.0",
   "period_end": "2025-12-31",
   "period_start": "2022-01-01",
   "ranking_fragile": false,
-  "read_error_count": 0,
-  "read_errors": [],
-  "recommended": null,
+  "read_error_count": 4,
+  "read_errors": [
+    "S2B_18NVN_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/18/N/VN/2024/1/23/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name.",
+    "S2B_18NVN_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/18/N/VN/2024/1/23/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name.",
+    "S2B_18NVH_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/18/N/VH/2024/1/23/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name.",
+    "S2B_18NVH_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/18/N/VH/2024/1/23/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name."
+  ],
+  "recommended": "sinu-urra",
   "runner_up": null,
   "sites": [
     "cauca-hidroituango",
@@ -26,6 +31,8 @@
     "sinu-urra"
   ],
   "source": "earth-search",
-  "stage2_sites": [],
-  "started_utc": "2026-10-07T08:37:16+00:00"
+  "stage2_sites": [
+    "sinu-urra"
+  ],
+  "started_utc": "2026-10-07T08:52:01+00:00"
 }
