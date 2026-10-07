@@ -75,6 +75,7 @@ def test_an_offset_applied_twice_is_caught_by_water_b11() -> None:
     stats = {"upstream": subreach_ndti(red, green, swir, scl, subs[0], 1, CONFIG)}
     assert stats["upstream"].swir16 == pytest.approx(-0.09)
     assert "B11 water" in reflectance_problem(stats, CONFIG)
+    assert "applied twice" in reflectance_problem(stats, CONFIG)
     red, green, swir, scl = bands(river, 0.12, 0.11, 0.01)
     right = {"upstream": subreach_ndti(red, green, swir, scl, subs[0], 1, CONFIG)}
     assert reflectance_problem(right, CONFIG) == ""

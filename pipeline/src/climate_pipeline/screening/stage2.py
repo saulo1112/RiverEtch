@@ -187,9 +187,10 @@ def reflectance_problem(sub: dict[str, SubreachNdti], cfg: ScreeningConfig) -> s
     low, high = cfg.stage2.water_swir16_range
     for name, s in sub.items():
         if math.isfinite(s.swir16) and not (low <= s.swir16 <= high):
+            cause = "offset applied twice?" if s.swir16 < low else "glint or a missing offset"
             return (
                 f"{name} median B11 water reflectance {s.swir16:.3f} outside [{low}, {high}]"
-                " (offset suspect)"
+                f" ({cause})"
             )
     top = cfg.stage2.water_reflectance_max
     for name, s in sub.items():
