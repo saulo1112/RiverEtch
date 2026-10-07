@@ -166,6 +166,11 @@ interface DiveState {
   readonly site: Vector3;
   readonly lat: number;
   readonly zoom: number;
+  // "down": overlay opacity, framing blend and glint share at the start, so a dive that begins
+  // part-way through a rise continues from there instead of snapping back to full.
+  readonly fadeFrom: number;
+  readonly blendFrom: number;
+  readonly glintFrom: number;
   durationS: number;
   onProgress: ((progress: number) => void) | undefined;
   elapsedS: number;
@@ -544,6 +549,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       site: latLngToVector3(arrival.lat, arrival.lng, 1, new Vector3()),
       lat: arrival.lat,
       zoom: arrival.zoom,
+      fadeFrom: 1,
+      blendFrom: 1,
+      glintFrom: 1,
       durationS: ASCENT.durationS,
       onProgress: undefined,
       elapsedS: 0,
@@ -718,13 +726,14 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     );
     camera.position.copy(cameraPosition);
     camera.lookAt(lookTarget);
-    viewBlend = 1 - k;
+    viewBlend = up ? 1 - k : state.blendFrom * (1 - k);
     if (up) {
       setOverlayFade(MathUtils.smoothstep(progress, ...ASCENT.fadeIn));
       earthGlint.y = earthGlintGain * MathUtils.smoothstep(progress, ...ASCENT.glintIn);
     } else {
-      setOverlayFade(1 - MathUtils.smoothstep(progress, 0, DIVE.fadeEnd));
-      earthGlint.y = earthGlintGain * (1 - MathUtils.smoothstep(progress, ...DIVE.glintFade));
+      setOverlayFade(state.fadeFrom * (1 - MathUtils.smoothstep(progress, 0, DIVE.fadeEnd)));
+      earthGlint.y =
+        state.glintFrom * earthGlintGain * (1 - MathUtils.smoothstep(progress, ...DIVE.glintFade));
     }
     if (!state.settled && !state.parked) {
       state.onProgress?.(progress);
@@ -1098,6 +1107,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       site: latLngToVector3(target.lat, target.lng, 1, new Vector3()),
       lat: target.lat,
       zoom: target.zoom,
+      fadeFrom: overlayFade,
+      blendFrom: viewBlend,
+      glintFrom: earthGlintGain > 0 ? earthGlint.y / earthGlintGain : 1,
       durationS: Math.max(0, diveOptions.durationS ?? DIVE.durationS),
       onProgress: diveOptions.onProgress,
       elapsedS: 0,
