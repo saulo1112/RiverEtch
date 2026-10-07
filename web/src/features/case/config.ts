@@ -96,3 +96,25 @@ export const FLIGHT = {
   // The Skip button appears this long after the flight starts.
   skipDelayMs: 400,
 } as const;
+
+/**
+ * The way back ("Back to the globe"), in milliseconds unless noted: the panels slide out, the
+ * river retracts and the map eases back to the top-down handoff pose while the hero reloads under
+ * it; then the map crossfades out and the globe rises (`ASCENT` in features/hero/config.ts, 2.2 s).
+ * About 4.5 s, plus any wait for the hero to load.
+ */
+export const RETURN = {
+  // Panel slide-out: duration and stagger, last panel first (case.css mirrors both).
+  panelsOutMs: 260,
+  panelsOutStaggerMs: 60,
+  riverOutMs: 900,
+  // Back to the handoff pose: eases in and out, so it reaches the globe's view at rest.
+  zoomOutMs: 1800,
+  zoomOutEase: [0.45, 0, 0.35, 1],
+  crossfadeMs: 500,
+  reducedCrossfadeMs: 200,
+  // The crossfade waits at most this long (from the click) for the hero to be ready.
+  heroReadyTimeoutMs: 4000,
+  // Share of the rise at which the hero UI fades back in.
+  uiInAt: 0.7,
+} as const;

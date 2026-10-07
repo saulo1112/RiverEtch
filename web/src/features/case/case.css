@@ -84,6 +84,26 @@
   animation: case-haze var(--crossfade, 700ms) ease-out both;
 }
 
+/* The same haze on the way back, as the map fades out over the globe (its own keyframes, so the
+   animation restarts). */
+.case-view[data-haze-out="true"] .case-view__haze {
+  animation: case-haze-out var(--crossfade, 500ms) ease-out both;
+}
+
+@keyframes case-haze-out {
+  0% {
+    opacity: 0;
+  }
+
+  45% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
 @keyframes case-haze {
   0% {
     opacity: 0;
@@ -310,6 +330,15 @@
 
 .case-view[data-panels="shown"] .case-panel {
   transition: none;
+}
+
+/* The way back: the panels slide out the way they came, last one first (RETURN in config.ts). */
+.case-view[data-panels="out"] .case-panel {
+  opacity: 0;
+  translate: var(--from);
+  pointer-events: none;
+  transition-duration: 260ms;
+  transition-delay: calc((2 - var(--i)) * 60ms);
 }
 
 .case-top {

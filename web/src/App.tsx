@@ -1,18 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { CaseView, type CaseEntrance } from "./features/case/CaseView.tsx";
-import { FLIGHT } from "./features/case/config.ts";
+import { FLIGHT, RETURN } from "./features/case/config.ts";
 import { CASE_COPY } from "./features/case/content.ts";
 import { loadCaseMap } from "./features/case/loadMap.ts";
 import { markFlight } from "./features/case/qa.ts";
 import { ILLUSTRATIVE_CASE } from "./features/case/sample.ts";
 import { SkipButton } from "./features/case/SkipButton.tsx";
-import { DIVE } from "./features/hero/config.ts";
-import type { DiveHandle } from "./features/hero/globe.ts";
+import { CAMERA, DIVE } from "./features/hero/config.ts";
+import type { AscentHandle, DiveHandle } from "./features/hero/globe.ts";
+import { handoffFrame } from "./features/hero/handoff.ts";
 import { Hero, type HeroApi } from "./features/hero/Hero.tsx";
 
-/** What is on screen: the hero, the flythrough into the case, or the landed case view. */
-type View = "hero" | "flying" | "case";
+/**
+ * What is on screen: the hero, the flythrough into the case, the landed case view, or the way
+ * back to the globe.
+ */
+type View = "hero" | "flying" | "case" | "returning";
 
 /** One trip into the case view; each one mounts a fresh case view. */
 interface Flight {
@@ -22,8 +26,18 @@ interface Flight {
   readonly crossfadeMs: number;
 }
 
+/** One trip back to the globe. */
+interface ReturnTrip {
+  readonly id: number;
+  /** False with reduced motion: no zoom-out and no rise, a short crossfade. */
+  readonly motion: boolean;
+  /** The map's zoom at the handoff, matching the globe's top-down view for this viewport. */
+  readonly exitZoom: number;
+}
+
 const data = ILLUSTRATIVE_CASE;
 const { site } = data;
+const siteTarget = { lat: site.center[1], lng: site.center[0], zoom: site.handoffZoom };
 
 // Development shortcut: `?view=case` opens the case view directly.
 const openCaseView =
@@ -62,8 +76,23 @@ export function App() {
   const [showSkip, setShowSkip] = useState(false);
   const [returned, setReturned] = useState(false);
   const [announcement, setAnnouncement] = useState("");
+  // The way back: the trip, the map at its handoff pose, the hero ready under it (or the wait
+  // for it over).
+  const [returnTrip, setReturnTrip] = useState<ReturnTrip | null>(null);
+  const [exitReady, setExitReady] = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
+  const [heroWaitOver, setHeroWaitOver] = useState(false);
   const heroRef = useRef<HeroApi>(null);
   const diveRef = useRef<DiveHandle | null>(null);
+  const ascentRef = useRef<AscentHandle | null>(null);
+  // Flags read by callbacks during the way back (no render depends on them).
+  const tripRef = useRef({
+    id: 0,
+    heroReady: false,
+    fadedOut: false,
+    ascending: false,
+    skip: false,
+  });
   const flightCount = useRef(initialFlight === null ? 0 : 1);
 
   const explore = () => {
@@ -74,7 +103,7 @@ export function App() {
     const id = flightCount.current;
     markFlight("explore");
     const reduced = prefersReducedMotion();
-    const target = { lat: site.center[1], lng: site.center[0], zoom: site.handoffZoom };
+    const target = siteTarget;
     // Once per flight, and only for the current one (a newer flight or Back replaces it).
     let handedOver = false;
     const reachHandoff = () => {
@@ -114,26 +143,151 @@ export function App() {
     void dive?.done.then(reachHandoff);
   };
 
-  const skip = useCallback(() => {
+  // The globe rises once the map has faded out and the hero is ready; the UI comes back part-way.
+  const startAscent = () => {
+    const trip = tripRef.current;
+    if (!trip.heroReady || !trip.fadedOut || trip.ascending) {
+      return;
+    }
+    trip.ascending = true;
+    const { id } = trip;
+    let shown = false;
+    const showUi = () => {
+      if (shown || tripRef.current.id !== id) {
+        return;
+      }
+      shown = true;
+      markFlight("ui-in");
+      setView("hero");
+      setAnnouncement(CASE_COPY.announceBack);
+    };
+    markFlight("ascent");
+    const ascent =
+      heroRef.current?.ascend({
+        onProgress: (progress) => {
+          if (progress >= RETURN.uiInAt) {
+            showUi();
+          }
+        },
+      }) ?? null;
+    ascentRef.current = ascent;
+    if (ascent === null) {
+      showUi();
+      return;
+    }
+    if (trip.skip) {
+      ascent.finish();
+    }
+    void ascent.done.then(() => {
+      markFlight("back-done");
+      showUi();
+    });
+  };
+
+  const skipFlight = useCallback(() => {
     markFlight("skip");
     diveRef.current?.cancel();
     setSkipped(true);
     setHeroGone(true);
   }, []);
 
-  const back = () => {
-    diveRef.current = null;
-    flightCount.current += 1;
+  // Skip on the way back: the map goes, the globe jumps to its framing (now, or when ready).
+  const skipReturn = useCallback(() => {
+    markFlight("skip");
+    const trip = tripRef.current;
+    trip.skip = true;
+    trip.fadedOut = true;
     setFlight(null);
-    setHeroGone(false);
-    setReturned(true);
     setView("hero");
     setAnnouncement(CASE_COPY.announceBack);
+    if (ascentRef.current === null) {
+      startAscent();
+    } else {
+      ascentRef.current.finish();
+    }
+    // startAscent only reads refs and calls state setters, so the first render's copy is current.
+  }, []);
+
+  const back = () => {
+    if (view !== "case") {
+      return;
+    }
+    diveRef.current = null;
+    ascentRef.current = null;
+    flightCount.current += 1;
+    tripRef.current = {
+      id: flightCount.current,
+      heroReady: false,
+      fadedOut: false,
+      ascending: false,
+      skip: false,
+    };
+    markFlight("back");
+    const exitZoom = handoffFrame(
+      site.handoffZoom,
+      site.center[1],
+      window.innerWidth,
+      window.innerHeight,
+      CAMERA.fovDeg,
+    ).zoom;
+    setReturnTrip({ id: flightCount.current, motion: !prefersReducedMotion(), exitZoom });
+    setExitReady(false);
+    setHeroReady(false);
+    setHeroWaitOver(false);
+    setShowSkip(false);
+    setAnnouncement("");
+    // The hero mounts again, under the map, parked over the site.
+    setHeroGone(false);
+    setReturned(true);
+    setView("returning");
   };
 
-  // While flying: the Skip button after a short delay, and Esc.
+  const onSceneReady = () => {
+    // Only the way back waits for the scene (StrictMode may report it twice).
+    if (view !== "returning" || tripRef.current.heroReady) {
+      return;
+    }
+    markFlight("hero-ready");
+    tripRef.current.heroReady = true;
+    setHeroReady(true);
+    startAscent();
+  };
+
+  const onFadedOut = () => {
+    // The globe is fully visible: drop the case view, which disposes the map.
+    const trip = tripRef.current;
+    trip.fadedOut = true;
+    setFlight(null);
+    if (!trip.heroReady) {
+      // The hero was too slow (its wait ran out): the CSS globe shows, the UI comes back now, and
+      // the scene fades in already on its framing when it is ready, as on a first visit.
+      markFlight("hero-late");
+      trip.skip = true;
+      setView("hero");
+      setAnnouncement(CASE_COPY.announceBack);
+      return;
+    }
+    startAscent();
+  };
+
+  const skip = view === "returning" ? skipReturn : skipFlight;
+
+  // On the way back, the crossfade waits for the hero only so long.
   useEffect(() => {
-    if (view !== "flying") {
+    if (view !== "returning") {
+      return undefined;
+    }
+    const timer = window.setTimeout(() => {
+      setHeroWaitOver(true);
+    }, RETURN.heroReadyTimeoutMs);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [view]);
+
+  // While flying either way: the Skip button after a short delay, and Esc.
+  useEffect(() => {
+    if (view !== "flying" && view !== "returning") {
       return undefined;
     }
     const timer = window.setTimeout(() => {
@@ -165,7 +319,10 @@ export function App() {
           leaving={view === "flying"}
           onExplore={explore}
           onWarmUp={warmUp}
-          focusExplore={returned}
+          focusExplore={view === "hero" && returned}
+          arriveFrom={view === "returning" && returnTrip?.motion === true ? siteTarget : null}
+          returning={view === "returning"}
+          onSceneReady={onSceneReady}
         />
       )}
       {flight === null ? null : (
@@ -191,9 +348,25 @@ export function App() {
             );
           }}
           onBack={back}
+          exit={
+            view === "returning" && returnTrip !== null
+              ? returnTrip.motion
+                ? "flight"
+                : "fade"
+              : null
+          }
+          exitZoom={returnTrip?.exitZoom}
+          fadeOut={view === "returning" && exitReady && (heroReady || heroWaitOver)}
+          fadeOutMs={returnTrip?.motion === false ? RETURN.reducedCrossfadeMs : RETURN.crossfadeMs}
+          onExitReady={() => {
+            setExitReady(true);
+          }}
+          onFadedOut={onFadedOut}
         />
       )}
-      {view === "flying" && showSkip ? <SkipButton onSkip={skip} /> : null}
+      {(view === "flying" || view === "returning") && showSkip ? (
+        <SkipButton onSkip={skip} />
+      ) : null}
       <p className="case-visually-hidden" aria-live="polite">
         {announcement}
       </p>

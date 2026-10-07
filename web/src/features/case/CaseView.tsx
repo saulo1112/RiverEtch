@@ -10,7 +10,7 @@ import "./case.css";
 import { useEffect, useEffectEvent, useRef, useState, type CSSProperties } from "react";
 
 import { cubicBezier } from "../../lib/easing.ts";
-import { FLIGHT, IMAGERY, MAP_LOOK, TERRAIN } from "./config.ts";
+import { FLIGHT, IMAGERY, MAP_LOOK, RETURN, TERRAIN } from "./config.ts";
 import { CASE_COPY } from "./content.ts";
 import { loadCaseMap } from "./loadMap.ts";
 import type { CaseMapHandle, FinalFrame } from "./map.ts";
@@ -25,6 +25,13 @@ import type { CaseData } from "./types.ts";
  * `direct` starts it on the final view with the river and the panels already shown.
  */
 export type CaseEntrance = "flight" | "direct";
+
+/**
+ * How the case view leaves on "Back to the globe": `flight` slides the panels out, retracts the
+ * river and eases the map back to the top-down handoff pose; `fade` just waits to fade out
+ * (reduced motion).
+ */
+export type CaseExit = "flight" | "fade";
 
 /** Props of {@link CaseView}. */
 export interface CaseViewProps {
@@ -48,6 +55,18 @@ export interface CaseViewProps {
   readonly onLanded?: () => void;
   /** Called by "Back to the globe". */
   readonly onBack: () => void;
+  /** The way back has started (null: staying). */
+  readonly exit?: CaseExit | null;
+  /** Handoff zoom for the way back, matching the globe's top-down view for this viewport. */
+  readonly exitZoom?: number;
+  /** Fade out over `fadeOutMs`, revealing the globe underneath. */
+  readonly fadeOut?: boolean;
+  /** Duration of the fade out, in milliseconds. */
+  readonly fadeOutMs?: number;
+  /** The exit is done: the map is back at the handoff pose (or there was nothing to move). */
+  readonly onExitReady?: () => void;
+  /** The fade out has finished; the view can be unmounted. */
+  readonly onFadedOut?: () => void;
 }
 
 interface CaseQAWindow extends Window {
@@ -60,6 +79,7 @@ interface CaseQAWindow extends Window {
 type MapStatus = "loading" | "ready" | "failed";
 
 const flyEase = cubicBezier(...FLIGHT.flyEase);
+const zoomOutEase = cubicBezier(...RETURN.zoomOutEase);
 
 // Screen size (px) of the reach at the final pose, the least free room the site keeps between
 // the panels, the most the final zoom backs off where even that is too small (phones), and the
@@ -147,6 +167,12 @@ export function CaseView({
   onCrossfaded,
   onLanded,
   onBack,
+  exit = null,
+  exitZoom = handoffZoom,
+  fadeOut = false,
+  fadeOutMs = RETURN.crossfadeMs,
+  onExitReady,
+  onFadedOut,
 }: CaseViewProps) {
   const rootRef = useRef<HTMLElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
@@ -157,9 +183,18 @@ export function CaseView({
   const [panelsIn, setPanelsIn] = useState(false);
   const [flightLanded, setFlightLanded] = useState(false);
 
-  const visible = go || skip;
+  const visible = (go || skip) && !fadeOut;
   const shownAtOnce = skip || entrance === "direct";
-  const panels = !visible ? "hidden" : shownAtOnce ? "shown" : panelsIn ? "in" : "hidden";
+  const panels =
+    exit !== null
+      ? "out"
+      : !visible
+        ? "hidden"
+        : shownAtOnce
+          ? "shown"
+          : panelsIn
+            ? "in"
+            : "hidden";
   const landed =
     skip || (entrance === "direct" ? visible && (crossfadeMs === 0 || crossfaded) : flightLanded);
 
@@ -171,6 +206,14 @@ export function CaseView({
   const notifyCrossfaded = useEffectEvent(() => {
     markFlight("crossfaded");
     onCrossfaded?.();
+  });
+  const notifyExitReady = useEffectEvent(() => {
+    markFlight("map-at-handoff");
+    onExitReady?.();
+  });
+  const notifyFadedOut = useEffectEvent(() => {
+    markFlight("faded-out");
+    onFadedOut?.();
   });
   const notifyLanded = useEffectEvent(() => {
     markFlight("landed");
@@ -212,7 +255,7 @@ export function CaseView({
         // Skipped while the map was loading: it started at the handoff pose.
         if (startsOnFinal()) {
           created.jumpToFinal(finalFrame(rootRef.current));
-          created.revealRiver(0);
+          created.animateRiver(1, 0);
         }
         await created.ready;
         if (live()) {
@@ -283,7 +326,7 @@ export function CaseView({
       if (!riverStarted && t >= FLIGHT.riverAt) {
         riverStarted = true;
         markFlight("river");
-        handle?.revealRiver(MAP_LOOK.river.revealMs);
+        handle?.animateRiver(1, MAP_LOOK.river.revealMs);
       }
       if (!panelsStarted && t >= FLIGHT.panelsAt) {
         panelsStarted = true;
@@ -308,7 +351,7 @@ export function CaseView({
   useEffect(() => {
     if (skip) {
       handleRef.current?.jumpToFinal(finalFrame(rootRef.current));
-      handleRef.current?.revealRiver(0);
+      handleRef.current?.animateRiver(1, 0);
     }
   }, [skip]);
 
@@ -318,7 +361,47 @@ export function CaseView({
     }
   }, [landed]);
 
-  const style = { "--crossfade": `${String(crossfadeMs)}ms` } as CSSProperties;
+  // The way back: the panels slide out (CSS), the river retracts upstream and the map eases back
+  // to the top-down handoff pose, where the globe will take over.
+  useEffect(() => {
+    if (exit === null) {
+      return undefined;
+    }
+    const handle = handleRef.current;
+    let cancelled = false;
+    let timer = 0;
+    if (exit === "flight" && handle !== null) {
+      handle.animateRiver(0, RETURN.riverOutMs);
+      void handle.flyToHandoff(RETURN.zoomOutMs, zoomOutEase, exitZoom).then(() => {
+        if (!cancelled) {
+          notifyExitReady();
+        }
+      });
+    } else {
+      // Nothing to fly: let the panels clear first when they animate.
+      timer = window.setTimeout(notifyExitReady, exit === "flight" ? RETURN.panelsOutMs : 0);
+    }
+    return () => {
+      cancelled = true;
+      window.clearTimeout(timer);
+    };
+  }, [exit, exitZoom]);
+
+  // Fade out over the globe; the caller unmounts the view once it is gone.
+  useEffect(() => {
+    if (!fadeOut) {
+      return undefined;
+    }
+    markFlight("fade-out");
+    const timer = window.setTimeout(notifyFadedOut, fadeOutMs + FLIGHT.crossfadeMarginMs);
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [fadeOut, fadeOutMs]);
+
+  const style = {
+    "--crossfade": `${String(fadeOut ? fadeOutMs : crossfadeMs)}ms`,
+  } as CSSProperties;
   return (
     <section
       ref={rootRef}
@@ -327,10 +410,11 @@ export function CaseView({
       style={style}
       data-map={mapStatus}
       data-visible={visible}
-      data-instant={skip || crossfadeMs === 0}
+      data-instant={(skip || crossfadeMs === 0) && exit === null}
       data-haze={entrance === "flight" && go && !skip}
+      data-haze-out={fadeOut && exit === "flight"}
       data-panels={panels}
-      inert={!landed}
+      inert={!landed || exit !== null}
     >
       <div className="case-view__map" ref={mapRef} aria-hidden="true" />
       <div className="case-view__shade case-view__shade--top" aria-hidden="true" />
