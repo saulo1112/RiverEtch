@@ -17,6 +17,12 @@ export const IMAGERY = {
   tiles: `https://tiles.maps.eox.at/wmts/1.0.0/${IMAGERY_LAYER}/default/g/{z}/{y}/{x}.jpg`,
   tileSize: 256,
   maxzoom: 13,
+  // The same imagery capped at this zoom, drawn under the sharp layer: wherever a sharp tile is
+  // still loading (a fast zoom outruns the network, as on the way back), the blurry underlay
+  // shows instead of the black background. One zoom below what the handoff view loads, so the
+  // handful of tiles fetched with that first view covers the whole flight and stays in the
+  // source's tile cache, which the sharp layer's hundred-odd tiles per flight overflow.
+  underlayMaxzoom: 5,
   attribution:
     "Sentinel-2 cloudless - https://s2maps.eu by EOX IT Services GmbH (Contains modified Copernicus Sentinel data 2024)",
   homepage: "https://s2maps.eu",

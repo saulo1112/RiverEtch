@@ -108,7 +108,13 @@ export interface CaseMapHandle {
   readonly dispose: () => void;
 }
 
-const SOURCE = { imagery: "imagery", terrain: "terrain", hillshade: "hillshade", river: "river" };
+const SOURCE = {
+  imagery: "imagery",
+  imageryBase: "imagery-base",
+  terrain: "terrain",
+  hillshade: "hillshade",
+  river: "river",
+};
 const LAYER = { hillshade: "hillshade", glow: "river-glow", core: "river-core" };
 
 interface RiverStop {
@@ -189,9 +195,22 @@ function buildStyle(
   };
   const { imagery, hillshade, river, sky } = MAP_LOOK;
   const gradient = riverGradient(stops, reveal);
+  const grading = {
+    "raster-saturation": imagery.saturation,
+    "raster-contrast": imagery.contrast,
+    "raster-brightness-max": imagery.brightnessMax,
+  };
   return {
     version: 8,
     sources: {
+      // First, so its few tiles head the request queue: a tile still loading when the flight
+      // moves on is dropped, not cached for the way back.
+      [SOURCE.imageryBase]: {
+        type: "raster",
+        tiles: [tiles.imagery],
+        tileSize: IMAGERY.tileSize,
+        maxzoom: IMAGERY.underlayMaxzoom,
+      },
       [SOURCE.imagery]: {
         type: "raster",
         tiles: [tiles.imagery],
@@ -216,15 +235,16 @@ function buildStyle(
     layers: [
       { id: "background", type: "background", paint: { "background-color": MAP_LOOK.background } },
       {
+        id: "imagery-base",
+        type: "raster",
+        source: SOURCE.imageryBase,
+        paint: { ...grading, "raster-fade-duration": 0 },
+      },
+      {
         id: "imagery",
         type: "raster",
         source: SOURCE.imagery,
-        paint: {
-          "raster-saturation": imagery.saturation,
-          "raster-contrast": imagery.contrast,
-          "raster-brightness-max": imagery.brightnessMax,
-          "raster-fade-duration": imagery.fadeDurationMs,
-        },
+        paint: { ...grading, "raster-fade-duration": imagery.fadeDurationMs },
       },
       {
         id: LAYER.hillshade,
