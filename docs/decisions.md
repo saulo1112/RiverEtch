@@ -133,3 +133,8 @@ last. Format: context → decision → consequences.
   - The screening is reproducible by anyone with the repository and GitHub Actions.
   - Results carry the method blob, config hash and STAC item-id hashes.
   - The sandbox runs only the offline tests.
+  - Reflectance scaling cannot be taken from `raster:bands` alone. Earth Search items flagged
+    `earthsearch:boa_offset_applied` already carry the BOA offset in their pixels, and some
+    unflagged Sentinel-2C items do too. Any reader of these COGs (the screening, a future
+    operational pipeline) needs an empirical check, such as water B11 near 0, before using the
+    values.
