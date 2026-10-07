@@ -1,5 +1,7 @@
 event_id,site_id,date_start,date_end,event_type,confidence,status,scene_days,max_abs_z,signal,rain_coincident_scene,chance_rate,chance_windows,window_days
-sinu-urra-01,sinu-urra,2022-11-28,2022-11-30,flow_increase,medium,hit,2022-12-07,3.26,downstream,False,0.121,124,15
-sinu-urra-02,sinu-urra,2025-07-12,2025-07-13,contingency,medium,miss,2025-07-14 2025-07-16,1.02,downstream,True,0.085,117,14
-sinu-urra-03,sinu-urra,2025-08-01,2025-08-02,powerhouse_operation,low,unobservable,,,,False,0.085,117,14
-sinu-urra-04,sinu-urra,2025-11-29,2025-11-29,contingency,medium,unobservable,,,,False,0.081,111,13
+sinu-urra-01,sinu-urra,2022-11-28,2022-11-30,flow_increase,medium,hit,2022-12-07,3.26,downstream,False,0.125,120,15
+sinu-urra-02,sinu-urra,2025-07-12,2025-07-13,contingency,medium,miss,2025-07-14 2025-07-16,1.02,downstream,True,0.088,113,14
+sinu-urra-03,sinu-urra,2025-08-01,2025-08-02,powerhouse_operation,low,unobservable,,,,False,0.088,113,14
+sinu-urra-04,sinu-urra,2025-11-29,2025-11-30,contingency,medium,unobservable,,,,False,0.088,113,14
+sinu-urra-05,sinu-urra,2022-08-14,2022-08-14,flow_increase,medium,unobservable,,,,False,0.084,107,13
+sinu-urra-06,sinu-urra,2025-07-21,2025-07-21,flow_increase,high,unobservable,,,,False,0.084,107,13
