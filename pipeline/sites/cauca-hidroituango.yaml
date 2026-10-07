@@ -60,6 +60,21 @@ feature:
     -75.6624, which agrees within about 0.5 km.
   basis: source-stated
   source_url: https://en.wikipedia.org/wiki/Ituango_Dam
+erosion_px_10m: 2
+exclude_polygons:
+  - description:
+      "Ituango reservoir side of the AOI, south of the dam. Approximate: the part of the AOI
+      just upstream of the dam (reservoir side), from the dam coordinates; keeps reservoir water out of
+      the river mask."
+    coordinates:
+      - - -75.67
+        - 7.12
+      - - -75.645
+        - 7.12
+      - - -75.645
+        - 7.1285
+      - - -75.67
+        - 7.1285
 confluences:
   - name: Río Ituango
     point:
@@ -335,3 +350,7 @@ unverified:
     not used as a 2022-2025 event"
   - Intermediate discharge tunnel environmental minimum of 450 m3/s and spillway capacity of 22,600 m3/s
     (2018-2019 context, single summary each; not used)
+  - "Reservoir exclusion polygon: drawn from the dam coordinates only, not from a map; the run's mask and
+    quick-looks show whether it is placed right."
+  - "Bank erosion of 2 pixels at 10 m: the pre-registered value for canyon reaches; sources describe this
+    reach as a narrow V-shaped canyon."

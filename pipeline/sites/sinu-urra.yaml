@@ -50,6 +50,20 @@ feature:
     the value here is their mean (they differ by about 0.4 km).
   basis: source-stated
   source_url: https://www.gem.wiki/Urra_1_hydroelectric_plant
+exclude_polygons:
+  - description:
+      "Urrá I reservoir side of the AOI, south-west of the dam. Approximate: the part of the
+      AOI just upstream of the dam (reservoir side), from the dam coordinates; keeps reservoir water out
+      of the river mask."
+    coordinates:
+      - - -76.23
+        - 7.99
+      - - -76.198
+        - 7.99
+      - - -76.198
+        - 8.009
+      - - -76.23
+        - 8.009
 confluences: []
 regime_changes: []
 rain_points:
@@ -273,3 +287,5 @@ unverified:
     the dam) could be searched for
   - "Upstream anchor: moved about 1 km from the dam toward the downstream anchor along a straight line,
     not along the channel."
+  - "Reservoir exclusion polygon: drawn from the dam coordinates only, not from a map; the run's mask and
+    quick-looks show whether it is placed right."

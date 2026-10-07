@@ -56,6 +56,20 @@ feature:
     the Betania reservoir.
   basis: source-stated
   source_url: https://gem.wiki/Betania_hydroelectric_plant
+exclude_polygons:
+  - description:
+      "Betania reservoir side of the AOI, south of the dam. Approximate: the part of the AOI
+      just upstream of the dam (reservoir side), from the dam coordinates; keeps reservoir water out of
+      the river mask."
+    coordinates:
+      - - -75.47
+        - 2.68
+      - - -75.42
+        - 2.68
+      - - -75.42
+        - 2.7035
+      - - -75.47
+        - 2.7035
 confluences:
   - name: Río Neiva
     point:
@@ -238,3 +252,5 @@ unverified:
   - "Upstream anchor: moved about 1 km from the dam toward the downstream anchor along a straight line,
     not along the channel."
   - Río Yaguará enters the Betania reservoir at the dam (above the reach); left out of the confluence list.
+  - "Reservoir exclusion polygon: drawn from the dam coordinates only, not from a map; the run's mask and
+    quick-looks show whether it is placed right."

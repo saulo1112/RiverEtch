@@ -55,6 +55,20 @@ feature:
     gives 2.9435, -76.7079, within about 300 m.
   basis: source-stated
   source_url: https://en.wikipedia.org/wiki/Salvajina_Dam
+exclude_polygons:
+  - description:
+      "Salvajina reservoir side of the AOI, south of the dam. Approximate: the part of the AOI
+      just upstream of the dam (reservoir side), from the dam coordinates; keeps reservoir water out of
+      the river mask."
+    coordinates:
+      - - -76.716
+        - 2.931
+      - - -76.69
+        - 2.931
+      - - -76.69
+        - 2.9385
+      - - -76.716
+        - 2.9385
 confluences:
   - name: Río Ovejas
     point:
@@ -289,3 +303,5 @@ unverified:
   - "Rainy-season months: MAM/SON (dialnet 7843284) vs Apr-Jun/Oct-Dec (CVC-derived summary)"
   - "Río Timba confluence position: no source states it; left out of the confluence list (it may lie a few
     km above La Balsa)."
+  - "Reservoir exclusion polygon: drawn from the dam coordinates only, not from a map; the run's mask and
+    quick-looks show whether it is placed right."
