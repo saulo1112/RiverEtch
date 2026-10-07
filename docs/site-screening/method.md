@@ -225,6 +225,31 @@ rule. A ranking that changes under these checks is reported as fragile.
 - **Where it runs.** The real run is the `Site screening` GitHub Actions workflow. The development
   sandbox cannot reach the STAC APIs.
 
+## Post-hoc secondary analysis (declared 2026-10-07, after the first real run)
+
+The first real run, on the four dam reaches, showed that SCL almost never labels three of them as
+water: Hidroituango had 24 pixels with a water frequency of 0.9 or more, where a 20 km river
+about 100 m wide would need about 5,000. Their masks failed even at the 0.25 fallback, so the
+pre-registered score gates them out whatever their real observability. A second, **post-hoc**
+analysis is declared here, before it is run, and reported next to the pre-registered one. It
+never replaces it. Only two rules change:
+
+1. **Water mask.**
+   - Where the SCL mask fails at every threshold, the river mask comes from an MNDWI water
+     frequency instead (the pre-registered thresholds 0.5, 0.35 and 0.25 are tried in the same
+     order).
+   - MNDWI = (green − SWIR1) / (green + SWIR1) is computed per acquisition from B03, averaged to
+     20 m, and B11, both on reflectance with each item's scale and offset.
+   - A clear observation is an SCL value that is neither no data nor invalid, with both bands
+     present. It counts as water when MNDWI > 0.
+   - Each site reports which mask it used.
+2. **Score.** Coverage, the clear-scene gate and contrast feasibility use the **observable** rule
+   (valid river-mask pixels whatever their SCL class) instead of SCL water pixels. The weights,
+   anchors, other gates and the stage-2 selection and recommendation rules are unchanged.
+
+Stage 2, the event validation and every other threshold are identical. The outputs go to
+`results-posthoc/`.
+
 ## Deviations
 
 Any change after the first real run is listed here with its date, what changed, why, and whether
