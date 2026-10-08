@@ -1,0 +1,39 @@
+id,group,url,purpose
+anla-pis-urra,R1,https://www.anla.gov.co/proyectos-de-interes-en-seguimiento/pis-hidroelectrica-urra-i,ANLA project page for Urrá I: licensee and links to licence acts
+anla-news-seguimiento,R1,https://www.anla.gov.co/01_anla/noticias/1265-anla-realizo-seguimiento-a-proyecto-hidroelectrico-urra-i,ANLA news item on its follow-up of Urrá I
+anla-news-alertas,R1,https://www.anla.gov.co/noticias-anla/la-anla-continua-monitoreo-de-alertas-rojas-en-urra-cordoba-y-otras-zonas-del-pais,ANLA news item on red alerts at Urrá (authority role)
+urra-home,R1,https://urra.com.co/,Company site: operator name and links to environmental pages
+urra-faq-2022,R1,https://urra.com.co/wp-content/uploads/2022/08/Preguntas-Frecuentes-V0822.pdf,Company FAQ (2022): operator; Carrizola distance; operation of the reservoir
+cvs-home,R1,https://cvs.gov.co/,CVS site: regional authority; links to Río Sinú documents
+cvs-protocolo-sinu-2020,R1,https://cvs.gov.co/web/wp-content/docs/gestion_riesgo/Actualizaci%C3%B3n_Protocolo_Rio_Sin%C3%BA_2020.pdf,CVS Río Sinú risk protocol (2020): roles of CVS and the operator
+cvs-resolucion-2-7895,R1,https://cvs.gov.co/download/436/2022/10228/resolucion-no-2-7895.pdf,CVS resolution found by search; subject unknown until read
+datos-catalog-urra,R1,https://www.datos.gov.co/api/catalog/v1?q=Urr%C3%A1&limit=100,Open-data catalog: datasets mentioning Urrá
+datos-catalog-sinu,R1,https://www.datos.gov.co/api/catalog/v1?q=Sin%C3%BA&limit=100,Open-data catalog: datasets mentioning the Sinú
+datos-catalog-calidad-agua,R1,https://www.datos.gov.co/api/catalog/v1?q=calidad%20del%20agua%20C%C3%B3rdoba&limit=100,Open-data catalog: water-quality datasets for Córdoba
+ideam-dhime,R1,http://dhime.ideam.gov.co/atencionciudadano/,IDEAM DHIME portal: public hydrological and water-quality station data
+scielo-carrizola,R1,http://www.scielo.org.co/scielo.php?script=sci_arttext&pid=S0122-02682015000300010,Carrizola sampling station paper (2015): position and variables measured
+cc-t-652-98,R1,https://www.corteconstitucional.gov.co/relatoria/1998/t-652-98.htm,Constitutional Court T-652/98 (public proceeding on Urrá I and its licence)
+cc-t-194-99,R1,https://www.corteconstitucional.gov.co/relatoria/1999/t-194-99.htm,Constitutional Court T-194/99 (public proceeding citing the 1993 licence)
+minambiente-auto-0077-2012,R1,https://www.minambiente.gov.co/wp-content/uploads/2021/09/auto-0077-de-2012.pdf,Ministry auto 0077 of 2012 found by search; subject unknown until read
+ce-proy-rio-sinu,R1,https://www.consejodeestado.gov.co/wp-content/uploads/2022/ProyRioSin.pdf,Council of State document on the Río Sinú (2022) found by search
+anla-res-0243-1993,R2,https://www.anla.gov.co/images/documentos/resoluciones/2026-02-12-anla-resolucion-0243-13041993.pdf,Licence grant (13 Apr 1993): issuer and licence conditions
+anla-res-0838-1999,R2,https://www.anla.gov.co/images/documentos/resoluciones/2026-02-12-anla-resolucion-0838-05101999.pdf,Licence modification (5 Oct 1999): licensee and conditions
+anla-res-1125-2000,R2,https://www.anla.gov.co/images/documentos/resoluciones/2026-02-12-anla-resolucion-1125-03112000.pdf,Modification and requirements (3 Nov 2000)
+anla-res-0569-2002,R2,https://www.anla.gov.co/images/documentos/resoluciones/2026-02-12-anla-resolucion-0569-21062002.pdf,Appeal decision (21 Jun 2002)
+anla-res-1556-2020,R2,https://www.anla.gov.co/images/documentos/resoluciones/2026-02-12-anla-resolucion-01556-15092020.pdf,Adjustment via follow-up (21 Sep 2020 per the ANLA page; file name says 15092020)
+anla-res-1962-2020,R2,https://www.anla.gov.co/images/documentos/resoluciones/2026-02-12-anla-resolucion-01962-03122020.pdf,Appeal decision on Resolution 1556 (3 Dec 2020)
+anla-res-0459-2022,R2,https://www.anla.gov.co/images/documentos/resoluciones/2026-02-12-anla-resolucion-00459-28022022.pdf,Adjustment via follow-up (28 Feb 2022)
+anla-acta-269-2025,R2,https://www.anla.gov.co/images/documentos/actas/2026-02-12-anla-acta-269-06062025.pdf,Follow-up record (6 Jun 2025)
+anla-auto-11905-2025,R2,https://www.anla.gov.co/images/documentos/autos/2026-02-12-anla-auto-11905-30122025.pdf,Control and follow-up (30 Dec 2025)
+anla-auto-0939-2026,R2,https://www.anla.gov.co/images/documentos/autos/2026-02-23-anla-auto-000939-16022026.pdf,Control and follow-up (16 Feb 2026)
+anla-lam0112-obras,R2,https://www.anla.gov.co/images/entidad/ses/obras-activ/2026-02-13-anla-obras-activ-lam0112.pdf,LAM0112 works and activities sheet
+anla-lam0112-estado,R2,https://www.anla.gov.co/images/entidad/ses/estad-avance/2026-02-13-anla-estado-avance-lam0112.pdf,LAM0112 current status sheet
+anla-lam0112-eia,R2,https://www.anla.gov.co/images/entidad/ses/2026-02-16-anla-EIA-lam0112.pdf,Environmental impact study published for LAM0112
+urra-informe-hidrologia,R3,https://urra.com.co/informe-de-hidrologia/,Company page with daily hydrology reports (public operational data?)
+urra-gestion-ambiental,R3,https://urra.com.co/gestion-ambiental/,Company environmental-management page: licence and monitoring as the company states them
+urra-gestion-tecnica,R3,https://urra.com.co/gestion-tecnica/,Company technical page: plant and reservoir operation as the company states them
+urra-transparencia,R3,https://urra.com.co/transparencia/,Company transparency page: legal identity and published reports
+anla-news-sobrepaso-2026,R3,https://www.anla.gov.co/noticias-anla/la-evidencia-tecnica-que-tiene-la-anla-sobre-el-sostenido-sobrepaso-del-embalse-de-urra,ANLA news item (2026) on the reservoir overflow: authority statements for the sensitivity scan
+datos-ideam-calidad-meta,R3,https://www.datos.gov.co/api/views/62gv-3857.json,IDEAM open dataset of surface-water quality and sediments: metadata and licence
+datos-ideam-calidad-sinu-puntos,R3,https://www.datos.gov.co/resource/62gv-3857.json?%24select=nombre_del_punto_de_monitoreo%2Clatitud%2Clongitud%2Cmunicipio%2Cmin%28fecha%29+as+first%2Cmax%28fecha%29+as+last%2Ccount%28%2A%29+as+n&%24where=corriente+in+%28%27SIN%C3%9A%27%2C%27SINU%27%29&%24group=nombre_del_punto_de_monitoreo%2Clatitud%2Clongitud%2Cmunicipio&%24limit=500,IDEAM dataset: monitoring points on the Sinú with first and last dates
+datos-ideam-calidad-sinu-turbidez,R3,https://www.datos.gov.co/resource/62gv-3857.json?%24select=nombre_del_punto_de_monitoreo%2Cpropiedad_observada%2Cunidad_del_resultado%2Cmin%28fecha%29+as+first%2Cmax%28fecha%29+as+last%2Ccount%28%2A%29+as+n&%24where=corriente+in+%28%27SIN%C3%9A%27%2C%27SINU%27%29+AND+%28upper%28propiedad_observada%29+like+%27%25TURBI%25%27+OR+upper%28propiedad_observada%29+like+%27%25SUSPEN%25%27%29&%24group=nombre_del_punto_de_monitoreo%2Cpropiedad_observada%2Cunidad_del_resultado&%24limit=500,IDEAM dataset: turbidity and suspended-solids records on the Sinú
