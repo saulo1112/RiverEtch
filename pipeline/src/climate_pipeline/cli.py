@@ -53,6 +53,7 @@ def _parser() -> argparse.ArgumentParser:
     docs.add_argument("--out", type=Path, required=True, help="output folder (never committed)")
     docs.add_argument("--max-mb", type=float, default=60.0, help="size cap per document")
     docs.add_argument("--pause", type=float, default=1.5, help="seconds between requests")
+    docs.add_argument("--timeout", type=float, default=60.0, help="seconds per request")
     for name, text in (
         ("validation", "run a pre-registered reach validation (its settings file: --config)"),
         ("catchment-grid", "build the catchment rain grid of the validation's target reach"),
@@ -99,6 +100,7 @@ def fetch_docs(args: argparse.Namespace) -> int:
         chosen,
         args.out,
         fetch.load_keywords(args.keywords),
+        client=fetch.make_client(args.timeout),
         max_bytes=int(args.max_mb * 1_000_000),
         pause_s=args.pause,
     )

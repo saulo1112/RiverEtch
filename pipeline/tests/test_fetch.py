@@ -285,11 +285,18 @@ def test_fetch_docs_prints_the_manifest_and_requested_pages(
     )
     (tmp_path / "k.txt").write_text("licencia\n", encoding="utf-8")
     (tmp_path / "p.csv").write_text("source_id,pages,reason\na,1,quote\n", encoding="utf-8")
-    monkeypatch.setattr(fetch, "make_client", lambda: client(html_site))
+    timeouts: list[float] = []
+
+    def make(timeout_s: float = 60.0) -> httpx.Client:
+        timeouts.append(timeout_s)
+        return client(html_site)
+
+    monkeypatch.setattr(fetch, "make_client", make)
     args = ["fetch-docs", "--sources", str(tmp_path / "s.csv"), "--keywords",
             str(tmp_path / "k.txt"), "--print-pages", str(tmp_path / "p.csv"), "--groups", "R1",
-            "--out", str(tmp_path / "out"), "--pause", "0"]  # fmt: skip
+            "--out", str(tmp_path / "out"), "--pause", "0", "--timeout", "300"]  # fmt: skip
     assert main(args) == 0
+    assert timeouts == [300.0]
     out = capsys.readouterr().out
     assert "a: ok 200" in out and "z:" not in out
     manifest = out.split(fetch.MANIFEST_BEGIN)[1].split(fetch.MANIFEST_END)[0]
