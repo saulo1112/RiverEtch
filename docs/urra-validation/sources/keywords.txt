@@ -1,0 +1,29 @@
+# Keywords for the keyword-in-context table of the Urrá regulatory verification. Matching ignores
+# accents and case; a phrase matches whole words, and a trailing * matches any word starting with
+# it. Spanish terms, since the sources are Colombian; English glosses in the comments.
+caudal ecológico # ecological flow
+caudal mínimo # minimum flow
+caudal* ambiental # environmental flow
+régimen # (flow) regime
+rampa* # ramping
+vertedero* # spillway
+rebose # overflow
+operación del embalse # reservoir operation
+calidad del agua # water quality
+sedimento* # sediment(s)
+turbiedad # turbidity
+turbidez # turbidity
+sólidos suspendidos # suspended solids
+sólidos en suspensión # suspended solids
+estación # station
+estaciones # stations
+monitoreo* # monitoring
+Carrizola # sampling station below the dam
+ICA # Informe de Cumplimiento Ambiental (environmental compliance report) or Índice de Calidad del Agua (water-quality index)
+Informe de Cumplimiento Ambiental # environmental compliance report
+Índice de Calidad del Agua # water-quality index
+licencia ambiental # environmental licence
+plan de manejo ambiental # environmental management plan
+cesión # transfer (of the licence)
+expediente # case file
+LAM0112 # ANLA case file number seen in a search summary (to be confirmed)

@@ -1,7 +1,10 @@
 """Command-line entry point of the pipeline.
 
 ``climate-pipeline screening`` runs the data-driven site screening (see
-docs/site-screening/method.md). The other stages (operational ingestion, anomaly publication)
+docs/site-screening/method.md); ``climate-pipeline fetch-docs`` fetches public documents with a
+provenance manifest (see docs/urra-validation/regulatory.md); ``climate-pipeline catchment-grid``
+and ``climate-pipeline validation`` run the pre-registered validation of the chosen reach (see
+docs/urra-validation/method.md). The other stages (operational ingestion, anomaly publication)
 are not implemented yet.
 """
 
@@ -38,7 +41,151 @@ def _parser() -> argparse.ArgumentParser:
     screening.add_argument(
         "--results", type=Path, default=None, help="where generated tables go (default: docs)"
     )
+    docs = commands.add_parser(
+        "fetch-docs",
+        help="fetch public documents with a provenance manifest and keyword-in-context hits",
+    )
+    docs.add_argument("--sources", type=Path, required=True, help="CSV: id,group,url,purpose")
+    docs.add_argument("--keywords", type=Path, required=True, help="one keyword per line")
+    docs.add_argument("--print-pages", type=Path, default=None, help="CSV: source_id,pages,reason")
+    docs.add_argument("--groups", default="", help="comma-separated groups (default: all)")
+    docs.add_argument("--only", default="", help="comma-separated source ids (default: all)")
+    docs.add_argument("--out", type=Path, required=True, help="output folder (never committed)")
+    docs.add_argument("--max-mb", type=float, default=60.0, help="size cap per document")
+    docs.add_argument("--pause", type=float, default=1.5, help="seconds between requests")
+    for name, text in (
+        ("validation", "run the pre-registered Urrá validation (docs/urra-validation/method.md)"),
+        ("catchment-grid", "build the catchment rain grid of the validation's target reach"),
+    ):
+        command = commands.add_parser(name, help=text)
+        command.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+        command.add_argument(
+            "--config", type=Path, default=Path("pipeline/urra-validation.yaml"),
+            help="validation settings, relative to the root",
+        )  # fmt: skip
+        command.add_argument(
+            "--out", type=Path, default=Path("pipeline/out"), help="caches, relative to the root"
+        )
+    validation = commands.choices["validation"]
+    validation.add_argument("--stage1-only", action="store_true", help="smoke run: no NDTI")
+    validation.add_argument("--workers", type=int, default=8)
+    validation.add_argument(
+        "--results", type=Path, default=None, help="results folder (default: from the config)"
+    )
     return parser
+
+
+def _split(text: str) -> set[str]:
+    return {part.strip() for part in text.split(",") if part.strip()}
+
+
+def fetch_docs(args: argparse.Namespace) -> int:
+    """Run ``fetch-docs``: fetch, extract text, print the manifest and the requested pages.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code.
+    """
+    from climate_pipeline.sources import fetch
+
+    sources = fetch.load_sources(args.sources)
+    groups, only = _split(args.groups), _split(args.only)
+    chosen = [
+        s for s in sources if (not groups or s.group in groups) and (not only or s.id in only)
+    ]
+    records, hits = fetch.fetch_all(
+        chosen,
+        args.out,
+        fetch.load_keywords(args.keywords),
+        max_bytes=int(args.max_mb * 1_000_000),
+        pause_s=args.pause,
+    )
+    for record in records:
+        state = "ok" if record.ok else "FAILED"
+        found = sum(1 for h in hits if h.source_id == record.source_id)
+        print(
+            f"{record.source_id}: {state} {record.status} {record.copy} {record.bytes} B, "
+            f"{record.pages} pages ({record.ocr_pages} OCR), {found} keyword hits"
+            f"{'; ' + record.error if record.error else ''}"
+        )
+    print(fetch.MANIFEST_BEGIN)
+    print(fetch.manifest_csv(records), end="")
+    print(fetch.MANIFEST_END)
+    if args.print_pages is not None:
+        wanted = fetch.load_print_pages(args.print_pages)
+        for record in (r for r in records if r.ok and r.source_id in wanted):
+            pages = fetch.read_pages(args.out / "text" / f"{record.source_id}.txt")
+            for page in (p for p in pages if p.number in wanted[record.source_id]):
+                ocr = " (OCR)" if page.ocr else ""
+                print(f"=== {record.source_id} page {page.number}{ocr} BEGIN ===")
+                print(page.text)
+                print(f"=== {record.source_id} page {page.number} END ===")
+    return 0
+
+
+def validation(args: argparse.Namespace) -> int:
+    """Run ``validation``: the full run, or the smoke run with ``--stage1-only``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code.
+    """
+    from climate_pipeline.validation.config import load_validation_config
+    from climate_pipeline.validation.report import write_outputs
+    from climate_pipeline.validation.run import ValidationPaths, run_validation
+
+    root = args.root.resolve()
+    paths = ValidationPaths(root, root / args.config, root / args.out)
+    outputs = run_validation(paths, stage1_only=args.stage1_only, workers=args.workers)
+    cfg = load_validation_config(paths.config)
+    results = root / args.results if args.results is not None else root / cfg.outputs.results
+    write_outputs(outputs, results, root)
+    verdict = outputs.verdict.label if outputs.verdict else "none (smoke run)"
+    print(f"verdict: {verdict}; results in {results}")
+    return 0
+
+
+def catchment_grid(args: argparse.Namespace) -> int:
+    """Run ``catchment-grid``: build and write the target reach's rain grid.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code.
+    """
+    from climate_pipeline.screening.config import load_site
+    from climate_pipeline.validation.config import load_validation_config
+    from climate_pipeline.validation.grid import (
+        HydroBasins,
+        build_grid,
+        download,
+        extract_layer,
+        write_grid,
+    )
+
+    root = args.root.resolve()
+    cfg = load_validation_config(root / args.config)
+    c = cfg.rain.catchment
+    site = load_site(root / "pipeline" / "sites" / f"{cfg.sites.target}.yaml")
+    cache = root / args.out / "cache" / "hydrobasins"
+    archive = cache / f"{c.hydrobasins_layer}.zip"
+    sha256 = download(c.hydrobasins_url, archive)
+    layer = HydroBasins.open(extract_layer(archive, c.hydrobasins_layer, cache / "layer"))
+    anchor = (site.downstream_anchor.lon, site.downstream_anchor.lat)
+    grid = build_grid(
+        layer, anchor, c.anchor_tolerance_deg, c.spacings_deg, c.points_min, c.points_max, sha256
+    )
+    write_grid(grid, root / c.grid_csv)
+    print(
+        f"HydroBASINS sha256 {sha256}; outlet {grid.outlet_hybas_id}; {grid.basins} basins, "
+        f"{grid.area_km2:.0f} km2; spacing {grid.spacing}; {len(grid.points)} points ({grid.note})"
+    )
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -52,6 +199,13 @@ def main(argv: list[str] | None = None) -> int:
     """
     parser = _parser()
     args = parser.parse_args(argv)
+    if args.command == "fetch-docs":
+        return fetch_docs(args)
+    if args.command in ("validation", "catchment-grid"):
+        logging.basicConfig(
+            level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+        )
+        return validation(args) if args.command == "validation" else catchment_grid(args)
     if args.command != "screening":
         parser.print_help()
         return 0

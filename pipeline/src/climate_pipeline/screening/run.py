@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 import math
 import shutil
-import subprocess
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -13,6 +12,7 @@ from pathlib import Path
 import numpy as np
 
 from climate_pipeline import __version__
+from climate_pipeline.provenance import blob, head, last_commit
 from climate_pipeline.screening.config import (
     ScreeningConfig,
     SiteConfig,
@@ -64,14 +64,6 @@ class RunPaths:
     method: Path
     out: Path
     results: Path
-
-
-def _git(*args: str) -> str:
-    try:
-        done = subprocess.run(["git", *args], capture_output=True, text=True, check=True)
-    except (OSError, subprocess.CalledProcessError):
-        return "unknown"
-    return done.stdout.strip() or "unknown"
 
 
 def stage1_inputs(
@@ -186,11 +178,11 @@ def run_screening(
         "source": name,
         "sites": [s.id for s in sites],
         "stage2_sites": selected,
-        "method_blob": _git("hash-object", str(paths.method)),
-        "method_last_commit": _git("log", "-1", "--format=%H", "--", str(paths.method)),
+        "method_blob": blob(paths.method),
+        "method_last_commit": last_commit(paths.method),
         "config_sha256": config_hash([paths.config, *sorted(paths.sites.glob("*.yaml"))]),
         "events_sha256": config_hash([paths.events]) if paths.events.exists() else "none",
-        "git_commit": _git("rev-parse", "HEAD"),
+        "git_commit": head(),
         "evidence_sha256": {
             str(r.summary["site_id"]): r.summary["evidence_sha256"] for r in stage1
         },

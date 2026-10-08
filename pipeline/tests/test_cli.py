@@ -12,7 +12,8 @@ def test_version_matches_package_metadata() -> None:
 
 def test_main_without_a_command_prints_help(capsys: pytest.CaptureFixture[str]) -> None:
     assert main([]) == 0
-    assert "screening" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert all(name in out for name in ("screening", "fetch-docs", "validation", "catchment-grid"))
 
 
 def test_start_and_end_go_together() -> None:

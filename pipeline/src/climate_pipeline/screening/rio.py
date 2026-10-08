@@ -189,6 +189,27 @@ def rowcol_lonlat(grid: Grid, row: int, col: int) -> tuple[float, float]:
     return float(lons[0]), float(lats[0])
 
 
+def rowcols_lonlat(
+    grid: Grid, rows: Sequence[int], cols: Sequence[int]
+) -> list[tuple[float, float]]:
+    """The WGS84 positions of many grid pixel centers in one transform.
+
+    Args:
+        grid: The grid.
+        rows: Rows.
+        cols: Columns (same length as ``rows``).
+
+    Returns:
+        ``(longitude, latitude)`` pairs in degrees.
+    """
+    xs = [grid.x0 + (c + 0.5) * grid.resolution for c in cols]
+    ys = [grid.y0 - (r + 0.5) * grid.resolution for r in rows]
+    if not xs:
+        return []
+    lons, lats = warp_transform(f"EPSG:{grid.epsg}", "EPSG:4326", xs, ys)
+    return [(float(lon), float(lat)) for lon, lat in zip(lons, lats, strict=True)]
+
+
 def rasterize_polygon(grid: Grid, ring: Sequence[tuple[float, float]]) -> NDArray[np.bool_]:
     """Burn a WGS84 polygon (lon, lat ring) into a boolean grid.
 
@@ -236,6 +257,35 @@ def read_to_grid(
             nodata=nodata,
         ) as vrt:
             return cast(NDArray[np.generic], vrt.read(1))
+
+
+def sample_points(href: str, lonlats: Sequence[tuple[float, float]]) -> list[float]:
+    """Values of band 1 of a remote raster at WGS84 points (NaN at no data).
+
+    Used for CHIRPS daily cloud-optimized GeoTIFFs, whose names end in ``.cog``.
+
+    Args:
+        href: URL or path of the raster.
+        lonlats: ``(lon, lat)`` points.
+
+    Returns:
+        One value per point.
+    """
+    env = {**GDAL_ENV, "CPL_VSIL_CURL_ALLOWED_EXTENSIONS": ".tif,.TIF,.tiff,.cog"}
+    with rasterio.Env(**env), rasterio.open(href) as src:
+        points = list(lonlats)
+        epsg = src.crs.to_epsg() if src.crs is not None else 4326
+        if epsg != 4326:
+            xs, ys = warp_transform(
+                "EPSG:4326", src.crs, [p[0] for p in points], [p[1] for p in points]
+            )
+            points = list(zip(xs, ys, strict=True))
+        nodata = src.nodata
+        values = [float(v[0]) for v in src.sample(points)]
+    return [
+        math.nan if not math.isfinite(v) or (nodata is not None and v == nodata) else v
+        for v in values
+    ]
 
 
 def write_geotiff(

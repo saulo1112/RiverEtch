@@ -98,6 +98,9 @@ class SiteConfig(_Frozen):
     regime_changes: tuple[RegimeChange, ...] = ()
     rain_points: tuple[Point, ...] = Field(min_length=1)
     operator: str
+    operator_source: Citation | None = Field(
+        default=None, description="An opened primary source for the operator line, if any"
+    )
     regulator: str
     backwater_note: str = ""
     river_width_note: str = ""
