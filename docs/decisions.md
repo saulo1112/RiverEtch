@@ -138,3 +138,30 @@ last. Format: context → decision → consequences.
     unflagged Sentinel-2C items do too. Any reader of these COGs (the screening, a future
     operational pipeline) needs an empirical check, such as water B11 near 0, before using the
     values.
+
+## D13. Study reach: the Río Sinú below Urrá I, chosen over the rule's first rank (2026-10-07)
+
+- **Context:**
+  - The site screening's pre-registered rule recommends the Río Magdalena at Puerto Wilches;
+    the Río Sinú below Urrá I (`sinu-urra`) is the runner-up
+    ([report](site-screening/report.md#recommendation)).
+  - The ranking is fragile. In the pre-registered variant, dropping either the coverage or the
+    width term puts Urrá first. In the post-hoc variant, dropping coverage puts Urrá first and
+    dropping width puts Betania first.
+  - The report leaves the choice between "best imagery" and "best story" to a person.
+- **Decision:**
+  - The project owner chose `sinu-urra` for the demo. It has dated operations, a licensed
+    operator and one observation inside an event window. This deviates from the pre-registered
+    recommendation rule, and is recorded here as such.
+  - Before the demo relies on it, two checks were set:
+    - a regulatory verification, with verdict (b): the licensee is verified, but no licence
+      condition is a limit the observation can be compared with
+      ([regulatory.md](urra-validation/regulatory.md));
+    - a pre-registered robustness check of the signal ([method.md](urra-validation/method.md)).
+- **Consequences:**
+  - Any permit in the demo is labelled as simulated: holder "simulated permit holder", limit
+    "illustrative limit, not the real licence".
+  - The interface names the river and the municipality, never the dam or the company.
+  - If the validation finds "no robust signal", or cannot compute a verdict, a person decides the
+    fallback: a clearly labelled synthetic test event on Urrá's real series, or another reach.
+    The validation report does not decide it.
