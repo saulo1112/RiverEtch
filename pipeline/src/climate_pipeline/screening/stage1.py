@@ -99,6 +99,8 @@ class Stage1Result:
     mndwi_skipped: int = 0
     frequency: NDArray[np.float64] | None = None  # the layer the river mask came from
     summary: dict[str, object] = field(default_factory=dict)
+    geometry_acquisitions: int = 0  # acquisitions the water frequency was built from
+    check_geometry: RiverGeometry | None = None  # from every acquisition, when checked
 
 
 def measure_scene(
@@ -362,6 +364,8 @@ def run_stage1(
     rain: OpenMeteoClient | None,
     workers: int = 8,
     period: tuple[date, date] | None = None,
+    geometry_period: tuple[date, date] | None = None,
+    full_geometry_check: bool = False,
 ) -> Stage1Result:
     """Run stage 1 for one site.
 
@@ -373,6 +377,11 @@ def run_stage1(
         rain: Open-Meteo client, or None to skip rain context.
         workers: Parallel reads.
         period: Override of the configured period (e.g. a short re-run).
+        geometry_period: If given, the water frequency (SCL, and MNDWI where SCL fails) is
+            built only from the acquisitions in this period, e.g. to keep an earlier run's
+            geometry while scenes span a longer period.
+        full_geometry_check: With ``geometry_period``, also derive the geometry from every
+            acquisition and keep it in ``check_geometry`` (reported, never used).
 
     Returns:
         The stage-1 result with its summary filled in.
@@ -383,25 +392,20 @@ def run_stage1(
     acquisitions = group_acquisitions(source.search(site.aoi_bbox, start, end))
     log.info("%s: %d acquisitions", site.id, len(acquisitions))
 
-    stack = FrequencyStack(grid.shape, cfg.scl)
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        for scl, _ in pool.map(lambda a: reader.read(a, "scl", grid), acquisitions):
-            stack.update(scl)
-    frequency = stack.frequency(cfg.mask.min_observations)
-    geometry = derive_site_geometry(site, cfg, grid, frequency)
-    mask_source = "scl"
-    mndwi_skipped = 0
-    if geometry.failed is not None and cfg.mask.source == "scl-then-mndwi":
-        log.info("%s: SCL mask failed (%s); trying the MNDWI mask", site.id, geometry.failed)
-        freq, mndwi_skipped = mndwi_frequency(acquisitions, reader, grid, cfg, workers)
-        fallback = derive_site_geometry(site, cfg, grid, freq)
-        frequency = freq
-        geometry = dataclasses.replace(
-            fallback,
-            failed=None if fallback.failed is None else f"SCL and MNDWI masks: {fallback.failed}",
+    in_geometry = acquisitions
+    if geometry_period is not None:
+        first, last = geometry_period
+        in_geometry = [a for a in acquisitions if first <= a.datetime.date() <= last]
+        log.info(
+            "%s: geometry from %d acquisitions %s..%s", site.id, len(in_geometry), *geometry_period
         )
-        mask_source = "mndwi"
+    geometry, frequency, mask_source, mndwi_skipped = site_geometry(
+        site, cfg, grid, in_geometry, reader, workers
+    )
     log.info("%s: geometry %s (%s mask)", site.id, geometry.failed or "ok", mask_source)
+    check_geometry = None
+    if full_geometry_check and geometry_period is not None:
+        check_geometry = site_geometry(site, cfg, grid, acquisitions, reader, workers)[0]
 
     rain_series: list[RainSeries] = []
     if rain:
@@ -450,9 +454,51 @@ def run_stage1(
         )
         if rain_series
         else (),
+        geometry_acquisitions=len(in_geometry),
+        check_geometry=check_geometry,
     )
     result.summary = summarize(result, cfg)
     return result
+
+
+def site_geometry(
+    site: SiteConfig,
+    cfg: ScreeningConfig,
+    grid: Grid,
+    acquisitions: list[Acquisition],
+    reader: AcquisitionReader,
+    workers: int,
+) -> tuple[RiverGeometry, NDArray[np.float64], str, int]:
+    """The river geometry from the SCL water frequency, or MNDWI where SCL fails (post-hoc rule).
+
+    Args:
+        site: The site.
+        cfg: Settings (``mask.source`` decides whether MNDWI is tried).
+        grid: The 20 m site grid.
+        acquisitions: The acquisitions the frequency is built from.
+        reader: Band reader.
+        workers: Parallel reads.
+
+    Returns:
+        The geometry, the frequency layer it came from, the mask source (``scl`` or ``mndwi``)
+        and how many acquisitions the MNDWI B11 check skipped.
+    """
+    stack = FrequencyStack(grid.shape, cfg.scl)
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        for scl, _ in pool.map(lambda a: reader.read(a, "scl", grid), acquisitions):
+            stack.update(scl)
+    frequency = stack.frequency(cfg.mask.min_observations)
+    geometry = derive_site_geometry(site, cfg, grid, frequency)
+    if geometry.failed is None or cfg.mask.source != "scl-then-mndwi":
+        return geometry, frequency, "scl", 0
+    log.info("%s: SCL mask failed (%s); trying the MNDWI mask", site.id, geometry.failed)
+    freq, skipped = mndwi_frequency(acquisitions, reader, grid, cfg, workers)
+    fallback = derive_site_geometry(site, cfg, grid, freq)
+    geometry = dataclasses.replace(
+        fallback,
+        failed=None if fallback.failed is None else f"SCL and MNDWI masks: {fallback.failed}",
+    )
+    return geometry, freq, "mndwi", skipped
 
 
 def failed_stage1(site: SiteConfig, cfg: ScreeningConfig, reason: str) -> Stage1Result:
