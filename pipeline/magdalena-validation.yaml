@@ -147,12 +147,23 @@ outputs:
 # them (checked). Source ids are filled from regulatory.md; they change no number.
 context:
   sources_csv: docs/magdalena-validation/sources/regulatory-sources.csv
-  source_ids: []
+  source_ids:
+    - secop-contratos-sector # the dredging contracts of the sector (open record)
+    - findeter-anexo-2021 # maintenance dredging without a licence; PAGA; disposal
+    - decreto-1076-funcionpublica # licensing competence
+    - minambiente-guia-fluvial # recommended monitoring; plume rule
+    - eafit-sogamoso # regulated tributary upstream
+    - datos-62gv-metadata # public water-quality data
+    - datos-bdmn-metadata # public river-level data
   forbidden_names:
     [
       cormagdalena,
       consorcio,
+      panmar,
+      panamerican,
+      findeter,
       ecopetrol,
+      exxon,
       isagen,
       hidrosogamoso,
       impala,
