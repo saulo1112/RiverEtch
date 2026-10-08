@@ -1,0 +1,7 @@
+event_id,date_start,date_end,event_type,status_d0,max_abs_z,signal,scene_days,persistent_scene_in_window,chance_rate,chance_windows
+sinu-urra-01,2022-11-28,2022-11-30,flow_increase,miss,2.6,downstream,2022-12-07,false,0.098,132
+sinu-urra-02,2025-07-12,2025-07-13,contingency,miss,1.16,upstream,2025-07-14 2025-07-16,false,0.099,121
+sinu-urra-03,2025-08-01,2025-08-02,powerhouse_operation,unobservable,,,,false,0.099,121
+sinu-urra-04,2025-11-29,2025-11-30,contingency,unobservable,,,,false,0.099,121
+sinu-urra-05,2022-08-14,2022-08-14,flow_increase,unobservable,,,,false,0.103,116
+sinu-urra-06,2025-07-21,2025-07-21,flow_increase,unobservable,,,,false,0.103,116

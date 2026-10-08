@@ -1,0 +1,13 @@
+site_id,baseline_family,usable,median_upstream,median_downstream,median_delta
+sinu-urra,00.xx,2,-0.0418,-0.0455,-0.0037
+sinu-urra,02.xx,5,-0.1789,-0.1855,-0.0069
+sinu-urra,04.xx,4,0.0161,0.0103,-0.0059
+sinu-urra,05.xx,38,-0.0836,-0.0797,-0.004
+meta-orocue,02.xx,1,0.0505,0.0422,-0.0083
+meta-orocue,04.xx,4,0.07,0.0715,0.0002
+meta-orocue,05.xx,46,0.0668,0.0685,-0.0043
+magdalena-puerto-wilches,00.xx,2,0.0704,0.0575,-0.0129
+magdalena-puerto-wilches,02.xx,6,0.017,0.0123,-0.0025
+magdalena-puerto-wilches,03.xx,1,-0.0127,-0.0199,-0.0071
+magdalena-puerto-wilches,04.xx,10,0.0446,0.0432,-0.004
+magdalena-puerto-wilches,05.xx,93,0.0607,0.0544,-0.0025

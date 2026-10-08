@@ -1,0 +1,7 @@
+site_id,subreach,overlap,note
+sinu-urra,upstream,0.98,
+sinu-urra,downstream,0.52,
+meta-orocue,upstream,0.005,
+meta-orocue,downstream,0.26,
+magdalena-puerto-wilches,upstream,0.698,
+magdalena-puerto-wilches,downstream,0.789,
