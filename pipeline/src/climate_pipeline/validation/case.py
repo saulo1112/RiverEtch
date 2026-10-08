@@ -10,7 +10,7 @@ from __future__ import annotations
 import math
 import re
 from collections.abc import Sequence
-from typing import Final, Literal
+from typing import Any, Final, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
@@ -97,6 +97,9 @@ class CaseScene(_Model):
     water_b11: SubreachValues = Field(alias="waterB11")
     excluded: bool
     exclusion_reason: str = Field(alias="exclusionReason")
+    river_level: float | None = Field(
+        default=None, alias="riverLevelPercentile", description="0-1 within the station's series"
+    )
 
 
 class CaseEvent(_Model):
@@ -128,6 +131,21 @@ class ValidationSummary(_Model):
     share_ratio_needed: float = Field(alias="shareRatioNeeded")
 
 
+class BaselineSummary(_Model):
+    """The pre-registered reading of a baseline validation."""
+
+    kind: Literal["baseline"] = "baseline"
+    scored: int
+    anomalous: int
+    false_alarm_share: float = Field(alias="falseAlarmShare")
+    wilson_low: float = Field(alias="wilsonLow")
+    wilson_high: float = Field(alias="wilsonHigh")
+    quiet: bool
+    control_comparison: str = Field(alias="controlComparison")
+    detection_threshold_ndti: float | None = Field(alias="detectionThresholdNdti")
+    demo_step_ndti: float | None = Field(alias="demoStepNdti")
+
+
 class Ui(_Model):
     """Everything the interface may show."""
 
@@ -137,7 +155,7 @@ class Ui(_Model):
     scenes: list[CaseScene]
     events: list[CaseEvent]
     permit: Permit
-    validation: ValidationSummary
+    validation: ValidationSummary | BaselineSummary
     note: str
 
 
@@ -165,6 +183,32 @@ class Manifest(_Model):
     item_ids_sha256: dict[str, str] = Field(alias="itemIdsSha256")
 
 
+class SyntheticEvent(_Model):
+    """An injected test event: never an observation."""
+
+    synthetic: Literal[True] = True
+    label: str
+    date: str
+    scene_key: str = Field(alias="sceneKey")
+    stac_item_ids: list[str] = Field(alias="stacItemIds")
+    subreach: Literal["downstream"] = "downstream"
+    magnitude_ndti: float = Field(alias="magnitudeNdti")
+    real_ndti: float = Field(alias="realNdti")
+    overlay_ndti: float = Field(alias="overlayNdti")
+    real_z: float | None = Field(alias="realZ")
+    overlay_z: float | None = Field(alias="overlayZ")
+    detected: bool
+
+
+class SyntheticOverlay(_Model):
+    """A separate layer holding only injected events; the real series never includes them."""
+
+    synthetic: Literal[True] = True
+    label: str
+    note: str
+    events: list[SyntheticEvent]
+
+
 class CaseFile(_Model):
     """The whole case file."""
 
@@ -172,14 +216,23 @@ class CaseFile(_Model):
     ui: Ui
     context: Context
     manifest: Manifest
+    synthetic_overlay: SyntheticOverlay | None = None
 
     def to_json(self) -> str:
-        """Serialize with the web's camelCase names.
+        """Serialize with the web's camelCase names (the overlay key stays ``synthetic_overlay``).
+
+        Fields a case does not use (no overlay, no river levels) are left out, so a case without
+        them serializes exactly as before they existed.
 
         Returns:
             JSON text.
         """
-        return self.model_dump_json(by_alias=True, indent=1) + "\n"
+        exclude: dict[str, Any] = {}
+        if self.synthetic_overlay is None:
+            exclude["synthetic_overlay"] = True
+        if all(s.river_level is None for s in self.ui.scenes):
+            exclude["ui"] = {"scenes": {"__all__": {"river_level"}}}
+        return self.model_dump_json(by_alias=True, indent=1, exclude=exclude) + "\n"
 
 
 # ----------------------------------------------------------------------------------------------
@@ -345,14 +398,18 @@ FORBIDDEN_IN_UI = ("urra", "urrá", "emec", "corelca", "multiproposito", "multip
 """Names that must never appear outside ``context`` (case-insensitive)."""
 
 
-def names_outside_context(case: CaseFile) -> list[str]:
-    """Forbidden names found in the ``ui`` and ``manifest`` blocks.
+def names_outside_context(case: CaseFile, forbidden: Sequence[str] = FORBIDDEN_IN_UI) -> list[str]:
+    """Forbidden names found outside ``context`` (interface, manifest, synthetic overlay).
 
     Args:
         case: The case file.
+        forbidden: Names that must not appear (case-insensitive).
 
     Returns:
         The names found (empty when the file is anonymous).
     """
-    text = (case.ui.model_dump_json() + case.manifest.model_dump_json()).lower()
-    return [name for name in FORBIDDEN_IN_UI if name in text]
+    parts = [case.ui.model_dump_json(), case.manifest.model_dump_json()]
+    if case.synthetic_overlay is not None:
+        parts.append(case.synthetic_overlay.model_dump_json())
+    text = "".join(parts).lower()
+    return [name for name in forbidden if name.lower() in text]

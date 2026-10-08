@@ -1,7 +1,12 @@
-"""Settings of the Urrá validation, pre-registered in ``docs/urra-validation/method.md``.
+"""Settings of a reach validation, pre-registered in that validation's ``method.md``.
 
-Every value lives in ``pipeline/urra-validation.yaml``; the thresholds the screening already fixed
-(pixel guards, sub-reach geometry, the point rain rule) are read from ``pipeline/screening.yaml``.
+Each validation has its own file (``pipeline/urra-validation.yaml``,
+``pipeline/magdalena-validation.yaml``); the thresholds the screening already fixed (pixel guards,
+sub-reach geometry, the point rain rule) are read from ``pipeline/screening.yaml``. Two kinds
+exist: a ``signal`` validation asks whether anomalies persist (the Urrá criteria), a ``baseline``
+validation asks whether a reach is quiet enough to serve as a baseline and what the detector can
+find on it (false-alarm intervals, injection-recovery, in-situ comparison). Fields added for the
+second kind are optional, and their defaults reproduce the Urrá run, whose file predates them.
 """
 
 from __future__ import annotations
@@ -47,7 +52,7 @@ class SiteRoles(_Frozen):
 
     target: str
     control: str
-    reference: str
+    reference: str | None = None
 
 
 class ScreeningReference(_Frozen):
@@ -163,9 +168,122 @@ class Outputs(_Frozen):
     max_committed_bytes: int = Field(gt=0)
 
 
-class ValidationConfig(_Frozen):
-    """Everything in ``pipeline/urra-validation.yaml``."""
+URRA_CONTEXT_IDS = (
+    "anla-pis-urra",
+    "anla-res-0838-1999",
+    "anla-res-0459-2022",
+    "anla-acta-269-2025",
+    "urra-gestion-tecnica",
+    "anla-news-sobrepaso-2026",
+)
+URRA_FORBIDDEN = ("urra", "urrá", "emec", "corelca", "multiproposito", "multipropósito")
+URRA_PERMIT_NOTE = (
+    "No licence condition of this reach sets a limit a relative NDTI can be compared with; any "
+    "limit shown is illustrative."
+)
 
+
+class ContextConfig(_Frozen):
+    """The case file's public-source context and the names its interface must never show."""
+
+    sources_csv: str = "docs/urra-validation/sources/regulatory-sources.csv"
+    source_ids: tuple[str, ...] = URRA_CONTEXT_IDS
+    forbidden_names: tuple[str, ...] = URRA_FORBIDDEN
+    ui_label: str | None = Field(
+        default=None, description="neutral reach label; default: river near the site's place"
+    )
+    permit_note: str = URRA_PERMIT_NOTE
+
+
+class QuietnessConfig(_Frozen):
+    """When a reach counts as quiet enough to serve as a baseline."""
+
+    wilson_z: float = Field(gt=0, description="normal quantile of the Wilson interval")
+    max_upper_bound: float = Field(gt=0, le=1, description="D0 share: Wilson upper bound cap")
+    max_variant_share: float = Field(gt=0, le=1, description="every variant: point share cap")
+
+
+class CorridorConfig(_Frozen):
+    """Corridor half-widths tried besides the frozen geometry's (sensitivity, report-only)."""
+
+    half_widths_m: tuple[float, ...] = Field(min_length=1)
+    labels: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _check(self) -> CorridorConfig:
+        if len(self.half_widths_m) != len(self.labels) or any(w <= 0 for w in self.half_widths_m):
+            raise ValueError("one positive half-width per corridor label")
+        return self
+
+
+class InjectionConfig(_Frozen):
+    """Injection-recovery on a copy of the real series."""
+
+    raw_ndti: tuple[float, ...] = Field(min_length=1, description="steps in NDTI units")
+    sigma_multiples: tuple[float, ...] = Field(
+        min_length=1, description="steps in units of the downstream signal's robust sigma"
+    )
+    detection_rate: float = Field(gt=0, le=1, description="power level reported, e.g. 0.8")
+    glint_classes: tuple[float, float] = Field(description="limits of low, mid and high glint")
+
+    @model_validator(mode="after")
+    def _check(self) -> InjectionConfig:
+        if any(v <= 0 for v in (*self.raw_ndti, *self.sigma_multiples)):
+            raise ValueError("injected steps must be positive")
+        if list(self.raw_ndti) != sorted(self.raw_ndti):
+            raise ValueError("raw NDTI steps must increase")
+        return self
+
+
+class DemoEventConfig(_Frozen):
+    """The rule that fixes the demo's synthetic event before its result is seen."""
+
+    magnitude_factor: float = Field(gt=1, description="times the detection-rate threshold")
+    round_up_to: float = Field(gt=0)
+    window: Window
+    event_precisions: tuple[str, ...] = Field(description="dated events the date must avoid")
+    min_days_from_events: int = Field(ge=0)
+    post_hoc_events_csv: str = Field(description="dated events found after the data were seen")
+    max_glint_share: float = Field(ge=0, le=1)
+    seed: int
+    label: str
+
+
+class InsituStation(_Frozen):
+    """One in-situ station used for comparison."""
+
+    code: str
+    name: str
+    role: Literal["primary", "secondary"]
+    lon: float | None = Field(default=None, ge=-180, le=180)
+    lat: float | None = Field(default=None, ge=-90, le=90)
+    note: str = ""
+
+
+class InsituConfig(_Frozen):
+    """The in-situ comparison: stations, matching and the reading rule."""
+
+    quality_resource: str = Field(description="open-data endpoint of water-quality samples")
+    level_resource: str = Field(description="open-data endpoint of instantaneous river levels")
+    quality_variables: tuple[str, ...] = Field(min_length=1)
+    quality_stations: tuple[InsituStation, ...] = ()
+    level_stations: tuple[InsituStation, ...] = ()
+    match_days_primary: int = Field(ge=0)
+    match_days_secondary: int = Field(ge=0)
+    level_window_hours: float = Field(gt=0)
+    level_min_observations: int = Field(gt=0)
+    min_pairs: int = Field(gt=2)
+    tracks_rho: float = Field(gt=0, lt=1)
+    bootstrap: int = Field(gt=0)
+    seed: int
+    saturation_rho: float = Field(gt=0, lt=1)
+
+
+class ValidationConfig(_Frozen):
+    """Everything in a validation's settings file."""
+
+    title: str = "Urrá validation"
+    kind: Literal["signal", "baseline"] = "signal"
     screening_config: str
     method: str
     sites: SiteRoles
@@ -183,6 +301,12 @@ class ValidationConfig(_Frozen):
     seasonality_halfwidth_days: int = Field(gt=0)
     events: EventTest
     outputs: Outputs
+    context: ContextConfig = Field(default_factory=ContextConfig)
+    quietness: QuietnessConfig | None = None
+    corridors: CorridorConfig | None = None
+    injection: InjectionConfig | None = None
+    demo_event: DemoEventConfig | None = None
+    insitu: InsituConfig | None = None
 
     @model_validator(mode="after")
     def _check(self) -> ValidationConfig:
@@ -191,9 +315,11 @@ class ValidationConfig(_Frozen):
             raise ValueError("variants need unique ids, one of them D0")
         if not self.criteria.persistence_min <= len(ids):
             raise ValueError("persistence_min exceeds the number of variants")
-        roles = (self.sites.target, self.sites.control, self.sites.reference)
-        if len(set(roles)) != 3 or set(roles) - set(self.rainy_months):
+        roles = [r for r in (self.sites.target, self.sites.control, self.sites.reference) if r]
+        if len(set(roles)) != len(roles) or set(roles) - set(self.rainy_months):
             raise ValueError("target, control and reference must differ and have rainy months")
+        if self.kind == "baseline" and None in (self.quietness, self.injection, self.demo_event):
+            raise ValueError("a baseline validation needs quietness, injection and demo_event")
         for site, months in self.rainy_months.items():
             if not months or not set(months) <= set(range(1, 13)):
                 raise ValueError(f"{site}: rainy months must be 1-12")
@@ -220,7 +346,7 @@ class ValidationConfig(_Frozen):
 
 
 def load_validation_config(path: Path) -> ValidationConfig:
-    """Load and validate ``urra-validation.yaml``.
+    """Load and validate a validation's settings file.
 
     Args:
         path: The file.

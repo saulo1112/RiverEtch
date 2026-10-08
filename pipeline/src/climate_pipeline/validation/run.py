@@ -1,9 +1,12 @@
-"""The Urrá validation run: everything ``docs/urra-validation/method.md`` pre-registered.
+"""A reach validation run: everything the validation's ``method.md`` pre-registered.
 
-Stage 1 runs on the target, the control and the reference with the geometry frozen to the
-screening's period; stage 2 measures NDTI at the two pixel glint limits the variants need; the
-variants, criteria and report-only analyses follow. Nothing here tunes a threshold: every value
-comes from ``pipeline/urra-validation.yaml`` or, unchanged, from ``pipeline/screening.yaml``.
+Stage 1 runs on the target, the control and the reference (if any) with the geometry frozen to the
+screening's period; stage 2 measures NDTI at the pixel glint limits the variants need; the
+variants follow. A ``signal`` validation (Urrá) then applies its persistence criteria; a
+``baseline`` validation (Magdalena) measures the false-alarm share with Wilson intervals, the
+corridor sensitivity, injection-recovery, the demo event and the in-situ comparison. Nothing here
+tunes a threshold: every value comes from the validation's settings file or, unchanged, from
+``pipeline/screening.yaml``.
 """
 
 from __future__ import annotations
@@ -16,7 +19,7 @@ import time
 from collections import Counter
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 
 import httpx
@@ -48,23 +51,41 @@ from climate_pipeline.screening.stac import Acquisition, SceneSource, evidence_h
 from climate_pipeline.screening.stage1 import RAIN_LEAD_DAYS, Stage1Result, run_stage1
 from climate_pipeline.screening.stage2 import SIGNALS, Stage2Result, run_stage2_variants
 from climate_pipeline.validation import catchment as rainmod
+from climate_pipeline.validation import insitu as situ
 from climate_pipeline.validation.case import (
+    BaselineSummary,
     CaseFile,
     Context,
     ContextSource,
     Manifest,
     Permit,
     Rain,
+    SyntheticEvent,
+    SyntheticOverlay,
     Ui,
     ValidationSummary,
     build_reach,
     case_events,
     case_scene,
+    names_outside_context,
     reach_label,
 )
-from climate_pipeline.validation.config import ValidationConfig, load_validation_config
+from climate_pipeline.validation.config import (
+    InsituStation,
+    ValidationConfig,
+    load_validation_config,
+)
 from climate_pipeline.validation.grid import read_grid
+from climate_pipeline.validation.injection import (
+    DemoEvent,
+    Injection,
+    choose_demo,
+    detection_rows,
+    run_injections,
+    threshold,
+)
 from climate_pipeline.validation.placebo import PlaceboResult, run_placebo
+from climate_pipeline.validation.quietness import Quietness, assess, share_rows
 from climate_pipeline.validation.seasonality import (
     january_february_rows,
     seasonal_rows,
@@ -75,6 +96,7 @@ from climate_pipeline.validation.variants import (
     SceneRecord,
     criterion_a,
     episodes,
+    evaluate,
     share,
 )
 from climate_pipeline.validation.verdict import Verdict, binomial_tail, decide
@@ -94,15 +116,6 @@ GEOMETRY_FIELDS = (
     "centerline_mid_lon",
     "centerline_mid_lat",
 )
-CONTEXT_SOURCE_IDS = (
-    "anla-pis-urra",
-    "anla-res-0838-1999",
-    "anla-res-0459-2022",
-    "anla-acta-269-2025",
-    "urra-gestion-tecnica",
-    "anla-news-sobrepaso-2026",
-)
-
 ChirpsReader = Callable[[str, list[tuple[float, float]]], list[float]]
 
 
@@ -164,6 +177,11 @@ class ValidationOutputs:
     placebo: PlaceboResult | None = None
     case: CaseFile | None = None
     notes: list[str] = field(default_factory=list)
+    quietness: Quietness | None = None
+    injections: list[Injection] = field(default_factory=list)
+    sigma_downstream: float = math.nan
+    demo: DemoEvent | None = None
+    level_percentiles: dict[str, float] = field(default_factory=dict)
 
 
 # ----------------------------------------------------------------------------------------------
@@ -878,6 +896,7 @@ def run_validation(
     grid_http: httpx.Client | None = None,
     chirps_reader: ChirpsReader | None = None,
     placebo_shuffles: int | None = None,
+    insitu_http: httpx.Client | None = None,
 ) -> ValidationOutputs:
     """Run the pre-registered validation.
 
@@ -890,6 +909,7 @@ def run_validation(
         grid_http: Injected HTTP client for the catchment rain (tests).
         chirps_reader: Injected CHIRPS reader (tests).
         placebo_shuffles: Override of the shuffle count (tests only).
+        insitu_http: Injected HTTP client for the in-situ data (tests).
 
     Returns:
         The outputs (not yet written).
@@ -911,11 +931,9 @@ def run_validation(
     if events_sha != cfg.screening_reference.events_sha256:
         raise ValueError(f"the event catalog changed: {events_sha}")
     sites_dir = paths.at("pipeline/sites")
-    roles = {
-        "target": cfg.sites.target,
-        "control": cfg.sites.control,
-        "reference": cfg.sites.reference,
-    }
+    roles = {"target": cfg.sites.target, "control": cfg.sites.control}
+    if cfg.sites.reference:
+        roles["reference"] = cfg.sites.reference
     by_id = {s.id: s for s in load_sites(sites_dir, tuple(roles.values()))}
     source = source or make_source(
         screening.stac.source, screening.stac.sources, screening.stac.page_size
@@ -1076,13 +1094,27 @@ def run_validation(
             cfg.criteria.episode_gap_days,
         )
 
-    # Verdict.
+    # Verdict (signal) or quietness (baseline).
     control = runs["control"]
-    target_counts = share(target.persistence.evaluations["D0"]) if target.persistence else (0, 0)
-    control_counts = share(control.persistence.evaluations["D0"]) if control.persistence else (0, 0)
-    rain_known = any(p is not None for p in target.point)
-    n_episodes = len(target.persistence.episodes) if target.persistence else 0
-    outputs.verdict = decide(n_episodes, target_counts, control_counts, rain_known, cfg.criteria)
+    if cfg.kind == "signal":
+        target_counts = (
+            share(target.persistence.evaluations["D0"]) if target.persistence else (0, 0)
+        )
+        control_counts = (
+            share(control.persistence.evaluations["D0"]) if control.persistence else (0, 0)
+        )
+        rain_known = any(p is not None for p in target.point)
+        n_episodes = len(target.persistence.episodes) if target.persistence else 0
+        outputs.verdict = decide(
+            n_episodes, target_counts, control_counts, rain_known, cfg.criteria
+        )
+    elif target.persistence is not None and cfg.quietness is not None:
+        outputs.quietness = assess(
+            target.persistence.evaluations,
+            control.persistence.evaluations if control.persistence else None,
+            cfg.variants,
+            cfg.quietness,
+        )
 
     # Report-only analyses.
     t = outputs.tables
@@ -1124,24 +1156,33 @@ def run_validation(
             cfg.placebo.seed,
         )
         verdict = outputs.verdict
-        p = verdict.control_share if math.isfinite(verdict.control_share) else math.nan
-        n = verdict.target_scored
-        t["chance_level"] = [
-            {
-                "k": k,
-                "label": label,
-                "n": n,
-                "p": round(p, 4),
-                "p_at_least_k": binomial_tail(n, p, k),
-            }
-            for k, label in (
-                (cfg.criteria.min_episodes, "N"),
-                (len(target.persistence.candidates), "candidate scenes"),
-            )
-        ]
+        if verdict is not None:
+            p = verdict.control_share if math.isfinite(verdict.control_share) else math.nan
+            n = verdict.target_scored
+            t["chance_level"] = [
+                {
+                    "k": k,
+                    "label": label,
+                    "n": n,
+                    "p": round(p, 4),
+                    "p_at_least_k": binomial_tail(n, p, k),
+                }
+                for k, label in (
+                    (cfg.criteria.min_episodes, "N"),
+                    (len(target.persistence.candidates), "candidate scenes"),
+                )
+            ]
         if chirps_ok and grid_points:
             t["chirps"] = chirps_rows(target, cfg, grid_points, reader_chirps, limit)
+        if cfg.kind == "baseline":
+            baseline_analyses(
+                outputs, paths, catalog, screening, source, reader, rain, workers, insitu_http
+            )
         outputs.case = build_case(paths, cfg, target, catalog, outputs)
+        leaked = names_outside_context(outputs.case, cfg.context.forbidden_names)
+        outputs.manifest["case_names_outside_context"] = leaked
+        if leaked:
+            outputs.notes.append(f"case file shows names outside its context: {leaked}")
     outputs.manifest["read_error_count"] = len(reader.errors)
     outputs.manifest["finished_utc"] = datetime.now(UTC).isoformat(timespec="seconds")
     return outputs
@@ -1308,9 +1349,9 @@ def build_case(
     Returns:
         The case file.
     """
-    assert run.stage1 is not None and run.persistence is not None and outputs.verdict is not None
+    assert run.stage1 is not None and run.persistence is not None
     limit = cfg.variant("D0").swir16_max
-    label = reach_label(run.site.river, run.site.name)
+    label = cfg.context.ui_label or reach_label(run.site.river, run.site.name)
     reach, subreaches = build_reach(label, run.stage1.grid, run.stage1.geometry)
     by_key = {a.key: a for a in run.stage1.acquisitions}
     scenes = []
@@ -1323,18 +1364,73 @@ def build_case(
             catchment=run.catchment[k] if run.catchment is not None else None,
             union=run.union[k],  # type: ignore[arg-type]
         )
-        scenes.append(case_scene(scene, ids, baselines, z, flags, run.persistence.counts[k], rain))
-    verdict = outputs.verdict
-    sources_csv = paths.at("docs/urra-validation/sources/regulatory-sources.csv")
+        entry = case_scene(scene, ids, baselines, z, flags, run.persistence.counts[k], rain)
+        level = outputs.level_percentiles.get(scene.key)
+        if level is not None and math.isfinite(level):
+            entry = entry.model_copy(update={"river_level": round(level, 3)})
+        scenes.append(entry)
+    sources_csv = paths.at(cfg.context.sources_csv)
     context = [
         ContextSource(title=e.event_id, url=e.source_url, text=e.description) for e in events
     ]
     if sources_csv.exists():
         for row in _read_csv(sources_csv):
-            if row["id"] in CONTEXT_SOURCE_IDS:
+            if row["id"] in cfg.context.source_ids:
                 context.append(ContextSource(title=row["id"], url=row["url"], text=row["purpose"]))
     m = outputs.manifest
     recent = [a for a in run.stage1.acquisitions if cfg.geometry_period.contains(a.datetime.date())]
+    summary: ValidationSummary | BaselineSummary
+    verdict = outputs.verdict
+    if verdict is not None:
+        summary = ValidationSummary(
+            verdict=verdict.label,
+            episodes=verdict.episodes,
+            episodes_needed=verdict.episodes_needed,
+            share_ratio=round(verdict.ratio, 3) if math.isfinite(verdict.ratio) else None,
+            share_ratio_needed=verdict.ratio_needed,
+        )
+    else:
+        q = outputs.quietness
+        assert q is not None
+        found = (
+            threshold(outputs.injections, "ndti", cfg.injection.detection_rate)[1]
+            if cfg.injection
+            else None
+        )
+        summary = BaselineSummary(
+            scored=q.n,
+            anomalous=q.k,
+            false_alarm_share=round(q.k / q.n, 4) if q.n else math.nan,
+            wilson_low=round(q.low, 4),
+            wilson_high=round(q.high, 4),
+            quiet=q.quiet,
+            control_comparison=q.comparison,
+            detection_threshold_ndti=round(found, 4) if found is not None else None,
+            demo_step_ndti=outputs.demo.step if outputs.demo else None,
+        )
+    overlay = None
+    demo = outputs.demo
+    if demo is not None:
+        ids, _, _ = item_meta(by_key[demo.key])
+        overlay = SyntheticOverlay(
+            label=demo.label,
+            note="Injected into a copy of the real series to show the detector's mechanics. "
+            "It is not an observation; the real scenes above never include it.",
+            events=[
+                SyntheticEvent(
+                    label=demo.label,
+                    date=demo.day.isoformat(),
+                    scene_key=demo.key,
+                    stac_item_ids=ids,
+                    magnitude_ndti=demo.step,
+                    real_ndti=round(demo.real_downstream, 4),
+                    overlay_ndti=round(demo.real_downstream + demo.step, 4),
+                    real_z=round(demo.real_z, 2) if math.isfinite(demo.real_z) else None,
+                    overlay_z=round(demo.overlay_z, 2) if math.isfinite(demo.overlay_z) else None,
+                    detected=demo.detected,
+                )
+            ],
+        )
     return CaseFile(
         ui=Ui(
             reach_label=label,
@@ -1342,17 +1438,8 @@ def build_case(
             subreaches=subreaches,
             scenes=scenes,
             events=case_events(events),
-            permit=Permit(
-                note="No licence condition of this reach sets a limit a relative NDTI can be "
-                "compared with; any limit shown is illustrative."
-            ),
-            validation=ValidationSummary(
-                verdict=verdict.label,
-                episodes=verdict.episodes,
-                episodes_needed=verdict.episodes_needed,
-                share_ratio=round(verdict.ratio, 3) if math.isfinite(verdict.ratio) else None,
-                share_ratio_needed=verdict.ratio_needed,
-            ),
+            permit=Permit(note=cfg.context.permit_note),
+            validation=summary,
             note="NDTI is a relative index: comparable only within one sub-reach, never NTU. An "
             "anomaly is a departure from the sub-reach's own baseline, never evidence that any "
             "actor caused anything.",
@@ -1367,4 +1454,396 @@ def build_case(
                 "2022-2025": evidence_hash(recent),
             },
         ),
+        synthetic_overlay=overlay,
+    )
+
+
+# ----------------------------------------------------------------------------------------------
+# Baseline validation: quietness, corridors, injection-recovery, demo event, in situ
+# ----------------------------------------------------------------------------------------------
+
+
+def _avoid_windows(
+    catalog: Sequence[CatalogEvent], post_hoc: Path, precisions: Sequence[str]
+) -> list[tuple[date, date]]:
+    """Date ranges of the catalogued and post-hoc events of the given precisions.
+
+    Month-precision dates (``2023-05``) cover the whole month.
+    """
+    windows = [(e.date_start, e.date_end) for e in catalog if e.date_precision in precisions]
+    if post_hoc.exists():
+        for row in _read_csv(post_hoc):
+            if row.get("date_precision", "") in precisions:
+                first = _first_day(row["date_start"])
+                last = _last_day(row.get("date_end") or row["date_start"])
+                windows.append((first, max(first, last)))
+    return windows
+
+
+def _first_day(text: str) -> date:
+    return date.fromisoformat(text if len(text) > 7 else f"{text}-01")
+
+
+def _last_day(text: str) -> date:
+    if len(text) > 7:
+        return date.fromisoformat(text)
+    first = date.fromisoformat(f"{text}-01")
+    return (first.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+
+
+def corridor_rows(
+    outputs: ValidationOutputs,
+    screening: ScreeningConfig,
+    source: SceneSource,
+    reader: AcquisitionReader,
+    rain: OpenMeteoClient,
+    workers: int,
+) -> list[dict[str, object]]:
+    """False-alarm shares of every variant for each corridor half-width (report-only).
+
+    The frozen geometry's rows come first; each alternative re-derives the corridor on the same
+    centerline and sub-reach windows.
+
+    Args:
+        outputs: The run so far (its target run and settings).
+        screening: Screening settings.
+        source: Scene source.
+        reader: Band reader.
+        rain: Point-rain client.
+        workers: Parallel reads.
+
+    Returns:
+        Rows with Wilson intervals.
+    """
+    cfg = outputs.cfg
+    target = outputs.runs["target"]
+    assert target.persistence is not None and cfg.quietness is not None
+    z = cfg.quietness.wilson_z
+    width = screening.mask.corridor_half_width_m
+    frozen = target.site.corridor_half_width_m or width
+    rows = share_rows(
+        target.site.id, f"{frozen:g} m (frozen)", target.persistence.evaluations, cfg.variants, z
+    )
+    if cfg.corridors is None:
+        return rows
+    limit = cfg.variant("D0").swir16_max
+    window = (cfg.period.start, cfg.period.end)
+    geometry = (cfg.geometry_period.start, cfg.geometry_period.end)
+    for half_width, label in zip(cfg.corridors.half_widths_m, cfg.corridors.labels, strict=True):
+        site = target.site.model_copy(update={"corridor_half_width_m": half_width})
+        stage1 = run_stage1(site, screening, source, reader, rain, workers, window, geometry)
+        if stage1.geometry.failed:
+            rows.append({"site_id": site.id, "corridor": label, "note": stage1.geometry.failed})
+            continue
+        stage2 = run_stage2_variants(stage1, reader, screening, glint_limits(cfg), workers)
+        records = build_records(stage2, limit)
+        evaluations = {
+            v.id: evaluate(records, v, target.rainy, screening.stage2.mad_floor)
+            for v in cfg.variants
+        }
+        rows += share_rows(site.id, label, evaluations, cfg.variants, z)
+    return rows
+
+
+def _number(value: object) -> float:
+    """A float from a summary cell (NaN when missing or not numeric)."""
+    try:
+        return float(str(value))
+    except ValueError:
+        return math.nan
+
+
+def _distance_km(station: InsituStation, middle: tuple[float, float]) -> float | str:
+    """Straight-line distance from a station to the reach's centerline midpoint.
+
+    Args:
+        station: The station (coordinates optional).
+        middle: The midpoint's longitude and latitude.
+
+    Returns:
+        Kilometres, or an empty string without coordinates.
+    """
+    if station.lon is None or station.lat is None or not all(map(math.isfinite, middle)):
+        return ""
+    lon1, lat1, lon2, lat2 = map(math.radians, (station.lon, station.lat, *middle))
+    a = (
+        math.sin((lat2 - lat1) / 2) ** 2
+        + math.cos(lat1) * math.cos(lat2) * math.sin((lon2 - lon1) / 2) ** 2
+    )
+    return round(2 * 6371.0 * math.asin(math.sqrt(a)), 1)
+
+
+def insitu_analyses(
+    outputs: ValidationOutputs, paths: ValidationPaths, http: httpx.Client | None
+) -> None:
+    """Water-quality and river-level comparisons, saturation, and river levels per scene.
+
+    Args:
+        outputs: The run so far (tables are added to it).
+        paths: Paths (the cache).
+        http: HTTP client (injectable for tests).
+    """
+    cfg = outputs.cfg
+    ic = cfg.insitu
+    if ic is None:
+        return
+    target = outputs.runs["target"]
+    limit = cfg.variant("D0").swir16_max
+    client = http or httpx.Client(timeout=300)
+    cache = paths.out / "cache" / "insitu"
+    scenes: list[situ.SceneValue] = []
+    for measured in target.stage2[limit].scenes:
+        if not measured.usable:
+            continue
+        up, down = measured.sub.get("upstream"), measured.sub.get("downstream")
+        scenes.append(
+            situ.SceneValue(
+                measured.key,
+                measured.datetime,
+                up.ndti if up else math.nan,
+                down.ndti if down else math.nan,
+                up.red if up else math.nan,
+                down.red if down else math.nan,
+            )
+        )
+    assert target.stage1 is not None
+    summary = target.stage1.summary
+    middle = (
+        _number(summary.get("centerline_mid_lon")),
+        _number(summary.get("centerline_mid_lat")),
+    )
+    t = outputs.tables
+    digests: dict[str, str] = {}
+    stations: list[dict[str, object]] = []
+    samples: dict[str, list[situ.Sample]] = {}
+    for station in ic.quality_stations:
+        try:
+            found, digests[f"quality {station.code}"] = situ.quality_samples(
+                client, ic, station, cache
+            )
+        except Exception as error:  # an unreachable source is reported, never fatal
+            stations.append(
+                {"code": station.code, "name": station.name, "note": f"failed: {error}"}
+            )
+            continue
+        samples[station.code] = found
+        inside = [s for s in found if cfg.period.contains(s.day)]
+        stations.append({
+            "code": station.code, "name": station.name, "role": station.role, "kind": "quality",
+            "distance_km": _distance_km(station, middle),
+            "variables": " ".join(sorted({f"{s.variable} ({s.unit})" for s in found})),
+            "samples": len(found), "samples_in_period": len(inside),
+            "first": min((s.day for s in found), default=""),
+            "last": max((s.day for s in found), default=""), "note": station.note,
+        })  # fmt: skip
+    pair_rows: list[dict[str, object]] = []
+    comparisons: list[dict[str, object]] = []
+    for set_name, roles, days in (
+        ("primary", {"primary"}, ic.match_days_primary),
+        ("primary and secondary", {"primary", "secondary"}, ic.match_days_secondary),
+    ):
+        chosen = [s for s in ic.quality_stations if s.role in roles]
+        for variable in ic.quality_variables:
+            pool = [
+                sample
+                for station in chosen
+                for sample in samples.get(station.code, [])
+                if sample.variable == variable and cfg.period.contains(sample.day)
+            ]
+            pairs = situ.match_samples(pool, scenes, days)
+            for sample, scene, gap in pairs:
+                pair_rows.append({
+                    "set": set_name, "station": sample.station, "variable": variable,
+                    "sample_day": sample.day, "scene": scene.key, "gap_days": gap,
+                    "value": sample.value, "unit": sample.unit, "censored": sample.censored,
+                    "ndti_reach": round(scene.ndti_reach, 4),
+                    "ndti_upstream": round(scene.ndti_upstream, 4),
+                    "ndti_downstream": round(scene.ndti_downstream, 4),
+                })  # fmt: skip
+            row = situ.compare(
+                f"{variable}, {set_name} stations, +-{days} d",
+                [scene.ndti_reach for _, scene, _ in pairs],
+                [sample.value for sample, _, _ in pairs],
+                ic,
+            )
+            comparisons.append(row)
+    levels: dict[str, list[float]] = {}
+    level_rows: list[dict[str, object]] = []
+    first, last = cfg.period.start - timedelta(days=1), cfg.period.end + timedelta(days=1)
+    for station in ic.level_stations:
+        try:
+            series, unit, digests[f"level {station.code}"] = situ.level_series(
+                client, ic, station, first, last, cache
+            )
+        except Exception as error:  # reported, never fatal
+            stations.append(
+                {"code": station.code, "name": station.name, "note": f"failed: {error}"}
+            )
+            continue
+        values = [
+            situ.level_at(series, s.when, ic.level_window_hours, ic.level_min_observations)
+            for s in scenes
+        ]
+        levels[station.code] = values
+        stations.append({
+            "code": station.code, "name": station.name, "role": station.role, "kind": "level",
+            "distance_km": _distance_km(station, middle),
+            "variables": f"river level ({unit})", "samples": len(series),
+            "samples_in_period": len(series),
+            "first": series[0][0].date() if series else "",
+            "last": series[-1][0].date() if series else "", "note": station.note,
+        })  # fmt: skip
+        comparisons.append(
+            situ.compare(
+                f"river level at {station.code}",
+                [s.ndti_reach for s in scenes],
+                values,
+                ic,
+            )
+        )
+        for scene, value in zip(scenes, values, strict=True):
+            if math.isfinite(value):
+                level_rows.append({
+                    "station": station.code, "scene": scene.key,
+                    "date": scene.when.date(), "level": round(value, 2),
+                    "level_percentile": round(situ.percentile_rank(values, value), 3),
+                    "ndti_reach": round(scene.ndti_reach, 4),
+                })  # fmt: skip
+    if levels:
+        pooled_x, pooled_y = [], []
+        for values in levels.values():
+            for scene, value in zip(scenes, values, strict=True):
+                if math.isfinite(value):
+                    pooled_x.append(scene.ndti_reach)
+                    pooled_y.append(situ.percentile_rank(values, value))
+        comparisons.append(
+            situ.compare("river level percentile, stations pooled", pooled_x, pooled_y, ic)
+        )
+        for k, scene in enumerate(scenes):
+            for station in ic.level_stations:
+                values = levels.get(station.code, [])
+                if values and math.isfinite(values[k]):
+                    outputs.level_percentiles[scene.key] = situ.percentile_rank(values, values[k])
+                    break
+    t["insitu_stations"] = stations
+    t["insitu_pairs"] = pair_rows
+    t["insitu_comparison"] = comparisons
+    t["river_level"] = level_rows
+    t["saturation"] = situ.saturation_rows(scenes, ic)
+    outputs.manifest["insitu_sha256"] = digests
+
+
+def anomaly_rows(outputs: ValidationOutputs) -> list[dict[str, object]]:
+    """Every D0-anomalous target scene with its glint, rain and river-level context.
+
+    Args:
+        outputs: The run so far.
+
+    Returns:
+        One row per anomalous scene.
+    """
+    target = outputs.runs["target"]
+    assert target.persistence is not None
+    rows = []
+    d0 = target.persistence.evaluations["D0"]
+    for k, (record, scene) in enumerate(zip(target.records, d0, strict=True)):
+        if not scene.anomalous:
+            continue
+        rows.append({
+            "date": record.day, "signals": " ".join(scene.signals),
+            **{f"z_{s}": round(scene.z.get(s, math.nan), 2) for s in SIGNALS},
+            "persistence": target.persistence.counts[k],
+            "glint_share_max": round(record.glint_share, 3),
+            "rain_point_72h_mm": round(target.point_mm[k], 1),
+            "rain_union": target.union[k],
+            "river_level_percentile": round(
+                outputs.level_percentiles.get(record.key, math.nan), 3
+            ),
+        })  # fmt: skip
+    return rows
+
+
+def baseline_analyses(
+    outputs: ValidationOutputs,
+    paths: ValidationPaths,
+    catalog: Sequence[CatalogEvent],
+    screening: ScreeningConfig,
+    source: SceneSource,
+    reader: AcquisitionReader,
+    rain: OpenMeteoClient,
+    workers: int,
+    insitu_http: httpx.Client | None,
+) -> None:
+    """The baseline validation's analyses, added to the outputs' tables.
+
+    Args:
+        outputs: The run so far.
+        paths: Paths.
+        catalog: The target's catalog events.
+        screening: Screening settings.
+        source: Scene source.
+        reader: Band reader.
+        rain: Point-rain client.
+        workers: Parallel reads.
+        insitu_http: HTTP client for the in-situ data (tests).
+    """
+    cfg = outputs.cfg
+    target = outputs.runs["target"]
+    control = outputs.runs["control"]
+    assert target.persistence is not None and target.stage1 is not None
+    assert cfg.quietness is not None and cfg.injection is not None and cfg.demo_event is not None
+    t = outputs.tables
+    z = cfg.quietness.wilson_z
+    t["quietness"] = share_rows(
+        target.site.id, "frozen", target.persistence.evaluations, cfg.variants, z
+    )
+    if control.persistence is not None:
+        t["quietness"] += share_rows(
+            control.site.id, "frozen", control.persistence.evaluations, cfg.variants, z
+        )
+    t["corridors"] = corridor_rows(outputs, screening, source, reader, rain, workers)
+    insitu_analyses(outputs, paths, insitu_http)
+    t["target_anomalies"] = anomaly_rows(outputs)
+    d0 = cfg.variant("D0")
+    mad_floor = screening.stage2.mad_floor
+    outputs.injections, outputs.sigma_downstream = run_injections(
+        target.records, d0, target.rainy, mad_floor, cfg.injection
+    )
+    t["injection"] = detection_rows(outputs.injections)
+    rows: list[dict[str, object]] = []
+    for scale in ("ndti", "sigma"):
+        grid_value, interpolated = threshold(
+            outputs.injections, scale, cfg.injection.detection_rate
+        )
+        rows.append({
+            "scale": scale, "detection_rate": cfg.injection.detection_rate,
+            "smallest_grid_step": grid_value if grid_value is not None else "",
+            "interpolated_step": round(interpolated, 5) if interpolated is not None else "",
+            "downstream_sigma_ndti": round(outputs.sigma_downstream, 5),
+        })  # fmt: skip
+    t["injection_thresholds"] = rows
+    found = threshold(outputs.injections, "ndti", cfg.injection.detection_rate)[1]
+    de = cfg.demo_event
+    avoid = _avoid_windows(catalog, paths.at(de.post_hoc_events_csv), de.event_precisions)
+    clear = {s.key for s in target.stage1.scenes if s.clear}
+    outputs.demo = choose_demo(target.records, d0, target.rainy, mad_floor, clear, avoid, found, de)
+    demo = outputs.demo
+    t["demo_event"] = (
+        [
+            {
+                "date": demo.day,
+                "scene": demo.key,
+                "step_ndti": demo.step,
+                "real_downstream_ndti": round(demo.real_downstream, 4),
+                "overlay_downstream_ndti": round(demo.real_downstream + demo.step, 4),
+                "real_max_abs_z": round(demo.real_z, 2),
+                "overlay_max_abs_z": round(demo.overlay_z, 2),
+                "detected": demo.detected,
+                "eligible_scenes": demo.eligible_scenes,
+                "dated_events_avoided": len(avoid),
+                "label": demo.label,
+            }
+        ]
+        if demo
+        else [{"note": "no demo event: no detection threshold or no eligible scene"}]
     )
