@@ -78,6 +78,15 @@ rain_points:
     basis: source-stated
     source_url: https://www.gem.wiki/Urra_1_hydroelectric_plant
 operator: URRÁ S.A. E.S.P. operates Central Hidroeléctrica Urrá I (340 MW), per public sources.
+operator_source:
+  url: https://www.anla.gov.co/images/documentos/actas/2026-02-12-anla-acta-269-06062025.pdf
+  title: ANLA Acta 269 of 6 June 2025, follow-up meeting record, case file LAM0112
+  supports:
+    EMPRESA URRÁ S.A. E.S.P. is recorded as the holder of the environmental licence (environmental
+    management and control instrument) of the Urrá I hydroelectric project
+  verification: "primary source opened and read (page 1), fetched 2026-10-08 UTC, SHA-256
+    6c34444b3a7db8ecef4ae3e246e411cbff35d3026c353cb03712241ce33edbe0; quoted and cross-checked in docs/urra-validation/regulatory.md, which
+    also notes that the company contracts the plant's operation and maintenance to Emec S.A.S."
 regulator:
   ANLA (environmental licence follow-up) and CVS (regional environmental authority), per public
   sources.

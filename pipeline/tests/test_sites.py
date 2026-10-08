@@ -32,5 +32,16 @@ def test_site_is_sourced_and_fits_its_grid(site: SiteConfig) -> None:
 
 @pytest.mark.parametrize("site", SITES, ids=lambda s: s.id)
 def test_site_text_is_observational(site: SiteConfig) -> None:
-    text = " ".join((site.rationale, site.operator, site.regulator)).lower()
+    source = site.operator_source.supports if site.operator_source else ""
+    text = " ".join((site.rationale, site.operator, source, site.regulator)).lower()
     assert not [word for word in FORBIDDEN if word in text]
+
+
+def test_the_study_reach_operator_comes_from_an_opened_primary_source() -> None:
+    urra = next(s for s in SITES if s.id == "sinu-urra")
+    source = urra.operator_source
+    assert source is not None
+    assert source.url.startswith("https://www.anla.gov.co/")
+    assert "URRÁ S.A. E.S.P." in source.supports
+    assert source.verification.startswith("primary source opened and read")
+    assert "regulatory.md" in source.verification
