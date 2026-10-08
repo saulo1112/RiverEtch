@@ -1,0 +1,173 @@
+name: Urrá validation
+
+# The pre-registered validation of the chosen study reach (docs/urra-validation/method.md). It needs
+# network access to Earth Search, the COGs on S3, Open-Meteo, HydroBASINS and CHIRPS. Run it from
+# Actions > Urrá validation > Run workflow. While feat/urra-validation is under review, a push whose
+# head commit message contains [urra-run:grid], [urra-run:smoke] or [urra-run] also runs it; the
+# grid and full runs commit their small outputs back to that branch.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "grid: build the catchment rain grid; smoke: stage 1 only, no NDTI; full: the validation"
+        type: choice
+        options: [full, smoke, grid]
+        default: full
+  push:
+    branches: [feat/urra-validation]
+
+permissions:
+  contents: read
+
+env:
+  # Git hooks are for local commits only.
+  HUSKY: "0"
+
+jobs:
+  validation:
+    name: Validate the study reach
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      contains(github.event.head_commit.message, '[urra-run:grid]') ||
+      contains(github.event.head_commit.message, '[urra-run:smoke]') ||
+      contains(github.event.head_commit.message, '[urra-run]')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    # At job level, so the skipped job of an ordinary push never replaces a pending run.
+    concurrency:
+      group: urra-validation-${{ github.ref }}
+      cancel-in-progress: false
+    permissions:
+      # Only to commit the generated outputs back to feat/urra-validation (push runs).
+      contents: write
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          # Full history: the manifest records the commit that last changed method.md.
+          fetch-depth: 0
+
+      - name: Choose the mode
+        id: mode
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT: ${{ inputs.mode }}
+          MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          if [ "$EVENT" = "workflow_dispatch" ]; then mode="$INPUT"
+          elif printf '%s' "$MESSAGE" | grep -qF '[urra-run:grid]'; then mode=grid
+          elif printf '%s' "$MESSAGE" | grep -qF '[urra-run:smoke]'; then mode=smoke
+          else mode=full; fi
+          echo "Mode: $mode"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          # Same uv version that wrote uv.lock, so `--locked` cannot fail on a format change.
+          version: "0.12.23"
+          working-directory: pipeline
+
+      - name: Install dependencies (locked)
+        run: uv sync --locked
+
+      # SCL windows, rain responses and the HydroBASINS archive are cached between runs
+      # (reflectance reads are not: they are large and read once). Saved even when a run fails, so
+      # a re-run resumes.
+      - name: Restore the cache
+        uses: actions/cache/restore@v6
+        with:
+          path: pipeline/out/cache
+          key: urra-validation-${{ github.run_id }}
+          restore-keys: urra-validation-
+
+      - name: Build the catchment rain grid
+        if: steps.mode.outputs.mode == 'grid'
+        run: uv run climate-pipeline catchment-grid --root ..
+
+      - name: Smoke run (stage 1 only, no NDTI)
+        if: steps.mode.outputs.mode == 'smoke'
+        run: >-
+          uv run climate-pipeline validation --root .. --stage1-only --workers 12
+          --results pipeline/out/smoke-results
+
+      - name: Full run
+        if: steps.mode.outputs.mode == 'full'
+        run: uv run climate-pipeline validation --root .. --workers 12
+
+      - name: Save the cache
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: pipeline/out/cache
+          key: urra-validation-${{ github.run_id }}
+
+      - name: Print the results to the log and the job summary
+        if: always()
+        run: |
+          for file in ../docs/urra-validation/rain-grid.csv out/smoke-results/results.md \
+              ../docs/urra-validation/results/results.md; do
+            if [ -f "$file" ]; then
+              echo "=== $file ==="
+              cat "$file"
+              { echo '```text'; cat "$file"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done
+          for file in out/smoke-results/*.csv; do
+            if [ -f "$file" ]; then echo "=== $file ==="; cat "$file"; fi
+          done
+
+      - name: Upload the outputs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: urra-validation-${{ steps.mode.outputs.mode }}-${{ github.run_id }}
+          path: |
+            docs/urra-validation/rain-grid.csv
+            docs/urra-validation/results/
+            docs/urra-validation/urra.sample.json
+            pipeline/out/smoke-results/
+            pipeline/out/case/
+          if-no-files-found: warn
+
+      - name: Commit the outputs to the branch
+        if: >-
+          success() && github.event_name == 'push' &&
+          (steps.mode.outputs.mode == 'grid' || steps.mode.outputs.mode == 'full')
+        env:
+          MODE: ${{ steps.mode.outputs.mode }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        working-directory: .
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ "$MODE" = "grid" ]; then
+            paths="docs/urra-validation/rain-grid.csv"
+            message="docs: add the Urrá catchment rain grid"
+          else
+            paths="docs/urra-validation/results docs/urra-validation/urra.sample.json"
+            message="docs: add the Urrá validation outputs"
+          fi
+          # The branch may have moved during the run, so the outputs are copied onto its latest
+          # tip instead of rebased.
+          saved="$RUNNER_TEMP/outputs"
+          mkdir -p "$saved"
+          for path in $paths; do
+            if [ -e "$path" ]; then cp -r --parents "$path" "$saved/"; fi
+          done
+          git fetch origin feat/urra-validation
+          git reset --hard origin/feat/urra-validation
+          for path in $paths; do rm -rf "$path"; done
+          cp -r "$saved/." .
+          for path in $paths; do
+            if [ -e "$path" ]; then git add -A "$path"; fi
+          done
+          if git diff --cached --quiet; then
+            echo "No output changes."
+            exit 0
+          fi
+          git commit -m "$message" -m "Generated by $RUN_URL"
+          git push origin HEAD:feat/urra-validation
