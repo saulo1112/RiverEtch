@@ -134,6 +134,41 @@ def subreach_ndti(
     Returns:
         The statistics (NaN values with fewer than ``min_valid_px_10m`` pixels).
     """
+    limit = cfg.stage2.swir16_max
+    return subreach_ndti_variants(
+        red, green, swir16_20m, scl_20m, subreach_20m, erosion_px_10m, cfg, (limit,)
+    )[limit]
+
+
+def subreach_ndti_variants(
+    red: Reflectance,
+    green: Reflectance,
+    swir16_20m: Reflectance,
+    scl_20m: NDArray[np.generic],
+    subreach_20m: NDArray[np.bool_],
+    erosion_px_10m: int,
+    cfg: ScreeningConfig,
+    swir16_limits: Sequence[float],
+) -> dict[float, SubreachNdti]:
+    """NDTI medians over one sub-reach for several pixel glint limits, from one set of arrays.
+
+    Everything but the glint guard is shared: the plausibility medians use every water pixel
+    before the darkness and glint guards, and the glint share of a limit is the share of guarded
+    pixels above it.
+
+    Args:
+        red: Red reflectance on the 10 m grid.
+        green: Green reflectance on the 10 m grid.
+        swir16_20m: B11 reflectance on the 20 m grid.
+        scl_20m: SCL on the 20 m grid.
+        subreach_20m: The sub-reach on the 20 m grid.
+        erosion_px_10m: Bank erosion at 10 m.
+        cfg: Settings.
+        swir16_limits: B11 glint limits (the screening's is ``cfg.stage2.swir16_max``).
+
+    Returns:
+        The statistics by glint limit.
+    """
     area = erode(upsample2(subreach_20m), erosion_px_10m)
     scl = repeat2(scl_20m)
     swir = repeat2(swir16_20m).astype(np.float32, copy=False)
@@ -148,25 +183,30 @@ def subreach_ndti(
     enough_swir = int(with_swir.sum()) >= cfg.clear.min_valid_px_10m
     swir_median = float(np.median(swir[with_swir])) if enough_swir else math.nan
     base = with_swir & ((red + green) > cfg.stage2.rg_floor)
-    glint = base & (swir > cfg.stage2.swir16_max)
-    use = base & ~glint
-    n = int(use.sum())
-    glint_share = float(glint.sum()) / int(base.sum()) if base.any() else math.nan
-    if n < cfg.clear.min_valid_px_10m:
-        return SubreachNdti(
-            n, math.nan, red_median, green_median, swir_median, math.nan, glint_share
+    n_base = int(base.sum())
+    out: dict[float, SubreachNdti] = {}
+    for limit in swir16_limits:
+        glint = base & (swir > limit)
+        use = base & ~glint
+        n = int(use.sum())
+        glint_share = float(glint.sum()) / n_base if n_base else math.nan
+        if n < cfg.clear.min_valid_px_10m:
+            out[limit] = SubreachNdti(
+                n, math.nan, red_median, green_median, swir_median, math.nan, glint_share
+            )
+            continue
+        r, g = red[use], green[use]
+        ndti = (r - g) / (r + g)
+        out[limit] = SubreachNdti(
+            pixels=n,
+            ndti=float(np.median(ndti)),
+            red=red_median,
+            green=green_median,
+            swir16=swir_median,
+            class6_share=float(np.isin(scl[use], cfg.scl.water).mean()),
+            glint_share=glint_share,
         )
-    r, g = red[use], green[use]
-    ndti = (r - g) / (r + g)
-    return SubreachNdti(
-        pixels=n,
-        ndti=float(np.median(ndti)),
-        red=red_median,
-        green=green_median,
-        swir16=swir_median,
-        class6_share=float(np.isin(scl[use], cfg.scl.water).mean()),
-        glint_share=glint_share,
-    )
+    return out
 
 
 def reflectance_problem(sub: dict[str, SubreachNdti], cfg: ScreeningConfig) -> str:
@@ -292,6 +332,29 @@ def measure_acquisition(
     Returns:
         The scene (``exclusion`` explains a rejection).
     """
+    limit = cfg.stage2.swir16_max
+    return measure_acquisition_variants(result, acquisition, reader, cfg, (limit,))[limit]
+
+
+def measure_acquisition_variants(
+    result: Stage1Result,
+    acquisition: Acquisition,
+    reader: AcquisitionReader,
+    cfg: ScreeningConfig,
+    swir16_limits: Sequence[float],
+) -> dict[float, Stage2Scene]:
+    """NDTI per sub-reach for one acquisition and several pixel glint limits, from one read.
+
+    Args:
+        result: The site's stage-1 result (grid, geometry).
+        acquisition: The pass.
+        reader: Cached band reader.
+        cfg: Settings.
+        swir16_limits: B11 glint limits.
+
+    Returns:
+        The scene by glint limit (``exclusion`` explains a rejection).
+    """
     grid20 = result.grid
     grid10 = grid20.with_resolution(10.0)
     erosion = (
@@ -304,29 +367,35 @@ def measure_acquisition(
     green, p2 = read_reflectance(reader, acquisition, "green", grid10)
     swir, p3 = read_reflectance(reader, acquisition, "swir16", grid20)
     scaling = tuple(s.scaling_status() for s in acquisition.scenes)
-    sub = {
-        s.name: subreach_ndti(red, green, swir, scl, s.mask, erosion, cfg)
+    per_subreach = {
+        s.name: subreach_ndti_variants(red, green, swir, scl, s.mask, erosion, cfg, swir16_limits)
         for s in result.geometry.subreaches
     }
-    exclusion = "; ".join(sorted(set(p1 + p2 + p3)))
+    read_problems = "; ".join(sorted(set(p1 + p2 + p3)))
     flagged = sorted({status for status in scaling if status in ("conflict", "missing")})
-    if not exclusion and flagged:
-        # A wrong offset of +0.1 keeps water reflectance plausible but pulls NDTI toward 0, so a
-        # scene whose metadata disagree is never used: it is listed instead.
-        exclusion = f"scaling {'/'.join(flagged)} in item metadata"
-    if not exclusion:
-        exclusion = reflectance_problem(sub, cfg)
-    # A sub-reach with too few pixels is missing for this scene; the scene goes only if both are.
-    if not exclusion and all(math.isnan(s.ndti) for s in sub.values()):
-        exclusion = "too few usable water pixels in both sub-reaches after the pixel guards"
-    return Stage2Scene(
-        key=acquisition.key,
-        datetime=acquisition.datetime,
-        platform=acquisition.platform,
-        scaling=scaling,
-        exclusion=exclusion,
-        sub=sub,
-    )
+    scenes = {}
+    for limit in swir16_limits:
+        sub = {name: by_limit[limit] for name, by_limit in per_subreach.items()}
+        exclusion = read_problems
+        if not exclusion and flagged:
+            # A wrong offset of +0.1 keeps water reflectance plausible but pulls NDTI toward 0,
+            # so a scene whose metadata disagree is never used: it is listed instead.
+            exclusion = f"scaling {'/'.join(flagged)} in item metadata"
+        if not exclusion:
+            exclusion = reflectance_problem(sub, cfg)
+        # A sub-reach with too few pixels is missing for this scene; the scene goes only if
+        # both are.
+        if not exclusion and all(math.isnan(s.ndti) for s in sub.values()):
+            exclusion = "too few usable water pixels in both sub-reaches after the pixel guards"
+        scenes[limit] = Stage2Scene(
+            key=acquisition.key,
+            datetime=acquisition.datetime,
+            platform=acquisition.platform,
+            scaling=scaling,
+            exclusion=exclusion,
+            sub=sub,
+        )
+    return scenes
 
 
 @dataclass
@@ -357,6 +426,64 @@ class Stage2Result:
         return out
 
 
+def observable_acquisitions(
+    result: Stage1Result, cfg: ScreeningConfig
+) -> tuple[list[Acquisition], int]:
+    """The acquisitions stage 2 measures: the observable ones, up to the per-site cap.
+
+    Args:
+        result: The site's stage-1 result.
+        cfg: Settings.
+
+    Returns:
+        The acquisitions, and how many observable ones the cap skipped.
+    """
+    observable_keys = {s.key for s in result.scenes if s.observable}
+    chosen = [a for a in result.acquisitions if a.key in observable_keys]
+    truncated = max(0, len(chosen) - cfg.stage2.max_scenes_per_site)
+    if truncated:
+        log.warning(
+            "%s: %d observable scenes beyond the cap are skipped", result.site.id, truncated
+        )
+        chosen = chosen[: cfg.stage2.max_scenes_per_site]
+    return chosen, truncated
+
+
+def run_stage2_variants(
+    result: Stage1Result,
+    reader: AcquisitionReader,
+    cfg: ScreeningConfig,
+    swir16_limits: Sequence[float],
+    workers: int = 8,
+) -> dict[float, Stage2Result]:
+    """NDTI of a site's observable acquisitions for several pixel glint limits, read once.
+
+    The scenes carry no rain context and no z-scores: callers add the baselines they need.
+
+    Args:
+        result: The site's stage-1 result.
+        reader: Cached band reader.
+        cfg: Settings.
+        swir16_limits: B11 glint limits.
+        workers: Parallel reads.
+
+    Returns:
+        One stage-2 result per glint limit, with the same acquisitions in the same order.
+    """
+    chosen, truncated = observable_acquisitions(result, cfg)
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        measured = list(
+            pool.map(
+                lambda a: measure_acquisition_variants(result, a, reader, cfg, swir16_limits),
+                chosen,
+            )
+        )
+    return {
+        limit: Stage2Result(result.site, [m[limit] for m in measured], truncated)
+        for limit in swir16_limits
+    }
+
+
 def run_stage2(
     result: Stage1Result,
     reader: AcquisitionReader,
@@ -374,16 +501,9 @@ def run_stage2(
     Returns:
         Scenes with NDTI, rain context and robust z-scores.
     """
-    observable_keys = {s.key for s in result.scenes if s.observable}
-    chosen = [a for a in result.acquisitions if a.key in observable_keys]
-    truncated = max(0, len(chosen) - cfg.stage2.max_scenes_per_site)
-    if truncated:
-        log.warning(
-            "%s: %d observable scenes beyond the cap are skipped", result.site.id, truncated
-        )
-        chosen = chosen[: cfg.stage2.max_scenes_per_site]
-    with ThreadPoolExecutor(max_workers=workers) as pool:
-        scenes = list(pool.map(lambda a: measure_acquisition(result, a, reader, cfg), chosen))
+    limit = cfg.stage2.swir16_max
+    second = run_stage2_variants(result, reader, cfg, (limit,), workers)[limit]
+    scenes = second.scenes
     for scene in scenes:
         if result.rain:
             ctx = rain_context(result.rain, scene.datetime, cfg.rain.windows_h, cfg.rain.timezone)
@@ -401,7 +521,7 @@ def run_stage2(
         for scene, z, group in zip(usable, zs, groups, strict=True):
             scene.z[signal] = z
             scene.baseline[signal] = group
-    return Stage2Result(result.site, scenes, truncated)
+    return Stage2Result(result.site, scenes, second.truncated)
 
 
 def false_alarm_rate(result: Stage2Result, threshold: float) -> tuple[float, int]:

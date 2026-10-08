@@ -13,6 +13,7 @@ from climate_pipeline.screening.stage2 import (
     reflectance_problem,
     robust_z,
     subreach_ndti,
+    subreach_ndti_variants,
 )
 
 CONFIG = load_screening_config(Path(__file__).parents[1] / "screening.yaml")
@@ -58,6 +59,19 @@ def test_ndti_median_and_guards() -> None:
     assert math.isnan(glinted.ndti) and glinted.glint_share == 1
     no_b11 = subreach_ndti(red, green, np.full_like(swir, np.nan), scl, subs[0], 1, CONFIG)
     assert math.isnan(no_b11.ndti) and no_b11.pixels == 0
+
+
+def test_several_glint_limits_come_from_one_set_of_arrays() -> None:
+    river, subs = geometry()
+    red, green, swir, scl = bands(river, 0.04, 0.055, 0.04)  # water B11 between the two limits
+    both = subreach_ndti_variants(red, green, swir, scl, subs[0], 1, CONFIG, (0.05, 0.03))
+    assert both[0.05] == subreach_ndti(red, green, swir, scl, subs[0], 1, CONFIG)
+    strict = CONFIG.model_copy(
+        update={"stage2": CONFIG.stage2.model_copy(update={"swir16_max": 0.03})}
+    )
+    assert both[0.03] == subreach_ndti(red, green, swir, scl, subs[0], 1, strict)
+    assert math.isnan(both[0.03].ndti) and both[0.03].glint_share == 1
+    assert both[0.05].glint_share == 0 and both[0.03].red == both[0.05].red
 
 
 def test_implausible_water_reflectance_is_reported() -> None:
