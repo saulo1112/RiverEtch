@@ -1311,7 +1311,14 @@ def manifest(
         hashes_recent[run.site.id] = evidence_hash(
             [a for a in run.stage1.acquisitions if cfg.geometry_period.contains(a.datetime.date())]
         )
+    extra: dict[str, object] = {}
+    if cfg.demo_event is not None:
+        post_hoc = paths.at(cfg.demo_event.post_hoc_events_csv)
+        extra["post_hoc_events_sha256"] = (
+            config_hash([post_hoc]) if post_hoc.exists() else "missing"
+        )
     return {
+        **extra,
         "package_version": __version__,
         "run": "smoke (stage 1 only, no NDTI)" if stage1_only else "full",
         "period": f"{cfg.period.start}..{cfg.period.end}",

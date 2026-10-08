@@ -248,7 +248,8 @@ def test_insitu_comparisons_follow_the_rule(full: ValidationOutputs) -> None:
     assert stations["23187010"]["distance_km"] != ""
     assert full.level_percentiles and all(0 < v <= 1 for v in full.level_percentiles.values())
     assert full.tables["saturation"]
-    assert {"insitu_sha256"} <= set(full.manifest)
+    assert {"insitu_sha256", "post_hoc_events_sha256"} <= set(full.manifest)
+    assert full.manifest["post_hoc_events_sha256"] != "missing"
 
 
 def test_outputs_are_written_and_observational(
