@@ -1,8 +1,9 @@
 """Command-line entry point of the pipeline.
 
 ``climate-pipeline screening`` runs the data-driven site screening (see
-docs/site-screening/method.md). The other stages (operational ingestion, anomaly publication)
-are not implemented yet.
+docs/site-screening/method.md); ``climate-pipeline fetch-docs`` fetches public documents with a
+provenance manifest (see docs/urra-validation/regulatory.md). The other stages (operational
+ingestion, anomaly publication) are not implemented yet.
 """
 
 from __future__ import annotations
@@ -38,7 +39,69 @@ def _parser() -> argparse.ArgumentParser:
     screening.add_argument(
         "--results", type=Path, default=None, help="where generated tables go (default: docs)"
     )
+    docs = commands.add_parser(
+        "fetch-docs",
+        help="fetch public documents with a provenance manifest and keyword-in-context hits",
+    )
+    docs.add_argument("--sources", type=Path, required=True, help="CSV: id,group,url,purpose")
+    docs.add_argument("--keywords", type=Path, required=True, help="one keyword per line")
+    docs.add_argument("--print-pages", type=Path, default=None, help="CSV: source_id,pages,reason")
+    docs.add_argument("--groups", default="", help="comma-separated groups (default: all)")
+    docs.add_argument("--only", default="", help="comma-separated source ids (default: all)")
+    docs.add_argument("--out", type=Path, required=True, help="output folder (never committed)")
+    docs.add_argument("--max-mb", type=float, default=60.0, help="size cap per document")
+    docs.add_argument("--pause", type=float, default=1.5, help="seconds between requests")
     return parser
+
+
+def _split(text: str) -> set[str]:
+    return {part.strip() for part in text.split(",") if part.strip()}
+
+
+def fetch_docs(args: argparse.Namespace) -> int:
+    """Run ``fetch-docs``: fetch, extract text, print the manifest and the requested pages.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code.
+    """
+    from climate_pipeline.sources import fetch
+
+    sources = fetch.load_sources(args.sources)
+    groups, only = _split(args.groups), _split(args.only)
+    chosen = [
+        s for s in sources if (not groups or s.group in groups) and (not only or s.id in only)
+    ]
+    records, hits = fetch.fetch_all(
+        chosen,
+        args.out,
+        fetch.load_keywords(args.keywords),
+        max_bytes=int(args.max_mb * 1_000_000),
+        pause_s=args.pause,
+    )
+    for record in records:
+        state = "ok" if record.ok else "FAILED"
+        found = sum(1 for h in hits if h.source_id == record.source_id)
+        print(
+            f"{record.source_id}: {state} {record.status} {record.copy} {record.bytes} B, "
+            f"{record.pages} pages ({record.ocr_pages} OCR), {found} keyword hits"
+            f"{'; ' + record.error if record.error else ''}"
+        )
+    print(fetch.MANIFEST_BEGIN)
+    print(fetch.manifest_csv(records), end="")
+    print(fetch.MANIFEST_END)
+    if args.print_pages is not None:
+        wanted = fetch.load_print_pages(args.print_pages)
+        for record in (r for r in records if r.ok and r.source_id in wanted):
+            pages = fetch.read_pages(args.out / "text" / f"{record.source_id}.txt")
+            for page in (p for p in pages if p.number in wanted[record.source_id]):
+                ocr = " (OCR)" if page.ocr else ""
+                print(f"=== {record.source_id} page {page.number}{ocr} BEGIN ===")
+                print(page.text)
+                print(f"=== {record.source_id} page {page.number} END ===")
+    return 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -52,6 +115,8 @@ def main(argv: list[str] | None = None) -> int:
     """
     parser = _parser()
     args = parser.parse_args(argv)
+    if args.command == "fetch-docs":
+        return fetch_docs(args)
     if args.command != "screening":
         parser.print_help()
         return 0
