@@ -1,0 +1,3 @@
+scale,detection_rate,smallest_grid_step,interpolated_step,downstream_sigma_ndti
+ndti,0.8,0.04,0.03781,0.0356
+sigma,0.8,2.0,1.10833,0.0356

@@ -1,0 +1,2 @@
+date,scene,step_ndti,real_downstream_ndti,overlay_downstream_ndti,real_max_abs_z,overlay_max_abs_z,detected,eligible_scenes,dated_events_avoided,label
+2022-03-09,sentinel-2a_2022-03-09_R025,0.08,0.0151,0.0951,-0.81,7.61,true,12,11,"SYNTHETIC test event (injected into a copy, not observed)"

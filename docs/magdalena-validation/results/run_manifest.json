@@ -1,0 +1,43 @@
+{
+  "case_names_outside_context": [],
+  "events_sha256": "eef554292bca112f858ff206a533d0334ac7fa7449646174be9780fa79fb5cf8",
+  "finished_utc": "2026-10-09T02:24:14+00:00",
+  "git_commit": "bc588eacdf3d7f59a612245fc3e4608d905d6835",
+  "insitu_sha256": {
+    "level 0023187010": "39919f98fe2cc7c4deef80ff42de2bf59599dbac5628ddf2cf55c4349c9c6149",
+    "level 0023207040": "e550f4abe0787632e6d429dde79f0c9076d9efad1663d6043e315e5c1d77e3cf",
+    "quality 23157030": "fa95b61f3768f75e81af8680e5152fca9f085f704f024d8b879c7f0079989df9",
+    "quality 23187010": "52e52d5fe75abb2d17628e675d35af22f04362b7a05c400a6120b61207bfbab4",
+    "quality 23187280": "12cae95f182767772fbcf2af3e36160b0f1c4f05ba18fa10de1fda10f81cdcfc",
+    "quality 23207040": "76108d1fa96cbeb12eb30f671928dd2b0479aa6628c4ca3072baf855744daac5"
+  },
+  "item_ids_sha256": {
+    "magdalena-puerto-wilches": "cbc595b88f32cbe7c7b33f34f1da89418071608bf149761047939ffc55e4d6c4",
+    "meta-orocue": "d4f03760317b0cf584d36e603d3aaf9c18f32f5edb1d5e9dc7d937775a53d469"
+  },
+  "item_ids_sha256_2022_2025": {
+    "magdalena-puerto-wilches": "8bff3e8c7dce939d08aa62d0c62a1f0d4289360d02fda1d31895a9e18887be31",
+    "meta-orocue": "1654814304a26199bc25e794d56610d8bc48c1ed25deb366d28c207018de170d"
+  },
+  "libraries": {
+    "httpx": "0.28.1",
+    "matplotlib": "3.11.2",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pydantic": "2.13.5",
+    "pystac-client": "0.9.0",
+    "rasterio": "1.5.2"
+  },
+  "method_blob": "975903a14ecdf75e94ee30974674cc2f5005aaf4",
+  "method_last_commit": "c25f1e6f481b3b0c002e89da13053afda00e2712",
+  "package_version": "0.1.0",
+  "period": "2018-12-01..2025-12-31",
+  "post_hoc_events_sha256": "4979d9b9530d537a16bb9fb3ae9cbc8e2dcc442a98d7b20f31b2fd52d9171b73",
+  "rain_grid_sha256": "82db74040a121915e066b9085b14f5be39df64ddecf4e0c2a807065002d6910c",
+  "read_error_count": 0,
+  "run": "full",
+  "screening_config_sha256": "c22dbaac4cecdbaf4a13f7c18e9ea61fbb49a3153103ec6e13ca1fab26316124",
+  "sites_sha256": "290527866c61a12a7d2de6cfb9295ab5720c788aaa03d703e2eb34cce74d356d",
+  "started_utc": "2026-10-09T01:58:18+00:00",
+  "validation_config_sha256": "f724b64bb59dff218f0e6548399b789778347747716f62ee564114e9a0a3850f"
+}

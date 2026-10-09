@@ -1,0 +1,14 @@
+site_id,year,cause,scenes
+magdalena-puerto-wilches,2020,glint or a missing offset,3
+magdalena-puerto-wilches,2022,offset applied twice?,1
+magdalena-puerto-wilches,2025,offset applied twice?,2
+meta-orocue,2018,glint or a missing offset,3
+meta-orocue,2019,glint or a missing offset,9
+meta-orocue,2020,glint or a missing offset,14
+meta-orocue,2021,glint or a missing offset,6
+meta-orocue,2022,glint or a missing offset,7
+meta-orocue,2022,offset applied twice?,1
+meta-orocue,2023,glint or a missing offset,4
+meta-orocue,2024,glint or a missing offset,4
+meta-orocue,2025,glint or a missing offset,2
+meta-orocue,2025,offset applied twice?,2

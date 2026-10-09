@@ -1,0 +1,7 @@
+site_id,part,scenes,scored_d0,anomalous_d0,persistent,candidates,episodes
+magdalena-puerto-wilches,hold-out 2018-12..2021-12,54,51,1,1,0,0
+magdalena-puerto-wilches,screening period 2022-2025,65,61,0,0,0,0
+magdalena-puerto-wilches,whole period,119,112,1,1,0,0
+meta-orocue,hold-out 2018-12..2021-12,42,10,0,0,0,0
+meta-orocue,screening period 2022-2025,61,41,3,1,1,1
+meta-orocue,whole period,103,51,3,1,1,1

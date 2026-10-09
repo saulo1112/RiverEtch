@@ -1,0 +1,23 @@
+site_id,check,expected,actual,pass
+magdalena-puerto-wilches,item-id sha256 2022-2025,8bff3e8c7dce939d08aa62d0c62a1f0d4289360d02fda1d31895a9e18887be31,8bff3e8c7dce939d08aa62d0c62a1f0d4289360d02fda1d31895a9e18887be31,true
+magdalena-puerto-wilches,mask_source,scl,scl,true
+magdalena-puerto-wilches,water_frequency_threshold,0.5,0.5,true
+magdalena-puerto-wilches,reach_length_km,15.67,15.67,true
+magdalena-puerto-wilches,separation_km,10.0,10.0,true
+magdalena-puerto-wilches,anchor_shift_up_m,904.0,904.0,true
+magdalena-puerto-wilches,anchor_shift_down_m,305.0,305.0,true
+magdalena-puerto-wilches,center_shift_m,226.0,226.0,true
+magdalena-puerto-wilches,width_px_10m,30.6,30.6,true
+magdalena-puerto-wilches,centerline_mid_lon,-73.89839,-73.89839,true
+magdalena-puerto-wilches,centerline_mid_lat,7.41711,7.41711,true
+meta-orocue,item-id sha256 2022-2025,1654814304a26199bc25e794d56610d8bc48c1ed25deb366d28c207018de170d,1654814304a26199bc25e794d56610d8bc48c1ed25deb366d28c207018de170d,true
+meta-orocue,mask_source,mndwi,mndwi,true
+meta-orocue,water_frequency_threshold,0.5,0.5,true
+meta-orocue,reach_length_km,17.67,17.67,true
+meta-orocue,separation_km,10.0,10.0,true
+meta-orocue,anchor_shift_up_m,868.0,868.0,true
+meta-orocue,anchor_shift_down_m,170.0,170.0,true
+meta-orocue,center_shift_m,278.0,278.0,true
+meta-orocue,width_px_10m,16.9,16.9,true
+meta-orocue,centerline_mid_lon,-71.27986,-71.27986,true
+meta-orocue,centerline_mid_lat,4.81023,4.81023,true
