@@ -39,7 +39,7 @@ def test_share_rows_report_every_variant_with_its_interval() -> None:
     rows = share_rows("reach", "frozen", evaluations, CONFIG.variants, 1.96)
     assert [r["variant"] for r in rows] == [v.id for v in CONFIG.variants]
     assert rows[0]["scored"] == 50 and rows[0]["anomalous"] == 1 and rows[0]["share"] == 0.02
-    assert rows[0]["wilson_low"] < 0.02 < rows[0]["wilson_high"]
+    assert float(str(rows[0]["wilson_low"])) < 0.02 < float(str(rows[0]["wilson_high"]))
 
 
 def test_a_reach_is_quiet_only_when_every_part_of_the_rule_holds() -> None:

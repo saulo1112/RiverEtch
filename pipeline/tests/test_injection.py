@@ -127,7 +127,8 @@ def made(size: float, detected: bool) -> Injection:
 
 def test_threshold_interpolates_between_grid_steps() -> None:
     injections = [made(0.01, k < 1) for k in range(2)] + [made(0.02, True) for _ in range(2)]
-    assert threshold(injections, "ndti", 0.8) == (0.02, pytest.approx(0.016))
+    grid, interpolated = threshold(injections, "ndti", 0.8)
+    assert grid == 0.02 and interpolated == pytest.approx(0.016)
     assert threshold(injections, "ndti", 0.5) == (0.01, 0.01)
     assert threshold([made(0.01, False)], "ndti", 0.8) == (None, None)
     assert threshold(injections, "sigma", 0.8) == (None, None)

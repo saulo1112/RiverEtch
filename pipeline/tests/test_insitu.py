@@ -9,8 +9,9 @@ from climate_pipeline.validation import insitu
 from climate_pipeline.validation.config import InsituConfig, load_validation_config
 
 ROOT = Path(__file__).parents[1]
-CONFIG = load_validation_config(ROOT / "magdalena-validation.yaml").insitu
-assert CONFIG is not None
+SETTINGS = load_validation_config(ROOT / "magdalena-validation.yaml").insitu
+assert SETTINGS is not None
+CONFIG: InsituConfig = SETTINGS
 RULE: InsituConfig = CONFIG.model_copy(update={"min_pairs": 5, "bootstrap": 300})
 
 

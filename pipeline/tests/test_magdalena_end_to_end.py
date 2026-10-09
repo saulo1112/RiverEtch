@@ -32,7 +32,7 @@ from climate_pipeline.screening.config import config_hash
 from climate_pipeline.screening.events import EVENT_COLUMNS
 from climate_pipeline.screening.rain import OpenMeteoClient
 from climate_pipeline.screening.stac import evidence_hash, group_acquisitions
-from climate_pipeline.validation.case import names_outside_context
+from climate_pipeline.validation.case import BaselineSummary, names_outside_context
 from climate_pipeline.validation.report import write_outputs
 from climate_pipeline.validation.run import ValidationOutputs, ValidationPaths, run_validation
 
@@ -225,7 +225,7 @@ def test_the_case_keeps_the_synthetic_layer_apart(full: ValidationOutputs) -> No
     assert real.date == event.date == full.demo.day.isoformat()
     assert real.ndti["downstream"] == pytest.approx(event.real_ndti, abs=1e-4)
     assert event.overlay_ndti == pytest.approx(event.real_ndti + event.magnitude_ndti, abs=1e-4)
-    assert case.ui.validation.kind == "baseline"
+    assert isinstance(case.ui.validation, BaselineSummary)
     assert case.ui.reach_label == "Río Magdalena between Puerto Wilches and San Pablo"
     assert names_outside_context(case, full.cfg.context.forbidden_names) == []
     assert full.manifest["case_names_outside_context"] == []
