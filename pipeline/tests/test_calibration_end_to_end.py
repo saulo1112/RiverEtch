@@ -19,10 +19,11 @@ import numpy as np
 import pytest
 import yaml
 
+from climate_pipeline.calibration.acolite import scene_uses
 from climate_pipeline.calibration.config import load_calibration_config
 from climate_pipeline.calibration.fetching import STATION_COLUMNS, CalibrationPaths
 from climate_pipeline.calibration.report import read_manifest, verify, write_outputs
-from climate_pipeline.calibration.run import Results, analyse
+from climate_pipeline.calibration.run import Results, analyse, load_inputs
 from climate_pipeline.cli import main
 from climate_pipeline.contract.observation import ObservationRecord, is_sealed
 
@@ -303,3 +304,19 @@ def test_outputs_verify_byte_for_byte(world: tuple[CalibrationPaths, Results]) -
     assert main(["calibration", "run", "--root", str(paths.root)]) == 0
     assert main(["calibration", "verify", "--root", str(paths.root)]) == 0
     assert (folder / "run.json").exists() and "run.json" not in read_manifest(folder / "MANIFEST")
+
+
+def test_acolite_scenes_come_in_priority_order(world: tuple[CalibrationPaths, Results]) -> None:
+    paths, results = world
+    cfg = load_calibration_config(paths.config)
+    uses = scene_uses(cfg, load_inputs(cfg, paths))
+    groups = [u.group for u in uses]
+    assert groups == sorted(groups) and {0, 1, 2} <= set(groups)
+    assert len({(u.station, u.key) for u in uses}) == len(uses)
+    first = {(u.station, u.key): u for u in uses}
+    for p in table(results, "pairs"):
+        if p["split"] in ("training", "holdout"):
+            use = first[(p["station"], p["scene_key"])]
+            assert p["target"] in use.targets
+            if p["target"] != "cm_d":  # a sampled pair's scene is never ranked as daily
+                assert use.group <= (0 if p["split"] == "training" else 1)

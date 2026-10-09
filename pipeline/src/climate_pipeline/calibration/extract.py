@@ -306,6 +306,63 @@ def station_windows(geometry: StationGeometry, cfg: CalibrationConfig) -> Window
     )
 
 
+def _read_window_bands(
+    acquisition: Acquisition, reader: AcquisitionReader, grid: Grid, cfg: CalibrationConfig
+) -> tuple[NDArray[np.generic], dict[str, NDArray[np.float32]]]:
+    scl = np.asarray(reader.read(acquisition, "scl", grid)[0])
+    bands: dict[str, NDArray[np.float32]] = {}
+    for asset, band in cfg.imagery.assets.items():
+        if asset == "scl":
+            continue
+        read = read_average if asset in TEN_M else read_to_grid
+        bands[band], _ = read_reflectance(reader, acquisition, asset, grid, read=read)
+    return scl, bands
+
+
+def _window_pixels(
+    scl: NDArray[np.generic],
+    bands: Mapping[str, NDArray[np.float32]],
+    window: BoolArray,
+    screening: ScreeningConfig,
+) -> tuple[BoolArray, BoolArray, BoolArray, BoolArray]:
+    """Window pixels with data, valid ones, glint ones, and the water pixels the medians use."""
+    pixels = window & ~np.isin(scl, screening.scl.nodata)
+    valid = pixels & ~np.isin(scl, screening.scl.invalid)
+    glint = valid & (bands["B11"] > screening.stage2.swir16_max)
+    water = valid & ~glint
+    for band in BAND_ORDER:
+        water &= np.isfinite(bands[band])
+    return pixels, valid, glint, water
+
+
+def water_pixels(
+    acquisition: Acquisition,
+    reader: AcquisitionReader,
+    windows: Windows,
+    name: str,
+    cfg: CalibrationConfig,
+    screening: ScreeningConfig,
+) -> BoolArray:
+    """The pixels whose L2A medians :func:`measure_window` reports for one window.
+
+    Stage 2c measures ACOLITE's reflectances over exactly these pixels, so the two corrections
+    are compared on the same water.
+
+    Args:
+        acquisition: The pass.
+        reader: Band reader.
+        windows: The station's windows.
+        name: The window (``300m``).
+        cfg: Settings.
+        screening: Screening settings.
+
+    Returns:
+        A mask on ``windows.grid``.
+    """
+    scl, bands = _read_window_bands(acquisition, reader, windows.grid, cfg)
+    return _window_pixels(scl, bands, windows.masks[name], screening)[3]
+
+
 def _median(values: NDArray[np.floating]) -> float:
     finite = values[np.isfinite(values)]
     return float(np.median(finite)) if finite.size else math.nan
@@ -336,27 +393,14 @@ def measure_window(
     Returns:
         Window name -> statistics and band medians.
     """
-    grid = windows.grid
-    scl = np.asarray(reader.read(acquisition, "scl", grid)[0])
-    bands: dict[str, NDArray[np.float32]] = {}
-    for asset, band in cfg.imagery.assets.items():
-        if asset == "scl":
-            continue
-        read = read_average if asset in TEN_M else read_to_grid
-        bands[band], _ = read_reflectance(reader, acquisition, asset, grid, read=read)
+    scl, bands = _read_window_bands(acquisition, reader, windows.grid, cfg)
     invalid = np.isin(scl, screening.scl.invalid)
-    data = ~np.isin(scl, screening.scl.nodata)
     low, high = screening.stage2.water_swir16_range
     out = {}
     for name in names:
         window = windows.masks[name]
-        pixels = window & data
-        valid = pixels & ~invalid
+        pixels, valid, glint, water = _window_pixels(scl, bands, window, screening)
         b11 = bands["B11"]
-        glint = valid & (b11 > screening.stage2.swir16_max)
-        water = valid & ~glint
-        for band in BAND_ORDER:
-            water &= np.isfinite(bands[band])
         n_pixels, n_valid = int(pixels.sum()), int(valid.sum())
         b11_median = _median(b11[valid])
         red, green = bands["B04"][water], bands["B03"][water]

@@ -148,7 +148,7 @@ def load_inputs(cfg: CalibrationConfig, paths: CalibrationPaths) -> Inputs:
             parsed = samples_from_series(text, row["station_id"], label)
             series[(row["station_id"], label)] = {s.day: s.value for s in parsed}
             if label == "CM_D":
-                samples += [s for s in parsed if True]
+                samples += parsed
     samples = [
         Sample(s.station, s.day, "cm_d" if s.target == "CM_D" else s.target, s.value, s.censored,
                s.state)

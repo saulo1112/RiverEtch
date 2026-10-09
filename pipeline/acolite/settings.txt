@@ -1,0 +1,21 @@
+## TerraChain calibration validation, Stage 2c (a sensitivity, never the primary).
+## Fixed before any ACOLITE output was seen. Every setting not listed here is ACOLITE's default
+## at the pinned commit (README.md). The runner adds inputfile, output and limit per scene.
+##
+## 20 m output, the grid of the L2A windows.
+s2_target_res=20
+## One aerosol estimate for the small subset around each station (the tiled default needs a
+## full tile).
+dsf_aot_estimate=fixed
+## No NASA Earthdata account: pressure from the Copernicus 30 m DEM (public), ozone and water
+## vapour from ACOLITE's defaults.
+ancillary_data=False
+dem_pressure=True
+dem_source=copernicus30
+## Water-leaving reflectance in every band, with ACOLITE's default non-water mask.
+l2w_parameters=rhow_*
+output_xy=True
+## No images.
+rgb_rhot=False
+rgb_rhos=False
+map_l2w=False

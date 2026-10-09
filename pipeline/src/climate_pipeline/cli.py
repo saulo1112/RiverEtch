@@ -89,8 +89,9 @@ def _parser() -> argparse.ArgumentParser:
         "calibration", help="calibration and climate-context validation (fetch, run, verify)"
     )
     calibration.add_argument(
-        "action", choices=("fetch", "run", "verify"),
-        help="fetch: network snapshots; run: offline results; verify: recompute and compare",
+        "action", choices=("fetch", "run", "verify", "acolite-list"),
+        help="fetch: network snapshots; run: offline results; verify: recompute and compare; "
+        "acolite-list: the Level-1C scenes of Stage 2c",
     )  # fmt: skip
     calibration.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     calibration.add_argument(
@@ -280,7 +281,7 @@ def contract(args: argparse.Namespace) -> int:
 
 
 def calibration(args: argparse.Namespace) -> int:
-    """Run ``calibration fetch``, ``calibration run`` or ``calibration verify``.
+    """Run ``calibration fetch``, ``run``, ``verify`` or ``acolite-list``.
 
     Args:
         args: Parsed arguments of the subcommand.
@@ -314,6 +315,13 @@ def calibration(args: argparse.Namespace) -> int:
         counts = fetch_values(cfg, paths, args.workers)
         print(f"snapshots: {counts}")
         return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "acolite-list":
+        from climate_pipeline.calibration.acolite import acolite_list
+
+        scenes = acolite_list(cfg, paths, paths.cache.parent / "acolite-work", args.workers)
+        products = {r["l1c_product"] for r in scenes if r["l1c_product"]}
+        print(f"{len(scenes)} matchup scenes, {len(products)} Level-1C products")
+        return 0
     if args.action == "verify":
         problems = verify(cfg, paths)
         for line in problems:
