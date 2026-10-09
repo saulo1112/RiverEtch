@@ -1,0 +1,6 @@
+path,url,status,bytes,sha256,fetched_utc,note
+stations/bucket-listing.csv,https://datos.ideam.gov.co/s3-estacionesideam?list-type=2,200,3790,e09303594b5d1c22782a7076e571418fd71d31a6c4b91fe204630dac459a7371,2026-10-09T17:52:17+00:00,keys of the stream's stations only
+stations/catalog-magdalena.csv,https://datos.ideam.gov.co/s3-estacionesideam/catalogo/estaciones/csv/catalogo.csv,200,46789,1ad7707bd07563eac37952d0b4846e15bffb4f40020866fda1cf09d6fbe23137,2026-10-09T17:52:16+00:00,"rows on MAGDALENA; full file 3635951 B, sha256 d9a7aff91405756734d3a3c2638aaed1ca3771dbcf6f9e33903262d8f15be9eb"
+stations/quality-points.json,https://www.datos.gov.co/resource/62gv-3857.json,200,16666,f5d760a6c30a05cdbf9b4137882a6021038b1607e56d3bb5b8bb3a5421ea44f5,2026-10-09T17:52:15+00:00,metadata only
+stations/read-errors.csv,derived,200,2330,1ca8a878e6de3cd9e5f99ae96368d9abe58159227ce33266610e7bab17f9bd8b,2026-10-09T19:47:54+00:00,
+stations/stations.csv,derived,200,16970,6eb28fd7b7bb768aff9011b6debe05248d3e6f96a6a94393009d3281ed594e7d,2026-10-09T19:47:54+00:00,the frozen selection
