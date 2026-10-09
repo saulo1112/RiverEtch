@@ -203,3 +203,34 @@ last. Format: context → decision → consequences.
   - The interface uses "simulated permit holder" and "illustrative limit, not the real licence".
     Real names of contracts, entities and authorities appear only in `context.sources`, marked
     "public-source context, not an accusation".
+
+## D15. Calibration and climate-context validation, run locally (2026-10-09)
+
+- **Context:**
+  - The Magdalena validation (D14, [report](magdalena-validation/report.md)) found the reach quiet,
+    but showed no link between NDTI and turbidity, suspended solids or flow. In-situ pairs were too
+    few, and the river level ran the wrong way.
+  - The machine that runs the pipeline reaches every source needed, including a public IDEAM bucket
+    with daily discharge, daily level and a daily suspended-sediment concentration (`CM_D`, partly
+    from a rating model), and Earth Search's homogeneous Sentinel-2 Collection 1.
+- **Decision:**
+  - A preregistered validation ([preregistration](magdalena-validation/calibration-preregistration.md),
+    `pipeline/calibration.yaml`) tests three things:
+    1. whether any Sentinel-2 band or ratio can be calibrated to turbidity, total suspended solids
+       or `CM_D` on the Magdalena main stem;
+    2. whether rain or hydrology explains the reach's signal;
+    3. whether the satellite sees the river's hydrology and climate phases.
+  - Runs are local. A network `fetch` snapshots every input with SHA-256, and an offline `run`
+    recomputes every result from the snapshots, also in CI.
+  - `sentinel-2-l2a` stays the primary imagery. Collection 1 and ACOLITE (time-boxed, with Level-1C
+    files the project owner downloads) are sensitivities.
+  - `CM_D` is a third target, always labelled "IDEAM rating-model daily concentration".
+  - The product gains an observation record contract (`docs/schema/observation-record.v1`), a
+    sibling of the case file v1, which stays unchanged.
+- **Consequences:**
+  - A physical unit appears only for a target, range and set of stations where calibration passed.
+    Otherwise the record shows an index departure.
+  - A climate label is given only when the flagged signal's own season-and-rain model passed;
+    otherwise it is `not_evaluated`. `unexplained` is never shown as human pressure.
+  - IDEAM snapshots are committed under their CC BY-SA 4.0 licence with attribution. The
+    repository-level licence is still open.
