@@ -243,12 +243,15 @@ export function App() {
   };
 
   const onSceneReady = () => {
-    // Only the way back waits for the scene (StrictMode may report it twice).
-    if (view !== "returning" || tripRef.current.heroReady) {
+    // Only the way back waits for the scene (StrictMode may report it twice). A skip, or a hero
+    // that was too slow, may already have shown the hero UI: the scene still has to rise from its
+    // parked pose, so the current trip's first ready counts whatever the view.
+    const trip = tripRef.current;
+    if (!returned || trip.heroReady || trip.id !== flightCount.current) {
       return;
     }
     markFlight("hero-ready");
-    tripRef.current.heroReady = true;
+    trip.heroReady = true;
     setHeroReady(true);
     startAscent();
   };
@@ -259,8 +262,8 @@ export function App() {
     trip.fadedOut = true;
     setFlight(null);
     if (!trip.heroReady) {
-      // The hero was too slow (its wait ran out): the CSS globe shows, the UI comes back now, and
-      // the scene fades in already on its framing when it is ready, as on a first visit.
+      // The hero was too slow (its wait ran out): the CSS globe shows and the UI comes back now;
+      // when the scene is ready, onSceneReady finishes its ascent at once (trip.skip).
       markFlight("hero-late");
       trip.skip = true;
       setView("hero");
