@@ -293,12 +293,14 @@ def abstain_reason(
         fit: The chosen model.
         row: The scene's features.
         stats: The scene's window statistics: ``glint_share``, ``contamination``, ``valid_px``,
-            ``b11_ok`` (1 or 0).
+            ``b11_ok`` (1 or 0) and ``bands_read`` (0 when SCL alone ruled the window out).
         window: Window settings.
 
     Returns:
         The reason, or None.
     """
+    if not stats.get("bands_read", 1.0) >= 1:
+        return "window too cloudy to measure"
     if stats.get("b11_ok", 0.0) < 1:
         return "failed water-B11 check"
     if stats.get("valid_px", 0.0) < window.min_valid_px:

@@ -306,17 +306,23 @@ def station_windows(geometry: StationGeometry, cfg: CalibrationConfig) -> Window
     )
 
 
-def _read_window_bands(
+def _read_bands(
     acquisition: Acquisition, reader: AcquisitionReader, grid: Grid, cfg: CalibrationConfig
-) -> tuple[NDArray[np.generic], dict[str, NDArray[np.float32]]]:
-    scl = np.asarray(reader.read(acquisition, "scl", grid)[0])
+) -> dict[str, NDArray[np.float32]]:
     bands: dict[str, NDArray[np.float32]] = {}
     for asset, band in cfg.imagery.assets.items():
         if asset == "scl":
             continue
         read = read_average if asset in TEN_M else read_to_grid
         bands[band], _ = read_reflectance(reader, acquisition, asset, grid, read=read)
-    return scl, bands
+    return bands
+
+
+def _read_window_bands(
+    acquisition: Acquisition, reader: AcquisitionReader, grid: Grid, cfg: CalibrationConfig
+) -> tuple[NDArray[np.generic], dict[str, NDArray[np.float32]]]:
+    scl = np.asarray(reader.read(acquisition, "scl", grid)[0])
+    return scl, _read_bands(acquisition, reader, grid, cfg)
 
 
 def _window_pixels(
@@ -382,6 +388,11 @@ def measure_window(
     B11 above the screening's guard are glint and leave the medians. The scene's water-B11 check
     uses the median B11 of the valid pixels.
 
+    SCL is read first. When no window can pass the scene guards whatever the bands hold (fewer
+    valid pixels than the minimum, since the water pixels are a subset of them, or contamination
+    above the maximum), the other bands are not read (deviation 4): the rows keep the SCL
+    statistics, and ``valid_px``, the B11 check and the medians are NaN, with ``bands_read`` 0.
+
     Args:
         acquisition: The pass.
         reader: Band reader.
@@ -393,8 +404,26 @@ def measure_window(
     Returns:
         Window name -> statistics and band medians.
     """
-    scl, bands = _read_window_bands(acquisition, reader, windows.grid, cfg)
+    scl = np.asarray(reader.read(acquisition, "scl", windows.grid)[0])
     invalid = np.isin(scl, screening.scl.invalid)
+    data = ~np.isin(scl, screening.scl.nodata)
+    unread: dict[str, dict[str, float]] = {}
+    for name in names:
+        window = windows.masks[name]
+        pixels = window & data
+        n_pixels, n_valid = int(pixels.sum()), int((pixels & ~invalid).sum())
+        contamination = float((pixels & invalid).sum() / n_pixels) if n_pixels else math.nan
+        if n_valid >= cfg.window.min_valid_px and contamination <= cfg.window.max_contamination:
+            break
+        unread[name] = {
+            "window_px": float(window.sum()), "data_px": float(n_pixels), "valid_px": math.nan,
+            "contamination": contamination, "glint_share": math.nan, "b11_median": math.nan,
+            "b11_ok": math.nan, "ndti_px_median": math.nan,
+            **dict.fromkeys(BAND_ORDER, math.nan), "bands_read": 0.0,
+        }  # fmt: skip
+    else:
+        return unread
+    bands = _read_bands(acquisition, reader, windows.grid, cfg)
     low, high = screening.stage2.water_swir16_range
     out = {}
     for name in names:
@@ -418,6 +447,7 @@ def measure_window(
         }
         for band in BAND_ORDER:
             row[band] = _median(bands[band][water])
+        row["bands_read"] = 1.0
         out[name] = row
     return out
 
@@ -427,25 +457,37 @@ def measure_extent(
     reader: AcquisitionReader,
     windows: Windows,
     screening: ScreeningConfig,
+    valid_fraction_min: float = 0.0,
 ) -> dict[str, float]:
     """Water extent in the 2 km disk: MNDWI > 0 among valid pixels.
+
+    SCL is read first. When its clear share of the disk is already under ``valid_fraction_min``
+    (the valid share can only be lower), green and B11 are not read (deviation 4):
+    ``valid_fraction`` is then that SCL share, the other values are NaN and ``bands_read`` is 0.
 
     Args:
         acquisition: The pass.
         reader: Band reader.
         windows: The station's windows.
         screening: Screening settings.
+        valid_fraction_min: The smallest valid share any analysis uses.
 
     Returns:
-        ``valid_fraction``, ``water_px``, ``extent_km2`` and ``b11_ok`` (0 when the darkest B11
-        values suggest an offset applied twice, as the screening's MNDWI rule checks).
+        ``valid_fraction``, ``water_px``, ``extent_km2``, ``b11_ok`` (0 when the darkest B11
+        values suggest an offset applied twice, as the screening's MNDWI rule checks) and
+        ``bands_read``.
     """
     grid = windows.grid
     area = windows.masks["extent"]
     scl = np.asarray(reader.read(acquisition, "scl", grid)[0])
+    excluded = np.isin(scl, sorted(set(screening.scl.invalid) | set(screening.scl.nodata)))
+    if area.any():
+        clear = float((area & ~excluded).sum() / area.sum())
+        if clear < valid_fraction_min:
+            return {"valid_fraction": clear, "water_px": math.nan, "extent_km2": math.nan,
+                    "b11_ok": math.nan, "bands_read": 0.0}  # fmt: skip
     green, _ = read_reflectance(reader, acquisition, "green", grid, read=read_average)
     swir, _ = read_reflectance(reader, acquisition, "swir16", grid)
-    excluded = np.isin(scl, sorted(set(screening.scl.invalid) | set(screening.scl.nodata)))
     valid = area & ~excluded & np.isfinite(green) & np.isfinite(swir)
     with np.errstate(divide="ignore", invalid="ignore"):
         index = (green - swir) / (green + swir)
@@ -458,6 +500,7 @@ def measure_extent(
         "water_px": float(water.sum()),
         "extent_km2": float(water.sum() * res * res / 1e6),
         "b11_ok": float(b11_ok),
+        "bands_read": 1.0,
     }
 
 

@@ -217,7 +217,9 @@ def scenes_from_csv(
             SceneRow(
                 station=row["station"], collection=row["collection"], key=row["key"],
                 day=date.fromisoformat(row["local_date"]), family=row["family"],
-                stats={k: number(row[k]) for k in stat_names}, bands=bands,
+                stats={**{k: number(row[k]) for k in stat_names},
+                       "bands_read": number(row.get("bands_read") or "1")},
+                bands=bands,
                 features=candidate_values(bands, dogliotti),
             )
         )  # fmt: skip

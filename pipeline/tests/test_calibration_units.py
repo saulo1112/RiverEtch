@@ -329,3 +329,66 @@ def test_mndwi_fallback_only_when_scl_fails_and_keeps_the_scl_outcome() -> None:
     assert far.reason.startswith("no main channel") or far.selected
     empty = extract.evaluate_channel("s", grid, np.zeros((60, 60), dtype=bool), (1, 1), "scl", st)
     assert empty.reason == "no water"
+
+
+def test_bands_are_read_only_when_scl_leaves_a_usable_scene(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from datetime import UTC, datetime
+    from typing import Any, cast
+
+    from numpy.typing import NDArray
+
+    from climate_pipeline.calibration import extract
+    from climate_pipeline.screening.config import load_screening_config
+    from climate_pipeline.screening.rio import AcquisitionReader, Grid
+    from climate_pipeline.screening.stac import Acquisition
+
+    screening = load_screening_config(Path(__file__).parents[1] / "screening.yaml")
+    grid = Grid(32618, 20.0, 0.0, 0.0, 40, 40)
+    window = np.zeros((40, 40), dtype=bool)
+    window[10:30, 10:30] = True  # 400 pixels
+    wins = extract.Windows(grid, {"300m": window, "1000m": window,
+                                  "extent": np.ones((40, 40), dtype=bool)})  # fmt: skip
+    acq = Acquisition("sentinel-2a_2023-01-01_R025", datetime(2023, 1, 1, 15, tzinfo=UTC),
+                      "sentinel-2a", 25)  # fmt: skip
+    bands_read: list[str] = []
+
+    class Reader:
+        def __init__(self, scl: NDArray[np.uint8]) -> None:
+            self.scl = scl
+
+        def read(self, acquisition: Acquisition, asset: str, grid: Grid) -> tuple[Any, list[str]]:
+            assert asset == "scl"
+            return self.scl, []
+
+    def reflectance(
+        reader: object, acquisition: object, asset: str, grid: Grid, read: object = None
+    ) -> tuple[NDArray[np.float32], list[str]]:
+        bands_read.append(asset)
+        return np.full(grid.shape, 0.01 if asset == "swir16" else 0.05, dtype=np.float32), []
+
+    monkeypatch.setattr(extract, "read_reflectance", reflectance)
+
+    def reader(scl: NDArray[np.uint8]) -> AcquisitionReader:
+        return cast(AcquisitionReader, Reader(scl))
+
+    cloudy = np.full((40, 40), 9, dtype=np.uint8)  # high-probability cloud
+    cloudy[10:13, 10:15] = 6  # 15 water pixels, fewer than the minimum
+    rows = extract.measure_window(acq, reader(cloudy), wins, ("300m", "1000m"), CFG, screening)
+    assert bands_read == [] and rows["300m"]["bands_read"] == 0.0
+    assert math.isnan(rows["300m"]["valid_px"]) and rows["300m"]["contamination"] > 0.2
+    scene = SceneRow("s", "c", acq.key, date(2023, 1, 1), "05.xx", rows["300m"], {})
+    assert not scene.usable(CFG.window)
+    reason = models.abstain_reason(cast(models.Fit, None), {}, rows["300m"], CFG.window)
+    assert reason == "window too cloudy to measure"
+    extent = extract.measure_extent(acq, reader(cloudy), wins, screening, 0.9)
+    assert bands_read == [] and extent["bands_read"] == 0.0 and extent["valid_fraction"] < 0.9
+
+    clear = np.full((40, 40), 6, dtype=np.uint8)
+    rows = extract.measure_window(acq, reader(clear), wins, ("300m",), CFG, screening)
+    assert sorted(bands_read) == sorted(a for a in CFG.imagery.assets if a != "scl")
+    assert rows["300m"]["bands_read"] == 1.0 and rows["300m"]["valid_px"] == 400.0
+    bands_read.clear()
+    extent = extract.measure_extent(acq, reader(clear), wins, screening, 0.9)
+    assert sorted(bands_read) == ["green", "swir16"] and extent["valid_fraction"] == 1.0

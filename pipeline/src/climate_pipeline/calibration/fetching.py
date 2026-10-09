@@ -426,10 +426,10 @@ def fetch_values(
 WINDOW_COLUMNS = (
     "station", "collection", "key", "datetime_utc", "local_date", "family", "window",
     "window_px", "data_px", "valid_px", "contamination", "glint_share", "b11_median", "b11_ok",
-    "ndti_px_median", *extract.BAND_ORDER,
+    "ndti_px_median", *extract.BAND_ORDER, "bands_read",
 )  # fmt: skip
 EXTENT_COLUMNS = ("station", "key", "datetime_utc", "local_date", "family", "valid_fraction",
-                  "water_px", "extent_km2", "b11_ok")  # fmt: skip
+                  "water_px", "extent_km2", "b11_ok", "bands_read")  # fmt: skip
 
 
 def _near(acq: Acquisition, cfg: CalibrationConfig, days: set[date], max_days: int) -> bool:
@@ -485,7 +485,8 @@ def _extents(
             "datetime_utc": acq.datetime.astimezone(UTC).isoformat(timespec="seconds"),
             "local_date": extract.local_date(acq, cfg.timezone).isoformat(),
             "family": extract.family(acq),
-            **extract.measure_extent(acq, reader, wins, screening),
+            **extract.measure_extent(acq, reader, wins, screening,
+                                     cfg.climate.width.valid_fraction_min),
         }  # fmt: skip
 
     with ThreadPoolExecutor(max_workers=workers) as pool:
