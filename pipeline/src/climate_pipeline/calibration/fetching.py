@@ -43,7 +43,8 @@ log = logging.getLogger(__name__)
 STATION_COLUMNS = (
     "station_id", "name", "code", "quality_point", "lon", "lat", "coordinates_from", "swapped",
     "samples_turbidity", "samples_tss", "first_sample", "last_sample", "files", "mask_source",
-    "snap_m", "width_m", "selected", "reason", "roles",
+    "snap_m", "width_m", "selected", "reason", "roles", "scl_selected", "scl_reason",
+    "scl_width_m",
 )  # fmt: skip
 
 
@@ -185,15 +186,41 @@ def fetch_stations(
         out.append({
             **row, "mask_source": geo.mask_source, "snap_m": round(geo.snap_m, 1),
             "width_m": round(geo.width_m, 1), "selected": geo.selected, "reason": geo.reason,
+            "scl_selected": geo.scl_selected, "scl_reason": geo.scl_reason,
+            "scl_width_m": round(geo.scl_width_m, 1),
         })  # fmt: skip
     rec.save("stations/stations.csv", _csv(out, STATION_COLUMNS), "derived",
              note="the frozen selection")  # fmt: skip
-    errors = [{"error": e} for e in reader.errors]
-    rec.save("stations/read-errors.csv", _csv(errors, ("error",)), "derived")
+    rec.save("stations/read-errors.csv", _csv(error_rows(reader.errors), ("kind", "error")),
+             "derived")  # fmt: skip
     (paths.at(cfg.outputs.inputs) / "fetch-manifest-stations.csv").write_text(
         rec.manifest(), encoding="utf-8", newline="\n"
     )
     return out
+
+
+def error_kind(error: str) -> str:
+    """``permanent`` for an asset in a non-public bucket (deviation 3), else ``transient``.
+
+    Args:
+        error: A reader error message.
+
+    Returns:
+        The kind.
+    """
+    return "permanent" if "/vsis3/" in error else "transient"
+
+
+def error_rows(errors: Sequence[str]) -> list[dict[str, object]]:
+    """Read errors with their kind, sorted.
+
+    Args:
+        errors: Reader error messages.
+
+    Returns:
+        Rows of ``kind`` and ``error``.
+    """
+    return [{"kind": error_kind(e), "error": e} for e in sorted(set(errors))]
 
 
 def read_stations(path: Path) -> list[dict[str, str]]:
@@ -385,11 +412,15 @@ def fetch_values(
         _csv(items, ("station", "collection", "purpose", "acquisitions", "item_ids_sha256")),
         "derived",
     )
-    errors = [{"error": e} for e in reader.errors]
-    rec.save("imagery/read-errors.csv", _csv(errors, ("error",)), "derived")
+    errors = error_rows(reader.errors)
+    rec.save("imagery/read-errors.csv", _csv(errors, ("kind", "error")), "derived")
     (inputs / "fetch-manifest.csv").write_text(rec.manifest(), encoding="utf-8", newline="\n")
-    return {"snapshots": len(rec.records), "failures": len(rec.failures),
-            "read_errors": len(reader.errors)}  # fmt: skip
+    return {
+        "snapshots": len(rec.records),
+        "failures": len(rec.failures),
+        "read_errors": sum(1 for e in errors if e["kind"] == "transient"),
+        "permanent_read_errors": sum(1 for e in errors if e["kind"] == "permanent"),
+    }
 
 
 WINDOW_COLUMNS = (

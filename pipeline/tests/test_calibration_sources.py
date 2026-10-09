@@ -72,3 +72,13 @@ def test_acolite_urls_are_pinned_and_roles_follow_the_files() -> None:
     ]  # fmt: skip
     far = Candidate("2", "n", -75.0, 3.0, "catalog")
     assert roles(far, CFG, (-74.0, 7.3, -73.8, 7.5)) == []
+
+
+def test_read_errors_are_classified() -> None:
+    from climate_pipeline.calibration.fetching import error_kind, error_rows
+
+    permanent = "S2B_18NUH_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/x.jp2' does not exist"
+    assert error_kind(permanent) == "permanent"
+    assert error_kind("S2A_x red: CURL error: Could not resolve host") == "transient"
+    rows = error_rows([permanent, permanent, "b: timeout"])
+    assert [r["kind"] for r in rows] == ["permanent", "transient"]

@@ -176,9 +176,14 @@ def _incomplete(paths: CalibrationPaths, cfg: CalibrationConfig) -> list[str]:
     for name in ("imagery/read-errors.csv", "stations/read-errors.csv"):
         path = base / name
         if path.exists():
-            n = max(0, len(path.read_text(encoding="utf-8").splitlines()) - 1)
-            if n:
-                out.append(f"{n} imagery read errors in {name}: rerun before accepting")
+            with path.open(encoding="utf-8") as handle:
+                kinds = [row.get("kind", "transient") for row in csv.DictReader(handle)]
+            if kinds.count("transient"):
+                out.append(f"{kinds.count('transient')} transient imagery read errors in {name}: "
+                           "rerun before accepting")  # fmt: skip
+            if kinds.count("permanent"):
+                out.append(f"{kinds.count('permanent')} permanent read errors in {name} "
+                           "(assets in a non-public bucket; deviation 3): no data")  # fmt: skip
     if not (base / "imagery" / "acolite-windows.csv").exists():
         out.append("Stage 2c (ACOLITE) not run")
     return out

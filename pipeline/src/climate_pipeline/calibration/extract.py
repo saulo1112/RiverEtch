@@ -21,7 +21,7 @@ from zoneinfo import ZoneInfo
 import numpy as np
 from numpy.typing import NDArray
 
-from climate_pipeline.calibration.config import CalibrationConfig
+from climate_pipeline.calibration.config import CalibrationConfig, Stations
 from climate_pipeline.calibration.stations import (
     Candidate,
     disk,
@@ -130,6 +130,65 @@ class StationGeometry:
     mask_source: str
     selected: bool
     reason: str
+    scl_selected: bool = False  # the outcome under the SCL mask alone (deviation 2's sensitivity)
+    scl_reason: str = ""
+    scl_width_m: float = math.nan
+
+
+def evaluate_channel(
+    station: str, grid: Grid, main: BoolArray, rc: tuple[int, int], source: str,
+    st: Stations,
+) -> StationGeometry:  # fmt: skip
+    """Snap and width of a station on one water mask's main channel.
+
+    Args:
+        station: Station id.
+        grid: The station grid.
+        main: The largest connected water component (may be empty).
+        rc: The station's pixel.
+        source: ``scl`` or ``mndwi``.
+        st: The selection rule.
+
+    Returns:
+        The outcome on this mask.
+    """
+    res = grid.resolution
+    if not main.any():
+        return StationGeometry(station, grid, main, None, math.nan, math.nan, source, False,
+                               "no water")  # fmt: skip
+    snapped = snap(main, rc, st.snap_radius_m / res)
+    if snapped is None:
+        return StationGeometry(
+            station, grid, main, None, math.nan, math.nan, source, False,
+            f"no main channel within {st.snap_radius_m:g} m",
+        )  # fmt: skip
+    pixel, dist = snapped
+    width = width_m(main, pixel, st.width_search_m / res, res)
+    ok = width >= st.min_width_m
+    return StationGeometry(
+        station, grid, main, pixel, dist * res, width, source, ok,
+        "" if ok else f"main channel {width:.0f} m wide, {st.min_width_m:g} m needed",
+    )  # fmt: skip
+
+
+def with_fallback(scl: StationGeometry, mndwi: Callable[[], StationGeometry]) -> StationGeometry:
+    """The SCL outcome when it selects the station, else the MNDWI outcome (deviation 2).
+
+    Both keep the SCL outcome's fields, so the selection under the SCL mask alone stays visible.
+
+    Args:
+        scl: The outcome on the SCL mask.
+        mndwi: Computes the outcome on the MNDWI mask (only called when SCL fails).
+
+    Returns:
+        The final outcome.
+    """
+    if scl.selected:
+        return dataclasses.replace(scl, scl_selected=True, scl_width_m=scl.width_m)
+    other = mndwi()
+    return dataclasses.replace(
+        other, scl_selected=False, scl_reason=scl.reason, scl_width_m=scl.width_m
+    )
 
 
 def _parallel(
@@ -149,6 +208,10 @@ def station_geometry(
 ) -> StationGeometry:
     """Main channel, snap and width of one station (the preregistered selection rule).
 
+    The SCL water frequency is tried first. When it does not select the station (no water, no
+    snap or too narrow), the screening's post-hoc MNDWI mask is tried with the same rule:
+    SCL often classifies very turbid water as something else (deviation 2).
+
     Args:
         cand: The candidate.
         acquisitions: The geometry period's acquisitions over the station grid.
@@ -162,7 +225,6 @@ def station_geometry(
     """
     st = cfg.stations
     grid = site_grid(bbox_around(cand.lon, cand.lat, st.grid_half_size_m))
-    res = grid.resolution
     stack = FrequencyStack(grid.shape, screening.scl)
 
     def scl(acq: Acquisition) -> object:
@@ -171,30 +233,16 @@ def station_geometry(
     for layer in _parallel(acquisitions, scl, workers):
         stack.update(np.asarray(layer))
     freq = stack.frequency(st.min_observations)
-    source = "scl"
-    main = largest_component(np.nan_to_num(freq, nan=0.0) >= st.water_frequency_min)
-    if not main.any():
-        mfreq, _ = mndwi_frequency(list(acquisitions), reader, grid, screening.posthoc(), workers)
-        main = largest_component(np.nan_to_num(mfreq, nan=0.0) >= st.water_frequency_min)
-        source = "mndwi"
-    if not main.any():
-        return StationGeometry(
-            cand.station_id, grid, main, None, math.nan, math.nan, source, False, "no water"
-        )
     rc = lonlat_rowcol(grid, cand.lon, cand.lat)
-    snapped = snap(main, rc, st.snap_radius_m / res)
-    if snapped is None:
-        return StationGeometry(
-            cand.station_id, grid, main, None, math.nan, math.nan, source, False,
-            f"no main channel within {st.snap_radius_m:g} m",
-        )  # fmt: skip
-    pixel, dist = snapped
-    width = width_m(main, pixel, st.width_search_m / res, res)
-    ok = width >= st.min_width_m
-    return StationGeometry(
-        cand.station_id, grid, main, pixel, dist * res, width, source, ok,
-        "" if ok else f"main channel {width:.0f} m wide, {st.min_width_m:g} m needed",
-    )  # fmt: skip
+    main = largest_component(np.nan_to_num(freq, nan=0.0) >= st.water_frequency_min)
+    first = evaluate_channel(cand.station_id, grid, main, rc, "scl", st)
+
+    def by_mndwi() -> StationGeometry:
+        mfreq, _ = mndwi_frequency(list(acquisitions), reader, grid, screening.posthoc(), workers)
+        other = largest_component(np.nan_to_num(mfreq, nan=0.0) >= st.water_frequency_min)
+        return evaluate_channel(cand.station_id, grid, other, rc, "mndwi", st)
+
+    return with_fallback(first, by_mndwi)
 
 
 def sub_grid(grid: Grid, center: tuple[int, int], half_px: int) -> tuple[Grid, tuple[int, int]]:

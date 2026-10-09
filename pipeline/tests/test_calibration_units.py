@@ -298,3 +298,34 @@ def test_enso_test_and_extent_flow() -> None:
     extents = [(d, 1.0 + 0.1 * k) for k, d in enumerate(days)]
     flow = climate.extent_flow(extents, series, CFG.climate.width, 1)
     assert flow["n"] == 200 and float(flow["rho"]) == pytest.approx(1.0)
+
+
+def test_mndwi_fallback_only_when_scl_fails_and_keeps_the_scl_outcome() -> None:
+    from climate_pipeline.calibration import extract
+    from climate_pipeline.screening.rio import Grid
+
+    grid = Grid(32618, 20.0, 0.0, 0.0, 60, 60)
+    narrow = np.zeros((60, 60), dtype=bool)
+    narrow[28:31, :] = True  # 60 m: SCL saw a fragment of a turbid river
+    wide = np.zeros((60, 60), dtype=bool)
+    wide[20:40, :] = True  # 400 m under MNDWI
+    st = CFG.stations
+    scl = extract.evaluate_channel("s", grid, narrow, (29, 30), "scl", st)
+    assert not scl.selected and "wide" in scl.reason
+    calls: list[str] = []
+
+    def mndwi() -> extract.StationGeometry:
+        calls.append("mndwi")
+        return extract.evaluate_channel("s", grid, wide, (29, 30), "mndwi", st)
+
+    final = extract.with_fallback(scl, mndwi)
+    assert final.selected and final.mask_source == "mndwi" and calls == ["mndwi"]
+    assert not final.scl_selected and final.scl_reason == scl.reason
+    assert final.scl_width_m == pytest.approx(scl.width_m)
+    good = extract.evaluate_channel("s", grid, wide, (29, 30), "scl", st)
+    kept = extract.with_fallback(good, mndwi)
+    assert kept.mask_source == "scl" and kept.scl_selected and calls == ["mndwi"]
+    far = extract.evaluate_channel("s", grid, wide, (0, 0), "scl", st)
+    assert far.reason.startswith("no main channel") or far.selected
+    empty = extract.evaluate_channel("s", grid, np.zeros((60, 60), dtype=bool), (1, 1), "scl", st)
+    assert empty.reason == "no water"
