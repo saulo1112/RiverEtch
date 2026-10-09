@@ -321,3 +321,29 @@ results are accepted.
    the Dogliotti candidate's formula `dogliotti_2015_switch(B04, B8A)` sat unquoted in a flow
    mapping, where YAML splits at the comma. It is now quoted. No value, threshold or rule changed.
    The loader caught it the first time the file was read.
+2. **2026-10-09, after the first station selection and before any value was fetched: the MNDWI
+   fallback follows the screening.** Decided by the project owner.
+   - **What was preregistered:** the MNDWI mask was used only when SCL gave _no_ water component.
+   - **What the first selection showed:** SCL classified the very turbid river as non-water and
+     fragmented it. Girardot (21237030) and Arrancaplumas (21237020) sit on the river, yet their
+     water-frequency maps showed only fragments, and they were excluded for "no main channel within
+     1500 m". This is the failure the screening's post-hoc MNDWI rule exists for; the screening
+     applies MNDWI whenever the SCL mask fails, not only when it is empty.
+   - **The change:** when the SCL mask does not select a station (no water, no snap within 1.5 km,
+     or a channel under 150 m), the same rule is applied to the MNDWI mask.
+   - **What was seen and what was not:** the first selection's station list, the outcomes and the
+     masks. No sample, series or other value had been fetched.
+   - **The original rule stays visible:** `stations.csv` keeps each station's outcome under the
+     SCL mask alone (`scl_selected`, `scl_reason`, `scl_width_m`), and the report gives that list
+     as a sensitivity.
+   - **Outcome:** 57 of 78 candidates selected, 51 of them under SCL alone. The fallback added
+     Nariño (21237010) and Paso del Colegio (21077020), the only `CM_D` stations selected, plus
+     Uré (2501700189), Aipe, Gigante Las Vueltas and Gigante "salida represa El Quimbo". Girardot
+     and Arrancaplumas remain excluded under both masks (channel 126 m and 120 m wide).
+3. **2026-10-09: permanent read errors.** Earth Search's items of 2024-01-23 (sentinel-2b, tiles
+   18NUH, 18NVH, 18NVK, 18NWL, 18PWQ, 18PXQ) point to a non-public JPEG2000 bucket
+   (`/vsis3/sentinel-s2-l2a/...`) instead of public COGs.
+   - They fail identically on every rerun, so they are a catalogue fault, not a network failure,
+     and that acquisition counts as no data.
+   - A run is accepted when its only read errors are these (listed in `read-errors.csv`). Any
+     other read error still requires a rerun.
