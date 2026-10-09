@@ -1,8 +1,8 @@
-"""Generated outputs of the validation: CSV tables, results.md, the manifest, figures, the case.
+"""Generated outputs of a validation: CSV tables, results.md, the manifest, figures, the case.
 
-The files under ``docs/urra-validation/results/`` are written by the run and committed as
-evidence, byte for byte (they are kept out of Prettier). The interpretation lives in
-``docs/urra-validation/report.md``.
+The files under the validation's results folder (e.g. ``docs/urra-validation/results/``) are
+written by the run and committed as evidence, byte for byte (they are kept out of Prettier). The
+interpretation lives in the validation's ``report.md``.
 """
 
 from __future__ import annotations
@@ -17,11 +17,13 @@ from datetime import date
 from pathlib import Path
 
 import matplotlib
+import numpy as np
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from climate_pipeline.screening.report import markdown_table
+from climate_pipeline.validation.injection import Injection
 from climate_pipeline.validation.run import SiteRun, ValidationOutputs
 
 WITHIN_SITE_NOTE = (
@@ -29,6 +31,60 @@ WITHIN_SITE_NOTE = (
     "NTU. An anomaly is a departure from the sub-reach's own baseline: a flag to investigate, "
     "never evidence that any actor caused anything."
 )
+
+BASELINE_TABLES: tuple[tuple[str, str, list[str]], ...] = (
+    (
+        "quietness",
+        "False-alarm share by variant (Wilson 95 %)",
+        ["site_id", "variant", "scored", "anomalous", "share", "wilson_low", "wilson_high"],
+    ),
+    (
+        "corridors",
+        "Corridor sensitivity (report-only)",
+        ["corridor", "variant", "scored", "anomalous", "share", "wilson_low", "wilson_high",
+         "note"],
+    ),
+    (
+        "target_anomalies",
+        "Target scenes anomalous under D0",
+        ["date", "signals", "z_downstream", "z_delta", "persistence", "glint_share_max",
+         "rain_union", "river_level_percentile"],
+    ),
+    (
+        "injection_thresholds",
+        "Detection power (injection-recovery on copies)",
+        ["scale", "detection_rate", "smallest_grid_step", "interpolated_step",
+         "downstream_sigma_ndti"],
+    ),
+    (
+        "injection_all",
+        "Detection by NDTI step, all scenes",
+        ["size", "injections", "detected", "detected_downstream", "detected_delta"],
+    ),
+    (
+        "demo_event",
+        "Demo event (SYNTHETIC, chosen by the pre-registered rule)",
+        ["date", "step_ndti", "real_downstream_ndti", "overlay_downstream_ndti", "real_max_abs_z",
+         "overlay_max_abs_z", "detected", "eligible_scenes", "note"],
+    ),
+    (
+        "insitu_stations",
+        "In-situ stations",
+        ["code", "name", "role", "kind", "distance_km", "variables", "samples",
+         "samples_in_period", "first", "last", "note"],
+    ),
+    (
+        "insitu_comparison",
+        "In-situ comparison (Spearman, bootstrap 95 %)",
+        ["comparison", "pairs", "spearman", "ci_low", "ci_high", "reading"],
+    ),
+    (
+        "saturation",
+        "Saturation check (NDTI against red reflectance)",
+        ["subreach", "scenes", "spearman_lower_half", "spearman_upper_half", "spearman_all",
+         "reading"],
+    ),
+)  # fmt: skip
 
 
 def _cell(value: object) -> str:
@@ -116,9 +172,178 @@ def series_figure(
         )
         ax.set_title(title, fontsize=9, loc="left")
         ax.tick_params(labelsize=8)
-    axes[0].legend(fontsize=7, loc="upper left", ncols=3, frameon=False)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, fontsize=7, loc="lower center", ncols=3, frameon=False)
     fig.suptitle(f"{run.site.id}: hold-out period shaded; NDTI is relative, never NTU", fontsize=9)
+    fig.tight_layout(rect=(0, 0.05, 1, 1))
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    return True
+
+
+def detection_figure(injections: Sequence[Injection], rate: float, path: Path) -> bool:
+    """Detection probability against the injected NDTI step: all scenes, by season, by glint.
+
+    Args:
+        injections: The injections.
+        rate: The pre-registered detection rate (a horizontal line).
+        path: The PNG file.
+
+    Returns:
+        False without NDTI-scale injections.
+    """
+    raw = [i for i in injections if i.scale == "ndti"]
+    if not raw:
+        return False
+    fig, axes = plt.subplots(1, 3, figsize=(10, 3.4), sharey=True)
+    strata: tuple[tuple[str, str], ...] = (
+        ("all scenes", "all"),
+        ("by season", "season"),
+        ("by glint class", "glint"),
+    )
+    for ax, (title, stratum) in zip(axes, strata, strict=True):
+        groups: dict[str, dict[float, list[bool]]] = {}
+        for inj in raw:
+            name = "all" if stratum == "all" else str(getattr(inj, stratum))
+            groups.setdefault(name, {}).setdefault(inj.size, []).append(inj.detected)
+        for name, by_size in sorted(groups.items()):
+            sizes = sorted(by_size)
+            ax.plot(
+                sizes,
+                [sum(by_size[s]) / len(by_size[s]) for s in sizes],
+                "o-",
+                ms=3,
+                lw=1,
+                label=f"{name} ({len(by_size[sizes[0]])} scenes)",
+            )
+        ax.axhline(rate, color="0.5", lw=0.8, ls="--")
+        ax.set_title(title, fontsize=9, loc="left")
+        ax.set_xlabel("NDTI step added downstream", fontsize=8)
+        ax.tick_params(labelsize=8)
+        ax.legend(fontsize=7, loc="lower right", frameon=False)
+    axes[0].set_ylabel("share detected (D0 rule)", fontsize=8)
+    fig.suptitle("Injection-recovery on copies of the real series (synthetic steps)", fontsize=9)
     fig.tight_layout()
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    return True
+
+
+def saturation_figure(outputs: ValidationOutputs, path: Path) -> bool:
+    """NDTI against median red reflectance per sub-reach (usable scenes of the target).
+
+    Args:
+        outputs: The run's outputs.
+        path: The PNG file.
+
+    Returns:
+        False without stage 2.
+    """
+    run = outputs.runs["target"]
+    limit = outputs.cfg.variant("D0").swir16_max
+    if limit not in run.stage2:
+        return False
+    scenes = [s for s in run.stage2[limit].scenes if s.usable]
+    fig, axes = plt.subplots(1, 2, figsize=(8, 3.4), sharey=True)
+    for ax, name in zip(axes, ("upstream", "downstream"), strict=True):
+        pairs = [
+            (s.sub[name].red, s.sub[name].ndti)
+            for s in scenes
+            if name in s.sub and math.isfinite(s.sub[name].red) and math.isfinite(s.sub[name].ndti)
+        ]
+        ax.scatter([p[0] for p in pairs], [p[1] for p in pairs], s=8, color="0.35")
+        ax.set_title(f"{name} sub-reach ({len(pairs)} scenes)", fontsize=9, loc="left")
+        ax.set_xlabel("median red reflectance of water pixels", fontsize=8)
+        ax.tick_params(labelsize=8)
+    axes[0].set_ylabel("NDTI (relative)", fontsize=8)
+    fig.suptitle(f"{run.site.id}: does NDTI keep rising with red reflectance?", fontsize=9)
+    fig.tight_layout()
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    return True
+
+
+def insitu_figure(outputs: ValidationOutputs, path: Path) -> bool:
+    """NDTI of matched scenes against in-situ samples and river levels.
+
+    Args:
+        outputs: The run's outputs.
+        path: The PNG file.
+
+    Returns:
+        False when nothing was matched.
+    """
+    pairs = [r for r in outputs.tables.get("insitu_pairs", []) if r.get("set") != "primary"]
+    levels = outputs.tables.get("river_level", [])
+    panels = [(n, rows) for n, rows in (("samples", pairs), ("levels", levels)) if rows]
+    if not panels:
+        return False
+    fig, axes = plt.subplots(1, len(panels), figsize=(4.5 * len(panels), 3.4), squeeze=False)
+    for ax, (name, rows) in zip(axes[0], panels, strict=True):
+        key, x_column, x_label = (
+            ("variable", "value", "in-situ sample value (log scale)")
+            if name == "samples"
+            else ("station", "level_percentile", "river level percentile at acquisition")
+        )
+        for group in sorted({str(r[key]) for r in rows}):
+            chosen = [r for r in rows if str(r[key]) == group]
+            unit = f", {chosen[0]['unit']}" if name == "samples" else ""
+            ax.scatter(
+                [float(str(r[x_column])) for r in chosen],
+                [float(str(r["ndti_reach"])) for r in chosen],
+                s=12,
+                label=f"{group}{unit} (n = {len(chosen)})",
+            )
+        if name == "samples":
+            ax.set_xscale("log")
+        ax.set_xlabel(x_label, fontsize=8)
+        ax.set_ylabel("NDTI, reach mean (relative)", fontsize=8)
+        ax.tick_params(labelsize=8)
+        ax.legend(fontsize=7, frameon=False)
+    fig.suptitle("Target: NDTI against in-situ data (matching rules in method.md)", fontsize=9)
+    fig.tight_layout()
+    fig.savefig(path, dpi=100)
+    plt.close(fig)
+    return True
+
+
+def demo_figure(outputs: ValidationOutputs, path: Path) -> bool:
+    """The real downstream series with the synthetic demo event drawn as a separate layer.
+
+    Args:
+        outputs: The run's outputs.
+        path: The PNG file.
+
+    Returns:
+        False without a demo event.
+    """
+    demo = outputs.demo
+    run = outputs.runs["target"]
+    if demo is None or not run.records:
+        return False
+    limit = outputs.cfg.variant("D0").swir16_max
+    usable = [r for r in run.records if r.usable[limit]]
+    values = [r.values[limit]["downstream"] for r in usable]
+    fig, ax = plt.subplots(figsize=(9, 3.2))
+    days = np.array([r.day for r in usable], dtype="datetime64[D]")
+    ax.plot(days, values, "-", color="0.75", lw=0.8)
+    ax.scatter(days, values, s=8, color="0.45", label="real scenes")
+    ax.scatter(
+        np.array([demo.day], dtype="datetime64[D]"),
+        [demo.real_downstream + demo.step],
+        s=60,
+        marker="D",
+        facecolors="none",
+        edgecolors="tab:purple",
+        lw=1.5,
+        label=f"SYNTHETIC test event (+{demo.step:g} NDTI, not observed)",
+    )
+    ax.set_ylabel("downstream NDTI (relative)", fontsize=8)
+    ax.tick_params(labelsize=8)
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, fontsize=7, loc="lower center", ncols=2, frameon=False)
+    ax.set_title(f"{run.site.id}: {demo.label}", fontsize=9, loc="left")
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
     fig.savefig(path, dpi=100)
     plt.close(fig)
     return True
@@ -128,7 +353,30 @@ def _met(flag: bool | None) -> str:
     return "n/a" if flag is None else ("met" if flag else "not met")
 
 
+def _quietness_lines(outputs: ValidationOutputs) -> list[str]:
+    q = outputs.quietness
+    if q is None:
+        return ["Smoke run (stage 1 only): no NDTI was computed and there is no reading."]
+    cfg = outputs.cfg.quietness
+    assert cfg is not None
+    lines = [
+        f"**Mechanical reading: {'quiet' if q.quiet else 'not quiet'}.**",
+        "",
+        f"- D0 share {q.k}/{q.n} = {q.k / q.n if q.n else math.nan:.4f}, Wilson 95 % "
+        f"[{q.low:.4f}, {q.high:.4f}] (upper bound allowed: {cfg.max_upper_bound:g}).",
+        f"- Largest variant share: {q.worst_variant} {q.worst_share:.4f} "
+        f"(allowed: {cfg.max_variant_share:g}).",
+        f"- Control D0 share {q.control_k}/{q.control_n}, Wilson 95 % "
+        f"[{q.control_low:.4f}, {q.control_high:.4f}]: the target is {q.comparison}.",
+    ]
+    if q.reasons:
+        lines.append(f"- Reasons: {'; '.join(q.reasons)}.")
+    return lines
+
+
 def _verdict_lines(outputs: ValidationOutputs) -> list[str]:
+    if outputs.cfg.kind == "baseline":
+        return _quietness_lines(outputs)
     v = outputs.verdict
     if v is None:
         return ["Smoke run (stage 1 only): no NDTI was computed and there is no verdict."]
@@ -161,7 +409,7 @@ def render_markdown(outputs: ValidationOutputs, files: Sequence[str]) -> str:
     m = outputs.manifest
     t = outputs.tables
     parts = [
-        "# Urrá validation: generated results",
+        f"# {outputs.cfg.title}: generated results",
         "",
         "Generated by `climate-pipeline validation`; do not edit by hand. Method (pre-registered): "
         "[method.md](../method.md). Interpretation: [report.md](../report.md).",
@@ -175,7 +423,7 @@ def render_markdown(outputs: ValidationOutputs, files: Sequence[str]) -> str:
         "",
         f"> {WITHIN_SITE_NOTE}",
         "",
-        "## Verdict",
+        "## Quietness" if outputs.cfg.kind == "baseline" else "## Verdict",
         "",
         *_verdict_lines(outputs),
         "",
@@ -240,6 +488,16 @@ def render_markdown(outputs: ValidationOutputs, files: Sequence[str]) -> str:
             f"- S2 (criterion-a episodes): observed {p.observed_s2}, p = {p.p_s2:.3f}.",
             "",
         ]
+    if outputs.cfg.kind == "baseline":
+        shown = {
+            **t,
+            "injection_all": [
+                r for r in t.get("injection", []) if r["scale"] == "ndti" and r["stratum"] == "all"
+            ],
+        }
+        for name, title, columns in BASELINE_TABLES:
+            if shown.get(name):
+                parts += [f"## {title}", "", markdown_table(shown[name], columns), ""]
     for name, title, columns in (
         (
             "chance_level",
@@ -318,6 +576,21 @@ def write_outputs(outputs: ValidationOutputs, results: Path, root: Path) -> list
             limit = cfg.variant("D0").swir16_max
             if series_figure(run, limit, cfg.criteria.persistence_min, cfg.holdout.end, path):
                 written.append(path)
+        if cfg.kind == "baseline" and cfg.injection is not None:
+            figures = results / "figures"
+            made = {
+                "detection_curve.png": detection_figure(
+                    outputs.injections,
+                    cfg.injection.detection_rate,
+                    figures / "detection_curve.png",
+                ),
+                "ndti_vs_red.png": saturation_figure(outputs, figures / "ndti_vs_red.png"),
+                "ndti_vs_insitu.png": insitu_figure(outputs, figures / "ndti_vs_insitu.png"),
+                "demo_event_synthetic.png": demo_figure(
+                    outputs, figures / "demo_event_synthetic.png"
+                ),
+            }
+            written += [figures / name for name, ok in made.items() if ok]
     manifest = results / "run_manifest.json"
     manifest.write_text(
         json.dumps(outputs.manifest, indent=2, sort_keys=True) + "\n",

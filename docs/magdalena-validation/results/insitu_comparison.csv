@@ -1,0 +1,8 @@
+comparison,pairs,spearman,ci_low,ci_high,reading
+"TURBIDEZ, primary stations, +-1 d",2,,,,not enough data
+"SOLIDOS SUSPENDIDOS TOTALES, primary stations, +-1 d",2,,,,not enough data
+"TURBIDEZ, primary and secondary stations, +-3 d",9,-0.323,-0.876,0.507,not enough data
+"SOLIDOS SUSPENDIDOS TOTALES, primary and secondary stations, +-3 d",10,-0.451,-0.967,0.367,does not track
+river level at 0023187010,19,-0.465,-0.758,-0.038,does not track
+river level at 0023207040,11,0.218,-0.606,0.879,inconclusive
+"river level percentile, stations pooled",30,-0.176,-0.545,0.248,does not track

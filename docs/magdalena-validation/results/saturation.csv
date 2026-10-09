@@ -1,0 +1,3 @@
+subreach,scenes,red_median_split,red_min,red_max,ndti_min,ndti_max,spearman_lower_half,spearman_upper_half,spearman_all,reading
+upstream,112,0.0844,0.0544,0.1448,-0.0207,0.1191,-0.012,0.03,0.301,weak relation in both halves
+downstream,112,0.0796,0.0507,0.1416,-0.0199,0.1255,-0.085,0.132,0.298,weak relation in both halves

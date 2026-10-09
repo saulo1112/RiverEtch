@@ -165,3 +165,41 @@ last. Format: context → decision → consequences.
   - If the validation finds "no robust signal", or cannot compute a verdict, a person decides the
     fallback: a clearly labelled synthetic test event on Urrá's real series, or another reach.
     The validation report does not decide it.
+
+## D14. Demo reach: the Río Magdalena at Puerto Wilches, with a synthetic test event (2026-10-08)
+
+- **Context:**
+  - The Urrá validation ended in "no robust signal" (placebo p = 0.944) with regulatory
+    verdict (b): no licence condition limits turbidity, and the operator publishes no data
+    ([report](urra-validation/report.md)). In February 2026 the environmental authority
+    announced a sanctioning procedure against the licensee
+    ([regulatory.md](urra-validation/regulatory.md)).
+  - D13 left the fallback to a person: a labelled synthetic event on Urrá's real series, or
+    another reach.
+  - `magdalena-puerto-wilches` is the screening rule's first rank and the most observable reach
+    screened: 112 scored scenes in 2018-12..2025-12, a channel 31 px wide, and 1 anomalous scene
+    (0.9 %) in the Urrá validation, where it was the quiet reference. It has no dated event, no
+    sourced permit parameter and no confirmed environmental authority.
+- **Decision:**
+  - The project owner chose `magdalena-puerto-wilches` as the demo reach, with a clearly labelled
+    synthetic test event. This supersedes D13's choice of `sinu-urra` for the demo. The Urrá
+    validation, its settings and its outputs stay as they are.
+  - Before the demo relies on it, a validation with different questions answers four things
+    ([method.md](magdalena-validation/method.md)):
+    1. Is the real series quiet and stable enough to be an honest baseline (false-alarm share
+       with intervals, next to the `meta-orocue` control)?
+    2. Does NDTI track any in-situ measurement on the reach?
+    3. What is the regulatory and public-data situation?
+    4. What can the detector find (injection-recovery power)?
+  - The validation command reads a per-site settings file
+    (`pipeline/magdalena-validation.yaml`, kind `baseline`). It reuses the Urrá code; nothing is
+    copied.
+- **Consequences:**
+  - This reach's real-series numbers were already seen in the Urrá validation, so the method is
+    not a blind pre-registration. `method.md` says so and lists what was seen.
+  - The demo event is injected into a copy of the series. It lives in a separate
+    `synthetic_overlay` layer whose every record carries `synthetic: true`. The real series is
+    reproducible without it.
+  - The interface uses "simulated permit holder" and "illustrative limit, not the real licence".
+    Real names of contracts, entities and authorities appear only in `context.sources`, marked
+    "public-source context, not an accusation".

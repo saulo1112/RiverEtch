@@ -1,0 +1,45 @@
+# Keywords for the keyword-in-context table of the Magdalena regulatory verification. Matching
+# ignores accents and case; a phrase matches whole words, and a trailing * matches any word starting
+# with it. Spanish terms, since the sources are Colombian; English glosses in the comments.
+dragado* # dredging
+canal navegable # navigable channel
+punto* crítico* # critical point(s)
+paso* crítico* # critical crossing(s)
+licencia ambiental # environmental licence
+plan de manejo ambiental # environmental management plan
+PMA # environmental management plan (abbreviation)
+PAGA # programme adapting the environmental guide
+guía ambiental # environmental guide
+ocupación de cauce* # riverbed occupation (permit)
+autoridad ambiental # environmental authority
+autoridades ambientales # environmental authorities
+ANLA # national licensing authority
+CAS # Santander regional authority
+CSB # southern Bolívar regional authority
+Corporación Autónoma # regional autonomous corporation
+turbiedad # turbidity
+turbidez # turbidity
+sólidos suspendidos # suspended solids
+sólidos en suspensión # suspended solids
+sedimento* # sediment(s)
+pluma # (sediment) plume
+disposición # disposal
+botadero* # dump site(s)
+monitoreo* # monitoring
+calidad del agua # water quality
+Puerto Wilches # town at the upstream end of the reach
+San Pablo # town at the downstream end of the reach
+Cantagallo # municipality across the river
+Canta Gallo # critical point named in a 2017 tender
+Yarirí # place name paired with Canta Gallo
+Sitio Nuevo # sector of Puerto Wilches
+Sogamoso # regulated tributary
+Panmar* # contractor (consortium name)
+LP-005-23 # tender number
+licencia # licence
+Kalé # fracking research pilot
+Platero # fracking research pilot
+erosión # erosion
+inundación # flood
+license # licence (dataset metadata)
+attribution # dataset provider (metadata)

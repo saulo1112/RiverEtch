@@ -1,0 +1,31 @@
+site_id,corridor,variant,scored,anomalous,share,wilson_low,wilson_high
+magdalena-puerto-wilches,600 m (frozen),D0,112,1,0.0089,0.0016,0.0488
+magdalena-puerto-wilches,600 m (frozen),B1,112,1,0.0089,0.0016,0.0488
+magdalena-puerto-wilches,600 m (frozen),B2,112,1,0.0089,0.0016,0.0488
+magdalena-puerto-wilches,600 m (frozen),B3,112,6,0.0536,0.0248,0.112
+magdalena-puerto-wilches,600 m (frozen),B4,112,1,0.0089,0.0016,0.0488
+magdalena-puerto-wilches,600 m (frozen),B5,112,1,0.0089,0.0016,0.0488
+magdalena-puerto-wilches,600 m (frozen),Z2.5,112,3,0.0268,0.0092,0.0758
+magdalena-puerto-wilches,600 m (frozen),Z3.5,112,1,0.0089,0.0016,0.0488
+magdalena-puerto-wilches,600 m (frozen),G1,110,1,0.0091,0.0016,0.0497
+magdalena-puerto-wilches,600 m (frozen),G2,106,0,0.0,0.0,0.035
+magdalena-puerto-wilches,300 m,D0,117,2,0.0171,0.0047,0.0602
+magdalena-puerto-wilches,300 m,B1,117,2,0.0171,0.0047,0.0602
+magdalena-puerto-wilches,300 m,B2,117,5,0.0427,0.0184,0.0962
+magdalena-puerto-wilches,300 m,B3,117,6,0.0513,0.0237,0.1074
+magdalena-puerto-wilches,300 m,B4,117,2,0.0171,0.0047,0.0602
+magdalena-puerto-wilches,300 m,B5,117,2,0.0171,0.0047,0.0602
+magdalena-puerto-wilches,300 m,Z2.5,117,4,0.0342,0.0134,0.0846
+magdalena-puerto-wilches,300 m,Z3.5,117,2,0.0171,0.0047,0.0602
+magdalena-puerto-wilches,300 m,G1,115,2,0.0174,0.0048,0.0612
+magdalena-puerto-wilches,300 m,G2,112,1,0.0089,0.0016,0.0488
+magdalena-puerto-wilches,150 m (main-channel approximation),D0,98,1,0.0102,0.0018,0.0556
+magdalena-puerto-wilches,150 m (main-channel approximation),B1,98,1,0.0102,0.0018,0.0556
+magdalena-puerto-wilches,150 m (main-channel approximation),B2,98,1,0.0102,0.0018,0.0556
+magdalena-puerto-wilches,150 m (main-channel approximation),B3,98,11,0.1122,0.0638,0.1899
+magdalena-puerto-wilches,150 m (main-channel approximation),B4,98,1,0.0102,0.0018,0.0556
+magdalena-puerto-wilches,150 m (main-channel approximation),B5,98,1,0.0102,0.0018,0.0556
+magdalena-puerto-wilches,150 m (main-channel approximation),Z2.5,98,3,0.0306,0.0105,0.0862
+magdalena-puerto-wilches,150 m (main-channel approximation),Z3.5,98,1,0.0102,0.0018,0.0556
+magdalena-puerto-wilches,150 m (main-channel approximation),G1,96,0,0.0,0.0,0.0385
+magdalena-puerto-wilches,150 m (main-channel approximation),G2,96,0,0.0,0.0,0.0385

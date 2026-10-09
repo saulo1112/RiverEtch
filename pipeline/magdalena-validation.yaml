@@ -1,0 +1,256 @@
+# Magdalena validation settings (decision D14). Pre-registered in docs/magdalena-validation/method.md
+# before any new number of this validation was computed. The real series of this reach was already
+# seen in the Urrá validation (as its quiet reference); method.md lists what was seen. Change a value
+# here only together with the method and list it under its Deviations, never to tune results after
+# seeing them. Paths are relative to the repository root.
+
+title: Magdalena validation
+kind: baseline # quietness, detection power and in-situ checks; no signal criteria
+screening_config: pipeline/screening.yaml # pixel guards, geometry and the point rain rule
+method: docs/magdalena-validation/method.md
+
+sites:
+  target: magdalena-puerto-wilches
+  control: meta-orocue # the Urrá validation's control; its MNDWI mask needs the post-hoc mask rule
+
+mask_variant: post-hoc # SCL mask, MNDWI where SCL fails: reproduces the screening's geometry
+
+period: # scenes analysed (as in the Urrá validation)
+  start: 2018-12-01
+  end: 2025-12-31
+geometry_period: # the only scenes the water masks are built from (the screening's period)
+  start: 2022-01-01
+  end: 2025-12-31
+holdout: # report-only view; already seen in the Urrá validation, so not a hold-out here
+  start: 2018-12-01
+  end: 2021-12-31
+
+# Season of the baselines, frozen to the screening's rainy months (2022-2025, Open-Meteo at the
+# reach center), as in the Urrá validation.
+rainy_months:
+  magdalena-puerto-wilches: [4, 5, 6, 8, 10, 11]
+  meta-orocue: [4, 5, 6, 7, 8, 11]
+
+screening_reference:
+  results: docs/site-screening/results-posthoc
+  evidence_sha256: # SHA-256 of the 2022-2025 STAC item ids in the screening's run manifest
+    magdalena-puerto-wilches: 8bff3e8c7dce939d08aa62d0c62a1f0d4289360d02fda1d31895a9e18887be31
+    meta-orocue: 1654814304a26199bc25e794d56610d8bc48c1ed25deb366d28c207018de170d
+  events_sha256: eef554292bca112f858ff206a533d0334ac7fa7449646174be9780fa79fb5cf8
+  ndti_decimals: 4
+
+# The Urrá validation's ten assumption variants, unchanged. All are reported; none is picked.
+variants:
+  - id: D0
+    description: screening rule (season group of >= 8, else all of >= 12; |z| >= 3; pixel B11 <= 0.05)
+    baseline: season-then-all
+    distinct: false
+  - id: B1
+    description: season group only (>= 8), no fallback
+    baseline: season
+    distinct: false
+  - id: B2
+    description: calendar month +-1 pooled over the years (>= 8), no fallback
+    baseline: month-window
+    month_halfwidth: 1
+    window_min: 8
+    distinct: true
+  - id: B3
+    description: centred 365-day window (+-182 days, >= 6), no fallback
+    baseline: day-window
+    day_halfwidth: 182
+    window_min: 6
+    distinct: true
+  - id: B4
+    description: smaller group minimums (season >= 5, else all >= 8)
+    baseline: season-then-all
+    season_min: 5
+    all_min: 8
+    distinct: false
+  - id: B5
+    description: larger group minimums (season >= 12, else all >= 20)
+    baseline: season-then-all
+    season_min: 12
+    all_min: 20
+    distinct: false
+  - id: Z2.5
+    description: anomaly threshold |z| >= 2.5
+    baseline: season-then-all
+    anomaly_z: 2.5
+    distinct: false
+  - id: Z3.5
+    description: anomaly threshold |z| >= 3.5
+    baseline: season-then-all
+    anomaly_z: 3.5
+    distinct: true
+  - id: G1
+    description: stricter pixel glint limit (B11 <= 0.03)
+    baseline: season-then-all
+    swir16_max: 0.03
+    distinct: true
+  - id: G2
+    description: drop scenes whose glint share exceeds 0.5 in either sub-reach
+    baseline: season-then-all
+    max_glint_share: 0.5
+    distinct: true
+
+criteria: # the Urrá values; here they only build the report-only persistence and episode views
+  persistence_min: 8
+  episode_gap_days: 30
+  min_episodes: 4
+  share_ratio_min: 3.0
+  zero_share_numerator: 0.5
+
+rain:
+  unknown_is_coincident: true
+  catchment: # upstream rain index: report-only context for anomalous scenes (weak for this catchment)
+    hydrobasins_url: https://data.hydrosheds.org/file/HydroBASINS/standard/hybas_sa_lev12_v1c.zip
+    hydrobasins_layer: hybas_sa_lev12_v1c
+    anchor_tolerance_deg: 0.01 # outlet: basins containing the downstream anchor +- 0.01 deg
+    spacings_deg: [2.0, 1.5, 1.0, 0.75, 0.5] # coarsest giving 6-12 points (a very large catchment)
+    points_min: 6
+    points_max: 12
+    windows_h: [24, 72, 168]
+    statistics: [mean, max] # over the grid points
+    percentile: 90 # of the daily values of each statistic over the period
+    sample_hour_utc: 15 # the daily values are sums ending at 15:00 UTC
+    grid_csv: docs/magdalena-validation/rain-grid.csv
+    request_pause_s: 2.0
+    max_attempts: 6
+
+chirps: # probed and compared, never used
+  cog_url_template: https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_daily/cogs/p05/{year}/chirps-v2.0.{date}.cog
+  probe_date: 2024-01-16
+  days_before: 3
+
+placebo: # report-only here
+  shuffles: 1000
+  seed: 20261008
+
+seasonality_halfwidth_days: 15
+
+events: # report-only; the catalog is frozen by the hash above
+  catalog: docs/site-screening/events.csv
+  window_before_days: 2
+  window_after_days: 10
+  scored_precisions: [day, week]
+  chance_windows: 500
+  seed: 20260101
+
+outputs:
+  results: docs/magdalena-validation/results
+  case_json: pipeline/out/case/magdalena.json
+  case_sample: docs/magdalena-validation/magdalena.sample.json
+  max_committed_bytes: 300000 # figures and the case sample
+
+# The case file's public-source context. Real names appear only there; the interface never shows
+# them (checked). Source ids are filled from regulatory.md; they change no number.
+context:
+  sources_csv: docs/magdalena-validation/sources/regulatory-sources.csv
+  source_ids:
+    - secop-contratos-sector # the dredging contracts of the sector (open record)
+    - findeter-anexo-2021 # maintenance dredging without a licence; PAGA; disposal
+    - decreto-1076-funcionpublica # licensing competence
+    - minambiente-guia-fluvial # recommended monitoring; plume rule
+    - eafit-sogamoso # regulated tributary upstream
+    - datos-62gv-metadata # public water-quality data
+    - datos-bdmn-metadata # public river-level data
+  forbidden_names:
+    [
+      cormagdalena,
+      consorcio,
+      panmar,
+      panamerican,
+      findeter,
+      ecopetrol,
+      exxon,
+      isagen,
+      hidrosogamoso,
+      impala,
+      anla,
+      "corporación autónoma",
+    ]
+  ui_label: Río Magdalena between Puerto Wilches and San Pablo
+  permit_note:
+    "Illustrative limit, not the real licence: no licence or plan condition found for this reach
+    sets a limit a relative NDTI could be compared with."
+
+# Question 1: is the reach quiet enough to serve as a baseline?
+quietness:
+  wilson_z: 1.96 # 95 % Wilson score interval
+  max_upper_bound: 0.10 # D0 anomalous-scene share: upper bound at most 0.10
+  max_variant_share: 0.10 # and no variant's share above 0.10
+
+corridors: # report-only sensitivity; the frozen geometry uses the screening's 600 m
+  half_widths_m: [300, 150]
+  labels: ["300 m", "150 m (main-channel approximation)"]
+
+# Question 4: detection power. Every eligible scene gets every step, one at a time, on a copy.
+injection:
+  raw_ndti: [0.005, 0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.12, 0.15, 0.20, 0.25, 0.30]
+  sigma_multiples: [1, 2, 3, 4, 5, 6, 8, 10] # of the downstream signal's robust sigma
+  detection_rate: 0.8
+  glint_classes: [0.1, 0.3] # largest sub-reach glint share: low <= 0.1 < mid <= 0.3 < high
+
+# The demo's synthetic event, fixed by rule before its outcome is seen.
+demo_event:
+  magnitude_factor: 2.0 # times the interpolated 80 % detection step
+  round_up_to: 0.01
+  window: # any real scene of the period (the geometry is frozen for all of them)
+    start: 2018-12-01
+    end: 2025-12-31
+  event_precisions: [day, week, month, range] # every catalogued or post-hoc event, contract periods included
+  min_days_from_events: 30
+  post_hoc_events_csv: docs/magdalena-validation/post-hoc-events.csv
+  max_glint_share: 0.2
+  seed: 20261008
+  label: SYNTHETIC test event (injected into a copy, not observed)
+
+# Questions 2 and 3: open in-situ data (Socrata endpoints of datos.gov.co, IDEAM data).
+insitu:
+  quality_resource: https://www.datos.gov.co/resource/62gv-3857.json
+  level_resource: https://www.datos.gov.co/resource/bdmn-sqnh.json
+  quality_variables: [TURBIDEZ, SOLIDOS SUSPENDIDOS TOTALES]
+  quality_stations:
+    - code: "23187010"
+      name: Puerto Wilches
+      role: primary
+      lon: -73.90506
+      lat: 7.34439
+    - code: "23207040"
+      name: San Pablo
+      role: primary
+      lon: -73.91856
+      lat: 7.48033
+    - code: "23157030"
+      name: Barrancabermeja
+      role: secondary
+      lon: -73.876
+      lat: 7.06019
+      note: upstream of the reach
+    - code: "23187280"
+      name: Sitio Nuevo R-11
+      role: secondary
+      lon: -73.80192
+      lat: 7.784
+      note: downstream of the reach
+  level_stations:
+    - code: "0023187010"
+      name: Puerto Wilches
+      role: primary
+      lon: -73.90506
+      lat: 7.34439
+    - code: "0023207040"
+      name: San Pablo
+      role: primary
+      lon: -73.91856
+      lat: 7.48033
+  match_days_primary: 1 # a sample pairs with the nearest usable scene within +-1 day
+  match_days_secondary: 3 # all four stations, +-3 days
+  level_window_hours: 12 # mean level within +-12 h of the acquisition
+  level_min_observations: 3
+  min_pairs: 10 # fewer pairs: "not enough data"
+  tracks_rho: 0.4 # "tracks": Spearman >= 0.4 and the bootstrap interval's lower end > 0
+  bootstrap: 2000
+  seed: 20261008
+  saturation_rho: 0.3

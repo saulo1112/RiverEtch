@@ -53,8 +53,9 @@ def _parser() -> argparse.ArgumentParser:
     docs.add_argument("--out", type=Path, required=True, help="output folder (never committed)")
     docs.add_argument("--max-mb", type=float, default=60.0, help="size cap per document")
     docs.add_argument("--pause", type=float, default=1.5, help="seconds between requests")
+    docs.add_argument("--timeout", type=float, default=60.0, help="seconds per request")
     for name, text in (
-        ("validation", "run the pre-registered Urrá validation (docs/urra-validation/method.md)"),
+        ("validation", "run a pre-registered reach validation (its settings file: --config)"),
         ("catchment-grid", "build the catchment rain grid of the validation's target reach"),
     ):
         command = commands.add_parser(name, help=text)
@@ -99,6 +100,7 @@ def fetch_docs(args: argparse.Namespace) -> int:
         chosen,
         args.out,
         fetch.load_keywords(args.keywords),
+        client=fetch.make_client(args.timeout),
         max_bytes=int(args.max_mb * 1_000_000),
         pause_s=args.pause,
     )
@@ -144,8 +146,17 @@ def validation(args: argparse.Namespace) -> int:
     cfg = load_validation_config(paths.config)
     results = root / args.results if args.results is not None else root / cfg.outputs.results
     write_outputs(outputs, results, root)
-    verdict = outputs.verdict.label if outputs.verdict else "none (smoke run)"
-    print(f"verdict: {verdict}; results in {results}")
+    if outputs.quietness is not None:
+        q = outputs.quietness
+        reading = f"{'quiet' if q.quiet else 'not quiet'} ({q.k}/{q.n}, {q.comparison})"
+        print(f"quietness: {reading}; results in {results}")
+    else:
+        verdict = outputs.verdict.label if outputs.verdict else "none (smoke run)"
+        print(f"verdict: {verdict}; results in {results}")
+    leaked = outputs.manifest.get("case_names_outside_context")
+    if leaked:
+        print(f"error: the case file shows names outside its context: {leaked}")
+        return 1
     return 0
 
 

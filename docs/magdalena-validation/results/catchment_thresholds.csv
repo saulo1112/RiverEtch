@@ -1,0 +1,8 @@
+statistic,window_h,threshold_mm,days
+max,24,54.13,2588
+max,72,129.4,2588
+max,168,258.63,2588
+mean,24,18.57,2588
+mean,72,51.26,2588
+mean,168,112.91,2588
+any (share of days flagged),,,0.2581

@@ -1,0 +1,7 @@
+code,name,role,kind,distance_km,variables,samples,samples_in_period,first,last,note
+23187010,Puerto Wilches,primary,quality,8.1,SOLIDOS SUSPENDIDOS TOTALES (mg/L) TURBIDEZ (NTU),14,14,2021-07-28,2023-06-17,
+23207040,San Pablo,primary,quality,7.4,SOLIDOS SUSPENDIDOS TOTALES (mg/L) TURBIDEZ (NTU),14,14,2021-07-26,2023-06-13,
+23157030,Barrancabermeja,secondary,quality,39.8,SOLIDOS SUSPENDIDOS TOTALES (mg/L) TURBIDEZ (NTU),25,19,2006-10-12,2023-06-20,upstream of the reach
+23187280,Sitio Nuevo R-11,secondary,quality,42.2,SOLIDOS SUSPENDIDOS TOTALES (mg/L) TURBIDEZ (NTU),27,14,2006-07-16,2023-06-12,downstream of the reach
+0023187010,Puerto Wilches,primary,level,8.1,river level (mt),11222,11222,2024-10-29,2026-01-01,
+0023207040,San Pablo,primary,level,7.4,river level (mt),7613,7613,2019-01-01,2020-03-13,
