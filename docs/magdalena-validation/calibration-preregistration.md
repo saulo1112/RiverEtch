@@ -347,3 +347,21 @@ results are accepted.
      and that acquisition counts as no data.
    - A run is accepted when its only read errors are these (listed in `read-errors.csv`). Any
      other read error still requires a rerun.
+4. **2026-10-09, during the value fetch: bands are read only for scenes that can pass.** Proposed
+   after the project owner flagged the data volume.
+   - **What the fetch showed:** each band read downloads whole COG blocks, about 2 MB, to keep
+     about 43 KB. The ~130,000 reads came to about 250 GB over a 72 Mbit/s link. On the SCL
+     already read (first three stations), only 15–18 % of scenes leave ≥ 90 % of the 2 km disk
+     clear, and 17–27 % leave the 300 m window usable.
+   - **The change:** SCL is read first. The other bands are not read when:
+     - no window can pass the scene guards: fewer valid SCL pixels than `min_valid_px` (the water
+       pixels are a subset of them), or contamination above `max_contamination`; or
+     - the disk's clear SCL share is under `valid_fraction_min`.
+   - **Those rows** keep their SCL statistics. Their medians and B11 check are empty, and
+     `bands_read` is 0.
+   - **What does not change:** any rule, and any row an analysis uses. The scene guards and the
+     5b/5c filter admit only rows whose bands were read in full. One wording changes: a
+     calibrated record on such a scene abstains with "window too cloudy to measure" instead of
+     naming the guard it failed.
+   - **What was seen:** no value had been analysed. The cloud shares come from the SCL the fetch
+     had already read.
