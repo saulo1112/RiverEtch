@@ -317,4 +317,7 @@ results are accepted.
 
 ## Deviations
 
-None yet.
+1. **2026-10-09, before any value was fetched: a YAML syntax fix.** In `pipeline/calibration.yaml`,
+   the Dogliotti candidate's formula `dogliotti_2015_switch(B04, B8A)` sat unquoted in a flow
+   mapping, where YAML splits at the comma. It is now quoted. No value, threshold or rule changed.
+   The loader caught it the first time the file was read.

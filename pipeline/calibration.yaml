@@ -81,7 +81,7 @@ candidates: # 9 features; expected sign positive for all
   - { id: B04/B02, formula: B04 / B02 }
   - { id: B05/B04, formula: B05 / B04 }
   - { id: B8A/B04, formula: B8A / B04 }
-  - { id: D15switch, formula: dogliotti_2015_switch(B04, B8A) } # needs published coefficients
+  - { id: D15switch, formula: "dogliotti_2015_switch(B04, B8A)" } # needs published coefficients
 
 targets:
   - { id: turbidity, kind: sample, variable: TURBIDEZ, unit: NTU }
