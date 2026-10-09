@@ -4,8 +4,9 @@
 docs/site-screening/method.md); ``climate-pipeline fetch-docs`` fetches public documents with a
 provenance manifest (see docs/urra-validation/regulatory.md); ``climate-pipeline catchment-grid``
 and ``climate-pipeline validation`` run the pre-registered validation of the chosen reach (see
-docs/urra-validation/method.md). The other stages (operational ingestion, anomaly publication)
-are not implemented yet.
+docs/urra-validation/method.md); ``climate-pipeline contract`` writes the observation record's
+JSON Schema and sample records (see docs/schema/README.md). The other stages (operational
+ingestion, anomaly publication) are not implemented yet.
 """
 
 from __future__ import annotations
@@ -72,6 +73,37 @@ def _parser() -> argparse.ArgumentParser:
     validation.add_argument("--workers", type=int, default=8)
     validation.add_argument(
         "--results", type=Path, default=None, help="results folder (default: from the config)"
+    )
+    contract = commands.add_parser("contract", help="observation record contract: schema, samples")
+    actions = contract.add_subparsers(dest="action", required=True)
+    schema = actions.add_parser("schema", help="write the generated JSON Schema")
+    schema.add_argument("--out", type=Path, required=True, help="schema file")
+    sample = actions.add_parser("sample", help="sealed records from a case file v1 (reads S3)")
+    sample.add_argument("--case", type=Path, required=True, help="case file v1 (JSON)")
+    sample.add_argument("--reach-id", required=True, help="the reach's site id")
+    sample.add_argument("--dates", default="", help="comma-separated scene dates (default: all)")
+    sample.add_argument("--collection", default="sentinel-2-l2a", help="STAC collection")
+    sample.add_argument("--threshold", type=float, default=3.0, help="D0 anomaly threshold")
+    sample.add_argument("--out", type=Path, required=True, help="records file (JSON)")
+    calibration = commands.add_parser(
+        "calibration", help="calibration and climate-context validation (fetch, run, verify)"
+    )
+    calibration.add_argument(
+        "action", choices=("fetch", "run", "verify"),
+        help="fetch: network snapshots; run: offline results; verify: recompute and compare",
+    )  # fmt: skip
+    calibration.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+    calibration.add_argument(
+        "--config", type=Path, default=Path("pipeline/calibration.yaml"),
+        help="settings, relative to the root",
+    )  # fmt: skip
+    calibration.add_argument(
+        "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
+    )
+    calibration.add_argument("--stations-only", action="store_true", help="fetch: selection only")
+    calibration.add_argument("--workers", type=int, default=8)
+    calibration.add_argument(
+        "--out", type=Path, default=None, help="run: results folder (default: from the config)"
     )
     return parser
 
@@ -199,6 +231,110 @@ def catchment_grid(args: argparse.Namespace) -> int:
     return 0
 
 
+def contract(args: argparse.Namespace) -> int:
+    """Run ``contract schema`` or ``contract sample``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code.
+    """
+    import json
+    from datetime import UTC, datetime
+
+    import httpx
+
+    from climate_pipeline.contract import observation as obs
+
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    if args.action == "schema":
+        args.out.write_text(obs.schema_text(), encoding="utf-8", newline="\n")
+        print(f"schema written to {args.out}")
+        return 0
+    case = json.loads(args.case.read_text(encoding="utf-8"))
+    dates = sorted(_split(args.dates)) or None
+    wanted = {
+        item_id
+        for scene in case["ui"]["scenes"]
+        if not scene["excluded"] and (dates is None or scene["date"] in dates)
+        for item_id in scene["stacItemIds"]
+    }
+    items: dict[str, obs.ItemMeta] = {}
+    with httpx.Client(timeout=60, follow_redirects=True) as http:
+        for item_id in sorted(wanted):
+            url = obs.item_json_url(item_id)
+            response = http.get(url)
+            response.raise_for_status()
+            when = datetime.now(UTC).isoformat(timespec="seconds")
+            items[item_id] = obs.item_meta_from_json(url, response.content, when)
+    records = obs.records_from_case(
+        case, args.reach_id, args.collection, items, args.threshold, dates
+    )
+    data = [r.model_dump(mode="json", by_alias=True) for r in records]
+    args.out.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
+    )
+    print(f"{len(records)} records written to {args.out}")
+    return 0
+
+
+def calibration(args: argparse.Namespace) -> int:
+    """Run ``calibration fetch``, ``calibration run`` or ``calibration verify``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code (1 when verification finds a mismatch or a fetch has read errors).
+    """
+    import json
+    import platform
+    from datetime import UTC, datetime
+
+    from climate_pipeline.calibration.config import load_calibration_config
+    from climate_pipeline.calibration.fetching import (
+        CalibrationPaths,
+        fetch_stations,
+        fetch_values,
+    )
+    from climate_pipeline.calibration.report import verify, write_outputs
+    from climate_pipeline.calibration.run import analyse
+    from climate_pipeline.provenance import head, library_versions
+
+    root = args.root.resolve()
+    paths = CalibrationPaths(root, root / args.config, root / args.cache)
+    cfg = load_calibration_config(paths.config)
+    if args.action == "fetch":
+        if args.stations_only:
+            rows = fetch_stations(cfg, paths, args.workers)
+            selected = sum(1 for r in rows if r.get("selected"))
+            print(f"{len(rows)} candidates, {selected} selected")
+            return 0
+        counts = fetch_values(cfg, paths, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "verify":
+        problems = verify(cfg, paths)
+        for line in problems:
+            print(line)
+        print("verified" if not problems else f"{len(problems)} mismatches")
+        return 1 if problems else 0
+    started = datetime.now(UTC).isoformat(timespec="seconds")
+    out = root / args.out if args.out is not None else paths.at(cfg.outputs.results)
+    write_outputs(analyse(cfg, paths), cfg, paths, out)
+    run_info = {
+        "commit": head(), "started_utc": started,
+        "finished_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+        "python": platform.python_version(), "libraries": library_versions(),
+    }  # fmt: skip
+    (out / "run.json").write_text(
+        json.dumps(run_info, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
+    print(f"results in {out}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the pipeline command-line interface.
 
@@ -212,6 +348,13 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "fetch-docs":
         return fetch_docs(args)
+    if args.command == "contract":
+        return contract(args)
+    if args.command == "calibration":
+        logging.basicConfig(
+            level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+        )
+        return calibration(args)
     if args.command in ("validation", "catchment-grid"):
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"

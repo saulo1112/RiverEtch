@@ -27,6 +27,9 @@
     "format:check": "prettier --check .",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "pipeline:check": "cd pipeline && uv run ruff format --check . && uv run ruff check . && uv run mypy && uv run pytest",
+    "pipeline:calibration": "cd pipeline && uv run climate-pipeline calibration run --root ..",
+    "pipeline:calibration:fetch": "cd pipeline && uv run climate-pipeline calibration fetch --root ..",
+    "pipeline:calibration:verify": "cd pipeline && uv run climate-pipeline calibration verify --root ..",
     "check": "npm run format:check && npm run lint:sol && npm run zk:build && npm run compile && npm run lint:ts && npm run typecheck && npm test && npm run build"
   },
   "devDependencies": {

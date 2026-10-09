@@ -360,6 +360,48 @@ def _search_dicts(
     raise AssertionError("unreachable")
 
 
+def search_items(
+    url: str,
+    collection: str,
+    bbox: tuple[float, float, float, float],
+    start: date,
+    end: date,
+    page_size: int,
+) -> list[dict[str, Any]]:
+    """Raw item dictionaries of a STAC search (retried as a whole on failure).
+
+    Args:
+        url: STAC API root.
+        collection: Collection id.
+        bbox: West, south, east, north in degrees.
+        start: First day.
+        end: Last day.
+        page_size: Items per page.
+
+    Returns:
+        The items as JSON-like dictionaries.
+    """
+    return _search_dicts(url, collection, bbox, start, end, page_size)
+
+
+def extra_assets(item: Mapping[str, Any], keys: Mapping[str, str]) -> dict[str, AssetRef]:
+    """Asset references for bands beyond the four :func:`parse_item` maps.
+
+    Args:
+        item: The item as JSON-like data.
+        keys: Logical name -> asset key (only those present in the item are returned).
+
+    Returns:
+        Logical name -> asset reference, with scale and offset from ``raster:bands``.
+    """
+    item_epsg = _epsg(item["properties"])
+    return {
+        name: _asset_ref(item["assets"][key], item_epsg)
+        for name, key in keys.items()
+        if key in item["assets"]
+    }
+
+
 def parse_items(items: Iterable[Mapping[str, Any]], keys: AssetKeys) -> list[Scene]:
     """Parse search results, skipping (and logging) malformed items.
 

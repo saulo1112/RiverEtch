@@ -9,3 +9,5 @@ docs/urra-validation/results/
 docs/urra-validation/urra.sample.json
 docs/magdalena-validation/results/
 docs/magdalena-validation/magdalena.sample.json
+# Calibration snapshots and results: committed as run evidence, never edited by hand.
+docs/magdalena-validation/calibration/
