@@ -186,6 +186,11 @@ def main() -> int:
     parser.add_argument("--time-box-h", type=float, default=2.0)
     parser.add_argument("--limit-deg", type=float, default=0.05, help="half box around station")
     parser.add_argument("--max-scenes", type=int, default=0, help="0: no limit (smoke tests)")
+    parser.add_argument(
+        "--delete-after", action="store_true",
+        help="delete each Level-1C folder once no listed scene still needs it (frees disk "
+        "between download batches)",
+    )  # fmt: skip
     args = parser.parse_args()
     inputs = args.root / INPUTS
     sys.path.insert(0, str(args.acolite))
@@ -252,6 +257,14 @@ def main() -> int:
         state_path.write_text(json.dumps(state, indent=1), encoding="utf-8")
         took = f"{status} in {seconds:.0f} s (spent {spent / 60:.0f} min)"
         print(f"{scene['priority']} {sid}: {took}", flush=True)
+        product = (scene["datatake"], scene["tile"])
+        pending = any(
+            (s["datatake"], s["tile"]) == product
+            and state.get(f"{s['station']}|{s['key']}", {}).get("status") not in ("ok", "failed")
+            for s in scenes
+        )
+        if args.delete_after and status == "ok" and not pending:
+            shutil.rmtree(folder, ignore_errors=True)
     state_path.write_text(json.dumps(state, indent=1), encoding="utf-8")
     order = {f"{s['station']}|{s['key']}": s for s in scenes}
     rows = [v["row"] for k, v in state.items() if v.get("row") and k in order]
