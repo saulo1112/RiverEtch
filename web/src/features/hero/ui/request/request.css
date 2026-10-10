@@ -1,0 +1,286 @@
+/*
+ * "Request a study reach" (hero overlay): the dashed card in the cases list and the form panel. The
+ * panel itself is a .hero-panel (ui.css); colors and type come from styles/tokens.css.
+ */
+
+/* Dashed card at the end of the cases list. */
+.hero-request-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  width: 100%;
+  margin: 0;
+  padding: 16px;
+  border: 1px dashed rgb(240 246 255 / 0.3);
+  border-radius: 14px;
+  background: transparent;
+  color: var(--text-1);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease),
+    background-color 160ms var(--ease);
+}
+
+.hero-request-card:hover {
+  border-color: rgb(240 246 255 / 0.5);
+  background-color: rgb(255 255 255 / 0.04);
+}
+
+.hero-request-card svg {
+  flex: none;
+  color: var(--text-2);
+}
+
+.hero-request-card__text {
+  display: grid;
+  gap: 3px;
+}
+
+.hero-request-card__title {
+  font-size: 15px;
+  font-weight: 560;
+}
+
+.hero-request-card__hint {
+  color: var(--text-3);
+  font-size: 13px;
+}
+
+/* Focus moves (the error summary, its links, the request's summary) scroll the panel so the
+   target clears the sticky heading row. */
+.hero-panel.hero-request {
+  scroll-padding-top: 128px;
+}
+
+/* The persistent "demo only" line stands out a little from the panel's other notes. */
+.hero-request__demo {
+  color: var(--text-2);
+}
+
+/* Form. */
+.hero-request__form,
+.hero-request__done {
+  display: grid;
+  gap: 18px;
+  padding: 4px 20px 20px;
+}
+
+.hero-request__field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.hero-request__fieldset {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.hero-request__label {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0;
+  color: var(--text-1);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.hero-request__sublabel {
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.hero-request__marker {
+  color: var(--text-3);
+  font-size: 12px;
+  font-weight: 450;
+}
+
+.hero-request__hint {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+
+.hero-request__input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid rgb(240 246 255 / 0.22);
+  border-radius: 10px;
+  background: rgb(2 4 10 / 0.5);
+  color: var(--text-1);
+  font: inherit;
+  font-size: 15px;
+  pointer-events: auto;
+}
+
+.hero-request__input:hover {
+  border-color: rgb(240 246 255 / 0.36);
+}
+
+.hero-request__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.hero-request__select {
+  appearance: auto;
+}
+
+.hero-request__select option {
+  background: #070d1f;
+  color: var(--text-1);
+}
+
+.hero-request__textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.hero-request__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.hero-request__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+}
+
+.hero-request__choice {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 32px;
+  color: var(--text-1);
+  font-size: 14px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.hero-request__choice input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+/* Invalid fields: a warm border and the message under the field. */
+[data-invalid="true"] > .hero-request__input,
+[data-invalid="true"] .hero-request__input[aria-invalid="true"] {
+  border-color: #ff8a7a;
+}
+
+.hero-request__error {
+  margin: 0;
+  color: #ffb4a8;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+/* Error summary: takes focus after a failed submit and links to each field. */
+.hero-request__summary {
+  padding: 12px 14px;
+  border: 1px solid rgb(255 138 122 / 0.5);
+  border-radius: 12px;
+  background: rgb(255 138 122 / 0.08);
+}
+
+.hero-request__summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.hero-request__summary-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 560;
+}
+
+.hero-request__summary ul {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.hero-request__summary a {
+  color: #ffb4a8;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.hero-request__submit {
+  justify-self: start;
+  height: 44px;
+}
+
+/* Summary of the request (nothing was sent). */
+.hero-request__done-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 560;
+}
+
+.hero-request__done-title:focus,
+.hero-request__done-title:focus-visible {
+  outline: none;
+}
+
+.hero-request__readback {
+  display: grid;
+  margin: 0;
+}
+
+.hero-request__readback-row {
+  display: grid;
+  gap: 2px;
+  padding: 8px 0;
+  border-top: 1px solid var(--hairline);
+}
+
+.hero-request__readback-row dt {
+  color: var(--text-3);
+  font-size: 12.5px;
+}
+
+.hero-request__readback-row dd {
+  margin: 0;
+  color: var(--text-1);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+  white-space: pre-line;
+}
+
+.hero-request__body {
+  margin: 0;
+  color: var(--text-2);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.hero-request__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hero-request__actions .hero-btn {
+  height: 42px;
+  font-size: 14px;
+}

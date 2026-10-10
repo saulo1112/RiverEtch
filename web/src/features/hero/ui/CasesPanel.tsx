@@ -5,6 +5,7 @@ import { formatDate } from "../../case/content.ts";
 import { REFERENCE_REACH } from "../../case/reachGeometry.ts";
 import { ILLUSTRATIVE_CASE } from "../../case/sample.ts";
 import { CASES } from "./content.ts";
+import { RequestCard } from "./request/RequestCard.tsx";
 import { reachThumbnailPath } from "./thumbnail.ts";
 
 /** Props of {@link CasesPanel}. */
@@ -21,6 +22,10 @@ export interface CasesPanelProps {
   readonly onOpenCase?: () => void;
   /** The pointer or the focus reached "Open case": warm up the case view. */
   readonly onWarmUp?: () => void;
+  /** "Request a study reach": opens the request form (no card without it). */
+  readonly onRequest?: () => void;
+  /** Receives the request card's button (focus returns to it from the form). */
+  readonly requestRef?: Ref<HTMLButtonElement>;
 }
 
 const THUMBNAIL = { width: 48, height: 96, padding: 8 } as const;
@@ -40,6 +45,8 @@ export function CasesPanel({
   onBack,
   onOpenCase,
   onWarmUp,
+  onRequest,
+  requestRef,
 }: CasesPanelProps) {
   const referenceTitleId = useId();
   const evaluatedTitleId = useId();
@@ -127,6 +134,11 @@ export function CasesPanel({
             </div>
           </article>
         </li>
+        {onRequest === undefined ? null : (
+          <li>
+            <RequestCard onRequest={onRequest} buttonRef={requestRef} />
+          </li>
+        )}
       </ul>
     </section>
   );

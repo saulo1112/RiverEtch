@@ -13,9 +13,14 @@ import { Copy } from "./Copy.tsx";
 import { Footer } from "./Footer.tsx";
 import { Header } from "./Header.tsx";
 import { HowItWorksDialog } from "./HowItWorksDialog.tsx";
+import { REQUEST } from "./request/content.ts";
+import { RequestPanel } from "./request/RequestPanel.tsx";
 
 /** Which screen the overlay shows. */
-export type HeroScreen = "entry" | "cases";
+export type HeroScreen = "entry" | "cases" | "request";
+
+// Where focus lands when a screen opens: a screen's heading, or the control that leads back.
+type FocusTarget = "cases-heading" | "explore" | "request-heading" | "request-card";
 
 /** Props of {@link HeroUi}. */
 export interface HeroUiProps {
@@ -55,16 +60,22 @@ export function HeroUi({
   const howItWorksRef = useRef<HTMLButtonElement>(null);
   const casesHeadingRef = useRef<HTMLHeadingElement>(null);
   const openCaseRef = useRef<HTMLButtonElement>(null);
+  const requestHeadingRef = useRef<HTMLHeadingElement>(null);
+  const requestCardRef = useRef<HTMLButtonElement>(null);
   // Where focus goes once the next screen has rendered.
-  const pendingFocus = useRef<HeroScreen | null>(null);
+  const pendingFocus = useRef<FocusTarget | null>(null);
 
   useEffect(() => {
     const target = pendingFocus.current;
     pendingFocus.current = null;
-    if (target === "cases") {
-      casesHeadingRef.current?.focus({ preventScroll: true });
-    } else if (target === "entry") {
-      exploreRef.current?.focus({ preventScroll: true });
+    const element = {
+      "cases-heading": casesHeadingRef,
+      explore: exploreRef,
+      "request-heading": requestHeadingRef,
+      "request-card": requestCardRef,
+    }[target ?? "explore"];
+    if (target !== null) {
+      element.current?.focus({ preventScroll: true });
     }
   }, [screen]);
 
@@ -76,10 +87,10 @@ export function HeroUi({
     }
   }, [focusExplore]);
 
-  const show = (next: HeroScreen) => {
-    pendingFocus.current = next;
+  const show = (next: HeroScreen, focus: FocusTarget, announcement: string) => {
+    pendingFocus.current = focus;
     setScreen(next);
-    setAnnouncement(next === "cases" ? CASES.announceOpen : CASES.announceBack);
+    setAnnouncement(announcement);
   };
 
   return (
@@ -90,7 +101,7 @@ export function HeroUi({
           <Copy
             titleId={titleId}
             onOpenCases={() => {
-              show("cases");
+              show("cases", "cases-heading", CASES.announceOpen);
             }}
             onHowItWorks={() => {
               setDialogOpen(true);
@@ -99,16 +110,29 @@ export function HeroUi({
             exploreRef={exploreRef}
             howItWorksRef={howItWorksRef}
           />
-        ) : (
+        ) : screen === "cases" ? (
           <CasesPanel
             titleId={titleId}
             headingRef={casesHeadingRef}
             openCaseRef={openCaseRef}
             onBack={() => {
-              show("entry");
+              show("entry", "explore", CASES.announceBack);
             }}
             onOpenCase={onExplore}
             onWarmUp={onWarmUp}
+            onRequest={() => {
+              show("request", "request-heading", REQUEST.announceOpen);
+            }}
+            requestRef={requestCardRef}
+          />
+        ) : (
+          <RequestPanel
+            titleId={titleId}
+            headingRef={requestHeadingRef}
+            onBack={() => {
+              show("cases", "request-card", CASES.announceOpen);
+            }}
+            onAnnounce={setAnnouncement}
           />
         )}
         <Footer />
