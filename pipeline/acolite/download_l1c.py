@@ -4,6 +4,11 @@ Run it yourself, in your own terminal, from ``pipeline/``::
 
     uv run python acolite/download_l1c.py --max-products 10
 
+With ``--process`` it runs ACOLITE on each product right after downloading it
+(``acolite/run_windows.py --delete-after``, in ACOLITE's environment) and deletes the product,
+so only one product (about 1.7 GB with its zip) is on disk at a time. Products whose scenes are
+all processed are skipped, and it stops when ACOLITE's time box is spent.
+
 It asks for your Copernicus Data Space username and password with a hidden prompt (or reads
 ``CDSE_USER`` and ``CDSE_PASSWORD`` if you set them), keeps them in memory only, and never
 prints or writes them. It reads ``acolite/scenes.csv`` under the calibration inputs, finds each
@@ -20,9 +25,11 @@ import argparse
 import csv
 import getpass
 import hashlib
+import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 import zipfile
 from pathlib import Path
@@ -155,6 +162,52 @@ def download(client: httpx.Client, product: dict[str, object], bearer: str, out:
     return target
 
 
+def done_products(scenes_csv: Path, state_json: Path) -> set[tuple[str, str]]:
+    """Products whose every listed scene ACOLITE has already processed (ok or failed).
+
+    Args:
+        scenes_csv: ``acolite/scenes.csv``.
+        state_json: The runner's ``state.json`` (may not exist yet).
+
+    Returns:
+        Datatake and tile of each finished product.
+    """
+    state = json.loads(state_json.read_text(encoding="utf-8")) if state_json.exists() else {}
+    status: dict[tuple[str, str], set[str]] = {}
+    with scenes_csv.open(encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            sid = f"{row['station']}|{row['key']}"
+            status.setdefault((row["datatake"], row["tile"]), set()).add(
+                state.get(sid, {}).get("status", "")
+            )
+    return {p for p, s in status.items() if s <= {"ok", "failed"}}
+
+
+def run_acolite(here: Path) -> int:
+    """Run ``run_windows.py --delete-after`` with ACOLITE's own Python.
+
+    The Copernicus credentials are not passed on.
+
+    Args:
+        here: This folder (``pipeline/acolite``).
+
+    Returns:
+        The runner's exit code (3 when the time box is spent).
+    """
+    env_dir = here.parent / "out" / "acolite-env"
+    python = env_dir / "python.exe"
+    if not python.exists():
+        python = env_dir / "bin" / "python"
+    env = {k: v for k, v in os.environ.items() if k not in ("CDSE_USER", "CDSE_PASSWORD")}
+    env.update({
+        "GDAL_DRIVER_PATH": str(env_dir / "Library" / "lib" / "gdalplugins"),
+        "GDAL_DATA": str(env_dir / "Library" / "share" / "gdal"),
+        "PROJ_DATA": str(env_dir / "Library" / "share" / "proj"),
+    })  # fmt: skip
+    command = [str(python), "-I", str(here / "run_windows.py"), "--delete-after"]
+    return subprocess.run(command, env=env, check=False).returncode
+
+
 def main() -> int:
     """Download the listed products.
 
@@ -166,10 +219,18 @@ def main() -> int:
     parser.add_argument("--out", type=Path, default=Path("out/l1c"), help="Level-1C folder")
     parser.add_argument("--max-products", type=int, default=10, help="stop after this many new")
     parser.add_argument("--keep-free-gb", type=float, default=8.0, help="free disk to keep")
+    parser.add_argument(
+        "--process", action="store_true",
+        help="run ACOLITE on each product right after downloading it, then delete it",
+    )  # fmt: skip
     args = parser.parse_args()
+    here = Path(__file__).resolve().parent
     scenes = args.root / INPUTS / "acolite" / "scenes.csv"
     args.out.mkdir(parents=True, exist_ok=True)
-    wanted = products(scenes)
+    finished = done_products(scenes, here.parent / "out" / "acolite-work" / "state.json")
+    wanted = [p for p in products(scenes) if not args.process or p not in finished]
+    if args.process and finished:
+        print(f"{len(finished)} products already processed: skipped")
     print(f"{len(wanted)} Level-1C products listed in {scenes}")
     user = os.environ.get("CDSE_USER") or input("Copernicus Data Space e-mail: ").strip()
     password = os.environ.get("CDSE_PASSWORD") or getpass.getpass("Password (hidden): ")
@@ -197,6 +258,9 @@ def main() -> int:
                 z.extractall(args.out)
             archive.unlink()
             new += 1
+            if args.process and run_acolite(here) == 3:
+                print("stopped: ACOLITE's time box is spent")
+                break
     print(f"{new} new products in {args.out.resolve()}")
     return 0
 

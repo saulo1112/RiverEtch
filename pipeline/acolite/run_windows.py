@@ -289,7 +289,7 @@ def main() -> int:
     )
     done = sum(1 for v in state.values() if v.get("status") == "ok")
     print(f"{done} scenes measured; {spent / 60:.1f} min of the {args.time_box_h:.0f} h box")
-    return 0
+    return 3 if spent >= args.time_box_h * 3600 else 0  # 3: the time box is spent
 
 
 if __name__ == "__main__":

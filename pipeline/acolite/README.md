@@ -57,10 +57,11 @@ recorded as `time_box`, and the stage reports what it has.
      PROJ_DATA="$E/Library/share/proj" "$E/python.exe" -I acolite/run_windows.py
    ```
 
-5. **When the disk is short:** the 96 products of the list come to about 77 GB, so they go in
-   batches. Download a batch, run step 4 with `--delete-after`, then download the next batch.
-   - `--delete-after` removes a Level-1C folder only once no listed scene still needs it.
-   - Processed scenes are kept in `out/acolite-work/state.json` and skipped on the next run.
-   - The 2 h box counts processing time over all runs.
+5. **When the disk is short:** the 96 products come to about 77 GB, so process them one at a
+   time: `uv run python acolite/download_l1c.py --process --max-products 25`.
+   - After each download it runs step 4 with `--delete-after` (the credentials are not passed
+     on), so one product, about 1.7 GB with its zip, is on disk at a time.
+   - Products whose scenes are all processed are skipped on a rerun. It stops when the time box
+     is spent; the box counts ACOLITE's processing time over all runs.
 6. `climate-pipeline calibration run` reads `acolite-windows.csv` when it exists. Without it, the
    report lists Stage 2c as incomplete.
