@@ -964,6 +964,19 @@
   }
 }
 
+/* Development-only capture mode (?capture=thumb, see web/scripts/capture-case-thumbnail.mjs): the
+   map alone, for the cases panel's thumbnail. */
+.case-view[data-capture="thumb"]
+  :is(
+    .case-view__panels,
+    .case-view__attribution,
+    .case-view__shade,
+    .case-view__haze,
+    .case-view__note
+  ) {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .case-panel,
   .case-corner {

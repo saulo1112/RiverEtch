@@ -11,7 +11,7 @@ import { useEffect, useEffectEvent, useRef, useState, type CSSProperties } from 
 
 import { cubicBezier } from "../../lib/easing.ts";
 import { WalletControl } from "../wallet/WalletControl.tsx";
-import { FLIGHT, IMAGERY, MAP_LOOK, RETURN, TERRAIN } from "./config.ts";
+import { CAPTURE, FLIGHT, IMAGERY, MAP_LOOK, RETURN, TERRAIN } from "./config.ts";
 import { CASE_COPY } from "./content.ts";
 import { loadCaseMap } from "./loadMap.ts";
 import type { CaseMapHandle, FinalFrame } from "./map.ts";
@@ -147,6 +147,29 @@ function finalFrame(root: HTMLElement | null): FinalFrame {
   };
 }
 
+// `?capture=thumb` (development only, with `?view=case`): the map alone at the final pose, for
+// web/scripts/capture-case-thumbnail.mjs. No panels, back button, wallet corner, attribution line
+// or shades (case.css), and the reach framed without the panels' insets.
+function wantsThumbnailCapture(): boolean {
+  return (
+    import.meta.env.DEV && new URLSearchParams(window.location.search).get("capture") === "thumb"
+  );
+}
+
+// The capture's frame: no panels to clear, only the card's credit line at the bottom.
+function captureFrame(root: HTMLElement | null): FinalFrame {
+  const height = root?.clientHeight ?? window.innerHeight;
+  return {
+    padding: { top: 0, bottom: Math.round(height * CAPTURE.clearBottom), left: 0, right: 0 },
+    zoomOffset: CAPTURE.zoomOffset,
+  };
+}
+
+// The final view's frame: around the panels, or the capture's.
+function frameFor(root: HTMLElement | null): FinalFrame {
+  return wantsThumbnailCapture() ? captureFrame(root) : finalFrame(root);
+}
+
 // `?tiles=stub` (development only) draws generated tiles instead of fetching real ones.
 function wantsStubTiles(): boolean {
   return import.meta.env.DEV && new URLSearchParams(window.location.search).get("tiles") === "stub";
@@ -256,7 +279,7 @@ export function CaseView({
         }
         // Skipped while the map was loading: it started at the handoff pose.
         if (startsOnFinal()) {
-          created.jumpToFinal(finalFrame(rootRef.current));
+          created.jumpToFinal(frameFor(rootRef.current));
           created.animateRiver(1, 0);
         }
         await created.ready;
@@ -318,7 +341,7 @@ export function CaseView({
         setFlightLanded(true);
       }
     };
-    void handle?.flyToFinal(FLIGHT.flyMs, flyEase, finalFrame(rootRef.current)).then(() => {
+    void handle?.flyToFinal(FLIGHT.flyMs, flyEase, frameFor(rootRef.current)).then(() => {
       flightDone = true;
       land();
     });
@@ -352,7 +375,7 @@ export function CaseView({
   // Skip: straight to the final pose with the whole river.
   useEffect(() => {
     if (skip) {
-      handleRef.current?.jumpToFinal(finalFrame(rootRef.current));
+      handleRef.current?.jumpToFinal(frameFor(rootRef.current));
       handleRef.current?.animateRiver(1, 0);
     }
   }, [skip]);
@@ -416,6 +439,7 @@ export function CaseView({
       data-haze={entrance === "flight" && go && !skip}
       data-haze-out={fadeOut && exit === "flight"}
       data-panels={panels}
+      data-capture={wantsThumbnailCapture() ? "thumb" : undefined}
       inert={!landed || exit !== null}
     >
       <div className="case-view__map" ref={mapRef} aria-hidden="true" />

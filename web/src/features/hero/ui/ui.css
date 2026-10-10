@@ -638,8 +638,25 @@
   overflow: auto;
   overscroll-behavior: contain;
   border-radius: 20px;
+  scrollbar-color: rgb(240 246 255 / 0.28) transparent;
+  scrollbar-width: thin;
   color: var(--text-1);
   pointer-events: auto;
+}
+
+/* A thin, quiet scrollbar (WebKit without scrollbar-color). */
+.hero-panel::-webkit-scrollbar {
+  width: 8px;
+}
+
+.hero-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hero-panel::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background: rgb(240 246 255 / 0.28) padding-box;
 }
 
 .hero-panel__head {
@@ -711,9 +728,6 @@
 }
 
 .hero-case {
-  display: grid;
-  grid-template-columns: 56px minmax(0, 1fr);
-  gap: 16px;
   padding: 16px;
   border: 1px solid var(--hairline);
   border-radius: 14px;
@@ -721,19 +735,74 @@
 }
 
 .hero-case--closed {
-  grid-template-columns: minmax(0, 1fr);
   background: transparent;
 }
 
-.hero-case__thumb {
-  display: block;
-  width: 56px;
-  height: 112px;
-  border-radius: 10px;
-  background: rgb(2 4 10 / 0.55);
+/*
+ * The featured case: a 2:1 preview of the case view on top (16:9 on phones), the body under it.
+ * The preview's box is fixed by its aspect ratio, so the image arriving shifts nothing.
+ */
+.hero-case--featured {
+  overflow: hidden;
+  padding: 0;
+  transition: border-color 160ms var(--ease);
 }
 
-.hero-case__thumb path {
+.hero-case--featured:is(:hover, :focus-within) {
+  border-color: rgb(240 246 255 / 0.3);
+}
+
+/* A stacking context of its own: the focus ring and the overlays stay under the sticky head. */
+.hero-case__media {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  aspect-ratio: 2 / 1;
+  background: rgb(2 4 10 / 0.9);
+}
+
+.hero-case__preview {
+  position: absolute;
+  inset: 0;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: radial-gradient(120% 90% at 50% 40%, rgb(16 28 56 / 0.9), rgb(2 4 10 / 0.95));
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* The focus ring: a layer over the image and the overlays, inside the card's clipped corners. */
+.hero-case__preview::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  border-radius: 13px 13px 0 0;
+  content: "";
+  pointer-events: none;
+}
+
+.hero-ui .hero-case__preview:focus-visible {
+  outline: none;
+}
+
+.hero-ui .hero-case__preview:focus-visible::after {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+/* The reach's outline while the image is missing, loading or failed. */
+.hero-case__fallback {
+  position: absolute;
+  top: 8%;
+  left: 6%;
+  width: 88%;
+  height: 68%;
+}
+
+.hero-case__fallback path {
   fill: none;
   stroke: var(--accent);
   stroke-width: 2;
@@ -742,8 +811,82 @@
   vector-effect: non-scaling-stroke;
 }
 
+/* Hidden until it has loaded (the outline shows meanwhile), then faded in. */
+.hero-case__image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition:
+    opacity 240ms var(--ease),
+    scale 400ms var(--ease);
+}
+
+.hero-case__media[data-image="loaded"] .hero-case__image {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-case--featured:is(:hover, :focus-within) .hero-case__image {
+    scale: 1.03;
+  }
+}
+
+/* The imagery credit on the preview's lower edge, over a darkening for contrast. */
+.hero-case__credit {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  padding: 24px 12px 8px;
+  background: linear-gradient(rgb(2 4 10 / 0), rgb(2 4 10 / 0.85) 55%);
+  color: var(--text-1);
+  font-size: 10.5px;
+  line-height: 1.35;
+  pointer-events: none;
+}
+
+.hero-case__credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgb(240 246 255 / 0.45);
+  text-underline-offset: 2px;
+  pointer-events: auto;
+}
+
+.hero-case__credit a:hover {
+  text-decoration-color: currentcolor;
+}
+
+/* "Illustrative data" on the preview's top corner: the synthetic chip's look, on glass. */
+.hero-case__flag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  margin: 0;
+  padding: 3px 8px;
+  border: 1px solid rgb(245 185 66 / 0.4);
+  border-radius: 10px;
+  background: rgb(36 26 6 / 0.72);
+  color: #f6d38f;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.35;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+
 .hero-case__body {
   min-width: 0;
+}
+
+.hero-case--featured .hero-case__body {
+  padding: 14px 16px 16px;
 }
 
 .hero-case__title {
@@ -759,6 +902,13 @@
   color: var(--text-2);
   font-size: 13px;
   line-height: 1.4;
+}
+
+.hero-case__desc {
+  margin: 8px 0 0;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .hero-case__chips {
@@ -1141,6 +1291,10 @@
     max-width: 480px;
     max-height: calc(100cqh - 2 * var(--pad-y) - var(--nav-h) - 64px);
     margin-inline: var(--edge-l) var(--edge-r);
+  }
+
+  .hero-case__media {
+    aspect-ratio: 16 / 9;
   }
 
   .hero-sub,

@@ -192,12 +192,6 @@ export const DRAG = {
   returnRate: 0.6,
 } as const;
 
-/** "Follow satellite": the camera tracks the point under the satellite (off by default). */
-export const FOLLOW = {
-  // Rate (1/s) at which the camera blends onto the satellite when following starts.
-  blendRate: 3,
-} as const;
-
 /**
  * Dive from the settled hero pose to a top-down (nadir, north-up) view of a site, where the case map
  * takes over (HeroHandle.dive).
@@ -212,9 +206,9 @@ export const DIVE = {
   // Share of the dive over which the satellite, orbit and atmosphere fade out (the camera crosses
   // the orbit and the atmosphere shell on the way down).
   fadeEnd: 0.35,
-  // An Earth turned by its drift or a drag (and a camera moved off its longitude by "Follow
-  // satellite") turns back to its start over this share of the dive, so the camera always lands on
-  // the same, sunlit view of the site; the dive lasts this much longer per half turn to undo.
+  // An Earth turned by its drift or a drag turns back to its start over this share of the dive, so
+  // the camera always lands on the same, sunlit view of the site; the dive lasts this much longer
+  // per half turn to undo.
   yawUnwindEnd: 0.35,
   yawExtraS: 1,
   // The ocean sun glint fades over this part of the dive: the flat map that takes over has none.
@@ -257,8 +251,9 @@ export const ORBIT = {
   passLatLng: { lat: 3.914, lng: -73.081 },
   // Scene time of the first pass.
   peakTimeS: 9,
-  // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp: slow over the pass point, fast on the far side.
-  warp: [0.6, 0.075],
+  // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp (slow over the pass point, fast on the far side
+  // with a > 0). [0, 0] is a uniform speed; [0.6, 0.075] was the earlier rhythm.
+  warp: [0, 0],
   // Small yaw steering, as real Earth-observation satellites do: its amplitude on a polar orbit,
   // scaled by sin(inclination).
   yawSteerDeg: 3.9,
