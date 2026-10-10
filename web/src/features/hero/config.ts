@@ -33,19 +33,6 @@ export interface QualityPreset {
   readonly iridescence: boolean;
   /** Samples of the orbit ring and trail ribbon. */
   readonly ribbonSamples: number;
-  /** Scan effect resolution. */
-  readonly scan: {
-    /** Colombia data texture size (longitude, latitude). */
-    readonly data: readonly [number, number];
-    /** Colombia patch grid segments (longitude, latitude). */
-    readonly patchSegments: readonly [number, number];
-    /** Footprint grid segments (cross-track, along-track). */
-    readonly footprintSegments: readonly [number, number];
-    /** Ring plane segments per side. */
-    readonly ringSegments: number;
-    /** Radial segments of the beam cone. */
-    readonly coneRadial: number;
-  };
 }
 
 /** Quality presets: `high` for desktops, `low` for weak GPUs and `?quality=low`. */
@@ -63,13 +50,6 @@ export const QUALITY_PRESETS: Readonly<Record<QualityName, QualityPreset>> = {
     osr: 512,
     iridescence: true,
     ribbonSamples: 720,
-    scan: {
-      data: [768, 1024],
-      patchSegments: [64, 80],
-      footprintSegments: [48, 64],
-      ringSegments: 96,
-      coneRadial: 48,
-    },
   },
   low: {
     dprCap: 1,
@@ -84,13 +64,6 @@ export const QUALITY_PRESETS: Readonly<Record<QualityName, QualityPreset>> = {
     osr: 256,
     iridescence: false,
     ribbonSamples: 360,
-    scan: {
-      data: [384, 512],
-      patchSegments: [32, 40],
-      footprintSegments: [24, 32],
-      ringSegments: 48,
-      coneRadial: 32,
-    },
   },
 };
 
@@ -105,14 +78,6 @@ export const DEFAULT_QUALITY: QualityName = "high";
 
 /** Globe radius used by globe.gl / three-globe (scene units). */
 export const GLOBE_RADIUS = 100;
-
-/** Geographic anchors (decimal degrees). */
-export const GEO = {
-  // Area-weighted centroid of mainland Colombia (Natural Earth 1:50m).
-  colombiaCentroid: { lat: 3.914, lng: -73.081 },
-  // Lat/lng box of the scan patch (mainland and Gorgona; San Andrés lies outside and is omitted).
-  patch: { lngMin: -80.5, lngMax: -65.5, latMin: -5.5, latMax: 13.5 },
-} as const;
 
 /**
  * Sun, fixed in world space: upper left of the frame with the terminator at the lower right.
@@ -143,8 +108,9 @@ export const EARTH = {
   nightAmbient: [0.04, 0.05, 0.085],
   nightTint: [0.005, 0.01, 0.026],
   nightLightsGain: 0.9,
-  // Darkens the globe away from Colombia (1 = off).
-  focusVignette: 0.92,
+  // Slow spin of the Earth about its axis while the hero is idle (degrees per second, eastward; a
+  // turn takes 24 minutes). Off under reduced motion and with `?t=`.
+  driftDegPerS: 0.25,
   // Luminance shoulder that keeps the surface below the bloom threshold.
   shoulderKnee: 0.6,
   shoulderMax: 0.85,
@@ -185,10 +151,11 @@ export const CAMERA = {
   fovDeg: 50,
   near: 1,
   far: 4000,
-  // Viewpoint south-east of Colombia, so the orbit and the beam do not collapse onto one point.
+  // Viewpoint south-east of the orbit's pass point (ORBIT.passLatLng), so the orbit does not
+  // collapse onto a line.
   viewLatDeg: -8,
   viewLngOffsetDeg: 18,
-  // Look-at point: this fraction of the radius along the Colombia direction.
+  // Look-at point: this fraction of the radius along the pass-point direction.
   targetFactor: 0.85,
   // Globe disc diameter as a fraction of the viewport height (also bounded by the width).
   discFraction: 0.72,
@@ -201,8 +168,6 @@ export const CAMERA = {
   intro: { durationS: 3.6, distanceGain: 0.55, lngDeg: 20, latDeg: 6, exposureS: 1.4 },
   // Mouse parallax (degrees at the hero edge) and its damping rate (1/s).
   parallax: { lngDeg: 1.6, latDeg: 1.0, damping: 3.2, cssShiftPx: [8, 5] },
-  // Slow Lissajous drift: amplitudes (degrees) and periods (seconds).
-  drift: { latDeg: 0.3, latPeriodS: 23, lngDeg: 0.45, lngPeriodS: 31 },
 } as const;
 
 /**
@@ -216,9 +181,14 @@ export const DIVE = {
   // Share of the dive after which the map may take over: the ease-out's tail moves the camera by
   // well under 1 %, so the crossfade can start without waiting for the last, still frames.
   handoffAt: 0.94,
-  // Share of the dive over which the satellite, orbit, scan overlays and atmosphere fade out (the
-  // camera crosses the orbit and the atmosphere shell on the way down).
+  // Share of the dive over which the satellite, orbit and atmosphere fade out (the camera crosses
+  // the orbit and the atmosphere shell on the way down).
   fadeEnd: 0.35,
+  // An Earth turned by its drift (EARTH.driftDegPerS) turns back to its start over this share of
+  // the dive, so the camera always lands on the same, sunlit view of the site; the dive lasts this
+  // much longer per half turn to undo.
+  yawUnwindEnd: 0.35,
+  yawExtraS: 1,
   // The ocean sun glint fades over this part of the dive: the flat map that takes over has none.
   glintFade: [0.3, 0.85],
   // Margin between the frame's corners and the horizon at the handoff (degrees): on very wide
@@ -236,16 +206,16 @@ export const ASCENT = {
   durationS: 2.2,
   // cubic-bezier: leaves the site gently, then settles into the hero framing.
   ease: [0.45, 0, 0.2, 1],
-  // Shares of the rise over which the satellite, orbit, scan overlays and atmosphere fade back in
-  // (once the camera is above the orbit) and the ocean glint returns.
+  // Shares of the rise over which the satellite, orbit and atmosphere fade back in (once the
+  // camera is above the orbit) and the ocean glint returns.
   fadeIn: [0.55, 1],
   glintIn: [0.15, 0.7],
 } as const;
 
 /**
- * Orbit: prograde and low-inclination, ascending over Colombia on every pass because the Earth is
- * static, so the satellite crosses the frame left to right, climbing slightly. The altitude is
- * exaggerated (0.34 R) so the satellite, beam and footprint read at hero scale.
+ * Orbit: prograde and low-inclination, fixed in space, so the satellite crosses the frame left to
+ * right, climbing slightly, slowest over its pass point. The altitude is exaggerated (0.34 R) so the
+ * satellite reads at hero scale.
  */
 export const ORBIT = {
   // The single orbit knob. A real Earth-observation orbit would be sun-synchronous (~98°, like
@@ -254,19 +224,24 @@ export const ORBIT = {
   inclinationDeg: 30,
   radius: 134,
   periodS: 50,
-  // Scene time of the first pass over Colombia.
+  // Where the ascending pass peaks (lat/lng with the Earth at its starting turn): a framing anchor
+  // only, which the camera's viewpoint and look-at derive from. Nothing is singled out there.
+  passLatLng: { lat: 3.914, lng: -73.081 },
+  // Scene time of the first pass.
   peakTimeS: 9,
-  // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp: slow over Colombia, fast on the far side.
+  // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp: slow over the pass point, fast on the far side.
   warp: [0.6, 0.075],
   // Small yaw steering, as real Earth-observation satellites do: its amplitude on a polar orbit,
   // scaled by sin(inclination).
   yawSteerDeg: 3.9,
+  // Reduced-motion still: orbit angle relative to the pass point (radians).
+  stillOffsetRad: -0.1,
 } as const;
 
 /** Satellite model, materials and lights. */
 export const SATELLITE = {
   variant: "A" satisfies SatelliteVariant,
-  // Wingtip-to-wingtip span in model units, and its target size on screen at the scan peak
+  // Wingtip-to-wingtip span in model units, and its target size on screen at the pass
   // (before foreshortening: the wings are seen at an angle, so ~225 px end to end at 1080p). The
   // target is capped to a share of the viewport width (portrait screens), then the model scale is
   // clamped to scaleRange.
@@ -284,7 +259,7 @@ export const SATELLITE = {
   cells: { columns: 4, rows: 6, gapFraction: 0.022, gapColor: "#8d96a6", lightness: [12, 15] },
   // Solar-array drive: critically damped spring (rad/s) with a rate limit.
   sada: { omega: 4, maxDegPerS: 12 },
-  // Panel glint, solved once per orbit: where on the orbit it happens (relative to Colombia), the
+  // Panel glint, solved once per orbit: where on the orbit it happens (relative to the pass), the
   // largest cant and array offset used to aim it, and the feather window. The arrays sweep through
   // the glint attitude by ±sweepDeg over that window, so the gleam is brief. The reflection lobe
   // is sigmaDeg wide; a twist of twistDeg from root to tip and each cell's tilt (cellTilt times the
@@ -303,7 +278,7 @@ export const SATELLITE = {
     peak: 0.8,
     haloScale: 2,
   },
-  // Dish tracks Colombia while it is above the horizon, otherwise it stows.
+  // Dish tracks the reference reach while it is above the horizon, otherwise it stows.
   dish: { omega: 1.6, maxDegPerS: 12, maxElevationDeg: 75 },
   // Nav lights: periods (s), pulse width (ms), HDR peak colors (linear) and resting level.
   navLights: {
@@ -364,52 +339,10 @@ export const TRAIL = {
   widthPx: [1, 2],
 } as const;
 
-/** Scan effect: state machine, beam, footprint, Colombia patch, border stroke and rings. */
-export const SCAN = {
-  // Intensity I = 1 − smoothstep(ψ, in, out), ψ = angle between the nadir and Colombia's centroid.
-  intensityDeg: [7, 30],
-  // State machine thresholds on I (idle → approach → scan → leave → idle), and the lock ring.
-  thresholds: { approach: 0.03, scan: 0.65, leave: 0.55, lock: 0.4 },
-  // Damping rates (1/s) of the smoothed drivers.
-  damping: { beam: 8, strokeRise: 3, strokeFall: 1.2, cap: 3, push: 1.5 },
-  colors: { beam: "#8fe6ff", instrument: "#22d3ee", rings: "#5fe3ff" },
-  beam: {
-    // Footprint semi-axes on the ground (scene units) and how far the base sinks below it.
-    crossTrack: 9.5,
-    alongTrack: 4.2,
-    sink: 1.2,
-    // Body brightness, aperture hot spot, stripe length (units) and speed (1/s).
-    bodyGain: 0.6,
-    hot: 1.2,
-    stripeLength: 2.6,
-    stripeSpeed: 1.4,
-  },
-  footprint: { crossTrackRad: 0.095, alongTrackRad: 0.042 },
-  stroke: { idle: 0.35, gain: 1.0, widthPx: [1.25, 1.7] },
-  rings: { slots: 3, lifeS: 2.8, cadenceS: 1.25, maxRadiusRad: 0.18, extentRad: 0.2, gain: 0.8 },
-  heat: {
-    // The illustrative heat map along the rivers has no meaning in the hero yet: hidden (and not
-    // generated) unless this is true. The cyan cap, border glow, stroke and rivers always show.
-    visible: false as boolean,
-    // Heat left over after a pass decays to `floor` with time constant `agingS`.
-    agingS: 9,
-    floor: 0.35,
-    // Limit of the push-broom front (radians of orbit either side of Colombia).
-    frontLimit: 0.4,
-    ramp: ["#0e5f73", "#15a6b5", "#e8b23a", "#ff6b2c", "#ffe2a8"],
-    contourColor: "#ffe9c4",
-  },
-  // Radii of the overlays (globe radius 100), ordered so they never z-fight.
-  radii: { patch: 100.35, stroke: 100.5, footprint: 100.6, rings: 100.7 },
-  // Reduced-motion still: orbit angle relative to Colombia (radians) and camera push-in.
-  stillOffsetRad: -0.1,
-  cameraPush: 0.025,
-} as const;
-
 /**
- * Bloom (high preset). Only light sources and glints exceed the threshold: nav lights, the panel
- * glint, the beam's aperture, the scan line and stroke, and fresh heat when shown. Every surface
- * material stays below it through a luminance shoulder, and the ocean glint through its soft cap.
+ * Bloom (high preset). Only light sources and glints exceed the threshold: the nav lights and the
+ * panel glint. Every surface material stays below it through a luminance shoulder, and the ocean
+ * glint through its soft cap.
  */
 export const POST = {
   bloom: { strength: 0.55, radius: 0.45, threshold: 0.92 },
@@ -418,16 +351,9 @@ export const POST = {
 } as const;
 
 /** An effect that `?off=` can disable in development builds, to isolate it during QA. */
-export type HeroEffect = "rings" | "strobe" | "glint" | "oceanGlint" | "bloom" | "heat";
+export type HeroEffect = "strobe" | "glint" | "oceanGlint" | "bloom";
 
-const HERO_EFFECTS: readonly HeroEffect[] = [
-  "rings",
-  "strobe",
-  "glint",
-  "oceanGlint",
-  "bloom",
-  "heat",
-];
+const HERO_EFFECTS: readonly HeroEffect[] = ["strobe", "glint", "oceanGlint", "bloom"];
 
 /** URL options read once when the hero mounts. */
 export interface HeroUrlOptions {
@@ -437,7 +363,7 @@ export interface HeroUrlOptions {
   readonly lab: boolean;
   /** Frozen scene time from `?t=<seconds>` (development builds only), otherwise null. */
   readonly frozenTime: number | null;
-  /** Effects disabled by `?off=rings,strobe,…` (development builds only), otherwise empty. */
+  /** Effects disabled by `?off=strobe,glint,…` (development builds only), otherwise empty. */
   readonly disabledEffects: ReadonlySet<HeroEffect>;
 }
 

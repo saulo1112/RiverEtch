@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, type Ref, type RefCallback } from "react";
 
 import { COPY } from "./content.ts";
 import { Dotted } from "./Dotted.tsx";
@@ -9,38 +9,68 @@ import { useLift } from "./useLift.ts";
 export interface CopyProps {
   /** Id of the headline, which labels the hero section. */
   readonly titleId: string;
-  /** "Explore the case": starts the flythrough. */
-  readonly onExplore?: () => void;
-  /** The pointer or the focus reached "Explore the case": warm up the case view. */
+  /** "Explore your cases": opens the cases screen. */
+  readonly onOpenCases: () => void;
+  /** "How it works": opens the dialog. */
+  readonly onHowItWorks: () => void;
+  /** The pointer or the focus reached "Explore your cases": warm up the case view. */
   readonly onWarmUp?: () => void;
-  /** Focus "Explore the case" when this turns true (back from the case view). */
-  readonly focusExplore?: boolean;
+  /** Receives "Explore your cases" (focus comes back to it from the cases screen). */
+  readonly exploreRef?: Ref<HTMLButtonElement>;
+  /** Receives "How it works" (focus comes back to it from the dialog). */
+  readonly howItWorksRef?: Ref<HTMLButtonElement>;
+}
+
+// Sets a ref of either kind.
+function assignRef<T>(ref: Ref<T> | undefined, value: T | null): void {
+  if (typeof ref === "function") {
+    ref(value);
+  } else if (ref !== null && ref !== undefined) {
+    ref.current = value;
+  }
+}
+
+// Attaches an element to an outside ref and to the lift effect; the cleanup detaches both.
+function composeRef<T extends HTMLElement>(
+  element: T | null,
+  ref: Ref<T> | undefined,
+  lift: RefCallback<T>,
+): () => void {
+  assignRef(ref, element);
+  const cleanup = lift(element);
+  return () => {
+    if (typeof cleanup === "function") {
+      cleanup();
+    }
+    assignRef(ref, null);
+  };
 }
 
 /**
- * The hero's text column: eyebrow, two-line headline, subtitle and the two calls to action ("Explore
- * the case" starts the flythrough; "How it works" is still a placeholder link).
+ * The entry screen's text column: eyebrow, two-line headline, subtitle, the two calls to action
+ * ("Explore your cases" opens the demo workspace's cases; "How it works" opens the dialog) and the
+ * note that the workspace's user is simulated.
  *
  * @returns The headline block.
  */
-export function Copy({ titleId, onExplore, onWarmUp, focusExplore = false }: CopyProps) {
+export function Copy({
+  titleId,
+  onOpenCases,
+  onHowItWorks,
+  onWarmUp,
+  exploreRef,
+  howItWorksRef,
+}: CopyProps) {
   const primaryLift = useLift<HTMLButtonElement>();
-  const exploreRef = useRef<HTMLButtonElement | null>(null);
+  const secondaryLift = useLift<HTMLButtonElement>();
   const primaryRef = useCallback(
-    (element: HTMLButtonElement | null) => {
-      exploreRef.current = element;
-      return primaryLift(element);
-    },
-    [primaryLift],
+    (element: HTMLButtonElement | null) => composeRef(element, exploreRef, primaryLift),
+    [exploreRef, primaryLift],
   );
-  // After the way back the overlay was inert until now, so focus moves here explicitly (an
-  // autoFocus on mount would land on an inert button).
-  useEffect(() => {
-    if (focusExplore) {
-      exploreRef.current?.focus({ preventScroll: true });
-    }
-  }, [focusExplore]);
-  const secondaryLift = useLift<HTMLAnchorElement>();
+  const secondaryRef = useCallback(
+    (element: HTMLButtonElement | null) => composeRef(element, howItWorksRef, secondaryLift),
+    [howItWorksRef, secondaryLift],
+  );
   return (
     <div className="hero-copy">
       <p className="hero-eyebrow">
@@ -59,21 +89,24 @@ export function Copy({ titleId, onExplore, onWarmUp, focusExplore = false }: Cop
           ref={primaryRef}
           type="button"
           className="hero-btn hero-btn--solid hero-btn--lift"
-          onClick={onExplore}
+          onClick={onOpenCases}
           onPointerEnter={onWarmUp}
           onFocus={onWarmUp}
         >
           {COPY.primary.label}
           <ArrowRight size={16} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
         </button>
-        <a
-          ref={secondaryLift}
+        <button
+          ref={secondaryRef}
+          type="button"
           className="hero-btn hero-btn--ghost hero-btn--lift"
-          href={COPY.secondary.href}
+          onClick={onHowItWorks}
+          aria-haspopup="dialog"
         >
           {COPY.secondary.label}
-        </a>
+        </button>
       </div>
+      <p className="hero-note">{COPY.primaryNote}</p>
     </div>
   );
 }

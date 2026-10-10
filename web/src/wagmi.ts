@@ -16,7 +16,7 @@ function optionalEnv(value: string | undefined): string | undefined {
 
 /** wagmi + RainbowKit configuration: Sepolia only, with MetaMask and RainbowKit's default wallets. */
 export const wagmiConfig = getDefaultConfig({
-  appName: "Climate Change IEEE",
+  appName: "TerraChain",
   // RainbowKit maps the "YOUR_PROJECT_ID" placeholder to a shared demo id: fine for local
   // development, but deployments need their own id from https://cloud.reown.com.
   projectId: optionalEnv(import.meta.env.VITE_WALLETCONNECT_PROJECT_ID) ?? "YOUR_PROJECT_ID",

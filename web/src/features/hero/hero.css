@@ -84,44 +84,6 @@
     -0.4vmin -0.4vmin 4vmin rgb(111 168 255 / 0.3);
 }
 
-/* Colombia on the poster map. */
-.hero__marker {
-  position: absolute;
-  left: 43%;
-  top: 48%;
-  width: 0.7vmin;
-  height: 0.7vmin;
-  min-width: 5px;
-  min-height: 5px;
-  translate: -50% -50%;
-  border-radius: 50%;
-  background: #e8b23a;
-  box-shadow: 0 0 0 1px #22d3ee;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .hero__marker::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    box-shadow: 0 0 0 1px #22d3ee;
-    animation: hero-pulse 2.8s ease-out infinite;
-  }
-}
-
-@keyframes hero-pulse {
-  from {
-    opacity: 0.9;
-    transform: scale(1);
-  }
-
-  to {
-    opacity: 0;
-    transform: scale(7);
-  }
-}
-
 .hero__stage {
   opacity: 0;
   pointer-events: none;

@@ -1,20 +1,38 @@
 // Every string of the case view, and the formatters its panels share.
+import type { CaseClassification } from "./types.ts";
 
-/** Labels of the case view. */
+/** Labels of the case view. NDTI is relative: no physical units, causes or compliance claims. */
 export const CASE_COPY = {
-  back: "Back to the globe",
-  placeholderSite: "Placeholder site",
-  alertTitle: "Anomaly detected",
+  back: "Back to your cases",
+  caseFile: "Case file",
+  syntheticNote: "(synthetic event)",
   illustrativeChip: "Illustrative data",
   illustrativeLabel: "Illustrative sample data",
   scenePrefix: "Sentinel-2 scene",
   rows: {
-    anomaly: "Turbidity anomaly",
+    departure: "Index departure",
     rainfall: "Rainfall upstream",
     delta: "Upstream vs downstream",
   },
-  challenge: "Challenge operator",
-  challengeHint: "Not available yet",
+  vsBaseline: "σ vs baseline",
+  lastDay: "last day",
+  relative: "relative",
+  // Shown while no in-situ calibration has passed (always, for now): see units.ts.
+  relativeNote: "Relative index: no physical units until calibrated in situ.",
+  reply: "Operator reply (private)",
+  replyHint: "Not available in this demo",
+  record: {
+    title: "Record",
+    note: "Illustrative · not anchored in this demo",
+    scene: "Scene",
+    version: "Processing version",
+    parameters: "Parameters",
+    root: "Anchored root",
+    placeholder: "illustrative",
+    notAnchored: "not anchored in this demo",
+    recompute: "Recompute this observation",
+    recomputeHint: "Not available yet",
+  },
   legendTitle: "NDTI (relative index)",
   legendLow: "Low",
   legendHigh: "High",
@@ -22,13 +40,36 @@ export const CASE_COPY = {
   timelineTitle: "Scenes and rainfall",
   laneScenes: "NDTI downstream, per scene",
   laneRain: "Rainfall upstream, mm per day",
-  onset: "Anomaly onset",
+  onset: "Departure onset",
   cloudy: "cloud / no data",
   externalHint: "(opens in a new tab)",
   mapUnavailable: "The map could not load in this browser.",
-  announceCase: "Case view:",
-  announceBack: "Back to the globe.",
+  announceCase: "Case file:",
+  announceBack: "Back to your cases.",
 } as const;
+
+/** Maturity of the reference reach: one constant drives the chip and its explanation. */
+export const CASE_MATURITY = {
+  label: "Observable: index departures only",
+  hint: "Maturity: Observable. Next come Baselined, then Validated in situ (calibrated, with a stated error).",
+} as const;
+
+/** The alert's title for each verdict. */
+export const ALERT_TITLES = {
+  normal: "No departure from the baseline",
+  explained_by_climate: "Departure explained by rainfall",
+  candidate_human_pressure: "Departure not explained by rainfall",
+} as const satisfies Record<CaseClassification, string>;
+
+/**
+ * The alert's title for a verdict.
+ *
+ * @param classification - The verdict on the latest scene.
+ * @returns E.g. "Departure not explained by rainfall".
+ */
+export function alertTitle(classification: CaseClassification): string {
+  return ALERT_TITLES[classification];
+}
 
 const dayMonth = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",

@@ -18,13 +18,13 @@ import {
   Vector2,
   Vector3,
   WebGLRenderTarget,
+  type Object3D,
   type Texture,
 } from "three";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
 import { cubicBezier } from "../../lib/easing.ts";
-import { COLOMBIA_DIRECTION, COLOMBIA_RINGS, latLngToVector3 } from "./colombia.ts";
 import {
   ASCENT,
   ATMOSPHERE,
@@ -33,19 +33,18 @@ import {
   EARTH,
   EARTH_NIGHT_TEXTURE,
   EARTH_WATER_TEXTURE,
-  GEO,
   GLOBE_RADIUS,
+  ORBIT,
   POST,
   QUALITY_PRESETS,
-  SCAN,
   SUN,
   type HeroEffect,
   type QualityName,
 } from "./config.ts";
 import { divePose } from "./dive.ts";
+import { FRAMING_AIM, latLngToVector3 } from "./geo.ts";
 import { handoffFrame } from "./handoff.ts";
 import { createSatellite, timeForOrbitOffset, type SatelliteRig } from "./satellite.ts";
-import { createScan, type ScanEffect } from "./scan.ts";
 import { DITHER_GLSL, SHOULDER_GLSL } from "./shaders.ts";
 import { createStarfield } from "./starfield.ts";
 import { createFallbackEarthTexture, loadTexture } from "./textures.ts";
@@ -72,6 +71,19 @@ export interface MountHeroOptions {
    * scene then reports ready only once its sharpest Earth map is in. Ignored without animation.
    */
   readonly arriveFrom?: DiveTarget | null;
+  /**
+   * The reference site, which the satellite's dish tracks as the Earth turns (nothing is drawn
+   * there), or null to track the orbit's pass point.
+   */
+  readonly site?: GeoPoint | null;
+}
+
+/** A point on the globe, in decimal degrees. */
+export interface GeoPoint {
+  /** Latitude in degrees. */
+  readonly lat: number;
+  /** Longitude in degrees. */
+  readonly lng: number;
 }
 
 /** Where {@link HeroHandle.dive} takes the camera. */
@@ -125,8 +137,9 @@ export interface AscentHandle {
 export interface HeroHandle {
   /**
    * Flies the camera from its current pose down to a top-down, north-up view of a site, centered
-   * (the globe's off-center framing blends out), while the satellite, orbit, scan overlays and
-   * atmosphere fade away and the parallax and drift stop. The camera then holds that pose.
+   * (the globe's off-center framing blends out), while the satellite, orbit and atmosphere
+   * fade away, the parallax stops and the Earth turns back from its drift. The camera then holds
+   * that pose.
    *
    * @param target - Site and handoff zoom.
    * @param options - Duration and a progress callback.
@@ -135,8 +148,8 @@ export interface HeroHandle {
   readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle;
   /**
    * Lifts the camera parked by `arriveFrom` back to the hero framing along the dive's path in
-   * reverse, converging on the live pose (parallax and drift included), so the scene's normal
-   * motion takes over seamlessly; the overlays and the globe's off-center framing come back.
+   * reverse, converging on the live pose (parallax included), so the scene's normal motion takes
+   * over seamlessly; the overlays and the globe's off-center framing come back.
    *
    * @param options - Duration and a progress callback.
    * @returns The running rise.
@@ -149,8 +162,8 @@ export interface HeroHandle {
 interface HeroQAWindow extends Window {
   __heroQA?: {
     readonly stats: () => Record<string, unknown>;
-    readonly simulate: (fromS: number, toS: number, stepS: number) => unknown[];
     readonly project: (lat: number, lng: number) => [number, number];
+    readonly setYaw: (degrees: number) => void;
     readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle;
     readonly ascend: (options?: AscentOptions) => AscentHandle;
   };
@@ -158,12 +171,15 @@ interface HeroQAWindow extends Window {
 
 // A camera trip between the hero framing and the top-down view of a site: "down" is the dive
 // (from a snapshot of the pose it left), "up" the rise (onto the live pose, recomputed into
-// `fromPosition`/`fromTarget` every frame). An "up" trip starts parked until ascend().
+// `fromPosition`/`fromTarget` every frame). An "up" trip starts parked until ascend(). `site` is
+// the site with the Earth at its starting turn: a "down" trip turns the Earth back from `yawFrom`
+// (its drift when the dive began) early on, so the end pose never depends on the drift.
 interface DiveState {
   readonly direction: "down" | "up";
   readonly fromPosition: Vector3;
   readonly fromTarget: Vector3;
   readonly site: Vector3;
+  readonly yawFrom: number;
   readonly lat: number;
   readonly zoom: number;
   // "down": overlay opacity, framing blend and glint share at the start, so a dive that begins
@@ -188,6 +204,15 @@ const lookTarget = new Vector3();
 const projected = new Vector3();
 const settledCamera = new Vector3();
 const drawingBuffer = new Vector2();
+const groundPoint = new Vector3();
+const Y_AXIS: Readonly<Vector3> = new Vector3(0, 1, 0);
+const TWO_PI = 2 * Math.PI;
+
+// Wraps an angle to (−π, π].
+function wrapAngle(radians: number): number {
+  const wrapped = radians - TWO_PI * Math.floor((radians + Math.PI) / TWO_PI);
+  return wrapped === -Math.PI ? Math.PI : wrapped;
+}
 
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const easeOutQuart = (t: number) => 1 - (1 - t) ** 4;
@@ -225,8 +250,6 @@ uniform float uTwilightTint;
 uniform vec3 uRayleigh;
 uniform vec3 uNightAmbient;
 uniform vec3 uNightTint;
-uniform vec3 uFocusDirection;
-uniform float uFocusVignette;
 uniform float uSaturation;
 uniform vec2 uTerminator;
 uniform vec3 uGlint; // roughness, gain, cap
@@ -268,8 +291,6 @@ void main() {
   color = color * (1.0 - 0.45 * air * lit) + uRayleigh * uSunGain * 0.018 * (0.35 + 1.65 * air) * lit;
   color += uRayleigh * 0.55 * pow(1.0 - nDotV, 6.0) * smoothstep(-0.15, 0.35, nDotL);
 
-  // Keep the eye on Colombia.
-  color *= mix(uFocusVignette, 1.0, smoothstep(0.55, 0.85, dot(normal, uFocusDirection)));
   color = heroShoulder(color, uShoulder.x, uShoulder.y);
 
   // Sun glint on water (GGX with Schlick Fresnel). A soft cap keeps the lobe's shape (a hard clip
@@ -355,8 +376,6 @@ function createEarthMaterial(oceanGlint: boolean): ShaderMaterial {
       uRayleigh: { value: new Color(ATMOSPHERE.rayleighColor) },
       uNightAmbient: { value: new Vector3(...EARTH.nightAmbient) },
       uNightTint: { value: new Vector3(...EARTH.nightTint) },
-      uFocusDirection: { value: COLOMBIA_DIRECTION },
-      uFocusVignette: { value: EARTH.focusVignette },
       uSaturation: { value: EARTH.saturation },
       uTerminator: { value: new Vector2(...EARTH.terminator) },
       uGlint: {
@@ -497,6 +516,17 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   const starfield = createStarfield(preset.stars, pixelRatio);
   heroRoot.add(starfield.object, atmosphere);
 
+  // The satellite's dish tracks the site (in the Earth frame, which turns), or its pass point.
+  const site = options.site ?? null;
+  const dishTarget =
+    site === null ? null : latLngToVector3(site.lat, site.lng, GLOBE_RADIUS, new Vector3());
+  // three-globe's root object (found in loadSurface): the Earth's drift turns it. The sun, orbit
+  // and camera stay in world space.
+  let earthRoot: Object3D | null = null;
+  // The Earth's turn about its axis (radians, eastward), wrapped to (−π, π].
+  let earthYaw = 0;
+  const driftRate = MathUtils.degToRad(EARTH.driftDegPerS);
+
   const earthUniforms = earthMaterial.uniforms as {
     uDayMap: { value: Texture | null };
     uWaterMask: { value: Texture | null };
@@ -505,7 +535,6 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   };
   const ownedTextures = new Set<Texture>();
   let satellite: SatelliteRig | null = null;
-  let scan: ScanEffect | null = null;
 
   // Camera rig state. `sceneTime` starts when the Earth texture is ready.
   let sceneTime = 0;
@@ -526,15 +555,15 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   const timer = new Timer();
   timer.connect(document);
   const animate = !options.reducedMotion && options.frozenTime === null;
-  // Reduced motion shows one settled frame near the scan climax (intro finished, no drift).
-  const stillTime = Math.max(timeForOrbitOffset(SCAN.stillOffsetRad), CAMERA.intro.durationS);
+  // Reduced motion shows one settled frame just before the pass (intro finished, no drift).
+  const stillTime = Math.max(timeForOrbitOffset(ORBIT.stillOffsetRad), CAMERA.intro.durationS);
 
   // View-offset shift (px) that moves the globe center to its configured screen position.
   const viewShift = { x: 0, y: 0, width: 1, height: 1 };
   // Share of that shift in use: 1 normally, blended to 0 (centered) by the dive.
   let viewBlend = 1;
   let dive: DiveState | null = null;
-  // Opacity of the satellite, orbit, scan overlays and atmosphere (the dive fades them out).
+  // Opacity of the satellite, orbit and atmosphere (the dive fades them out).
   let overlayFade = 1;
   // Coming back from the case view: parked over the site, past the intro, overlays hidden.
   const arrival = animate ? (options.arriveFrom ?? null) : null;
@@ -547,6 +576,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       fromPosition: new Vector3(),
       fromTarget: new Vector3(),
       site: latLngToVector3(arrival.lat, arrival.lng, 1, new Vector3()),
+      yawFrom: 0,
       lat: arrival.lat,
       zoom: arrival.zoom,
       fadeFrom: 1,
@@ -603,10 +633,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       Math.floor(height * pixelRatio),
     );
     satellite?.setFraming(settledCamera, height, CAMERA.fovDeg, drawingBuffer, pixelRatio);
-    scan?.setResolution(Math.max(1, container.clientWidth), height);
   }
 
-  // Places the camera for scene time `timeS`; `withMotion` adds parallax and drift.
+  // Places the camera for scene time `timeS`; `withMotion` adds the parallax.
   function poseCamera(timeS: number, withMotion: boolean): void {
     computePose(timeS, withMotion, cameraPosition, lookTarget);
     camera.position.copy(cameraPosition);
@@ -615,24 +644,20 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
 
   // The hero framing at scene time `timeS`: camera position and look-at point.
   function computePose(timeS: number, withMotion: boolean, position: Vector3, target: Vector3) {
-    const { intro, parallax, drift } = CAMERA;
+    const { intro, parallax } = CAMERA;
     const progress = MathUtils.clamp(timeS / intro.durationS, 0, 1);
     const dolly = easeInOutCubic(progress);
-    const push = withMotion ? SCAN.cameraPush * (scan?.status.push ?? 0) : 0;
-    const distance =
-      baseDistance * (1 + intro.distanceGain * (1 - easeOutQuart(progress))) * (1 - push);
+    const distance = baseDistance * (1 + intro.distanceGain * (1 - easeOutQuart(progress)));
     let lat = CAMERA.viewLatDeg * widthWeight - intro.latDeg * (1 - easeOutCubic(progress));
     let lng =
-      GEO.colombiaCentroid.lng + CAMERA.viewLngOffsetDeg * widthWeight + intro.lngDeg * (1 - dolly);
+      ORBIT.passLatLng.lng + CAMERA.viewLngOffsetDeg * widthWeight + intro.lngDeg * (1 - dolly);
     if (withMotion) {
       lng += pointer.x * parallax.lngDeg * dolly;
       lat -= pointer.y * parallax.latDeg * dolly;
-      lat += drift.latDeg * Math.sin((2 * Math.PI * timeS) / drift.latPeriodS);
-      lng += drift.lngDeg * Math.sin((2 * Math.PI * timeS) / drift.lngPeriodS + 1.1);
     }
     latLngToVector3(lat, lng, distance, position);
     target
-      .copy(COLOMBIA_DIRECTION)
+      .copy(FRAMING_AIM)
       .multiplyScalar(CAMERA.targetFactor * widthWeight * dolly * GLOBE_RADIUS);
   }
 
@@ -693,7 +718,24 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     atmosphereUniforms.uIntensity.value = ATMOSPHERE.intensity * alpha;
     atmosphere.visible = alpha > 0;
     satellite?.setFade(alpha);
-    scan?.setFade(alpha);
+  }
+
+  // Turns the Earth (three-globe's object) about its axis.
+  function setEarthYaw(radians: number): void {
+    earthYaw = wrapAngle(radians);
+    if (earthRoot !== null) {
+      earthRoot.rotation.y = earthYaw;
+    }
+  }
+
+  // three-globe's object (a direct child of the scene) holding the Earth mesh. Its shading reads
+  // world-space normals, so turning the object keeps the sun where it is.
+  function findEarthRoot(): Object3D | null {
+    let node: Object3D | null = scene.getObjectByProperty("material", earthMaterial) ?? null;
+    while (node !== null && node.parent !== scene) {
+      node = node.parent;
+    }
+    return node;
   }
 
   // Advances the dive or the rise by `frameS` seconds of wall-clock time and poses the camera.
@@ -731,6 +773,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       setOverlayFade(MathUtils.smoothstep(progress, ...ASCENT.fadeIn));
       earthGlint.y = earthGlintGain * MathUtils.smoothstep(progress, ...ASCENT.glintIn);
     } else {
+      if (state.yawFrom !== 0) {
+        setEarthYaw(state.yawFrom * (1 - MathUtils.smoothstep(progress, 0, DIVE.yawUnwindEnd)));
+      }
       setOverlayFade(state.fadeFrom * (1 - MathUtils.smoothstep(progress, 0, DIVE.fadeEnd)));
       earthGlint.y =
         state.glintFrom * earthGlintGain * (1 - MathUtils.smoothstep(progress, ...DIVE.glintFade));
@@ -772,6 +817,10 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     }
 
     if (dive === null) {
+      // The Earth drifts only while the hero is idle (a dive turns it back, a rise keeps it still).
+      if (animate && earthRoot !== null) {
+        setEarthYaw(earthYaw + driftRate * dt);
+      }
       poseCamera(sceneTime, !options.reducedMotion);
     } else {
       advanceDive(dive, frameS);
@@ -780,11 +829,11 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     starfield.update(sceneTime);
     renderer.info.reset();
     if (satellite !== null) {
-      satellite.update(sceneTime, dt, camera.position, options.reducedMotion);
-      if (!animate) {
-        scan?.snap(options.reducedMotion);
-      }
-      scan?.update(sceneTime, dt, satellite.state);
+      const ground =
+        dishTarget === null
+          ? undefined
+          : groundPoint.copy(dishTarget).applyAxisAngle(Y_AXIS, earthYaw);
+      satellite.update(sceneTime, dt, camera.position, options.reducedMotion, ground);
     }
     composer.render(dt);
     if (!readyNotified && earthUniforms.uDayMap.value !== null) {
@@ -960,28 +1009,18 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   }
 
   async function loadSurface(): Promise<void> {
-    const [day, water, rig, effect] = await Promise.allSettled([
+    const [day, water, rig] = await Promise.allSettled([
       loadTexture(preset.earthTexture, renderer, signal, "color"),
       loadTexture(EARTH_WATER_TEXTURE, renderer, signal, "data"),
       createSatellite(renderer, preset, signal, disabledEffects),
-      createScan(preset, signal, disabledEffects),
     ]);
     if (signal.aborted) {
-      for (const result of [day, water, rig, effect]) {
+      for (const result of [day, water, rig]) {
         if (result.status === "fulfilled") {
           result.value.dispose();
         }
       }
       return;
-    }
-    if (effect.status === "fulfilled") {
-      scan = effect.value;
-      heroRoot.add(...scan.objects);
-      if (overlayFade < 1) {
-        scan.setFade(overlayFade);
-      }
-    } else if (import.meta.env.DEV) {
-      console.error("[hero] Could not build the scan effect.", effect.reason);
     }
     if (rig.status === "fulfilled") {
       satellite = rig.value;
@@ -1008,7 +1047,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       earthUniforms.uWaterMask.value = adopt(water.value);
     }
 
-    // Compile every program up front, so the first pass over Colombia does not hitch.
+    // Compile every program up front, so the first pass does not hitch.
     try {
       await renderer.compileAsync(scene, camera);
     } catch {
@@ -1022,6 +1061,11 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     // sharp map, so it does not swap in visibly during the rise. (start() ignores a disposed scene.)
     if (arrival !== null) {
       await loadDetailTexture();
+    }
+    // three-globe adds its Earth mesh in a debounced digest, long done by now.
+    earthRoot = findEarthRoot();
+    if (earthRoot === null && import.meta.env.DEV) {
+      console.warn("[hero] Could not find the globe's object; the Earth will not drift.");
     }
     started = true;
     if (animate) {
@@ -1100,17 +1144,23 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     const done = new Promise<void>((settle) => {
       resolveDone = settle;
     });
+    // The further the Earth has drifted, the longer the dive, so turning it back stays gentle.
+    const yawFrom = earthYaw;
     const state: DiveState = {
       direction: "down",
       fromPosition: camera.position.clone(),
       fromTarget: lookTarget.clone(),
       site: latLngToVector3(target.lat, target.lng, 1, new Vector3()),
+      yawFrom,
       lat: target.lat,
       zoom: target.zoom,
       fadeFrom: overlayFade,
       blendFrom: viewBlend,
       glintFrom: earthGlintGain > 0 ? earthGlint.y / earthGlintGain : 1,
-      durationS: Math.max(0, diveOptions.durationS ?? DIVE.durationS),
+      durationS: Math.max(
+        0,
+        diveOptions.durationS ?? DIVE.durationS + (DIVE.yawExtraS * Math.abs(yawFrom)) / Math.PI,
+      ),
       onProgress: diveOptions.onProgress,
       elapsedS: 0,
       parked: false,
@@ -1123,6 +1173,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     if (disposed || !started || document.hidden || !onScreen || contextLost) {
       // Nothing renders (still loading, hidden, off-screen or without a context), so the dive
       // could not progress: it settles at once.
+      setEarthYaw(0);
       state.settled = true;
       state.resolve();
     } else {
@@ -1205,7 +1256,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           projected.copy(point).project(camera);
           return [((projected.x + 1) / 2) * width, ((1 - projected.y) / 2) * height];
         };
-        // Wingtip to wingtip on screen, and Colombia's on-screen bounding box.
+        // Wingtip to wingtip on screen.
         let satelliteSpanPx: number | null = null;
         if (satellite !== null) {
           const { position, attitude, scale } = satellite.state;
@@ -1214,23 +1265,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           const [bx, by] = toPixels(position.clone().sub(half));
           satelliteSpanPx = Math.hypot(ax - bx, ay - by);
         }
-        let minX = Number.POSITIVE_INFINITY;
-        let maxX = Number.NEGATIVE_INFINITY;
-        let minY = Number.POSITIVE_INFINITY;
-        let maxY = Number.NEGATIVE_INFINITY;
-        for (const ring of COLOMBIA_RINGS) {
-          for (const [lng, lat] of ring) {
-            const [x, y] = toPixels(latLngToVector3(lat, lng, GLOBE_RADIUS, new Vector3()));
-            minX = Math.min(minX, x);
-            maxX = Math.max(maxX, x);
-            minY = Math.min(minY, y);
-            maxY = Math.max(maxY, y);
-          }
-        }
         projected.set(0, 0, 0).project(camera);
         return {
           satelliteSpanPx,
-          colombiaBoxPx: [maxX - minX, maxY - minY],
           sceneTime,
           viewport: [container.clientWidth, container.clientHeight],
           globeCenterPx: [
@@ -1240,13 +1277,14 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           baseDistance,
           satelliteScale: satellite?.state.scale ?? null,
           glint: satellite?.state.glint ?? null,
-          scanPhase: scan?.status.phase ?? null,
-          scanIntensity: scan?.status.intensity ?? null,
           satelliteAngleDeg: satellite === null ? null : MathUtils.radToDeg(satellite.state.angle),
+          earthYawDeg: MathUtils.radToDeg(earthYaw),
+          earthRootFound: earthRoot !== null,
           exposure: renderer.toneMappingExposure,
           diveDirection: dive?.direction ?? null,
           diveParked: dive?.parked ?? null,
           diveProgress: dive === null ? null : dive.elapsedS / Math.max(1e-6, dive.durationS),
+          diveDurationS: dive?.durationS ?? null,
           overlayFade,
           viewBlend,
           cameraAltitude: camera.position.length() - GLOBE_RADIUS,
@@ -1254,45 +1292,27 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           triangles: renderer.info.render.triangles,
         };
       },
-      // Runs the satellite and the scan state machine over a time range without rendering, and
-      // returns the phase transitions (headless browsers render too slowly to watch a full orbit).
-      simulate: (fromS, toS, stepS) => {
-        const transitions: unknown[] = [];
-        if (satellite === null || scan === null) {
-          return transitions;
-        }
-        let previous = "";
-        for (let t = fromS; t <= toS; t += stepS) {
-          satellite.update(t, stepS, camera.position);
-          scan.update(t, stepS, satellite.state);
-          if (satellite.state.glint > 0.05) {
-            transitions.push([
-              Number(t.toFixed(2)),
-              "glint",
-              Number(satellite.state.glint.toFixed(3)),
-            ]);
-          }
-          if (scan.status.phase !== previous) {
-            previous = scan.status.phase;
-            transitions.push([
-              Number(t.toFixed(2)),
-              previous,
-              Number(scan.status.intensity.toFixed(3)),
-            ]);
-          }
-        }
-        return transitions;
-      },
       dive: startDive,
       ascend: startAscend,
-      // Screen position (CSS px) of a geographic point with the current camera.
+      // Screen position (CSS px) of a geographic point with the current camera and Earth turn.
       project: (lat, lng) => {
         camera.updateMatrixWorld();
-        projected.copy(latLngToVector3(lat, lng, GLOBE_RADIUS, new Vector3())).project(camera);
+        latLngToVector3(lat, lng, GLOBE_RADIUS, projected).applyAxisAngle(Y_AXIS, earthYaw);
+        projected.project(camera);
         return [
           ((projected.x + 1) / 2) * container.clientWidth,
           ((1 - projected.y) / 2) * container.clientHeight,
         ];
+      },
+      // Turns the Earth to a given drift (degrees), as if it had drifted that far.
+      setYaw: (degrees) => {
+        if (earthRoot === null || dive !== null) {
+          return;
+        }
+        setEarthYaw(MathUtils.degToRad(degrees));
+        if (!running && started) {
+          renderStill();
+        }
       },
     };
   }
@@ -1317,7 +1337,6 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       timer.dispose();
 
       scene.remove(heroRoot);
-      scan?.dispose();
       satellite?.dispose();
       starfield.dispose();
       atmosphere.geometry.dispose();

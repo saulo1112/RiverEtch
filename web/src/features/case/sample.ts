@@ -1,31 +1,12 @@
-// ILLUSTRATIVE SAMPLE DATA, NOT MEASURED. A deterministic stand-in for one pipeline output, so the
-// case view can be built before the Sentinel-2 / rainfall pipeline exists. The reach is a smooth
-// synthetic meander through the placeholder site, not the surveyed course of the Atrato, and every
-// number below comes from a seeded generator. The UI labels it "Illustrative sample data".
+// ILLUSTRATIVE SAMPLE DATA, NOT MEASURED: a synthetic event. A deterministic stand-in for one
+// pipeline output, so the case view can be built before the pipeline publishes its schema. The reach
+// is the real centreline of the Río Magdalena between Puerto Wilches and San Pablo
+// (reachGeometry.ts), but every NDTI and rainfall number below comes from a seeded generator. The UI
+// labels it "Illustrative sample data".
+import { REFERENCE_REACH } from "./reachGeometry.ts";
 import { CASE_SITE } from "./site.ts";
 import { mean, windowMean } from "./stats.ts";
-import type {
-  AnomalySummary,
-  CaseData,
-  LngLat,
-  NdtiScene,
-  RainfallDay,
-  ReachFeature,
-  ReachStats,
-} from "./types.ts";
-
-const METRES_PER_DEGREE = 111_320;
-
-// Reach: an axis through the site center, flowing NNW, with two superposed meanders.
-const REACH = {
-  axisLengthM: 7_650,
-  flowBearingDeg: -12,
-  meanders: [
-    { amplitudeM: 420, wavelengthM: 2_600, phase: 0.4 },
-    { amplitudeM: 140, wavelengthM: 1_150, phase: 1.7 },
-  ],
-  vertices: 121,
-} as const;
+import type { AnomalySummary, CaseData, NdtiScene, RainfallDay, ReachStats } from "./types.ts";
 
 // Sampling: points along the reach, scenes every 5 days over 60 days, the cloudy ones.
 const SAMPLES = 41;
@@ -86,49 +67,6 @@ const round = (value: number, digits: number) => Number(value.toFixed(digits));
 function smoothstep(edge0: number, edge1: number, x: number): number {
   const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
   return t * t * (3 - 2 * t);
-}
-
-function buildReach(): ReachFeature {
-  const [lng0, lat0] = CASE_SITE.center;
-  const bearing = (REACH.flowBearingDeg * Math.PI) / 180;
-  const axis = { east: Math.sin(bearing), north: Math.cos(bearing) };
-  const across = { east: axis.north, north: -axis.east };
-  const offset = (s: number) =>
-    REACH.meanders.reduce(
-      (sum, { amplitudeM, wavelengthM, phase }) =>
-        sum + amplitudeM * Math.sin((2 * Math.PI * s) / wavelengthM + phase),
-      0,
-    );
-  // Shift the meanders so the line passes exactly through the site center (s = 0).
-  const centerOffset = offset(0);
-  const metresPerDegreeLng = METRES_PER_DEGREE * Math.cos((lat0 * Math.PI) / 180);
-
-  const coordinates: LngLat[] = [];
-  let lengthM = 0;
-  let previous: { east: number; north: number } | null = null;
-  for (let i = 0; i < REACH.vertices; i += 1) {
-    // Upstream (south) to downstream (north).
-    const s = (i / (REACH.vertices - 1) - 0.5) * REACH.axisLengthM;
-    const w = offset(s) - centerOffset;
-    const east = s * axis.east + w * across.east;
-    const north = s * axis.north + w * across.north;
-    if (previous !== null) {
-      lengthM += Math.hypot(east - previous.east, north - previous.north);
-    }
-    previous = { east, north };
-    coordinates.push([
-      round(lng0 + east / metresPerDegreeLng, 6),
-      round(lat0 + north / METRES_PER_DEGREE, 6),
-    ]);
-  }
-  return {
-    type: "Feature",
-    properties: {
-      name: "Illustrative reach (not the surveyed river course)",
-      lengthM: round(lengthM, 0),
-    },
-    geometry: { type: "LineString", coordinates },
-  };
 }
 
 function buildScenes(sampleProgress: readonly number[]): NdtiScene[] {
@@ -228,7 +166,6 @@ function summarize(
 }
 
 function buildCase(): CaseData {
-  const reach = buildReach();
   const sampleProgress = Array.from({ length: SAMPLES }, (_, index) =>
     round(index / (SAMPLES - 1), 4),
   );
@@ -236,7 +173,8 @@ function buildCase(): CaseData {
   const { anomaly, stats } = summarize(samples, sampleProgress);
   return {
     site: CASE_SITE,
-    reach,
+    // Samples sit at their share of the reach's length along the real centreline.
+    reach: REFERENCE_REACH,
     sampleProgress,
     samples,
     rainfall: buildRainfall(),
@@ -248,5 +186,5 @@ function buildCase(): CaseData {
   };
 }
 
-/** Illustrative sample case for the placeholder site. Not measured; see the file header. */
+/** Illustrative sample case on the reference reach. A synthetic event; see the file header. */
 export const ILLUSTRATIVE_CASE: CaseData = buildCase();

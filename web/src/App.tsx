@@ -50,17 +50,18 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-// Fetches the map chunk early (pointer or focus on "Explore the case"); a failure retries later.
+// Fetches the map chunk early (pointer or focus on "Explore your cases" or "Open case"); a failure
+// retries later.
 function warmUp(): void {
   loadCaseMap().catch(() => undefined);
 }
 
 /**
- * Application root. "Explore the case" flies from the hero globe into the case view: the hero UI
- * fades, the globe dives to the site while the map loads hidden, the map crossfades in at the
- * handoff (the hero and its WebGL scene go), tilts onto the reach, and the panels slide in. Skip
- * or Esc jumps to the end; reduced motion, or a hero without its 3D scene, gets a short
- * crossfade instead of the dive.
+ * Application root. "Open case" (on the hero's cases screen) flies from the hero globe into the
+ * case view: the hero UI fades, the globe dives to the site while the map loads hidden, the map
+ * crossfades in at the handoff (the hero and its WebGL scene go), tilts onto the reach, and the
+ * panels slide in. Skip or Esc jumps to the end; reduced motion, or a hero without its 3D scene,
+ * gets a short crossfade instead of the dive. The way back lands on the cases screen.
  *
  * @returns The root UI of the dApp.
  */
@@ -323,6 +324,7 @@ export function App() {
           onExplore={explore}
           onWarmUp={warmUp}
           focusExplore={view === "hero" && returned}
+          initialScreen={returned ? "cases" : "entry"}
           arriveFrom={view === "returning" && returnTrip?.motion === true ? siteTarget : null}
           returning={view === "returning"}
           onSceneReady={onSceneReady}

@@ -5,9 +5,9 @@ import { Dotted } from "./Dotted.tsx";
 
 /** Icon per step. */
 const STEP_ICONS: Record<Step["id"], LucideIcon> = {
-  detect: Satellite,
+  observe: Satellite,
   explain: CloudRain,
-  prove: ShieldCheck,
+  verify: ShieldCheck,
 };
 
 /**
