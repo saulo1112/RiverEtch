@@ -13,13 +13,30 @@
 
 /*
  * Globe center on screen. The scene writes --globe-x/--globe-y from config.ts; the fallbacks
- * mirror CAMERA.globeCenterDesktop / globeCenterPortrait for the poster and the no-WebGL case.
+ * mirror CAMERA.globeCenterDesktop / globeCenterWide / globeCenterPortrait for the poster and the
+ * no-WebGL case.
  */
 .hero > * {
   --gx: var(--globe-x, 64%);
   --gy: var(--globe-y, 56%);
   /* Disc diameter, as the scene frames it (CAMERA.discFraction of the height, capped by width). */
   --d: min(72cqh, 88cqw);
+}
+
+/* Wide screens (CAMERA.globeCenterWide, blended in over CAMERA.wideAspect; the middle step
+   approximates the blend). */
+@container hero (aspect-ratio >= 1.5) {
+  .hero > * {
+    --gx: var(--globe-x, 63%);
+    --gy: var(--globe-y, 53%);
+  }
+}
+
+@container hero (aspect-ratio >= 1.6) {
+  .hero > * {
+    --gx: var(--globe-x, 62%);
+    --gy: var(--globe-y, 50%);
+  }
 }
 
 @container hero (aspect-ratio < 1) {

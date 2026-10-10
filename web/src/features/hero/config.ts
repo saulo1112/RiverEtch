@@ -159,8 +159,12 @@ export const CAMERA = {
   discFraction: 0.72,
   // Where the globe center lands on screen, as fractions of the viewport (0,0 = top-left).
   // Desktop leaves the left side to the headline (and keeps the orbit's lower-left arc clear of
-  // it); portrait screens raise the globe so the headline fits underneath. hero.css mirrors both.
+  // it); wide screens (aspect ratio from wideAspect[0], fully at wideAspect[1]) centre the globe
+  // and the headline on the screen's middle, closer together; portrait screens raise the globe so
+  // the headline fits underneath. hero.css mirrors all three.
   globeCenterDesktop: { x: 0.64, y: 0.56 },
+  globeCenterWide: { x: 0.62, y: 0.5 },
+  wideAspect: [1.4, 1.6],
   globeCenterPortrait: { x: 0.5, y: 0.3 },
   // Intro dolly-in: duration, extra distance, extra longitude and latitude it starts from.
   intro: { durationS: 3.6, distanceGain: 0.55, lngDeg: 20, latDeg: 6, exposureS: 1.4 },

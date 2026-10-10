@@ -1041,6 +1041,11 @@
     align-items: stretch;
     width: max-content;
   }
+
+  /* As narrow as the stacked buttons, so it too passes left of the orbit's arc. */
+  .hero-note {
+    max-width: 30ch;
+  }
 }
 
 @container hero (width < 1280px) or (height < 760px) {
@@ -1138,8 +1143,12 @@
     margin-inline: var(--edge-l) var(--edge-r);
   }
 
-  .hero-sub {
+  .hero-sub,
+  .hero-note {
     max-width: none;
+  }
+
+  .hero-sub {
     font-size: 16px;
   }
 

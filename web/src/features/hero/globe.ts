@@ -681,7 +681,15 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
     projected.set(0, 0, 0).project(camera);
-    const goal = aspect >= 1 ? CAMERA.globeCenterDesktop : CAMERA.globeCenterPortrait;
+    const wide = MathUtils.smoothstep(aspect, ...CAMERA.wideAspect);
+    const { globeCenterDesktop: desktop, globeCenterWide: wideCenter } = CAMERA;
+    const goal =
+      aspect >= 1
+        ? {
+            x: MathUtils.lerp(desktop.x, wideCenter.x, wide),
+            y: MathUtils.lerp(desktop.y, wideCenter.y, wide),
+          }
+        : CAMERA.globeCenterPortrait;
     viewShift.x = ((projected.x + 1) / 2 - goal.x) * width;
     viewShift.y = ((1 - projected.y) / 2 - goal.y) * height;
     viewShift.width = width;
