@@ -1,27 +1,5 @@
-// Pure helpers of the hero globe's mouse drag and "Follow satellite" (no three, no DOM), so they
-// can be unit-tested. Angles in degrees unless a name says otherwise.
-
-/**
- * Wraps an angle to (−180, 180].
- *
- * @param degrees - Any angle.
- * @returns The same direction, in (−180, 180].
- */
-export function wrapDegrees(degrees: number): number {
-  const wrapped = degrees - 360 * Math.floor((degrees + 180) / 360);
-  return wrapped === -180 ? 180 : wrapped;
-}
-
-/**
- * The signed shortest turn from one angle to another.
- *
- * @param from - Start angle.
- * @param to - End angle.
- * @returns The turn, in (−180, 180].
- */
-export function shortestDelta(from: number, to: number): number {
-  return wrapDegrees(to - from);
-}
+// Pure helpers of the hero globe's mouse drag (no three, no DOM), so they can be unit-tested.
+// Angles in degrees unless a name says otherwise.
 
 /**
  * Keeps a latitude offset such that `base + offset` stays within ±`limit`.
@@ -101,37 +79,5 @@ export function vectorToLatLng(x: number, y: number, z: number): { lat: number; 
   return {
     lat: Math.asin(Math.max(-1, Math.min(1, y / length))) * toDegrees,
     lng: Math.atan2(x, z) * toDegrees,
-  };
-}
-
-/** The framing the follow camera copies (CAMERA in config.ts and ORBIT.passLatLng). */
-export interface FollowFraming {
-  /** The camera's latitude at rest (before the width weight). */
-  readonly viewLatDeg: number;
-  /** The camera's longitude offset from the pass point (before the width weight). */
-  readonly viewLngOffsetDeg: number;
-  /** Latitude of the orbit's pass point. */
-  readonly passLatDeg: number;
-}
-
-/**
- * Where the follow camera sits for a given sub-satellite point: offset from it as the resting
- * camera is offset from the pass point, so the satellite holds its usual place on screen.
- *
- * @param subLat - Latitude under the satellite.
- * @param subLng - Longitude under the satellite.
- * @param widthWeight - The framing's width weight (narrow screens look more frontally).
- * @param framing - The resting framing.
- * @returns The camera's latitude and longitude (wrapped).
- */
-export function followCamera(
-  subLat: number,
-  subLng: number,
-  widthWeight: number,
-  framing: FollowFraming,
-): { lat: number; lng: number } {
-  return {
-    lat: subLat + framing.viewLatDeg * widthWeight - framing.passLatDeg,
-    lng: wrapDegrees(subLng + framing.viewLngOffsetDeg * widthWeight),
   };
 }
