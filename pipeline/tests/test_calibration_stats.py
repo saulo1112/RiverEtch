@@ -75,3 +75,36 @@ def test_the_fast_spearman_equals_the_reference_with_ties() -> None:
         y = (rng.integers(0, 4, size=n) + rng.normal(size=n).round(1)).tolist()
         fast, slow = stats.spearman(x, y), stats.spearman_reference(x, y)
         assert (math.isnan(fast) and math.isnan(slow)) or fast == pytest.approx(slow, abs=1e-12)
+
+
+def loop_bootstrap(
+    x: list[float], y: list[float], blocks: list[int], resamples: int, seed: int
+) -> tuple[float, float]:
+    # The first implementation: one Spearman per resample, on the concatenated pairs.
+    a, b = np.asarray(x), np.asarray(y)
+    keys = list(dict.fromkeys(blocks))
+    members = [np.flatnonzero([k == key for k in blocks]) for key in keys]
+    rng = np.random.default_rng(seed)
+    values = []
+    for _ in range(resamples):
+        chosen = rng.integers(0, len(keys), size=len(keys))
+        idx = np.concatenate([members[i] for i in chosen])
+        rho = stats.spearman(a[idx], b[idx])
+        if math.isfinite(rho):
+            values.append(rho)
+    return float(np.percentile(values, 2.5)), float(np.percentile(values, 97.5))
+
+
+@pytest.mark.parametrize("seed", [1, 2, 3])
+def test_vectorized_block_bootstrap_equals_the_loop(seed: int) -> None:
+    rng = np.random.default_rng(seed)
+    n = 40
+    x = np.round(rng.normal(size=n), 1).tolist()  # rounding makes ties
+    y = np.round(np.asarray(x) + rng.normal(scale=0.8, size=n), 1).tolist()
+    y[:3] = [1.0, 1.0, 1.0]
+    blocks = rng.integers(0, 12, size=n).tolist()  # uneven blocks, some of one pair
+    fast = stats.block_bootstrap_spearman(x, y, blocks, 2000, seed)
+    slow = loop_bootstrap(x, y, blocks, 2000, seed)
+    assert fast == pytest.approx(slow, abs=1e-12)
+    few = stats.block_bootstrap_spearman([1, 2, 3, 4], [1, 1, 1, 2], [0, 0, 1, 1], 500, seed)
+    assert few == pytest.approx(loop_bootstrap([1, 2, 3, 4], [1, 1, 1, 2], [0, 0, 1, 1], 500, seed))

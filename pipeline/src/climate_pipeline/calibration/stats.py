@@ -93,19 +93,54 @@ def block_bootstrap_spearman(
     if len(a) < 3 or len(keys) < 2:
         return math.nan, math.nan
     index = {k: i for i, k in enumerate(keys)}
-    members = [np.flatnonzero([index[k] == i for k in blocks]) for i in range(len(keys))]
+    block_of = np.array([index[k] for k in blocks], dtype=np.intp)
     rng = np.random.default_rng(seed)
-    values = []
-    for _ in range(resamples):
-        chosen = rng.integers(0, len(keys), size=len(keys))
-        idx = np.concatenate([members[i] for i in chosen])
-        rho = spearman(a[idx], b[idx])
-        if math.isfinite(rho):
-            values.append(rho)
-    if not values:
+    chosen = np.stack([rng.integers(0, len(keys), size=len(keys)) for _ in range(resamples)])
+    # A resample is a multiplicity per original pair: how often its block was drawn.
+    rows = np.repeat(np.arange(resamples), len(keys))
+    counts = np.bincount(rows * len(keys) + chosen.ravel(), minlength=resamples * len(keys))
+    weights = counts.reshape(resamples, len(keys))[:, block_of].astype(np.float64)
+    rho = _weighted_spearman(a, b, weights)
+    values = rho[np.isfinite(rho)]
+    if not values.size:
         return math.nan, math.nan
     tail = (1 - confidence) / 2 * 100
     return float(np.percentile(values, tail)), float(np.percentile(values, 100 - tail))
+
+
+def _weighted_ranks(values: np.ndarray, weights: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Average ranks of each value inside every resample (a row of multiplicities).
+
+    A value drawn ``m`` times occupies ``m`` tied positions, so in a resample its average rank is
+    (the draws of smaller values) + (the draws of equal values + 1) / 2.
+
+    Returns:
+        The ranks (resamples x values) and whether each resample has two distinct values.
+    """
+    order = np.argsort(values, kind="mergesort")
+    ordered = values[order]
+    first = np.r_[True, ordered[1:] != ordered[:-1]]
+    group = first.cumsum() - 1
+    equal = np.add.reduceat(weights[:, order], np.flatnonzero(first), axis=1)
+    less = np.cumsum(equal, axis=1) - equal
+    ranks = np.empty_like(weights)
+    ranks[:, order] = (less + (equal + 1) / 2)[:, group]
+    return ranks, (equal > 0).sum(axis=1) > 1
+
+
+def _weighted_spearman(a: np.ndarray, b: np.ndarray, weights: np.ndarray) -> np.ndarray:
+    """:func:`spearman` of every resample at once (NaN as there: < 3 draws or a constant)."""
+    ra, varied_a = _weighted_ranks(a, weights)
+    rb, varied_b = _weighted_ranks(b, weights)
+    n = weights.sum(axis=1)
+    da = ra - (weights * ra).sum(axis=1, keepdims=True) / n[:, None]
+    db = rb - (weights * rb).sum(axis=1, keepdims=True) / n[:, None]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        rho = (weights * da * db).sum(axis=1) / np.sqrt(
+            (weights * da * da).sum(axis=1) * (weights * db * db).sum(axis=1)
+        )
+    ok = (n >= 3) & varied_a & varied_b
+    return np.where(ok, np.clip(rho, -1.0, 1.0), np.nan)
 
 
 def _log_ratios(predicted: Sequence[float], observed: Sequence[float]) -> np.ndarray:
