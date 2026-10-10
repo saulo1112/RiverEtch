@@ -80,15 +80,21 @@ export const CASES = {
   listLabel: "Cases",
   announceOpen: "Your cases. Cases here are illustrative.",
   announceBack: "Start screen.",
+  externalHint: "(opens in a new tab)",
   reference: {
     title: "Magdalena · reference reach",
+    description: "A synthetic index departure on the real reach, not explained by rainfall.",
     maturityPrefix: "Maturity:",
     maturity: "Observable",
     maturityHint: "Observable: index departures only",
     synthetic: "Synthetic event · Illustrative data",
     lastScene: "Last scene (synthetic sample)",
     open: "Open case",
-    thumbnail: "Outline of the reach, upstream at the bottom",
+    // The preview (image or outline) is a second way to open the case.
+    previewLabel: "Open case: Magdalena · reference reach.",
+    imageAlt:
+      "Satellite view of the Magdalena reference reach with the reach drawn. Illustrative data.",
+    illustrative: "Illustrative data",
   },
   // Checked against docs/urra-validation: the reach label and the verdict come from urra.sample.json
   // (`ui.reachLabel`, `ui.validation`), the quote from report.md ("Result"), with the dam's name
