@@ -251,8 +251,9 @@ export const ORBIT = {
   passLatLng: { lat: 3.914, lng: -73.081 },
   // Scene time of the first pass.
   peakTimeS: 9,
-  // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp: slow over the pass point, fast on the far side.
-  warp: [0.6, 0.075],
+  // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp (slow over the pass point, fast on the far side
+  // with a > 0). [0, 0] is a uniform speed; [0.6, 0.075] was the earlier rhythm.
+  warp: [0, 0],
   // Small yaw steering, as real Earth-observation satellites do: its amplitude on a polar orbit,
   // scaled by sin(inclination).
   yawSteerDeg: 3.9,
