@@ -1,0 +1,3 @@
+# Snapshots are kept byte for byte, as fetched: IDEAM's series use CRLF line ends, and the
+# SHA-256 in the fetch manifests must match the committed files on every platform.
+* -text

@@ -10,6 +10,20 @@ Preregistration: [calibration-preregistration.md](../../calibration-preregistrat
   SHA-256 and UTC time.
 - **Subsets.** Where a file is a subset (long IDEAM series: the header plus the lines inside the
   period), the manifest's note gives the full file's size and SHA-256.
+- **Byte for byte.** IDEAM's series keep their CRLF line ends.
+  [.gitattributes](.gitattributes) turns off Git's line-end normalisation here, so the committed
+  files match the manifest's SHA-256 on every platform.
+- **CHIRPS was kept from an earlier fetch.** The final fetch ran with `--keep-chirps`, because the
+  CHIRPS server returned HTTP 500 that evening after a complete read the same day. The manifest
+  gives that file's own time and the days the server did not have yet (April–September 2026,
+  except June).
+- **Cloudy scenes have no band medians.** Bands are read only for scenes that can pass the
+  preregistered guards (deviation 4). The other rows keep their SCL statistics and have
+  `bands_read` 0.
+- **`acolite/scenes.csv`** is derived, not fetched: `climate-pipeline calibration acolite-list`
+  writes it from these snapshots and Earth Search's Level-1C items (Stage 2c).
+- **Read errors.** `imagery/read-errors.csv` must list only the permanent ones (deviation 3):
+  items of 2024-01-23 that point to a non-public bucket.
 
 ## Licence and attribution
 
