@@ -14,6 +14,7 @@ import json
 import math
 import shutil
 import tempfile
+from collections import Counter
 from collections.abc import Mapping, Sequence
 from datetime import date
 from pathlib import Path
@@ -186,6 +187,15 @@ def _incomplete(paths: CalibrationPaths, cfg: CalibrationConfig) -> list[str]:
                            "(assets in a non-public bucket; deviation 3): no data")  # fmt: skip
     if not (base / "imagery" / "acolite-windows.csv").exists():
         out.append("Stage 2c (ACOLITE) not run")
+    elif (base / "acolite" / "run-log.csv").exists():
+        with (base / "acolite" / "run-log.csv").open(encoding="utf-8") as handle:
+            log = list(csv.DictReader(handle))
+        done = sum(1 for r in log if r["status"] == "ok")
+        if done < len(log):
+            others = Counter(r["status"] for r in log if r["status"] != "ok")
+            detail = ", ".join(f"{n} {s.replace('_', ' ')}" for s, n in sorted(others.items()))
+            out.append(f"Stage 2c (ACOLITE): {done} of {len(log)} listed scenes processed "
+                       f"({detail}); its rows cover only those scenes")  # fmt: skip
     return out
 
 

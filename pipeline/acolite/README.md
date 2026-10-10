@@ -23,9 +23,14 @@ recorded as `time_box`, and the stage reports what it has.
   estimate for that box (`dsf_aot_estimate=fixed`). Pressure comes from the Copernicus DEM, since
   no NASA Earthdata account is used.
 - **Pixels:** the medians are taken over **the exact pixels the L2A medians used** (valid, not
-  glint, every band finite). Pixels that ACOLITE's water mask rejects drop out, and their count is
-  `valid_px`. The scene guards (contamination, the water-B11 check) are the L2A scene's, so both
-  corrections are compared on the same scenes and the same water.
+  glint, every band finite).
+  - The values are ACOLITE's surface reflectance (`rhos`, L2R). Where ACOLITE's water mask keeps
+    a pixel, `rhos` equals its water-leaving reflectance `rhow`.
+  - ACOLITE's own mask is not applied (deviation 5): its default threshold (top-of-atmosphere
+    1.6 µm above 0.0215) rejected 285 of 293 pixels of the turbid river in the first scene.
+  - The scene guards (contamination, the water-B11 check) are the L2A scene's, so both
+    corrections are compared on the same scenes and the same water.
+  - Every processed scene is measured again from its saved L2R file at the end of each run.
 - **Baseline:** Copernicus Data Space serves the current processing of each tile, often a
   reprocessed baseline (for example N05.10 for 2023). That is newer than the baseline behind the
   L2A item. The run log names the folder used, and `family` in the output is its baseline family.

@@ -365,3 +365,24 @@ results are accepted.
      naming the guard it failed.
    - **What was seen:** no value had been analysed. The cloud shares come from the SCL the fetch
      had already read.
+5. **2026-10-10, after the first ACOLITE scene: ACOLITE is measured on the L2A pixels, without
+   its own water mask.** The project owner left the choice to the analyst, with the aim of
+   detecting turbidity where the data allow.
+   - **What was preregistered:** Stage 2c measures ACOLITE's water-leaving reflectance (`rhow`,
+     L2W) over the L2A window pixels. Pixels that ACOLITE's default water mask rejects drop out.
+   - **What the first scene showed:** at Regidor on 2019-02-08, that mask flagged 285 of the
+     window's 293 pixels as non-water. Its rule is top-of-atmosphere reflectance at 1.6 µm above
+     0.0215, and the turbid river gave 0.0239. The correction itself ran on all 293 pixels.
+   - **Why it matters:** most turbid-river scenes would have kept fewer than 20 pixels, so Stage
+     2c would have measured only the clearer water.
+   - **The change:** the medians come from ACOLITE's surface reflectance (`rhos`, L2R) over
+     exactly the L2A pixels: SCL-valid, not glint, every band finite.
+     - Where ACOLITE's mask keeps a pixel, `rhow` equals `rhos` (difference 0 on 2,571 pixels of
+       that scene).
+     - ACOLITE's settings do not change.
+     - Both corrections are compared on the same pixels, as the design intended.
+   - **What was seen:**
+     - That scene's ACOLITE mask flags and reflectance medians. No ACOLITE value had been paired
+       with a sample.
+     - A preliminary run of the analysis on the L2A and C1 snapshots, made to check the code and
+       its runtime, had already shown the Stage 1 results of those collections.

@@ -8,11 +8,19 @@ Run it with the separate environment's Python, never the project's (README.md), 
 It reads the scene list (``acolite/scenes.csv`` under the calibration inputs), the L2A window
 rows and the pixel file written by ``climate-pipeline calibration acolite-list``. In priority
 order, it runs ACOLITE on each listed scene whose Level-1C folder is in ``pipeline/out/l1c``,
-over a box around the station, and measures ACOLITE's water-leaving reflectance over the exact
-pixels the L2A medians used. It stops starting scenes when the time box is spent (time is
-summed over reruns). It writes ``imagery/acolite-windows.csv`` (the L2A window columns; the
-scene guards are the L2A scene's, the medians ACOLITE's), ``acolite/run-log.csv`` and
-``acolite/manifest.csv`` under the inputs.
+over a box around the station. It stops starting scenes when the time box is spent (time is
+summed over reruns).
+
+The medians are ACOLITE's surface reflectance (``rhos`` in its L2R file) over the exact pixels
+the L2A medians used. Where ACOLITE's water mask keeps a pixel, ``rhos`` equals its
+water-leaving reflectance ``rhow``. Its default mask (top-of-atmosphere 1.6 um above 0.0215)
+rejects most pixels of the turbid Magdalena, so the pixels are the L2A selection (SCL and the
+glint guard) for both corrections (deviation 5).
+
+At the end of every run, every processed scene is measured again from its saved L2R file. It
+writes ``imagery/acolite-windows.csv`` (the L2A window columns; the scene guards are the L2A
+scene's, the medians ACOLITE's), ``acolite/run-log.csv`` and ``acolite/manifest.csv`` under the
+inputs.
 """
 
 from __future__ import annotations
@@ -81,16 +89,17 @@ def _median(values: np.ndarray) -> float:
     return float(np.median(finite)) if finite.size else math.nan
 
 
-def band_datasets(names: list[str]) -> dict[str, str]:
-    """Which ``rhow_<nm>`` dataset holds each band.
+def band_datasets(names: list[str], prefix: str = "rhos") -> dict[str, str]:
+    """Which ``<prefix>_<nm>`` dataset holds each band.
 
     Args:
-        names: The L2W file's dataset names.
+        names: The file's dataset names.
+        prefix: ``rhos`` (L2R) or ``rhow`` (L2W).
 
     Returns:
         Band -> dataset name.
     """
-    waves = {n: int(n.split("_")[1]) for n in names if n.startswith("rhow_") and
+    waves = {n: int(n.split("_")[1]) for n in names if n.startswith(f"{prefix}_") and
              n.split("_")[1].isdigit()}  # fmt: skip
     out = {}
     for band, nominal in NOMINAL.items():
@@ -100,12 +109,12 @@ def band_datasets(names: list[str]) -> dict[str, str]:
     return out
 
 
-def measure(l2w: Path, station: dict[str, Any], pixels: list[list[int]], rg_floor: float,
+def measure(path: Path, station: dict[str, Any], pixels: list[list[int]], rg_floor: float,
             ) -> dict[str, float]:  # fmt: skip
     """ACOLITE medians over the L2A water pixels of one window.
 
     Args:
-        l2w: ACOLITE's L2W NetCDF.
+        path: ACOLITE's L2R NetCDF (``rhos``).
         station: The station grid (``epsg``, ``x0``, ``y0``, ``resolution``).
         pixels: Row and column of each L2A water pixel on that grid.
         rg_floor: The screening's red+green floor for the per-pixel NDTI.
@@ -115,7 +124,7 @@ def measure(l2w: Path, station: dict[str, Any], pixels: list[list[int]], rg_floo
     """
     netcdf4 = importlib.import_module("netCDF4")
     pyproj = importlib.import_module("pyproj")
-    with netcdf4.Dataset(l2w) as nc:
+    with netcdf4.Dataset(path) as nc:
         attrs = {k: nc.getncattr(k) for k in nc.ncattrs()}
         names = list(nc.variables)
         x = np.ma.filled(np.ma.asarray(nc.variables["x"][:], dtype=float), np.nan)
@@ -171,6 +180,45 @@ def _csv(rows: list[dict[str, Any]], columns: tuple[str, ...]) -> bytes:
     return out.getvalue().encode("utf-8")
 
 
+def remeasure(
+    scenes: list[dict[str, str]],
+    state: dict[str, Any],
+    work: Path,
+    pixel_file: dict[str, Any],
+    l2a: dict[tuple[str, str], dict[str, str]],
+) -> list[dict[str, Any]]:
+    """The rows of every processed scene, measured from its saved L2R file, in priority order.
+
+    Args:
+        scenes: The scene list.
+        state: The runner's state (status and Level-1C folder per scene).
+        work: The work folder (``runs/<station>_<key>``).
+        pixel_file: Station grids and L2A water pixels.
+        l2a: The L2A 300 m window rows.
+
+    Returns:
+        One row per scene with ``ok`` status and a saved L2R file.
+    """
+    pixels = {(s["station"], s["key"]): s["pixels"] for s in pixel_file["scenes"]}
+    rows = []
+    for scene in scenes:
+        sid = f"{scene['station']}|{scene['key']}"
+        entry = state.get(sid, {})
+        if entry.get("status") != "ok":
+            continue
+        l2r = sorted((work / "runs" / sid.replace("|", "_")).glob("*_L2R.nc"))
+        if not l2r:
+            print(f"{sid}: no saved L2R file, left out", flush=True)
+            continue
+        where = (scene["station"], scene["key"])
+        stats = measure(l2r[0], pixel_file["stations"][scene["station"]], pixels[where],
+                        pixel_file["rg_floor"])  # fmt: skip
+        rows.append({"station": scene["station"], "collection": "acolite", "key": scene["key"],
+                     "family": family(Path(entry.get("note", ""))), "window": "300m",
+                     **{k: l2a[where][k] for k in COPIED}, **stats})  # fmt: skip
+    return rows
+
+
 def main() -> int:
     """Run ACOLITE on the downloaded scenes, within the time box.
 
@@ -200,7 +248,6 @@ def main() -> int:
     settings_path = here / "settings.txt"
     settings = ac.acolite.settings.read(str(settings_path))
     pixel_file = json.loads((args.work / "pixels.json").read_text(encoding="utf-8"))
-    pixels = {(s["station"], s["key"]): s["pixels"] for s in pixel_file["scenes"]}
     with (inputs / "imagery" / "windows-sentinel-2-l2a.csv").open(encoding="utf-8") as handle:
         l2a = {(r["station"], r["key"]): r for r in csv.DictReader(handle) if r["window"] == "300m"}
     with (inputs / "acolite" / "scenes.csv").open(encoding="utf-8") as handle:
@@ -235,25 +282,16 @@ def main() -> int:
                "limit": [round(lat - d, 5), round(lon - d, 5), round(lat + d, 5),
                          round(lon + d, 5)]}  # fmt: skip
         t0 = time.monotonic()
-        status, note, row = "ok", "", None
+        status, note = "ok", ""
         try:
             ac.acolite.acolite_run(settings=run)
-            l2w = sorted(out.glob("*_L2W.nc"))
-            if not l2w:
-                status, note = "no_l2w", "ACOLITE wrote no L2W file"
-            else:
-                where = (scene["station"], scene["key"])
-                grid = pixel_file["stations"][scene["station"]]
-                stats = measure(l2w[0], grid, pixels[where], pixel_file["rg_floor"])
-                base = l2a[where]
-                row = {"station": scene["station"], "collection": "acolite", "key": scene["key"],
-                       "family": family(folder), "window": "300m",
-                       **{k: base[k] for k in COPIED}, **stats}  # fmt: skip
+            if not sorted(out.glob("*_L2R.nc")):
+                status, note = "no_l2r", "ACOLITE wrote no L2R file"
         except Exception as error:  # one scene's failure is recorded, not fatal
             status, note = "failed", f"{type(error).__name__}: {error}"[:300]
         seconds = round(time.monotonic() - t0, 1)
         spent += seconds
-        state[sid] = {"status": status, "seconds": seconds, "note": note or folder.name, "row": row}
+        state[sid] = {"status": status, "seconds": seconds, "note": note or folder.name}
         state_path.write_text(json.dumps(state, indent=1), encoding="utf-8")
         took = f"{status} in {seconds:.0f} s (spent {spent / 60:.0f} min)"
         print(f"{scene['priority']} {sid}: {took}", flush=True)
@@ -267,8 +305,7 @@ def main() -> int:
             shutil.rmtree(folder, ignore_errors=True)
     state_path.write_text(json.dumps(state, indent=1), encoding="utf-8")
     order = {f"{s['station']}|{s['key']}": s for s in scenes}
-    rows = [v["row"] for k, v in state.items() if v.get("row") and k in order]
-    rows.sort(key=lambda r: int(order[f"{r['station']}|{r['key']}"]["priority"]))
+    rows = remeasure(scenes, state, args.work, pixel_file, l2a)
     log = [{"priority": s["priority"], "station": s["station"], "key": s["key"],
             "l1c_folder": state.get(k, {}).get("note", ""),
             "status": state.get(k, {}).get("status", "not_started"),
