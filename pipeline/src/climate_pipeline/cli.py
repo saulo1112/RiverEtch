@@ -102,6 +102,10 @@ def _parser() -> argparse.ArgumentParser:
         "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
     )
     calibration.add_argument("--stations-only", action="store_true", help="fetch: selection only")
+    calibration.add_argument(
+        "--keep-chirps", action="store_true",
+        help="fetch: keep the CHIRPS snapshot already in the inputs (its file time is recorded)",
+    )  # fmt: skip
     calibration.add_argument("--workers", type=int, default=8)
     calibration.add_argument(
         "--out", type=Path, default=None, help="run: results folder (default: from the config)"
@@ -312,7 +316,7 @@ def calibration(args: argparse.Namespace) -> int:
             selected = sum(1 for r in rows if r.get("selected"))
             print(f"{len(rows)} candidates, {selected} selected")
             return 0
-        counts = fetch_values(cfg, paths, args.workers)
+        counts = fetch_values(cfg, paths, args.workers, keep_chirps=args.keep_chirps)
         print(f"snapshots: {counts}")
         return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "acolite-list":

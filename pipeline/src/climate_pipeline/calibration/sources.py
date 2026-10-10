@@ -73,6 +73,27 @@ class Recorder:
         )  # fmt: skip
         return path
 
+    def keep(self, relative: str, url: str, note: str) -> bytes:
+        """Record a snapshot already in the inputs folder, as fetched earlier.
+
+        Its fetch time is the file's modification time.
+
+        Args:
+            relative: Path inside the inputs folder.
+            url: Where it came from.
+            note: Why it was kept.
+
+        Returns:
+            Its bytes.
+        """
+        path = self.root / relative
+        body = path.read_bytes()
+        when = datetime.fromtimestamp(path.stat().st_mtime, UTC).isoformat(timespec="seconds")
+        self.records.append(
+            Snapshot(relative, url, 200, len(body), hashlib.sha256(body).hexdigest(), when, note)
+        )
+        return body
+
     def fail(self, url: str, error: object) -> None:
         """Record an input that could not be fetched.
 

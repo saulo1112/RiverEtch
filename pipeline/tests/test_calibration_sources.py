@@ -27,6 +27,19 @@ def test_recorder_writes_snapshots_and_a_sorted_manifest(tmp_path: Path) -> None
     assert rows[0]["note"] == "failed: timeout" and rec.failures == ["https://x.test/3: timeout"]
 
 
+def test_recorder_keeps_an_earlier_snapshot_with_its_file_time(tmp_path: Path) -> None:
+    import os
+
+    (tmp_path / "rain").mkdir()
+    (tmp_path / "rain" / "kept.csv").write_bytes(b"1")
+    os.utime(tmp_path / "rain" / "kept.csv", (1_760_000_000, 1_760_000_000))
+    rec = sources.Recorder(tmp_path)
+    assert rec.keep("rain/kept.csv", "https://x.test/k", "kept") == b"1"
+    row = next(csv.DictReader(io.StringIO(rec.manifest())))
+    assert row["path"] == "rain/kept.csv" and row["fetched_utc"] == "2025-10-09T08:53:20+00:00"
+    assert row["sha256"].startswith("6b86b273") and row["note"] == "kept"
+
+
 def test_period_lines_keep_the_header_and_the_period_verbatim() -> None:
     body = (b"fechaObservacion,valorObservado,nivelAprobacion\r\n"
             b"2018-01-01 00:00:00,1.5,900\r\n2019-03-02 00:00:00,2,900\r\n"

@@ -259,6 +259,7 @@ def fetch_values(
     workers: int,
     http: httpx.Client | None = None,
     chirps_reader: Callable[[str, list[tuple[float, float]]], list[float]] = sample_points,
+    keep_chirps: bool = False,
 ) -> dict[str, int]:
     """Snapshot every value the analysis needs, for the frozen station list.
 
@@ -268,6 +269,8 @@ def fetch_values(
         workers: Parallel reads.
         http: HTTP client (injectable).
         chirps_reader: CHIRPS point reader (injectable).
+        keep_chirps: Keep the CHIRPS snapshot already in the inputs (recorded with its file
+            time) instead of reading the server again.
 
     Returns:
         Counts: snapshots, failures, imagery read errors.
@@ -316,10 +319,17 @@ def fetch_values(
             rec.save(f"rain/open-meteo/{point_id}.json", body, url)
         except httpx.HTTPError as error:
             rec.fail(cfg.climate.open_meteo, f"{point_id}: {error}")
-    chirps_rows, failed = sources.chirps_days(cfg.climate.chirps_template, grid, *period,
-                                              chirps_reader, workers)  # fmt: skip
-    rec.save("rain/chirps-daily.csv", _csv(chirps_rows, ["date", *[p[0] for p in grid]]),
-             cfg.climate.chirps_template, note=f"{len(failed)} days unreadable")  # fmt: skip
+    if keep_chirps and (inputs / "rain" / "chirps-daily.csv").exists():
+        kept = (inputs / "rain" / "chirps-daily.csv").read_text(encoding="utf-8")
+        empty = sum(1 for line in kept.splitlines()[1:] if "" in line.split(",")[1:])
+        rec.keep("rain/chirps-daily.csv", cfg.climate.chirps_template,
+                 f"kept from an earlier fetch (the server failed on the rerun); {empty} days "
+                 "unreadable")  # fmt: skip
+    else:
+        chirps_rows, failed = sources.chirps_days(cfg.climate.chirps_template, grid, *period,
+                                                  chirps_reader, workers)  # fmt: skip
+        rec.save("rain/chirps-daily.csv", _csv(chirps_rows, ["date", *[p[0] for p in grid]]),
+                 cfg.climate.chirps_template, note=f"{len(failed)} days unreadable")  # fmt: skip
     try:
         rec.save("climate/oni.ascii.txt", sources.get(client, cfg.climate.enso.oni_url),
                  cfg.climate.enso.oni_url)  # fmt: skip
