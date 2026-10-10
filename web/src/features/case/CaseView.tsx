@@ -1,5 +1,5 @@
-// The case view: a MapLibre map of the study site under night shades, with the alert, legend and
-// timeline panels. In a flythrough it mounts hidden at the top-down handoff pose, crossfades in over
+// The case view: a MapLibre map of the study site under night shades, with the case file (alert),
+// legend, record and timeline panels and the optional wallet in the corner. In a flythrough it mounts hidden at the top-down handoff pose, crossfades in over
 // the globe on `go`, tilts onto the reach, draws the river and slides the panels in. The map module
 // is loaded on demand (loadMap.ts) and created once per mount, StrictMode double mounts included.
 import "@fontsource-variable/inter-tight";
@@ -10,12 +10,14 @@ import "./case.css";
 import { useEffect, useEffectEvent, useRef, useState, type CSSProperties } from "react";
 
 import { cubicBezier } from "../../lib/easing.ts";
+import { WalletControl } from "../wallet/WalletControl.tsx";
 import { FLIGHT, IMAGERY, MAP_LOOK, RETURN, TERRAIN } from "./config.ts";
 import { CASE_COPY } from "./content.ts";
 import { loadCaseMap } from "./loadMap.ts";
 import type { CaseMapHandle, FinalFrame } from "./map.ts";
 import { AlertCard } from "./panels/AlertCard.tsx";
 import { Legend } from "./panels/Legend.tsx";
+import { RecordPanel } from "./panels/RecordPanel.tsx";
 import { Timeline } from "./panels/Timeline.tsx";
 import { markFlight } from "./qa.ts";
 import type { CaseData } from "./types.ts";
@@ -27,7 +29,7 @@ import type { CaseData } from "./types.ts";
 export type CaseEntrance = "flight" | "direct";
 
 /**
- * How the case view leaves on "Back to the globe": `flight` slides the panels out, retracts the
+ * How the case view leaves on "Back to your cases": `flight` slides the panels out, retracts the
  * river and eases the map back to the top-down handoff pose; `fade` just waits to fade out
  * (reduced motion).
  */
@@ -53,7 +55,7 @@ export interface CaseViewProps {
   readonly onCrossfaded?: () => void;
   /** Landed: final pose, river and panels shown, focus on the site heading. */
   readonly onLanded?: () => void;
-  /** Called by "Back to the globe". */
+  /** Called by "Back to your cases". */
   readonly onBack: () => void;
   /** The way back has started (null: staying). */
   readonly exit?: CaseExit | null;
@@ -151,8 +153,8 @@ function wantsStubTiles(): boolean {
 }
 
 /**
- * Full-viewport case view: the map of the site, the alert, legend and timeline panels and the map
- * attribution. It stays inert until it has landed.
+ * Full-viewport case view: the map of the site, the case file, legend, record and timeline panels,
+ * the wallet corner and the map attribution. It stays inert until it has landed.
  *
  * @returns The case view.
  */
@@ -425,7 +427,14 @@ export function CaseView({
       ) : null}
       <div className="case-view__panels">
         <AlertCard data={data} headingRef={headingRef} onBack={onBack} />
-        <Legend />
+        <div className="case-side">
+          {/* Outside the panels' frame (finalFrame): on phones it sits on the Back row. */}
+          <div className="case-corner">
+            <WalletControl variant="corner" />
+          </div>
+          <Legend />
+          <RecordPanel />
+        </div>
         <Timeline data={data} />
       </div>
       <p className="case-view__attribution">

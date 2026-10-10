@@ -50,17 +50,18 @@ function prefersReducedMotion(): boolean {
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
-// Fetches the map chunk early (pointer or focus on "Explore the case"); a failure retries later.
+// Fetches the map chunk early (pointer or focus on "Explore your cases" or "Open case"); a failure
+// retries later.
 function warmUp(): void {
   loadCaseMap().catch(() => undefined);
 }
 
 /**
- * Application root. "Explore the case" flies from the hero globe into the case view: the hero UI
- * fades, the globe dives to the site while the map loads hidden, the map crossfades in at the
- * handoff (the hero and its WebGL scene go), tilts onto the reach, and the panels slide in. Skip
- * or Esc jumps to the end; reduced motion, or a hero without its 3D scene, gets a short
- * crossfade instead of the dive.
+ * Application root. "Open case" (on the hero's cases screen) flies from the hero globe into the
+ * case view: the hero UI fades, the globe dives to the site while the map loads hidden, the map
+ * crossfades in at the handoff (the hero and its WebGL scene go), tilts onto the reach, and the
+ * panels slide in. Skip or Esc jumps to the end; reduced motion, or a hero without its 3D scene,
+ * gets a short crossfade instead of the dive. The way back lands on the cases screen.
  *
  * @returns The root UI of the dApp.
  */
@@ -243,12 +244,15 @@ export function App() {
   };
 
   const onSceneReady = () => {
-    // Only the way back waits for the scene (StrictMode may report it twice).
-    if (view !== "returning" || tripRef.current.heroReady) {
+    // Only the way back waits for the scene (StrictMode may report it twice). A skip, or a hero
+    // that was too slow, may already have shown the hero UI: the scene still has to rise from its
+    // parked pose, so the current trip's first ready counts whatever the view.
+    const trip = tripRef.current;
+    if (!returned || trip.heroReady || trip.id !== flightCount.current) {
       return;
     }
     markFlight("hero-ready");
-    tripRef.current.heroReady = true;
+    trip.heroReady = true;
     setHeroReady(true);
     startAscent();
   };
@@ -259,8 +263,8 @@ export function App() {
     trip.fadedOut = true;
     setFlight(null);
     if (!trip.heroReady) {
-      // The hero was too slow (its wait ran out): the CSS globe shows, the UI comes back now, and
-      // the scene fades in already on its framing when it is ready, as on a first visit.
+      // The hero was too slow (its wait ran out): the CSS globe shows and the UI comes back now;
+      // when the scene is ready, onSceneReady finishes its ascent at once (trip.skip).
       markFlight("hero-late");
       trip.skip = true;
       setView("hero");
@@ -320,6 +324,7 @@ export function App() {
           onExplore={explore}
           onWarmUp={warmUp}
           focusExplore={view === "hero" && returned}
+          initialScreen={returned ? "cases" : "entry"}
           arriveFrom={view === "returning" && returnTrip?.motion === true ? siteTarget : null}
           returning={view === "returning"}
           onSceneReady={onSceneReady}

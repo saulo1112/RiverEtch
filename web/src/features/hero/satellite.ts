@@ -1,5 +1,5 @@
 // Procedural Earth-observation satellite (variant A: gold bus, two solar wings, a dish) on a
-// low-inclination orbit over Colombia, plus its fading trail and orbit ring. Units: globe radius 100.
+// low-inclination orbit, plus its fading trail and orbit ring. Units: globe radius 100.
 import {
   AdditiveBlending,
   AmbientLight,
@@ -40,9 +40,7 @@ import {
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { mergeGeometries } from "three/addons/utils/BufferGeometryUtils.js";
 
-import { COLOMBIA_DIRECTION, COLOMBIA_SURFACE_POINT } from "./colombia.ts";
 import {
-  GEO,
   GLOBE_RADIUS,
   ORBIT,
   SATELLITE,
@@ -52,6 +50,7 @@ import {
   type QualityPreset,
   type SatelliteVariant,
 } from "./config.ts";
+import { PASS_SURFACE_POINT } from "./geo.ts";
 import { SHOULDER_GLSL } from "./shaders.ts";
 import {
   createCellTextures,
@@ -64,19 +63,20 @@ import {
 } from "./textures.ts";
 
 // ---------------------------------------------------------------------------------------------
-// Orbit. The Earth is static, so the orbit is fixed in the Earth frame and every pass crosses
-// Colombia. Frame: +Y north, longitude 0 on +Z, 90°E on +X (three-globe's convention).
+// Orbit, fixed in world space and placed so its slowest pass peaks over ORBIT.passLatLng (a
+// framing anchor) with the Earth at its starting turn. Frame: +Y north, longitude 0 on +Z, 90°E on
+// +X (three-globe's convention).
 
 const inclination = MathUtils.degToRad(ORBIT.inclinationDeg);
-const centroidLat = MathUtils.degToRad(GEO.colombiaCentroid.lat);
-// Argument of latitude over Colombia: the ascending solution of sin(lat) = sin(i)·sin(u). From the
-// camera (south-east of Colombia) the descending solution lies almost edge-on and collapses into a
-// line; the ascending one is an open ellipse crossed left to right.
-const colombiaAngle = Math.asin(Math.sin(centroidLat) / Math.sin(inclination));
-// Longitude of the ascending node that puts that point on Colombia's centroid.
+const passLat = MathUtils.degToRad(ORBIT.passLatLng.lat);
+// Argument of latitude at the pass point: the ascending solution of sin(lat) = sin(i)·sin(u). From
+// the camera (south-east of the pass) the descending solution lies almost edge-on and collapses
+// into a line; the ascending one is an open ellipse crossed left to right.
+const passAngle = Math.asin(Math.sin(passLat) / Math.sin(inclination));
+// Longitude of the ascending node that puts that point on the pass point.
 const nodeLng =
-  MathUtils.degToRad(GEO.colombiaCentroid.lng) -
-  Math.atan2(Math.cos(inclination) * Math.sin(colombiaAngle), Math.cos(colombiaAngle));
+  MathUtils.degToRad(ORBIT.passLatLng.lng) -
+  Math.atan2(Math.cos(inclination) * Math.sin(passAngle), Math.cos(passAngle));
 const equatorDirection = (lng: number) => new Vector3(Math.sin(lng), 0, Math.cos(lng));
 
 /** Unit vector to the orbit's ascending node. */
@@ -90,12 +90,12 @@ export const ORBIT_NORMAL: Readonly<Vector3> = new Vector3()
   .crossVectors(ORBIT_NODE, ORBIT_QUADRATURE)
   .normalize();
 
-/** Orbit angle (argument of latitude, radians) at which the satellite is over Colombia. */
-export const COLOMBIA_ORBIT_ANGLE = colombiaAngle;
+/** Orbit angle (argument of latitude, radians) at which the satellite is over its pass point. */
+export const PASS_ORBIT_ANGLE = passAngle;
 
 /**
- * Orbit angle at a scene time. A dual-harmonic warp slows the satellite down over Colombia and
- * speeds it up on the far side, while staying monotonic.
+ * Orbit angle at a scene time. A dual-harmonic warp slows the satellite down over its pass point
+ * and speeds it up on the far side, while staying monotonic.
  *
  * @param timeS - Scene time in seconds.
  * @returns The argument of latitude in radians.
@@ -106,21 +106,21 @@ export function orbitAngle(timeS: number): number {
   const [first, second] = ORBIT.warp;
   const theta =
     2 * Math.PI * p - first * Math.sin(2 * Math.PI * p) + second * Math.sin(4 * Math.PI * p);
-  return colombiaAngle + theta;
+  return passAngle + theta;
 }
 
 /**
- * Scene time within the first orbit at which the satellite is `offset` radians past Colombia
+ * Scene time within the first orbit at which the satellite is `offset` radians past its pass point
  * (negative: before the pass). Inverts the time warp numerically.
  *
- * @param offset - Orbit angle relative to the pass over Colombia, in radians.
+ * @param offset - Orbit angle relative to the pass, in radians.
  * @returns A scene time in seconds.
  */
 export function timeForOrbitOffset(offset: number): number {
   let best = 0;
   let bestError = Number.POSITIVE_INFINITY;
   for (let t = 0; t < ORBIT.periodS; t += 0.005) {
-    const delta = orbitAngle(t) - colombiaAngle - offset;
+    const delta = orbitAngle(t) - passAngle - offset;
     const error = Math.abs(Math.atan2(Math.sin(delta), Math.cos(delta)));
     if (error < bestError) {
       bestError = error;
@@ -1034,7 +1034,7 @@ function createOrbitRibbon(samples: number): Mesh {
 // ---------------------------------------------------------------------------------------------
 // Rig: pose, solar-array drive, eclipse and lights, updated every frame.
 
-/** Per-frame satellite state shared with the scan effect. */
+/** Per-frame satellite state. */
 export interface SatelliteState {
   /** Current orbit angle (radians). */
   angle: number;
@@ -1065,8 +1065,15 @@ export interface SatelliteRig {
    * @param dt - Frame time in seconds (already clamped).
    * @param cameraPosition - Current camera position, for the rim light and the glint.
    * @param still - Reduced-motion still: steady nav lights, no glint.
+   * @param groundPoint - Surface point (world space) the dish tracks; defaults to the pass point.
    */
-  readonly update: (timeS: number, dt: number, cameraPosition: Vector3, still?: boolean) => void;
+  readonly update: (
+    timeS: number,
+    dt: number,
+    cameraPosition: Vector3,
+    still?: boolean,
+    groundPoint?: Readonly<Vector3>,
+  ) => void;
   /**
    * Re-derives the on-screen size after a resize.
    *
@@ -1292,7 +1299,7 @@ export async function createSatellite(
 
   // Panel glint: a cant and an array offset that put the sun's reflection on the camera once per
   // orbit, while the satellite is high in the frame against black space.
-  const glintAngle = colombiaAngle + MathUtils.degToRad(SATELLITE.glint.orbitOffsetDeg);
+  const glintAngle = passAngle + MathUtils.degToRad(SATELLITE.glint.orbitOffsetDeg);
   let glintCant = 0;
   let glintOffset = 0;
   // Solved in the satellite's own frame (yaw steering included), from the settled camera.
@@ -1339,11 +1346,17 @@ export async function createSatellite(
   const maxArrayRate = MathUtils.degToRad(SATELLITE.sada.maxDegPerS);
   const maxDishRate = MathUtils.degToRad(SATELLITE.dish.maxDegPerS);
   const maxDishElevation = MathUtils.degToRad(SATELLITE.dish.maxElevationDeg);
-  // Colombia is below the satellite's horizon beyond this angle from the nadir.
+  // A ground point is below the satellite's horizon beyond this angle from the nadir.
   const horizonAngle = Math.acos(GLOBE_RADIUS / ORBIT.radius);
   const inverseMount = model.dishMount.quaternion.clone().invert();
 
-  function update(timeS: number, dt: number, cameraPosition: Vector3, still = false): void {
+  function update(
+    timeS: number,
+    dt: number,
+    cameraPosition: Vector3,
+    still = false,
+    groundPoint: Readonly<Vector3> = PASS_SURFACE_POINT,
+  ): void {
     const angle = orbitAngle(timeS);
     state.angle = angle;
     orbitDirection(angle, radial);
@@ -1370,12 +1383,12 @@ export async function createSatellite(
     const sweep = MathUtils.degToRad(glintConfig.sweepDeg) * fromGlint;
     const arrayTarget = sunTrack + (glintOffset + sweep) * feather;
 
-    // Dish: track Colombia while it is above the horizon, otherwise stow.
+    // Dish: track the ground point while it is above the horizon, otherwise stow.
     let azimuthTarget = 0;
     let elevationTarget = 0;
-    if (radial.angleTo(COLOMBIA_DIRECTION) < horizonAngle) {
+    if (radial.angleTo(groundPoint) < horizonAngle) {
       dishTarget
-        .subVectors(COLOMBIA_SURFACE_POINT, state.position)
+        .subVectors(groundPoint, state.position)
         .normalize()
         .applyQuaternion(inverseAttitude)
         .applyQuaternion(inverseMount);
@@ -1503,8 +1516,8 @@ export async function createSatellite(
     drawingBuffer: Vector2,
     pixelRatio: number,
   ): void {
-    // Size the model so its span reads at the target pixel size over Colombia.
-    orbitDirection(colombiaAngle, scratchPosition).multiplyScalar(ORBIT.radius);
+    // Size the model so its span reads at the target pixel size over the pass point.
+    orbitDirection(passAngle, scratchPosition).multiplyScalar(ORBIT.radius);
     const distance = scratchPosition.distanceTo(referenceCamera);
     const pixelsPerUnit =
       viewportHeight / (2 * distance * Math.tan(MathUtils.degToRad(fovDeg / 2)));

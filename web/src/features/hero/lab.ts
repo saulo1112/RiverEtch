@@ -32,7 +32,7 @@ export interface SatelliteLabOptions {
 
 /**
  * Mounts the satellite inspection lab. URL flags: `u=<deg>` freezes the orbit angle relative to
- * the pass over Colombia, `spin=1` runs the real orbit, `px=<n>` frames the span at n pixels,
+ * the pass, `spin=1` runs the real orbit, `px=<n>` frames the span at n pixels,
  * `cam=x,y,z` sets the initial camera offset in the satellite's frame.
  *
  * @param container - Element that receives the canvas.

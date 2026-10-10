@@ -1,0 +1,174 @@
+/*
+ * Wallet control (profile menu and case-view corner). Colors and type come from the shared tokens
+ * (styles/tokens.css), which both the hero overlay and the case view define.
+ */
+
+.wallet {
+  font-family: var(--font-text);
+}
+
+.wallet:focus {
+  outline: none;
+}
+
+.wallet :focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.wallet__dot {
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.wallet__address {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+/* Menu: a heading, then one action or the connection's details. */
+.wallet--menu {
+  display: grid;
+  gap: 10px;
+}
+
+.wallet__heading {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 0;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.wallet__optional {
+  color: var(--text-3);
+  letter-spacing: 0.08em;
+}
+
+.wallet__details {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.wallet__detail {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.wallet__detail dt {
+  color: var(--text-3);
+}
+
+.wallet__detail dd {
+  margin: 0;
+  color: var(--text-1);
+}
+
+.wallet__network {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.wallet__button {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  margin: 0;
+  padding-inline: 14px;
+  border: 1px solid rgb(240 246 255 / 0.22);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-1);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease),
+    background-color 160ms var(--ease);
+}
+
+.wallet__button:hover:not(:disabled) {
+  border-color: rgb(240 246 255 / 0.36);
+  background-color: rgb(255 255 255 / 0.05);
+}
+
+.wallet__button:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* Corner: one 36 px button, ghost when disconnected, quiet when connected. */
+.wallet--corner {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.wallet__corner {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+  max-width: 100%;
+  height: 36px;
+  margin: 0;
+  padding-inline: 12px 14px;
+  overflow: hidden;
+  border: 1px solid rgb(240 246 255 / 0.2);
+  border-radius: 10px;
+  background: rgb(8 14 32 / 0.55);
+  color: var(--text-1);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    border-color 160ms var(--ease),
+    background-color 160ms var(--ease);
+}
+
+.wallet__corner:hover {
+  border-color: rgb(240 246 255 / 0.34);
+  background-color: rgb(8 14 32 / 0.75);
+}
+
+.wallet__corner--connected {
+  border-color: rgb(240 246 255 / 0.1);
+  color: var(--text-2);
+}
+
+.wallet__corner-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wallet--corner[data-status="loading"] .wallet__corner {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wallet__button,
+  .wallet__corner {
+    transition: none;
+  }
+}

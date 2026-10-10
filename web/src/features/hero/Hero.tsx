@@ -1,17 +1,21 @@
 import "./hero.css";
+import "./drag.css";
 
 import {
   useEffect,
   useEffectEvent,
   useId,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
   type Ref,
 } from "react";
 
+import { REFERENCE_REACH_CENTER } from "../case/reachGeometry.ts";
 import { parseHeroUrlOptions, type HeroUrlOptions } from "./config.ts";
+import { HeroControlsContext, type HeroControls } from "./controls.ts";
 import type {
   AscentHandle,
   AscentOptions,
@@ -20,7 +24,7 @@ import type {
   DiveTarget,
   HeroHandle,
 } from "./globe.ts";
-import { HeroUi } from "./ui/HeroUi.tsx";
+import { HeroUi, type HeroScreen } from "./ui/HeroUi.tsx";
 
 /** What the hero exposes to its parent (through `ref`). */
 export interface HeroApi {
@@ -48,12 +52,14 @@ export interface HeroProps {
   readonly ref?: Ref<HeroApi>;
   /** The flythrough has started: the UI fades out and takes no input; the scene keeps rendering. */
   readonly leaving?: boolean;
-  /** "Explore the case": starts the flythrough. */
+  /** "Open case": starts the flythrough. */
   readonly onExplore?: () => void;
-  /** The pointer or the focus reached "Explore the case": warm up the case view. */
+  /** The pointer or the focus reached a control leading to the case: warm up the case view. */
   readonly onWarmUp?: () => void;
-  /** Focus "Explore the case" (back from the case view, once the UI shows again). */
+  /** Focus "Open case" (back from the case view, once the UI shows again). */
   readonly focusExplore?: boolean;
+  /** The UI's first screen (read on mount only): the cases after the way back. */
+  readonly initialScreen?: HeroScreen;
   /**
    * Mount parked at the top-down view of this site (the way back from the case view): no intro,
    * the camera held until `HeroApi.ascend`. Read on mount only.
@@ -105,10 +111,14 @@ function getReducedMotion(): boolean {
   return window.matchMedia(reducedMotionQuery).matches;
 }
 
+// The reference reach (the only case that opens): the satellite's dish tracks it. Nothing marks it.
+const REACH_SITE = { lat: REFERENCE_REACH_CENTER[1], lng: REFERENCE_REACH_CENTER[0] };
+
 /**
- * Full-viewport hero: a lit 3D Earth with a satellite scanning Colombia, over a starfield, with the
- * UI overlay on top. Falls back to a CSS planet when WebGL2 is unavailable. Its scene can dive to
- * a site for the flythrough into the case view.
+ * Full-viewport hero: a lit 3D Earth, slowly turning, with a satellite on its orbit, over a
+ * starfield, with the UI overlay on top. A mouse drag turns the globe, and "Follow satellite"
+ * makes the camera track the satellite. Falls back to a CSS planet when WebGL2 is unavailable. Its
+ * scene can dive to a site for the flythrough into the case view.
  *
  * @returns The hero section.
  */
@@ -118,6 +128,7 @@ export function Hero({
   onExplore,
   onWarmUp,
   focusExplore,
+  initialScreen,
   arriveFrom = null,
   returning = false,
   onSceneReady,
@@ -136,6 +147,9 @@ export function Hero({
   const [readyKey, setReadyKey] = useState<string | null>(null);
   const [failed, setFailed] = useState(!environment.webgl2);
   const status: HeroStatus = failed ? "fallback" : readyKey === mountKey ? "ready" : "loading";
+  // "Follow satellite", off by default; the scene turns it off itself on a drag or a dive.
+  const [follow, setFollow] = useState(false);
+  const sceneShown = status === "ready" && !lab;
 
   useImperativeHandle(
     ref,
@@ -151,6 +165,23 @@ export function Hero({
   const notifySceneReady = useEffectEvent(() => {
     onSceneReady?.();
   });
+  const followTurnedOff = useEffectEvent(() => {
+    setFollow(false);
+  });
+
+  // The globe can be dragged only while it shows and no flight is on; it follows the satellite
+  // only when asked and with motion allowed. Re-applied once a (re-)mounted scene is ready.
+  useEffect(() => {
+    sceneRef.current?.setInteractive(sceneShown && !leaving && !returning);
+  }, [sceneShown, leaving, returning]);
+  useEffect(() => {
+    sceneRef.current?.setFollow(sceneShown && follow && !reducedMotion && !leaving);
+  }, [sceneShown, follow, reducedMotion, leaving]);
+
+  const controls = useMemo<HeroControls>(
+    () => ({ available: sceneShown, reducedMotion, follow, setFollow }),
+    [sceneShown, reducedMotion, follow],
+  );
   useEffect(() => {
     if (status !== "loading") {
       notifySceneReady();
@@ -198,6 +229,12 @@ export function Hero({
               onReady,
               onError: fail,
               arriveFrom: arrival,
+              site: REACH_SITE,
+              onFollowChange: (on) => {
+                if (!on) {
+                  followTurnedOff();
+                }
+              },
             });
             sceneRef.current = scene;
             dispose = scene.dispose;
@@ -230,19 +267,20 @@ export function Hero({
       {/* Decorative layers: the scene and its CSS stand-ins carry no information. */}
       <div className="hero__sky" aria-hidden="true" />
       <div className="hero__poster" aria-hidden="true">
-        <div className="hero__planet">
-          <span className="hero__marker" />
-        </div>
+        <div className="hero__planet" />
       </div>
       <div className="hero__stage" ref={stageRef} aria-hidden="true" />
       <div className="hero__vignette" aria-hidden="true" />
-      <HeroUi
-        titleId={titleId}
-        leaving={leaving || returning}
-        onExplore={onExplore}
-        onWarmUp={onWarmUp}
-        focusExplore={focusExplore}
-      />
+      <HeroControlsContext value={controls}>
+        <HeroUi
+          titleId={titleId}
+          leaving={leaving || returning}
+          onExplore={onExplore}
+          onWarmUp={onWarmUp}
+          focusExplore={focusExplore}
+          initialScreen={initialScreen}
+        />
+      </HeroControlsContext>
     </section>
   );
 }

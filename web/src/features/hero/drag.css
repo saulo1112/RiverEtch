@@ -1,0 +1,20 @@
+/*
+ * Mouse drag on the hero globe (globe.ts writes data-hero-drag while dragging is allowed): a grab
+ * cursor over the scene, never over the overlay, whose text takes its own presses so a drag
+ * never starts on it.
+ */
+.hero[data-hero-drag="idle"] {
+  cursor: grab;
+}
+
+.hero[data-hero-drag="dragging"] {
+  cursor: grabbing;
+}
+
+.hero[data-hero-drag] > .hero-ui {
+  cursor: auto;
+}
+
+.hero-ui :is(.hero-copy, .hero-steps, .hero-chip, .hero-attribution) {
+  pointer-events: auto;
+}
