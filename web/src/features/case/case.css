@@ -362,7 +362,8 @@
   min-height: 0;
 }
 
-/* Optional wallet (features/wallet): one 36 px button, never wider than the column. */
+/* Optional wallet (features/wallet): one 36 px button on the column's right edge. It may grow
+   left, over the map, past the column's width, so "Wallet connected" and the address stay whole. */
 .case-corner {
   --i: 1;
   --from: 16px 0;
@@ -370,6 +371,7 @@
   display: flex;
   justify-content: flex-end;
   min-width: 0;
+  margin-left: -80px;
 }
 
 .case-top {
@@ -895,6 +897,7 @@
     top: var(--pad-y);
     right: var(--pad-x);
     max-width: calc(100% - 2 * var(--pad-x) - 200px);
+    margin-left: 0;
   }
 
   .case-corner .wallet__corner--connected .wallet__corner-label {
