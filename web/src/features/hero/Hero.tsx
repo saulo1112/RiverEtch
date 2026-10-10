@@ -1,10 +1,12 @@
 import "./hero.css";
+import "./drag.css";
 
 import {
   useEffect,
   useEffectEvent,
   useId,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
   useSyncExternalStore,
@@ -13,6 +15,7 @@ import {
 
 import { REFERENCE_REACH_CENTER } from "../case/reachGeometry.ts";
 import { parseHeroUrlOptions, type HeroUrlOptions } from "./config.ts";
+import { HeroControlsContext, type HeroControls } from "./controls.ts";
 import type {
   AscentHandle,
   AscentOptions,
@@ -113,8 +116,9 @@ const REACH_SITE = { lat: REFERENCE_REACH_CENTER[1], lng: REFERENCE_REACH_CENTER
 
 /**
  * Full-viewport hero: a lit 3D Earth, slowly turning, with a satellite on its orbit, over a
- * starfield, with the UI overlay on top. Falls back to a CSS planet when WebGL2 is unavailable. Its scene can dive to
- * a site for the flythrough into the case view.
+ * starfield, with the UI overlay on top. A mouse drag turns the globe, and "Follow satellite"
+ * makes the camera track the satellite. Falls back to a CSS planet when WebGL2 is unavailable. Its
+ * scene can dive to a site for the flythrough into the case view.
  *
  * @returns The hero section.
  */
@@ -143,6 +147,9 @@ export function Hero({
   const [readyKey, setReadyKey] = useState<string | null>(null);
   const [failed, setFailed] = useState(!environment.webgl2);
   const status: HeroStatus = failed ? "fallback" : readyKey === mountKey ? "ready" : "loading";
+  // "Follow satellite", off by default; the scene turns it off itself on a drag or a dive.
+  const [follow, setFollow] = useState(false);
+  const sceneShown = status === "ready" && !lab;
 
   useImperativeHandle(
     ref,
@@ -158,6 +165,23 @@ export function Hero({
   const notifySceneReady = useEffectEvent(() => {
     onSceneReady?.();
   });
+  const followTurnedOff = useEffectEvent(() => {
+    setFollow(false);
+  });
+
+  // The globe can be dragged only while it shows and no flight is on; it follows the satellite
+  // only when asked and with motion allowed. Re-applied once a (re-)mounted scene is ready.
+  useEffect(() => {
+    sceneRef.current?.setInteractive(sceneShown && !leaving && !returning);
+  }, [sceneShown, leaving, returning]);
+  useEffect(() => {
+    sceneRef.current?.setFollow(sceneShown && follow && !reducedMotion && !leaving);
+  }, [sceneShown, follow, reducedMotion, leaving]);
+
+  const controls = useMemo<HeroControls>(
+    () => ({ available: sceneShown, reducedMotion, follow, setFollow }),
+    [sceneShown, reducedMotion, follow],
+  );
   useEffect(() => {
     if (status !== "loading") {
       notifySceneReady();
@@ -206,6 +230,11 @@ export function Hero({
               onError: fail,
               arriveFrom: arrival,
               site: REACH_SITE,
+              onFollowChange: (on) => {
+                if (!on) {
+                  followTurnedOff();
+                }
+              },
             });
             sceneRef.current = scene;
             dispose = scene.dispose;
@@ -242,14 +271,16 @@ export function Hero({
       </div>
       <div className="hero__stage" ref={stageRef} aria-hidden="true" />
       <div className="hero__vignette" aria-hidden="true" />
-      <HeroUi
-        titleId={titleId}
-        leaving={leaving || returning}
-        onExplore={onExplore}
-        onWarmUp={onWarmUp}
-        focusExplore={focusExplore}
-        initialScreen={initialScreen}
-      />
+      <HeroControlsContext value={controls}>
+        <HeroUi
+          titleId={titleId}
+          leaving={leaving || returning}
+          onExplore={onExplore}
+          onWarmUp={onWarmUp}
+          focusExplore={focusExplore}
+          initialScreen={initialScreen}
+        />
+      </HeroControlsContext>
     </section>
   );
 }

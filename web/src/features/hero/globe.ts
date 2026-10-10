@@ -30,9 +30,11 @@ import {
   ATMOSPHERE,
   CAMERA,
   DIVE,
+  DRAG,
   EARTH,
   EARTH_NIGHT_TEXTURE,
   EARTH_WATER_TEXTURE,
+  FOLLOW,
   GLOBE_RADIUS,
   ORBIT,
   POST,
@@ -42,9 +44,25 @@ import {
   type QualityName,
 } from "./config.ts";
 import { divePose } from "./dive.ts";
-import { FRAMING_AIM, latLngToVector3 } from "./geo.ts";
+import {
+  clampLatitudeOffset,
+  decayVelocity,
+  followCamera,
+  idleFactor,
+  shortestDelta,
+  smoothVelocity,
+  vectorToLatLng,
+  wrapDegrees,
+} from "./drag.ts";
+import { latLngToVector3 } from "./geo.ts";
 import { handoffFrame } from "./handoff.ts";
-import { createSatellite, timeForOrbitOffset, type SatelliteRig } from "./satellite.ts";
+import {
+  createSatellite,
+  orbitAngle,
+  orbitDirection,
+  timeForOrbitOffset,
+  type SatelliteRig,
+} from "./satellite.ts";
 import { DITHER_GLSL, SHOULDER_GLSL } from "./shaders.ts";
 import { createStarfield } from "./starfield.ts";
 import { createFallbackEarthTexture, loadTexture } from "./textures.ts";
@@ -76,6 +94,8 @@ export interface MountHeroOptions {
    * there), or null to track the orbit's pass point.
    */
   readonly site?: GeoPoint | null;
+  /** Called when the scene turns "Follow satellite" off itself (a drag, or a dive starting). */
+  readonly onFollowChange?: (on: boolean) => void;
 }
 
 /** A point on the globe, in decimal degrees. */
@@ -155,6 +175,21 @@ export interface HeroHandle {
    * @returns The running rise.
    */
   readonly ascend: (options?: AscentOptions) => AscentHandle;
+  /**
+   * Allows or blocks the mouse drag (blocked during flights and while the scene is not shown); a
+   * drag in progress, and its inertia, stop at once.
+   *
+   * @param enabled - Whether the globe can be dragged.
+   */
+  readonly setInteractive: (enabled: boolean) => void;
+  /**
+   * Starts or stops "Follow satellite": the camera tracks the point under the satellite. Ignored
+   * without animation (reduced motion) and during a flight. Stopping leaves the camera where it is,
+   * and it eases back to the framing once the globe is left alone.
+   *
+   * @param on - Whether to follow.
+   */
+  readonly setFollow: (on: boolean) => void;
   /** Stops the scene and releases every GPU resource; safe to call more than once. */
   readonly dispose: () => void;
 }
@@ -164,6 +199,7 @@ interface HeroQAWindow extends Window {
     readonly stats: () => Record<string, unknown>;
     readonly project: (lat: number, lng: number) => [number, number];
     readonly setYaw: (degrees: number) => void;
+    readonly setSceneTime: (seconds: number) => void;
     readonly dive: (target: DiveTarget, options?: DiveOptions) => DiveHandle;
     readonly ascend: (options?: AscentOptions) => AscentHandle;
   };
@@ -173,13 +209,16 @@ interface HeroQAWindow extends Window {
 // (from a snapshot of the pose it left), "up" the rise (onto the live pose, recomputed into
 // `fromPosition`/`fromTarget` every frame). An "up" trip starts parked until ascend(). `site` is
 // the site with the Earth at its starting turn: a "down" trip turns the Earth back from `yawFrom`
-// (its drift when the dive began) early on, so the end pose never depends on the drift.
+// (its drift or drag when the dive began) early on, and swings the camera back from `cameraYawFrom`
+// (its longitude offset from the framing, after "Follow satellite") along its latitude, so the end
+// pose never depends on either and the swing never crosses a pole.
 interface DiveState {
   readonly direction: "down" | "up";
   readonly fromPosition: Vector3;
   readonly fromTarget: Vector3;
   readonly site: Vector3;
   readonly yawFrom: number;
+  readonly cameraYawFrom: number;
   readonly lat: number;
   readonly zoom: number;
   // "down": overlay opacity, framing blend and glint share at the start, so a dive that begins
@@ -205,6 +244,10 @@ const projected = new Vector3();
 const settledCamera = new Vector3();
 const drawingBuffer = new Vector2();
 const groundPoint = new Vector3();
+const diveFrom = new Vector3();
+const satelliteDirection = new Vector3();
+// The framing's latitude, longitude and distance before the user's offsets (see frame()).
+const framed = { lat: 0, lng: 0, distance: 0 };
 const Y_AXIS: Readonly<Vector3> = new Vector3(0, 1, 0);
 const TWO_PI = 2 * Math.PI;
 
@@ -527,6 +570,27 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   let earthYaw = 0;
   const driftRate = MathUtils.degToRad(EARTH.driftDegPerS);
 
+  // Mouse drag and "Follow satellite". A horizontal drag turns the Earth; the camera keeps offsets
+  // from the framing (degrees): latitude from a vertical drag, longitude left behind by following.
+  let interactive = false;
+  let dragId: number | null = null;
+  const dragLast = { x: 0, y: 0, timeStamp: 0 };
+  // Inertia after a release: the Earth's turn (rad/s) and the camera's latitude (degrees/s).
+  const velocity = { yaw: 0, lat: 0 };
+  // Seconds since the last drag and its inertia ended (Infinity before any drag: idle already).
+  let idleS = Number.POSITIVE_INFINITY;
+  const user = { lat: 0, lng: 0 };
+  let follow = false;
+  let followBlend = 0;
+  const followFraming = {
+    viewLatDeg: CAMERA.viewLatDeg,
+    viewLngOffsetDeg: CAMERA.viewLngOffsetDeg,
+    passLatDeg: ORBIT.passLatLng.lat,
+  };
+  // The globe's radius on screen (CSS px): a drag turns the surface about as fast as the pointer.
+  let radiusPx = 1;
+  let stillQueued = false;
+
   const earthUniforms = earthMaterial.uniforms as {
     uDayMap: { value: Texture | null };
     uWaterMask: { value: Texture | null };
@@ -577,6 +641,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       fromTarget: new Vector3(),
       site: latLngToVector3(arrival.lat, arrival.lng, 1, new Vector3()),
       yawFrom: 0,
+      cameraYawFrom: 0,
       lat: arrival.lat,
       zoom: arrival.zoom,
       fadeFrom: 1,
@@ -604,9 +669,10 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     const tanHalfFov = Math.tan(MathUtils.degToRad(CAMERA.fovDeg / 2));
     const tanAngular = Math.min(CAMERA.discFraction * tanHalfFov, 0.88 * tanHalfFov * aspect);
     baseDistance = GLOBE_RADIUS / Math.sin(Math.atan(tanAngular));
+    radiusPx = Math.max(1, (height / 2) * (tanAngular / tanHalfFov));
 
     // Project the globe center from the settled pose, then shift the view so it lands on the goal.
-    poseCamera(Number.POSITIVE_INFINITY, false);
+    poseCamera(Number.POSITIVE_INFINITY, false, false);
     settledCamera.copy(camera.position);
     camera.near = CAMERA.near;
     camera.far = CAMERA.far;
@@ -635,30 +701,147 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     satellite?.setFraming(settledCamera, height, CAMERA.fovDeg, drawingBuffer, pixelRatio);
   }
 
-  // Places the camera for scene time `timeS`; `withMotion` adds the parallax.
-  function poseCamera(timeS: number, withMotion: boolean): void {
-    computePose(timeS, withMotion, cameraPosition, lookTarget);
+  // Places the camera for scene time `timeS`; `withMotion` adds the parallax, `withUser` the drag's
+  // and follow's offsets.
+  function poseCamera(timeS: number, withMotion: boolean, withUser: boolean): void {
+    computePose(timeS, withMotion, withUser, cameraPosition, lookTarget);
     camera.position.copy(cameraPosition);
     camera.lookAt(lookTarget);
   }
 
-  // The hero framing at scene time `timeS`: camera position and look-at point.
-  function computePose(timeS: number, withMotion: boolean, position: Vector3, target: Vector3) {
+  // The framing's own latitude, longitude and distance at scene time `timeS` (into `framed`).
+  function frame(timeS: number, withMotion: boolean): void {
     const { intro, parallax } = CAMERA;
     const progress = MathUtils.clamp(timeS / intro.durationS, 0, 1);
     const dolly = easeInOutCubic(progress);
-    const distance = baseDistance * (1 + intro.distanceGain * (1 - easeOutQuart(progress)));
-    let lat = CAMERA.viewLatDeg * widthWeight - intro.latDeg * (1 - easeOutCubic(progress));
-    let lng =
+    framed.distance = baseDistance * (1 + intro.distanceGain * (1 - easeOutQuart(progress)));
+    framed.lat = CAMERA.viewLatDeg * widthWeight - intro.latDeg * (1 - easeOutCubic(progress));
+    framed.lng =
       ORBIT.passLatLng.lng + CAMERA.viewLngOffsetDeg * widthWeight + intro.lngDeg * (1 - dolly);
     if (withMotion) {
-      lng += pointer.x * parallax.lngDeg * dolly;
-      lat -= pointer.y * parallax.latDeg * dolly;
+      framed.lng += pointer.x * parallax.lngDeg * dolly;
+      framed.lat -= pointer.y * parallax.latDeg * dolly;
     }
-    latLngToVector3(lat, lng, distance, position);
-    target
-      .copy(FRAMING_AIM)
-      .multiplyScalar(CAMERA.targetFactor * widthWeight * dolly * GLOBE_RADIUS);
+  }
+
+  // Where following puts the camera at scene time `timeS`: offset from the point under the
+  // satellite as the resting camera is from the pass point.
+  function followTarget(timeS: number): { lat: number; lng: number } {
+    orbitDirection(orbitAngle(timeS), satelliteDirection);
+    const under = vectorToLatLng(satelliteDirection.x, satelliteDirection.y, satelliteDirection.z);
+    return followCamera(under.lat, under.lng, widthWeight, followFraming);
+  }
+
+  // The camera's latitude and longitude with the user's offsets and the follow blend.
+  function userLatLng(timeS: number): { lat: number; lng: number } {
+    let lat = framed.lat + user.lat;
+    let lng = framed.lng + user.lng;
+    if (followBlend > 0) {
+      const target = followTarget(timeS);
+      lat = MathUtils.lerp(lat, target.lat, followBlend);
+      lng += shortestDelta(lng, target.lng) * followBlend;
+    }
+    return { lat: MathUtils.clamp(lat, -DRAG.latLimitDeg, DRAG.latLimitDeg), lng };
+  }
+
+  // The hero pose at scene time `timeS`: camera position, and the globe center to look at (the
+  // view offset puts that center at its place on screen).
+  function computePose(
+    timeS: number,
+    withMotion: boolean,
+    withUser: boolean,
+    position: Vector3,
+    target: Vector3,
+  ) {
+    frame(timeS, withMotion);
+    const { lat, lng } = withUser ? userLatLng(timeS) : framed;
+    latLngToVector3(lat, lng, framed.distance, position);
+    target.set(0, 0, 0);
+  }
+
+  // Stops following and leaves the camera where it is: the blend folds into the user's offsets,
+  // which ease back to the framing once the globe has been left alone a while.
+  function bakeFollow(): void {
+    if (followBlend > 0) {
+      frame(sceneTime, !options.reducedMotion);
+      const { lat, lng } = userLatLng(sceneTime);
+      user.lat = clampLatitudeOffset(framed.lat, lat - framed.lat, DRAG.latLimitDeg);
+      user.lng = wrapDegrees(lng - framed.lng);
+    }
+    follow = false;
+    followBlend = 0;
+    idleS = 0;
+  }
+
+  // One frame of the idle behaviour: drag inertia, then (after a pause) the Earth's drift and the
+  // camera easing back to the framing; and the follow blend.
+  function stepInteraction(dt: number): void {
+    const coasting = velocity.yaw !== 0 || velocity.lat !== 0;
+    if (dragId === null && coasting) {
+      if (earthRoot !== null) {
+        setEarthYaw(earthYaw + velocity.yaw * dt);
+      }
+      const next = user.lat + velocity.lat * dt;
+      user.lat = clampLatitudeOffset(CAMERA.viewLatDeg * widthWeight, next, DRAG.latLimitDeg);
+      velocity.yaw = decayVelocity(velocity.yaw, DRAG.inertiaDamping, dt, DRAG.minYawSpeed);
+      velocity.lat =
+        user.lat === next
+          ? decayVelocity(velocity.lat, DRAG.inertiaDamping, dt, DRAG.minLatSpeed)
+          : 0;
+    } else if (dragId === null) {
+      idleS += dt;
+    }
+    const resume =
+      dragId === null && !coasting ? idleFactor(idleS, DRAG.idleResumeS, DRAG.resumeRampS) : 0;
+    if (resume > 0) {
+      if (earthRoot !== null) {
+        setEarthYaw(earthYaw + driftRate * dt * resume);
+      }
+      if (!follow) {
+        user.lat = MathUtils.damp(user.lat, 0, DRAG.returnRate * resume, dt);
+        user.lng = MathUtils.damp(user.lng, 0, DRAG.returnRate * resume, dt);
+      }
+    }
+    followBlend = MathUtils.damp(followBlend, follow ? 1 : 0, FOLLOW.blendRate, dt);
+  }
+
+  // Ends a drag; with `coast`, the turn carries on and slows down (never under reduced motion).
+  function finishDrag(coast: boolean): void {
+    const id = dragId;
+    dragId = null;
+    if (id !== null && cssTarget.hasPointerCapture(id)) {
+      cssTarget.releasePointerCapture(id);
+    }
+    if (!coast) {
+      velocity.yaw = 0;
+      velocity.lat = 0;
+    }
+    idleS = 0;
+    syncDragCursor();
+  }
+
+  // The grab cursor (drag.css) shows only while the globe can be dragged.
+  function syncDragCursor(): void {
+    if (interactive && !disposed) {
+      cssTarget.dataset.heroDrag = dragId === null ? "idle" : "dragging";
+    } else {
+      delete cssTarget.dataset.heroDrag;
+    }
+  }
+
+  // Without animation (reduced motion, a frozen time) frames render on demand, one per animation
+  // frame at most.
+  function requestStill(): void {
+    if (stillQueued || running || !started || disposed) {
+      return;
+    }
+    stillQueued = true;
+    requestAnimationFrame(() => {
+      stillQueued = false;
+      if (!disposed && !running) {
+        renderFrame(undefined);
+      }
+    });
   }
 
   // globe.gl's debounced digests reset `far` (from its sky radius) and clear the view offset;
@@ -748,7 +931,13 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     // k: how far along from the hero framing (0) to the top-down view (1).
     const k = up ? 1 - ascentEase(progress) : diveEase(progress);
     if (up) {
-      computePose(sceneTime, !options.reducedMotion, state.fromPosition, state.fromTarget);
+      computePose(sceneTime, !options.reducedMotion, true, state.fromPosition, state.fromTarget);
+    }
+    // The camera swings back along its latitude first, then the dive's great circle starts there.
+    let from = state.fromPosition;
+    if (!up && state.cameraYawFrom !== 0) {
+      const turn = state.cameraYawFrom * MathUtils.smoothstep(progress, 0, DIVE.yawUnwindEnd);
+      from = diveFrom.copy(state.fromPosition).applyAxisAngle(Y_AXIS, -turn);
     }
     const { distance } = handoffFrame(
       state.zoom,
@@ -757,15 +946,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       Math.max(1, container.clientHeight),
       CAMERA.fovDeg,
     );
-    divePose(
-      k,
-      state.fromPosition,
-      state.fromTarget,
-      state.site,
-      distance,
-      cameraPosition,
-      lookTarget,
-    );
+    divePose(k, from, state.fromTarget, state.site, distance, cameraPosition, lookTarget);
     camera.position.copy(cameraPosition);
     camera.lookAt(lookTarget);
     viewBlend = up ? 1 - k : state.blendFrom * (1 - k);
@@ -818,10 +999,10 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
 
     if (dive === null) {
       // The Earth drifts only while the hero is idle (a dive turns it back, a rise keeps it still).
-      if (animate && earthRoot !== null) {
-        setEarthYaw(earthYaw + driftRate * dt);
+      if (animate) {
+        stepInteraction(dt);
       }
-      poseCamera(sceneTime, !options.reducedMotion);
+      poseCamera(sceneTime, !options.reducedMotion, true);
     } else {
       advanceDive(dive, frameS);
     }
@@ -973,8 +1154,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     window.addEventListener(
       "pointermove",
       (event) => {
-        // Touch and pen drags scroll the page; only a hovering mouse steers the parallax.
-        if (event.pointerType !== "mouse") {
+        // Touch and pen drags scroll the page; only a hovering mouse steers the parallax, and not
+        // while it drags the globe.
+        if (event.pointerType !== "mouse" || dragId !== null) {
           return;
         }
         const rect = cssTarget.getBoundingClientRect();
@@ -1002,6 +1184,88 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       { passive: true, signal },
     );
   }
+
+  // Mouse drag on the scene, wherever the overlay leaves it (the overlay's controls, panels and text
+  // take their own presses). Reduced motion keeps the drag, without inertia or drift.
+  const onOverlay = (target: EventTarget | null) =>
+    target instanceof Element && target.closest(".hero-ui") !== null;
+  cssTarget.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (
+        !interactive ||
+        dive !== null ||
+        dragId !== null ||
+        event.pointerType !== "mouse" ||
+        event.button !== 0 ||
+        onOverlay(event.target)
+      ) {
+        return;
+      }
+      // No text selection, no focus change.
+      event.preventDefault();
+      if (follow || followBlend > 0) {
+        bakeFollow();
+        options.onFollowChange?.(false);
+      }
+      dragId = event.pointerId;
+      try {
+        cssTarget.setPointerCapture(event.pointerId);
+      } catch {
+        // The pointer is already gone (or synthetic): the drag still ends on its pointerup.
+      }
+      dragLast.x = event.clientX;
+      dragLast.y = event.clientY;
+      dragLast.timeStamp = event.timeStamp;
+      velocity.yaw = 0;
+      velocity.lat = 0;
+      idleS = 0;
+      syncDragCursor();
+    },
+    { signal },
+  );
+  cssTarget.addEventListener(
+    "pointermove",
+    (event) => {
+      if (event.pointerId !== dragId) {
+        return;
+      }
+      const dt = Math.max(0.001, (event.timeStamp - dragLast.timeStamp) / 1000);
+      // Moving the pointer by the globe's radius turns the surface by about a radian.
+      const yaw = (event.clientX - dragLast.x) / radiusPx;
+      const lat = MathUtils.radToDeg((event.clientY - dragLast.y) / radiusPx);
+      dragLast.x = event.clientX;
+      dragLast.y = event.clientY;
+      dragLast.timeStamp = event.timeStamp;
+      if (earthRoot !== null) {
+        setEarthYaw(earthYaw + yaw);
+      }
+      user.lat = clampLatitudeOffset(
+        CAMERA.viewLatDeg * widthWeight,
+        user.lat + lat,
+        DRAG.latLimitDeg,
+      );
+      const { velocitySmoothingS: smoothing } = DRAG;
+      velocity.yaw = MathUtils.clamp(smoothVelocity(velocity.yaw, yaw / dt, dt, smoothing), -4, 4);
+      velocity.lat = MathUtils.clamp(
+        smoothVelocity(velocity.lat, lat / dt, dt, smoothing),
+        -240,
+        240,
+      );
+      requestStill();
+    },
+    { signal },
+  );
+  const endDrag = (event: PointerEvent) => {
+    if (event.pointerId !== dragId) {
+      return;
+    }
+    // A release while still moving coasts; a pause before letting go does not.
+    finishDrag(animate && event.type === "pointerup" && event.timeStamp - dragLast.timeStamp < 80);
+  };
+  cssTarget.addEventListener("pointerup", endDrag, { signal });
+  cssTarget.addEventListener("pointercancel", endDrag, { signal });
+  cssTarget.addEventListener("lostpointercapture", endDrag, { signal });
 
   function adopt(texture: Texture): Texture {
     ownedTextures.add(texture);
@@ -1125,10 +1389,21 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   void loadNightLights();
 
   function startDive(target: DiveTarget, diveOptions: DiveOptions = {}): DiveHandle {
-    // Start from exactly the pose of the last frame (motion included).
-    if (dive === null) {
-      poseCamera(sceneTime, !options.reducedMotion);
+    // No drag, inertia or following during a flight; the dive starts from exactly the pose of the
+    // last frame (motion, drag and following included).
+    if (dragId !== null) {
+      finishDrag(false);
     }
+    velocity.yaw = 0;
+    velocity.lat = 0;
+    if (dive === null) {
+      if (follow || followBlend > 0) {
+        bakeFollow();
+        options.onFollowChange?.(false);
+      }
+      poseCamera(sceneTime, !options.reducedMotion, true);
+    }
+    const cameraYawFrom = dive === null ? MathUtils.degToRad(wrapDegrees(user.lng)) : 0;
     const { zoom } = handoffFrame(
       target.zoom,
       target.lat,
@@ -1152,6 +1427,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       fromTarget: lookTarget.clone(),
       site: latLngToVector3(target.lat, target.lng, 1, new Vector3()),
       yawFrom,
+      cameraYawFrom,
       lat: target.lat,
       zoom: target.zoom,
       fadeFrom: overlayFade,
@@ -1159,7 +1435,9 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       glintFrom: earthGlintGain > 0 ? earthGlint.y / earthGlintGain : 1,
       durationS: Math.max(
         0,
-        diveOptions.durationS ?? DIVE.durationS + (DIVE.yawExtraS * Math.abs(yawFrom)) / Math.PI,
+        diveOptions.durationS ??
+          DIVE.durationS +
+            (DIVE.yawExtraS * (Math.abs(yawFrom) + Math.abs(cameraYawFrom))) / Math.PI,
       ),
       onProgress: diveOptions.onProgress,
       elapsedS: 0,
@@ -1279,6 +1557,14 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           glint: satellite?.state.glint ?? null,
           satelliteAngleDeg: satellite === null ? null : MathUtils.radToDeg(satellite.state.angle),
           earthYawDeg: MathUtils.radToDeg(earthYaw),
+          userLatDeg: user.lat,
+          userLngDeg: user.lng,
+          follow,
+          followBlend,
+          interactive,
+          dragging: dragId !== null,
+          inertia: [velocity.yaw, velocity.lat],
+          cameraLatLng: vectorToLatLng(camera.position.x, camera.position.y, camera.position.z),
           earthRootFound: earthRoot !== null,
           exposure: renderer.toneMappingExposure,
           diveDirection: dive?.direction ?? null,
@@ -1304,6 +1590,10 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           ((1 - projected.y) / 2) * container.clientHeight,
         ];
       },
+      // Jumps the scene clock (the orbit) without rendering; the next frame picks it up.
+      setSceneTime: (seconds) => {
+        sceneTime = seconds;
+      },
       // Turns the Earth to a given drift (degrees), as if it had drifted that far.
       setYaw: (degrees) => {
         if (earthRoot === null || dive !== null) {
@@ -1320,6 +1610,27 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   return {
     dive: startDive,
     ascend: startAscend,
+    setInteractive(enabled) {
+      interactive = enabled && !disposed;
+      if (!interactive) {
+        if (dragId !== null) {
+          finishDrag(false);
+        }
+        velocity.yaw = 0;
+        velocity.lat = 0;
+      }
+      syncDragCursor();
+    },
+    setFollow(on) {
+      if (on === follow) {
+        return;
+      }
+      if (!on) {
+        bakeFollow();
+      } else if (animate && dive === null && !disposed) {
+        follow = true;
+      }
+    },
     dispose(): void {
       if (disposed) {
         return;
@@ -1329,6 +1640,11 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
         dive.settled = true;
         dive.resolve();
       }
+      if (dragId !== null) {
+        finishDrag(false);
+      }
+      // The section outlives a re-mount (a reduced-motion change): drop the grab cursor.
+      delete cssTarget.dataset.heroDrag;
       stop();
       lifetime.abort();
       window.clearTimeout(contextTimer);

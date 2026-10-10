@@ -30,8 +30,8 @@ export function latLngToVector3(
 }
 
 /**
- * Unit vector towards the orbit's pass point ({@link ORBIT.passLatLng}): the direction the hero
- * framing leans its look-at point towards. A framing anchor, not a highlighted place.
+ * Unit vector towards the orbit's pass point ({@link ORBIT.passLatLng}). A framing anchor, not a
+ * highlighted place.
  */
 export const FRAMING_AIM: Readonly<Vector3> = latLngToVector3(
   ORBIT.passLatLng.lat,

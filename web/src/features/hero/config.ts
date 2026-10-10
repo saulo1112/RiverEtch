@@ -155,8 +155,6 @@ export const CAMERA = {
   // collapse onto a line.
   viewLatDeg: -8,
   viewLngOffsetDeg: 18,
-  // Look-at point: this fraction of the radius along the pass-point direction.
-  targetFactor: 0.85,
   // Globe disc diameter as a fraction of the viewport height (also bounded by the width).
   discFraction: 0.72,
   // Where the globe center lands on screen, as fractions of the viewport (0,0 = top-left).
@@ -168,6 +166,32 @@ export const CAMERA = {
   intro: { durationS: 3.6, distanceGain: 0.55, lngDeg: 20, latDeg: 6, exposureS: 1.4 },
   // Mouse parallax (degrees at the hero edge) and its damping rate (1/s).
   parallax: { lngDeg: 1.6, latDeg: 1.0, damping: 3.2, cssShiftPx: [8, 5] },
+} as const;
+
+/**
+ * Mouse drag on the globe (touch and pen keep scrolling the page): horizontal turns the Earth,
+ * vertical moves the camera's latitude. No zoom, no pan.
+ */
+export const DRAG = {
+  // The camera's latitude stays within this (degrees, absolute), so a pole never faces it.
+  latLimitDeg: 60,
+  // Velocity smoothing while dragging (s), inertia decay rate (1/s) and the speeds under which
+  // inertia stops (rad/s for the turn, degrees/s for the latitude).
+  velocitySmoothingS: 0.05,
+  inertiaDamping: 3.5,
+  minYawSpeed: 0.002,
+  minLatSpeed: 0.1,
+  // Seconds of stillness after a drag before the drift resumes and the camera eases back to the
+  // framing, the ramp over which they fade in, and the easing rate (1/s).
+  idleResumeS: 4,
+  resumeRampS: 2,
+  returnRate: 0.6,
+} as const;
+
+/** "Follow satellite": the camera tracks the point under the satellite (off by default). */
+export const FOLLOW = {
+  // Rate (1/s) at which the camera blends onto the satellite when following starts.
+  blendRate: 3,
 } as const;
 
 /**
@@ -184,9 +208,9 @@ export const DIVE = {
   // Share of the dive over which the satellite, orbit and atmosphere fade out (the camera crosses
   // the orbit and the atmosphere shell on the way down).
   fadeEnd: 0.35,
-  // An Earth turned by its drift (EARTH.driftDegPerS) turns back to its start over this share of
-  // the dive, so the camera always lands on the same, sunlit view of the site; the dive lasts this
-  // much longer per half turn to undo.
+  // An Earth turned by its drift or a drag (and a camera moved off its longitude by "Follow
+  // satellite") turns back to its start over this share of the dive, so the camera always lands on
+  // the same, sunlit view of the site; the dive lasts this much longer per half turn to undo.
   yawUnwindEnd: 0.35,
   yawExtraS: 1,
   // The ocean sun glint fades over this part of the dive: the flat map that takes over has none.

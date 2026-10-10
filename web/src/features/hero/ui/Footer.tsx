@@ -2,6 +2,7 @@ import { CloudRain, type LucideIcon, Satellite, ShieldCheck } from "lucide-react
 
 import { ATTRIBUTION, STATUS, STEPS, type Step } from "./content.ts";
 import { Dotted } from "./Dotted.tsx";
+import { FollowToggle } from "./follow/FollowToggle.tsx";
 
 /** Icon per step. */
 const STEP_ICONS: Record<Step["id"], LucideIcon> = {
@@ -11,8 +12,8 @@ const STEP_ICONS: Record<Step["id"], LucideIcon> = {
 };
 
 /**
- * The hero's bottom row: the three-step strip on the text column, the status chip on the right
- * and the data attribution under the strip.
+ * The hero's bottom row: the three-step strip on the text column, "Follow satellite" and the status
+ * chip on the right, and the data attribution under the strip.
  *
  * @returns The bottom row.
  */
@@ -45,6 +46,7 @@ export function Footer() {
             );
           })}
         </ol>
+        <FollowToggle />
         <p className="hero-chip hero-ui__glass">
           <span className="hero-chip__dot" aria-hidden="true" />
           <span className="hero-chip__text">
