@@ -622,7 +622,9 @@ def stage5(
                and number(e["b11_ok"]) >= 1]  # fmt: skip
         res = climate.extent_flow(ext, series, width, _seed(cfg, "5b", sid))
         rho, low = float(res["rho"]), float(res["low"])
-        status = ("passed" if math.isfinite(rho) and rho >= width.rho_min
+        # A station whose series has no day in the period is not one "with discharge or level".
+        status = ("no_data" if not res["n"] else
+                  "passed" if math.isfinite(rho) and rho >= width.rho_min
                   and low > width.lower_bound_min else "failed")  # fmt: skip
         rows5b.append({"station": sid, "series": label, **res, "status": status})
         for lag in width.report_lags_days:

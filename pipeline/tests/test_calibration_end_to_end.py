@@ -90,6 +90,10 @@ def world(tmp_path_factory: pytest.TempPathFactory) -> tuple[CalibrationPaths, R
          "quality_point": "C [23157030]", "lon": -73.876, "lat": 7.06,
          "coordinates_from": "catalog", "swapped": "false", "files": "Q_MEDIA_D:1 TR_QS_M:1",
          "selected": "true", "reason": "", "roles": "samples flow transport", "width_m": 500},
+        {"station_id": "21047010", "name": "D", "code": "0021047010", "quality_point": "",
+         "lon": -75.6, "lat": 2.2, "coordinates_from": "catalog", "swapped": "false",
+         "files": "Q_MEDIA_D:1", "selected": "true", "reason": "", "roles": "flow",
+         "width_m": 200},  # its series ends before the period: no file, no extent
         {"station_id": "99", "name": "narrow", "code": "", "quality_point": "N", "lon": -75.0,
          "lat": 2.0, "coordinates_from": "quality point", "swapped": "false", "files": "",
          "selected": "false", "reason": "main channel 60 m wide", "roles": "samples"},
@@ -261,6 +265,7 @@ def test_climate_stages_and_maturity(world: tuple[CalibrationPaths, Results]) ->
     }
     flows = {r["station"]: r for r in table(results, "stage5b_extent_flow")}
     assert flows["21237010"]["status"] == "passed"  # extent follows discharge exactly
+    assert flows["21047010"]["n"] == 0 and flows["21047010"]["status"] == "no_data"
     assert any(r["entity"].startswith("TR_QS_M") for r in table(results, "stage5c_enso"))
     assert results.summary["maturity"] == "validated in situ"
 

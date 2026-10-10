@@ -189,6 +189,18 @@ def _incomplete(paths: CalibrationPaths, cfg: CalibrationConfig) -> list[str]:
     return out
 
 
+def _counts(statuses: object) -> str:
+    """Per-station statuses as counts, naming the stations that passed."""
+    if not isinstance(statuses, dict):
+        return str(statuses)
+    counts: dict[str, list[str]] = {}
+    for station, status in sorted(statuses.items()):
+        counts.setdefault(str(status), []).append(str(station))
+    parts = [f"{len(v)} {k}" for k, v in sorted(counts.items())]
+    passed = counts.get("passed", [])
+    return "; ".join(parts) + (f" (passed: {', '.join(passed)})" if passed else "")
+
+
 def render(results: Results, cfg: CalibrationConfig, paths: CalibrationPaths,
            files: Sequence[str]) -> str:  # fmt: skip
     """The generated results page.
@@ -223,7 +235,7 @@ def render(results: Results, cfg: CalibrationConfig, paths: CalibrationPaths,
         f"- Stage 1: {s.get('stage1')}",
         f"- Stage 3: {s.get('stage3')}",
         f"- Stage 5a: {s.get('stage5a')}",
-        f"- Stage 5b: {s.get('stage5b')}",
+        f"- Stage 5b: {_counts(s.get('stage5b'))}",
         f"- Stations selected: {s.get('stations')}; samples after replicates: {s.get('samples')}",
         "",
     ]
