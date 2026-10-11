@@ -1,0 +1,7 @@
+path,url,status,bytes,sha256,fetched_utc,note
+usgs/incomplete.json,derived,200,3,37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570,2026-10-11T23:21:20+00:00,
+usgs/items.csv,derived,200,2252,9d6f8ee9f4c2ed05e73985e639c242b87bdc10ba81cddcee4998aee73f6e9fee,2026-10-11T23:21:20+00:00,
+usgs/read-errors.csv,derived,200,3263,db65539bd45353c2b65514d22a3ea54eb8b8eafabe3b12e3d04fd25781ed7d1f,2026-10-11T23:21:20+00:00,
+usgs/ssc.csv,https://api.waterdata.usgs.gov/samples-data/results/narrow,200,105179,cec390a0f309ea3e1c84b72d23c3983dc61806078aa73579f5b5e7fcb18b81ef,2026-10-11T23:21:20+00:00,discrete 80154 samples of the selected sites
+usgs/turbidity.csv,https://api.waterdata.usgs.gov/ogcapi/v0,200,703073,236b98c2310f7e5eda77355950ca2369d201f8f0183798253bf37a158264a569,2026-10-11T23:21:20+00:00,"continuous 63680 at each clear overpass, preregistered rule"
+usgs/windows.csv,derived,200,3064931,7d711ec37583d05be0bc2ac899704af890e8bfa3365b88b0a2f943d098c9f677,2026-10-11T23:21:20+00:00,"station-window statistics and band medians, Earth Search"
