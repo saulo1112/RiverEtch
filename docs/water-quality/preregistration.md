@@ -408,6 +408,92 @@ Station ids, coordinates and dates are never features.
 
 The seed is 20261010. Every network step is resumable from its cache.
 
+## Checkpoint 2 decisions (2026-10-11, before any Landsat value or post-hoc number)
+
+The checkpoint came a week early: on the Magdalena test every candidate failed every level
+(turbidity: A3, the selected model, 135 %; TSS: 249 %). The project owner chose two further
+stages. Both are written here before anything they compute exists.
+
+### Phase 3: Landsat 8/9 (the optional stage above, specified)
+
+- **Data:**
+  - Planetary Computer `landsat-c2-l2`, platforms Landsat 8 and 9, 2015-07-01..2026-09-30 (the
+    Colombian samples start in 2015-07).
+  - The selected Colombian stations whose main channel is ≥ 240 m wide (their D15 width). The list
+    is committed before any Landsat value.
+- **Reflectance:** SR = DN × 2.75 × 10⁻⁵ − 0.2 (Collection 2 Level-2). Bands: blue SR_B2, green
+  SR_B3, red SR_B4, NIR SR_B5, SWIR-1 SR_B6, SWIR-2 SR_B7.
+- **Window:** the bands are resampled (nearest) onto the station's 20 m grid. The Sentinel-2
+  station windows are used unchanged: the 300 m window and the core window (≥ 60 m from land; the
+  primary window, since adjacency was confirmed). A 30 m pixel then never mixes more land than at
+  20 m inside the core.
+- **Pixel and window guards** (as D15's, with QA_PIXEL in place of SCL):
+  - a pixel is unusable when QA_PIXEL flags fill, dilated cloud, cirrus, cloud, cloud shadow or
+    snow;
+  - contamination is the share of window pixels so flagged;
+  - SWIR-1 plays B11's part (pixel guard 0.05, water median in −0.03..0.08);
+  - the thresholds are those of the Sentinel-2 windows (≥ 20 valid pixels, contamination ≤ 0.2,
+    glint share ≤ 0.5).
+- **Matchups:** the same rules: ±1 day primary, ±3 days with stable flow as the sensitivity.
+- **Candidates (Landsat set, each evaluated once on the Magdalena Landsat pairs):**
+  - **L1:** log-log OLS on NIR/red, fitted on Colombian Landsat pairs off the Magdalena.
+  - **L2:** A2's USGS model (log-log on B8A/B04) applied to Landsat NIR/red, then the Colombian
+    adjustment fitted on the Landsat pairs off the Magdalena.
+  - **Pooled sensitivity:** A1 and A2 on Sentinel-2 and Landsat pairs together, with a sensor
+    term: log y = α + β·log r + γ·[Landsat].
+  - **Not run:** A3 and A4 on Landsat. Their feature set F uses the red-edge bands B05–B07,
+    which Landsat lacks, and there are no USGS Landsat pairs to pretrain a reduced set.
+- **Selection, levels and intervals:** as for Sentinel-2. Selection is by LORO over the Colombian
+  rivers off the Magdalena, within the Landsat set. The levels and the conformal rule are
+  unchanged.
+- **Budget:** ≤ 15 GB of network; the fetch stops under 20 GB of free disk.
+
+### v2.1: a post-hoc calibration on the Magdalena
+
+The frozen test has been used. A model now fitted on Magdalena pairs cannot be tested on them
+again. Its error comes from nested leave-one-station-out (LOSO) over the Magdalena stations. Its
+label is **post hoc**, never _validated_.
+
+- **Pairs:** the Magdalena pairs of the sensitivity set: ±1 day, plus ±3 days with stable flow.
+  They use the core window. Sensitivities:
+  - the ±1-day pairs alone;
+  - the 300 m window;
+  - the Landsat Magdalena pairs added with a sensor term, once Phase 3 has them.
+- **Candidates (predeclared, in order of simplicity):**
+  - **P1:** log-log OLS on B8A/B04 (A1 fitted on the Magdalena).
+  - **P2, P3, P4:** the USGS-pretrained A2, A3 and A4, then the adjustment log y = a + b·log ŷ
+    fitted on the Magdalena (ridge on (a, b − 1), λ from {0.1, 1, 10} by inner LOSO).
+  - **P5:** ridge in log space on four features: log B8A/B04, log B04/B03, log B04/B02 and
+    B8A − B11. λ comes from {0.1, 1, 10, 100} by inner LOSO.
+  - **M0:** the median of the training pairs.
+- **Nested LOSO, the error that counts:**
+  - for each Magdalena station, the candidates are scored by LOSO over the other stations;
+  - the one with the lowest MdSA is chosen (within 5 points, the simpler one wins);
+  - it is fitted on the other stations and predicts the held-out station.
+
+  The held-out predictions measure the whole procedure, selection included.
+
+- **Intervals:** for each held-out station, the conformal quantiles come from the chosen
+  candidate's inner LOSO residuals. The rule is the Mondrian one, with deviation 4's pooled
+  fallback. Coverage is the share of held-out pairs inside their intervals.
+- **Level (post hoc, per target and predicted range):** _estimated (post hoc)_ when the nested
+  LOSO gives:
+  - MdSA ≤ 60 %;
+  - |SSPB| ≤ 30 %;
+  - MdSA below the nested null's;
+  - 90 % coverage in [80 %, 97 %].
+
+  _Indicative (post hoc)_ when Spearman ρ has a 95 % lower bound > 0.3, from acquisition-cluster
+  bootstrap draws. A range with fewer than 8 pairs gets the target's level, capped at _estimated
+  (post hoc)_.
+
+- **The published model:**
+  - the same selection on every Magdalena pair, then a fit on all of them;
+  - its model card and every record state the basis "post hoc, nested LOSO on the Magdalena";
+  - values appear only at _estimated (post hoc)_, with the interval from the nested residuals.
+- **Report-only sensitivity:** leave-one-year-out (by hydrological year, December to November).
+- **Reported side by side:** the preregistered result (v2, level none) and the post-hoc one.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.
