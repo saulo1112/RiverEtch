@@ -87,6 +87,10 @@ environment variables of step 4 (`E`, `GDAL_DRIVER_PATH`, `GDAL_DATA`, `PROJ_DAT
 
 - **RAdCor:** from the Level-1R files the D15 runs saved (no Level-1C download, no limit), with
   [settings-radcor.txt](settings-radcor.txt), in its own folder, state file and 4 h time box.
+  - It needs the one-line fix of
+    [patches/radcor-deconv-columns.patch](patches/radcor-deconv-columns.patch) (v2 deviation 1).
+    Apply it once: `git -C out/acolite apply ../../acolite/patches/radcor-deconv-columns.patch`.
+  - With `--outputs`, the manifest records the SHA-256 of the clone's `git diff`, or `none`.
 
   ```bash
   "$E/python.exe" -I acolite/run_windows.py --settings acolite/settings-radcor.txt \

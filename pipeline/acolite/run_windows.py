@@ -430,6 +430,11 @@ def main() -> int:
         (base / name).write_bytes(body)
     settings_sha = hashlib.sha256(settings_path.read_bytes()).hexdigest()
     settings_name = f" {settings_path.name}" if extra else ""
+    if extra:  # v2 names any local patch of the pinned commit (patches/), by its diff's hash
+        diff = subprocess.run(["git", "-C", str(args.acolite), "diff"], capture_output=True,
+                              check=True).stdout  # fmt: skip
+        patch = hashlib.sha256(diff).hexdigest() if diff.strip() else "none"
+        commit = f"{commit} (patch {patch})"
     manifest = [{"path": name, "sha256": hashlib.sha256(body).hexdigest(), "bytes": len(body),
                  "note": f"ACOLITE {commit}; settings{settings_name} sha256 {settings_sha}; "
                          f"{spent / 60:.1f} min of {args.time_box_h * 60:.0f}"}

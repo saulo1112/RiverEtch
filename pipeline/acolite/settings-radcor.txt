@@ -22,8 +22,7 @@ atmospheric_correction_method=radcor
 ## edges (by the box average, ACOLITE's default method), RAdCor masks every pixel whose kernel
 ## leaves the box, and two stations snap 0.85-1.16 km from the box centre.
 radcor_edge_extend=True
-## No extra RAdCor outputs (disk): top-of-atmosphere, environment and uncorrected surface
-## reflectance.
-radcor_write_rhot=False
+## No extra RAdCor outputs (disk): environment and uncorrected surface reflectance. The
+## top-of-atmosphere reflectance stays (ACOLITE's default): the L2W water mask reads it.
 radcor_write_rhoe=False
 radcor_write_rhosu=False

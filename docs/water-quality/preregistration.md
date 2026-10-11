@@ -334,7 +334,9 @@ Station ids, coordinates and dates are never features.
       0.85–1.16 km from the box centre.
     - The other RAdCor settings are ACOLITE's defaults (5 km kernel, `radcor_max_vza=15`, TSDSF
       aerosol, edges extended by the box average). The extra outputs (top-of-atmosphere,
-      environment and uncorrected surface reflectance) are not written.
+      environment and uncorrected surface reflectance) are not written (changed by deviation 1:
+      top-of-atmosphere reflectance is written).
+    - ACOLITE carries a one-line patch of its RAdCor deconvolution (deviation 1).
   - **Time box:** 4 h of processing.
   - If ACOLITE cannot process a saved Level-1R file, the project owner downloads the Level-1C
     products again for a box of ±0.08°. That is recorded as a deviation.
@@ -415,4 +417,29 @@ The seed is 20261010. Every network step is resumable from its cache.
 
 ## Deviations
 
-None yet.
+1. **2026-10-10, before any RAdCor value was seen: two technical fixes to run RAdCor.**
+   - **What was preregistered:** ACOLITE at commit `ca477dd`, unchanged, with RAdCor's
+     top-of-atmosphere output off.
+   - **What the first scene showed:** two failures, no reflectance.
+     - RAdCor stopped with "operands could not be broadcast together with shapes (555,554)
+       (555,555)". With edges extended, `acolite/adjacency/radcor/tools/deconv.py` takes the
+       column range from the row count, so it fails on any box that is not square. ACOLITE's
+       current version has the same line (checked on 2026-10-10).
+     - Then the Level-2W step stopped. ACOLITE's water mask reads the top-of-atmosphere reflectance
+       from the Level-2R file, and it had not been written.
+   - **The changes:**
+     - The column range uses the column count. That is a one-line patch,
+       `pipeline/acolite/patches/radcor-deconv-columns.patch`, applied to the pinned commit; the
+       v2 manifests record its SHA-256.
+     - `radcor_write_rhot` returns to ACOLITE's default (written).
+   - **What does not change:** every other setting, the DSF runs (the patched function is only
+     used by RAdCor), any rule.
+   - **What was seen:** the two error messages, and a Level-2R file whose values were not read.
+2. **2026-10-10, before any value was fetched: how the core window is computed.**
+   - **What was preregistered:** pixels of the primary window whose distance to land is ≥ 60 m.
+   - **The implementation:** the main channel eroded by 3 pixels (60 m) with D15's 4-neighbour
+     erosion, the same operation that makes D15's 2-pixel window. It keeps the pixels whose
+     city-block distance to land exceeds 3 pixels. Diagonally, that is somewhat less than 60 m in
+     a straight line.
+   - **Why:** it reuses D15's tested operation and needs no new dependency.
+   - **What was seen:** no value.

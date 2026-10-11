@@ -23,6 +23,7 @@ import io
 import math
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 from typing import Any
 
@@ -55,6 +56,33 @@ def rrs_rows(text: str) -> list[tuple[dict[str, str], list[float]]]:
         if all(math.isfinite(v) for v in values):
             out.append((row, values))
     return out
+
+
+def ensure_weights(archive: Path) -> Path:
+    """Extract the pinned weight archive into its own folder, where the MDN looks for it.
+
+    The MDN's ``compress`` writes archives without their folder, while its ``uncompress``
+    extracts into the parent folder: this archive would land loose in ``Weights/MSI``.
+
+    Args:
+        archive: The weight archive (``.zip``).
+
+    Returns:
+        The folder the MDN reads.
+
+    Raises:
+        SystemExit: If a name in the archive would escape the folder.
+    """
+    folder = archive.with_suffix("")
+    if folder.is_dir():
+        return folder
+    with zipfile.ZipFile(archive) as zf:
+        names = zf.namelist()
+        if any(Path(n).is_absolute() or ".." in Path(n).parts for n in names):
+            raise SystemExit(f"{archive.name}: unsafe member names")
+        prefixed = all(n.startswith(f"{folder.name}/") for n in names)
+        zf.extractall(folder.parent if prefixed else folder)
+    return folder
 
 
 def tss_slice(slices: Any) -> slice:
@@ -107,6 +135,7 @@ def main() -> int:
     if commit != COMMIT:
         raise SystemExit(f"the MDN clone is at {commit}, not the pinned {COMMIT}")
     weights_sha = hashlib.sha256((clone / WEIGHTS).read_bytes()).hexdigest()
+    ensure_weights(clone / WEIGHTS)
     np = importlib.import_module("numpy")
     sys.path.insert(0, str(args.mdn))
     mdn = importlib.import_module("MDN")
