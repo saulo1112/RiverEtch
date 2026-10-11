@@ -78,6 +78,8 @@ def _parser() -> argparse.ArgumentParser:
     actions = contract.add_subparsers(dest="action", required=True)
     schema = actions.add_parser("schema", help="write the generated JSON Schema")
     schema.add_argument("--out", type=Path, required=True, help="schema file")
+    schema.add_argument("--record-version", type=int, choices=(1, 2), default=1,
+                        help="observation record version")  # fmt: skip
     sample = actions.add_parser("sample", help="sealed records from a case file v1 (reads S3)")
     sample.add_argument("--case", type=Path, required=True, help="case file v1 (JSON)")
     sample.add_argument("--reach-id", required=True, help="the reach's site id")
@@ -114,12 +116,14 @@ def _parser() -> argparse.ArgumentParser:
         "quality", help="water-quality estimates v2: offline results from the snapshots"
     )
     quality.add_argument(
-        "action", choices=("fetch", "run", "verify"),
-        help="fetch --stations-only: the frozen station list; run: offline results; verify: "
-        "recompute and compare with the MANIFEST",
+        "action", choices=("fetch", "fetch-usgs", "export-lab", "run", "verify"),
+        help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
+        "the USGS pilot; export-lab: the lab's training tables (A4); run: offline results; "
+        "verify: recompute and compare with the MANIFEST",
     )  # fmt: skip
     quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     quality.add_argument("--stations-only", action="store_true", help="fetch: selection only")
+    quality.add_argument("--sites-only", action="store_true", help="fetch-usgs: selection only")
     quality.add_argument(
         "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
     )
@@ -131,6 +135,24 @@ def _parser() -> argparse.ArgumentParser:
     quality.add_argument(
         "--out", type=Path, default=None, help="run: results folder (default: from the config)"
     )
+    reach = commands.add_parser("reach", help="observation records v2 of a reach (P3, D16)")
+    reach.add_argument(
+        "action", choices=("baseline", "run"),
+        help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
+        "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it)",
+    )  # fmt: skip
+    reach.add_argument("--site", default="magdalena-puerto-wilches", help="the reach's site id")
+    reach.add_argument("--since", type=date.fromisoformat, default=None, help="run: first day")
+    reach.add_argument("--until", type=date.fromisoformat, default=None, help="run: last day")
+    reach.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+    reach.add_argument(
+        "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
+    )
+    reach.add_argument("--workers", type=int, default=8)
+    reach.add_argument(
+        "--config", type=Path, default=Path("pipeline/reach.yaml"),
+        help="settings, relative to the root",
+    )  # fmt: skip
     return parser
 
 
@@ -275,7 +297,10 @@ def contract(args: argparse.Namespace) -> int:
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     if args.action == "schema":
-        args.out.write_text(obs.schema_text(), encoding="utf-8", newline="\n")
+        from climate_pipeline.contract import observation_v2
+
+        text = observation_v2.schema_text() if args.record_version == 2 else obs.schema_text()
+        args.out.write_text(text, encoding="utf-8", newline="\n")
         print(f"schema written to {args.out}")
         return 0
     case = json.loads(args.case.read_text(encoding="utf-8"))
@@ -389,6 +414,27 @@ def quality(args: argparse.Namespace) -> int:
     root = args.root.resolve()
     config = root / args.config
     cfg = load_quality_config(config)
+    if args.action == "export-lab":
+        from climate_pipeline.quality import lab, transfer
+
+        usgs_inputs = transfer.load_usgs(cfg, root)
+        if usgs_inputs is None:
+            print("no USGS snapshot yet: run quality fetch-usgs first")
+            return 1
+        tables = lab.export(cfg, usgs_inputs, root / "pipeline" / "out" / "lab")
+        print(f"{len(tables)} tables in pipeline/out/lab")
+        return 0
+    if args.action == "fetch-usgs":
+        from climate_pipeline.quality import usgs
+
+        if args.sites_only:
+            sites = usgs.fetch_sites(cfg, root, root / args.cache, args.workers)
+            selected = sum(1 for r in sites if r.get("selected"))
+            print(f"{len(sites)} candidate sites, {selected} selected")
+            return 0
+        counts = usgs.fetch_values(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "fetch":
         from climate_pipeline.quality.fetching import fetch_stations
 
@@ -423,6 +469,40 @@ def quality(args: argparse.Namespace) -> int:
     return 0
 
 
+def reach(args: argparse.Namespace) -> int:
+    """Run ``reach baseline`` or ``reach run``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code (``reach run``: 0 done, 2 partial, 3 a cap stopped it).
+    """
+    from climate_pipeline.quality.fetching import DiskBudgetError
+    from climate_pipeline.reach import run as reach_run
+    from climate_pipeline.reach.config import load_reach_config
+
+    root = args.root.resolve()
+    cfg = load_reach_config(root / args.config)
+    try:
+        if args.action == "baseline":
+            info = reach_run.build_baseline(cfg, root, args.site, root / args.cache, args.workers)
+            print(f"baseline: {info}")
+            return reach_run.EXIT_CAP if info["stopped"] else reach_run.EXIT_OK
+        summary = reach_run.run(cfg, root, args.site, args.since, args.until, root / args.cache,
+                                args.workers)  # fmt: skip
+    except DiskBudgetError as error:
+        print(f"stopped: {error}")
+        return reach_run.EXIT_CAP
+    except reach_run.ReachError as error:
+        print(f"cannot run: {error}")
+        return 1
+    print(f"{len(summary.recorded)} records, {len(summary.skipped)} skipped, "
+          f"{len(summary.failed)} failed, ~{summary.network_mb / 1000:.2f} GB"
+          + (f"; stopped: {summary.stopped}" if summary.stopped else ""))  # fmt: skip
+    return summary.exit_code
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the pipeline command-line interface.
 
@@ -448,6 +528,11 @@ def main(argv: list[str] | None = None) -> int:
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
         )
         return quality(args)
+    if args.command == "reach":
+        logging.basicConfig(
+            level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+        )
+        return reach(args)
     if args.command in ("validation", "catchment-grid"):
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"

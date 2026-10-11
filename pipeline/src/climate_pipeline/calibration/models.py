@@ -299,6 +299,27 @@ def abstain_reason(
     Returns:
         The reason, or None.
     """
+    if reason := window_abstain_reason(stats, window):
+        return reason
+    for f in fit.features:
+        low, high = fit.feature_range[f]
+        v = row.get(f, math.nan)
+        if not (math.isfinite(v) and low <= v <= high):
+            return f"{f} outside the training range"
+    return None
+
+
+def window_abstain_reason(stats: Mapping[str, float], window: WindowSettings) -> str | None:
+    """Why a window's statistics rule out any value, whatever the model (None: they do not).
+
+    Args:
+        stats: The window statistics: ``glint_share``, ``contamination``, ``valid_px``, ``b11_ok``
+            (1 or 0) and ``bands_read`` (0 when SCL alone ruled the window out).
+        window: Window settings.
+
+    Returns:
+        The reason, or None.
+    """
     if not stats.get("bands_read", 1.0) >= 1:
         return "window too cloudy to measure"
     if stats.get("b11_ok", 0.0) < 1:
@@ -309,11 +330,6 @@ def abstain_reason(
         return f"contamination above {window.max_contamination:g}"
     if stats.get("glint_share", 1.0) > window.abstain_glint_share:
         return f"glint share above {window.abstain_glint_share:g}"
-    for f in fit.features:
-        low, high = fit.feature_range[f]
-        v = row.get(f, math.nan)
-        if not (math.isfinite(v) and low <= v <= high):
-            return f"{f} outside the training range"
     return None
 
 

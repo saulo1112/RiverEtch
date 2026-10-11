@@ -169,11 +169,9 @@ def subreach_ndti_variants(
     Returns:
         The statistics by glint limit.
     """
-    area = erode(upsample2(subreach_20m), erosion_px_10m)
-    scl = repeat2(scl_20m)
-    swir = repeat2(swir16_20m).astype(np.float32, copy=False)
-    excluded = np.array(sorted(set(cfg.scl.invalid) | set(cfg.scl.nodata)))
-    water = area & ~np.isin(scl, excluded) & np.isfinite(red) & np.isfinite(green)
+    scl, swir, water, base = _guarded(
+        red, green, swir16_20m, scl_20m, subreach_20m, erosion_px_10m, cfg
+    )
     # The plausibility medians use every water pixel, before the darkness and glint guards, so
     # a wrong offset that makes water dark or negative is reported instead of filtered away.
     enough = int(water.sum()) >= cfg.clear.min_valid_px_10m
@@ -182,7 +180,6 @@ def subreach_ndti_variants(
     with_swir = water & np.isfinite(swir)
     enough_swir = int(with_swir.sum()) >= cfg.clear.min_valid_px_10m
     swir_median = float(np.median(swir[with_swir])) if enough_swir else math.nan
-    base = with_swir & ((red + green) > cfg.stage2.rg_floor)
     n_base = int(base.sum())
     out: dict[float, SubreachNdti] = {}
     for limit in swir16_limits:
@@ -207,6 +204,63 @@ def subreach_ndti_variants(
             glint_share=glint_share,
         )
     return out
+
+
+def _guarded(
+    red: Reflectance,
+    green: Reflectance,
+    swir16_20m: Reflectance,
+    scl_20m: NDArray[np.generic],
+    subreach_20m: NDArray[np.bool_],
+    erosion_px_10m: int,
+    cfg: ScreeningConfig,
+) -> tuple[NDArray[np.generic], Reflectance, NDArray[np.bool_], NDArray[np.bool_]]:
+    """SCL and B11 on the 10 m grid, the water pixels, and those passing the darkness guard."""
+    area = erode(upsample2(subreach_20m), erosion_px_10m)
+    scl = repeat2(scl_20m)
+    swir = repeat2(swir16_20m).astype(np.float32, copy=False)
+    excluded = np.array(sorted(set(cfg.scl.invalid) | set(cfg.scl.nodata)))
+    water = area & ~np.isin(scl, excluded) & np.isfinite(red) & np.isfinite(green)
+    base = water & np.isfinite(swir) & ((red + green) > cfg.stage2.rg_floor)
+    return scl, swir, water, base
+
+
+def subreach_nir_red(
+    red: Reflectance,
+    green: Reflectance,
+    nir08_20m: Reflectance,
+    swir16_20m: Reflectance,
+    scl_20m: NDArray[np.generic],
+    subreach_20m: NDArray[np.bool_],
+    erosion_px_10m: int,
+    cfg: ScreeningConfig,
+) -> float:
+    """NIR/red (B8A/B04) of one sub-reach: the median B8A over the median red.
+
+    The pixels are those :func:`subreach_ndti` takes its median over, with B8A present. It is a
+    ratio of medians, as the water-quality features (D16) compute B8A/B04 in a window. Like NDTI
+    it is a relative index, never a unit.
+
+    Args:
+        red: Red reflectance on the 10 m grid.
+        green: Green reflectance on the 10 m grid.
+        nir08_20m: B8A reflectance on the 20 m grid.
+        swir16_20m: B11 reflectance on the 20 m grid.
+        scl_20m: SCL on the 20 m grid.
+        subreach_20m: The sub-reach on the 20 m grid.
+        erosion_px_10m: Bank erosion at 10 m.
+        cfg: Settings.
+
+    Returns:
+        The ratio (NaN with fewer than ``min_valid_px_10m`` pixels or a red median at or below 0).
+    """
+    _, swir, _, base = _guarded(red, green, swir16_20m, scl_20m, subreach_20m, erosion_px_10m, cfg)
+    nir = repeat2(nir08_20m).astype(np.float32, copy=False)
+    use = base & ~(swir > cfg.stage2.swir16_max) & np.isfinite(nir)
+    if int(use.sum()) < cfg.clear.min_valid_px_10m:
+        return math.nan
+    red_median = float(np.median(red[use]))
+    return float(np.median(nir[use])) / red_median if red_median > 0 else math.nan
 
 
 def reflectance_problem(sub: dict[str, SubreachNdti], cfg: ScreeningConfig) -> str:
