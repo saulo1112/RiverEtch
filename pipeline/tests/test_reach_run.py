@@ -155,3 +155,36 @@ def test_the_corridor_estimate_counts_blocks() -> None:
     small = reach_run.corridor_mb(Grid(32618, 20.0, 0.0, 0.0, 100, 100))
     large = reach_run.corridor_mb(Grid(32618, 20.0, 0.0, 0.0, 445, 890))
     assert 0 < small < large
+
+
+def test_the_baseline_resumes_without_measuring_a_scene_twice(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    found = [acquisition(date(2023, 1, 5) + timedelta(days=24 * k), f"old{k}") for k in range(30)]
+    measured: list[str] = []
+
+    def scene(corridor: Any, acq: Acquisition, *a: Any) -> Any:
+        measured.append(acq.key)
+        sub = SimpleNamespace(ndti=0.1)
+        return SimpleNamespace(exclusion="", sub={"upstream": sub, "downstream": sub})
+
+    monkeypatch.setattr(imagery, "search", lambda *a: (found, {}))
+    monkeypatch.setattr(reach_run, "measure_acquisition", scene)
+    monkeypatch.setattr(m, "nir_red", lambda *a: {"upstream": 0.5, "downstream": 0.6})
+    monkeypatch.setattr(reach_run, "check_disk", lambda *a: 100.0)
+    s = prepared(root)
+    (root / s.reach.nir_red_baseline).unlink()  # the fixture's file is for the run tests
+    s = reach_run.Setup(**{**s.__dict__, "reader": SimpleNamespace(forget=lambda acq: None)})
+    per_scene = reach_run.corridor_mb(s.corridor.grid) / 1000
+    small = s.cfg.model_copy(update={"budgets": s.cfg.budgets.model_copy(
+        update={"baseline_max_gb": per_scene * 10})})  # fmt: skip
+    first = reach_run.build_baseline(
+        small, root, SITE, root / "cache", prepared=reach_run.Setup(**{**s.__dict__, "cfg": small})
+    )
+    assert first["measured"] == 10 and first["stopped"] and len(measured) == 10
+    path = root / s.reach.nir_red_baseline
+    head_rows = path.read_text(encoding="utf-8").splitlines()[:11]
+    second = reach_run.build_baseline(s.cfg, root, SITE, root / "cache", prepared=s)
+    assert second["measured"] == 30 and not second["stopped"] and len(measured) == 30
+    assert path.read_text(encoding="utf-8").splitlines()[:11] == head_rows
+    assert second["network_gb_estimated"] == pytest.approx(per_scene * 30, rel=1e-3)

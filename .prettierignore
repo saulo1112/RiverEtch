@@ -17,3 +17,4 @@ docs/magdalena-validation/calibration/
 # Water-quality v2 snapshots and results: committed as run evidence, never edited by hand.
 docs/water-quality/inputs/
 docs/water-quality/results/
+docs/water-quality/reach/*/

@@ -119,7 +119,9 @@ def train_one(table: Path, out: Path) -> dict[str, Any]:
     }  # fmt: skip
     out.mkdir(parents=True, exist_ok=True)
     path = out / f"gbm-{spec['target']}-{spec['window']}.json"
-    path.write_text(json.dumps(result, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+    # Compact: a model of 500 trees is several MB indented.
+    path.write_text(json.dumps(result, sort_keys=True, separators=(",", ":")) + "\n",
+                    encoding="utf-8")  # fmt: skip
     return {"file": path.name, "chosen": configs[best], "loro_mdsa": scores[best]["loro_mdsa"]}
 
 

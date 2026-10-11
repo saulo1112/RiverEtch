@@ -185,6 +185,12 @@ def _bbox(site: SiteConfig) -> tuple[float, float, float, float]:
     return west, south, east, north
 
 
+def _rows(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    return list(csv.DictReader(io.StringIO(path.read_text(encoding="utf-8"))))
+
+
 def _num(text: str) -> float:
     try:
         return float(text)
@@ -476,6 +482,8 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
         try:
             summary.network_mb += SCL_MB * 5
             if not m.observable(acq, s.reader, s.full, s.screening):
+                if hasattr(s.reader, "forget"):
+                    s.reader.forget(acq)
                 state.decided[acq.key] = summary.skipped[acq.key] = "not observable"
                 continue
             summary.network_mb += scene_mb
@@ -501,6 +509,7 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
         (folder / file).write_text(rec.model_dump_json(indent=2, by_alias=True) + "\n",
                                    encoding="utf-8", newline="\n")  # fmt: skip
         append_ledger(folder / "ledger.jsonl", rec, file, created)
+        log.info("%s: recorded %s (anomalous: %s)", site_id, file, rec.verdict.anomalous)
         state.decided[acq.key] = "recorded"
         summary.recorded.append(file)
     state.save(folder / "state.json")
@@ -511,6 +520,9 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
 def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 8,
                    prepared: Setup | None = None) -> dict[str, Any]:  # fmt: skip
     """Measure NIR/red and the station windows on the frozen baseline's usable scenes, once.
+
+    A rerun keeps the scenes already in the baseline files and measures only the missing ones; the
+    network cap counts the earlier run's estimate too.
 
     Args:
         cfg: Reach settings.
@@ -532,10 +544,23 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
                                days[-1] + timedelta(days=1))  # fmt: skip
     wanted = [a for a in sorted(acqs, key=lambda a: (a.datetime, a.key)) if a.key in ndti]
     scene_mb = corridor_mb(s.corridor.grid) + (BAND_MB["earth-search"] if s.station else 0.0)
+    path = root / s.reach.nir_red_baseline
+    windows_path = path.with_name("station-windows.csv")
+    info_path = path.with_name("baseline.json")
+    kept = {r["key"]: r for r in _rows(path)}
+    kept_windows: dict[str, list[dict[str, Any]]] = {}
+    for r in _rows(windows_path):
+        kept_windows.setdefault(r["key"], []).append(r)
+    earlier = json.loads(info_path.read_text(encoding="utf-8")) if info_path.exists() else {}
     rows: list[dict[str, Any]] = []
     window_rows: list[dict[str, Any]] = []
-    spent, stopped = 0.0, ""
+    spent = float(earlier.get("network_gb_estimated", 0.0)) * 1000 if kept else 0.0
+    stopped = ""
     for acq in wanted:
+        if acq.key in kept:
+            rows.append(kept[acq.key])
+            window_rows += kept_windows.get(acq.key, [])
+            continue
         if spent / 1000 >= cfg.budgets.baseline_max_gb:
             stopped = f"network cap of {cfg.budgets.baseline_max_gb:g} GB reached"
             break
@@ -549,6 +574,9 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
                                           s.quality.timezone)  # fmt: skip
         s.reader.forget(acq)
         frozen = ndti[acq.key]
+        if len(rows) % 10 == 0:
+            log.info("%s: baseline scene %d of %d, about %.2f GB read", site_id, len(rows) + 1,
+                     len(wanted), spent / 1000)  # fmt: skip
         rows.append({
             "key": acq.key, "date": frozen["date"].isoformat(), "exclusion": scene.exclusion,
             "ndti_upstream": scene.sub["upstream"].ndti if "upstream" in scene.sub else math.nan,
@@ -559,13 +587,12 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
             "nir_red_upstream": ratio.get("upstream", math.nan),
             "nir_red_downstream": ratio.get("downstream", math.nan),
         })  # fmt: skip
-    path = root / s.reach.nir_red_baseline
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(_csv(rows, BASELINE_COLUMNS))
-    path.with_name("station-windows.csv").write_bytes(_csv(window_rows, WINDOW_COLUMNS))
-    gaps = [abs(r[f"ndti_{side}"] - r[f"frozen_ndti_{side}"])
-            for r in rows for side in ("upstream", "downstream")
-            if math.isfinite(r[f"ndti_{side}"] - r[f"frozen_ndti_{side}"])]  # fmt: skip
+    windows_path.write_bytes(_csv(window_rows, WINDOW_COLUMNS))
+    gaps = [abs(_num(str(r.get(f"ndti_{side}"))) - _num(str(r.get(f"frozen_ndti_{side}"))))
+            for r in rows for side in ("upstream", "downstream")]  # fmt: skip
+    gaps = [g for g in gaps if math.isfinite(g)]
     info = {
         "site": site_id, "frozen_scenes": len(ndti), "found": len(wanted), "measured": len(rows),
         "station": s.station.station_id if s.station else None,
@@ -573,6 +600,5 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
         "ndti_max_abs_difference": round(max(gaps), 6) if gaps else None,
         "code_commit": head(), "created_utc": datetime.now(UTC).isoformat(timespec="seconds"),
     }  # fmt: skip
-    path.with_name("baseline.json").write_text(json.dumps(info, indent=2) + "\n",
-                                               encoding="utf-8", newline="\n")  # fmt: skip
+    info_path.write_text(json.dumps(info, indent=2) + "\n", encoding="utf-8", newline="\n")
     return info
