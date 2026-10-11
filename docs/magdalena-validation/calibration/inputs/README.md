@@ -54,6 +54,10 @@ The other sources keep their own terms:
    - It exits with an error when any input failed or any imagery read failed; then rerun it,
      because the caches make a rerun cheap.
 3. ACOLITE (optional, Stage 2c) writes `imagery/acolite-windows.csv` from Level-1C files that the
-   project owner downloads.
+   project owner downloads ([pipeline/acolite/](../../../../pipeline/acolite/README.md)).
+   - `acolite/run-log.csv` gives each listed scene's status.
+   - `acolite/manifest.csv` gives the SHA-256 of both files, the ACOLITE commit, the settings'
+     SHA-256 and the processing time used.
+   - The Level-1C files themselves are not committed.
 4. `climate-pipeline calibration run` writes `../results/` and its `MANIFEST`.
    `climate-pipeline calibration verify` recomputes and compares.

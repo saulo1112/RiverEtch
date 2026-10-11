@@ -1,0 +1,3 @@
+part,scenes,b04_min,b04_max,slope_b8a_on_b04,spearman
+lower half of B04,323,0.0068,0.0852,0.670829,0.418557
+upper half of B04,323,0.0853,0.1601,0.979759,0.538458

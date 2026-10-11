@@ -1,0 +1,15 @@
+{
+  "commit": "133c305e29f2ae86ba9c2ec56a5239a77839cbdd",
+  "finished_utc": "2026-10-10T23:28:24+00:00",
+  "libraries": {
+    "httpx": "0.28.1",
+    "matplotlib": "3.11.2",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pydantic": "2.13.5",
+    "pystac-client": "0.9.0",
+    "rasterio": "1.5.2"
+  },
+  "python": "3.12.12",
+  "started_utc": "2026-10-10T23:27:15+00:00"
+}

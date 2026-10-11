@@ -1,0 +1,5 @@
+target,model,n,mdsa,sspb,mape
+turbidity,nechad2009_turbidity,25,162.641998,-119.453822,90.802499
+turbidity,dogliotti2015_turbidity,27,100.183564,30.613277,126.560876
+tss,nechad2010_tss,24,335.550998,-320.881042,90.092126
+cm_d,nechad2010_tss,72,152.240995,129.828035,315.64061

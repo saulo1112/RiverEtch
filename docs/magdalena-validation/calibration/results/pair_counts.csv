@@ -1,0 +1,4 @@
+target,pairs_primary,fittable,training,holdout,cut_date,stations
+turbidity,27,27,20,7,2023-09-30,21077020 21237010 23037010 23157030 23207040 25027410 magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja magdalena-hui-gigante-las-vueltas-mg-4 magdalena-hui-gigante-salida-represa-el-quimbo rca-magdalena-tol-flandes-isla-del-amor
+tss,27,26,19,7,2023-09-30,21077020 21237010 23037010 23157030 23207040 25027410 magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja magdalena-hui-gigante-las-vueltas-mg-4 magdalena-hui-gigante-salida-represa-el-quimbo rca-magdalena-tol-flandes-isla-del-amor
+cm_d,73,73,52,21,2023-09-25,21237010
