@@ -1,19 +1,19 @@
 target,variant,candidate,tercile,upper_edge,factor80,factor90,pooled
-turbidity,primary,A1,1,144.706762,3.512052,16.223985,0.9
-turbidity,primary,A1,2,256.810516,5.280604,16.223985,0.9
-turbidity,primary,A1,3,inf,16.223985,16.223985,0.9
-turbidity,stable +-3 days,A1,1,152.115915,2.247399,13.817129,0.9
-turbidity,stable +-3 days,A1,2,221.205682,5.834005,13.817129,0.9
-turbidity,stable +-3 days,A1,3,inf,13.817129,13.817129,0.9
-turbidity,300m window,A1,1,150.21321,3.1591,12.374493,0.9
-turbidity,300m window,A1,2,202.408684,12.374493,12.374493,0.9
-turbidity,300m window,A1,3,inf,2.345182,12.374493,0.9
-tss,primary,A1,1,134.840254,5.38512,21.33886,0.9
-tss,primary,A1,2,228.411719,5.005152,21.33886,0.9
-tss,primary,A1,3,inf,21.33886,21.33886,0.9
-tss,stable +-3 days,A1,1,146.846306,3.681179,21.278363,0.9
-tss,stable +-3 days,A1,2,229.384174,5.2225,21.278363,0.9
-tss,stable +-3 days,A1,3,inf,21.278363,21.278363,0.9
-tss,300m window,A1,1,143.301388,5.261451,18.490833,0.9
-tss,300m window,A1,2,204.252124,18.490833,18.490833,0.9
-tss,300m window,A1,3,inf,2.330145,18.490833,0.9
+turbidity,primary,A3,1,72.495791,20.232638,20.232638,0.9
+turbidity,primary,A3,2,204.666412,2.47563,20.232638,0.9
+turbidity,primary,A3,3,inf,1.863932,20.232638,0.9
+turbidity,stable +-3 days,A3,1,79.600857,20.849455,20.849455,0.9
+turbidity,stable +-3 days,A3,2,269.303149,1.711569,20.849455,0.9
+turbidity,stable +-3 days,A3,3,inf,3.796849,20.849455,0.9
+turbidity,300m window,A3,1,63.520855,18.949434,18.949434,0.9
+turbidity,300m window,A3,2,250.332726,2.256216,18.949434,0.9
+turbidity,300m window,A3,3,inf,7.032412,18.949434,0.9
+tss,primary,A3,1,127.185247,8.268273,8.268273,0.9
+tss,primary,A3,2,242.024675,2.600441,8.268273,0.9
+tss,primary,A3,3,inf,2.061802,8.268273,0.9
+tss,stable +-3 days,A3,1,85.99535,13.332345,13.332345,0.9
+tss,stable +-3 days,A3,2,208.759561,1.823472,13.332345,0.9
+tss,stable +-3 days,A3,3,inf,2.080002,13.332345,0.9
+tss,300m window,A3,1,144.665355,11.725721,11.725721,0.9
+tss,300m window,A3,2,321.673115,4.270848,11.725721,0.9
+tss,300m window,A3,3,inf,3.693438,11.725721,0.9

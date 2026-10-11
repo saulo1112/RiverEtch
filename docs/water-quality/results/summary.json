@@ -1,18 +1,16 @@
 {
-  "incomplete": [
-    "Route A (USGS pilot): no value snapshot yet; A2 and A3 not run"
-  ],
+  "incomplete": [],
   "route_a": {
     "tss": {
-      "candidate": "A1",
+      "candidate": "A3",
       "level": "none",
-      "mdsa": 208.1,
+      "mdsa": 249.0,
       "n": 21
     },
     "turbidity": {
-      "candidate": "A1",
+      "candidate": "A3",
       "level": "none",
-      "mdsa": 129.0,
+      "mdsa": 135.2,
       "n": 22
     }
   },
