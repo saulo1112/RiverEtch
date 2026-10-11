@@ -67,3 +67,45 @@ def test_features_follow_next_links_and_retry_rate_limits() -> None:
     client = httpx.Client(transport=httpx.MockTransport(handler))
     found, bodies = usgs.features(client, "https://api.example/items", {"limit": "1"})
     assert [f["id"] for f in found] == [1, 2] and len(bodies) == 2 and len(calls) == 3
+
+
+def test_several_overpasses_share_one_request_through_a_cql2_filter() -> None:
+    seen: list[httpx.Request] = []
+    body = {"features": [{"properties": {"time": "2024-08-22T16:00:00+00:00", "value": "40",
+                                         "approval_status": "Approved", "qualifier": None}}],
+            "links": []}  # fmt: skip
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, json=body)
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    t1 = datetime(2024, 8, 22, 16, 2, 19, tzinfo=UTC)
+    t2 = datetime(2024, 9, 1, 16, 5, 0, tzinfo=UTC)
+    hour = timedelta(hours=1)
+    windows = [(t1 - hour, t1 + hour), (t2 - hour, t2 + hour)]
+    readings, bodies = usgs.continuous_many(client, "https://api/v0", "USGS-1", "63680", windows)
+    assert len(seen) == 1 and len(bodies) == 1 and readings[0].value == 40.0
+    query = seen[0].url.params
+    assert query["filter-lang"] == "cql2-text" and query["monitoring_location_id"] == "USGS-1"
+    assert query["filter"] == (
+        "(time >= TIMESTAMP('2024-08-22T15:02:19Z') AND time <= TIMESTAMP('2024-08-22T17:02:19Z'))"
+        " OR (time >= TIMESTAMP('2024-09-01T15:05:00Z') AND time <= "
+        "TIMESTAMP('2024-09-01T17:05:00Z'))"
+    )
+
+
+def test_an_api_key_travels_in_a_header_never_in_the_url(monkeypatch: Any) -> None:
+    seen: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen.append(request)
+        return httpx.Response(200, json={})
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    monkeypatch.setenv("USGS_API_KEY", "secret-key")
+    usgs.get(client, "https://api/v0/x", {"a": "1"})
+    assert seen[0].headers["X-Api-Key"] == "secret-key" and "secret" not in str(seen[0].url)
+    monkeypatch.delenv("USGS_API_KEY")
+    usgs.get(client, "https://api/v0/x", {"a": "1"})
+    assert "X-Api-Key" not in seen[1].headers

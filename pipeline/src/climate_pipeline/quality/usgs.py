@@ -11,6 +11,12 @@ draw stops at the cap of clear scenes. Sites are visited in two passes (half the
 rest), so a network cap that stops the stage leaves every site with data. For each clear scene the
 turbidity at the overpass follows the preregistered rule; discrete SSC samples are snapshotted per
 site and matched later on the acquisition's UTC date (passes are mid-morning in local time).
+
+The stage is long, so it resumes: each site's window rows and each turbidity response are kept in
+the cache as they arrive, and a rerun reads them instead of the network (the draw is seeded, so
+it visits the same acquisitions). The turbidity of up to ``OVERPASS_BATCH`` overpasses of a site
+is asked in one request (the API allows 1,000 requests an hour without a key); its rate limit
+stops the turbidity step, marked incomplete, rather than failing every remaining call.
 """
 
 from __future__ import annotations
@@ -19,6 +25,7 @@ import hashlib
 import json
 import logging
 import math
+import os
 import random
 from collections.abc import Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
@@ -50,6 +57,7 @@ SITE_COLUMNS = (
 TURBIDITY_COLUMNS = ("site_id", "key", "datetime_utc", "value", "unit", "rule", "n",
                      "response_sha256")  # fmt: skip
 SSC_COLUMNS = ("site_id", "date", "time", "zone", "value", "unit", "status")
+OVERPASS_BATCH = 20  # overpasses per turbidity request: 20 windows of 2 h hold < 1,000 readings
 
 
 def _overlaps(props: Mapping[str, Any], start: date, end: date) -> bool:
@@ -215,6 +223,57 @@ def _cloud(acquisition: Acquisition) -> float:
     return sum(values) / len(values) if values else math.inf
 
 
+def checkpoint(path: Path) -> dict[str, list[dict[str, Any]]]:
+    """One site's window rows already measured, by acquisition key (a line cut short is skipped).
+
+    Args:
+        path: The site's ``<site>-windows.jsonl``.
+
+    Returns:
+        Key -> window rows.
+    """
+    out: dict[str, list[dict[str, Any]]] = {}
+    for line in path.read_text(encoding="utf-8").splitlines() if path.exists() else []:
+        try:
+            item = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        out[str(item["key"])] = list(item["rows"])
+    return out
+
+
+def cached_bodies(path: Path) -> list[bytes] | None:
+    """Response bodies kept by an earlier run (None when absent or cut short).
+
+    A file holds the bodies, or ``{"batch": <file>}`` naming the batch response it shares.
+
+    Args:
+        path: The response file.
+
+    Returns:
+        The bodies, or None.
+    """
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        if isinstance(data, dict):
+            return cached_bodies(path.with_name(str(data["batch"])))
+        return [b.encode("utf-8") for b in data]
+    except (OSError, ValueError, KeyError):
+        return None
+
+
+def keep_bodies(path: Path, bodies: Sequence[bytes]) -> None:
+    """Keep response bodies for a rerun (written whole, then renamed).
+
+    Args:
+        path: The response file.
+        bodies: The raw bodies.
+    """
+    partial_path = path.with_suffix(".tmp")
+    partial_path.write_text(json.dumps([b.decode("utf-8") for b in bodies]), encoding="utf-8")
+    os.replace(partial_path, path)
+
+
 def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
                  http: httpx.Client | None = None) -> dict[str, Any]:  # fmt: skip
     """Snapshot the pilot's windows, turbidity at the overpass and SSC samples.
@@ -243,6 +302,8 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
     reader = imagery.reader(screening, "earth-search", cache)
     budget = Budget(cfg.budgets.network_gb.usgs)
     window = cfg.window
+    progress = cache / "usgs-pilot"
+    progress.mkdir(parents=True, exist_ok=True)
     state: dict[str, dict[str, Any]] = {}
     incomplete: list[str] = []
     windows_rows: list[dict[str, Any]] = []
@@ -264,6 +325,7 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
         state[cand.station_id] = {
             "windows": imagery.small_windows(geo, cfg), "sun": sun, "clear": [],
             "order": draw_order(eligible, _seed(cfg.seed, "usgs", cand.station_id)),
+            "done": checkpoint(progress / f"{cand.station_id}-windows.jsonl"),
         }  # fmt: skip
         item_rows.append(
             {
@@ -283,29 +345,73 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
                           timezone=cfg.timezone)  # fmt: skip
             while len(st["clear"]) < cap and st["order"] and not budget.spent:
                 batch = [st["order"].pop(0) for _ in range(min(workers, len(st["order"])))]
+                todo = [a for a in batch if a.key not in st["done"]]
                 with ThreadPoolExecutor(max_workers=workers) as pool:
-                    for a, rows in zip(batch, pool.map(one, batch), strict=True):
-                        windows_rows += rows
-                        budget.add(rows)
-                        if len(st["clear"]) < cap and clear(
-                            rows, window.min_valid_px, window.max_contamination
-                        ):
-                            st["clear"].append(a)
+                    fresh = dict(zip([a.key for a in todo], pool.map(one, todo), strict=True))
+                with (progress / f"{sid}-windows.jsonl").open("a", encoding="utf-8") as handle:
+                    for key, rows in fresh.items():
+                        handle.write(json.dumps({"key": key, "rows": rows}, default=str) + "\n")
+                st["done"].update(fresh)
+                # The budget counts cached reads too, so the outcome never depends on where an
+                # earlier run stopped.
+                for a in batch:
+                    rows = st["done"][a.key]
+                    windows_rows += rows
+                    budget.add(rows)
+                    if len(st["clear"]) < cap and clear(
+                        rows, window.min_valid_px, window.max_contamination
+                    ):
+                        st["clear"].append(a)
             log.info("%s: %d clear scenes, about %.1f GB read", sid, len(st["clear"]),
                      budget.mb / 1000)  # fmt: skip
         if budget.spent:
             incomplete.append(f"imagery: network cap reached during the pass to {cap} scenes")
             break
+    limited = False
+    margin = timedelta(minutes=u.overpass_nearest_minutes)
     for sid, st in state.items():  # turbidity at each clear overpass
+        responses = progress / sid
+        responses.mkdir(exist_ok=True)
+        found: dict[str, list[bytes]] = {}
+        pending = []
         for a in st["clear"]:
-            when = a.datetime.astimezone(UTC)
-            margin = timedelta(minutes=u.overpass_nearest_minutes)
+            saved = responses / f"{a.key}.json"
+            bodies = cached_bodies(saved) if saved.exists() else None
+            if bodies is None:
+                pending.append(a)
+            else:
+                found[a.key] = bodies
+        for start in range(0, len(pending), OVERPASS_BATCH):
+            batch = pending[start : start + OVERPASS_BATCH]
+            times = [a.datetime.astimezone(UTC) for a in batch]
+            label = f"{u.api} continuous {sid} {len(batch)} overpasses from {times[0].isoformat()}"
             try:
-                readings, bodies = usgs.continuous(client, u.api, sid, u.turbidity_parameter,
-                                                   when - margin, when + margin)  # fmt: skip
-            except httpx.HTTPError as error:
-                rec.fail(f"{u.api} continuous {sid} {when.isoformat()}", error)
+                windows = [(t - margin, t + margin) for t in times]
+                _, bodies = usgs.continuous_many(client, u.api, sid, u.turbidity_parameter,
+                                                 windows)  # fmt: skip
+            except httpx.HTTPStatusError as error:
+                if error.response.status_code == 429:
+                    limited = True
+                    break
+                rec.fail(label, error)
                 continue
+            except httpx.HTTPError as error:
+                rec.fail(label, error)
+                continue
+            name = (
+                "batch-" + hashlib.sha256("|".join(a.key for a in batch).encode()).hexdigest()[:16]
+            )
+            keep_bodies(responses / f"{name}.json", bodies)
+            for a in batch:
+                pointer = responses / f"{a.key}.json"
+                pointer.write_text(json.dumps({"batch": f"{name}.json"}), encoding="utf-8")
+                found[a.key] = bodies
+        for a in st["clear"]:
+            if a.key not in found:
+                continue
+            when = a.datetime.astimezone(UTC)
+            bodies = found[a.key]
+            readings = usgs.readings_from_bodies(bodies)
             value, rule, n = usgs.overpass_value(readings, when, u.overpass_median_minutes,
                                                  u.overpass_nearest_minutes, u.approval,
                                                  u.exclude_qualified)  # fmt: skip
@@ -315,6 +421,10 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
                 "rule": rule, "n": n,
                 "response_sha256": hashlib.sha256(b"".join(bodies)).hexdigest(),
             })  # fmt: skip
+        if limited:
+            incomplete.append("turbidity: the USGS API's rate limit stopped the step; a rerun "
+                              "resumes from the cached responses")  # fmt: skip
+            break
     ssc_rows: list[dict[str, Any]] = []
     for sid in state:  # discrete SSC samples
         try:

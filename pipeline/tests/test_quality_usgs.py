@@ -1,8 +1,14 @@
+import json
+import math
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
+from pathlib import Path
 from typing import Any
 
+from climate_pipeline.calibration.fetching import _csv
 from climate_pipeline.quality import usgs
+from climate_pipeline.quality import usgs as usgs_pilot
+from climate_pipeline.sources import usgs as usgs_source
 
 
 @dataclass(frozen=True)
@@ -51,3 +57,38 @@ def test_a_clear_scene_passes_every_guard_of_its_300m_window() -> None:
     assert not usgs.clear([{**good, "b11_ok": 0.0}], 20, 0.2)
     assert not usgs.clear([{**good, "bands_read": 0.0}], 20, 0.2)
     assert not usgs.clear([{**good, "window": "core"}], 20, 0.2)
+
+
+def test_a_checkpoint_round_trips_window_rows_and_skips_a_cut_line(tmp_path: Path) -> None:
+    rows = [{"station": "USGS-1", "key": "k1", "window": "300m", "valid_px": 42,
+             "b11_median": 0.0123456789, "glint_share": math.nan, "bands_read": 1.0,
+             "b11_ok": 1.0, "selected": True, "B04": 0.25}]  # fmt: skip
+    path = tmp_path / "USGS-1-windows.jsonl"
+    path.write_text(json.dumps({"key": "k1", "rows": rows}, default=str) + '\n{"key": "k2", "ro',
+                    encoding="utf-8")  # fmt: skip
+    kept = usgs_pilot.checkpoint(path)
+    assert list(kept) == ["k1"]
+    columns = list(rows[0])
+    assert _csv(kept["k1"], columns) == _csv(rows, columns)
+
+
+def test_cached_turbidity_bodies_parse_like_fresh_ones(tmp_path: Path) -> None:
+    body = json.dumps({"features": [{"properties": {
+        "time": "2024-01-01T16:00:00+00:00", "value": "12.5", "approval_status": "Approved",
+        "qualifier": None}}]}).encode()  # fmt: skip
+    saved = tmp_path / "k.json"
+    usgs_pilot.keep_bodies(saved, [body])
+    cached = usgs_pilot.cached_bodies(saved)
+    assert cached == [body]
+    assert usgs_source.readings_from_bodies(cached)[0].value == 12.5
+    saved.write_text('["cut', encoding="utf-8")
+    assert usgs_pilot.cached_bodies(saved) is None
+
+
+def test_an_overpass_file_can_point_to_its_batch_response(tmp_path: Path) -> None:
+    body = b'{"features": []}'
+    usgs_pilot.keep_bodies(tmp_path / "batch-1.json", [body])
+    (tmp_path / "k.json").write_text(json.dumps({"batch": "batch-1.json"}), encoding="utf-8")
+    assert usgs_pilot.cached_bodies(tmp_path / "k.json") == [body]
+    (tmp_path / "lost.json").write_text(json.dumps({"batch": "gone.json"}), encoding="utf-8")
+    assert usgs_pilot.cached_bodies(tmp_path / "lost.json") is None

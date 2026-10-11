@@ -10,24 +10,31 @@ from __future__ import annotations
 
 import csv
 import io
+import json
 import math
+import os
 import re
 import time
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import httpx
 
 SAMPLES = "https://api.waterdata.usgs.gov/samples-data/results/narrow"
 RETRY_STATUS = {429, 500, 502, 503, 504}
+MAX_RATE_WAIT_S = 1800.0  # a rate limit's Retry-After is honored up to 30 minutes
 ABBREVIATIONS = {"MISS": "MISSISSIPPI"}
 
 
 def get(client: httpx.Client, url: str, params: Mapping[str, str] | None = None,
         attempts: int = 5) -> httpx.Response:  # fmt: skip
     """GET with backoff on rate limits and server errors.
+
+    A rate limit (429) waits for its ``Retry-After`` (up to 30 minutes: the quota is hourly);
+    a server error backs off for at most a minute. A free API key in ``USGS_API_KEY`` raises the
+    quota; it travels in the ``X-Api-Key`` header, so no URL, log or manifest holds it.
 
     Args:
         client: HTTP client.
@@ -41,13 +48,15 @@ def get(client: httpx.Client, url: str, params: Mapping[str, str] | None = None,
     Raises:
         httpx.HTTPStatusError: On a client error, or when every try failed.
     """
+    key = os.environ.get("USGS_API_KEY", "").strip()
+    headers = {"X-Api-Key": key} if key else None
     for attempt in range(attempts):
-        response = client.get(url, params=params)
+        response = client.get(url, params=params, headers=headers)
         if response.status_code not in RETRY_STATUS or attempt == attempts - 1:
             response.raise_for_status()
             return response
         wait = float(response.headers.get("Retry-After", 0) or 0) or 2.0 * 2**attempt
-        time.sleep(min(wait, 60.0))
+        time.sleep(min(wait, MAX_RATE_WAIT_S if response.status_code == 429 else 60.0))
     raise AssertionError("unreachable")
 
 
@@ -181,8 +190,55 @@ def continuous(client: httpx.Client, api: str, site: str, parameter: str, start:
         "datetime": f"{start.strftime(stamp)}/{end.strftime(stamp)}", "limit": "1000",
         "skipGeometry": "true", "properties": "time,value,approval_status,qualifier",
     }  # fmt: skip
-    found, bodies = features(client, f"{api}/collections/continuous/items", params)
-    return parse_readings([f.get("properties", {}) for f in found]), bodies
+    _, bodies = features(client, f"{api}/collections/continuous/items", params)
+    return readings_from_bodies(bodies), bodies
+
+
+def continuous_many(client: httpx.Client, api: str, site: str, parameter: str,
+                    windows: Sequence[tuple[datetime, datetime]]
+                    ) -> tuple[list[Reading], list[bytes]]:  # fmt: skip
+    """Continuous values of one site in several time windows, in one query.
+
+    The windows are joined in a CQL2 filter (``time`` between each start and end, ORed), so the
+    API's hourly quota (1,000 requests without a key) covers many overpasses per request. Every
+    reading of every window comes back; the caller picks each overpass's own.
+
+    Args:
+        client: HTTP client.
+        api: OGC API root.
+        site: E.g. ``USGS-07374000``.
+        parameter: E.g. ``63680``.
+        windows: ``(start, end)`` pairs (aware).
+
+    Returns:
+        The readings and the raw page bodies.
+    """
+    stamp = "%Y-%m-%dT%H:%M:%SZ"
+    clauses = " OR ".join(
+        f"(time >= TIMESTAMP('{a.astimezone(UTC).strftime(stamp)}') AND "
+        f"time <= TIMESTAMP('{b.astimezone(UTC).strftime(stamp)}'))"
+        for a, b in windows
+    )
+    params = {
+        "monitoring_location_id": site, "parameter_code": parameter, "f": "json",
+        "filter": clauses, "filter-lang": "cql2-text", "limit": "1000", "skipGeometry": "true",
+        "properties": "time,value,approval_status,qualifier",
+    }  # fmt: skip
+    _, bodies = features(client, f"{api}/collections/continuous/items", params)
+    return readings_from_bodies(bodies), bodies
+
+
+def readings_from_bodies(bodies: Sequence[bytes]) -> list[Reading]:
+    """The readings of ``continuous`` pages (fresh or cached).
+
+    Args:
+        bodies: The raw page bodies.
+
+    Returns:
+        Readings with a numeric value.
+    """
+    return parse_readings([f.get("properties", {}) for body in bodies
+                           for f in json.loads(body).get("features", [])])  # fmt: skip
 
 
 def samples(client: httpx.Client, site: str, parameter: str, start: str, end: str) -> bytes:
