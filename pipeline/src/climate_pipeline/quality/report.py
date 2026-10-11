@@ -61,6 +61,8 @@ def render(results: Results, cfg: QualityConfig, names: Sequence[str]) -> str:
         *([f"- {line}" for line in results.summary["incomplete"]] or ["- nothing"]), "",
     ]  # fmt: skip
     for name, title, columns in (
+        ("route_a_source_check", "Route A: source check (Planetary Computer minus Earth Search)",
+         ["scenes", "median_difference", "robust_sigma", "shift_sigma", "excluded"]),
         ("route_a_counts", "Route A: pairs (the Magdalena is the test set)",
          ["target", "variant", "window", "training_pairs", "training_streams", "training_stations",
           "test_pairs", "test_stations", "planetary_computer_pairs"]),

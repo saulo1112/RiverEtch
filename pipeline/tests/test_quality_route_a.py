@@ -112,3 +112,17 @@ def test_confirmed_adjacency_makes_the_core_window_primary() -> None:
             r for r in counts if r["target"] == "turbidity" and r["variant"] == "primary"
         )
         assert primary["window"] == window and primary["training_pairs"] == pairs
+
+
+def test_the_source_check_excludes_a_shifted_source() -> None:
+    days = [date(2020, 1, 1) + timedelta(days=5 * k) for k in range(8)]
+    es = [scene("s", d, 0.4 + 0.05 * k) for k, d in enumerate(days)]
+    same = [SceneRow(s.station, "planetary-computer", s.key, s.day, s.family, s.stats, s.bands,
+                     s.features) for s in es]  # fmt: skip
+    ci = route_a.ColombianInputs([], [], {"300m": es, "core": es}, {}, {"s": "CAUCA"}, same)
+    check = route_a.source_check(CFG, ci)
+    assert check["scenes"] == 8 and check["median_difference"] == 0 and not check["excluded"]
+    shifted = [scene("s", d, 0.4 + 0.05 * k + 0.3) for k, d in enumerate(days)]
+    ci.check = [SceneRow(s.station, "planetary-computer", s.key, s.day, s.family, s.stats,
+                         s.bands, s.features) for s in shifted]  # fmt: skip
+    assert route_a.source_check(CFG, ci)["excluded"] is True

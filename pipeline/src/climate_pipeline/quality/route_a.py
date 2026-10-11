@@ -54,6 +54,7 @@ class ColombianInputs:
     scenes: dict[str, list[SceneRow]]  # "300m", "core"
     flow: dict[str, tuple[str, dict[date, float]]]  # station -> (label, day -> value)
     stream_of: dict[str, str]
+    check: list[SceneRow] = field(default_factory=list)  # Planetary Computer, source check
 
 
 def scenes_from_windows(text: str, window: str) -> list[SceneRow]:
@@ -109,11 +110,62 @@ def load(cfg: QualityConfig, root: Path) -> ColombianInputs | None:
         if path.exists():
             series = samples_from_series(path.read_text(encoding="utf-8"), r["station_id"], "flow")
             flow[r["station_id"]] = (r["flow_label"], {s.day: s.value for s in series})
+    check = base / "imagery" / "source-check.csv"
     return ColombianInputs(
         stations=stations, samples=samples,
         scenes={w: scenes_from_windows(text, w) for w in ("300m", "core")}, flow=flow,
         stream_of={r["station_id"]: r["stream"] for r in stations},
+        check=scenes_from_windows(check.read_text(encoding="utf-8") if check.exists() else "",
+                                  "300m"),
     )  # fmt: skip
+
+
+def source_check(cfg: QualityConfig, ci: ColombianInputs) -> dict[str, Any]:
+    """The preregistered source check: Planetary Computer minus Earth Search on shared scenes.
+
+    The shift is the median difference of B8A/B04 over the scenes both sources measured (300 m
+    window, every guard passed), in units of the robust sigma (1.4826 x MAD) of Earth Search's
+    B8A/B04 on those scenes.
+
+    Args:
+        cfg: Settings.
+        ci: Inputs.
+
+    Returns:
+        ``scenes``, ``median_difference``, ``robust_sigma``, ``shift_sigma`` and ``excluded``
+        (True: Planetary Computer pairs leave the primary analyses).
+    """
+    window = cfg.window.as_calibration()
+    es = {
+        (s.station, s.key): s.features.get("B8A/B04", math.nan)
+        for s in ci.scenes["300m"]
+        if s.collection == "earth-search" and s.usable(window)
+    }
+    shared = [
+        (s.features.get("B8A/B04", math.nan), es[(s.station, s.key)])
+        for s in ci.check
+        if s.usable(window) and (s.station, s.key) in es
+    ]
+    shared = [(a, b) for a, b in shared if math.isfinite(a) and math.isfinite(b)]
+    if len(shared) < 3:
+        return {
+            "scenes": len(shared),
+            "median_difference": math.nan,
+            "robust_sigma": math.nan,
+            "shift_sigma": math.nan,
+            "excluded": False,
+        }
+    diff = float(np.median([a - b for a, b in shared]))
+    base = np.array([b for _, b in shared])
+    sigma = 1.4826 * float(np.median(np.abs(base - np.median(base))))
+    shift = diff / sigma if sigma > 0 else math.inf
+    return {
+        "scenes": len(shared),
+        "median_difference": diff,
+        "robust_sigma": sigma,
+        "shift_sigma": shift,
+        "excluded": abs(shift) > cfg.imagery.source_check.shift_sigma,
+    }
 
 
 def stable(pair: Pair, flow: Mapping[str, tuple[str, Mapping[date, float]]], cfg: QualityConfig,
@@ -140,7 +192,7 @@ def stable(pair: Pair, flow: Mapping[str, tuple[str, Mapping[date, float]]], cfg
 
 
 def pairs(cfg: QualityConfig, ci: ColombianInputs, target: str, window: str = "300m",
-          stable_days: bool = False) -> list[Pair]:  # fmt: skip
+          stable_days: bool = False, without: str = "") -> list[Pair]:  # fmt: skip
     """Fittable pairs of one target: +-1 day, or +-3 days with stable flow.
 
     Args:
@@ -149,13 +201,15 @@ def pairs(cfg: QualityConfig, ci: ColombianInputs, target: str, window: str = "3
         target: Target id.
         window: ``300m`` or ``core``.
         stable_days: Use the sensitivity window with the stability rule.
+        without: A source whose scenes are left out (the source check's exclusion).
 
     Returns:
         The pairs.
     """
     days = cfg.matchups.sensitivity_days if stable_days else cfg.matchups.primary_days
     samples = [s for s in ci.samples if s.target == target]
-    found = match(samples, ci.scenes[window], days, cfg.window.as_calibration())
+    scenes = [s for s in ci.scenes[window] if s.collection != without]
+    found = match(samples, scenes, days, cfg.window.as_calibration())
     return [p for p in fittable(found) if stable(p, ci.flow, cfg)]
 
 
@@ -425,6 +479,9 @@ def analyse(cfg: QualityConfig, ci: ColombianInputs, adjacency_confirmed: bool =
         name: [] for name in ("route_a_counts", "route_a_scores", "route_a_intervals",
                               "route_a_levels", "route_a_pairs")
     }  # fmt: skip
+    check = source_check(cfg, ci)
+    tables["route_a_source_check"] = [check]
+    without = "planetary-computer" if check["excluded"] else ""
 
     def stream(p: Pair) -> str:
         return ci.stream_of.get(p.station, "")
@@ -437,7 +494,7 @@ def analyse(cfg: QualityConfig, ci: ColombianInputs, adjacency_confirmed: bool =
                 (f"{other} window", other, False))  # fmt: skip
     for target in cfg.targets:
         for variant, window, wide in variants:
-            found = pairs(cfg, ci, target.id, window, wide)
+            found = pairs(cfg, ci, target.id, window, wide, without)
             source_of = {(s.station, s.key): s.collection for s in ci.scenes[window]}
             train = [p for p in found if stream(p) != test_stream]
             test = [p for p in found if stream(p) == test_stream]
