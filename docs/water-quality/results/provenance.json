@@ -1,0 +1,11 @@
+{
+  "acolite_commit": "ca477dd91dfb5f8eb77333824b38cb0bcce5e083",
+  "config_sha256": "6b4b44dd2d4a0fc3657b222d5ddf6ac41a543c4ea57d9eb7daa5bce660b8d5e2",
+  "input_manifests_sha256": {
+    "acolite/dsf/manifest.csv": "d9b4c5fe3b1a622b68158577762b86b455486dd25c8a0261347b60acd9b25cb3",
+    "acolite/radcor/manifest.csv": "260a59bd07284c4aae9a7fd34c2f6bf8eb9a62893a381a4e7ad30a0fd79af846",
+    "mdn/manifest.csv": "d569d251530d9e432660965127e4537bf82ea75a8dc8489417d435cd95750002"
+  },
+  "mdn_commit": "ae1626c7990436d512044fa878f6bf276b5ce20d",
+  "preregistration_blob": "32ba9d67331e5ff5ca4a3e87c71302ddb5d26c55"
+}

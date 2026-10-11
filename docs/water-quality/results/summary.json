@@ -1,0 +1,41 @@
+{
+  "incomplete": [
+    "Route A (Colombia): no value snapshot yet"
+  ],
+  "route_a": {},
+  "route_b": {
+    "adjacency_confirmed": true,
+    "best_mdsa": {
+      "tss/dsf": {
+        "mdsa": 136.5,
+        "model": "B3 MDN",
+        "n": 26
+      },
+      "tss/l2a": {
+        "mdsa": 335.6,
+        "model": "B2 Nechad 2010",
+        "n": 24
+      },
+      "tss/radcor": {
+        "mdsa": 125.2,
+        "model": "B3 MDN",
+        "n": 26
+      },
+      "turbidity/dsf": {
+        "mdsa": 117.2,
+        "model": "B1 Dogliotti 2015",
+        "n": 26
+      },
+      "turbidity/l2a": {
+        "mdsa": 100.2,
+        "model": "B1 Dogliotti 2015",
+        "n": 27
+      },
+      "turbidity/radcor": {
+        "mdsa": 80.0,
+        "model": "B1 Dogliotti 2015",
+        "n": 27
+      }
+    }
+  }
+}

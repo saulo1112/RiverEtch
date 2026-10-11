@@ -1,0 +1,4 @@
+path,sha256,bytes,note
+predictions.csv,21c3c365f6ce7b9e236aaad23c3e20d78233de4b9e91fa726fc6819e3fd875a1,5164,"MDN ae1626c7990436d512044fa878f6bf276b5ce20d; weights Weights/MSI/1b79098defa9693eb03ac734467c3854cf4fb81ce3d1a96b9bf0f511f1c997b1.zip sha256 e6b0476c57756cc63108c11a2eb5489320c4775b249ae1c3c7dd990a74bdec26; product chl,tss,cdom"
+../acolite/dsf/windows.csv,4d1fd310c05128e066e24512c6466b5317f6ad5ae72f4278760c7558e7987dd0,,input
+../acolite/radcor/windows.csv,aa33016ae4e8402adb635f682a8cfc7b11ff88699b92ab3f4de029b5ee6ef019,,input
