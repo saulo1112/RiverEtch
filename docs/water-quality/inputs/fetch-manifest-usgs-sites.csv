@@ -1,0 +1,5 @@
+path,url,status,bytes,sha256,fetched_utc,note
+usgs/monitoring-locations.json,https://api.waterdata.usgs.gov/ogcapi/v0/collections/monitoring-locations/items,200,64837,86797b569aad5eca21cf58e6a55fc9d8030a4fe359fe64acdc19a1e460336eff,2026-10-11T15:30:42+00:00,features of the candidate sites; full pages sha256 cf2eee8e0e0bb51293579b39a629f548d99141575f06ba254079b81a9e71679e
+usgs/site-read-errors.csv,derived,200,7513,4f07da993bbca35c2264040293f744f35a52a6d3fe59cf2b6d02c5e4b8b74eac,2026-10-11T16:37:30+00:00,
+usgs/sites.csv,derived,200,5460,47e9bfe7d27360752e21c343046e3193e4152bb4ffb4755bfd25393bfbac2066,2026-10-11T16:37:30+00:00,the frozen selection
+usgs/time-series-metadata.json,https://api.waterdata.usgs.gov/ogcapi/v0/collections/time-series-metadata/items,200,81685,bf3eca29599359e8c3b574b4f3ebb8c97f301e376e559b312273b900266ade8c,2026-10-11T15:30:42+00:00,features of the candidate sites; full pages sha256 e56a317d6dbd1767d9c106d42eb1f357021c083a362d374a94ec8f9bef4ec39a
