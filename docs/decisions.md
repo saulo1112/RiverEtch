@@ -234,3 +234,7 @@ last. Format: context → decision → consequences.
     otherwise it is `not_evaluated`. `unexplained` is never shown as human pressure.
   - IDEAM snapshots are committed under their CC BY-SA 4.0 licence with attribution. The
     repository-level licence is still open.
+- **Outcome (2026-10-10):** [calibration report](magdalena-validation/calibration-report.md).
+  - Maturity reached: baselined. Water extent follows discharge or level at 7 stations.
+  - No calibration passed. Turbidity's band diagnostic passed on L2A, but its hold-out was one pair
+    short and ACOLITE did not confirm it.
