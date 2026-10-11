@@ -70,3 +70,28 @@ recorded as `time_box`, and the stage reports what it has.
      is spent; the box counts ACOLITE's processing time over all runs.
 6. `climate-pipeline calibration run` reads `acolite-windows.csv` when it exists. Without it, the
    report lists Stage 2c as incomplete.
+
+## Water-quality validation v2 (Route B)
+
+The v2 validation ([preregistration](../../docs/water-quality/preregistration.md)) reuses this
+runner. Its defaults, and so D15's snapshot, do not change. Run from `pipeline/`, with the
+environment variables of step 4 (`E`, `GDAL_DRIVER_PATH`, `GDAL_DATA`, `PROJ_DATA`).
+
+- **DSF, measured again:** the saved runs, with `rhos` at 443 nm (`B01`) and the medians of
+  ACOLITE's `rhow` added. Nothing is processed.
+
+  ```bash
+  "$E/python.exe" -I acolite/run_windows.py --measure-only \
+    --outputs docs/water-quality/inputs/acolite/dsf
+  ```
+
+- **RAdCor:** from the Level-1R files the D15 runs saved (no Level-1C download, no limit), with
+  [settings-radcor.txt](settings-radcor.txt), in its own folder, state file and 4 h time box.
+
+  ```bash
+  "$E/python.exe" -I acolite/run_windows.py --settings acolite/settings-radcor.txt \
+    --runs runs-radcor --state state-radcor.json --from-l1r runs --time-box-h 4 \
+    --outputs docs/water-quality/inputs/acolite/radcor
+  ```
+
+  The RAdCor runs take about 20 MB each (0.6 GB for the 29 scenes): its extra outputs are off.
