@@ -110,6 +110,27 @@ def _parser() -> argparse.ArgumentParser:
     calibration.add_argument(
         "--out", type=Path, default=None, help="run: results folder (default: from the config)"
     )
+    quality = commands.add_parser(
+        "quality", help="water-quality estimates v2: offline results from the snapshots"
+    )
+    quality.add_argument(
+        "action", choices=("fetch", "run", "verify"),
+        help="fetch --stations-only: the frozen station list; run: offline results; verify: "
+        "recompute and compare with the MANIFEST",
+    )  # fmt: skip
+    quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+    quality.add_argument("--stations-only", action="store_true", help="fetch: selection only")
+    quality.add_argument(
+        "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
+    )
+    quality.add_argument("--workers", type=int, default=8)
+    quality.add_argument(
+        "--config", type=Path, default=Path("pipeline/water-quality.yaml"),
+        help="settings, relative to the root",
+    )  # fmt: skip
+    quality.add_argument(
+        "--out", type=Path, default=None, help="run: results folder (default: from the config)"
+    )
     return parser
 
 
@@ -347,6 +368,61 @@ def calibration(args: argparse.Namespace) -> int:
     return 0
 
 
+def quality(args: argparse.Namespace) -> int:
+    """Run ``quality run`` or ``verify``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code (1 when verification finds a mismatch).
+    """
+    import json
+    import platform
+    from datetime import UTC, datetime
+
+    from climate_pipeline.provenance import head, library_versions
+    from climate_pipeline.quality.config import load_quality_config
+    from climate_pipeline.quality.report import verify, write_outputs
+    from climate_pipeline.quality.run import analyse
+
+    root = args.root.resolve()
+    config = root / args.config
+    cfg = load_quality_config(config)
+    if args.action == "fetch":
+        from climate_pipeline.quality.fetching import fetch_stations
+
+        if args.stations_only:
+            rows = fetch_stations(cfg, root, root / args.cache, args.workers)
+            selected = sum(1 for r in rows if r.get("selected"))
+            print(f"{len(rows)} candidates, {selected} selected")
+            return 0
+        from climate_pipeline.quality.values import fetch_values
+
+        counts = fetch_values(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "verify":
+        problems = verify(cfg, root, config)
+        for line in problems:
+            print(line)
+        print("verified" if not problems else f"{len(problems)} mismatches")
+        return 1 if problems else 0
+    started = datetime.now(UTC).isoformat(timespec="seconds")
+    out = root / args.out if args.out is not None else root / cfg.outputs.results
+    write_outputs(analyse(cfg, root), cfg, root, config, out)
+    run_info = {
+        "commit": head(), "started_utc": started,
+        "finished_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+        "python": platform.python_version(), "libraries": library_versions(),
+    }  # fmt: skip
+    (out / "run.json").write_text(
+        json.dumps(run_info, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
+    print(f"results in {out}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the pipeline command-line interface.
 
@@ -367,6 +443,11 @@ def main(argv: list[str] | None = None) -> int:
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
         )
         return calibration(args)
+    if args.command == "quality":
+        logging.basicConfig(
+            level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+        )
+        return quality(args)
     if args.command in ("validation", "catchment-grid"):
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
