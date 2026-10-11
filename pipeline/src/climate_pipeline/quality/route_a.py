@@ -5,8 +5,8 @@ values never fitted). The primary window is +-1 day; +-3 days is a sensitivity a
 the flow was stable between the sample day and the scene day. The test stream (the Magdalena)
 never enters a fit before its single evaluation. Selection is leave-one-river-out over the other
 streams; the interval quantiles are Mondrian split-conformal quantiles of those out-of-fold log
-residuals. Levels come from the test metrics of the model before the refit. A1 is the only Route A
-candidate without USGS data; A2-A4 join with the USGS pilot.
+residuals. Levels come from the test metrics of the model before the refit. A1 needs no USGS data;
+A2 and A3 (``quality.transfer``) are pretrained on the USGS pilot and adjusted to Colombian units.
 """
 
 from __future__ import annotations
@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+from numpy.typing import NDArray
 
 from climate_pipeline.calibration import models, stats
 from climate_pipeline.calibration.fetching import read_stations
@@ -38,6 +39,7 @@ from climate_pipeline.calibration.matchups import (
     samples_from_soda,
 )
 from climate_pipeline.calibration.stations import number
+from climate_pipeline.quality import cards, features, transfer
 from climate_pipeline.quality.config import Criteria, QualityConfig, Target
 
 STAT_NAMES = ("window_px", "data_px", "valid_px", "contamination", "glint_share", "b11_median",
@@ -55,6 +57,7 @@ class ColombianInputs:
     flow: dict[str, tuple[str, dict[date, float]]]  # station -> (label, day -> value)
     stream_of: dict[str, str]
     check: list[SceneRow] = field(default_factory=list)  # Planetary Computer, source check
+    lab_dir: Path = Path("docs/water-quality/inputs/lab")  # A4's forests (cards name them)
 
 
 def scenes_from_windows(text: str, window: str) -> list[SceneRow]:
@@ -111,12 +114,16 @@ def load(cfg: QualityConfig, root: Path) -> ColombianInputs | None:
             series = samples_from_series(path.read_text(encoding="utf-8"), r["station_id"], "flow")
             flow[r["station_id"]] = (r["flow_label"], {s.day: s.value for s in series})
     check = base / "imagery" / "source-check.csv"
+    widths = {r["station_id"]: number(r["width_m"]) for r in stations}
+    windows_f = features.with_features(
+        cfg.features, {w: scenes_from_windows(text, w) for w in ("300m", "core")}, widths
+    )
     return ColombianInputs(
-        stations=stations, samples=samples,
-        scenes={w: scenes_from_windows(text, w) for w in ("300m", "core")}, flow=flow,
+        stations=stations, samples=samples, scenes=windows_f, flow=flow,
         stream_of={r["station_id"]: r["stream"] for r in stations},
         check=scenes_from_windows(check.read_text(encoding="utf-8") if check.exists() else "",
                                   "300m"),
+        lab_dir=base / "lab",
     )  # fmt: skip
 
 
@@ -272,10 +279,15 @@ def leave_one_group_out(
 
 @dataclass(frozen=True)
 class Quantiles:
-    """Mondrian split-conformal quantiles of the log residual, per tercile of the estimate."""
+    """Split-conformal quantiles of the log residual, per tercile of the estimate (Mondrian).
+
+    A coverage in ``pooled`` has one quantile over every residual, repeated in each tercile
+    (deviation 4: some tercile had too few residuals for a finite Mondrian quantile).
+    """
 
     edges: tuple[float, float]  # upper edges of the first two terciles of the estimate
     q: Mapping[float, tuple[float, float, float]]  # coverage -> quantile per tercile
+    pooled: frozenset[float] = frozenset()
 
     def interval(self, estimate: float, coverage: float) -> tuple[float, float]:
         """The interval of an estimate.
@@ -285,7 +297,7 @@ class Quantiles:
             coverage: E.g. 0.9.
 
         Returns:
-            ``(low, high)``; infinite when a tercile had too few residuals.
+            ``(low, high)``; infinite when even the pooled residuals were too few.
         """
         k = 0 if estimate < self.edges[0] else 1 if estimate < self.edges[1] else 2
         q = self.q[coverage][k]
@@ -295,6 +307,9 @@ class Quantiles:
 def conformal(estimates: Sequence[float], observed: Sequence[float],
               coverages: Sequence[float]) -> Quantiles | None:  # fmt: skip
     """Quantiles from out-of-fold estimates (the ceil((n+1)(1-a))-th smallest residual per tercile).
+
+    Where some tercile has too few residuals for a finite quantile at a coverage (fewer than 9 at
+    90 %, 4 at 80 %), that coverage uses one quantile over all the residuals (deviation 4).
 
     Args:
         estimates: Out-of-fold estimates.
@@ -313,14 +328,20 @@ def conformal(estimates: Sequence[float], observed: Sequence[float],
     edges = (float(np.quantile(est, 1 / 3)), float(np.quantile(est, 2 / 3)))
     tercile = np.where(est < edges[0], 0, np.where(est < edges[1], 1, 2))
     q: dict[float, tuple[float, float, float]] = {}
+    pooled = set()
     for c in coverages:
-        per = []
-        for k in range(3):
-            r = np.sort(res[tercile == k])
-            rank = math.ceil((len(r) + 1) * c)
-            per.append(float(r[rank - 1]) if 0 < rank <= len(r) else math.inf)
+        per = [_rank_quantile(res[tercile == k], c) for k in range(3)]
+        if not all(math.isfinite(v) for v in per):
+            per = [_rank_quantile(res, c)] * 3
+            pooled.add(c)
         q[c] = (per[0], per[1], per[2])
-    return Quantiles(edges, q)
+    return Quantiles(edges, q, frozenset(pooled))
+
+
+def _rank_quantile(residuals: NDArray[np.float64], coverage: float) -> float:
+    r = np.sort(residuals)
+    rank = math.ceil((len(r) + 1) * coverage)
+    return float(r[rank - 1]) if 0 < rank <= len(r) else math.inf
 
 
 def covered(quantiles: Quantiles | None, estimates: Sequence[float], observed: Sequence[float],
@@ -459,25 +480,47 @@ def bin_rows(cfg: QualityConfig, target: Target, candidate: str, test: Sequence[
     return rows
 
 
-def analyse(cfg: QualityConfig, ci: ColombianInputs, adjacency_confirmed: bool = False,
-            ) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
-    """Pairs, A1 against the null, the local ceiling, intervals and levels, per target.
+def select(loro: Mapping[str, Mapping[str, float]], cfg: QualityConfig) -> str:
+    """The product model: the lowest leave-one-river-out MdSA; within the margin, the simplest.
+
+    Args:
+        loro: Candidate -> its leave-one-river-out metrics.
+        cfg: Settings (the margin, in MdSA points).
+
+    Returns:
+        The candidate id (``A1`` when no candidate has a finite MdSA).
+    """
+    finite = {c: m["mdsa"] for c, m in loro.items() if math.isfinite(m.get("mdsa", math.nan))}
+    if not finite:
+        return "A1"
+    best = min(finite.values())
+    order = [c for c in ("A1", "A2", "A3", "A4") if c in finite]
+    return next(c for c in order if finite[c] <= best + cfg.selection.simpler_within_mdsa)
+
+
+def analyse(
+    cfg: QualityConfig, ci: ColombianInputs, adjacency_confirmed: bool = False,
+    usgs: transfer.UsgsInputs | None = None,
+) -> dict[str, list[dict[str, Any]]]:  # fmt: skip
+    """Pairs, the candidates against the null, the product model, intervals and levels.
 
     Args:
         cfg: Settings.
         ci: Inputs.
         adjacency_confirmed: Route B's verdict: the core window becomes the primary window (the
             preregistered rule), and the 300 m window a sensitivity.
+        usgs: The USGS pilot (A2 and A3 need it).
 
     Returns:
         Table name -> rows.
     """
     from climate_pipeline.quality.route_b import _seed
 
+    lab_dir = ci.lab_dir
     test_stream = cfg.stations.test_stream
     tables: dict[str, list[dict[str, Any]]] = {
         name: [] for name in ("route_a_counts", "route_a_scores", "route_a_intervals",
-                              "route_a_levels", "route_a_pairs")
+                              "route_a_levels", "route_a_pairs", "_cards")
     }  # fmt: skip
     check = source_check(cfg, ci)
     tables["route_a_source_check"] = [check]
@@ -499,13 +542,15 @@ def analyse(cfg: QualityConfig, ci: ColombianInputs, adjacency_confirmed: bool =
             train = [p for p in found if stream(p) != test_stream]
             test = [p for p in found if stream(p) == test_stream]
             sources_found = [source_of.get((p.station, p.scene_key)) for p in found]
-            pc = sources_found.count("planetary-computer")
+            usgs_pairs = len(usgs.pairs.get((target.id, window), [])) if usgs else 0
             tables["route_a_counts"].append({
                 "target": target.id, "variant": variant, "window": window,
                 "training_pairs": len(train),
                 "training_streams": len({stream(p) for p in train}),
                 "training_stations": len({p.station for p in train}), "test_pairs": len(test),
-                "test_stations": len({p.station for p in test}), "planetary_computer_pairs": pc,
+                "test_stations": len({p.station for p in test}),
+                "planetary_computer_pairs": sources_found.count("planetary-computer"),
+                "usgs_pairs": usgs_pairs,
             })  # fmt: skip
             if variant == "primary":
                 test_keys = {(p.station, p.sample_day) for p in test}
@@ -528,44 +573,69 @@ def analyse(cfg: QualityConfig, ci: ColombianInputs, adjacency_confirmed: bool =
                 score("A1", "test (Magdalena)", {"status": "insufficient_data",
                                                  "n": float(len(test))})  # fmt: skip
                 continue
-            oof = leave_one_group_out(train, stream, a1)
-            oof_null = leave_one_group_out(train, stream, null)
-            quantiles = conformal(oof, [p.value for p in train], cfg.intervals.coverages)
+            candidates: dict[str, Predictor] = {"A1": a1}
+            if usgs is not None:
+                for cid, model in transfer.pretrained_models(cfg, usgs, target.id, window).items():
+                    candidates[cid] = transfer.transfer_predictor(model, cfg)
             seed = _seed(cfg.seed, "route_a", target.id, variant)
-            score("A1", "leave-one-river-out", evaluate(cfg, train, oof, oof_null, quantiles, seed))
-            est, est_null = a1(train, test), null(train, test)
-            result = evaluate(cfg, test, est, est_null, quantiles, seed + 1)
-            overall = level(result, cfg)
-            score("A1", "test (Magdalena)", {"level": overall, **result})
+            values = [p.value for p in train]
+            oof_null = leave_one_group_out(train, stream, null)
+            loro: dict[str, dict[str, float]] = {}
+            quantiles: dict[str, Quantiles | None] = {}
+            oofs: dict[str, list[float]] = {}
+            for cid, predictor in candidates.items():
+                oofs[cid] = leave_one_group_out(train, stream, predictor)
+                quantiles[cid] = conformal(oofs[cid], values, cfg.intervals.coverages)
+                loro[cid] = evaluate(cfg, train, oofs[cid], oof_null, quantiles[cid], seed)
+                score(cid, "leave-one-river-out", loro[cid])
+            product = select(loro, cfg)
+            est_null = null(train, test)
+            chosen: tuple[list[float], dict[str, float], str] | None = None
+            for cid, predictor in candidates.items():
+                est = predictor(train, test)
+                result = evaluate(cfg, test, est, est_null, quantiles[cid], seed + 1)
+                overall = level(result, cfg)
+                score(cid, "test (Magdalena)", {"level": overall, "product": cid == product,
+                                                **result})  # fmt: skip
+                if cid == product:
+                    chosen = (est, result, overall)
             score("M0", "test (Magdalena)", evaluate(cfg, test, est_null, est_null, None, seed + 2))
             local = leave_one_group_out(test, station, a1)
             score("A1 local", "Magdalena LOSO (report-only)",
                   evaluate(cfg, test, local, null(test, test), None, seed + 3))  # fmt: skip
-            refit = leave_one_group_out(test, station, a1, fixed=train)
-            score("A1 refit", "Magdalena LOSO of the refit",
-                  evaluate(cfg, test, refit, null(test, test), None, seed + 4))  # fmt: skip
-            if quantiles is not None:
+            refit = leave_one_group_out(test, station, candidates[product], fixed=train)
+            refit_metrics = evaluate(cfg, test, refit, null(test, test), None, seed + 4)
+            score(f"{product} refit", "Magdalena LOSO of the refit", refit_metrics)
+            q = quantiles[product]
+            if q is not None:
                 for k in range(3):
                     tables["route_a_intervals"].append({
-                        "target": target.id, "variant": variant, "candidate": "A1",
-                        "tercile": k + 1,
-                        "upper_edge": quantiles.edges[k] if k < 2 else math.inf,
-                        **{f"factor{round(c * 100)}": math.exp(quantiles.q[c][k])
+                        "target": target.id, "variant": variant, "candidate": product,
+                        "tercile": k + 1, "upper_edge": q.edges[k] if k < 2 else math.inf,
+                        **{f"factor{round(c * 100)}": math.exp(q.q[c][k])
                            for c in cfg.intervals.coverages},
+                        "pooled": " ".join(f"{c:g}" for c in sorted(q.pooled)),
                     })  # fmt: skip
-            if variant == "primary":
-                tables["route_a_levels"].append({
-                    "target": target.id, "candidate": "A1", "predicted_range": "all",
+            if variant == "primary" and chosen is not None:
+                est, result, overall = chosen
+                level_rows = [{
+                    "target": target.id, "candidate": product, "predicted_range": "all",
                     "n": int(result["n"]), "rated": True, "mdsa": result["mdsa"],
                     "sspb": result["sspb"], "coverage90": result["coverage90"], "level": overall,
-                })  # fmt: skip
-                tables["route_a_levels"] += bin_rows(cfg, target, "A1", test, est, est_null,
-                                                     quantiles, overall)  # fmt: skip
+                }, *bin_rows(cfg, target, product, test, est, est_null, q, overall)]  # fmt: skip
+                tables["route_a_levels"] += level_rows
+                tables["_cards"].append(cards.product_card(
+                    cfg, target, window, product, train, test, usgs, oofs[product], refit,
+                    {"loro": loro[product], "test": result, "refit": refit_metrics},
+                    [{k: v for k, v in r.items() if k not in ("target", "candidate")}
+                     for r in level_rows],
+                    lab_dir,
+                ))  # fmt: skip
     return tables
 
 
 def summary(tables: Mapping[str, list[dict[str, Any]]]) -> dict[str, Any]:
-    """The Route A headline: per target, A1's test error and level on the primary pairs.
+    """The Route A headline: per target, the product model's test error and level (primary).
 
     Args:
         tables: Route A tables.
@@ -577,11 +647,12 @@ def summary(tables: Mapping[str, list[dict[str, Any]]]) -> dict[str, Any]:
     for row in tables["route_a_scores"]:
         if row["variant"] != "primary" or row["evaluation"] != "test (Magdalena)":
             continue
-        if row["candidate"] != "A1":
+        if not row.get("product") and row.get("status") != "insufficient_data":
             continue
         mdsa = row.get("mdsa", math.nan)
         out[row["target"]] = {
-            "level": row.get("level", row.get("status", "none")), "n": int(row.get("n", 0)),
+            "candidate": row["candidate"], "level": row.get("level", row.get("status", "none")),
+            "n": int(row.get("n", 0)),
             "mdsa": round(mdsa, 1) if isinstance(mdsa, float) and math.isfinite(mdsa) else None,
         }  # fmt: skip
     return out

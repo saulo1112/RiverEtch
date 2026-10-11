@@ -65,12 +65,13 @@ def render(results: Results, cfg: QualityConfig, names: Sequence[str]) -> str:
          ["scenes", "median_difference", "robust_sigma", "shift_sigma", "excluded"]),
         ("route_a_counts", "Route A: pairs (the Magdalena is the test set)",
          ["target", "variant", "window", "training_pairs", "training_streams", "training_stations",
-          "test_pairs", "test_stations", "planetary_computer_pairs"]),
-        ("route_a_scores", "Route A: A1 and the null model",
+          "test_pairs", "test_stations", "planetary_computer_pairs", "usgs_pairs"]),
+        ("route_a_scores", "Route A: candidates and the null model",
          ["target", "variant", "candidate", "evaluation", "n", "stations", "mdsa", "sspb", "rho",
-          "rho_low", "null_mdsa", "coverage80", "coverage90", "level", "status"]),
-        ("route_a_intervals", "Route A: interval factors (Mondrian conformal, per tercile)",
-         ["target", "variant", "candidate", "tercile", "upper_edge", "factor80", "factor90"]),
+          "rho_low", "null_mdsa", "coverage80", "coverage90", "level", "product", "status"]),
+        ("route_a_intervals", "Route A: interval factors (Mondrian per tercile, or pooled)",
+         ["target", "variant", "candidate", "tercile", "upper_edge", "factor80", "factor90",
+          "pooled"]),
         ("route_a_levels", "Route A: levels by predicted range (primary pairs)",
          ["target", "candidate", "predicted_range", "n", "rated", "mdsa", "sspb", "coverage90",
           "level"]),
@@ -112,6 +113,11 @@ def write_outputs(results: Results, cfg: QualityConfig, root: Path, config: Path
         written.append(path)
     _json(results.summary, out / "summary.json")
     written.append(out / "summary.json")
+    for card in results.cards:
+        path = out / "models" / f"{card['target']}.json"
+        path.parent.mkdir(exist_ok=True)
+        _json(card, path)
+        written.append(path)
     inputs = root / cfg.outputs.inputs
     provenance = {
         "preregistration_blob": git_blob(root / cfg.preregistration),

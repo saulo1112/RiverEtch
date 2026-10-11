@@ -1,0 +1,135 @@
+{
+  "adjustment": null,
+  "candidate": "A1",
+  "featureRange": {
+    "B8A/B04": [
+      0.002915,
+      1.004263
+    ]
+  },
+  "intervals": {
+    "edges": [
+      189.640829,
+      283.540957
+    ],
+    "pooled": [],
+    "q": {
+      "0.8": [
+        1.851397,
+        3.06053,
+        1.563952
+      ],
+      "0.9": [
+        5.916979,
+        3.686562,
+        1.657146
+      ]
+    }
+  },
+  "levels": [
+    {
+      "coverage90": 0.9524,
+      "level": "none",
+      "mdsa": 208.1475,
+      "n": 21,
+      "predicted_range": "all",
+      "rated": true,
+      "sspb": -90.9985
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 286.6122,
+      "n": 2,
+      "predicted_range": "<50",
+      "rated": false,
+      "sspb": 44.3687
+    },
+    {
+      "coverage90": 0.8333,
+      "level": "none",
+      "mdsa": 427.6411,
+      "n": 6,
+      "predicted_range": "50-200",
+      "rated": false,
+      "sspb": 240.433
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 130.7401,
+      "n": 13,
+      "predicted_range": "200-500",
+      "rated": true,
+      "sspb": -130.7401
+    }
+  ],
+  "metrics": {
+    "loro": {
+      "coverage80": 0.8571,
+      "coverage90": 0.9286,
+      "mape": 240.4219,
+      "mdsa": 174.3921,
+      "n": 14.0,
+      "null_mdsa": 82.8131,
+      "rho": 0.0638,
+      "rho_high": 0.4619,
+      "rho_low": -0.5596,
+      "sspb": -27.2783,
+      "stations": 6.0
+    },
+    "refit": {
+      "coverage80": null,
+      "coverage90": null,
+      "mape": 282.2191,
+      "mdsa": 163.117,
+      "n": 21.0,
+      "null_mdsa": 202.3739,
+      "rho": 0.6571,
+      "rho_high": 0.8661,
+      "rho_low": -0.0359,
+      "sspb": -54.7925,
+      "stations": 8.0
+    },
+    "test": {
+      "coverage80": 0.7619,
+      "coverage90": 0.9524,
+      "mape": 249.31,
+      "mdsa": 208.1475,
+      "n": 21.0,
+      "null_mdsa": 347.836,
+      "rho": 0.6662,
+      "rho_high": 0.8685,
+      "rho_low": -0.0298,
+      "sspb": -90.9985,
+      "stations": 8.0
+    }
+  },
+  "modelId": "A1:tss:core",
+  "parameters": {
+    "coefficients": [
+      6.0352112878,
+      0.9175323894
+    ],
+    "features": [
+      "B8A/B04"
+    ],
+    "kind": "loglog",
+    "transforms": [
+      "log"
+    ]
+  },
+  "parametersHash": "bd5e49c0dabf6699fc5a7750530d2ea0613c30dd42182163dbd3e8b3706ab67f",
+  "target": "tss",
+  "targetRange": [
+    5.0,
+    1946.0
+  ],
+  "trainingPairs": {
+    "colombia": 35,
+    "usgs": 0
+  },
+  "unit": "mg/L",
+  "version": "1",
+  "window": "core"
+}

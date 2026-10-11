@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from climate_pipeline.quality import route_a, route_b
+from climate_pipeline.quality import lab, route_a, route_b, transfer
 from climate_pipeline.quality.config import QualityConfig
 
 
@@ -24,6 +24,7 @@ class Results:
 
     tables: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     summary: dict[str, Any] = field(default_factory=dict)
+    cards: list[dict[str, Any]] = field(default_factory=list)  # the product models
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -79,10 +80,19 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
     results.tables.update(route_b.analyse(cfg, rb))
     confirmed = bool(route_b.summary(results.tables)["adjacency_confirmed"])
     ci = route_a.load(cfg, root)
+    usgs = transfer.load_usgs(cfg, root)
+    if usgs is not None:
+        usgs.forests = lab.forests(cfg, root)
+        if not usgs.forests:
+            missing.append("Route A A4: no lab model yet (pipeline/lab/README.md)")
+    if usgs is None:
+        missing.insert(0, "Route A (USGS pilot): no value snapshot yet; A2 and A3 not run")
     if ci is None:
         missing.insert(0, "Route A (Colombia): no value snapshot yet")
     else:
-        results.tables.update(route_a.analyse(cfg, ci, adjacency_confirmed=confirmed))
+        tables = route_a.analyse(cfg, ci, confirmed, usgs)
+        results.cards = tables.pop("_cards", [])
+        results.tables.update(tables)
     results.summary = {
         "incomplete": missing,
         "route_a": route_a.summary(results.tables) if ci is not None else {},

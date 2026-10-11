@@ -1,0 +1,144 @@
+{
+  "adjustment": null,
+  "candidate": "A1",
+  "featureRange": {
+    "B8A/B04": [
+      0.002915,
+      1.004263
+    ]
+  },
+  "intervals": {
+    "edges": [
+      179.228412,
+      264.378008
+    ],
+    "pooled": [],
+    "q": {
+      "0.8": [
+        1.664041,
+        1.896218,
+        1.854945
+      ],
+      "0.9": [
+        1.87794,
+        2.75112,
+        2.786491
+      ]
+    }
+  },
+  "levels": [
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 128.9785,
+      "n": 22,
+      "predicted_range": "all",
+      "rated": true,
+      "sspb": -32.4808
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 316.9686,
+      "n": 2,
+      "predicted_range": "<30",
+      "rated": false,
+      "sspb": -316.9686
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 313.2213,
+      "n": 1,
+      "predicted_range": "30-100",
+      "rated": false,
+      "sspb": 313.2213
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 95.1937,
+      "n": 13,
+      "predicted_range": "100-300",
+      "rated": true,
+      "sspb": -5.7757
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 126.8785,
+      "n": 6,
+      "predicted_range": "300-1000",
+      "rated": false,
+      "sspb": -117.1095
+    }
+  ],
+  "metrics": {
+    "loro": {
+      "coverage80": 0.9286,
+      "coverage90": 1.0,
+      "mape": 201.676,
+      "mdsa": 143.7149,
+      "n": 14.0,
+      "null_mdsa": 129.6328,
+      "rho": 0.3275,
+      "rho_high": 0.5901,
+      "rho_low": -0.3685,
+      "sspb": -18.2669,
+      "stations": 6.0
+    },
+    "refit": {
+      "coverage80": null,
+      "coverage90": null,
+      "mape": 178.8683,
+      "mdsa": 138.7815,
+      "n": 22.0,
+      "null_mdsa": 154.951,
+      "rho": 0.7055,
+      "rho_high": 0.8888,
+      "rho_low": 0.0972,
+      "sspb": -41.7887,
+      "stations": 8.0
+    },
+    "test": {
+      "coverage80": 0.7273,
+      "coverage90": 1.0,
+      "mape": 161.2338,
+      "mdsa": 128.9785,
+      "n": 22.0,
+      "null_mdsa": 221.4586,
+      "rho": 0.7602,
+      "rho_high": 0.9031,
+      "rho_low": 0.2331,
+      "sspb": -32.4808,
+      "stations": 8.0
+    }
+  },
+  "modelId": "A1:turbidity:core",
+  "parameters": {
+    "coefficients": [
+      5.8435052847,
+      0.7426654956
+    ],
+    "features": [
+      "B8A/B04"
+    ],
+    "kind": "loglog",
+    "transforms": [
+      "log"
+    ]
+  },
+  "parametersHash": "7e1be46a53f372e2f96097ace0d543499535090672e888015610f655e58135a7",
+  "target": "turbidity",
+  "targetRange": [
+    9.8,
+    1800.0
+  ],
+  "trainingPairs": {
+    "colombia": 36,
+    "usgs": 0
+  },
+  "unit": "NTU",
+  "version": "1",
+  "window": "core"
+}

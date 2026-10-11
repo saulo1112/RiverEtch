@@ -454,3 +454,25 @@ The seed is 20261010. Every network step is resumable from its cache.
      preregistered rule. CAQUETA has no sample since 2015-07.
    - **What was seen:** metadata only (stream names and sample counts). The selection was stopped
      and run again; the snap and width reads are cached, so no outcome could change.
+4. **2026-10-11, before any USGS value was fetched: a pooled interval where a tercile is too
+   small.**
+   - **What was preregistered:** Mondrian split conformal. Per tercile of ŷ, q is the
+     ⌈(n + 1)(1 − α)⌉-th smallest residual.
+   - **What Phase 1 showed:** there are 14 Colombian training pairs per target, so a tercile holds
+     4–5 LORO residuals. At 90 %, the rank exceeds n in any tercile with fewer than 9 residuals.
+     Then q is infinite, the interval covers everything and the coverage is 100 %. No target could
+     meet the 90 % coverage rule of the validated and estimated levels ([80 %, 97 %]), whatever its
+     error.
+   - **The change:** at each coverage, the Mondrian quantiles are used only when every tercile has
+     enough residuals for a finite one (≥ 9 at 90 %, ≥ 4 at 80 %).
+     - Otherwise that coverage uses one quantile over all the calibration residuals, the same in
+       every tercile. With fewer than 9 residuals in all, it stays infinite.
+     - The intervals table and the model cards name the pooled coverages.
+   - **What does not change:** the calibration residuals (the Colombian LORO residuals of the
+     selected model), the coverage check on the Magdalena and every level rule.
+   - **What was seen:**
+     - Route A's Phase 1 results for A1 (`15e5d8d`). With the change, A1's 90 % coverage on the
+       Magdalena test moves from 100 % to 95–97 % in five of its six rows. It stays at 100 % for
+       turbidity on the primary pairs, where the pooled factor is ×16.
+     - No level changes: A1's test MdSA (92–208 %) fails every level.
+     - No USGS value and no A2–A4 result had been computed.

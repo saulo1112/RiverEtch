@@ -63,6 +63,15 @@ def test_conformal_quantiles_cover_their_own_residuals() -> None:
     assert route_a.conformal([1.0, math.nan], [1.0, 2.0], (0.9,)) is None
 
 
+def test_small_terciles_fall_back_to_one_pooled_quantile() -> None:
+    estimates = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
+    observed = [e * f for e, f in zip(estimates, [1.1, 0.8, 1.3, 0.9, 1.5, 1.2], strict=True)]
+    q = route_a.conformal(estimates, observed, (0.8, 0.9))
+    assert q is not None and q.pooled == {0.8, 0.9}
+    assert math.isclose(q.q[0.8][0], math.log(1.5) - 1e-12, abs_tol=1e-9)  # the 6th of 6
+    assert q.q[0.9] == (math.inf,) * 3  # rank 7 of 6: even the pooled quantile is unbounded
+
+
 def test_levels_follow_the_preregistered_criteria() -> None:
     good = {"n": 30.0, "stations": 5.0, "mdsa": 40.0, "sspb": 10.0, "null_mdsa": 150.0,
             "coverage90": 0.9, "rho_low": 0.5}  # fmt: skip
@@ -96,6 +105,9 @@ def test_route_a_trains_off_the_magdalena_and_tests_on_it() -> None:
                 and r["evaluation"] == "test (Magdalena)")  # fmt: skip
     assert test["n"] == 30 and test["mdsa"] < 15 and test["level"] == "validated"
     assert route_a.summary(tables)["turbidity"]["level"] == "validated"
+    (card,) = tables["_cards"]
+    assert card["modelId"] == "A1:turbidity:300m" and card["levels"][0]["level"] == "validated"
+    assert card["trainingPairs"]["colombia"] == 48 + 30
     tss = [r for r in tables["route_a_scores"] if r["target"] == "tss"]
     assert tss and all(r.get("status") == "insufficient_data" for r in tss)
 
