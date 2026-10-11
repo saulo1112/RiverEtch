@@ -98,3 +98,42 @@
 | `illustrative: true`                                            | Not needed: records are real. Synthetic events stay in the case file's `synthetic_overlay`          |
 
 The web app is not changed by this contract. Moving it to these records is a separate change.
+
+# Observation record contract (v2)
+
+[`observation-record.v2.schema.json`](observation-record.v2.schema.json) is v2's JSON Schema,
+generated from `pipeline/src/climate_pipeline/contract/observation_v2.py`:
+
+```sh
+climate-pipeline contract schema --record-version 2 --out docs/schema/observation-record.v2.schema.json
+```
+
+v1 stays as it is. v2 carries what the water-quality validation v2 decides
+([D16](../decisions.md), [preregistration](../water-quality/preregistration.md)).
+
+| Field                       | Meaning                                                                                                                         |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `indices.ndti`, `.nirRed`   | Each relative index per sub-reach, their mean and difference, with their own D0 `zScore`. **Never a unit**                      |
+| `verdict`                   | As v1: follows from the **NDTI** z-scores alone. NIR/red is context until its false-alarm rate matches NDTI's                   |
+| `estimates[]`               | One per target (`turbidity`, `tss`): `level`, and for `validated` or `estimated` a `value` with its `interval` and `validRange` |
+| `estimates[].interval`      | `low`, `high`, nominal `coverage` and `method` (Mondrian split conformal in log space)                                          |
+| `estimates[].relativeClass` | `low`, `medium` or `high` from the station's own history, for the `indicative` level only                                       |
+| `estimates[].model*`        | `modelId`, `modelVersion` and `modelCardSha256`: the model card a registry can anchor with the record                           |
+| `estimates[].rangeMdsa`     | The test MdSA of the predicted range                                                                                            |
+
+## Rules the v2 schema enforces
+
+- A level other than `validated` or `estimated`, or an `abstainReason`, means no `value` and no
+  `interval`.
+- `validated` or `estimated` without an `abstainReason` means the value, interval, `validRange` and
+  model fields are all present, and the value lies inside its interval.
+- `relativeClass` belongs to the `indicative` level only.
+- One estimate per target. The verdict follows from the NDTI z-scores and its threshold.
+
+## Display rules (v2)
+
+1. Show a value only for `validated` or `estimated`, always with its interval and range, worded
+   "validated on the Magdalena main stem…" or "estimated (error ±…)".
+2. Show `indicative` as a relative class (low, medium, high), never with a unit.
+3. Show `none` as the relative index only.
+4. As v1: `unexplained` is never human pressure, and context is never an explanation.
