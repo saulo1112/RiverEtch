@@ -1,0 +1,24 @@
+path,url,status,bytes,sha256,fetched_utc,note
+stations/bucket-listing.csv,https://datos.ideam.gov.co/s3-estacionesideam?list-type=2,200,13649,6ca34f1722f150cbd909adb519e93530db3e6680a1564c161aca0a20dafcbd4c,2026-10-11T03:52:08+00:00,flow files of the listed streams only
+stations/catalog-streams.csv,https://datos.ideam.gov.co/s3-estacionesideam/catalogo/estaciones/csv/catalogo.csv,200,181351,4f988f7248498435082b20f6e261814b7e950b81a75ed0172760c56451060b0a,2026-10-11T03:52:07+00:00,"rows on the listed streams; full file 3635951 B, sha256 9a1cf52478b710a78ff0ffe4f6eb1502d2f4dd04f506e228337fea8531ddfe02"
+stations/quality-points/amazonas.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1101,ec0f450e9af2ee109f7d102dc2a3615702e8923231862b13e8c5d044487a7c33,2026-10-11T04:33:09+00:00,metadata only
+stations/quality-points/atrato.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1069,9ba1bdf6d5b94f6b58be504731873c0c5599a3e9fc538c22d576aba61574a93b,2026-10-11T04:05:15+00:00,metadata only
+stations/quality-points/canal-del-dique.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1165,589ea4be4483ef6371f51d56f0788696323b1bd1054acb5804226d4af5f20533,2026-10-11T04:38:14+00:00,metadata only
+stations/quality-points/caqueta.json,https://www.datos.gov.co/resource/62gv-3857.json,200,2,4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945,2026-10-11T04:35:57+00:00,metadata only
+stations/quality-points/carare.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1095,534927658643d4fb47bb59a859b9974efbb33579ff589703ee730f3505e33a67,2026-10-11T04:08:11+00:00,metadata only
+stations/quality-points/cauca.json,https://www.datos.gov.co/resource/62gv-3857.json,200,7542,af637c1243e10a40a72f87cb2f53a2b02008f54aa28a29eb16b4b916f68abf14,2026-10-11T03:56:36+00:00,metadata only
+stations/quality-points/guaviare.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1085,b4a672255cbda906f7e901f83e4fe976a7d69d1094f932034acdc1afeb8db4dd,2026-10-11T04:35:58+00:00,metadata only
+stations/quality-points/lebrija.json,https://www.datos.gov.co/resource/62gv-3857.json,200,2754,f04c42f597f74e66f59d3f1004fb56db1d4906ca9486acc031883551792d7de8,2026-10-11T04:08:50+00:00,metadata only
+stations/quality-points/magdalena.json,https://www.datos.gov.co/resource/62gv-3857.json,200,16597,65d7d00549879a2ba41ad70dd5be13aa6d1f5fcbf7d3875e2623832dc94a5759,2026-10-11T03:52:08+00:00,metadata only
+stations/quality-points/meta.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1083,fafd8495244c80c25d97c549742d2d3ac6b570497360d16483d21d712925b4da,2026-10-11T04:05:30+00:00,metadata only
+stations/quality-points/mira.json,https://www.datos.gov.co/resource/62gv-3857.json,200,524,352ad8a05753afbe240ffe9530fb0be03b2791d2cea3aaa48b69e88591e850ea,2026-10-11T04:32:35+00:00,metadata only
+stations/quality-points/nechi.json,https://www.datos.gov.co/resource/62gv-3857.json,200,546,4c825f03d817fdcd349909d16fcc242bf6f19fd5152d66f5f737651e759f42ad,2026-10-11T04:06:28+00:00,metadata only
+stations/quality-points/orinoco.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1115,a0ab24dd42ef72801b7cc87827d8e9aeb9a899337865f1b06e25142e4989fed5,2026-10-11T04:37:07+00:00,metadata only
+stations/quality-points/patia.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1097,5f99689d87d837b7fc59518b688b70cbf0eef0cc97d1dd3fbee0f681baa884d7,2026-10-11T04:22:27+00:00,metadata only
+stations/quality-points/putumayo.json,https://www.datos.gov.co/resource/62gv-3857.json,200,542,e6343d2ee89059df7dabff0ea0bb2fa9f86469419313f57e913bcd64bf68425c,2026-10-11T04:34:06+00:00,metadata only
+stations/quality-points/san-jorge.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1632,7f36fab4afb22d21d7188fec4668aa6a24576607d93302e8cba212e175194b3b,2026-10-11T04:07:35+00:00,metadata only
+stations/quality-points/sinu.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1059,a2326c29ac95d1774e2e6b2b0613130f1bbd179f9f65f76ec4619e5dfcd02d84,2026-10-11T03:59:04+00:00,metadata only
+stations/quality-points/sogamoso.json,https://www.datos.gov.co/resource/62gv-3857.json,200,1692,2cfba7c1a421850033a400e38902f68e5b7353288d94a57092335020efa68bc4,2026-10-11T04:05:47+00:00,metadata only
+stations/read-errors.csv,derived,200,2718,9ed17b121df6546629a79f3e11976fba51d5e005d1ee2a6ae05fdfc1120d0195,2026-10-11T04:42:33+00:00,
+stations/stations.csv,derived,200,21899,ec541e03dfbc3e7e7b45fc90ff81469f2b41f98018438ecbbc06ce8932826430,2026-10-11T04:42:33+00:00,the frozen selection
+stations/stream-spellings.json,https://www.datos.gov.co/resource/62gv-3857.json,200,4172,18ab90cc895c86136a51fa99cff363bc2626f3b37b1872162dcf7c0818d32def,2026-10-11T03:52:08+00:00,metadata only: stream names and sample counts
