@@ -476,3 +476,25 @@ The seed is 20261010. Every network step is resumable from its cache.
        turbidity on the primary pairs, where the pooled factor is ×16.
      - No level changes: A1's test MdSA (92–208 %) fails every level.
      - No USGS value and no A2–A4 result had been computed.
+5. **2026-10-11, during the USGS value fetch, before any value was examined: the network meter
+   undercounts.**
+   - **What was preregistered:** ≤ 60 GB of network for the USGS sites. The meter is an estimate:
+     0.2 MB per SCL read and 8.5 MB per acquisition whose bands are read, one COG block per band.
+   - **What a measurement showed:** GDAL's range requests on 18 acquisitions at three sites summed
+     to 79 MB against an estimate of 55 MB (1.4×). An acquisition on one tile reads about 10 MB; a
+     site in the overlap of two MGRS tiles reads each tile, about 19 MB. SCL-only reads are smaller
+     than estimated.
+   - **The decision (the project owner's):** the fetch goes on to the preregistered 200 clear
+     scenes per site, with the meter unchanged. Its estimate of about 46 GB means about 65 GB of
+     real traffic. The disk budget is unaffected.
+   - **What was seen:** the clear-scene counts and estimated volumes of the first sites in the run
+     log. No turbidity, SSC or pair had been read or examined.
+6. **2026-10-11, before any reach record: the reach's NIR/red baseline cap.**
+   - **What was preregistered:** ≤ 2 GB for the reach's NIR/red baseline.
+   - **What the first run showed:** the estimate (34 MB per scene) reached 2 GB after 60 of the 112
+     frozen scenes. It measures in date order, so the 60 cover 2018-12 to about 2021 only. A
+     measurement gave about 28 MB per scene in reality.
+   - **The decision (the project owner's):** the cap rises to 4 GB estimated (about 3.1 GB real) so
+     the baseline holds all 112 scenes. A rerun keeps the 60 scenes already measured.
+   - **What was seen:** NIR/red per sub-reach of the 60 scenes (not examined), and the NDTI
+     reproduction check: the largest difference from the frozen NDTI is 0.00005, which is rounding.

@@ -25,6 +25,6 @@ reaches:
 budgets:
   max_gb: 2.0 # per run (a month of scenes is ~0.3 GB)
   keep_free_gb: 20
-  baseline_max_gb: 2.0 # the one-off NIR/red baseline (preregistered cap)
+  baseline_max_gb: 4.0 # the one-off NIR/red baseline (2 GB preregistered; deviation 6)
 
 out: pipeline/out/reach
