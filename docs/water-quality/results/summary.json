@@ -1,8 +1,17 @@
 {
-  "incomplete": [
-    "Route A (Colombia): no value snapshot yet"
-  ],
-  "route_a": {},
+  "incomplete": [],
+  "route_a": {
+    "tss": {
+      "level": "none",
+      "mdsa": 208.1,
+      "n": 21
+    },
+    "turbidity": {
+      "level": "none",
+      "mdsa": 129.0,
+      "n": 22
+    }
+  },
   "route_b": {
     "adjacency_confirmed": true,
     "best_mdsa": {

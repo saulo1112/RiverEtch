@@ -1,0 +1,19 @@
+target,variant,candidate,tercile,upper_edge,factor80,factor90
+turbidity,primary,A1,1,144.706762,3.512052,inf
+turbidity,primary,A1,2,256.810516,5.280604,inf
+turbidity,primary,A1,3,inf,16.223985,inf
+turbidity,stable +-3 days,A1,1,152.115915,2.247399,inf
+turbidity,stable +-3 days,A1,2,221.205682,5.834005,inf
+turbidity,stable +-3 days,A1,3,inf,13.817129,inf
+turbidity,300m window,A1,1,150.21321,3.1591,inf
+turbidity,300m window,A1,2,202.408684,12.374493,inf
+turbidity,300m window,A1,3,inf,2.345182,inf
+tss,primary,A1,1,134.840254,5.38512,inf
+tss,primary,A1,2,228.411719,5.005152,inf
+tss,primary,A1,3,inf,21.33886,inf
+tss,stable +-3 days,A1,1,146.846306,3.681179,inf
+tss,stable +-3 days,A1,2,229.384174,5.2225,inf
+tss,stable +-3 days,A1,3,inf,21.278363,inf
+tss,300m window,A1,1,143.301388,5.261451,inf
+tss,300m window,A1,2,204.252124,18.490833,inf
+tss,300m window,A1,3,inf,2.330145,inf
