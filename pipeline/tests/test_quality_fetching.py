@@ -42,3 +42,32 @@ def test_the_disk_guard_refuses_to_go_on_under_the_budget(tmp_path: Path) -> Non
     assert check_disk(tmp_path, 0.001) > 0
     with pytest.raises(DiskBudgetError, match="must stay free"):
         check_disk(tmp_path, 1e9)
+
+
+def test_streams_are_queried_by_every_accented_spelling() -> None:
+    import httpx
+
+    from climate_pipeline.quality.fetching import stream_points, stream_spellings
+
+    seen: list[str] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        where = request.url.params.get("$where", "")
+        seen.append(where)
+        if "corriente in" not in where:
+            return httpx.Response(200, json=[{"corriente": "SINÚ", "n": "5"},
+                                             {"corriente": "Sinu ", "n": "1"},
+                                             {"corriente": "MAGDALENA", "n": "9"}])  # fmt: skip
+        return httpx.Response(200, json=[
+            {"nombre_del_punto_de_monitoreo": "P", "corriente": "SINÚ", "n": "3"},
+            {"nombre_del_punto_de_monitoreo": "Q", "corriente": "SINU VIEJO", "n": "2"},
+        ])  # fmt: skip
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    spellings, _ = stream_spellings(client, "https://soda.example", "2015-07-01")
+    assert spellings["SINU"] == ["SINÚ", "Sinu "] and spellings["MAGDALENA"] == ["MAGDALENA"]
+    rows, _ = stream_points(client, "https://soda.example", ["TURBIDEZ"], "2015-07-01", "SINU",
+                            spellings["SINU"])  # fmt: skip
+    assert [r["nombre_del_punto_de_monitoreo"] for r in rows] == ["P"]
+    assert "corriente in ('SINÚ', 'Sinu ')" in seen[-1]
+    assert stream_points(client, "https://soda.example", ["T"], "x", "NECHI", []) == ([], b"[]")

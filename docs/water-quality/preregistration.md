@@ -443,3 +443,14 @@ The seed is 20261010. Every network step is resumable from its cache.
      a straight line.
    - **Why:** it reuses D15's tested operation and needs no new dependency.
    - **What was seen:** no value.
+3. **2026-10-10, during the station selection, before any value: accented stream names.**
+   - **What was preregistered:** a stream matches exactly after accents, case and surrounding
+     spaces are removed.
+   - **What the first selection showed:** SINU and NECHI had no candidate, although the data hold
+     points on them. D15's query (`upper(corriente) like '%SINU%'`) never matches the stored
+     spellings `SINÚ`, `NECHÍ` and `PATÍA`. D15 was not affected: MAGDALENA has no accent.
+   - **The fix:** the stream spellings in the data are listed first (`stream-spellings.json`), and
+     each stream is queried on every spelling that matches it after the normalization. That is the
+     preregistered rule. CAQUETA has no sample since 2015-07.
+   - **What was seen:** metadata only (stream names and sample counts). The selection was stopped
+     and run again; the snap and width reads are cached, so no outcome could change.

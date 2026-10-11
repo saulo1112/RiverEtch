@@ -31,7 +31,6 @@ from climate_pipeline.calibration.stations import (
     normalize,
     number,
     point_code,
-    quality_points,
     read_catalog,
     station_id,
 )
@@ -86,6 +85,71 @@ def distance_km(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
     dp, dl = p2 - p1, math.radians(lon2 - lon1)
     a = math.sin(dp / 2) ** 2 + math.cos(p1) * math.cos(p2) * math.sin(dl / 2) ** 2
     return 2 * 6371.0 * math.asin(min(1.0, math.sqrt(a)))
+
+
+def stream_spellings(http: httpx.Client, url: str, since: str
+                     ) -> tuple[dict[str, list[str]], bytes]:  # fmt: skip
+    """Every spelling of each stream in the water-quality data (accents, case and spaces vary).
+
+    D15's query matched ``upper(corriente) like '%STREAM%'``, which misses accented spellings
+    (``SINÚ``, ``NECHÍ``); the preregistered rule matches after removing accents, so the spellings
+    are listed first and queried exactly.
+
+    Args:
+        http: HTTP client.
+        url: The SODA resource.
+        since: First sample date (ISO).
+
+    Returns:
+        Normalized stream -> raw spellings (sorted), and the raw response body.
+    """
+    params = {"$select": "corriente, count(*) as n", "$where": f"fecha >= '{since}'",
+              "$group": "corriente", "$order": "corriente", "$limit": "50000"}  # fmt: skip
+    response = http.get(url, params=params)
+    response.raise_for_status()
+    out: dict[str, set[str]] = {}
+    for row in response.json():
+        raw = str(row.get("corriente", ""))
+        out.setdefault(normalize(raw), set()).add(raw)
+    return {k: sorted(v) for k, v in out.items()}, response.content
+
+
+def stream_points(
+    http: httpx.Client, url: str, variables: Sequence[str], since: str, stream: str,
+    spellings: Sequence[str],
+) -> tuple[list[dict[str, object]], bytes]:  # fmt: skip
+    """Water-quality points of one stream, with sample counts and date ranges (no values).
+
+    The same aggregation as D15's ``quality_points``, queried on the stream's exact spellings.
+
+    Args:
+        http: HTTP client.
+        url: The SODA resource.
+        variables: The observed properties counted.
+        since: First sample date (ISO).
+        stream: The normalized stream name.
+        spellings: Its raw spellings (:func:`stream_spellings`).
+
+    Returns:
+        One row per point and variable, and the raw response body (``[]`` without spellings).
+    """
+    if not spellings:
+        return [], b"[]"
+    names = ", ".join("'" + s.replace("'", "''") + "'" for s in spellings)
+    props = ", ".join(f"'{v}'" for v in variables)
+    params = {
+        "$select": "nombre_del_punto_de_monitoreo, corriente, latitud, longitud, "
+        "propiedad_observada, count(*) as n, min(fecha) as first, max(fecha) as last",
+        "$where": f"corriente in ({names}) AND fecha >= '{since}' "
+        f"AND propiedad_observada in ({props})",
+        "$group": "nombre_del_punto_de_monitoreo, corriente, latitud, longitud, "
+        "propiedad_observada",
+        "$limit": "50000",
+    }
+    response = http.get(url, params=params)
+    response.raise_for_status()
+    rows = [r for r in response.json() if normalize(r.get("corriente", "")) == stream]
+    return rows, response.content
 
 
 @dataclass(frozen=True)
@@ -178,10 +242,14 @@ def fetch_stations(
     rec.save("stations/bucket-listing.csv", _csv(listing_rows, ("label", "code", "bytes")),
              f"{st.bucket}?list-type=2", note="flow files of the listed streams only")  # fmt: skip
     reader = _reader(d15, screening, cache)
+    since = st.samples_since.isoformat()
+    spellings, spellings_body = stream_spellings(client, st.quality_resource, since)
+    rec.save("stations/stream-spellings.json", spellings_body, st.quality_resource,
+             note="metadata only: stream names and sample counts")  # fmt: skip
     out: list[dict[str, object]] = []
     for stream in st.streams:
-        rows, body = quality_points(client, st.quality_resource, variables,
-                                    st.samples_since.isoformat(), stream)  # fmt: skip
+        rows, body = stream_points(client, st.quality_resource, variables, since, stream,
+                                   spellings.get(stream, []))  # fmt: skip
         slug = stream.lower().replace(" ", "-")
         rec.save(f"stations/quality-points/{slug}.json", body, st.quality_resource,
                  note="metadata only")  # fmt: skip
