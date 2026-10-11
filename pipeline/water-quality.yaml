@@ -1,0 +1,243 @@
+# Water-quality estimates v2 settings (decision D16). Preregistered in
+# docs/water-quality/preregistration.md before any new value was fetched or computed. Change a value
+# only together with the preregistration and list it under its Deviations, never to tune results
+# after seeing them. Paths are relative to the repository root.
+
+title: Water-quality estimates v2
+preregistration: docs/water-quality/preregistration.md
+screening_config: pipeline/screening.yaml # pixel guards, SCL classes and the water-B11 range
+calibration_config: pipeline/calibration.yaml # D15: coefficient tables and its frozen snapshots
+seed: 20261010 # every random draw (bootstraps, scene caps, folds) derives from this seed
+
+period: # imagery searched for Colombian matchups
+  start: 2015-07-01
+  end: 2026-09-30
+geometry_period: # water-frequency masks are built from these acquisitions only (as D15)
+  start: 2022-01-01
+  end: 2025-12-31
+timezone: America/Bogota # Colombian samples and acquisitions are compared on local dates
+
+imagery:
+  # One source per date: Planetary Computer before `split_date`, Earth Search from it on.
+  split_date: 2018-12-01
+  resolution_m: 20 # 10 m bands are averaged to 20 m
+  read_half_size_m: 400 # read grid around the snapped point (D15's windows are not touched)
+  sources:
+    earth-search:
+      url: https://earth-search.aws.element84.com/v1
+      collection: sentinel-2-l2a
+      sun: view:sun_elevation # zenith = 90 - elevation
+      assets: # asset key -> band
+        blue: B02
+        green: B03
+        red: B04
+        rededge1: B05
+        rededge2: B06
+        rededge3: B07
+        nir: B08
+        nir08: B8A
+        swir16: B11
+        swir22: B12
+        scl: SCL
+    planetary-computer:
+      url: https://planetarycomputer.microsoft.com/api/stac/v1
+      collection: sentinel-2-l2a
+      sas_token_url: https://planetarycomputer.microsoft.com/api/sas/v1/token/sentinel-2-l2a
+      sun: s2:mean_solar_zenith
+      assets: # asset key -> band
+        B02: B02
+        B03: B03
+        B04: B04
+        B05: B05
+        B06: B06
+        B07: B07
+        B08: B08
+        B8A: B8A
+        B11: B11
+        B12: B12
+        SCL: SCL
+  sensitivity: # report-only, on the dates it holds
+    source: earth-search
+    collection: sentinel-2-c1-l2a
+  source_check: # Planetary Computer minus Earth Search on shared 2019-2021 dates (report-only rule)
+    start: 2019-01-01
+    end: 2021-12-31
+    max_scenes: 300
+    shift_sigma: 0.5 # above it, Planetary Computer pairs leave the primary analyses
+
+stations:
+  # Selection uses metadata only and is frozen (committed) before any value is fetched.
+  streams: # catalog `corriente`, accents and case removed, exact match (arms excluded)
+    - MAGDALENA
+    - CAUCA
+    - SINU
+    - ATRATO
+    - META
+    - SOGAMOSO
+    - NECHI
+    - SAN JORGE
+    - CARARE
+    - LEBRIJA
+    - PATIA
+    - MIRA
+    - AMAZONAS
+    - PUTUMAYO
+    - CAQUETA
+    - GUAVIARE
+    - ORINOCO
+    - CANAL DEL DIQUE
+  test_stream: MAGDALENA # the frozen test group: never trained, tuned or selected on
+  quality_resource: https://www.datos.gov.co/resource/62gv-3857.json
+  quality_variables: [TURBIDEZ, SOLIDOS SUSPENDIDOS TOTALES]
+  samples_since: 2015-07-01
+  bucket: https://datos.ideam.gov.co/s3-estacionesideam
+  catalog: catalogo/estaciones/csv/catalogo.csv
+  flow_labels: [Q_MEDIA_D, NV_MEDIA_D] # flow stability for the +-3 day sensitivity
+  flow_search_km: 10 # nearest catalogue station on the same stream, when the point has no series
+  report_labels: [CM_D] # consistency check only, never a training target
+  grid_half_size_m: 3000 # D15's selection rule, unchanged from here on
+  water_frequency_min: 0.5
+  min_observations: 20
+  mask_fallback: mndwi
+  snap_radius_m: 1500
+  width_search_m: 300
+  min_width_m: 150
+
+usgs:
+  api: https://api.waterdata.usgs.gov/ogcapi/v0
+  turbidity_parameter: "63680" # FNU, continuous (computation "Points")
+  ssc_parameter: "80154" # mg/L, discrete samples (the TSS proxy)
+  min_drainage_area_sq_mi: 20000
+  period:
+    start: 2018-12-01
+    end: 2026-09-30
+  max_cloud_cover: 70 # item eo:cloud_cover, percent
+  max_clear_scenes_per_site: 200 # drawn with the seed, stratified by year
+  approval: Approved
+  exclude_qualified: true # any qualifier excludes the value
+  overpass_median_minutes: 30 # median of approved values within +-30 min
+  overpass_nearest_minutes: 60 # else the nearest approved value within +-60 min
+
+window: # D15's primary window
+  radius_m: 300
+  erosion_px: 2
+  core_min_distance_m: 60 # the core window (sensitivity; primary if adjacency is confirmed)
+  min_valid_px: 20
+  max_contamination: 0.2
+  abstain_glint_share: 0.5
+  # Per-pixel B11 guard and the scene water-B11 range come from screening.yaml (0.05; -0.03..0.08).
+
+matchups:
+  primary_days: 1 # +-1 local day
+  sensitivity_days: 3 # only with stable flow
+  stable_max_abs_log_q: 0.10 # |ln(Q_scene / Q_sample)| on Q_MEDIA_D
+  stable_max_level_m: 0.10 # else the level change on NV_MEDIA_D
+  replicates: median
+  censored: exclude_from_fits
+
+targets:
+  - id: turbidity
+    variable: TURBIDEZ
+    unit: NTU
+    usgs_parameter: "63680"
+    usgs_unit: FNU
+    bins: [30, 100, 300, 1000]
+  - id: tss
+    variable: SOLIDOS SUSPENDIDOS TOTALES
+    unit: mg/L
+    usgs_parameter: "80154"
+    usgs_unit: mg/L
+    bins: [50, 200, 500, 1500]
+
+features: # the set F of Route A; station ids, coordinates and dates are never features
+  log_bands: [B02, B03, B04, B05, B06, B07, B08, B8A]
+  log_ratios: [B8A/B04, B05/B04, B06/B04, B07/B04, B04/B03, B04/B02]
+  linear: [B8A-B11, B11]
+  floor: 0.0001
+  geometry: [sun_zenith, log_width_m, core_share]
+
+candidates: # each is evaluated on the test set once
+  - { id: M0, route: A, model: null_median }
+  - { id: A1, route: A, model: loglog, features: [B8A/B04], fit: colombia }
+  - { id: A2, route: A, model: loglog, features: [B8A/B04], fit: usgs_then_adjust }
+  - { id: A3, route: A, model: ridge_log, features: F, fit: usgs_then_adjust }
+  - { id: A4, route: A, model: gbm, features: F, fit: usgs_then_adjust }
+  - { id: B1, route: B, model: dogliotti2015_turbidity }
+  - { id: B2, route: B, model: nechad }
+  - { id: B3, route: B, model: mdn_tss }
+
+selection:
+  outer: loro_colombia # streams off the test stream, one held out at a time
+  inner: loro_usgs # rivers of the USGS sites, for hyperparameters
+  simpler_within_mdsa: 5.0 # percentage points; order A1, A2, A3, A4
+  ridge_lambdas: [0.01, 0.1, 1.0, 10.0, 100.0]
+  adjustment_lambdas: [0.1, 1.0, 10.0] # log y = a + b log yhat, ridge on (a, b - 1), by LOSO
+  adjustment_min_pairs: 10 # fewer: a = 0, b = 1
+  gbm:
+    num_leaves: [7, 15, 31]
+    min_data_in_leaf: [20, 50]
+    n_estimators: [200, 500]
+    learning_rate: 0.05
+    threads: 1
+  bootstrap_resamples: 10000 # acquisition clusters
+  confidence: 0.95
+
+intervals:
+  method: mondrian_split_conformal_log # residual |ln(y / yhat)|, terciles of yhat
+  coverages: [0.8, 0.9]
+
+levels: # per target and predicted range, on the Magdalena test, model before the refit
+  min_bin_pairs: 8
+  min_test_pairs: 8 # fewer: every level is "none" for that target
+  validated:
+    mdsa_max: 50.0
+    sspb_abs_max: 25.0
+    null_ratio_max: 0.8
+    min_pairs: 20
+    min_stations: 4
+    coverage_90: [0.80, 0.97]
+  estimated:
+    mdsa_max: 60.0
+    sspb_abs_max: 30.0
+    null_ratio_max: 1.0
+    coverage_90: [0.80, 0.97]
+  indicative:
+    lower_bound_min: 0.3
+
+route_b:
+  acolite_commit: ca477dd91dfb5f8eb77333824b38cb0bcce5e083
+  dsf_settings: pipeline/acolite/settings.txt # D15's runs
+  radcor_settings: pipeline/acolite/settings-radcor.txt
+  radcor_time_box_h: 4
+  radcor_fallback_limit_deg: 0.08
+  mdn_commit: ae1626c7990436d512044fa878f6bf276b5ce20d
+  mdn_bands_nm: [443, 490, 560, 665, 705, 740, 783]
+  mdn_setup_time_box_h: 3
+  adjacency: # both must hold to confirm adjacency
+    rho_min: 0.6
+    narrow_width_m: 250
+
+optional: # run only if chosen at the 2026-10-18 checkpoint
+  landsat:
+    source: planetary-computer
+    collection: landsat-c2-l2
+    start: 2013-04-01
+    end: 2026-09-30
+    min_width_m: 240
+  gloria:
+    doi: 10.1594/PANGAEA.948492
+  dethier:
+    zenodo: "7808492"
+
+budgets:
+  keep_free_gb: 20 # every fetch stops under this much free disk
+  min_usgs_pairs: 15 # fewer: A2-A4 are insufficient_data
+  network_gb:
+    colombia: 15
+    usgs: 60
+    reach_baseline: 2
+    landsat: 15
+
+outputs:
+  inputs: docs/water-quality/inputs
+  results: docs/water-quality/results
