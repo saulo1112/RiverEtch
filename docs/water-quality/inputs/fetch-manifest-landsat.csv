@@ -1,0 +1,5 @@
+path,url,status,bytes,sha256,fetched_utc,note
+landsat/incomplete.json,derived,200,3,37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570,2026-10-12T00:28:42+00:00,
+landsat/items.csv,derived,200,1943,92bd94d3e588e429a1d07e548047e10984bd26a02ae3152c936024e664ad580c,2026-10-12T00:28:42+00:00,
+landsat/read-errors.csv,derived,200,1458,c46953a56266fe1aa5ea7cc1cd9df65529d904c55bce120deeccb881172d4d82,2026-10-12T00:28:42+00:00,
+landsat/windows.csv,derived,200,47198,60db6399d372e24f846149c8bb481884918302880b6e2ea42b9cedad57a94fab,2026-10-12T00:28:42+00:00,Landsat 8/9 C2-L2 Tier 1 in the Sentinel-2 windows (QA_PIXEL)
