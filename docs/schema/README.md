@@ -113,6 +113,7 @@ v1 stays as it is. v2 carries what the water-quality validation v2 decides
 
 | Field                       | Meaning                                                                                                                         |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `sceneId`                   | `<reachId>:<acquisition key>` (platform, UTC day, relative orbit): one pass, as two satellites can cross a reach on one day     |
 | `indices.ndti`, `.nirRed`   | Each relative index per sub-reach, their mean and difference, with their own D0 `zScore`. **Never a unit**                      |
 | `verdict`                   | As v1: follows from the **NDTI** z-scores alone. NIR/red is context until its false-alarm rate matches NDTI's                   |
 | `estimates[]`               | One per target (`turbidity`, `tss`): `level`, and for `validated` or `estimated` a `value` with its `interval` and `validRange` |
@@ -133,7 +134,7 @@ v1 stays as it is. v2 carries what the water-quality validation v2 decides
 ## Display rules (v2)
 
 1. Show a value only for `validated` or `estimated`, always with its interval and range, worded
-   "validated on the Magdalena main stem…" or "estimated (error ±…)".
+   "validated at this reach's gauge…" or "estimated (error ±…)".
 2. Show `indicative` as a relative class (low, medium, high), never with a unit.
 3. Show `none` as the relative index only.
 4. As v1: `unexplained` is never human pressure, and context is never an explanation.

@@ -103,8 +103,25 @@ def test_a_record_compares_the_scene_with_the_frozen_baseline_only() -> None:
                          rain, {4, 5, 6, 8, 10, 11}, SCREENING, 3.0, "abc", "def")  # fmt: skip
     assert rec.verdict.anomalous and rec.verdict.signals == ["downstream", "delta"]
     assert rec.indices.ndti.reach == pytest.approx(0.2) and rec.indices.nir_red is not None
-    assert v2.is_sealed(rec) and rec.scene_id == "magdalena-puerto-wilches:2026-01-10"
+    assert v2.is_sealed(rec) and rec.scene_id == "magdalena-puerto-wilches:k"
     jsonschema.Draft202012Validator(SCHEMA).validate(rec.model_dump(mode="json", by_alias=True))
+
+
+def test_two_passes_on_one_day_are_two_scenes() -> None:
+    days = tuple(date(2024, 1, 1) + timedelta(days=15 * k) for k in range(24))
+    flat = [0.10 + 0.002 * (k % 3) for k in range(24)]
+    baseline = records.Baseline(
+        days, {"upstream": flat, "downstream": flat, "delta": [0.0] * 24},
+        {"upstream": [0.5] * 24, "downstream": [0.5] * 24, "delta": [0.0] * 24},
+    )  # fmt: skip
+    rain = RainFlags(point=False, catchment=None, union="unknown")
+    ids = {
+        records.record("mississippi-belle-chasse", measure(key=key), baseline, [], rain, set(),
+                       SCREENING, 3.0, "abc", "def").scene_id
+        for key in ("sentinel-2a_2026-09-23_R126", "sentinel-2b_2026-09-23_R083")
+    }  # fmt: skip
+    assert ids == {"mississippi-belle-chasse:sentinel-2a_2026-09-23_R126",
+                   "mississippi-belle-chasse:sentinel-2b_2026-09-23_R083"}  # fmt: skip
 
 
 def test_the_card_hash_names_the_whole_card() -> None:

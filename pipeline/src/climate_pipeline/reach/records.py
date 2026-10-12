@@ -239,8 +239,9 @@ def record(reach_id: str, measure: Measure, baseline: Baseline, estimates: Seque
                      rainy, screening)  # fmt: skip
     day = measure.day.isoformat()
     ids = [i.id for i in measure.items]
+    # The pass, not the day: two satellites can cross a reach on the same day.
     rec = v2.ObservationRecordV2(
-        reach_id=reach_id, date=day, scene_id=f"{reach_id}:{day}", stac_item_ids=ids,
+        reach_id=reach_id, date=day, scene_id=f"{reach_id}:{measure.key}", stac_item_ids=ids,
         indices=v2.Indices(ndti=index(measure.ndti, ndti_z),
                            nir_red=index(measure.nir_red, nir_z)),
         verdict=verdict_from_z(ndti_z, threshold), rain=rain, estimates=list(estimates),
