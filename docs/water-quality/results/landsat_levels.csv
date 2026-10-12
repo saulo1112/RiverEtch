@@ -1,0 +1,4 @@
+target,candidate,predicted_range,n,rated,mdsa,sspb,coverage90,level
+turbidity,L2,30-100,15,true,230.816358,-59.474647,1.0,none
+tss,L2,200-500,13,true,140.006663,140.006663,1.0,none
+tss,L2,500-1500,1,false,2194.896324,2194.896324,1.0,none

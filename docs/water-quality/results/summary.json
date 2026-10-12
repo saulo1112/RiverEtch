@@ -1,5 +1,47 @@
 {
   "incomplete": [],
+  "landsat": {
+    "tss": {
+      "test": {
+        "candidate": "L2",
+        "level": "none",
+        "mdsa": 211.0,
+        "n": 14
+      },
+      "v21_with_landsat": {
+        "level": "none",
+        "mdsa": 104.1,
+        "n": 54
+      }
+    },
+    "turbidity": {
+      "test": {
+        "candidate": "L2",
+        "level": "none",
+        "mdsa": 230.8,
+        "n": 15
+      },
+      "v21_with_landsat": {
+        "level": "none",
+        "mdsa": 85.2,
+        "n": 56
+      }
+    }
+  },
+  "physical": {
+    "tss": {
+      "level": "none",
+      "mdsa": 136.8,
+      "n": 26,
+      "stage_b_due": true
+    },
+    "turbidity": {
+      "level": "none",
+      "mdsa": 80.0,
+      "n": 27,
+      "stage_b_due": false
+    }
+  },
   "posthoc": {
     "tss": {
       "level": "none",

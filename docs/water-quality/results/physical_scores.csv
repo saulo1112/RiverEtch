@@ -1,0 +1,5 @@
+target,correction,window,published,evaluation,n,stations,mdsa,sspb,mape,rho,rho_low,rho_high,null_mdsa,coverage80,coverage90,level,v21_mdsa,stage_b_due
+turbidity,ACOLITE RAdCor,300m,B1 Dogliotti 2015,nested LOSO,27.0,10.0,80.033237,11.212409,117.198826,0.576142,0.041015,0.844344,136.363636,0.888889,0.925926,none,77.4,false
+turbidity,ACOLITE RAdCor,300m,B1 Dogliotti 2015,R1 as published (no fit),27.0,10.0,80.033237,11.212409,117.169197,0.576142,0.047351,0.843648,136.363636,,,,,
+tss,ACOLITE RAdCor,300m,B3 MDN,nested LOSO,26.0,10.0,136.82806,-27.139687,94.413791,0.543341,0.01245,0.817462,213.362292,0.846154,0.884615,none,164.8,true
+tss,ACOLITE RAdCor,300m,B3 MDN,R1 as published (no fit),26.0,10.0,125.152376,-17.911816,97.884067,0.531031,-0.0335,0.841516,213.362292,,,,,
