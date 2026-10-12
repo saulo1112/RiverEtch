@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 import math
 from datetime import date
@@ -105,3 +106,11 @@ def test_a_pretrained_card_carries_the_colombian_adjustment() -> None:
     raw = 200.0  # the USGS model at B8A/B04 = 1
     adjusted = cards.estimate(card, {"log_B8A/B04": 0.0}, Path())
     assert raw * 1.3 < adjusted < raw * 1.7
+
+
+def test_the_file_hash_ignores_crlf(tmp_path: Path) -> None:
+    lf, crlf = tmp_path / "lf.json", tmp_path / "crlf.json"
+    lf.write_bytes(b'{"a": 1}\n{"b": 2}\n')
+    crlf.write_bytes(b'{"a": 1}\r\n{"b": 2}\r\n')
+    assert cards.file_sha256(lf) == cards.file_sha256(crlf)
+    assert cards.file_sha256(lf) == hashlib.sha256(lf.read_bytes()).hexdigest()

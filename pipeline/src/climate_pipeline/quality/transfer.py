@@ -215,14 +215,17 @@ def adjustment(estimates: Sequence[float], pairs: Sequence[Pair], lambdas: Seque
     if len(ok) < min_pairs:
         return Adjustment()
     best: tuple[float, float] | None = None
+    stations = sorted({p.station for _, p in ok})
+    rests = {s: [(e2, p2) for e2, p2 in ok if p2.station != s] for s in stations}
     for lam in sorted(lambdas, reverse=True):
+        fits = {s: fit_adjustment([x for x, _ in r], [q.value for _, q in r], lam)
+                for s, r in rests.items() if len(r) >= 2}  # fmt: skip
         oof = []
         for e, p in ok:
-            rest = [(e2, p2) for e2, p2 in ok if p2.station != p.station]
-            if len(rest) < 2:
+            if p.station not in fits:
                 oof.append(math.nan)
                 continue
-            a, b = fit_adjustment([x for x, _ in rest], [q.value for _, q in rest], lam)
+            a, b = fits[p.station]
             oof.append(math.exp(a + b * math.log(e)))
         score = stats.mdsa(oof, [p.value for _, p in ok])
         if math.isfinite(score) and (best is None or score < best[0]):
@@ -259,6 +262,9 @@ class UsgsInputs:
     pairs: dict[tuple[str, str], list[Pair]]  # (target, window) -> pairs
     river_of: dict[str, str]
     forests: dict[tuple[str, str], trees.Forest] = field(default_factory=dict)  # A4, from the lab
+    fitted: dict[tuple[str, str, int], dict[str, Pretrained]] = field(
+        default_factory=dict, repr=False, compare=False
+    )  # pretrained_objects, computed once per target, window and forest
 
 
 def load_usgs(cfg: QualityConfig, root: Path) -> UsgsInputs | None:
@@ -336,6 +342,14 @@ def pretrained_objects(cfg: QualityConfig, usgs: UsgsInputs, target: str, window
     Returns:
         Candidate id -> pretrained model (empty under the minimum of USGS pairs).
     """
+    key = (target, window, id(usgs.forests.get((target, window))))
+    if key not in usgs.fitted:
+        usgs.fitted[key] = _pretrained_objects(cfg, usgs, target, window)
+    return dict(usgs.fitted[key])
+
+
+def _pretrained_objects(cfg: QualityConfig, usgs: UsgsInputs, target: str, window: str
+                        ) -> dict[str, Pretrained]:  # fmt: skip
     pairs = usgs.pairs.get((target, window), [])
 
     def river(p: Pair) -> str:

@@ -24,6 +24,22 @@ from climate_pipeline.quality import transfer, trees
 from climate_pipeline.quality.config import QualityConfig, Target
 
 VERSION = "1"
+CRLF, LF = b"\r\n", b"\n"
+
+
+def file_sha256(path: Path) -> str:
+    """The SHA-256 of a text file with LF line endings, whatever the checkout wrote.
+
+    A Windows working copy can hold CRLF where the repository holds LF (deviation 10), so the
+    hash is taken over the LF form.
+
+    Args:
+        path: The file.
+
+    Returns:
+        The hex digest.
+    """
+    return hashlib.sha256(path.read_bytes().replace(CRLF, LF)).hexdigest()
 
 
 def _range(pairs: Sequence[Pair], names: Sequence[str]) -> dict[str, list[float]]:
@@ -125,7 +141,7 @@ def product_card(
             path = lab_dir / f"gbm-{target.id}-{window}.json"
             parameters = {"kind": "lightgbm", "features": list(model.feature_names),
                           "file": path.name,
-                          "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}  # fmt: skip
+                          "sha256": file_sha256(path)}  # fmt: skip
             names = list(model.feature_names)
         ranges = _range([*usgs.pairs.get((target.id, window), []), *every], names)
     intervals = _quantiles([*oof, *refit], [p.value for p in every], cfg.intervals.coverages)

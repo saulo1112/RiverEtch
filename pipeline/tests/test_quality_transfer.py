@@ -4,6 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
+from climate_pipeline.calibration import stats
 from climate_pipeline.calibration.matchups import Pair
 from climate_pipeline.quality import features, transfer
 from climate_pipeline.quality.config import load_quality_config
@@ -72,3 +73,23 @@ def test_lambda_choice_prefers_the_lower_out_of_river_error() -> None:
     names = ["x", *(f"n{i}" for i in range(5))]
     lam = transfer.choose_lambda(rows, lambda p: p.station, names, [0.01, 1000.0])
     assert lam == 0.01
+
+
+def test_the_adjustment_fits_each_station_once_with_the_same_result() -> None:
+    rng = np.random.default_rng(2)
+    est = [float(v) for v in np.geomspace(15, 900, 24)]
+    rows = [pair(f"s{k % 6}", float(e * rng.uniform(1.2, 2.4)), fnu=e) for k, e in enumerate(est)]
+    lambdas = [0.1, 1.0, 10.0]
+    best: tuple[float, float] | None = None
+    for lam in sorted(lambdas, reverse=True):  # the per-pair reference
+        oof = []
+        for e, p in zip(est, rows, strict=True):
+            rest = [(e2, p2) for e2, p2 in zip(est, rows, strict=True) if p2.station != p.station]
+            a, b = transfer.fit_adjustment([x for x, _ in rest], [q.value for _, q in rest], lam)
+            oof.append(math.exp(a + b * math.log(e)))
+        score = stats.mdsa(oof, [p.value for p in rows])
+        if best is None or score < best[0]:
+            best = (score, lam)
+    assert best is not None
+    a, b = transfer.fit_adjustment(est, [p.value for p in rows], best[1])
+    assert transfer.adjustment(est, rows, lambdas, 10) == transfer.Adjustment(a, b, best[1])

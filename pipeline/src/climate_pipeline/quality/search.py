@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -357,6 +357,9 @@ class Data:
     value: dict[int, float]
     pool: dict[int, Pair]  # each unit's nearest test pair (for stats and clusters)
     members: dict[str, list[str]]  # group -> its stations
+    models: dict[tuple[str, frozenset[str]], Model | None] = field(
+        default_factory=dict, repr=False
+    )  # (candidate, training stations) -> fit; a fit depends on nothing else
 
     def stations(self, groups: Sequence[str]) -> set[str]:
         """The stations of some groups.
@@ -412,6 +415,23 @@ def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
     return Data(tables, units, {u: p.value for u, p in pool.items()}, pool, members)
 
 
+def trained(c: Candidate, d: Data, stations: set[str]) -> Model | None:
+    """:func:`train` on ``d``'s pair set, each (candidate, stations) fitted once.
+
+    Args:
+        c: The candidate.
+        d: The data.
+        stations: Training stations.
+
+    Returns:
+        The model, or None.
+    """
+    key = (c.id, frozenset(stations))
+    if key not in d.models:
+        d.models[key] = train(c, d.tables[c.pair_set], stations)
+    return d.models[key]
+
+
 def _mdsa(estimates: Mapping[int, float], value: Mapping[int, float]) -> float:
     ok = [(e, value[u]) for u, e in estimates.items() if math.isfinite(e) and e > 0]
     return stats.mdsa([e for e, _ in ok], [o for _, o in ok]) if len(ok) >= 5 else math.inf
@@ -431,7 +451,7 @@ def loso(c: Candidate, d: Data, stations: Sequence[str], impute: bool = True) ->
     """
     out: dict[int, float] = {}
     for s in stations:
-        model = train(c, d.tables[c.pair_set], d.stations([g for g in stations if g != s]))
+        model = trained(c, d, d.stations([g for g in stations if g != s]))
         for u, e in zip(d.units[s], predict_units(model, c, d.tables["3s"], d.units[s], impute),
                         strict=True):  # fmt: skip
             out[u] = e
@@ -483,7 +503,7 @@ def nested(cfg: QualityConfig, d: Data, candidates: Sequence[Candidate], impute:
         inner = {c.id: loso(c, d, rest, impute) for c in candidates}
         winner = pick({k: _mdsa(v, d.value) for k, v in inner.items()}, candidates, margin)
         chosen[s] = winner.id
-        model = train(winner, d.tables[winner.pair_set], d.stations(rest))
+        model = trained(winner, d, d.stations(rest))
         values = predict_units(model, winner, d.tables["3s"], d.units[s], impute)
         train_units = [u for x in rest for u in d.units[x]]
         observed = [d.value[u] for u in train_units]
@@ -561,7 +581,7 @@ def analyse(
     tables["v3_levels"] += [{"round": 1, **r} for r in rows]
     tables["v3_choices"] += [{"round": 1, "held_out_station": s, "chosen": c}
                              for s, c in result.chosen.items()]  # fmt: skip
-    tables["v3_round2"] = round2(cfg, ci, scenes, t_model)
+    tables["v3_round2"] = round2(cfg, ci, scenes, t_model, d)
     ranked = sorted(plain.items(), key=lambda kv: kv[1])
     tables["v3_candidates"] += [{"round": 1, "candidate": k, "plain_loso_mdsa": v,
                                  "note": "report-only: chosen with hindsight"}
@@ -621,7 +641,8 @@ FORM = Candidate("7", "nearest", "T+G")
 
 
 def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
-           t_model: Callable[[Pair], float] | None) -> list[dict[str, Any]]:  # fmt: skip
+           t_model: Callable[[Pair], float] | None, mag: Data | None = None
+           ) -> list[dict[str, Any]]:  # fmt: skip
     """Round 2: round 1's most chosen form, checked on data round 1 never used.
 
     Args:
@@ -629,6 +650,7 @@ def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
         ci: The Colombian inputs.
         scenes: Every core-window scene.
         t_model: A4's USGS model.
+        mag: Round 1's Magdalena data (built again when absent).
 
     Returns:
         One row per check, with the publishing rule's verdict on the first.
@@ -637,7 +659,7 @@ def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
 
     seed = _seed(cfg.seed, "v3", "round2")
     rows: list[dict[str, Any]] = []
-    mag = data(cfg, ci, scenes, t_model)
+    mag = mag if mag is not None else data(cfg, ci, scenes, t_model)
     one, order, _ = nested(cfg, mag, [FORM])
     pool = [mag.pool[u] for u in order]
     m1 = posthoc.metrics(cfg, pool, one, list(range(len(pool))), seed)
@@ -647,7 +669,7 @@ def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
         two, order2, _ = nested(cfg, ext, [FORM])
         pool2 = [ext.pool[u] for u in order2]
         m2 = posthoc.metrics(cfg, pool2, two, list(range(len(pool2))), seed + 1)
-        model = train(FORM, mag.tables[FORM.pair_set], mag.stations(list(mag.units)))
+        model = trained(FORM, mag, mag.stations(list(mag.units)))
         units = [u for g in sorted(ext.units) for u in ext.units[g]]
         est3 = predict_units(model, FORM, ext.tables["3s"], units)
         pool3 = [ext.pool[u] for u in units]
