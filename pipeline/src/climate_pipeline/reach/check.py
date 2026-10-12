@@ -154,8 +154,14 @@ def check(cfg: ReachConfig, reach: Reach, root: Path, http: httpx.Client | None 
         writer.writerow(["" if isinstance(x[c], float) and math.isnan(x[c]) else x[c]
                          for c in COLUMNS])  # fmt: skip
     (folder / FOLDER / "checks.csv").write_text(out.getvalue(), encoding="utf-8", newline="\n")
+    note = "report-only; never a level (values may be provisional)"
+    if since is not None:
+        note += (
+            "; --since: scenes before the card's commit too (their approved values were in "
+            "the lock box)"
+        )
     info = {**summary.__dict__, "site": reach.site, "station": reach.estimate_station,
-            "unit": "FNU", "note": "report-only; never a level (values may be provisional)",
+            "unit": "FNU", "note": note,
             "checksSha256": hashlib.sha256(out.getvalue().encode()).hexdigest()}  # fmt: skip
     clean = {k: (None if isinstance(v, float) and math.isnan(v) else v) for k, v in info.items()}
     text = json.dumps(clean, indent=2) + "\n"

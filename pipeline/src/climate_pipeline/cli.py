@@ -151,17 +151,21 @@ def _parser() -> argparse.ArgumentParser:
     )
     reach = commands.add_parser("reach", help="observation records v2 of a reach (P3, D16)")
     reach.add_argument(
-        "action", choices=("baseline", "run", "check", "examples"),
+        "action", choices=("baseline", "run", "check", "examples", "verify"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); check: a "
         "gauged reach's estimates against its gauge after the card's commit (report-only); "
-        "examples: copy the newest outputs to docs/water-quality/reach/<site>/examples/",
+        "examples: copy the newest outputs to docs/water-quality/reach/<site>/examples/; verify: "
+        "every record's seal, the ledger chain and the cards (exit 1 on any problem)",
     )  # fmt: skip
     reach.add_argument(
         "--site", default="magdalena-puerto-wilches",
         help="the reach's site id, or 'all' for every reach in the settings",
     )  # fmt: skip
-    reach.add_argument("--since", type=date.fromisoformat, default=None, help="run: first day")
+    reach.add_argument(
+        "--since", type=date.fromisoformat, default=None,
+        help="run: first day; check: first scene day (default: the card's commit)",
+    )  # fmt: skip
     reach.add_argument("--until", type=date.fromisoformat, default=None, help="run: last day")
     reach.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     reach.add_argument(
@@ -565,6 +569,15 @@ def reach(args: argparse.Namespace) -> int:
     config = root / args.config
     cfg = load_reach_config(config)
     sites = [r.site for r in cfg.reaches] if args.site == "all" else [args.site]
+    if args.action == "verify":
+        failed = 0
+        for site in sites:
+            problems = reach_run.verify_outputs(cfg, root, site)
+            for line in problems:
+                print(f"{site}: {line}")
+            print(f"{site}: " + ("verified" if not problems else f"{len(problems)} problems"))
+            failed += bool(problems)
+        return 1 if failed else 0
     if args.action == "examples":
         for site in sites:
             try:
@@ -573,14 +586,18 @@ def reach(args: argparse.Namespace) -> int:
                 print(f"{site}: {error}")
         return 0
     if args.action == "check":
+        from datetime import UTC, datetime
+
         from climate_pipeline.reach.check import check
 
         for site in sites:
             reach = cfg.reach(site)
             if reach.station_source != "usgs":
                 continue
+            start = (datetime.combine(args.since, datetime.min.time(), tzinfo=UTC)
+                     if args.since else None)  # fmt: skip
             try:
-                found = check(cfg, reach, root)
+                found = check(cfg, reach, root, since=start)
             except ValueError as error:
                 print(f"{site}: {error}")
                 continue

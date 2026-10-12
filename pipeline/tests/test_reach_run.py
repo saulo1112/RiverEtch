@@ -240,3 +240,29 @@ def test_reach_settings_need_a_baseline_source_and_declared_cards_must_exist(roo
     path.write_text(json.dumps({**card(), "target": "tss"}), encoding="utf-8")
     with pytest.raises(reach_run.ReachError, match="tss card"):
         reach_run.reach_cards(cfg, hermann, root)
+
+
+def test_verify_catches_an_edited_record_and_a_broken_ledger(
+    root: Path, offline: dict[str, list[Acquisition]]
+) -> None:
+    go(root)
+    cfg = load_reach_config(root / "pipeline/reach.yaml")
+    folder = root / "pipeline/out/reach" / SITE
+    assert reach_run.verify_outputs(cfg, root, SITE) == []
+    record = sorted((folder / "records").glob("*.json"))[0]
+    data = json.loads(record.read_text(encoding="utf-8"))
+    data["indices"]["ndti"]["downstream"] = 0.9  # an edited value
+    record.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
+    problems = reach_run.verify_outputs(cfg, root, SITE)
+    assert any("no longer matches its recordSha256" in p for p in problems)
+    ledger = folder / "ledger.jsonl"
+    lines = ledger.read_text(encoding="utf-8").splitlines()
+    ledger.write_text("\n".join(reversed(lines)) + "\n", encoding="utf-8")  # reordered
+    assert any("does not name the hash" in p for p in reach_run.verify_outputs(cfg, root, SITE))
+
+
+def test_the_station_keeps_the_width_its_card_was_trained_with() -> None:
+    cfg = load_reach_config(PIPELINE / "reach.yaml")
+    quality = load_quality_config(PIPELINE / "water-quality.yaml")
+    assert reach_run.frozen_width(cfg.reach("missouri-hermann"), quality, PIPELINE.parent) == 394.0
+    assert reach_run.frozen_width(cfg.reach(SITE), quality, PIPELINE.parent) == 572.7

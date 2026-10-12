@@ -169,6 +169,32 @@ def reach_cards(cfg: ReachConfig, reach: Reach, root: Path, strict: bool = True
     return out
 
 
+USGS_LISTS = ("usgs-v5/sites.csv", "usgs/sites.csv")  # v5's list first, then the pilot's
+
+
+def station_row(reach: Reach, quality: QualityConfig, root: Path) -> dict[str, str] | None:
+    """The estimate station's row in its frozen station list.
+
+    Args:
+        reach: The reach.
+        quality: The v2 settings (the inputs folder).
+        root: Repository root.
+
+    Returns:
+        The row (None when the station is not listed).
+    """
+    inputs = root / quality.outputs.inputs
+    if reach.station_source == "usgs":
+        for name in USGS_LISTS:
+            path = inputs / name
+            for r in read_stations(path) if path.exists() else []:
+                if r["site_id"] == reach.estimate_station:
+                    return r
+        return None
+    rows = read_stations(inputs / "stations" / "stations.csv")
+    return next((r for r in rows if r["station_id"] == reach.estimate_station), None)
+
+
 def station_candidate(reach: Reach, quality: QualityConfig, root: Path) -> Candidate | None:
     """The estimate station as a selection candidate, from its station list.
 
@@ -180,15 +206,30 @@ def station_candidate(reach: Reach, quality: QualityConfig, root: Path) -> Candi
     Returns:
         The candidate (None when the station is not listed).
     """
-    inputs = root / quality.outputs.inputs
-    if reach.station_source == "usgs":
-        for r in read_stations(inputs / "usgs" / "sites.csv"):
-            if r["site_id"] == reach.estimate_station:
-                return Candidate(r["site_id"], r["name"], float(r["lon"]), float(r["lat"]), "usgs")
+    row = station_row(reach, quality, root)
+    if row is None:
         return None
-    rows = read_stations(inputs / "stations" / "stations.csv")
-    row = next((r for r in rows if r["station_id"] == reach.estimate_station), None)
-    return candidate_of({**row, "files": ""}) if row is not None else None
+    if reach.station_source == "usgs":
+        return Candidate(row["site_id"], row["name"], float(row["lon"]), float(row["lat"]), "usgs")
+    return candidate_of({**row, "files": ""})
+
+
+def frozen_width(reach: Reach, quality: QualityConfig, root: Path) -> float:
+    """The main-channel width the models were trained with (the station list's), in metres.
+
+    The live geometry can measure a slightly different width; the feature ``log_width_m`` must be
+    the one the card saw, or a scene abstains for a width outside the training range.
+
+    Args:
+        reach: The reach.
+        quality: The v2 settings.
+        root: Repository root.
+
+    Returns:
+        The width (NaN when the list gives none).
+    """
+    row = station_row(reach, quality, root)
+    return _num(row.get("width_m", "")) if row is not None else math.nan
 
 
 def setup(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int,
@@ -242,7 +283,9 @@ def setup(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int,
         geo = extract.station_geometry(cand, acqs, _reader(d15, screening, cache), d15, screening,
                                        workers)  # fmt: skip
         if geo.selected:
-            station = m.Station(cand.station_id, geo.width_m, imagery.small_windows(geo, quality))
+            width = frozen_width(reach, quality, root)
+            station = m.Station(cand.station_id, width if math.isfinite(width) else geo.width_m,
+                                imagery.small_windows(geo, quality))  # fmt: skip
     reader = m.MemoReader(make_source("earth-search", screening.stac.sources,
                                       screening.stac.page_size), cache / "bands")  # fmt: skip
     return Setup(cfg, reach, root, screening, quality, d15, site, full, m.corridor(full), station,
@@ -756,3 +799,49 @@ def write_examples(cfg: ReachConfig, root: Path, site_id: str, records_kept: int
     tail = "\n".join(lines[-(records_kept + 2) :]) + "\n"
     (out / "ledger.tail.jsonl").write_text(tail, encoding="utf-8", newline="\n")
     return out
+
+
+def verify_outputs(cfg: ReachConfig, root: Path, site_id: str) -> list[str]:
+    """Check a reach's published outputs: every record's seal, the ledger and the cards.
+
+    A record whose JSON was edited no longer matches its ``recordSha256``; a ledger line edited,
+    removed or reordered breaks the chain; a record that names another hash than its file's, or
+    a card whose hash differs from the one a record names, is reported too.
+
+    Args:
+        cfg: Reach settings.
+        root: Repository root.
+        site_id: The reach.
+
+    Returns:
+        One line per problem (empty when everything checks out).
+    """
+    folder = root / cfg.out / site_id
+    problems: list[str] = []
+    if not (folder / "ledger.jsonl").exists():
+        return [f"{site_id}: no ledger yet"]
+    if not ledger_ok(folder / "ledger.jsonl"):
+        problems.append("ledger.jsonl: a line does not name the hash of the line before it")
+    lines = [json.loads(t) for t in (folder / "ledger.jsonl").read_text(encoding="utf-8")
+             .splitlines() if t.strip()]  # fmt: skip
+    published = reach_cards(cfg, cfg.reach(site_id), root, strict=False)
+    cards_now = {t: cards.card_hash(c) for t, c in published.items()}
+    for line in lines:
+        path = folder / line["file"]
+        if not path.exists():
+            problems.append(f"{line['file']}: in the ledger but missing")
+            continue
+        try:
+            rec = v2.ObservationRecordV2.model_validate_json(path.read_text(encoding="utf-8"))
+        except ValueError as error:
+            problems.append(f"{line['file']}: not a valid record ({str(error)[:80]})")
+            continue
+        if not v2.is_sealed(rec):
+            problems.append(f"{line['file']}: its content no longer matches its recordSha256")
+        if rec.record_sha256 != line["recordSha256"]:
+            problems.append(f"{line['file']}: the ledger names another record hash")
+        for e in rec.estimates:
+            named = e.model_card_sha256
+            if named and e.target in cards_now and named != cards_now[e.target]:
+                problems.append(f"{line['file']}: its {e.target} card is not the published one")
+    return problems
