@@ -116,10 +116,13 @@ def _parser() -> argparse.ArgumentParser:
         "quality", help="water-quality estimates v2: offline results from the snapshots"
     )
     quality.add_argument(
-        "action", choices=("fetch", "fetch-usgs", "fetch-landsat", "export-lab", "run", "verify"),
+        "action",
+        choices=("fetch", "fetch-usgs", "fetch-landsat", "fetch-extended", "export-lab", "run",
+                 "verify"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
         "the USGS pilot; fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
-        "(phase 3); export-lab: the lab's training tables (A4); run: offline results; "
+        "(phase 3); fetch-extended: windows within 15 days of a sample (v3); export-lab: the "
+        "lab's training tables (A4); run: offline results; "
         "verify: recompute and compare with the MANIFEST",
     )  # fmt: skip
     quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
@@ -426,6 +429,12 @@ def quality(args: argparse.Namespace) -> int:
         tables = lab.export(cfg, usgs_inputs, root / "pipeline" / "out" / "lab")
         print(f"{len(tables)} tables in pipeline/out/lab")
         return 0
+    if args.action == "fetch-extended":
+        from climate_pipeline.quality import extended
+
+        counts = extended.fetch(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "fetch-landsat":
         from climate_pipeline.quality import landsat
 

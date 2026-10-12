@@ -14,7 +14,16 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from climate_pipeline.quality import lab, phase3, physical, posthoc, route_a, route_b, transfer
+from climate_pipeline.quality import (
+    lab,
+    phase3,
+    physical,
+    posthoc,
+    route_a,
+    route_b,
+    search,
+    transfer,
+)
 from climate_pipeline.quality.config import QualityConfig
 
 
@@ -101,12 +110,22 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         if landsat_scenes is not None:
             results.tables.update(phase3.analyse(cfg, ci, landsat_scenes, confirmed, usgs))
     results.tables.update(physical.analyse(cfg, rb, posthoc.summary(results.tables)))
+    every = search.scenes(cfg, root, ci) if ci is not None else None
+    if ci is not None and every is not None:
+        a4 = (
+            transfer.pretrained_models(cfg, usgs, search.TARGET, "core").get("A4") if usgs else None
+        )
+        dogliotti = route_b.published(rb)["turbidity"][physical.PUBLISHED["turbidity"]]
+        radcor = {(p.station, p.sample_day): dogliotti(p, physical.CORRECTION)
+                  for p in route_b.common_pairs(rb, "turbidity")[physical.CORRECTION]}  # fmt: skip
+        results.tables.update(search.analyse(cfg, ci, every, a4, radcor))
     results.summary = {
         "incomplete": missing,
         "route_a": route_a.summary(results.tables) if ci is not None else {},
         "posthoc": posthoc.summary(results.tables) if ci is not None else {},
         "physical": physical.summary(results.tables),
         "landsat": phase3.summary(results.tables),
+        "v3": search.summary(results.tables),
         "route_b": route_b.summary(results.tables),
     }
     return results
