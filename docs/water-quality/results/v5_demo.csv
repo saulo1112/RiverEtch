@@ -1,0 +1,11 @@
+slug,site,level,mdsa,n,record,demo,rank
+atchafalaya-morgan-city,USGS-07381600,validated,23.415063,43,v5,false,
+columbia-vancouver,USGS-14144700,none,53.603823,48,v5,false,
+connecticut-middle-haddam,USGS-01193050,none,38.016467,56,v5,false,
+mississippi-belle-chasse,USGS-07374525,validated,17.781318,57,v5,true,1
+mississippi-cape-girardeau,USGS-07020850,estimated,33.066442,74,v5,false,
+missouri-hermann,USGS-06934500,indicative,34.869625,70,v4,false,
+ohio-ironton,USGS-03216070,estimated,28.155053,122,v5,false,
+platte-louisville,USGS-06805500,validated,20.283511,54,v5,true,2
+san-joaquin-jersey-point,USGS-11337190,estimated,40.604914,53,v5,false,
+willamette-portland,USGS-14211720,indicative,52.190825,136,v5,false,

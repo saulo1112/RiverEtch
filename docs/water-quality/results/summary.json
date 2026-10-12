@@ -160,5 +160,76 @@
       "mdsa": 102.8,
       "n": 31
     }
+  },
+  "v5": {
+    "demo": [
+      "mississippi-belle-chasse",
+      "platte-louisville"
+    ],
+    "median_turbidity_mdsa": 33.1,
+    "sites_evaluated": 9,
+    "tss": {},
+    "turbidity": {
+      "atchafalaya-morgan-city": {
+        "level": "validated",
+        "mdsa": 23.4,
+        "n": 43,
+        "record": "v5"
+      },
+      "columbia-vancouver": {
+        "level": "none",
+        "mdsa": 53.6,
+        "n": 48,
+        "record": "v5"
+      },
+      "connecticut-middle-haddam": {
+        "level": "none",
+        "mdsa": 38.0,
+        "n": 56,
+        "record": "v5"
+      },
+      "mississippi-belle-chasse": {
+        "level": "validated",
+        "mdsa": 17.8,
+        "n": 57,
+        "record": "v5"
+      },
+      "mississippi-cape-girardeau": {
+        "level": "estimated",
+        "mdsa": 33.1,
+        "n": 74,
+        "record": "v5"
+      },
+      "missouri-hermann": {
+        "level": "indicative",
+        "mdsa": 34.9,
+        "n": 70,
+        "record": "v4"
+      },
+      "ohio-ironton": {
+        "level": "estimated",
+        "mdsa": 28.2,
+        "n": 122,
+        "record": "v5"
+      },
+      "platte-louisville": {
+        "level": "validated",
+        "mdsa": 20.3,
+        "n": 54,
+        "record": "v5"
+      },
+      "san-joaquin-jersey-point": {
+        "level": "estimated",
+        "mdsa": 40.6,
+        "n": 53,
+        "record": "v5"
+      },
+      "willamette-portland": {
+        "level": "indicative",
+        "mdsa": 52.2,
+        "n": 136,
+        "record": "v5"
+      }
+    }
   }
 }

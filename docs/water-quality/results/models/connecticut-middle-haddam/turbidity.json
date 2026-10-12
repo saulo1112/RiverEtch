@@ -1,0 +1,211 @@
+{
+  "adjustment": {
+    "a": -1.3200700218,
+    "b": 0.9589550491,
+    "ridgeLambda": 0.1
+  },
+  "basis": "preregistered_lockbox_site",
+  "candidate": "H4",
+  "featureRange": {
+    "B11": [
+      -0.0024,
+      0.0495
+    ],
+    "B8A-B11": [
+      -0.0206,
+      0.27085
+    ],
+    "core_share": [
+      0.5,
+      1.0
+    ],
+    "log_B02": [
+      -9.21034,
+      -1.467721
+    ],
+    "log_B03": [
+      -9.21034,
+      -1.399177
+    ],
+    "log_B04": [
+      -9.21034,
+      -1.43192
+    ],
+    "log_B04/B02": [
+      -0.748717,
+      6.186209
+    ],
+    "log_B04/B03": [
+      -4.382027,
+      4.430817
+    ],
+    "log_B05": [
+      -9.21034,
+      -1.310445
+    ],
+    "log_B05/B04": [
+      -3.610918,
+      2.302585
+    ],
+    "log_B06": [
+      -9.21034,
+      -1.312672
+    ],
+    "log_B06/B04": [
+      -6.496775,
+      0.693147
+    ],
+    "log_B07": [
+      -9.21034,
+      -1.245316
+    ],
+    "log_B07/B04": [
+      -6.496775,
+      0.693147
+    ],
+    "log_B08": [
+      -9.21034,
+      -1.284821
+    ],
+    "log_B8A": [
+      -9.21034,
+      -1.232887
+    ],
+    "log_B8A/B04": [
+      -7.255591,
+      0.79988
+    ],
+    "log_width_m": [
+      5.186827,
+      6.649632
+    ],
+    "sun_zenith": [
+      17.168923,
+      66.677443
+    ]
+  },
+  "intervals": {
+    "edges": [
+      3.00307,
+      4.659314
+    ],
+    "pooled": [],
+    "q": {
+      "0.8": [
+        0.4961,
+        0.628282,
+        1.170042
+      ],
+      "0.9": [
+        0.633571,
+        0.80048,
+        1.401175
+      ]
+    }
+  },
+  "levels": [
+    {
+      "coverage90": 0.9286,
+      "interval_factor90": 2.2266,
+      "level": "none",
+      "mdsa": 38.0165,
+      "n": 56,
+      "null_mdsa": 31.8368,
+      "predicted_range": "all",
+      "rated": true,
+      "rho_low": 0.2527,
+      "sspb": -16.7225,
+      "years": 3
+    },
+    {
+      "coverage90": 0.9286,
+      "interval_factor90": 2.2266,
+      "level": "none",
+      "mdsa": 38.0165,
+      "n": 56,
+      "null_mdsa": 31.8368,
+      "predicted_range": "<30",
+      "rated": true,
+      "rho_low": 0.2507,
+      "sspb": -16.7225,
+      "years": 3
+    }
+  ],
+  "lockbox": [
+    "2023-12-01",
+    "2026-09-30"
+  ],
+  "metrics": {
+    "inner": {
+      "coverage80": 0.8273,
+      "coverage90": 0.9353,
+      "mape": 53.0899,
+      "mdsa": 52.4756,
+      "n": 139.0,
+      "null_mdsa": 47.3684,
+      "rho": 0.5859,
+      "rho_high": 0.6999,
+      "rho_low": 0.4496,
+      "sspb": 4.7881,
+      "stations": 1.0
+    },
+    "lockbox": {
+      "coverage80": 0.7679,
+      "coverage90": 0.9286,
+      "mape": 43.0483,
+      "mdsa": 38.0165,
+      "n": 56.0,
+      "null_mdsa": 31.8368,
+      "rho": 0.5052,
+      "rho_high": 0.7002,
+      "rho_low": 0.246,
+      "sspb": -16.7225,
+      "stations": 1.0
+    }
+  },
+  "modelId": "H4:turbidity:core:connecticut-middle-haddam",
+  "parameters": {
+    "features": [
+      "log_B02",
+      "log_B03",
+      "log_B04",
+      "log_B05",
+      "log_B06",
+      "log_B07",
+      "log_B08",
+      "log_B8A",
+      "log_B8A/B04",
+      "log_B05/B04",
+      "log_B06/B04",
+      "log_B07/B04",
+      "log_B04/B03",
+      "log_B04/B02",
+      "B8A-B11",
+      "B11",
+      "sun_zenith",
+      "log_width_m",
+      "core_share"
+    ],
+    "file": "gbm-turbidity-core.json",
+    "kind": "lightgbm",
+    "sha256": "0aaf2292e61952563f6a382d08308b63452fcd69a43568fd007734156b5abed3"
+  },
+  "parametersHash": "00a219e067b4fb8ed4c17b9d7996c0ec7eec56c92c6008c8a2131952b658c66e",
+  "site": "USGS-01193050",
+  "target": "turbidity",
+  "targetRange": [
+    1.0,
+    35.15
+  ],
+  "training": [
+    "2018-12-01",
+    "2023-11-30"
+  ],
+  "trainingPairs": {
+    "site": 139,
+    "usgs": 2447
+  },
+  "unit": "FNU",
+  "version": "1",
+  "window": "core"
+}

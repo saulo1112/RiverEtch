@@ -1,0 +1,237 @@
+{
+  "adjustment": {
+    "a": -0.4424419273,
+    "b": 1.0496823025,
+    "ridgeLambda": 10.0
+  },
+  "basis": "preregistered_lockbox_site",
+  "candidate": "H4",
+  "featureRange": {
+    "B11": [
+      -0.0024,
+      0.0495
+    ],
+    "B8A-B11": [
+      -0.0168,
+      0.27085
+    ],
+    "core_share": [
+      0.5,
+      1.0
+    ],
+    "log_B02": [
+      -9.21034,
+      -1.467721
+    ],
+    "log_B03": [
+      -9.21034,
+      -1.399177
+    ],
+    "log_B04": [
+      -9.21034,
+      -1.43192
+    ],
+    "log_B04/B02": [
+      -0.664437,
+      6.186209
+    ],
+    "log_B04/B03": [
+      -4.382027,
+      2.674149
+    ],
+    "log_B05": [
+      -9.21034,
+      -1.310445
+    ],
+    "log_B05/B04": [
+      -3.610918,
+      2.302585
+    ],
+    "log_B06": [
+      -9.21034,
+      -1.312672
+    ],
+    "log_B06/B04": [
+      -6.496775,
+      0.43708
+    ],
+    "log_B07": [
+      -9.21034,
+      -1.245316
+    ],
+    "log_B07/B04": [
+      -6.496775,
+      0.682097
+    ],
+    "log_B08": [
+      -9.21034,
+      -1.284821
+    ],
+    "log_B8A": [
+      -9.21034,
+      -1.232887
+    ],
+    "log_B8A/B04": [
+      -7.255591,
+      0.79988
+    ],
+    "log_width_m": [
+      5.186827,
+      6.649632
+    ],
+    "sun_zenith": [
+      17.168923,
+      66.663947
+    ]
+  },
+  "intervals": {
+    "edges": [
+      6.856263,
+      16.64156
+    ],
+    "pooled": [],
+    "q": {
+      "0.8": [
+        0.798069,
+        0.639672,
+        0.348497
+      ],
+      "0.9": [
+        0.947565,
+        0.964519,
+        0.466319
+      ]
+    }
+  },
+  "levels": [
+    {
+      "coverage90": 0.8852,
+      "interval_factor90": 2.5794,
+      "level": "estimated",
+      "mdsa": 28.1551,
+      "n": 122,
+      "null_mdsa": 149.3895,
+      "predicted_range": "all",
+      "rated": true,
+      "rho_low": 0.7165,
+      "sspb": 4.9339,
+      "years": 3
+    },
+    {
+      "coverage90": 0.8835,
+      "interval_factor90": 2.5794,
+      "level": "estimated",
+      "mdsa": 29.2739,
+      "n": 103,
+      "null_mdsa": 110.0,
+      "predicted_range": "<30",
+      "rated": true,
+      "rho_low": 0.5528,
+      "sspb": 12.9408,
+      "years": 3
+    },
+    {
+      "coverage90": 0.9333,
+      "interval_factor90": 1.5941,
+      "level": "estimated",
+      "mdsa": 27.6317,
+      "n": 15,
+      "null_mdsa": 485.7143,
+      "predicted_range": "30-100",
+      "rated": true,
+      "rho_low": -0.1236,
+      "sspb": -21.4472,
+      "years": 3
+    },
+    {
+      "coverage90": 0.75,
+      "interval_factor90": 1.5941,
+      "level": "estimated",
+      "mdsa": 22.8891,
+      "n": 4,
+      "null_mdsa": 1251.2571,
+      "predicted_range": "100-300",
+      "rated": false,
+      "rho_low": 1.0,
+      "sspb": -22.8891,
+      "years": 2
+    }
+  ],
+  "lockbox": [
+    "2023-12-01",
+    "2026-09-30"
+  ],
+  "metrics": {
+    "inner": {
+      "coverage80": 0.8211,
+      "coverage90": 0.9174,
+      "mape": 38.9533,
+      "mdsa": 27.2113,
+      "n": 218.0,
+      "null_mdsa": 120.9977,
+      "rho": 0.8852,
+      "rho_high": 0.9221,
+      "rho_low": 0.8342,
+      "sspb": -4.3874,
+      "stations": 1.0
+    },
+    "lockbox": {
+      "coverage80": 0.7869,
+      "coverage90": 0.8852,
+      "mape": 52.9669,
+      "mdsa": 28.1551,
+      "n": 122.0,
+      "null_mdsa": 149.3895,
+      "rho": 0.8189,
+      "rho_high": 0.8915,
+      "rho_low": 0.7178,
+      "sspb": 4.9339,
+      "stations": 1.0
+    }
+  },
+  "modelId": "H4:turbidity:core:ohio-ironton",
+  "parameters": {
+    "features": [
+      "log_B02",
+      "log_B03",
+      "log_B04",
+      "log_B05",
+      "log_B06",
+      "log_B07",
+      "log_B08",
+      "log_B8A",
+      "log_B8A/B04",
+      "log_B05/B04",
+      "log_B06/B04",
+      "log_B07/B04",
+      "log_B04/B03",
+      "log_B04/B02",
+      "B8A-B11",
+      "B11",
+      "sun_zenith",
+      "log_width_m",
+      "core_share"
+    ],
+    "file": "no-ohio/gbm-turbidity-core.json",
+    "kind": "lightgbm",
+    "sha256": "98a4a176d4a2b89e6ad81c171c8a70fbfd812ae245abe3018020e15aedc088cf"
+  },
+  "parametersHash": "69e8b76de65a4b01a5f62e9f6e48c5714b6bb40b60b1c5dcd506ce955c4872dc",
+  "site": "USGS-03216070",
+  "target": "turbidity",
+  "targetRange": [
+    2.0,
+    330.0
+  ],
+  "training": [
+    "2018-12-01",
+    "2023-11-30"
+  ],
+  "trainingPairs": {
+    "site": 218,
+    "usgs": 2159
+  },
+  "unit": "FNU",
+  "version": "1",
+  "window": "core"
+}

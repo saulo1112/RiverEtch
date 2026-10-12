@@ -1144,3 +1144,19 @@ The thresholds stay, except the coverage rule:
 
     - **What was seen:** the CI log, the two hashes and that the committed blob hashes to the
       recomputed value.
+11. **2026-10-12, during v5's fetch, before any v5 value was examined: the network cap.**
+    - **What was preregistered:** 30 GB of estimated network for the whole v5 fetch.
+    - **What the run showed:** after 8 of its 11 sites the meter read 24.5 GB. Willamette,
+      Connecticut and Hermann remain. The meter also counts Hermann's cached reads, which cost no
+      real traffic but come last in the list. The cap would stop the fetch during Connecticut, leaving
+      it incomplete and Hermann's SSC without windows.
+    - **The decision (the project owner's):** if the 30 GB cap stops the fetch, it rises to 40 GB
+      estimated, and the fetch is rerun. It resumes from its cache, so no measured scene is read
+      twice.
+    - **What does not change:** the disk rule (stop under 20 GB free), every selection rule and the
+      protocol.
+    - **What was seen:** the per-site clear-scene counts and the meter in the run log. No turbidity,
+      SSC or pair value of a v5 site had been read or examined.
+    - **What happened:** the cap stopped the first run during Connecticut (197 clear scenes). The
+      rerun at 40 GB completed every site (3,481 clear scenes, 32.5 GB estimated, nothing
+      incomplete).

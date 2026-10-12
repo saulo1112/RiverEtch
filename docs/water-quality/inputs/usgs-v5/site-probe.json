@@ -1,0 +1,82 @@
+{
+ "note": "v5 metadata probes of 2026-10-12 (preregistration v5): main-channel rule at the new sites; no value",
+ "widths": [
+  {
+   "id": "USGS-07020850",
+   "name": "Mississippi River at Cape Girardeau, MO",
+   "selected": true,
+   "reason": "",
+   "width_m": 560.0,
+   "snap_m": 20.0,
+   "mask": "scl",
+   "scl_width_m": 560.0,
+   "acquisitions": 289
+  },
+  {
+   "id": "USGS-07381600",
+   "name": "Lower Atchafalaya River at Morgan City, LA",
+   "selected": true,
+   "reason": "",
+   "width_m": 506.0,
+   "snap_m": 0.0,
+   "mask": "scl",
+   "scl_width_m": 506.0,
+   "acquisitions": 290
+  },
+  {
+   "id": "USGS-14246900",
+   "name": "COLUMBIA RIVER AT PORT WESTWARD, NEAR QUINCY, OR",
+   "selected": true,
+   "reason": "",
+   "width_m": 632.5,
+   "snap_m": 0.0,
+   "mask": "scl",
+   "scl_width_m": 632.5,
+   "acquisitions": 609
+  },
+  {
+   "id": "USGS-14144700",
+   "name": "COLUMBIA RIVER AT VANCOUVER, WA",
+   "selected": true,
+   "reason": "",
+   "width_m": 680.0,
+   "snap_m": 0.0,
+   "mask": "scl",
+   "scl_width_m": 680.0,
+   "acquisitions": 609
+  },
+  {
+   "id": "USGS-11337190",
+   "name": "SAN JOAQUIN R A JERSEY POINT CA",
+   "selected": true,
+   "reason": "",
+   "width_m": 533.7,
+   "snap_m": 20.0,
+   "mask": "scl",
+   "scl_width_m": 533.7,
+   "acquisitions": 306
+  },
+  {
+   "id": "USGS-14211720",
+   "name": "WILLAMETTE RIVER AT PORTLAND, OR",
+   "selected": true,
+   "reason": "",
+   "width_m": 341.8,
+   "snap_m": 0.0,
+   "mask": "scl",
+   "scl_width_m": 341.8,
+   "acquisitions": 609
+  },
+  {
+   "id": "USGS-01193050",
+   "name": "CONNECTICUT RIVER AT MIDDLE HADDAM, CT",
+   "selected": true,
+   "reason": "",
+   "width_m": 357.8,
+   "snap_m": 40.0,
+   "mask": "scl",
+   "scl_width_m": 357.8,
+   "acquisitions": 303
+  }
+ ]
+}
