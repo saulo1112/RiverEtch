@@ -25,7 +25,7 @@ def estimate(level: str = "estimated", **over: Any) -> dict[str, Any]:
         "interval": {"low": 90.0, "high": 360.0, "coverage": 0.9,
                      "method": "mondrian_split_conformal_log"},
         "modelId": "A3:turbidity:core", "modelVersion": "1", "modelCardSha256": "ab" * 32,
-        "validRange": [20.0, 1500.0], "rangeMdsa": 48.0,
+        "validRange": [20.0, 1500.0], "rangeMdsa": 48.0, "basis": "preregistered_test",
         "atmosphericCorrection": {"processor": "sen2cor", "collection": "sentinel-2-l2a",
                                   "processingBaseline": ["05.10"]},
     }  # fmt: skip
@@ -79,6 +79,8 @@ def test_a_valid_record_validates_against_both_and_seals() -> None:
         ([estimate(modelCardSha256=None)], "names its model"),
         ([estimate(), estimate()], "one estimate per target"),
         ([estimate(abstainReason="glint share above 0.5")], "not abstaining"),
+        ([estimate(basis=None)], "and basis"),
+        ([estimate("validated", basis="post_hoc_nested_loso_magdalena")], "preregistered test"),
     ],
 )
 def test_the_rules_refuse_dishonest_estimates(estimates: list[dict[str, Any]],

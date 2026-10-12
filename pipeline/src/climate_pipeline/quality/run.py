@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from climate_pipeline.quality import lab, route_a, route_b, transfer
+from climate_pipeline.quality import lab, posthoc, route_a, route_b, transfer
 from climate_pipeline.quality.config import QualityConfig
 
 
@@ -25,6 +25,7 @@ class Results:
     tables: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     summary: dict[str, Any] = field(default_factory=dict)
     cards: list[dict[str, Any]] = field(default_factory=list)  # the product models
+    posthoc_cards: list[dict[str, Any]] = field(default_factory=list)  # v2.1, labelled post hoc
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -93,9 +94,13 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         tables = route_a.analyse(cfg, ci, confirmed, usgs)
         results.cards = tables.pop("_cards", [])
         results.tables.update(tables)
+        later = posthoc.analyse(cfg, ci, confirmed, usgs, ci.lab_dir)
+        results.posthoc_cards = later.pop("_posthoc_cards", [])
+        results.tables.update(later)
     results.summary = {
         "incomplete": missing,
         "route_a": route_a.summary(results.tables) if ci is not None else {},
+        "posthoc": posthoc.summary(results.tables) if ci is not None else {},
         "route_b": route_b.summary(results.tables),
     }
     return results

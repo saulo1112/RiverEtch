@@ -190,8 +190,26 @@
               "validRange",
               "modelId",
               "modelVersion",
-              "modelCardSha256"
+              "modelCardSha256",
+              "basis"
             ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "level": {
+                "const": "validated"
+              }
+            },
+            "required": ["level"]
+          },
+          "then": {
+            "properties": {
+              "basis": {
+                "const": "preregistered_test"
+              }
+            }
           }
         },
         {
@@ -238,6 +256,20 @@
             }
           ],
           "default": null
+        },
+        "basis": {
+          "anyOf": [
+            {
+              "enum": ["preregistered_test", "post_hoc_nested_loso_magdalena"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "where the level comes from",
+          "title": "Basis"
         },
         "interval": {
           "anyOf": [

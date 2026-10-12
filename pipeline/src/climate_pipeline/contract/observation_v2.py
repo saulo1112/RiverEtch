@@ -9,7 +9,9 @@ validation v2 (D16) decides:
   value and an interval of known coverage, ``indicative`` a relative class only (low, medium,
   high from the station's own history), ``none`` neither;
 * the model, its version and the SHA-256 of its model card, the predicted range's MdSA and the
-  atmospheric correction behind the reflectance.
+  atmospheric correction behind the reflectance;
+* the basis of the level: the preregistered Magdalena test, or the post-hoc calibration (v2.1,
+  nested leave-one-station-out on the Magdalena), which is never _validated_.
 
 Conditional rules keep the record honest; ``record_sha256`` hashes the canonical JSON so a
 registry can anchor the record later. The JSON Schema in
@@ -38,6 +40,7 @@ SCHEMA_VERSION: Final = 2
 SCHEMA_ID: Final = "observation-record.v2"
 
 Level = Literal["validated", "estimated", "indicative", "none"]
+Basis = Literal["preregistered_test", "post_hoc_nested_loso_magdalena"]
 Target = Literal["turbidity", "tss"]
 RelativeClass = Literal["low", "medium", "high"]
 
@@ -103,6 +106,7 @@ class Estimate(_Model):
         default=None, alias="rangeMdsa", description="test MdSA of the predicted range, percent"
     )
     abstain_reason: str | None = Field(default=None, alias="abstainReason")
+    basis: Basis | None = Field(default=None, description="where the level comes from")
     atmospheric_correction: AtmosphericCorrection | None = Field(
         default=None, alias="atmosphericCorrection"
     )
@@ -117,9 +121,11 @@ class Estimate(_Model):
             raise ValueError("a relative class belongs to the indicative level only")
         if self.level == "none":
             return self
-        needed = (self.model_id, self.model_version, self.model_card_sha256)
+        needed = (self.model_id, self.model_version, self.model_card_sha256, self.basis)
         if any(v is None for v in needed):
-            raise ValueError("an estimate names its model, version and model card")
+            raise ValueError("an estimate names its model, version, model card and basis")
+        if self.level == "validated" and self.basis != "preregistered_test":
+            raise ValueError("only the preregistered test validates")
         if quantitative and self.abstain_reason is None:
             if self.value is None or self.interval is None or self.valid_range is None:
                 raise ValueError("a validated or estimated level carries value, interval, range")
@@ -223,9 +229,13 @@ def json_schema() -> dict[str, Any]:
             "if": {"properties": {"level": quantitative, "abstainReason": {"const": None}},
                    "required": ["level"]},
             "then": {"required": ["value", "interval", "validRange", "modelId", "modelVersion",
-                                  "modelCardSha256"],
+                                  "modelCardSha256", "basis"],
                      "properties": {"value": {"type": "number"},
                                     "interval": {"$ref": "#/$defs/Interval"}}},
+        },
+        {
+            "if": {"properties": {"level": {"const": "validated"}}, "required": ["level"]},
+            "then": {"properties": {"basis": {"const": "preregistered_test"}}},
         },
         {
             "if": {"properties": {"level": {"not": {"const": "indicative"}}},

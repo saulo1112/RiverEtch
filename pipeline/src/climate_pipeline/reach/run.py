@@ -42,7 +42,7 @@ from climate_pipeline.calibration.models import window_abstain_reason
 from climate_pipeline.contract import observation_v2 as v2
 from climate_pipeline.contract.observation import RainFlags
 from climate_pipeline.provenance import head
-from climate_pipeline.quality import cards, features, imagery, values
+from climate_pipeline.quality import cards, features, imagery, posthoc, values
 from climate_pipeline.quality.config import QualityConfig, load_quality_config
 from climate_pipeline.quality.fetching import check_disk
 from climate_pipeline.quality.route_a import scenes_from_windows
@@ -115,7 +115,9 @@ def corridor_mb(grid: Grid) -> float:
 
 
 def load_cards(folder: Path) -> dict[str, dict[str, Any]]:
-    """The product's model cards by target.
+    """The product's model cards by target; v2.1's post-hoc card wins where one exists.
+
+    Its records then name the basis "post hoc, nested LOSO on the Magdalena".
 
     Args:
         folder: ``docs/water-quality/results/models``.
@@ -123,10 +125,12 @@ def load_cards(folder: Path) -> dict[str, dict[str, Any]]:
     Returns:
         Target -> card (empty when none was written).
     """
-    out = {}
+    out: dict[str, dict[str, Any]] = {}
     for path in sorted(folder.glob("*.json")) if folder.exists() else []:
         card = json.loads(path.read_text(encoding="utf-8"))
-        out[str(card["target"])] = card
+        target = str(card["target"])
+        if target not in out or card.get("basis") == posthoc.BASIS:
+            out[target] = card
     return out
 
 

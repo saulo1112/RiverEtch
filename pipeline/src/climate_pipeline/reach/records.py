@@ -190,7 +190,7 @@ def estimate(
     model: dict[str, Any] = {
         "target": target.id, "unit": target.unit, "level": level, "modelId": card["modelId"],
         "modelVersion": card["version"], "modelCardSha256": card_sha256,
-        "rangeMdsa": _num(mdsa, 1),
+        "rangeMdsa": _num(mdsa, 1), "basis": card.get("basis", "preregistered_test"),
         "atmosphericCorrection": v2.AtmosphericCorrection(
             processor="sen2cor", collection="sentinel-2-l2a",
             processing_baseline=[i.processing_baseline for i in measure.items]),

@@ -75,6 +75,14 @@ def render(results: Results, cfg: QualityConfig, names: Sequence[str]) -> str:
         ("route_a_levels", "Route A: levels by predicted range (primary pairs)",
          ["target", "candidate", "predicted_range", "n", "rated", "mdsa", "sspb", "coverage90",
           "level"]),
+        ("posthoc_scores", "v2.1 (post hoc): calibration on the Magdalena, nested LOSO",
+         ["target", "variant", "window", "evaluation", "n", "stations", "mdsa", "sspb", "rho",
+          "rho_low", "null_mdsa", "coverage80", "coverage90", "level", "status"]),
+        ("posthoc_levels", "v2.1 (post hoc): levels by predicted range (never validated)",
+         ["target", "predicted_range", "n", "rated", "mdsa", "sspb", "rho_low", "coverage90",
+          "level"]),
+        ("posthoc_choices", "v2.1 (post hoc): the candidate chosen for each held-out station",
+         ["target", "held_out_station", "chosen"]),
         ("route_b_scores", "Route B: published and pretrained models on the same Magdalena pairs",
          ["target", "model", "correction", "n", "stations", "mdsa", "sspb", "rho", "rho_low",
           "rho_high"]),
@@ -113,8 +121,9 @@ def write_outputs(results: Results, cfg: QualityConfig, root: Path, config: Path
         written.append(path)
     _json(results.summary, out / "summary.json")
     written.append(out / "summary.json")
-    for card in results.cards:
-        path = out / "models" / f"{card['target']}.json"
+    for card, suffix in [*((c, "") for c in results.cards),
+                         *((c, ".posthoc") for c in results.posthoc_cards)]:  # fmt: skip
+        path = out / "models" / f"{card['target']}{suffix}.json"
         path.parent.mkdir(exist_ok=True)
         _json(card, path)
         written.append(path)

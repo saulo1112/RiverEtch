@@ -61,6 +61,7 @@ def product_card(
     test: Sequence[Pair], usgs: transfer.UsgsInputs | None, oof: Sequence[float],
     refit: Sequence[float], metrics: Mapping[str, Mapping[str, float]],
     levels: Sequence[Mapping[str, Any]], lab_dir: Path,
+    p5: tuple[Sequence[str], Sequence[float]] | None = None,
 ) -> dict[str, Any]:  # fmt: skip
     """The card of the refit product model of one target.
 
@@ -77,6 +78,7 @@ def product_card(
         metrics: ``loro``, ``test`` and ``refit`` metrics.
         levels: The level rows of each predicted range.
         lab_dir: Where the lab's A4 models are.
+        p5: For v2.1's local ridge (P5): its features and penalties (no pretraining).
 
     Returns:
         The card (JSON-ready).
@@ -84,7 +86,18 @@ def product_card(
     every = [*train, *test]
     parameters: dict[str, Any]
     adjustment: dict[str, float] | None = None
-    if product == "A1":
+    if p5 is not None:
+        names, lambdas = list(p5[0]), p5[1]
+        use = transfer.usable_rows(every, names)
+        lam = transfer.choose_lambda(use, lambda p: p.station, names, lambdas)
+        local = transfer.fit_linear(use, names, lam)
+        parameters = {"kind": "linear-log", "features": names,
+                      "mean": [round(v, 10) for v in local.mean],
+                      "scale": [round(v, 10) for v in local.scale],
+                      "coefficients": [round(c, 10) for c in local.coefficients],
+                      "ridgeLambda": local.ridge_lambda}  # fmt: skip
+        ranges = _range(every, names)
+    elif product == "A1":
         use = [p for p in every if p.features.get("B8A/B04", math.nan) > 0]
         fit = models.fit_model("A1", target.id, [p.features for p in use],
                                [p.value for p in use], ["B8A/B04"])  # fmt: skip
