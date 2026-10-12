@@ -108,6 +108,23 @@
       "level": "indicative (post hoc)",
       "mdsa": 71.5,
       "n": 31
+    },
+    "round 2: Magdalena LOSO (form chosen with hindsight)": {
+      "mdsa": 38.2,
+      "n": 31,
+      "publish_values": false
+    },
+    "round 2: Magdalena leave-one-year-out": {
+      "mdsa": 86.1,
+      "n": 31
+    },
+    "round 2: external LORO, rivers off the Magdalena": {
+      "mdsa": 114.0,
+      "n": 17
+    },
+    "round 2: fitted on the Magdalena, scored on the other rivers": {
+      "mdsa": 78.9,
+      "n": 17
     }
   }
 }
