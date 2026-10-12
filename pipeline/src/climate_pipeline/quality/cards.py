@@ -26,6 +26,7 @@ from climate_pipeline.quality.config import QualityConfig, Target
 
 VERSION = "1"
 CRLF, LF = b"\r\n", b"\n"
+RANGE_TOLERANCE = 5e-7  # half the precision of a card's stored feature range (6 decimals)
 
 
 def file_sha256(path: Path) -> str:
@@ -286,6 +287,7 @@ def outside_range(card: Mapping[str, Any], row: Mapping[str, float]) -> str | No
     """
     for name, (low, high) in card.get("featureRange", {}).items():
         v = row.get(name, math.nan)
-        if not (math.isfinite(v) and low <= v <= high):
+        # The range is stored rounded to 6 decimals: a training extreme may sit just outside it.
+        if not (math.isfinite(v) and low - RANGE_TOLERANCE <= v <= high + RANGE_TOLERANCE):
             return f"{name} outside the training range"
     return None

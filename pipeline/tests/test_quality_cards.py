@@ -114,3 +114,9 @@ def test_the_file_hash_ignores_crlf(tmp_path: Path) -> None:
     crlf.write_bytes(b'{"a": 1}\r\n{"b": 2}\r\n')
     assert cards.file_sha256(lf) == cards.file_sha256(crlf)
     assert cards.file_sha256(lf) == hashlib.sha256(lf.read_bytes()).hexdigest()
+
+
+def test_a_training_extreme_is_inside_its_rounded_range() -> None:
+    card = {"featureRange": {"log_width_m": [5.186827, round(math.log(772.5), 6)]}}
+    assert cards.outside_range(card, {"log_width_m": math.log(772.5)}) is None
+    assert cards.outside_range(card, {"log_width_m": math.log(780.0)}) is not None
