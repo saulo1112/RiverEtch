@@ -861,6 +861,140 @@ committed product card. This is report-only, with no level under 8 pairs.
 - No unit is shown at a level that was not reached.
 - No actor is said to have caused anything.
 
+## v5: gauged rivers where the pipeline can show values (2026-10-12, before computing any of it)
+
+After v4, no reach publishes a value. The Magdalena reached no level in any round, and Hermann reached
+34.9 % on its locked test but stayed _indicative_ because its 90 % interval covered 68 of 70 values
+(97.1 %, above the 97 % ceiling).
+
+The project owner asked for two demo reaches, anywhere in the world, where turbidity and suspended
+solids (or a related variable) can be estimated well enough to publish values. The Magdalena may
+leave the demo; its results stay in the report and the repository. v5 evaluates every gauged
+river that meets fixed data criteria with Hermann's protocol, reports all of them, and picks the
+demo reaches by a rule written here.
+
+### What was seen before this section
+
+- Every v4 result (the report, D17).
+- **USGS metadata probes on 2026-10-12** (no value):
+  - the time-series metadata of continuous turbidity (63680), continuous and daily suspended
+    sediment (80154) and the USGS surrogate SSC (99409);
+  - the names, coordinates and drainage areas of the 399 sites active since 2018 or earlier;
+  - the main-channel rule at 9 new sites;
+  - the number of discrete SSC samples since 2018-12 at 9 sites.
+- **Rijkswaterstaat:** at Lobith the turbidity is hourly but "unchecked" from 2018 on, its unit
+  changed from NTU to FTU in 2018, and the API serves nothing in 2026.
+
+No value, pair or error of any new site has been read.
+
+### Selection
+
+**Hard criteria:**
+
+1. a continuous turbidity series (63680) that began in 2017 or earlier and is still active in 2025;
+2. a main channel ≥ 300 m wide under the station rule (SCL water frequency, 2022–2025);
+3. not at a dam or a lock.
+
+**The candidates:**
+
+| Site                                          | River group | Width (m) | In the pilot | SSC target                   |
+| --------------------------------------------- | ----------- | --------- | ------------ | ---------------------------- |
+| 07020850 Mississippi at Cape Girardeau, MO    | MISSISSIPPI | 560       | no           | —                            |
+| 07374525 Mississippi at Belle Chasse, LA      | MISSISSIPPI | 772       | yes          | discrete 80154 (176 samples) |
+| 07381600 Lower Atchafalaya at Morgan City, LA | ATCHAFALAYA | 506       | no           | discrete 80154 (167)         |
+| 06805500 Platte at Louisville, NE             | PLATTE      | 305       | yes          | discrete 80154 (148)         |
+| 03216070 Ohio at Ironton, OH                  | OHIO        | 433       | yes          | —                            |
+| 14246900 Columbia at Port Westward, OR        | COLUMBIA    | 632       | no           | 99409 (continuous)           |
+| 14144700 Columbia at Vancouver, WA            | COLUMBIA    | 680       | no           | 99409 (continuous)           |
+| 11337190 San Joaquin at Jersey Point, CA      | SAN JOAQUIN | 534       | no           | 99409 (continuous)           |
+| 14211720 Willamette at Portland, OR           | WILLAMETTE  | 342       | no           | 99409 (continuous)           |
+| 01193050 Connecticut at Middle Haddam, CT     | CONNECTICUT | 358       | no           | —                            |
+
+- **Hermann** (v4) also gets its SSC evaluated (discrete 80154, 118 samples). Its turbidity keeps
+  its v4 level of record.
+- **Left out:**
+  - Missouri at Randolph (291 m);
+  - Sacramento at Freeport (200 m);
+  - Baton Rouge (approved values end in 2023);
+  - the pilot's sites at a dam or lock, or with series starting after 2017 or ending before 2025.
+- **Every candidate is evaluated and reported.** A site whose lock box holds fewer than 20 approved
+  pairs is reported as `insufficient_data`.
+
+### Data
+
+**Scenes:** every Earth Search L2A acquisition 2018-12-01..2026-09-30 with item cloud ≤ 70 %,
+measured as in the pilot (300 m and core windows).
+
+**Turbidity:** the pilot's rule (approved 15-minute values, median within ±30 min, else the nearest
+within ±60 min, qualifiers excluded).
+
+**Suspended solids, two kinds, never pooled:**
+
+- **Discrete SSC (80154):** samples on the scene's local day (the pilot's TSS rule), at the sites
+  with at least 100 samples since 2018-12.
+- **Surrogate SSC (99409):** the USGS's continuous SSC record, estimated from turbidity by its own
+  surrogate regression, taken at the overpass with the turbidity rule.
+  - Wherever it appears it is labelled "SSC estimated by the USGS from turbidity (surrogate
+    record)".
+  - It is not an independent measurement of solids.
+
+**Caps:** 30 GB of estimated network for the whole v5 fetch, and the fetch stops under 20 GB of
+free disk.
+
+### Protocol (Hermann's, v4 A, unchanged unless stated)
+
+Per site and target:
+
+- **Training:** hydrological years 2019–2023 (2018-12-01..2023-11-30).
+- **Lock box:** 2023-12-01..2026-09-30, evaluated once.
+- **Window:** the core window.
+- **Candidates:** H0–H4.
+  - H2–H4 are pretrained on the pilot **without the site's river group**. Cape Girardeau and Belle
+    Chasse leave out MISSISSIPPI, Louisville PLATTE and Ironton OHIO; the other rivers are not in
+    the pilot.
+  - For SSC, the pretrained models are the pilot's TSS models (A2–A4, discrete SSC pairs), without
+    the site's river group.
+  - A4 is retrained in the lab environment with v2's grid and seed for each group it leaves out.
+- **Selection:** leave-one-year-out in the training years, with the 5-point margin.
+- **The card:** the winner fitted on the training years, with no refit.
+- **Intervals:** conformal on the inner residuals, as v4.
+- **Units:** turbidity in FNU, SSC in mg/L.
+
+### Levels (every v5 evaluation)
+
+The thresholds stay, except the coverage rule:
+
+- **validated:** lock-box MdSA ≤ 50 %, |SSPB| ≤ 25 %, MdSA ≤ 0.8 × H0's, N ≥ 20 in ≥ 2
+  hydrological years, 90 % coverage ≥ 80 %, and a median 90 % interval factor ≤ 2.5 (the interval
+  spans the value ×/÷ 2.5 or less).
+- **estimated:** MdSA ≤ 60 %, |SSPB| ≤ 30 %, MdSA below H0's, 90 % coverage ≥ 80 %, and a median
+  90 % interval factor ≤ 3.0.
+- **indicative:** Spearman ρ with a 95 % lower bound > 0.3.
+- Per predicted range, as v4: a range under 8 pairs takes the overall level, capped at _estimated_.
+
+**Why the coverage rule changes, and its limits:**
+
+- v4 failed intervals that covered too much (above 97 %). A conservative interval does not
+  mislead about the uncertainty; its cost is width. So v5 keeps the lower bound (80 %, validity)
+  and replaces the upper bound with a cap on the width (sharpness).
+- The change was decided after seeing Hermann's 97.1 %, so it is labelled that way.
+- It applies only to evaluations not yet computed. Hermann's turbidity keeps its v4 level of record.
+  A report-only row gives Hermann under the v5 rule, labelled "rule written after seeing it".
+
+### The demo reaches (rule fixed here)
+
+- The two demo reaches are the two gauged reaches with the highest turbidity level of record,
+  among Hermann (v4) and the v5 sites. Ties go to the lower lock-box MdSA, then to the larger lock
+  box.
+- Each demo reach gets a site file and a self-measured NDTI baseline (2019-01-01..2025-12-31, 6 GB
+  cap each), records from 2026-01-01, and the prospective check against its gauge after its card's
+  commit.
+- **The report gives every site's result,** the number of sites evaluated and their median
+  lock-box MdSA. The two demo reaches are the best of N, so their pair of errors is an optimistic
+  summary of the method. The table of all N is the honest one.
+- The Magdalena leaves the demo (the owner's choice). Its reach stays in the repository and keeps
+  its results.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.
