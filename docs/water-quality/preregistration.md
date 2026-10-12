@@ -495,6 +495,34 @@ label is **post hoc**, never _validated_.
 - **Report-only sensitivity:** leave-one-year-out (by hydrological year, December to November).
 - **Reported side by side:** the preregistered result (v2, level none) and the post-hoc one.
 
+### v2.2: a post-hoc calibration on the physical correction (2026-10-11, before computing it)
+
+The project owner accepted running ACOLITE operationally if it helps: Level-1C products downloaded
+with the owner's Copernicus account, and RAdCor for adjacency. Route B's published models used no
+Magdalena fit and already reached 80 % (Dogliotti 2015 on RAdCor). This stage asks whether a
+Magdalena fit on that reflectance does better than v2.1 on L2A. It follows v2.1's rules: nested
+LOSO, labelled post hoc, never _validated_.
+
+- **Stage A (no download):** the Magdalena pairs Route B already has under RAdCor (D15's pairs and
+  300 m windows: 27 turbidity, 26 TSS).
+- **Candidates (in order of simplicity):**
+  - **R1:** the published model as it is. Turbidity: Dogliotti 2015. TSS: the MDN (Route B's best
+    on RAdCor).
+  - **R2:** R1, then the adjustment log y = a + b·log ŷ fitted on the Magdalena (ridge on
+    (a, b − 1), λ from {0.1, 1, 10} by inner LOSO).
+  - **R3:** log-log OLS on RAdCor's B8A/B04 (`rhos`), fitted on the Magdalena.
+  - **M0:** the median of the training pairs.
+- **Evaluation, intervals and levels:** exactly v2.1's.
+- **Stage B (downloads), only if Stage A does better than v2.1:**
+  - Stage A's nested-LOSO MdSA must be below v2.1's for turbidity or for TSS.
+  - Then the Magdalena pairs of v2's sensitivity set that Route B lacks are processed the same way
+    (Level-1C, ACOLITE RAdCor, the core window's L2A pixels). Stage A's candidates are scored
+    again, by nested LOSO on every pair.
+  - The downloads stop under 20 GB of free disk, one product at a time.
+- **If a level is reached,** the reach's operational runs need ACOLITE: the scene's Level-1C (the
+  owner's account, credentials in environment variables only) and RAdCor on a box around the
+  estimate station. The record's atmospheric correction then names ACOLITE RAdCor.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.
@@ -585,3 +613,13 @@ label is **post hoc**, never _validated_.
      the baseline holds all 112 scenes. A rerun keeps the 60 scenes already measured.
    - **What was seen:** NIR/red per sub-reach of the 60 scenes (not examined), and the NDTI
      reproduction check: the largest difference from the frozen NDTI is 0.00005, which is rounding.
+7. **2026-10-11, during the Landsat fetch, before any Landsat value was examined: one corrupt
+   item.**
+   - **What was preregistered:** a read error other than a non-public bucket requires a rerun
+     before results count.
+   - **What the rerun showed:** the red and NIR assets of `LC08_L2SP_009054_20220506_02_T1` fail
+     on every read, in both runs and when read directly. Its other bands read fine, so the source
+     file is damaged; the network is not at fault.
+   - **The change:** that acquisition counts as no data, like an asset in a non-public bucket. Its
+     window has no water pixel with red and NIR, so it makes no pair either way.
+   - **What was seen:** the read errors and the item's band list. No Landsat value was examined.
