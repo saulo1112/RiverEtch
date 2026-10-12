@@ -275,8 +275,12 @@ def keep_bodies(path: Path, bodies: Sequence[bytes]) -> None:
 
 
 def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
-                 http: httpx.Client | None = None) -> dict[str, Any]:  # fmt: skip
+                 http: httpx.Client | None = None, site_ids: set[str] | None = None,
+                 max_clear: int | None = None, folder: str = "usgs", ssc: bool = True,
+                 cap_gb: float | None = None) -> dict[str, Any]:  # fmt: skip
     """Snapshot the pilot's windows, turbidity at the overpass and SSC samples.
+
+    v4's second reach reuses it for one site, every clear scene and its own folder.
 
     Args:
         cfg: The v2 settings.
@@ -284,6 +288,11 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
         cache: Cache folder.
         workers: Parallel reads.
         http: HTTP client (injectable).
+        site_ids: Only these selected sites (default: every one).
+        max_clear: Clear scenes per site (default: the pilot's cap).
+        folder: Output folder under the inputs (default: the pilot's).
+        ssc: Also the discrete SSC samples.
+        cap_gb: Network cap (default: the pilot's).
 
     Returns:
         Counts and the incomplete parts.
@@ -292,7 +301,9 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
 
     u = cfg.usgs
     inputs = root / cfg.outputs.inputs
-    sites = [r for r in read_stations(inputs / "usgs" / "sites.csv") if r["selected"] == "true"]
+    sites = [r for r in read_stations(inputs / "usgs" / "sites.csv") if r["selected"] == "true"
+             and (site_ids is None or r["site_id"] in site_ids)]  # fmt: skip
+    most = u.max_clear_scenes_per_site if max_clear is None else max_clear
     d15 = load_calibration_config(root / cfg.calibration_config)
     screening = load_screening_config(root / cfg.screening_config)
     client = http or httpx.Client(timeout=300, follow_redirects=True)
@@ -300,7 +311,7 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
     check_disk(root, cfg.budgets.keep_free_gb)
     geo_reader = _reader(d15, screening, cache)
     reader = imagery.reader(screening, "earth-search", cache)
-    budget = Budget(cfg.budgets.network_gb.usgs)
+    budget = Budget(cfg.budgets.network_gb.usgs if cap_gb is None else cap_gb)
     window = cfg.window
     progress = cache / "usgs-pilot"
     progress.mkdir(parents=True, exist_ok=True)
@@ -335,7 +346,7 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
                 "item_ids_sha256": evidence_hash(eligible),
             }
         )
-    for cap in (u.max_clear_scenes_per_site // 2, u.max_clear_scenes_per_site):
+    for cap in (most // 2, most):
         for sid, st in state.items():
             if budget.spent:
                 break
@@ -426,7 +437,7 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
                               "resumes from the cached responses")  # fmt: skip
             break
     ssc_rows: list[dict[str, Any]] = []
-    for sid in state:  # discrete SSC samples
+    for sid in state if ssc else []:  # discrete SSC samples
         try:
             body = usgs.samples(client, sid, u.ssc_parameter, u.period.start.isoformat(),
                                 u.period.end.isoformat())  # fmt: skip
@@ -434,19 +445,21 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
             rec.fail(f"{usgs.SAMPLES} {sid}", error)
             continue
         ssc_rows += [{"site_id": sid, **r} for r in usgs.parse_samples(body)]
-    rec.save("usgs/windows.csv", _csv(windows_rows, WINDOW_COLUMNS), "derived",
+    rec.save(f"{folder}/windows.csv", _csv(windows_rows, WINDOW_COLUMNS), "derived",
              note="station-window statistics and band medians, Earth Search")  # fmt: skip
-    rec.save("usgs/turbidity.csv", _csv(turbidity_rows, TURBIDITY_COLUMNS), u.api,
+    rec.save(f"{folder}/turbidity.csv", _csv(turbidity_rows, TURBIDITY_COLUMNS), u.api,
              note="continuous 63680 at each clear overpass, preregistered rule")  # fmt: skip
-    rec.save("usgs/ssc.csv", _csv(ssc_rows, SSC_COLUMNS), usgs.SAMPLES,
+    rec.save(f"{folder}/ssc.csv", _csv(ssc_rows, SSC_COLUMNS), usgs.SAMPLES,
              note=f"discrete {u.ssc_parameter} samples of the selected sites")  # fmt: skip
-    rec.save("usgs/items.csv", _csv(item_rows, ("station", "source", "acquisitions",
+    rec.save(f"{folder}/items.csv", _csv(item_rows, ("station", "source", "acquisitions",
                                                 "item_ids_sha256")), "derived")  # fmt: skip
     errors = error_rows([*reader.errors, *geo_reader.errors])
-    rec.save("usgs/read-errors.csv", _csv(errors, ("kind", "error")), "derived")
-    rec.save("usgs/incomplete.json", (json.dumps(incomplete, indent=1) + "\n").encode(), "derived")
-    (inputs / "fetch-manifest-usgs.csv").write_text(rec.manifest(), encoding="utf-8",
-                                                     newline="\n")  # fmt: skip
+    rec.save(f"{folder}/read-errors.csv", _csv(errors, ("kind", "error")), "derived")
+    rec.save(
+        f"{folder}/incomplete.json", (json.dumps(incomplete, indent=1) + "\n").encode(), "derived"
+    )
+    manifest = "fetch-manifest-usgs.csv" if folder == "usgs" else f"fetch-manifest-{folder}.csv"
+    (inputs / manifest).write_text(rec.manifest(), encoding="utf-8", newline="\n")
     return {
         "sites": len(state), "clear_scenes": sum(len(s["clear"]) for s in state.values()),
         "turbidity_pairs": sum(1 for r in turbidity_rows if math.isfinite(r["value"])),

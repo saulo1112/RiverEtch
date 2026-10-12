@@ -13,13 +13,15 @@
     commits or pushes. Register it with the Windows Task Scheduler (docs/water-quality/reach/).
 
 .PARAMETER Site
-    The reach's site id (pipeline/sites/<id>.yaml, listed in pipeline/reach.yaml).
+    A reach's site id (listed in pipeline/reach.yaml), or "all" (the default) for every reach.
+    After the run, `reach check` compares a gauged reach's estimates with its gauge (report-only;
+    its outcome never changes the exit code).
 
 .PARAMETER Uv
     The uv executable (default: the one on PATH).
 #>
 param(
-    [string]$Site = "magdalena-puerto-wilches",
+    [string]$Site = "all",
     [string]$Uv = ""
 )
 
@@ -42,4 +44,12 @@ $process = Start-Process -FilePath $Uv -ArgumentList $arguments -WorkingDirector
 $code = $process.ExitCode
 Get-Content -Path $out, $err | Add-Content -Path $log -Encoding UTF8
 Add-Content -Path $log -Encoding UTF8 -Value "=== exit $code"
+
+if ($code -eq 0 -or $code -eq 2) {
+    $checkArgs = "run climate-pipeline reach check --site $Site --root `"$root`""
+    $check = Start-Process -FilePath $Uv -ArgumentList $checkArgs -WorkingDirectory $pipeline `
+        -NoNewWindow -Wait -PassThru -RedirectStandardOutput $out -RedirectStandardError $err
+    Get-Content -Path $out, $err | Add-Content -Path $log -Encoding UTF8
+    Add-Content -Path $log -Encoding UTF8 -Value "=== check exit $($check.ExitCode) (report-only)"
+}
 exit $code

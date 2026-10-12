@@ -207,7 +207,7 @@
           "then": {
             "properties": {
               "basis": {
-                "const": "preregistered_test"
+                "enum": ["preregistered_test", "preregistered_lockbox_site"]
               }
             }
           }
@@ -260,7 +260,12 @@
         "basis": {
           "anyOf": [
             {
-              "enum": ["preregistered_test", "post_hoc_nested_loso_magdalena"],
+              "enum": [
+                "preregistered_test",
+                "post_hoc_nested_loso_magdalena",
+                "post_hoc_temporal_magdalena",
+                "preregistered_lockbox_site"
+              ],
               "type": "string"
             },
             {

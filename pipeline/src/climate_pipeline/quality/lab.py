@@ -19,13 +19,15 @@ WINDOWS = ("300m", "core")
 TOLERANCE = 1e-6  # log units: the evaluator must reproduce LightGBM's raw output
 
 
-def export(cfg: QualityConfig, usgs: transfer.UsgsInputs, out: Path) -> list[Path]:
+def export(cfg: QualityConfig, usgs: transfer.UsgsInputs, out: Path,
+           only: tuple[str, str] | None = None) -> list[Path]:  # fmt: skip
     """The lab's training tables and specs.
 
     Args:
         cfg: Settings.
         usgs: The USGS pilot's pairs.
         out: Folder (e.g. ``pipeline/out/lab``).
+        only: One (target, window) table (v4's Hermann card needs turbidity, core).
 
     Returns:
         The tables written.
@@ -36,6 +38,8 @@ def export(cfg: QualityConfig, usgs: transfer.UsgsInputs, out: Path) -> list[Pat
     written = []
     for target in cfg.targets:
         for window in WINDOWS:
+            if only is not None and (target.id, window) != only:
+                continue
             rows = transfer.usable_rows(usgs.pairs.get((target.id, window), []), names)
             if len(rows) < cfg.budgets.min_usgs_pairs:
                 continue

@@ -188,3 +188,55 @@ def test_the_baseline_resumes_without_measuring_a_scene_twice(
     assert second["measured"] == 30 and not second["stopped"] and len(measured) == 30
     assert path.read_text(encoding="utf-8").splitlines()[:11] == head_rows
     assert second["network_gb_estimated"] == pytest.approx(per_scene * 30, rel=1e-3)
+
+
+def test_a_reach_without_validation_scenes_measures_its_own_baseline(
+    root: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    days = [date(2023, 1, 5) + timedelta(days=30 * k) for k in range(6)]
+    found = [acquisition(d, f"own{k}") for k, d in enumerate(days)]
+    found.append(acquisition(date(2024, 2, 1), "after"))  # beyond baseline_end: never measured
+
+    def scene(corridor: Any, acq: Acquisition, *a: Any) -> Any:
+        sub = SimpleNamespace(ndti=0.1 + 0.01 * int(acq.key[-1]))
+        exclusion = "glint" if acq.key == "own3" else ""
+        return SimpleNamespace(exclusion=exclusion, sub={"upstream": sub, "downstream": sub})
+
+    monkeypatch.setattr(imagery, "search", lambda *a: ([a for a in found if a.key != "after"], {}))
+    monkeypatch.setattr(m, "observable", lambda acq, *a: acq.key != "own1")
+    monkeypatch.setattr(reach_run, "measure_acquisition", scene)
+    monkeypatch.setattr(m, "nir_red", lambda *a: {"upstream": 0.5, "downstream": 0.6})
+    monkeypatch.setattr(reach_run, "check_disk", lambda *a: 100.0)
+    s = prepared(root)
+    own = s.reach.model_copy(update={
+        "ndti_scenes": None, "baseline_start": date(2023, 1, 1),
+        "baseline_end": date(2023, 12, 31), "nir_red_baseline": "docs/own/nir-red-baseline.csv",
+    })  # fmt: skip
+    s = reach_run.Setup(**{**s.__dict__, "reach": own,
+                           "reader": SimpleNamespace(forget=lambda acq: None)})  # fmt: skip
+    info = reach_run.build_baseline(s.cfg, root, SITE, root / "cache", prepared=s)
+    assert info["measured"] == 6 and info["usable"] == 4 and info["frozen_scenes"] is None
+    rows = (root / own.nir_red_baseline).read_text(encoding="utf-8").splitlines()
+    assert any(r.startswith("own1,") and "not observable" in r for r in rows)
+    baseline = reach_run.load_baseline(s)
+    assert len(baseline.days) == 4 and days[1] not in baseline.days and days[3] not in baseline.days
+    assert baseline.ndti["upstream"][0] == pytest.approx(0.10)
+
+
+def test_reach_settings_need_a_baseline_source_and_declared_cards_must_exist(root: Path) -> None:
+    from climate_pipeline.reach.config import Reach
+
+    cfg = load_reach_config(root / "pipeline/reach.yaml")
+    base = cfg.reach(SITE).model_dump()
+    with pytest.raises(ValueError, match="baseline_start"):
+        Reach.model_validate({**base, "ndti_scenes": None})
+    hermann = cfg.reach("missouri-hermann")
+    assert hermann.station_source == "usgs" and hermann.targets == ("turbidity",)
+    assert reach_run.reach_cards(cfg, hermann, root, strict=False) == {}
+    with pytest.raises(reach_run.ReachError, match="no model card"):
+        reach_run.reach_cards(cfg, hermann, root)
+    path = root / hermann.cards["turbidity"]
+    path.parent.mkdir(parents=True)
+    path.write_text(json.dumps({**card(), "target": "tss"}), encoding="utf-8")
+    with pytest.raises(reach_run.ReachError, match="tss card"):
+        reach_run.reach_cards(cfg, hermann, root)

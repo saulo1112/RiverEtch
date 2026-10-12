@@ -1,0 +1,69 @@
+# Missouri River, Hermann to New Haven (Missouri, USA): v4's second demo reach (preregistration v4, A).
+# A validation reach with a continuous, approved turbidity gauge at its upstream end (USGS 06934500).
+# It lives outside pipeline/sites/ so the Colombian site screening never reads it.
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: missouri-hermann
+name: Missouri River, Hermann to New Haven (Missouri, USA)
+river: Missouri River
+category: D
+rationale:
+  "Validation reach (category D). The Missouri River below the USGS streamgage 06934500 at Hermann,
+  which records continuous turbidity (parameter 63680, FNU) since before 2017. The main channel is
+  about 400 m wide at the gauge (pilot selection, docs/water-quality/inputs/usgs/sites.csv). No dam
+  lies on the lower Missouri; the Gasconade River joins about 10 km upstream of the gauge, outside
+  the reach. The reach is chosen for its measurement, not for any pressure: no actor is the subject of
+  any record."
+center:
+  lon: -91.3282
+  lat: 38.659
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -91.48
+  - 38.57
+  - -91.18
+  - 38.74
+upstream_anchor:
+  lon: -91.4385
+  lat: 38.709806
+  description: USGS 06934500, Missouri River at Hermann, MO (the streamgage)
+  basis: "Stated by source: the monitoring location's coordinates in the USGS Water Data API."
+  source_url: https://waterdata.usgs.gov/monitoring-location/USGS-06934500/
+downstream_anchor:
+  lon: -91.2178
+  lat: 38.6081
+  description: New Haven, MO, town on the southern (right) bank of the Missouri River
+  basis:
+    "Estimated from New Haven, MO (town coordinates, about 38.608 N 91.218 W); the riverfront is
+    on the main channel. To be snapped to the water mask."
+  source_url: https://en.wikipedia.org/wiki/New_Haven,_Missouri
+confluences: []
+regime_changes: []
+rain_points:
+  - lon: -91.3282
+    lat: 38.659
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  None. No dam, licence or permitted works are the subject of this reach; it is used because its
+  turbidity is measured continuously.
+regulator: Not applicable (no permit parameter is compared).
+river_width_note: about 394 m at the gauge (SCL water frequency, pilot selection)
+climate_note:
+  Mid-latitude continental climate; winter scenes have high sun zenith angles, and the model
+  cards abstain outside their training ranges.
+citations:
+  - url: https://waterdata.usgs.gov/monitoring-location/USGS-06934500/
+    title: USGS 06934500 Missouri River at Hermann, MO (USGS Water Data for the Nation)
+    supports: The streamgage, its coordinates and its continuous turbidity (63680) series
+    verification: USGS Water Data API (monitoring-locations and time-series-metadata snapshots)
+  - url: https://api.waterdata.usgs.gov/ogcapi/v0/
+    title: USGS Water Data OGC API
+    supports: The approved 15-minute turbidity values paired with each overpass
+    verification: Snapshots in docs/water-quality/inputs/usgs-hermann/ with their SHA-256
+unverified:
+  - "New Haven riverfront position: town coordinates only; snapped to the water mask by the run"
+  - "Small creeks (for example Frene Creek at Hermann) enter within the reach; their mouths are not
+    mapped here and none has more than 1 % of the Missouri's drainage area"

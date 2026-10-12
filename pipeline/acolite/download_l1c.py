@@ -183,13 +183,14 @@ def done_products(scenes_csv: Path, state_json: Path) -> set[tuple[str, str]]:
     return {p for p, s in status.items() if s <= {"ok", "failed"}}
 
 
-def run_acolite(here: Path) -> int:
+def run_acolite(here: Path, extra: list[str] | None = None) -> int:
     """Run ``run_windows.py --delete-after`` with ACOLITE's own Python.
 
     The Copernicus credentials are not passed on.
 
     Args:
         here: This folder (``pipeline/acolite``).
+        extra: More runner arguments (v4's Stage B: its scene list, settings and outputs).
 
     Returns:
         The runner's exit code (3 when the time box is spent).
@@ -204,7 +205,7 @@ def run_acolite(here: Path) -> int:
         "GDAL_DATA": str(env_dir / "Library" / "share" / "gdal"),
         "PROJ_DATA": str(env_dir / "Library" / "share" / "proj"),
     })  # fmt: skip
-    command = [str(python), "-I", str(here / "run_windows.py"), "--delete-after"]
+    command = [str(python), "-I", str(here / "run_windows.py"), "--delete-after", *(extra or [])]
     return subprocess.run(command, env=env, check=False).returncode
 
 
@@ -223,11 +224,27 @@ def main() -> int:
         "--process", action="store_true",
         help="run ACOLITE on each product right after downloading it, then delete it",
     )  # fmt: skip
+    parser.add_argument(
+        "--stage-b", action="store_true",
+        help="v4's RAdCor Stage B: its scene list, work folder and settings; keeps >= 20 GB free",
+    )  # fmt: skip
     args = parser.parse_args()
     here = Path(__file__).resolve().parent
-    scenes = args.root / INPUTS / "acolite" / "scenes.csv"
+    runner: list[str] = []
+    if args.stage_b:
+        folder = "docs/water-quality/inputs/acolite/stage-b"
+        scenes = args.root / folder / "scenes.csv"
+        state = here.parent / "out" / "acolite-work-b" / "state.json"
+        args.keep_free_gb = max(args.keep_free_gb, 20.0)  # v4's disk rule
+        runner = ["--scenes", f"{folder}/scenes.csv", "--l2a", f"{folder}/l2a-windows.csv",
+                  "--window", "core", "--work", str(state.parent),
+                  "--settings", str(here / "settings-radcor.txt"), "--time-box-h", "6",
+                  "--outputs", folder]  # fmt: skip
+    else:
+        scenes = args.root / INPUTS / "acolite" / "scenes.csv"
+        state = here.parent / "out" / "acolite-work" / "state.json"
     args.out.mkdir(parents=True, exist_ok=True)
-    finished = done_products(scenes, here.parent / "out" / "acolite-work" / "state.json")
+    finished = done_products(scenes, state)
     wanted = [p for p in products(scenes) if not args.process or p not in finished]
     if args.process and finished:
         print(f"{len(finished)} products already processed: skipped")
@@ -258,7 +275,7 @@ def main() -> int:
                 z.extractall(args.out)
             archive.unlink()
             new += 1
-            if args.process and run_acolite(here) == 3:
+            if args.process and run_acolite(here, runner) == 3:
                 print("stopped: ACOLITE's time box is spent")
                 break
     print(f"{new} new products in {args.out.resolve()}")

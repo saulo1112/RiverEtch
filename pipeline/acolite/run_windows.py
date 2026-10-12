@@ -31,7 +31,9 @@ without changing those defaults:
 * ``--measure-only`` measures the saved runs again without processing anything;
 * ``--outputs <folder>`` writes ``windows.csv``, ``run-log.csv`` and ``manifest.csv`` there
   instead, adding ``rhos`` at 443 nm (``B01``) and the medians of ACOLITE's ``rhow`` (L2W) over
-  the same pixels, where its water mask keeps them.
+  the same pixels, where its water mask keeps them;
+* ``--scenes``, ``--l2a`` and ``--window`` point at another scene list, L2A window rows and window
+  (v4's Stage B: ``docs/water-quality/inputs/acolite/stage-b/``, the core window).
 """
 
 from __future__ import annotations
@@ -252,6 +254,7 @@ def remeasure(
     l2a: dict[tuple[str, str], dict[str, str]],
     runs: str = "runs",
     extra: bool = False,
+    window: str = "300m",
 ) -> list[dict[str, Any]]:
     """The rows of every processed scene, measured from its saved L2R file, in priority order.
 
@@ -260,9 +263,10 @@ def remeasure(
         state: The runner's state (status and Level-1C folder per scene).
         work: The work folder (``<runs>/<station>_<key>``).
         pixel_file: Station grids and L2A water pixels.
-        l2a: The L2A 300 m window rows.
+        l2a: The L2A window rows.
         runs: The folder under ``work`` that holds the runs.
         extra: Add ``B01`` and the ``rhow`` medians (v2).
+        window: The window's name in the rows.
 
     Returns:
         One row per scene with ``ok`` status and a saved L2R file.
@@ -282,7 +286,7 @@ def remeasure(
         stats = measure(l2r[0], pixel_file["stations"][scene["station"]], pixels[where],
                         pixel_file["rg_floor"], extra)  # fmt: skip
         rows.append({"station": scene["station"], "collection": "acolite", "key": scene["key"],
-                     "family": family(Path(entry.get("note", ""))), "window": "300m",
+                     "family": family(Path(entry.get("note", ""))), "window": window,
                      **{k: l2a[where][k] for k in COPIED}, **stats})  # fmt: skip
     return rows
 
@@ -315,6 +319,13 @@ def main() -> int:
         help="write windows.csv, run-log.csv and manifest.csv to this folder (relative to "
         "--root), with B01 and the rhow medians; default: the D15 snapshot",
     )  # fmt: skip
+    parser.add_argument("--scenes", type=Path, default=Path(INPUTS) / "acolite" / "scenes.csv",
+                        help="scene list, relative to --root")  # fmt: skip
+    parser.add_argument(
+        "--l2a", type=Path, default=Path(INPUTS) / "imagery" / "windows-sentinel-2-l2a.csv",
+        help="L2A window rows, relative to --root",
+    )  # fmt: skip
+    parser.add_argument("--window", default="300m", help="the window of the L2A rows")
     parser.add_argument("--time-box-h", type=float, default=2.0)
     parser.add_argument("--limit-deg", type=float, default=0.05, help="half box around station")
     parser.add_argument("--max-scenes", type=int, default=0, help="0: no limit (smoke tests)")
@@ -332,9 +343,10 @@ def main() -> int:
     settings_path = args.settings
     settings = ac.acolite.settings.read(str(settings_path))
     pixel_file = json.loads((args.work / "pixels.json").read_text(encoding="utf-8"))
-    with (inputs / "imagery" / "windows-sentinel-2-l2a.csv").open(encoding="utf-8") as handle:
-        l2a = {(r["station"], r["key"]): r for r in csv.DictReader(handle) if r["window"] == "300m"}
-    with (inputs / "acolite" / "scenes.csv").open(encoding="utf-8") as handle:
+    with (args.root / args.l2a).open(encoding="utf-8") as handle:
+        l2a = {(r["station"], r["key"]): r for r in csv.DictReader(handle)
+               if r["window"] == args.window}  # fmt: skip
+    with (args.root / args.scenes).open(encoding="utf-8") as handle:
         scenes = list(csv.DictReader(handle))
     state_path = args.work / args.state
     state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {}
@@ -408,7 +420,7 @@ def main() -> int:
         state_path.write_text(json.dumps(state, indent=1), encoding="utf-8")
     order = {f"{s['station']}|{s['key']}": s for s in scenes}
     extra = args.outputs is not None
-    rows = remeasure(scenes, state, args.work, pixel_file, l2a, args.runs, extra)
+    rows = remeasure(scenes, state, args.work, pixel_file, l2a, args.runs, extra, args.window)
     log = [{"priority": s["priority"], "station": s["station"], "key": s["key"],
             "l1c_folder": state.get(k, {}).get("note", ""),
             "status": state.get(k, {}).get("status", "not_started"),

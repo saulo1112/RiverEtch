@@ -170,7 +170,8 @@ def estimate(
     Returns:
         The estimate.
     """
-    none = v2.Estimate(target=target.id, unit=target.unit, level="none")
+    unit = str(card.get("unit", target.unit)) if card is not None else target.unit
+    none = v2.Estimate(target=target.id, unit=unit, level="none")
     if card is None:
         return none
     reason = (measure.exclusion or measure.window_problem
@@ -188,7 +189,7 @@ def estimate(
     if level == "none":
         return none
     model: dict[str, Any] = {
-        "target": target.id, "unit": target.unit, "level": level, "modelId": card["modelId"],
+        "target": target.id, "unit": unit, "level": level, "modelId": card["modelId"],
         "modelVersion": card["version"], "modelCardSha256": card_sha256,
         "rangeMdsa": _num(mdsa, 1), "basis": card.get("basis", "preregistered_test"),
         "atmosphericCorrection": v2.AtmosphericCorrection(

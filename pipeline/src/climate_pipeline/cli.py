@@ -117,18 +117,24 @@ def _parser() -> argparse.ArgumentParser:
     )
     quality.add_argument(
         "action",
-        choices=("fetch", "fetch-usgs", "fetch-landsat", "fetch-extended", "export-lab", "run",
-                 "verify"),
+        choices=("fetch", "fetch-usgs", "fetch-site", "fetch-landsat", "fetch-extended",
+                 "export-lab", "stage-b-list", "run", "verify"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
-        "the USGS pilot; fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
+        "the USGS pilot; fetch-site --site ID: every clear scene of one pilot site (v4's second "
+        "reach); fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
         "(phase 3); fetch-extended: windows within 15 days of a sample (v3); export-lab: the "
-        "lab's training tables (A4); run: offline results; "
-        "verify: recompute and compare with the MANIFEST",
+        "lab's training tables (A4); stage-b-list: the Level-1C scenes of RAdCor Stage B (v4); "
+        "run: offline results; verify: recompute and compare with the MANIFEST",
     )  # fmt: skip
     quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     quality.add_argument("--stations-only", action="store_true",
                          help="fetch, fetch-landsat: the station list only")  # fmt: skip
     quality.add_argument("--sites-only", action="store_true", help="fetch-usgs: selection only")
+    quality.add_argument("--site", default="USGS-06934500", help="fetch-site: the USGS site")
+    quality.add_argument(
+        "--without-river", default="",
+        help="export-lab: leave this river's sites out (v4: MISSOURI, turbidity core only)",
+    )  # fmt: skip
     quality.add_argument(
         "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
     )
@@ -142,11 +148,16 @@ def _parser() -> argparse.ArgumentParser:
     )
     reach = commands.add_parser("reach", help="observation records v2 of a reach (P3, D16)")
     reach.add_argument(
-        "action", choices=("baseline", "run"),
+        "action", choices=("baseline", "run", "check", "examples"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
-        "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it)",
+        "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); check: a "
+        "gauged reach's estimates against its gauge after the card's commit (report-only); "
+        "examples: copy the newest outputs to docs/water-quality/reach/<site>/examples/",
     )  # fmt: skip
-    reach.add_argument("--site", default="magdalena-puerto-wilches", help="the reach's site id")
+    reach.add_argument(
+        "--site", default="magdalena-puerto-wilches",
+        help="the reach's site id, or 'all' for every reach in the settings",
+    )  # fmt: skip
     reach.add_argument("--since", type=date.fromisoformat, default=None, help="run: first day")
     reach.add_argument("--until", type=date.fromisoformat, default=None, help="run: last day")
     reach.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
@@ -398,6 +409,10 @@ def calibration(args: argparse.Namespace) -> int:
     return 0
 
 
+SITE_FOLDERS = {"USGS-06934500": "usgs-hermann"}  # v4: inputs folder of a second-reach site
+SITE_CAP_GB = 4.0  # v4, section A: estimated network of the site's full fetch
+
+
 def quality(args: argparse.Namespace) -> int:
     """Run ``quality run`` or ``verify``.
 
@@ -426,8 +441,26 @@ def quality(args: argparse.Namespace) -> int:
         if usgs_inputs is None:
             print("no USGS snapshot yet: run quality fetch-usgs first")
             return 1
+        if args.without_river:
+            from climate_pipeline.quality import site
+
+            reduced = site.without_river(usgs_inputs, args.without_river, None)
+            folder = root / "pipeline" / "out" / f"lab-no-{args.without_river.lower()}"
+            tables = lab.export(cfg, reduced, folder, only=(site.TARGET, site.WINDOW))
+            print(f"{len(tables)} tables in {folder}")
+            return 0
         tables = lab.export(cfg, usgs_inputs, root / "pipeline" / "out" / "lab")
         print(f"{len(tables)} tables in pipeline/out/lab")
+        return 0
+    if args.action == "stage-b-list":
+        from climate_pipeline.quality import stage_b
+
+        scenes = stage_b.scene_list(
+            cfg, root, root / args.cache, root / "pipeline" / "out" / "acolite-work-b", args.workers
+        )
+        products = {r["l1c_product"] for r in scenes if r["l1c_product"]}
+        missing = sum(1 for r in scenes if not r["l1c_product"])
+        print(f"{len(scenes)} scenes, {len(products)} Level-1C products, {missing} without one")
         return 0
     if args.action == "fetch-extended":
         from climate_pipeline.quality import extended
@@ -443,6 +476,15 @@ def quality(args: argparse.Namespace) -> int:
             print(f"{len(stations)} Landsat stations (main channel >= 240 m)")
             return 0
         counts = landsat.fetch_values(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "fetch-site":
+        from climate_pipeline.quality import usgs
+
+        counts = usgs.fetch_values(cfg, root, root / args.cache, args.workers,
+                                   site_ids={args.site}, max_clear=100_000,
+                                   folder=SITE_FOLDERS.get(args.site, args.site.lower()),
+                                   ssc=False, cap_gb=SITE_CAP_GB)  # fmt: skip
         print(f"snapshots: {counts}")
         return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "fetch-usgs":
@@ -504,24 +546,53 @@ def reach(args: argparse.Namespace) -> int:
     from climate_pipeline.reach.config import load_reach_config
 
     root = args.root.resolve()
-    cfg = load_reach_config(root / args.config)
-    try:
-        if args.action == "baseline":
-            info = reach_run.build_baseline(cfg, root, args.site, root / args.cache, args.workers)
-            print(f"baseline: {info}")
-            return reach_run.EXIT_CAP if info["stopped"] else reach_run.EXIT_OK
-        summary = reach_run.run(cfg, root, args.site, args.since, args.until, root / args.cache,
-                                args.workers)  # fmt: skip
-    except DiskBudgetError as error:
-        print(f"stopped: {error}")
-        return reach_run.EXIT_CAP
-    except reach_run.ReachError as error:
-        print(f"cannot run: {error}")
-        return 1
-    print(f"{len(summary.recorded)} records, {len(summary.skipped)} skipped, "
-          f"{len(summary.failed)} failed, ~{summary.network_mb / 1000:.2f} GB"
-          + (f"; stopped: {summary.stopped}" if summary.stopped else ""))  # fmt: skip
-    return summary.exit_code
+    config = root / args.config
+    cfg = load_reach_config(config)
+    sites = [r.site for r in cfg.reaches] if args.site == "all" else [args.site]
+    if args.action == "examples":
+        for site in sites:
+            try:
+                print(f"{site}: {reach_run.write_examples(cfg, root, site)}")
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+        return 0
+    if args.action == "check":
+        from climate_pipeline.reach.check import check
+
+        for site in sites:
+            reach = cfg.reach(site)
+            if reach.station_source != "usgs":
+                continue
+            try:
+                found = check(cfg, reach, root)
+            except ValueError as error:
+                print(f"{site}: {error}")
+                continue
+            print(f"{site}: {found}")
+        return 0
+    codes = []
+    for site in sites:
+        try:
+            if args.action == "baseline":
+                info = reach_run.build_baseline(cfg, root, site, root / args.cache, args.workers)
+                print(f"{site} baseline: {info}")
+                codes.append(reach_run.EXIT_CAP if info["stopped"] else reach_run.EXIT_OK)
+                continue
+            summary = reach_run.run(cfg, root, site, args.since, args.until, root / args.cache,
+                                    args.workers, config_path=config)  # fmt: skip
+        except DiskBudgetError as error:
+            print(f"{site} stopped: {error}")
+            codes.append(reach_run.EXIT_CAP)
+            continue
+        except reach_run.ReachError as error:
+            print(f"{site} cannot run: {error}")
+            codes.append(1)
+            continue
+        print(f"{site}: {len(summary.recorded)} records, {len(summary.skipped)} skipped, "
+              f"{len(summary.failed)} failed, ~{summary.network_mb / 1000:.2f} GB"
+              + (f"; stopped: {summary.stopped}" if summary.stopped else ""))  # fmt: skip
+        codes.append(summary.exit_code)
+    return max(codes)
 
 
 def main(argv: list[str] | None = None) -> int:

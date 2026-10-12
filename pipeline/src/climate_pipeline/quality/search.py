@@ -112,6 +112,29 @@ def flow_index(flow: Mapping[str, tuple[str, Mapping[date, float]]]
     return out
 
 
+def flow_raw(flow: Mapping[str, tuple[str, Mapping[date, float]]]
+             ) -> dict[str, dict[date, float]]:  # fmt: skip
+    """Each station's flow as preregistered (deviation 9): log discharge, or level in metres.
+
+    The same series as :func:`flow_index` (at least 30 days), not standardised, so G is
+    g = ln(Q_sample / Q_scene), or the level change in metres where only the level exists.
+
+    Args:
+        flow: Station -> (label, day -> value).
+
+    Returns:
+        Station -> day -> value.
+    """
+    out = {}
+    for station, (label, series) in flow.items():
+        values = {d: (math.log(v) if label == "Q_MEDIA_D" else v / 100)
+                  for d, v in series.items()
+                  if math.isfinite(v) and (v > 0 or label != "Q_MEDIA_D")}  # fmt: skip
+        if len(values) >= 30:
+            out[station] = values
+    return out
+
+
 def all_pairs(samples: Sequence[Sample], scenes: Sequence[SceneRow], max_days: int,
               guards: WindowSettings) -> list[Pair]:  # fmt: skip
     """Every usable scene within ``max_days`` of each sample, as pairs.
@@ -374,7 +397,8 @@ class Data:
 
 
 def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
-         t_model: Callable[[Pair], float] | None, external: bool = False) -> Data:  # fmt: skip
+         t_model: Callable[[Pair], float] | None, external: bool = False,
+         raw_flow: bool = False) -> Data:  # fmt: skip
     """The turbidity pair sets and test units: the Magdalena's, or the other rivers'.
 
     Args:
@@ -384,6 +408,7 @@ def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
         t_model: A4's USGS model.
         external: The rivers off the Magdalena, grouped by river (default: the Magdalena,
             grouped by station).
+        raw_flow: Q and G as preregistered (deviation 9) instead of the standardised index.
 
     Returns:
         The data.
@@ -392,7 +417,7 @@ def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
     samples = [s for s in ci.samples if s.target == TARGET
                and (ci.stream_of.get(s.station) == test_stream) != external]  # fmt: skip
     ids = {(s.station, s.day): k for k, s in enumerate(samples)}
-    index = flow_index(ci.flow)
+    index = flow_raw(ci.flow) if raw_flow else flow_index(ci.flow)
     guards = cfg.window.as_calibration()
     tables = {}
     for ps in PAIR_SETS:
@@ -589,6 +614,60 @@ def analyse(
     return tables
 
 
+DEV9 = "preregistered flow features (deviation 9)"
+
+
+@dataclass
+class Record:
+    """Rounds 1 and 2 of record (deviation 9): the tables, and what round 1's card needs."""
+
+    tables: dict[str, list[dict[str, Any]]]
+    plain: dict[str, float]  # each candidate's plain-LOSO MdSA over every station
+    data: Data | None  # None with too few stations
+
+
+def of_record(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
+              t_model: Callable[[Pair], float] | None) -> Record:  # fmt: skip
+    """Rounds 1 and 2 again with Q and G as preregistered: their results of record (deviation 9).
+
+    Args:
+        cfg: Settings.
+        ci: The Colombian inputs.
+        scenes: Every core-window scene.
+        t_model: A4's USGS model.
+
+    Returns:
+        ``v3_record_scores``, ``v3_record_levels``, ``v3_record_choices`` and
+        ``v3_record_round2``, with the plain-LOSO scores and the data.
+    """
+    from climate_pipeline.quality.route_b import _seed
+
+    d = data(cfg, ci, scenes, t_model, raw_flow=True)
+    out: dict[str, list[dict[str, Any]]] = {"v3_record_scores": [], "v3_record_levels": [],
+                                            "v3_record_choices": [],
+                                            "v3_record_round2": []}  # fmt: skip
+    if len(d.units) < 3:
+        return Record(out, {}, None)
+    candidates = space()
+    counts: dict[str, Any] = {f"pairs_{ps}": len(t.pairs) for ps, t in d.tables.items()}
+    counts["samples_in_15"] = len(set(d.tables["15"].sample.tolist()))
+    seed = _seed(cfg.seed, "v3", "round1")
+    result, order, plain = nested(cfg, d, candidates)
+    pool = [d.pool[u] for u in order]
+    m = posthoc.metrics(cfg, pool, result, list(range(len(pool))), seed)
+    rows = posthoc.level_rows(cfg, cfg.target(TARGET), pool, result, seed)
+    out["v3_record_scores"].append({"round": 1, "flow": DEV9,
+                                    "evaluation": "nested LOSO (whole space)", **m,
+                                    "level": rows[0]["level"], "candidates": len(candidates),
+                                    **counts})  # fmt: skip
+    out["v3_record_levels"] += [{"round": 1, "flow": DEV9, **r} for r in rows]
+    out["v3_record_choices"] += [{"round": 1, "flow": DEV9, "held_out_station": s, "chosen": c}
+                                 for s, c in result.chosen.items()]  # fmt: skip
+    again = round2(cfg, ci, scenes, t_model, d, raw_flow=True)
+    out["v3_record_round2"] = [{**r, "flow": DEV9} for r in again]
+    return Record(out, plain, d)
+
+
 def scenes(cfg: QualityConfig, root: Path, ci: ColombianInputs) -> list[SceneRow] | None:
     """The core-window scenes of v2 and of the extended fetch (None before that fetch).
 
@@ -641,8 +720,8 @@ FORM = Candidate("7", "nearest", "T+G")
 
 
 def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
-           t_model: Callable[[Pair], float] | None, mag: Data | None = None
-           ) -> list[dict[str, Any]]:  # fmt: skip
+           t_model: Callable[[Pair], float] | None, mag: Data | None = None,
+           raw_flow: bool = False) -> list[dict[str, Any]]:  # fmt: skip
     """Round 2: round 1's most chosen form, checked on data round 1 never used.
 
     Args:
@@ -651,6 +730,7 @@ def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
         scenes: Every core-window scene.
         t_model: A4's USGS model.
         mag: Round 1's Magdalena data (built again when absent).
+        raw_flow: The preregistered flow features (deviation 9).
 
     Returns:
         One row per check, with the publishing rule's verdict on the first.
@@ -659,12 +739,12 @@ def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
 
     seed = _seed(cfg.seed, "v3", "round2")
     rows: list[dict[str, Any]] = []
-    mag = mag if mag is not None else data(cfg, ci, scenes, t_model)
+    mag = mag if mag is not None else data(cfg, ci, scenes, t_model, raw_flow=raw_flow)
     one, order, _ = nested(cfg, mag, [FORM])
     pool = [mag.pool[u] for u in order]
     m1 = posthoc.metrics(cfg, pool, one, list(range(len(pool))), seed)
     lv1 = route_a.level(m1, cfg, bin_level=True)
-    ext = data(cfg, ci, scenes, t_model, external=True)
+    ext = data(cfg, ci, scenes, t_model, external=True, raw_flow=raw_flow)
     if len(ext.units) >= 2:
         two, order2, _ = nested(cfg, ext, [FORM])
         pool2 = [ext.pool[u] for u in order2]
