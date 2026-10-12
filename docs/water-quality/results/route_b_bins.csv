@@ -1,0 +1,51 @@
+target,model,correction,predicted_range,n,mdsa,rated
+turbidity,B1 Dogliotti 2015,l2a,<30,6,50.162676,false
+turbidity,B1 Dogliotti 2015,l2a,100-300,7,158.579664,false
+turbidity,B1 Dogliotti 2015,l2a,300-1000,12,81.412513,true
+turbidity,B1 Dogliotti 2015,l2a,>=1000,2,515.425224,false
+turbidity,B1 Dogliotti 2015,dsf,<30,6,84.354116,false
+turbidity,B1 Dogliotti 2015,dsf,30-100,1,484.920936,false
+turbidity,B1 Dogliotti 2015,dsf,100-300,4,503.412934,false
+turbidity,B1 Dogliotti 2015,dsf,300-1000,10,98.068372,true
+turbidity,B1 Dogliotti 2015,dsf,>=1000,5,516.79734,false
+turbidity,B1 Dogliotti 2015,radcor,<30,7,42.653707,false
+turbidity,B1 Dogliotti 2015,radcor,30-100,2,814.427629,false
+turbidity,B1 Dogliotti 2015,radcor,100-300,7,24.569677,false
+turbidity,B1 Dogliotti 2015,radcor,300-1000,9,80.033237,true
+turbidity,B1 Dogliotti 2015,radcor,>=1000,2,573.488235,false
+turbidity,B2 Nechad 2009,l2a,<30,6,47.434075,false
+turbidity,B2 Nechad 2009,l2a,30-100,11,337.609036,true
+turbidity,B2 Nechad 2009,l2a,100-300,6,138.366378,false
+turbidity,B2 Nechad 2009,l2a,300-1000,1,53.308687,false
+turbidity,B2 Nechad 2009,l2a,>=1000,1,670.639094,false
+turbidity,B2 Nechad 2009,dsf,<30,8,138.939985,true
+turbidity,B2 Nechad 2009,dsf,30-100,10,400.465782,true
+turbidity,B2 Nechad 2009,dsf,100-300,7,81.477619,false
+turbidity,B2 Nechad 2009,dsf,300-1000,1,797.162091,false
+turbidity,B2 Nechad 2009,radcor,<30,7,42.653707,false
+turbidity,B2 Nechad 2009,radcor,30-100,10,360.867577,true
+turbidity,B2 Nechad 2009,radcor,100-300,7,80.795642,false
+turbidity,B2 Nechad 2009,radcor,>=1000,2,1068.212115,false
+tss,B2 Nechad 2010,l2a,<50,9,154.944711,true
+tss,B2 Nechad 2010,l2a,50-200,12,396.916225,true
+tss,B2 Nechad 2010,l2a,200-500,2,106.799074,false
+tss,B2 Nechad 2010,l2a,>=1500,1,286.363203,false
+tss,B2 Nechad 2010,dsf,<50,12,334.146292,true
+tss,B2 Nechad 2010,dsf,50-200,10,459.744573,true
+tss,B2 Nechad 2010,dsf,200-500,2,43.184055,false
+tss,B2 Nechad 2010,dsf,500-1500,1,988.644509,false
+tss,B2 Nechad 2010,radcor,<50,12,440.778153,true
+tss,B2 Nechad 2010,radcor,50-200,8,508.004489,true
+tss,B2 Nechad 2010,radcor,200-500,3,107.262586,false
+tss,B2 Nechad 2010,radcor,500-1500,1,163.055913,false
+tss,B2 Nechad 2010,radcor,>=1500,1,3056.132569,false
+tss,B3 MDN,dsf,<50,3,498.04764,false
+tss,B3 MDN,dsf,50-200,3,735.42695,false
+tss,B3 MDN,dsf,200-500,12,52.941811,true
+tss,B3 MDN,dsf,500-1500,6,115.095161,false
+tss,B3 MDN,dsf,>=1500,2,335.67529,false
+tss,B3 MDN,radcor,<50,6,118.143014,false
+tss,B3 MDN,radcor,50-200,7,109.627896,false
+tss,B3 MDN,radcor,200-500,7,150.549185,false
+tss,B3 MDN,radcor,500-1500,5,129.144475,false
+tss,B3 MDN,radcor,>=1500,1,149.340557,false

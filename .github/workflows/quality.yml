@@ -1,0 +1,62 @@
+name: Water quality
+
+# Recomputes the water-quality validation v2 (D16) offline from the committed snapshots and compares
+# every CSV, JSON and Markdown output, the model cards included, with the committed MANIFEST. Route B
+# reads D15's frozen snapshots and coefficient tables, so their changes trigger it too.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/src/**"
+      - "pipeline/water-quality.yaml"
+      - "pipeline/calibration.yaml"
+      - "pipeline/screening.yaml"
+      - "pipeline/pyproject.toml"
+      - "pipeline/uv.lock"
+      - "docs/water-quality/**"
+      - "docs/magdalena-validation/calibration/**"
+      - ".github/workflows/quality.yml"
+  pull_request:
+    paths:
+      - "pipeline/src/**"
+      - "pipeline/water-quality.yaml"
+      - "pipeline/calibration.yaml"
+      - "pipeline/screening.yaml"
+      - "pipeline/pyproject.toml"
+      - "pipeline/uv.lock"
+      - "docs/water-quality/**"
+      - "docs/magdalena-validation/calibration/**"
+      - ".github/workflows/quality.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Water-quality outputs (offline recompute)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          # Same uv version that wrote uv.lock, so `--locked` cannot fail on a format change.
+          version: "0.12.23"
+          working-directory: pipeline
+
+      - name: Install dependencies (locked)
+        run: uv sync --locked
+
+      - name: Recompute and compare with the committed MANIFEST
+        run: uv run climate-pipeline quality verify --root ..

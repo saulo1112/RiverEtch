@@ -8,6 +8,7 @@
 - Regulatory verification: [regulatory.md](regulatory.md).
 - Case file: [magdalena.sample.json](magdalena.sample.json), a byte copy of
   `pipeline/out/case/magdalena.json`.
+- Follow-up calibration and climate-context validation: [calibration-report.md](calibration-report.md).
 
 > NDTI is a relative index: comparable only within one sub-reach, never between sites, never NTU.
 > An anomaly is a departure from the sub-reach's own baseline. It is a flag to investigate, never

@@ -1,0 +1,28 @@
+## TerraChain water-quality v2, Route B: RAdCor (a physics check, never published).
+## Fixed before any RAdCor output was seen (docs/water-quality/preregistration.md). It is
+## settings.txt plus RAdCor; every other setting is ACOLITE's default at the pinned commit
+## (kernel radius 5 km, radcor_max_vza=15, TSDSF aerosol). The runner adds inputfile and output
+## per scene. The input is the saved Level-1R file of the D15 run, already cropped to +-0.05 deg
+## around the station, so no limit is passed.
+##
+## As settings.txt.
+s2_target_res=20
+dsf_aot_estimate=fixed
+ancillary_data=False
+dem_pressure=True
+dem_source=copernicus30
+l2w_parameters=rhow_*
+output_xy=True
+rgb_rhot=False
+rgb_rhos=False
+map_l2w=False
+## Adjacency correction.
+atmospheric_correction_method=radcor
+## The saved boxes are +-0.05 deg (about 5.5 km) and the kernel 5 km: without extending the
+## edges (by the box average, ACOLITE's default method), RAdCor masks every pixel whose kernel
+## leaves the box, and two stations snap 0.85-1.16 km from the box centre.
+radcor_edge_extend=True
+## No extra RAdCor outputs (disk): environment and uncorrected surface reflectance. The
+## top-of-atmosphere reflectance stays (ACOLITE's default): the L2W water mask reads it.
+radcor_write_rhoe=False
+radcor_write_rhosu=False

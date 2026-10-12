@@ -14,6 +14,7 @@ from climate_pipeline.screening.stage2 import (
     robust_z,
     subreach_ndti,
     subreach_ndti_variants,
+    subreach_nir_red,
 )
 
 CONFIG = load_screening_config(Path(__file__).parents[1] / "screening.yaml")
@@ -72,6 +73,17 @@ def test_several_glint_limits_come_from_one_set_of_arrays() -> None:
     assert both[0.03] == subreach_ndti(red, green, swir, scl, subs[0], 1, strict)
     assert math.isnan(both[0.03].ndti) and both[0.03].glint_share == 1
     assert both[0.05].glint_share == 0 and both[0.03].red == both[0.05].red
+
+
+def test_nir_red_is_a_ratio_of_medians_on_the_ndti_pixels() -> None:
+    river, subs = geometry()
+    red, green, swir, scl = bands(river, 0.04, 0.055, 0.01)
+    nir = np.where(river, 0.03, 0.3).astype(np.float32)
+    assert subreach_nir_red(red, green, nir, swir, scl, subs[0], 1, CONFIG) == pytest.approx(0.75)
+    glinted = np.full_like(swir, 0.2)
+    assert math.isnan(subreach_nir_red(red, green, nir, glinted, scl, subs[0], 1, CONFIG))
+    no_nir = np.full_like(nir, np.nan)
+    assert math.isnan(subreach_nir_red(red, green, no_nir, swir, scl, subs[0], 1, CONFIG))
 
 
 def test_implausible_water_reflectance_is_reported() -> None:

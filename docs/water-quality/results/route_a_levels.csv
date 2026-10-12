@@ -1,0 +1,12 @@
+target,candidate,predicted_range,n,rated,mdsa,sspb,coverage90,level
+turbidity,A3,all,22,true,135.222815,-80.482741,1.0,none
+turbidity,A3,<30,5,false,61.295223,31.119695,1.0,none
+turbidity,A3,30-100,5,false,504.065858,-504.065858,1.0,none
+turbidity,A3,100-300,8,true,126.426509,-87.761392,1.0,none
+turbidity,A3,300-1000,3,false,76.234292,-76.234292,1.0,none
+turbidity,A3,>=1000,1,false,281.961401,281.961401,1.0,none
+tss,A3,all,21,true,249.029232,-108.953502,0.809524,none
+tss,A3,<50,3,false,310.161643,310.161643,1.0,none
+tss,A3,50-200,11,true,275.883285,-151.089875,0.636364,none
+tss,A3,200-500,5,false,195.296116,-30.469383,1.0,none
+tss,A3,500-1500,2,false,111.78707,-48.126632,1.0,none

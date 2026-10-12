@@ -1,0 +1,2523 @@
+[
+ {
+  "geometry": null,
+  "id": "04b90a555dba47d4a86a7dfb588069ad",
+  "properties": {
+   "begin": "2011-10-01T06:00:00.000001",
+   "begin_utc": "2011-10-01T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T05:00:00.000001",
+   "end_utc": "2026-10-11T05:00:00+00:00",
+   "hydrologic_unit_code": "080701000104",
+   "id": "04b90a555dba47d4a86a7dfb588069ad",
+   "last_modified": "2026-10-11T05:26:23.456489",
+   "monitoring_location_id": "USGS-07374000",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Louisiana",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-01-24T22:12:58.2244681Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 500,
+       "StartTime": "2015-11-24T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-01-24T22:12:58.3648681Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2015-11-24T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "0b5de979286040dca9eee8cda6f6374b",
+  "properties": {
+   "begin": "2007-10-01T06:00:00.000001",
+   "begin_utc": "2007-10-01T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T06:45:00.000001",
+   "end_utc": "2026-10-11T06:45:00+00:00",
+   "hydrologic_unit_code": "090203010705",
+   "id": "0b5de979286040dca9eee8cda6f6374b",
+   "last_modified": "2026-10-11T06:54:22.945490",
+   "monitoring_location_id": "USGS-05082500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "North Dakota",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-05-13T14:45:24.3892452Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 5000,
+       "StartTime": "2016-11-16T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-05-13T14:45:24.7404523Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1,
+       "StartTime": "2016-11-16T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "173c4c346c4b4197abbf9b0131bdfa9c",
+  "properties": {
+   "begin": "2023-04-19T20:15:00.000001",
+   "begin_utc": "2023-04-19T20:15:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T08:45:00.000001",
+   "end_utc": "2026-10-11T08:45:00+00:00",
+   "hydrologic_unit_code": "103001010604",
+   "id": "173c4c346c4b4197abbf9b0131bdfa9c",
+   "last_modified": "2026-10-11T08:55:42.313295",
+   "monitoring_location_id": "USGS-06894650",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Missouri",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "0001-01-01T00:00:00Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2023-06-15T17:19:21.6164568Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 2000,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "1aa1e8c3aaba4e5ab9a25368b063c419",
+  "properties": {
+   "begin": null,
+   "begin_utc": null,
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": null,
+   "end": null,
+   "end_utc": null,
+   "hydrologic_unit_code": "10270104",
+   "id": "1aa1e8c3aaba4e5ab9a25368b063c419",
+   "last_modified": "2018-04-17T18:20:18.123486",
+   "monitoring_location_id": "USGS-06892350",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": null,
+   "state_name": "Kansas",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T15:07:10.7710418Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1200,
+       "StartTime": "2004-10-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T15:07:10.9823177Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2004-10-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI 6026"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "2dfc058fe87344798720f30effd7306c",
+  "properties": {
+   "begin": "2007-10-01T06:00:00.000001",
+   "begin_utc": "2007-10-01T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T04:00:00.000001",
+   "end_utc": "2026-10-11T04:00:00+00:00",
+   "hydrologic_unit_code": "102400110103",
+   "id": "2dfc058fe87344798720f30effd7306c",
+   "last_modified": "2026-10-11T04:09:49.322912",
+   "monitoring_location_id": "USGS-06818000",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Missouri",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-02-21T14:59:41.966509Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2016-11-22T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-02-21T14:59:41.6968825Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 2000,
+       "StartTime": "2016-11-22T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "31e57b58f62c48f3b8391f9bae530152",
+  "properties": {
+   "begin": "2024-02-13T22:15:00.000001",
+   "begin_utc": "2024-02-13T22:15:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H",
+   "end": "2026-10-11T09:00:00.000001",
+   "end_utc": "2026-10-11T09:00:00+00:00",
+   "hydrologic_unit_code": "140700061105",
+   "id": "31e57b58f62c48f3b8391f9bae530152",
+   "last_modified": "2026-10-11T09:06:52.129192",
+   "monitoring_location_id": "USGS-09380000",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Arizona",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "38fea22f239f402b8bd3188b48decb93",
+  "properties": {
+   "begin": "2020-10-15T20:45:00.000001",
+   "begin_utc": "2020-10-15T20:45:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": null,
+   "end": "2024-10-02T15:00:00.000001",
+   "end_utc": "2024-10-02T15:00:00+00:00",
+   "hydrologic_unit_code": "170402120704",
+   "id": "38fea22f239f402b8bd3188b48decb93",
+   "last_modified": "2024-11-08T15:45:11.264677",
+   "monitoring_location_id": "USGS-13093383",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Idaho",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "VHI",
+     "Periods": [
+      {
+       "AppliedTime": "2021-01-03T21:22:35.111719Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1000,
+       "SecondaryReferenceValue": 250,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "39919fbed4774741bec4a95593455a16",
+  "properties": {
+   "begin": "2021-06-22T17:45:00.000001",
+   "begin_utc": "2021-06-22T17:45:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2025-11-24T18:30:00.000001",
+   "end_utc": "2025-11-24T18:30:00+00:00",
+   "hydrologic_unit_code": "140600080208",
+   "id": "39919fbed4774741bec4a95593455a16",
+   "last_modified": "2026-03-20T14:58:17.153517",
+   "monitoring_location_id": "USGS-09315000",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Utah",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Values below a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "Low threshold",
+     "Periods": [
+      {
+       "AppliedTime": "2021-06-30T13:08:45.1646569Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - low-Public",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Values above a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "high threshold",
+     "Periods": [
+      {
+       "AppliedTime": "2021-06-30T13:09:07.1955114Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - high-Public",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "3c0be22610b143998a6231db83479041",
+  "properties": {
+   "begin": "2014-06-11T05:00:00.000001",
+   "begin_utc": "2014-06-11T05:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T07:45:00.000001",
+   "end_utc": "2026-10-11T07:45:00+00:00",
+   "hydrologic_unit_code": "10270102",
+   "id": "3c0be22610b143998a6231db83479041",
+   "last_modified": "2026-10-11T07:57:33.388448",
+   "monitoring_location_id": "USGS-06887500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Kansas",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T14:55:53.1956861Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2017-06-29T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T14:55:53.3282066Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "StartTime": "2017-06-29T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI EXO"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "469a831aa7bb487eaa59dad4d454966b",
+  "properties": {
+   "begin": "2007-05-18T05:00:00.000001",
+   "begin_utc": "2007-05-18T05:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T07:15:00.000001",
+   "end_utc": "2026-10-11T07:15:00+00:00",
+   "hydrologic_unit_code": "102002020207",
+   "id": "469a831aa7bb487eaa59dad4d454966b",
+   "last_modified": "2026-10-11T07:22:31.787123",
+   "monitoring_location_id": "USGS-06805500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Nebraska",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-05-08T02:40:43.5369525Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1.5,
+       "StartTime": "2017-03-06T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF9933",
+     "Name": "HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-05-08T02:40:43.0166506Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1300,
+       "StartTime": "2017-03-06T00:00:00.0000000-06:00",
+       "SuppressData": false
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2024-05-22T12:49:05.0679259Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4500,
+       "StartTime": "2024-03-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      },
+      {
+       "AppliedTime": "2017-05-08T02:40:42.9369515Z",
+       "EndTime": "2024-03-01T00:00:00.0000000-06:00",
+       "ReferenceValue": 1800,
+       "StartTime": "2017-03-06T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "4aac251a20e841559591774b7e6c9d3f",
+  "properties": {
+   "begin": "2018-07-25T00:45:00.000001",
+   "begin_utc": "2018-07-25T00:45:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T06:30:00.000001",
+   "end_utc": "2026-10-11T06:30:00+00:00",
+   "hydrologic_unit_code": "10250017",
+   "id": "4aac251a20e841559591774b7e6c9d3f",
+   "last_modified": "2026-10-11T06:39:45.032029",
+   "monitoring_location_id": "USGS-06856600",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Kansas",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2021-02-10T17:43:15.9642453Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1500,
+       "StartTime": "2020-10-20T08:30:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2021-02-10T17:43:59.1806591Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2020-10-20T08:30:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "Temporary 1310.72 Suppression",
+     "Periods": [
+      {
+       "AppliedTime": "2022-05-03T22:32:54.9474256Z",
+       "EndTime": "2026-02-12T00:00:00.0000000-06:00",
+       "ReferenceValue": 1310,
+       "StartTime": "2022-05-03T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI EXO"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "5175e2e8254f462bb87de3a71400de13",
+  "properties": {
+   "begin": "2019-05-09T19:20:51.000001",
+   "begin_utc": "2019-05-09T19:20:51+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2022-09-16T22:15:00.000001",
+   "end_utc": "2022-09-16T22:15:00+00:00",
+   "hydrologic_unit_code": "102002020105",
+   "id": "5175e2e8254f462bb87de3a71400de13",
+   "last_modified": "2022-10-06T19:45:45.413774",
+   "monitoring_location_id": "USGS-06801000",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Nebraska",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "Very high",
+     "Periods": [
+      {
+       "AppliedTime": "2019-05-28T19:58:58.2198708Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 3200,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "Very low",
+     "Periods": [
+      {
+       "AppliedTime": "2019-05-28T19:59:14.0658785Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "53ac4abcb6894b66995a5e863299bd81",
+  "properties": {
+   "begin": "2007-10-01T06:00:00.000001",
+   "begin_utc": "2007-10-01T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T04:15:00.000001",
+   "end_utc": "2026-10-11T04:15:00+00:00",
+   "hydrologic_unit_code": "103002000301",
+   "id": "53ac4abcb6894b66995a5e863299bd81",
+   "last_modified": "2026-10-11T04:27:01.330970",
+   "monitoring_location_id": "USGS-06934500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Missouri",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-02-21T15:43:14.6995028Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2016-11-22T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-02-21T15:43:14.5203142Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 2000,
+       "StartTime": "2016-11-22T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "5674a6799263478fa8d0babea15e4761",
+  "properties": {
+   "begin": "2012-07-27T05:00:00.000001",
+   "begin_utc": "2012-07-27T05:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2014-06-10T04:45:00.000001",
+   "end_utc": "2014-06-10T04:45:00+00:00",
+   "hydrologic_unit_code": "10270104",
+   "id": "5674a6799263478fa8d0babea15e4761",
+   "last_modified": "2018-04-17T18:13:59.242873",
+   "monitoring_location_id": "USGS-06892350",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Kansas",
+   "statistic_id": "00011",
+   "sublocation_identifier": "Discontinued June 2014",
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T15:07:34.5056327Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2014-10-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T15:07:33.7350427Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 2000,
+       "StartTime": "2014-10-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI 6136"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "582e811db9834595b1ed87f83a42c661",
+  "properties": {
+   "begin": "2021-11-24T21:30:00.000001",
+   "begin_utc": "2021-11-24T21:30:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T08:15:00.000001",
+   "end_utc": "2026-10-11T08:15:00+00:00",
+   "hydrologic_unit_code": "070801010204",
+   "id": "582e811db9834595b1ed87f83a42c661",
+   "last_modified": "2026-10-11T08:21:44.602337",
+   "monitoring_location_id": "USGS-05420400",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Illinois",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2022-01-05T22:47:35.4566918Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": -1,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2022-01-05T22:47:16.1278113Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 5000,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Values below a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "low limit",
+     "Periods": [
+      {
+       "AppliedTime": "2026-04-03T15:07:40.9536908Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": -0.1,
+       "StartTime": "2025-12-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - low-Public",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Values above a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "high limit",
+     "Periods": [
+      {
+       "AppliedTime": "2026-04-03T15:08:46.9855964Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1200,
+       "StartTime": "2025-12-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - high-Public",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "6256cdc498614293a5196e61b8232bb5",
+  "properties": {
+   "begin": "2012-10-01T07:00:00.000001",
+   "begin_utc": "2012-10-01T07:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2016-11-02T21:00:00.000001",
+   "end_utc": "2016-11-02T21:00:00+00:00",
+   "hydrologic_unit_code": "101000042209",
+   "id": "6256cdc498614293a5196e61b8232bb5",
+   "last_modified": "2026-06-03T21:29:57.470142",
+   "monitoring_location_id": "USGS-06329500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": "7d3012b621a944d590ddf4ba5bf80366",
+   "primary": "Primary",
+   "state_name": "Montana",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI 6136 Sensor"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "689d9a5286134e5b9fbc36dffaf66ce5",
+  "properties": {
+   "begin": "2024-04-24T22:00:00.000001",
+   "begin_utc": "2024-04-24T22:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T08:00:00.000001",
+   "end_utc": "2026-10-11T08:00:00+00:00",
+   "hydrologic_unit_code": "100500121002",
+   "id": "689d9a5286134e5b9fbc36dffaf66ce5",
+   "last_modified": "2026-10-11T08:37:19.509007",
+   "monitoring_location_id": "USGS-06174500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": "747552fbc87b463999ed80bcfca7159c",
+   "primary": "Primary",
+   "state_name": "Montana",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "6918b0cc0b6f42d8bba97a9f09f48efe",
+  "properties": {
+   "begin": "2024-04-23T20:00:00.000001",
+   "begin_utc": "2024-04-23T20:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T08:45:00.000001",
+   "end_utc": "2026-10-11T08:45:00+00:00",
+   "hydrologic_unit_code": "100600011403",
+   "id": "6918b0cc0b6f42d8bba97a9f09f48efe",
+   "last_modified": "2026-10-11T08:55:41.947531",
+   "monitoring_location_id": "USGS-06177000",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Montana",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Values above a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "Exceeds sensor limits",
+     "Periods": [
+      {
+       "AppliedTime": "2024-05-13T14:46:47.5619349Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "SecondaryReferenceValue": 3500,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - high-Public",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "minimum recordable limit",
+     "Periods": [
+      {
+       "AppliedTime": "2025-04-02T17:33:09.7208139Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "70fc13da0b314d28bec6b3582a4215f6",
+  "properties": {
+   "begin": "2014-06-12T05:00:00.000001",
+   "begin_utc": "2014-06-12T05:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T08:15:00.000001",
+   "end_utc": "2026-10-11T08:15:00+00:00",
+   "hydrologic_unit_code": "10270104",
+   "id": "70fc13da0b314d28bec6b3582a4215f6",
+   "last_modified": "2026-10-11T08:34:31.397183",
+   "monitoring_location_id": "USGS-06892350",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Kansas",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T15:07:55.7451284Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "StartTime": "2017-06-29T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T15:07:55.8680141Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2017-06-29T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI EXO"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "7628eaeba423417abd567dbc6facda61",
+  "properties": {
+   "begin": null,
+   "begin_utc": null,
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H15M",
+   "end": null,
+   "end_utc": null,
+   "hydrologic_unit_code": "020503061713",
+   "id": "7628eaeba423417abd567dbc6facda61",
+   "last_modified": "2026-10-11T08:50:34.540398",
+   "monitoring_location_id": "USGS-01579550",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Maryland",
+   "statistic_id": "00011",
+   "sublocation_identifier": "Right Bank",
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "Low Threshold (exposed to air)",
+     "Periods": [
+      {
+       "AppliedTime": "2018-08-30T15:01:32.9662604Z",
+       "Comments": "May need to be adjusted with time.",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 7.8,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": "TS087, Discontinued"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "77b1c19b3c154ee2a6271e8ced8c18bb",
+  "properties": {
+   "begin": "2016-07-30T05:00:00.000001",
+   "begin_utc": "2016-07-30T05:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T07:45:00.000001",
+   "end_utc": "2026-10-11T07:45:00+00:00",
+   "hydrologic_unit_code": "10270104",
+   "id": "77b1c19b3c154ee2a6271e8ced8c18bb",
+   "last_modified": "2026-10-11T08:00:22.580741",
+   "monitoring_location_id": "USGS-06892518",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Kansas",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2025-12-15T17:14:40.1678255Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 5000,
+       "StartTime": "2025-12-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2025-12-15T17:15:04.663014Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2025-12-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI EXO"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "7d3012b621a944d590ddf4ba5bf80366",
+  "properties": {
+   "begin": "2017-04-04T19:45:00.000001",
+   "begin_utc": "2017-04-04T19:45:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T08:00:00.000001",
+   "end_utc": "2026-10-11T08:00:00+00:00",
+   "hydrologic_unit_code": "101000042209",
+   "id": "7d3012b621a944d590ddf4ba5bf80366",
+   "last_modified": "2026-10-11T08:35:36.137298",
+   "monitoring_location_id": "USGS-06329500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Montana",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2024-05-13T14:49:49.1000125Z",
+       "Comments": "sensor limit is 4000 FNU",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "SecondaryReferenceValue": 3500,
+       "StartTime": "2024-04-01T00:00:00.0000000-07:00",
+       "SuppressData": true
+      },
+      {
+       "AppliedTime": "0001-01-01T00:00:00Z",
+       "EndTime": "2024-03-31T23:59:00.0000000-07:00",
+       "ReferenceValue": 5000,
+       "StartTime": "2018-03-31T00:01:00.0000000-07:00",
+       "SuppressData": false
+      },
+      {
+       "AppliedTime": "2017-03-06T05:37:41.134048Z",
+       "EndTime": "2017-03-01T00:00:00.0000000-07:00",
+       "ReferenceValue": 2000,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      },
+      {
+       "AppliedTime": "2018-02-21T19:42:59.8024007Z",
+       "EndTime": "2018-03-31T00:00:00.0000000-07:00",
+       "ReferenceValue": 4000,
+       "StartTime": "2017-03-01T00:01:00.0000000-07:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-03-06T05:37:43.0317131Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0.1,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI EXO Sensor"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "8c5b17be30894a3c817562dd11ed2557",
+  "properties": {
+   "begin": "2012-06-02T06:00:00.000001",
+   "begin_utc": "2012-06-02T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T07:15:00.000001",
+   "end_utc": "2026-10-11T07:15:00+00:00",
+   "hydrologic_unit_code": "071300110805",
+   "id": "8c5b17be30894a3c817562dd11ed2557",
+   "last_modified": "2026-10-11T07:39:29.340012",
+   "monitoring_location_id": "USGS-05586300",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Illinois",
+   "statistic_id": "00011",
+   "sublocation_identifier": "(YSI)",
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-05-02T01:51:03.0107364Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 5000,
+       "StartTime": "2016-11-30T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-05-02T01:51:03.0299224Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": -0.1,
+       "StartTime": "2016-11-30T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "a8d1891a84b74f47a42f2b95050df8f2",
+  "properties": {
+   "begin": "2023-01-23T09:00:00.000001",
+   "begin_utc": "2023-01-23T09:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": null,
+   "end": "2026-10-11T08:00:00.000001",
+   "end_utc": "2026-10-11T08:00:00+00:00",
+   "hydrologic_unit_code": "080101000703",
+   "id": "a8d1891a84b74f47a42f2b95050df8f2",
+   "last_modified": "2026-10-11T08:31:16.162329",
+   "monitoring_location_id": "USGS-07032000",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Tennessee",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Display reference value",
+     "DisplayColor": "#990600",
+     "Name": "Monitor no Longer Submerged",
+     "Periods": [
+      {
+       "AppliedTime": "0001-01-01T00:00:00Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 10,
+       "SecondaryReferenceValue": 40,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": false
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "NWISWeb ref level - Public",
+     "Severity": 0,
+     "Type": "None"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "very high",
+     "Periods": [
+      {
+       "AppliedTime": "2023-06-07T13:45:43.2477147Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4100,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "very low",
+     "Periods": [
+      {
+       "AppliedTime": "2023-06-07T13:46:06.0315394Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 10,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "ad276f7424a84fcebf5e8e8012560661",
+  "properties": {
+   "begin": "2021-11-09T19:00:00.000001",
+   "begin_utc": "2021-11-09T19:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2025-12-16T18:00:00.000001",
+   "end_utc": "2025-12-16T18:00:00+00:00",
+   "hydrologic_unit_code": "140300050302",
+   "id": "ad276f7424a84fcebf5e8e8012560661",
+   "last_modified": "2026-03-17T17:24:21.240244",
+   "monitoring_location_id": "USGS-09180500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Utah",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Values below a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "low turb limit",
+     "Periods": [
+      {
+       "AppliedTime": "2021-11-10T22:33:28.0061603Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "SecondaryReferenceValue": 0.1,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - low-Public",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Values above a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "max Turb limit",
+     "Periods": [
+      {
+       "AppliedTime": "2021-11-10T22:33:01.8884352Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "SecondaryReferenceValue": 3999,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - high-Public",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "bab7207eb2ef4a8f91ae747b329998a9",
+  "properties": {
+   "begin": "2018-10-28T20:15:00.000001",
+   "begin_utc": "2018-10-28T20:15:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T04:00:00.000001",
+   "end_utc": "2026-10-11T04:00:00+00:00",
+   "hydrologic_unit_code": "05120113",
+   "id": "bab7207eb2ef4a8f91ae747b329998a9",
+   "last_modified": "2026-10-11T04:16:20.495973",
+   "monitoring_location_id": "USGS-03378500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Indiana",
+   "statistic_id": "00011",
+   "sublocation_identifier": "Pipe",
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "Very Low",
+     "Periods": [
+      {
+       "AppliedTime": "2019-02-07T17:10:31.3526109Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0.1,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "Very High",
+     "Periods": [
+      {
+       "AppliedTime": "2019-02-07T17:10:00.8037441Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "c03613a3983e4cb496c87f253ac54591",
+  "properties": {
+   "begin": "2014-02-10T19:30:00.000001",
+   "begin_utc": "2014-02-10T19:30:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H15M",
+   "end": "2026-10-11T08:05:00.000001",
+   "end_utc": "2026-10-11T08:05:00+00:00",
+   "hydrologic_unit_code": "020503061713",
+   "id": "c03613a3983e4cb496c87f253ac54591",
+   "last_modified": "2026-10-11T08:18:40.986819",
+   "monitoring_location_id": "USGS-01579550",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": "fc692bdf0beb4f7b89a32c893a78ec25",
+   "primary": "Primary",
+   "state_name": "Maryland",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "c6359cd011ef424f89520eb7c8f90cd6",
+  "properties": {
+   "begin": "2012-10-01T06:00:00.000001",
+   "begin_utc": "2012-10-01T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T07:30:00.000001",
+   "end_utc": "2026-10-11T07:30:00+00:00",
+   "hydrologic_unit_code": "080901000101",
+   "id": "c6359cd011ef424f89520eb7c8f90cd6",
+   "last_modified": "2026-10-11T07:40:27.963740",
+   "monitoring_location_id": "USGS-07374525",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Louisiana",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "Turbidity below -5",
+     "Periods": [
+      {
+       "AppliedTime": "2017-06-02T20:25:40.5870764Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": -4.99,
+       "SecondaryReferenceValue": -4,
+       "StartTime": "2015-10-06T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "Turbidity above 300",
+     "Periods": [
+      {
+       "AppliedTime": "2017-06-02T20:24:31.44517Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 300,
+       "SecondaryReferenceValue": 299,
+       "StartTime": "2015-10-06T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "c7cba347afa747bf9540320fac6d5ff3",
+  "properties": {
+   "begin": "2012-08-31T05:00:00.000001",
+   "begin_utc": "2012-08-31T05:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2014-06-10T04:45:00.000001",
+   "end_utc": "2014-06-10T04:45:00+00:00",
+   "hydrologic_unit_code": "10270102",
+   "id": "c7cba347afa747bf9540320fac6d5ff3",
+   "last_modified": "2017-07-16T15:19:14.920599",
+   "monitoring_location_id": "USGS-06887500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Kansas",
+   "statistic_id": "00011",
+   "sublocation_identifier": "Discontinued June 2014",
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T14:55:25.7209693Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1500,
+       "StartTime": "2014-10-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-07-16T14:55:26.20061Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0.1,
+       "StartTime": "2014-10-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "ca68ae73c7464a10bbfe1fccd42f881d",
+  "properties": {
+   "begin": "2007-10-01T06:00:00.000001",
+   "begin_utc": "2007-10-01T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2022-12-15T17:15:00.000001",
+   "end_utc": "2022-12-15T17:15:00+00:00",
+   "hydrologic_unit_code": "102300060602",
+   "id": "ca68ae73c7464a10bbfe1fccd42f881d",
+   "last_modified": "2023-08-16T14:59:52.510018",
+   "monitoring_location_id": "USGS-06610505",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Iowa",
+   "statistic_id": "00011",
+   "sublocation_identifier": "YSI",
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-04-30T14:05:00.7201954Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0.1,
+       "StartTime": "2017-01-24T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-04-30T14:05:00.0667668Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 2000,
+       "StartTime": "2017-01-24T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "cbc43b548f32435aaae59723b98cb900",
+  "properties": {
+   "begin": "2015-03-17T05:00:00.000001",
+   "begin_utc": "2015-03-17T05:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2021-08-02T05:45:00.000001",
+   "end_utc": "2021-08-02T05:45:00+00:00",
+   "hydrologic_unit_code": "070801010204",
+   "id": "cbc43b548f32435aaae59723b98cb900",
+   "last_modified": "2021-12-01T05:49:27.406613",
+   "monitoring_location_id": "USGS-05420500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Iowa",
+   "statistic_id": "00011",
+   "sublocation_identifier": "YSI EXO2",
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-04-30T12:23:49.8133613Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 5000,
+       "StartTime": "2015-12-14T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-04-30T12:23:50.9343303Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": -1,
+       "StartTime": "2015-12-14T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "d0a101998dcb4752be85c80de87a970c",
+  "properties": {
+   "begin": "2015-09-03T13:30:00.000001",
+   "begin_utc": "2015-09-03T13:30:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T05:00:00.000001",
+   "end_utc": "2026-10-11T05:00:00+00:00",
+   "hydrologic_unit_code": "05090103",
+   "id": "d0a101998dcb4752be85c80de87a970c",
+   "last_modified": "2026-10-11T05:14:58.754500",
+   "monitoring_location_id": "USGS-03216070",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Ohio",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-01-01T17:08:33.5552227Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "StartTime": "2015-07-02T00:00:00.0000000-05:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-01-01T17:08:33.7112247Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0.1,
+       "StartTime": "2015-07-02T00:00:00.0000000-05:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "dfd2f8b4fd0744f8ac8000d5cc3d1b88",
+  "properties": {
+   "begin": "2018-11-15T22:45:00.000001",
+   "begin_utc": "2018-11-15T22:45:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T06:15:00.000001",
+   "end_utc": "2026-10-11T06:15:00+00:00",
+   "hydrologic_unit_code": "10270102",
+   "id": "dfd2f8b4fd0744f8ac8000d5cc3d1b88",
+   "last_modified": "2026-10-11T06:23:20.929647",
+   "monitoring_location_id": "USGS-06888990",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Kansas",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [],
+   "unit_of_measure": "_FNU",
+   "web_description": "YSI EXO"
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "e8f3b090e1894bfb861960e7f41268b2",
+  "properties": {
+   "begin": "2016-04-15T06:00:00.000001",
+   "begin_utc": "2016-04-15T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2025-12-04T21:00:00.000001",
+   "end_utc": "2025-12-04T21:00:00+00:00",
+   "hydrologic_unit_code": "140802050406",
+   "id": "e8f3b090e1894bfb861960e7f41268b2",
+   "last_modified": "2026-02-18T14:31:26.602009",
+   "monitoring_location_id": "USGS-09379500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Utah",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-04-09T18:35:20.4278742Z",
+       "EndTime": "2017-10-18T07:16:00.0000000-07:00",
+       "ReferenceValue": 10000,
+       "StartTime": "2016-10-31T00:00:00.0000000-07:00",
+       "SuppressData": true
+      },
+      {
+       "AppliedTime": "2018-04-27T14:46:34.9662132Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "StartTime": "2017-10-18T07:17:00.0000000-07:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "0001-01-01T00:00:00Z",
+       "EndTime": "2022-07-05T10:59:00.0000000-07:00",
+       "ReferenceValue": 1,
+       "SecondaryReferenceValue": 10,
+       "StartTime": "2018-11-28T00:00:00.0000000-07:00",
+       "SuppressData": false
+      },
+      {
+       "AppliedTime": "2022-11-10T19:38:54.1714152Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1,
+       "SecondaryReferenceValue": 10,
+       "StartTime": "2022-07-05T11:00:00.0000000-07:00",
+       "SuppressData": true
+      },
+      {
+       "AppliedTime": "2017-04-09T18:35:20.4367851Z",
+       "EndTime": "2017-10-18T09:39:00.0000000-07:00",
+       "ReferenceValue": 5,
+       "StartTime": "2016-10-31T00:00:00.0000000-07:00",
+       "SuppressData": true
+      },
+      {
+       "AppliedTime": "2018-03-01T15:05:49.0269654Z",
+       "EndTime": "2018-11-28T00:00:00.0000000-07:00",
+       "ReferenceValue": -0.1,
+       "SecondaryReferenceValue": 1,
+       "StartTime": "2017-10-18T09:40:00.0000000-07:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Display reference value",
+     "DisplayColor": "#990600",
+     "Name": "Turbidity value exceeding sensor maximum",
+     "Periods": [
+      {
+       "AppliedTime": "0001-01-01T00:00:00Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "SecondaryReferenceValue": 3800,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": false
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "NWISWeb ref level - Public",
+     "Severity": 0,
+     "Type": "None"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "ebc4635959204ac3b326ad901a22daa4",
+  "properties": {
+   "begin": "2020-03-12T16:34:19.000001",
+   "begin_utc": "2020-03-12T16:34:19+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": null,
+   "end": "2020-10-15T15:00:00.000001",
+   "end_utc": "2020-10-15T15:00:00+00:00",
+   "hydrologic_unit_code": "170402120704",
+   "id": "ebc4635959204ac3b326ad901a22daa4",
+   "last_modified": "2021-03-10T17:47:05.910082",
+   "monitoring_location_id": "USGS-13093384",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Idaho",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "VHI",
+     "Periods": [
+      {
+       "AppliedTime": "2020-07-25T19:04:47.3068264Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1000,
+       "SecondaryReferenceValue": 250,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "f462b28cdeca433f9c1de6a5cb7cb199",
+  "properties": {
+   "begin": "2021-10-28T21:15:00.000001",
+   "begin_utc": "2021-10-28T21:15:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-01-13T22:45:00.000001",
+   "end_utc": "2026-01-13T22:45:00+00:00",
+   "hydrologic_unit_code": "14040106",
+   "id": "f462b28cdeca433f9c1de6a5cb7cb199",
+   "last_modified": "2026-04-13T13:48:31.516265",
+   "monitoring_location_id": "USGS-09261000",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Utah",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Values above a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "turbidity",
+     "Periods": [
+      {
+       "AppliedTime": "2022-05-10T19:54:39.4204262Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 4000,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - high-Public",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Values below a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "turbidity",
+     "Periods": [
+      {
+       "AppliedTime": "2022-05-10T19:56:19.0210311Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0.1,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - low-Public",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "f952ea69772f49c09c253ca2d72c87ba",
+  "properties": {
+   "begin": "2021-05-06T21:00:00.000001",
+   "begin_utc": "2021-05-06T21:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T04:45:00.000001",
+   "end_utc": "2026-10-11T04:45:00+00:00",
+   "hydrologic_unit_code": "070801041806",
+   "id": "f952ea69772f49c09c253ca2d72c87ba",
+   "last_modified": "2026-10-11T04:56:26.933749",
+   "monitoring_location_id": "USGS-05474500",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Iowa",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#990600",
+     "Name": "low suppression",
+     "Periods": [
+      {
+       "AppliedTime": "2023-07-08T13:25:13.9754895Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1,
+       "StartTime": "2023-07-07T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Values above a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "high extreme threshold",
+     "Periods": [
+      {
+       "AppliedTime": "2023-02-22T12:49:26.7785802Z",
+       "EndTime": "2024-05-27T00:00:00.0000000-06:00",
+       "ReferenceValue": 1100,
+       "StartTime": "0001-01-01T00:00:00.0000000+00:00",
+       "SuppressData": true
+      },
+      {
+       "AppliedTime": "2024-05-28T05:43:51.5766207Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 1500,
+       "StartTime": "2024-05-27T03:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - high-Public",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "fa297db8b5884c24b32b0e8941234a83",
+  "properties": {
+   "begin": "2013-10-28T19:15:00.000001",
+   "begin_utc": "2013-10-28T19:15:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": null,
+   "end": "2026-10-11T08:00:00.000001",
+   "end_utc": "2026-10-11T08:00:00+00:00",
+   "hydrologic_unit_code": "05140206",
+   "id": "fa297db8b5884c24b32b0e8941234a83",
+   "last_modified": "2026-10-11T08:06:21.190217",
+   "monitoring_location_id": "USGS-03612600",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Illinois",
+   "statistic_id": "00011",
+   "sublocation_identifier": null,
+   "thresholds": [
+    {
+     "Description": "Values below a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "Erroneous",
+     "Periods": [
+      {
+       "AppliedTime": "2024-10-18T11:54:44.5346473Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0,
+       "StartTime": "2024-08-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - low-Public",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    },
+    {
+     "Description": "Values above a specified threshold limit",
+     "DisplayColor": "#990600",
+     "Name": "Erroneous",
+     "Periods": [
+      {
+       "AppliedTime": "2024-10-18T11:55:09.0146475Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 500,
+       "StartTime": "2024-08-01T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "Operational limit - high-Public",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ },
+ {
+  "geometry": null,
+  "id": "ff36bf5cbeef42f88b907c4991fad85b",
+  "properties": {
+   "begin": "2015-06-04T06:00:00.000001",
+   "begin_utc": "2015-06-04T06:00:00+00:00",
+   "computation_identifier": "Instantaneous",
+   "computation_period_identifier": "Points",
+   "data_gap_interval": "PT1H12M",
+   "end": "2026-10-11T07:15:00.000001",
+   "end_utc": "2026-10-11T07:15:00+00:00",
+   "hydrologic_unit_code": "071300110805",
+   "id": "ff36bf5cbeef42f88b907c4991fad85b",
+   "last_modified": "2026-10-11T07:39:30.558611",
+   "monitoring_location_id": "USGS-05586300",
+   "parameter_code": "63680",
+   "parameter_description": "Turbidity, water, unfiltered, monochrome near infra-red LED light, 780-900 nm, detection angle 90 +-2.5 degrees, formazin nephelometric units (FNU)",
+   "parameter_name": "Turbidity, FNU",
+   "parent_time_series_id": null,
+   "primary": "Primary",
+   "state_name": "Illinois",
+   "statistic_id": "00011",
+   "sublocation_identifier": "(HACH)",
+   "thresholds": [
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#FF0000",
+     "Name": "VERY HIGH",
+     "Periods": [
+      {
+       "AppliedTime": "2017-05-02T01:51:18.185924Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 5000,
+       "StartTime": "2016-11-30T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdAbove"
+    },
+    {
+     "Description": "Unspecified threshold value",
+     "DisplayColor": "#800000",
+     "Name": "VERY LOW",
+     "Periods": [
+      {
+       "AppliedTime": "2017-05-02T01:51:18.0067018Z",
+       "EndTime": "9999-12-31T23:59:59.9999999+00:00",
+       "ReferenceValue": 0.1,
+       "StartTime": "2016-11-30T00:00:00.0000000-06:00",
+       "SuppressData": true
+      }
+     ],
+     "ProcessingOrder": "Suppression",
+     "ReferenceCode": "AQUARIUS only",
+     "Severity": 0,
+     "Type": "ThresholdBelow"
+    }
+   ],
+   "unit_of_measure": "_FNU",
+   "web_description": null
+  },
+  "type": "Feature"
+ }
+]

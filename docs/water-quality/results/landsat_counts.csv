@@ -1,0 +1,5 @@
+target,variant,window,landsat_training_pairs,landsat_training_streams,landsat_test_pairs,landsat_test_stations
+turbidity,primary,core,3,3,15,7
+turbidity,stable +-3 days,core,7,4,25,11
+tss,primary,core,3,3,14,7
+tss,stable +-3 days,core,7,4,23,11

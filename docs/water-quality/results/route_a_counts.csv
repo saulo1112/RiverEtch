@@ -1,0 +1,7 @@
+target,variant,window,training_pairs,training_streams,training_stations,test_pairs,test_stations,planetary_computer_pairs,usgs_pairs
+turbidity,primary,core,14,5,6,22,8,1,2447
+turbidity,stable +-3 days,core,17,6,7,31,11,3,2447
+turbidity,300m window,300m,15,6,7,28,10,1,2719
+tss,primary,core,14,5,6,21,8,1,118
+tss,stable +-3 days,core,17,6,7,31,11,4,118
+tss,300m window,300m,15,6,7,28,10,2,131

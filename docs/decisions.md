@@ -203,3 +203,78 @@ last. Format: context → decision → consequences.
   - The interface uses "simulated permit holder" and "illustrative limit, not the real licence".
     Real names of contracts, entities and authorities appear only in `context.sources`, marked
     "public-source context, not an accusation".
+
+## D15. Calibration and climate-context validation, run locally (2026-10-09)
+
+- **Context:**
+  - The Magdalena validation (D14, [report](magdalena-validation/report.md)) found the reach quiet,
+    but showed no link between NDTI and turbidity, suspended solids or flow. In-situ pairs were too
+    few, and the river level ran the wrong way.
+  - The machine that runs the pipeline reaches every source needed, including a public IDEAM bucket
+    with daily discharge, daily level and a daily suspended-sediment concentration (`CM_D`, partly
+    from a rating model), and Earth Search's homogeneous Sentinel-2 Collection 1.
+- **Decision:**
+  - A preregistered validation ([preregistration](magdalena-validation/calibration-preregistration.md),
+    `pipeline/calibration.yaml`) tests three things:
+    1. whether any Sentinel-2 band or ratio can be calibrated to turbidity, total suspended solids
+       or `CM_D` on the Magdalena main stem;
+    2. whether rain or hydrology explains the reach's signal;
+    3. whether the satellite sees the river's hydrology and climate phases.
+  - Runs are local. A network `fetch` snapshots every input with SHA-256, and an offline `run`
+    recomputes every result from the snapshots, also in CI.
+  - `sentinel-2-l2a` stays the primary imagery. Collection 1 and ACOLITE (time-boxed, with Level-1C
+    files the project owner downloads) are sensitivities.
+  - `CM_D` is a third target, always labelled "IDEAM rating-model daily concentration".
+  - The product gains an observation record contract (`docs/schema/observation-record.v1`), a
+    sibling of the case file v1, which stays unchanged.
+- **Consequences:**
+  - A physical unit appears only for a target, range and set of stations where calibration passed.
+    Otherwise the record shows an index departure.
+  - A climate label is given only when the flagged signal's own season-and-rain model passed;
+    otherwise it is `not_evaluated`. `unexplained` is never shown as human pressure.
+  - IDEAM snapshots are committed under their CC BY-SA 4.0 licence with attribution. The
+    repository-level licence is still open.
+- **Outcome (2026-10-10):** [calibration report](magdalena-validation/calibration-report.md).
+  - Maturity reached: baselined. Water extent follows discharge or level at 7 stations.
+  - No calibration passed. Turbidity's band diagnostic passed on L2A, but its hold-out was one pair
+    short and ACOLITE did not confirm it.
+
+## D16. Water-quality estimates v2: other rivers train, the Magdalena tests (2026-10-10)
+
+- **Context:**
+  - D15 ended at _baselined_. On L2A, B8A/B04 tracked turbidity at 10 stations, but on 27 pairs from
+    one river. ACOLITE disagreed, and published models erred by 100–336 % (MdSA).
+  - Metadata probes set the ceilings:
+    - off the Magdalena, about 570 turbidity samples on wide rivers since 2018-12, so about 20–30
+      more pairs;
+    - 1,554 USGS sites with continuous turbidity, 35 of them on large rivers;
+    - Earth Search's Collection 1 lacks most of 2022 and every date before 2018 at the reach.
+- **Decision** (the project owner's choices):
+  - A preregistered validation ([preregistration](water-quality/preregistration.md),
+    `pipeline/water-quality.yaml`) estimates turbidity and TSS with a declared error.
+    - **Route A, the product:**
+      - L2A from Earth Search from 2018-12, and from Planetary Computer before;
+      - models trained on other Colombian rivers and 35 large USGS rivers, adjusted to Colombian
+        units.
+    - **Route B, a physics check never published:** ACOLITE DSF and RAdCor, with Dogliotti, Nechad
+      and the MDN.
+    - **Test:** every Magdalena pair is a frozen test set, and each candidate is evaluated on it
+      once. The product model is chosen by leave-one-river-out, then refit with the Magdalena pairs
+      after the test.
+    - **Levels:**
+      - _validated_: D15's Stage 3 criteria on the test;
+      - _estimated_: MdSA ≤ 60 % and |SSPB| ≤ 30 %;
+      - _indicative_: rank only.
+
+      Conformal intervals give each value its range.
+  - **Software:** numpy models in the pipeline. Gradient boosting runs only in a separate
+    environment and is exported as JSON. ACOLITE and the MDN run in their own environments, and
+    `uv.lock` does not change.
+  - **Product:** it stays on L2A, without credentials in unattended runs. The D0 verdict stays on
+    NDTI, with NIR/red added as context. Periodic runs use the Windows Task Scheduler.
+  - **Disk:** every fetch stops under 20 GB free.
+- **Consequences:**
+  - A physical value appears only for a target and range that reached _estimated_ or _validated_,
+    always with its interval.
+  - FNU (USGS) and NTU (IDEAM) are never treated as one unit.
+  - GPL tools (ACOLITE, the MDN) are run, never vendored.

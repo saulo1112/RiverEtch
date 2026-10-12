@@ -1,0 +1,199 @@
+{
+  "adjustment": {
+    "a": 2.3370560132,
+    "b": 0.7041305832,
+    "ridgeLambda": 0.1
+  },
+  "basis": "post_hoc_nested_loso_magdalena",
+  "candidate": "P4",
+  "featureRange": {
+    "B11": [
+      -0.0024,
+      0.0495
+    ],
+    "B8A-B11": [
+      -0.0361,
+      0.27085
+    ],
+    "core_share": [
+      0.5,
+      1.0
+    ],
+    "log_B02": [
+      -9.21034,
+      -1.467721
+    ],
+    "log_B03": [
+      -9.21034,
+      -1.399177
+    ],
+    "log_B04": [
+      -9.21034,
+      -1.389901
+    ],
+    "log_B04/B02": [
+      -0.664437,
+      6.186209
+    ],
+    "log_B04/B03": [
+      -4.382027,
+      2.674149
+    ],
+    "log_B05": [
+      -9.21034,
+      -1.310445
+    ],
+    "log_B05/B04": [
+      -3.610918,
+      2.302585
+    ],
+    "log_B06": [
+      -9.21034,
+      -1.312672
+    ],
+    "log_B06/B04": [
+      -6.496775,
+      0.43708
+    ],
+    "log_B07": [
+      -9.21034,
+      -1.245316
+    ],
+    "log_B07/B04": [
+      -6.496775,
+      0.682097
+    ],
+    "log_B08": [
+      -9.21034,
+      -1.284821
+    ],
+    "log_B8A": [
+      -9.21034,
+      -1.232887
+    ],
+    "log_B8A/B04": [
+      -7.255591,
+      0.79988
+    ],
+    "log_width_m": [
+      5.186827,
+      6.649632
+    ],
+    "sun_zenith": [
+      17.168923,
+      66.663947
+    ]
+  },
+  "intervals": {
+    "edges": [
+      176.947371,
+      262.949182
+    ],
+    "pooled": [],
+    "q": {
+      "0.8": [
+        2.197682,
+        1.905741,
+        1.184719
+      ],
+      "0.9": [
+        2.345952,
+        2.08481,
+        1.524945
+      ]
+    }
+  },
+  "levels": [
+    {
+      "coverage90": 0.9032,
+      "level": "none",
+      "mdsa": 77.4105,
+      "n": 31,
+      "predicted_range": "all",
+      "rated": true,
+      "sspb": -11.4395
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 659.6197,
+      "n": 3,
+      "predicted_range": "30-100",
+      "rated": false,
+      "sspb": 659.6197
+    },
+    {
+      "coverage90": 0.9444,
+      "level": "none",
+      "mdsa": 87.5089,
+      "n": 18,
+      "predicted_range": "100-300",
+      "rated": true,
+      "sspb": -6.8368
+    },
+    {
+      "coverage90": 0.8,
+      "level": "none",
+      "mdsa": 64.5982,
+      "n": 10,
+      "predicted_range": "300-1000",
+      "rated": true,
+      "sspb": -14.7731
+    }
+  ],
+  "metrics": {
+    "nested_loso": {
+      "coverage80": 0.871,
+      "coverage90": 0.9032,
+      "mape": 192.8775,
+      "mdsa": 77.4105,
+      "n": 31.0,
+      "null_mdsa": 144.4444,
+      "rho": 0.609,
+      "rho_high": 0.8271,
+      "rho_low": 0.1947,
+      "sspb": -11.4395,
+      "stations": 11.0
+    }
+  },
+  "modelId": "P4:turbidity:core:posthoc",
+  "parameters": {
+    "features": [
+      "log_B02",
+      "log_B03",
+      "log_B04",
+      "log_B05",
+      "log_B06",
+      "log_B07",
+      "log_B08",
+      "log_B8A",
+      "log_B8A/B04",
+      "log_B05/B04",
+      "log_B06/B04",
+      "log_B07/B04",
+      "log_B04/B03",
+      "log_B04/B02",
+      "B8A-B11",
+      "B11",
+      "sun_zenith",
+      "log_width_m",
+      "core_share"
+    ],
+    "file": "gbm-turbidity-core.json",
+    "kind": "lightgbm",
+    "sha256": "7a5c01acb7f39414d7441a2ad528389c7aa6da2b9f68429ece3b2c1f5289e9b8"
+  },
+  "parametersHash": "f06d49875621b1e0b7b8d050f5270b8a2945fdc8ebb941117f790cbcb97a4611",
+  "target": "turbidity",
+  "targetRange": [
+    9.8,
+    1800.0
+  ],
+  "trainingPairs": {
+    "colombia": 31,
+    "usgs": 2447
+  },
+  "unit": "NTU",
+  "version": "1",
+  "window": "core"
+}

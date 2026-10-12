@@ -1,0 +1,24 @@
+# The MDN's inference dependencies at commit ae1626c, pinned from its own requirements.txt, with
+# the CPU-only TensorFlow build and without its training and plotting extras (xgboost, seaborn,
+# statsmodels). Installed into its own environment (README.md), never into the project's.
+absl-py==0.12.0
+cloudpickle==1.6.0
+decorator==5.0.9
+dm-tree==0.1.6
+gast==0.4.0
+grpcio==1.34.1
+h5py==3.1.0
+matplotlib==3.4.2
+netCDF4==1.5.6
+numpy==1.19.5
+pandas==1.2.4
+protobuf==3.17.2
+scikit-learn==0.24.2
+scipy==1.6.3
+six==1.15.0
+tensorflow-cpu==2.5.0
+tensorflow-estimator==2.5.0
+tensorflow-probability==0.12.2
+tqdm==4.61.0
+typing-extensions==3.7.4.3
+wrapt==1.12.1

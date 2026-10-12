@@ -1,0 +1,9 @@
+{
+  "acolite_commit": "ca477dd91dfb5f8eb77333824b38cb0bcce5e083",
+  "config_sha256": "596ca950fd1f20eca16a3f5ea3ed279e18fd4dceab2e7c423d4efb66536a5e5d",
+  "fetch_manifest_sha256": {
+    "fetch-manifest-stations.csv": "48365364ddf759f14baa2e34d5f97a12e1761d16c3006f79590801306de1cbe3",
+    "fetch-manifest.csv": "3fbe1cdfba47caa9f296afd0739f67984d839d2844d2062ef1f94cb7fc95fb43"
+  },
+  "preregistration_blob": "59a1db40b5e5108284ec1d338e32c8c86340bd73"
+}

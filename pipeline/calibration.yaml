@@ -1,0 +1,152 @@
+# Calibration and climate-context validation settings (decision D15). Preregistered in
+# docs/magdalena-validation/calibration-preregistration.md before any new value was fetched. Change a
+# value only together with the preregistration and list it under its Deviations, never to tune
+# results after seeing them. Paths are relative to the repository root.
+
+title: Calibration and climate-context validation
+preregistration: docs/magdalena-validation/calibration-preregistration.md
+screening_config: pipeline/screening.yaml # pixel guards, SCL classes and the water-B11 range
+seed: 20261009 # every random draw (bootstraps, permutations) derives from this seed
+
+period: # imagery searched for matchups and climate series
+  start: 2018-12-01
+  end: 2026-09-30 # 5b extends to the end of each discharge or level series, never beyond this
+geometry_period: # water-frequency masks are built from these acquisitions only (as the screening)
+  start: 2022-01-01
+  end: 2025-12-31
+timezone: America/Bogota # samples and acquisitions are compared on local dates
+
+imagery:
+  source: earth-search
+  url: https://earth-search.aws.element84.com/v1
+  primary: sentinel-2-l2a # the collection the product publishes
+  sensitivity: sentinel-2-c1-l2a # Collection 1: homogeneous processing baselines (Stage 2b)
+  resolution_m: 20 # 10 m bands are averaged to 20 m
+  assets: # Earth Search asset key -> band
+    blue: B02
+    green: B03
+    red: B04
+    rededge1: B05
+    rededge2: B06
+    rededge3: B07
+    nir: B08
+    nir08: B8A
+    swir16: B11
+    swir22: B12
+    scl: SCL
+
+stations:
+  # Selection uses metadata only and is frozen (committed) before any value is fetched.
+  stream: MAGDALENA # catalog `corriente`, accents and case removed, exact match (arms excluded)
+  quality_resource: https://www.datos.gov.co/resource/62gv-3857.json
+  quality_variables: [TURBIDEZ, SOLIDOS SUSPENDIDOS TOTALES]
+  samples_since: 2018-12-01
+  bucket: https://datos.ideam.gov.co/s3-estacionesideam
+  catalog: catalogo/estaciones/csv/catalogo.csv
+  variables_catalog: catalogo/variables/csv/variables.csv
+  daily_labels: [CM_D, Q_MEDIA_D, NV_MEDIA_D] # a station with any of these files is a candidate
+  monthly_labels: [TR_QS_M] # climate context only
+  grid_half_size_m: 3000 # station grid: a square of +-3 km around the station
+  water_frequency_min: 0.5 # the screening's value
+  min_observations: 20 # the screening's value
+  mask_fallback: mndwi # the screening's post-hoc rule when SCL gives no water component
+  snap_radius_m: 1500
+  width_search_m: 300 # width = 2 x the largest distance to land within 300 m of the snapped point
+  min_width_m: 150
+
+window: # station extraction window
+  radius_m: 300
+  sensitivity_radius_m: 1000 # report-only
+  erosion_px: 2 # 20 m pixels, against land adjacency in the NIR
+  min_valid_px: 20 # 20 m pixels
+  max_contamination: 0.2
+  # Per-pixel B11 guard and the scene water-B11 range come from screening.yaml (0.05; -0.03..0.08).
+  abstain_glint_share: 0.5 # share of window water pixels above the B11 guard
+
+matchups:
+  primary_days: 1 # +-1 local day; the only window that can pass a stage
+  sensitivity_days: 3 # report-only
+  daily_target_days: 0 # CM_D: the same local day
+  replicates: median # same-station same-day samples are reduced to their median
+  censored: exclude_from_fits # values reported as "<x" are kept and flagged, never fitted
+  holdout_share: 0.3 # most recent 30 % of pairs by date, per target
+  quality_states: all # primary; a "validated only" sensitivity is reported when the data carry states
+
+candidates: # 9 features; expected sign positive for all
+  - { id: B03, formula: B03 }
+  - { id: B04, formula: B04 }
+  - { id: B05, formula: B05 }
+  - { id: B8A, formula: B8A }
+  - { id: NDTI, formula: (B04 - B03) / (B04 + B03) }
+  - { id: B04/B02, formula: B04 / B02 }
+  - { id: B05/B04, formula: B05 / B04 }
+  - { id: B8A/B04, formula: B8A / B04 }
+  - { id: D15switch, formula: "dogliotti_2015_switch(B04, B8A)" } # needs published coefficients
+
+targets:
+  - { id: turbidity, kind: sample, variable: TURBIDEZ, unit: NTU }
+  - { id: tss, kind: sample, variable: SOLIDOS SUSPENDIDOS TOTALES, unit: mg/L }
+  - { id: cm_d, kind: daily, label: CM_D, unit: mg/L, note: IDEAM rating-model daily concentration }
+
+stage1: # band diagnostic, training pairs only
+  min_train: 15
+  rho_min: 0.6
+  lower_bound_min: 0.3
+  resamples: 10000 # cluster bootstrap: resample acquisitions, not pairs
+  confidence: 0.95
+  top_per_target: 2
+
+stage2: # processing homogeneity
+  family_min_scenes: 10
+  homogeneity_p: 0.01 # Kruskal-Wallis across baseline families on seasonal anomalies
+  shift_sigma: 0.5 # a family median more than 0.5 robust sigma away is reported as a shift
+  acolite:
+    repository: https://github.com/acolite/acolite
+    time_box_h: 2
+    l1c_dir: pipeline/out/l1c # downloaded by the user; never committed
+
+stage3: # calibration, only for a target whose Stage 1 passed
+  min_holdout: 8
+  mdsa_max: 50.0 # percent, LOO and hold-out
+  sspb_abs_max: 25.0 # percent, LOO and hold-out
+  null_ratio_max: 0.8 # MdSA <= 0.8 x the null model's MdSA (null = training median)
+  ridge_min_per_feature: 10
+  ridge_lambdas: [0.01, 0.1, 1.0, 10.0] # chosen by LOO on training only
+
+stage4: # transfer of published semi-analytical models, report-only, no retuning
+  models: [nechad2009_turbidity, nechad2010_tss, dogliotti2015_turbidity]
+  coefficients_source: acolite # coefficient tables from ACOLITE's repository, fetched with SHA-256
+
+climate:
+  reach: magdalena-puerto-wilches
+  reach_scenes: docs/magdalena-validation/results/scenes.csv # frozen signals and D0 flags
+  signals: [upstream, downstream, delta]
+  rain_grid: docs/magdalena-validation/rain-grid.csv
+  open_meteo: https://archive-api.open-meteo.com/v1/archive
+  chirps_template: https://data.chc.ucsb.edu/products/CHIRPS-2.0/global_daily/cogs/p05/{year}/chirps-v2.0.{date}.cog
+  harmonics: 2
+  rain_windows_days: [1, 3, 7, 14, 30] # log1p of catchment-mean sums ending on the acquisition day
+  hydrological_year_start_month: 12 # leave-one-hydrological-year-out (December to November)
+  skill_min: 0.15 # 1 - SSE(season + rain) / SSE(season), out of fold
+  label_z: 3.0 # |residual z| below this: explained_by_climate; at or above: unexplained
+  width:
+    window_radius_m: 2000
+    valid_fraction_min: 0.9
+    water_rule: mndwi_gt_0 # among pixels whose SCL class is neither no-data nor invalid
+    rho_min: 0.7
+    lower_bound_min: 0.5
+    report_lags_days: [-3, -1, 1, 3]
+    resamples: 10000 # month-block bootstrap
+  enso:
+    oni_url: https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt
+    threshold: 0.5
+    min_consecutive_seasons: 5
+    permutations: 10000 # hydrological-year blocks
+    alpha: 0.05
+    magnitude_sigma: 0.5 # an episode or neutral year "moves" when its mean anomaly passes this
+
+outputs:
+  inputs: docs/magdalena-validation/calibration/inputs
+  results: docs/magdalena-validation/calibration/results
+  observations_sample: docs/magdalena-validation/calibration/results/observations.sample.json
+  max_committed_bytes: 300000

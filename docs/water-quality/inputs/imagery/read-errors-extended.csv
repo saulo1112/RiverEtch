@@ -1,0 +1,7 @@
+kind,error
+permanent,"S2B_18NVH_20240123_0_L2A green: '/vsis3/sentinel-s2-l2a/tiles/18/N/VH/2024/1/23/0/R10m/B03.jp2' does not exist in the file system, and is not recognized as a supported dataset name."
+permanent,"S2B_18NVH_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/18/N/VH/2024/1/23/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name."
+permanent,"S2B_18NVH_20240123_0_L2A swir16: '/vsis3/sentinel-s2-l2a/tiles/18/N/VH/2024/1/23/0/R20m/B11.jp2' does not exist in the file system, and is not recognized as a supported dataset name."
+permanent,"S2B_18NWP_20230207_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/18/N/WP/2023/2/7/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name."
+permanent,"S2B_18PWQ_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/18/P/WQ/2024/1/23/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name."
+permanent,"S2B_18PXQ_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/18/P/XQ/2024/1/23/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name."

@@ -1,0 +1,30 @@
+# Reach runs (P3 of the water-quality plan, D16): `climate-pipeline reach run` publishes observation
+# records v2 for the scenes of a reach after its frozen baselines. The verdict follows the D0 rule on
+# NDTI (pipeline/screening.yaml, unchanged); NIR/red is context; a physical value appears only where
+# a model card's level says estimated or validated. Paths are relative to the repository root.
+
+title: Reach runs
+screening_config: pipeline/screening.yaml
+quality_config: pipeline/water-quality.yaml
+calibration_config: pipeline/calibration.yaml # D15: the station geometry and window guards
+models: docs/water-quality/results/models # the product's model cards, one per target
+
+threshold: 3.0 # D0
+lookback_days: 30 # a run without --since starts this many days before today
+
+reaches:
+  - site: magdalena-puerto-wilches
+    estimate_station: "23207040" # San Pablo, at the downstream end (a Magdalena test station)
+    rainy_months: [4, 5, 6, 8, 10, 11] # the screening's, as in the Magdalena validation
+    geometry_start: 2022-01-01 # the screening's period: the water mask is built from it only
+    geometry_end: 2025-12-31
+    ndti_scenes: docs/magdalena-validation/results/scenes.csv
+    nir_red_baseline: docs/water-quality/reach/magdalena-puerto-wilches/nir-red-baseline.csv
+    baseline_end: 2025-12-31
+
+budgets:
+  max_gb: 2.0 # per run (a month of scenes is ~0.3 GB)
+  keep_free_gb: 20
+  baseline_max_gb: 4.0 # the one-off NIR/red baseline (2 GB preregistered; deviation 6)
+
+out: pipeline/out/reach

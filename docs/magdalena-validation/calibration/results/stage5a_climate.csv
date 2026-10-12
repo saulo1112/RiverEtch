@@ -1,0 +1,4 @@
+signal,n,skill,status,skill_min,skill_chirps,skill_with_discharge,ar1
+upstream,112,0.048672,weak,0.15,0.00613,-0.199315,0.145945
+downstream,112,0.04012,weak,0.15,0.018644,-0.185119,0.215195
+delta,112,-0.084129,weak,0.15,-0.040347,-0.233064,0.086276

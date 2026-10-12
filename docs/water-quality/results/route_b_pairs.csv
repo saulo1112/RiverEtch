@@ -1,0 +1,293 @@
+target,model,correction,station,sample_day,scene_key,value,estimate
+turbidity,B1 Dogliotti 2015,l2a,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,27.0,13.487621
+turbidity,B1 Dogliotti 2015,l2a,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,240.0,1955.823781
+turbidity,B1 Dogliotti 2015,l2a,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,190.0,354.427052
+turbidity,B1 Dogliotti 2015,l2a,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,110.0,284.43763
+turbidity,B1 Dogliotti 2015,l2a,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,420.0,518.128631
+turbidity,B1 Dogliotti 2015,l2a,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1800.0,877.56492
+turbidity,B1 Dogliotti 2015,l2a,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,550.0,651.332256
+turbidity,B1 Dogliotti 2015,l2a,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,520.0,249.446827
+turbidity,B1 Dogliotti 2015,l2a,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1400.0,136.591246
+turbidity,B1 Dogliotti 2015,l2a,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,450.0,155.779498
+turbidity,B1 Dogliotti 2015,l2a,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1000.0,489.821198
+turbidity,B1 Dogliotti 2015,l2a,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,230.0,339.706761
+turbidity,B1 Dogliotti 2015,l2a,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,190.0,248.165226
+turbidity,B1 Dogliotti 2015,l2a,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,190.0,491.730688
+turbidity,B1 Dogliotti 2015,l2a,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,250.0,228.133884
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,100.0,511.171886
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,9.8,14.613904
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,10.0,15.121115
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,650.0,3020.963378
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2020-09-15,sentinel-2a_2020-09-15_R025,14.0,11.765351
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,220.0,310.451356
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,700.0,396.768169
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,22.0,124.360426
+turbidity,B1 Dogliotti 2015,l2a,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,12.0,13.643007
+turbidity,B1 Dogliotti 2015,l2a,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,42.4,19.739924
+turbidity,B1 Dogliotti 2015,l2a,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,230.0,763.55641
+turbidity,B1 Dogliotti 2015,l2a,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,470.0,791.599946
+turbidity,B1 Dogliotti 2015,dsf,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,27.0,10.83535
+turbidity,B1 Dogliotti 2015,dsf,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,240.0,4717.017513
+turbidity,B1 Dogliotti 2015,dsf,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,190.0,478.50222
+turbidity,B1 Dogliotti 2015,dsf,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,110.0,475.918125
+turbidity,B1 Dogliotti 2015,dsf,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,420.0,699.911881
+turbidity,B1 Dogliotti 2015,dsf,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1800.0,1082.187528
+turbidity,B1 Dogliotti 2015,dsf,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,550.0,754.348079
+turbidity,B1 Dogliotti 2015,dsf,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,520.0,15.74805
+turbidity,B1 Dogliotti 2015,dsf,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1400.0,134.989238
+turbidity,B1 Dogliotti 2015,dsf,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,450.0,76.933475
+turbidity,B1 Dogliotti 2015,dsf,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1000.0,683.391942
+turbidity,B1 Dogliotti 2015,dsf,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,230.0,443.083037
+turbidity,B1 Dogliotti 2015,dsf,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,190.0,148.877761
+turbidity,B1 Dogliotti 2015,dsf,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,190.0,423.3142
+turbidity,B1 Dogliotti 2015,dsf,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,250.0,347.124952
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,100.0,1097.371333
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,9.8,22.453443
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,10.0,14.833677
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,650.0,
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2020-09-15,sentinel-2a_2020-09-15_R025,14.0,13.578194
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,220.0,448.018199
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,700.0,1121.733064
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,22.0,246.734546
+turbidity,B1 Dogliotti 2015,dsf,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,12.0,10.919392
+turbidity,B1 Dogliotti 2015,dsf,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,42.4,148.855949
+turbidity,B1 Dogliotti 2015,dsf,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,230.0,1418.633882
+turbidity,B1 Dogliotti 2015,dsf,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,470.0,995.642189
+turbidity,B1 Dogliotti 2015,radcor,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,27.0,6.364414
+turbidity,B1 Dogliotti 2015,radcor,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,240.0,1762.407316
+turbidity,B1 Dogliotti 2015,radcor,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,190.0,236.682385
+turbidity,B1 Dogliotti 2015,radcor,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,110.0,220.342464
+turbidity,B1 Dogliotti 2015,radcor,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,420.0,491.615944
+turbidity,B1 Dogliotti 2015,radcor,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1800.0,754.877251
+turbidity,B1 Dogliotti 2015,radcor,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,550.0,518.408581
+turbidity,B1 Dogliotti 2015,radcor,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,520.0,11.081642
+turbidity,B1 Dogliotti 2015,radcor,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1400.0,59.786564
+turbidity,B1 Dogliotti 2015,radcor,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,450.0,141.291309
+turbidity,B1 Dogliotti 2015,radcor,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1000.0,510.74716
+turbidity,B1 Dogliotti 2015,radcor,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,230.0,255.78854
+turbidity,B1 Dogliotti 2015,radcor,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,190.0,154.722033
+turbidity,B1 Dogliotti 2015,radcor,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,190.0,342.06315
+turbidity,B1 Dogliotti 2015,radcor,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,250.0,224.138649
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,100.0,571.293091
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,9.8,13.980063
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,10.0,13.547636
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,650.0,4014.933328
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2020-09-15,sentinel-2a_2020-09-15_R025,14.0,13.288521
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,220.0,298.167185
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,700.0,398.744439
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,22.0,78.559176
+turbidity,B1 Dogliotti 2015,radcor,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,12.0,9.794125
+turbidity,B1 Dogliotti 2015,radcor,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,42.4,22.284431
+turbidity,B1 Dogliotti 2015,radcor,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,230.0,909.308099
+turbidity,B1 Dogliotti 2015,radcor,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,470.0,689.793313
+turbidity,B2 Nechad 2009,l2a,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,27.0,13.487621
+turbidity,B2 Nechad 2009,l2a,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,240.0,173.862211
+turbidity,B2 Nechad 2009,l2a,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,190.0,94.634246
+turbidity,B2 Nechad 2009,l2a,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,110.0,128.465983
+turbidity,B2 Nechad 2009,l2a,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,420.0,63.524225
+turbidity,B2 Nechad 2009,l2a,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1800.0,149.460379
+turbidity,B2 Nechad 2009,l2a,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,550.0,212.429997
+turbidity,B2 Nechad 2009,l2a,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,520.0,37.819657
+turbidity,B2 Nechad 2009,l2a,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1400.0,30.855608
+turbidity,B2 Nechad 2009,l2a,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,450.0,36.053423
+turbidity,B2 Nechad 2009,l2a,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1000.0,68.176276
+turbidity,B2 Nechad 2009,l2a,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,230.0,66.047208
+turbidity,B2 Nechad 2009,l2a,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,190.0,51.90707
+turbidity,B2 Nechad 2009,l2a,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,190.0,72.341819
+turbidity,B2 Nechad 2009,l2a,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,250.0,57.128619
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,100.0,
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,9.8,14.613904
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,10.0,15.121115
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,650.0,
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2020-09-15,sentinel-2a_2020-09-15_R025,14.0,11.765351
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,220.0,1695.406006
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,700.0,141.555957
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,22.0,68.036932
+turbidity,B2 Nechad 2009,l2a,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,12.0,13.643007
+turbidity,B2 Nechad 2009,l2a,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,42.4,29.087761
+turbidity,B2 Nechad 2009,l2a,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,230.0,352.60998
+turbidity,B2 Nechad 2009,l2a,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,470.0,214.168063
+turbidity,B2 Nechad 2009,dsf,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,27.0,10.83535
+turbidity,B2 Nechad 2009,dsf,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,240.0,132.247713
+turbidity,B2 Nechad 2009,dsf,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,190.0,84.029309
+turbidity,B2 Nechad 2009,dsf,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,110.0,113.30531
+turbidity,B2 Nechad 2009,dsf,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,420.0,54.789153
+turbidity,B2 Nechad 2009,dsf,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1800.0,113.716256
+turbidity,B2 Nechad 2009,dsf,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,550.0,112.898612
+turbidity,B2 Nechad 2009,dsf,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,520.0,15.74805
+turbidity,B2 Nechad 2009,dsf,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1400.0,29.898484
+turbidity,B2 Nechad 2009,dsf,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,450.0,27.837384
+turbidity,B2 Nechad 2009,dsf,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1000.0,59.977677
+turbidity,B2 Nechad 2009,dsf,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,230.0,62.27406
+turbidity,B2 Nechad 2009,dsf,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,190.0,31.692875
+turbidity,B2 Nechad 2009,dsf,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,190.0,37.489823
+turbidity,B2 Nechad 2009,dsf,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,250.0,50.586128
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,100.0,897.162091
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,9.8,22.453443
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,10.0,14.833677
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,650.0,
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2020-09-15,sentinel-2a_2020-09-15_R025,14.0,13.578194
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,220.0,239.914995
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,700.0,99.059399
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,22.0,48.103897
+turbidity,B2 Nechad 2009,dsf,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,12.0,10.919392
+turbidity,B2 Nechad 2009,dsf,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,42.4,40.46639
+turbidity,B2 Nechad 2009,dsf,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,230.0,230.113659
+turbidity,B2 Nechad 2009,dsf,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,470.0,162.555123
+turbidity,B2 Nechad 2009,radcor,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,27.0,6.364414
+turbidity,B2 Nechad 2009,radcor,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,240.0,239.08602
+turbidity,B2 Nechad 2009,radcor,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,190.0,105.091029
+turbidity,B2 Nechad 2009,radcor,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,110.0,133.012909
+turbidity,B2 Nechad 2009,radcor,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,420.0,49.836088
+turbidity,B2 Nechad 2009,radcor,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1800.0,159.008996
+turbidity,B2 Nechad 2009,radcor,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,550.0,209.670049
+turbidity,B2 Nechad 2009,radcor,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,520.0,11.081642
+turbidity,B2 Nechad 2009,radcor,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1400.0,26.851742
+turbidity,B2 Nechad 2009,radcor,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,450.0,36.041839
+turbidity,B2 Nechad 2009,radcor,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1000.0,64.922924
+turbidity,B2 Nechad 2009,radcor,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,230.0,55.87735
+turbidity,B2 Nechad 2009,radcor,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,190.0,43.370632
+turbidity,B2 Nechad 2009,radcor,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,190.0,56.625411
+turbidity,B2 Nechad 2009,radcor,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,250.0,51.563875
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,100.0,2600.99828
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,9.8,13.980063
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,10.0,13.547636
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,650.0,
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2020-09-15,sentinel-2a_2020-09-15_R025,14.0,13.288521
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,220.0,1154.319488
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,700.0,78.597483
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,22.0,53.269124
+turbidity,B2 Nechad 2009,radcor,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,12.0,9.794125
+turbidity,B2 Nechad 2009,radcor,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,42.4,30.661846
+turbidity,B2 Nechad 2009,radcor,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,230.0,232.589904
+turbidity,B2 Nechad 2009,radcor,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,470.0,259.858108
+tss,B2 Nechad 2010,l2a,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,29.0,12.602051
+tss,B2 Nechad 2010,l2a,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,463.0,162.446775
+tss,B2 Nechad 2010,l2a,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,319.0,88.420756
+tss,B2 Nechad 2010,l2a,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,77.0,120.031171
+tss,B2 Nechad 2010,l2a,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,308.0,59.353355
+tss,B2 Nechad 2010,l2a,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1617.0,139.647117
+tss,B2 Nechad 2010,l2a,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,983.0,198.48228
+tss,B2 Nechad 2010,l2a,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,847.0,35.336496
+tss,B2 Nechad 2010,l2a,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1946.0,28.829692
+tss,B2 Nechad 2010,l2a,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,442.0,33.686229
+tss,B2 Nechad 2010,l2a,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1400.0,63.699962
+tss,B2 Nechad 2010,l2a,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,303.0,61.710684
+tss,B2 Nechad 2010,l2a,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,243.0,48.498959
+tss,B2 Nechad 2010,l2a,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,337.0,67.592004
+tss,B2 Nechad 2010,l2a,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,311.0,53.377672
+tss,B2 Nechad 2010,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,77.0,
+tss,B2 Nechad 2010,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,8.0,13.654385
+tss,B2 Nechad 2010,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,11.0,14.128294
+tss,B2 Nechad 2010,l2a,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,1019.0,
+tss,B2 Nechad 2010,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,410.0,1584.089132
+tss,B2 Nechad 2010,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,1303.0,132.261684
+tss,B2 Nechad 2010,l2a,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,24.0,63.569767
+tss,B2 Nechad 2010,l2a,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,5.0,12.747236
+tss,B2 Nechad 2010,l2a,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,62.0,27.177918
+tss,B2 Nechad 2010,l2a,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,241.0,329.458333
+tss,B2 Nechad 2010,l2a,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,626.0,200.106228
+tss,B2 Nechad 2010,dsf,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,29.0,10.123924
+tss,B2 Nechad 2010,dsf,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,463.0,123.5646
+tss,B2 Nechad 2010,dsf,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,319.0,78.512117
+tss,B2 Nechad 2010,dsf,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,77.0,105.865916
+tss,B2 Nechad 2010,dsf,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,308.0,51.19181
+tss,B2 Nechad 2010,dsf,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1617.0,106.249881
+tss,B2 Nechad 2010,dsf,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,983.0,105.485921
+tss,B2 Nechad 2010,dsf,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,847.0,14.714065
+tss,B2 Nechad 2010,dsf,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1946.0,27.935411
+tss,B2 Nechad 2010,dsf,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,442.0,26.009639
+tss,B2 Nechad 2010,dsf,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1400.0,56.039666
+tss,B2 Nechad 2010,dsf,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,303.0,58.185273
+tss,B2 Nechad 2010,dsf,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,243.0,29.611986
+tss,B2 Nechad 2010,dsf,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,337.0,35.028318
+tss,B2 Nechad 2010,dsf,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,311.0,47.264747
+tss,B2 Nechad 2010,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,77.0,838.256272
+tss,B2 Nechad 2010,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,8.0,20.979196
+tss,B2 Nechad 2010,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,11.0,13.859728
+tss,B2 Nechad 2010,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,1019.0,
+tss,B2 Nechad 2010,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,410.0,224.16267
+tss,B2 Nechad 2010,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,1303.0,92.555363
+tss,B2 Nechad 2010,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,24.0,44.945494
+tss,B2 Nechad 2010,dsf,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,5.0,10.202447
+tss,B2 Nechad 2010,dsf,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,62.0,37.80945
+tss,B2 Nechad 2010,dsf,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,241.0,215.004869
+tss,B2 Nechad 2010,dsf,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,626.0,151.882087
+tss,B2 Nechad 2010,radcor,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,29.0,5.94654
+tss,B2 Nechad 2010,radcor,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,463.0,223.388123
+tss,B2 Nechad 2010,radcor,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,319.0,98.190968
+tss,B2 Nechad 2010,radcor,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,77.0,124.279555
+tss,B2 Nechad 2010,radcor,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,308.0,46.563953
+tss,B2 Nechad 2010,radcor,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1617.0,148.568792
+tss,B2 Nechad 2010,radcor,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,983.0,195.903544
+tss,B2 Nechad 2010,radcor,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,847.0,10.354044
+tss,B2 Nechad 2010,radcor,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1946.0,25.088711
+tss,B2 Nechad 2010,radcor,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,442.0,33.675406
+tss,B2 Nechad 2010,radcor,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1400.0,60.660218
+tss,B2 Nechad 2010,radcor,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,303.0,52.208558
+tss,B2 Nechad 2010,radcor,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,243.0,40.523005
+tss,B2 Nechad 2010,radcor,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,337.0,52.907503
+tss,B2 Nechad 2010,radcor,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,311.0,48.178297
+tss,B2 Nechad 2010,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,77.0,2430.222078
+tss,B2 Nechad 2010,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,8.0,13.062161
+tss,B2 Nechad 2010,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,11.0,12.658126
+tss,B2 Nechad 2010,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,1019.0,
+tss,B2 Nechad 2010,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,410.0,1078.529242
+tss,B2 Nechad 2010,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,1303.0,73.436934
+tss,B2 Nechad 2010,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,24.0,49.771582
+tss,B2 Nechad 2010,radcor,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,5.0,9.151063
+tss,B2 Nechad 2010,radcor,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,62.0,28.648653
+tss,B2 Nechad 2010,radcor,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,241.0,217.318529
+tss,B2 Nechad 2010,radcor,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,626.0,242.796359
+tss,B3 MDN,dsf,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,29.0,30.34124
+tss,B3 MDN,dsf,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,463.0,2183.278076
+tss,B3 MDN,dsf,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,319.0,495.22171
+tss,B3 MDN,dsf,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,77.0,473.445587
+tss,B3 MDN,dsf,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,308.0,464.081421
+tss,B3 MDN,dsf,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1617.0,817.987915
+tss,B3 MDN,dsf,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,983.0,614.078735
+tss,B3 MDN,dsf,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,847.0,17.622135
+tss,B3 MDN,dsf,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1946.0,228.353729
+tss,B3 MDN,dsf,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,442.0,210.349503
+tss,B3 MDN,dsf,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1400.0,598.177246
+tss,B3 MDN,dsf,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,303.0,288.18866
+tss,B3 MDN,dsf,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,243.0,287.557617
+tss,B3 MDN,dsf,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,337.0,354.285217
+tss,B3 MDN,dsf,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,311.0,341.006195
+tss,B3 MDN,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,77.0,704.51709
+tss,B3 MDN,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,8.0,228.556503
+tss,B3 MDN,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,11.0,95.369507
+tss,B3 MDN,dsf,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,1019.0,4101.776367
+tss,B3 MDN,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,410.0,380.388763
+tss,B3 MDN,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,1303.0,155.968155
+tss,B3 MDN,dsf,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,24.0,291.308533
+tss,B3 MDN,dsf,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,5.0,29.902382
+tss,B3 MDN,dsf,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,62.0,148.230072
+tss,B3 MDN,dsf,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,241.0,1479.161377
+tss,B3 MDN,dsf,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,626.0,1073.522461
+tss,B3 MDN,radcor,21077020,2023-09-30,sentinel-2a_2023-09-30_R025,29.0,13.482147
+tss,B3 MDN,radcor,21237010,2022-02-23,sentinel-2b_2022-02-22_R025,463.0,1456.591553
+tss,B3 MDN,radcor,21237010,2025-06-27,sentinel-2b_2025-06-26_R025,319.0,193.899353
+tss,B3 MDN,radcor,21237010,2025-09-09,sentinel-2c_2025-09-09_R025,77.0,155.90451
+tss,B3 MDN,radcor,23037010,2020-11-19,sentinel-2b_2020-11-19_R025,308.0,611.234741
+tss,B3 MDN,radcor,23037010,2021-05-12,sentinel-2a_2021-05-13_R025,1617.0,705.668335
+tss,B3 MDN,radcor,23037010,2021-07-26,sentinel-2b_2021-07-27_R025,983.0,392.338135
+tss,B3 MDN,radcor,23157030,2022-03-25,sentinel-2b_2022-03-24_R025,847.0,2.622164
+tss,B3 MDN,radcor,23157030,2022-11-18,sentinel-2b_2022-11-19_R025,1946.0,207.245728
+tss,B3 MDN,radcor,23207040,2021-11-15,sentinel-2b_2021-11-14_R025,442.0,139.206085
+tss,B3 MDN,radcor,23207040,2022-11-13,sentinel-2a_2022-11-14_R025,1400.0,483.095245
+tss,B3 MDN,radcor,23207040,2023-06-13,sentinel-2a_2023-06-12_R025,303.0,272.373413
+tss,B3 MDN,radcor,25027410,2019-02-08,sentinel-2b_2019-02-08_R025,243.0,187.880081
+tss,B3 MDN,radcor,25027410,2024-02-18,sentinel-2a_2024-02-17_R025,337.0,303.921326
+tss,B3 MDN,radcor,25027410,2025-09-20,sentinel-2a_2025-09-21_R025,311.0,248.84198
+tss,B3 MDN,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2022-11-18,sentinel-2b_2022-11-19_R025,77.0,330.651489
+tss,B3 MDN,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-10-01,sentinel-2a_2023-09-30_R025,8.0,23.342735
+tss,B3 MDN,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2023-11-14,sentinel-2b_2023-11-14_R025,11.0,24.335281
+tss,B3 MDN,radcor,magdalena-hui-aipe-antes-del-rio-aipe-despues-de-poblaciones-aipe-y-villavieja,2024-11-18,sentinel-2b_2024-11-18_R025,1019.0,2540.780273
+tss,B3 MDN,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2022-10-10,sentinel-2b_2022-10-10_R025,410.0,195.584656
+tss,B3 MDN,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2022-11-10,sentinel-2b_2022-11-09_R025,1303.0,140.589447
+tss,B3 MDN,radcor,magdalena-hui-gigante-las-vueltas-mg-4,2023-09-29,sentinel-2a_2023-09-30_R025,24.0,62.290657
+tss,B3 MDN,radcor,magdalena-hui-gigante-salida-represa-el-quimbo,2023-09-30,sentinel-2a_2023-09-30_R025,5.0,8.581127
+tss,B3 MDN,radcor,rca-magdalena-tol-flandes-isla-del-amor,2019-09-11,sentinel-2a_2019-09-11_R025,62.0,35.510323
+tss,B3 MDN,radcor,rca-magdalena-tol-flandes-isla-del-amor,2021-03-18,sentinel-2b_2021-03-19_R025,241.0,1000.494629
+tss,B3 MDN,radcor,rca-magdalena-tol-flandes-isla-del-amor,2021-06-17,sentinel-2b_2021-06-17_R025,626.0,703.255981

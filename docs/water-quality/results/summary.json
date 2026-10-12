@@ -1,0 +1,130 @@
+{
+  "incomplete": [],
+  "landsat": {
+    "tss": {
+      "test": {
+        "candidate": "L2",
+        "level": "none",
+        "mdsa": 211.0,
+        "n": 14
+      },
+      "v21_with_landsat": {
+        "level": "none",
+        "mdsa": 104.1,
+        "n": 54
+      }
+    },
+    "turbidity": {
+      "test": {
+        "candidate": "L2",
+        "level": "none",
+        "mdsa": 230.8,
+        "n": 15
+      },
+      "v21_with_landsat": {
+        "level": "none",
+        "mdsa": 85.2,
+        "n": 56
+      }
+    }
+  },
+  "physical": {
+    "tss": {
+      "level": "none",
+      "mdsa": 136.8,
+      "n": 26,
+      "stage_b_due": true
+    },
+    "turbidity": {
+      "level": "none",
+      "mdsa": 80.0,
+      "n": 27,
+      "stage_b_due": false
+    }
+  },
+  "posthoc": {
+    "tss": {
+      "level": "none",
+      "mdsa": 164.8,
+      "n": 31
+    },
+    "turbidity": {
+      "level": "none",
+      "mdsa": 77.4,
+      "n": 31
+    }
+  },
+  "route_a": {
+    "tss": {
+      "candidate": "A3",
+      "level": "none",
+      "mdsa": 249.0,
+      "n": 21
+    },
+    "turbidity": {
+      "candidate": "A3",
+      "level": "none",
+      "mdsa": 135.2,
+      "n": 22
+    }
+  },
+  "route_b": {
+    "adjacency_confirmed": true,
+    "best_mdsa": {
+      "tss/dsf": {
+        "mdsa": 136.5,
+        "model": "B3 MDN",
+        "n": 26
+      },
+      "tss/l2a": {
+        "mdsa": 335.6,
+        "model": "B2 Nechad 2010",
+        "n": 24
+      },
+      "tss/radcor": {
+        "mdsa": 125.2,
+        "model": "B3 MDN",
+        "n": 26
+      },
+      "turbidity/dsf": {
+        "mdsa": 117.2,
+        "model": "B1 Dogliotti 2015",
+        "n": 26
+      },
+      "turbidity/l2a": {
+        "mdsa": 100.2,
+        "model": "B1 Dogliotti 2015",
+        "n": 27
+      },
+      "turbidity/radcor": {
+        "mdsa": 80.0,
+        "model": "B1 Dogliotti 2015",
+        "n": 27
+      }
+    }
+  },
+  "v3": {
+    "round 1": {
+      "level": "indicative (post hoc)",
+      "mdsa": 71.5,
+      "n": 31
+    },
+    "round 2: Magdalena LOSO (form chosen with hindsight)": {
+      "mdsa": 38.2,
+      "n": 31,
+      "publish_values": false
+    },
+    "round 2: Magdalena leave-one-year-out": {
+      "mdsa": 86.1,
+      "n": 31
+    },
+    "round 2: external LORO, rivers off the Magdalena": {
+      "mdsa": 114.0,
+      "n": 17
+    },
+    "round 2: fitted on the Magdalena, scored on the other rivers": {
+      "mdsa": 78.9,
+      "n": 17
+    }
+  }
+}

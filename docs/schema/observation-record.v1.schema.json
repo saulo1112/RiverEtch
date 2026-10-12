@@ -1,0 +1,757 @@
+{
+  "$defs": {
+    "Calibration": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "not": {
+                  "const": "passed"
+                }
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "uncertainty": {
+                "const": null
+              },
+              "value": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "abstainReason": {
+                "const": null
+              },
+              "status": {
+                "const": "passed"
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "uncertainty": {
+                "$ref": "#/$defs/Uncertainty"
+              },
+              "value": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "modelId",
+              "version",
+              "parametersHash",
+              "target",
+              "unit",
+              "value",
+              "uncertainty",
+              "validRange"
+            ]
+          }
+        }
+      ],
+      "description": "What a calibrated model says about the scene, if one passed; otherwise why there is none.",
+      "properties": {
+        "abstainReason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Abstainreason"
+        },
+        "modelId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modelid"
+        },
+        "parametersHash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parametershash"
+        },
+        "status": {
+          "enum": ["none", "failed", "insufficient_data", "passed"],
+          "title": "Status",
+          "type": "string"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "enum": ["turbidity", "tss", "cm_d"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "uncertainty": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Uncertainty"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Unit"
+        },
+        "validRange": {
+          "anyOf": [
+            {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Validrange"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        }
+      },
+      "required": ["status"],
+      "title": "Calibration",
+      "type": "object"
+    },
+    "ClimateContext": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "not": {
+                  "const": "passed"
+                }
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "expected": {
+                "const": null
+              },
+              "label": {
+                "const": "not_evaluated"
+              },
+              "residual": {
+                "const": null
+              },
+              "residualZ": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "passed"
+              }
+            },
+            "required": ["status"]
+          },
+          "then": {
+            "properties": {
+              "label": {
+                "not": {
+                  "const": "not_evaluated"
+                }
+              }
+            }
+          }
+        }
+      ],
+      "description": "Whether rain and season explain the flagged signal, when that signal's model passed.",
+      "properties": {
+        "dischargePercentile": {
+          "anyOf": [
+            {
+              "maximum": 1,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "context only",
+          "title": "Dischargepercentile"
+        },
+        "ensoPhase": {
+          "anyOf": [
+            {
+              "enum": ["el_nino", "la_nina", "neutral"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "context only",
+          "title": "Ensophase"
+        },
+        "expected": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected"
+        },
+        "label": {
+          "enum": ["normal", "explained_by_climate", "unexplained", "not_evaluated"],
+          "title": "Label",
+          "type": "string"
+        },
+        "modelId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Modelid"
+        },
+        "residual": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residual"
+        },
+        "residualZ": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Residualz"
+        },
+        "rule": {
+          "title": "Rule",
+          "type": "string"
+        },
+        "signal": {
+          "anyOf": [
+            {
+              "enum": ["upstream", "downstream", "delta"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Signal"
+        },
+        "status": {
+          "enum": ["not_run", "weak", "passed"],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": ["status", "label", "rule"],
+      "title": "ClimateContext",
+      "type": "object"
+    },
+    "IndexValues": {
+      "additionalProperties": false,
+      "description": "The relative index per sub-reach, their mean and their difference (never NTU).",
+      "properties": {
+        "delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "downstream minus upstream",
+          "title": "Delta"
+        },
+        "downstream": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Downstream"
+        },
+        "name": {
+          "const": "NDTI",
+          "default": "NDTI",
+          "title": "Name",
+          "type": "string"
+        },
+        "reach": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "mean of the sub-reaches that were measured",
+          "title": "Reach"
+        },
+        "upstream": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Upstream"
+        }
+      },
+      "required": ["upstream", "downstream", "reach", "delta"],
+      "title": "IndexValues",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "description": "Where the record came from.",
+      "properties": {
+        "boaOffsetApplied": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "title": "Boaoffsetapplied",
+          "type": "array"
+        },
+        "codeCommit": {
+          "title": "Codecommit",
+          "type": "string"
+        },
+        "collection": {
+          "title": "Collection",
+          "type": "string"
+        },
+        "processingBaseline": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Processingbaseline",
+          "type": "array"
+        },
+        "processingParamsSha256": {
+          "title": "Processingparamssha256",
+          "type": "string"
+        },
+        "stacItems": {
+          "items": {
+            "$ref": "#/$defs/StacItemRef"
+          },
+          "title": "Stacitems",
+          "type": "array"
+        }
+      },
+      "required": [
+        "collection",
+        "stacItems",
+        "codeCommit",
+        "processingParamsSha256",
+        "boaOffsetApplied",
+        "processingBaseline"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RainFlags": {
+      "additionalProperties": false,
+      "description": "Rain coincidence of the scene (None: unknown).",
+      "properties": {
+        "catchment": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Catchment"
+        },
+        "point": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Point"
+        },
+        "union": {
+          "enum": ["yes", "no", "unknown"],
+          "title": "Union",
+          "type": "string"
+        }
+      },
+      "required": ["point", "catchment", "union"],
+      "title": "RainFlags",
+      "type": "object"
+    },
+    "StacItemRef": {
+      "additionalProperties": false,
+      "description": "One STAC item behind the scene, with the SHA-256 of its JSON when it was read.",
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "retrievedUtc": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Retrievedutc"
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sha256"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": ["id", "url"],
+      "title": "StacItemRef",
+      "type": "object"
+    },
+    "Uncertainty": {
+      "additionalProperties": false,
+      "description": "An interval around a calibrated value.",
+      "properties": {
+        "high": {
+          "title": "High",
+          "type": "number"
+        },
+        "kind": {
+          "const": "loo_mdsa_band",
+          "description": "value / (1 + MdSA) to value x (1 + MdSA), with the model's LOO MdSA",
+          "title": "Kind",
+          "type": "string"
+        },
+        "low": {
+          "title": "Low",
+          "type": "number"
+        }
+      },
+      "required": ["low", "high", "kind"],
+      "title": "Uncertainty",
+      "type": "object"
+    },
+    "Verdict": {
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "else": {
+            "properties": {
+              "signals": {
+                "maxItems": 0
+              }
+            }
+          },
+          "if": {
+            "properties": {
+              "anomalous": {
+                "const": true
+              }
+            },
+            "required": ["anomalous"]
+          },
+          "then": {
+            "properties": {
+              "signals": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ],
+      "description": "The rule-based flag: a signal is anomalous when its D0 |z| reaches the threshold.",
+      "properties": {
+        "anomalous": {
+          "title": "Anomalous",
+          "type": "boolean"
+        },
+        "rule": {
+          "const": "D0",
+          "default": "D0",
+          "title": "Rule",
+          "type": "string"
+        },
+        "signals": {
+          "items": {
+            "enum": ["upstream", "downstream", "delta"],
+            "type": "string"
+          },
+          "title": "Signals",
+          "type": "array"
+        },
+        "threshold": {
+          "title": "Threshold",
+          "type": "number"
+        }
+      },
+      "required": ["threshold", "anomalous", "signals"],
+      "title": "Verdict",
+      "type": "object"
+    },
+    "ZScores": {
+      "additionalProperties": false,
+      "description": "Leave-one-out robust z-scores of the three signals under the screening rule (D0).",
+      "properties": {
+        "delta": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Delta"
+        },
+        "downstream": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Downstream"
+        },
+        "rule": {
+          "const": "D0",
+          "default": "D0",
+          "title": "Rule",
+          "type": "string"
+        },
+        "upstream": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Upstream"
+        }
+      },
+      "required": ["upstream", "downstream", "delta"],
+      "title": "ZScores",
+      "type": "object"
+    }
+  },
+  "$id": "observation-record.v1",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "description": "One published observation of a river reach. The index is relative (never NTU); a physical value appears only when calibration.status is 'passed' and no abstainReason is set. The verdict follows from the D0 z-scores alone.",
+  "properties": {
+    "calibration": {
+      "$ref": "#/$defs/Calibration"
+    },
+    "climateContext": {
+      "$ref": "#/$defs/ClimateContext"
+    },
+    "date": {
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "title": "Date",
+      "type": "string"
+    },
+    "index": {
+      "$ref": "#/$defs/IndexValues"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    },
+    "rain": {
+      "$ref": "#/$defs/RainFlags"
+    },
+    "reachId": {
+      "title": "Reachid",
+      "type": "string"
+    },
+    "recordSha256": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Recordsha256"
+    },
+    "sceneId": {
+      "title": "Sceneid",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "default": 1,
+      "title": "Schemaversion",
+      "type": "integer"
+    },
+    "stacItemIds": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Stacitemids",
+      "type": "array"
+    },
+    "verdict": {
+      "$ref": "#/$defs/Verdict"
+    },
+    "zScore": {
+      "$ref": "#/$defs/ZScores"
+    }
+  },
+  "required": [
+    "reachId",
+    "date",
+    "sceneId",
+    "stacItemIds",
+    "index",
+    "zScore",
+    "verdict",
+    "rain",
+    "calibration",
+    "climateContext",
+    "provenance"
+  ],
+  "title": "ObservationRecord",
+  "type": "object"
+}

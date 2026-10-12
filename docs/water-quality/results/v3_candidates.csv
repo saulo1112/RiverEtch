@@ -1,0 +1,16 @@
+round,candidate,plain_loso_mdsa,note
+1,T+G|7|nearest,38.152897,report-only: chosen with hindsight
+1,S5+G|7|nearest,46.526519,report-only: chosen with hindsight
+1,T+G|15|nearest,53.446217,report-only: chosen with hindsight
+1,T+G|15|median,53.462902,report-only: chosen with hindsight
+1,S5+G|7|median,54.164493,report-only: chosen with hindsight
+1,S5|15|median,56.519805,report-only: chosen with hindsight
+1,T|3s|nearest,61.047485,report-only: chosen with hindsight
+1,T|3s|median,61.047485,report-only: chosen with hindsight
+1,S5|7|nearest,62.046395,report-only: chosen with hindsight
+1,S5+G|15|nearest,63.440422,report-only: chosen with hindsight
+1,S5|7|median,63.485027,report-only: chosen with hindsight
+1,T+G|7|median,63.917903,report-only: chosen with hindsight
+1,T|7|median,65.784514,report-only: chosen with hindsight
+1,S5|15|nearest,65.922224,report-only: chosen with hindsight
+1,T|7|nearest,66.167677,report-only: chosen with hindsight

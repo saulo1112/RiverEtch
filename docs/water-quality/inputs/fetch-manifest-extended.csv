@@ -1,0 +1,5 @@
+path,url,status,bytes,sha256,fetched_utc,note
+imagery/incomplete-extended.json,derived,200,3,37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570,2026-10-12T03:56:00+00:00,
+imagery/items-extended.csv,derived,200,6551,34c7fd2f14ad0b85f78e19fcfbb3058d2c396561863d4b69e7756dd21184ebbc,2026-10-12T03:56:00+00:00,
+imagery/read-errors-extended.csv,derived,200,1167,87c61419be7f3515a2fb977722be8e1bf6a72da4ecf1b673bc2ac66fe42384d0,2026-10-12T03:56:00+00:00,
+imagery/windows-extended.csv,derived,200,540932,560b92ae64a806837861b38023dbb67a36f7af7df4ef8f054c2b177fe54a3e7c,2026-10-12T03:56:00+00:00,"within 15 days of a sample, not in windows.csv"

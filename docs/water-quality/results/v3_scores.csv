@@ -1,0 +1,6 @@
+round,evaluation,n,stations,mdsa,sspb,mape,rho,rho_low,rho_high,null_mdsa,coverage80,coverage90,level,candidates,pairs_3s,pairs_7,pairs_15,samples_in_15
+1,"nested LOSO, first run (units without flow dropped; superseded by deviation 8)",23.0,9.0,81.745403,-13.275158,133.676367,0.542801,0.132493,0.817289,86.666667,0.869565,0.869565,,,,,,
+1,nested LOSO (whole space),31.0,11.0,71.508867,-13.749703,151.836707,0.715957,0.344314,0.856842,144.444444,0.83871,0.903226,indicative,66,31,92,206,103
+1,ensemble with RAdCor (geometric mean),21.0,8.0,147.691261,-0.396126,105.416793,0.692433,0.074675,0.883628,160.0,,,,,,,,
+1,"L2A nested, same pairs",21.0,8.0,158.972562,-13.749703,209.477853,0.757389,0.276327,0.919877,160.0,,,,,,,,
+1,"Dogliotti on RAdCor, same pairs",21.0,8.0,75.551037,-6.093923,95.942509,0.585905,-0.067386,0.856656,160.0,,,,,,,,

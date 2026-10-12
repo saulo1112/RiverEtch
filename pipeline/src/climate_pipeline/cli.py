@@ -4,8 +4,9 @@
 docs/site-screening/method.md); ``climate-pipeline fetch-docs`` fetches public documents with a
 provenance manifest (see docs/urra-validation/regulatory.md); ``climate-pipeline catchment-grid``
 and ``climate-pipeline validation`` run the pre-registered validation of the chosen reach (see
-docs/urra-validation/method.md). The other stages (operational ingestion, anomaly publication)
-are not implemented yet.
+docs/urra-validation/method.md); ``climate-pipeline contract`` writes the observation record's
+JSON Schema and sample records (see docs/schema/README.md). The other stages (operational
+ingestion, anomaly publication) are not implemented yet.
 """
 
 from __future__ import annotations
@@ -73,6 +74,90 @@ def _parser() -> argparse.ArgumentParser:
     validation.add_argument(
         "--results", type=Path, default=None, help="results folder (default: from the config)"
     )
+    contract = commands.add_parser("contract", help="observation record contract: schema, samples")
+    actions = contract.add_subparsers(dest="action", required=True)
+    schema = actions.add_parser("schema", help="write the generated JSON Schema")
+    schema.add_argument("--out", type=Path, required=True, help="schema file")
+    schema.add_argument("--record-version", type=int, choices=(1, 2), default=1,
+                        help="observation record version")  # fmt: skip
+    sample = actions.add_parser("sample", help="sealed records from a case file v1 (reads S3)")
+    sample.add_argument("--case", type=Path, required=True, help="case file v1 (JSON)")
+    sample.add_argument("--reach-id", required=True, help="the reach's site id")
+    sample.add_argument("--dates", default="", help="comma-separated scene dates (default: all)")
+    sample.add_argument("--collection", default="sentinel-2-l2a", help="STAC collection")
+    sample.add_argument("--threshold", type=float, default=3.0, help="D0 anomaly threshold")
+    sample.add_argument("--out", type=Path, required=True, help="records file (JSON)")
+    calibration = commands.add_parser(
+        "calibration", help="calibration and climate-context validation (fetch, run, verify)"
+    )
+    calibration.add_argument(
+        "action", choices=("fetch", "run", "verify", "acolite-list"),
+        help="fetch: network snapshots; run: offline results; verify: recompute and compare; "
+        "acolite-list: the Level-1C scenes of Stage 2c",
+    )  # fmt: skip
+    calibration.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+    calibration.add_argument(
+        "--config", type=Path, default=Path("pipeline/calibration.yaml"),
+        help="settings, relative to the root",
+    )  # fmt: skip
+    calibration.add_argument(
+        "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
+    )
+    calibration.add_argument("--stations-only", action="store_true", help="fetch: selection only")
+    calibration.add_argument(
+        "--keep-chirps", action="store_true",
+        help="fetch: keep the CHIRPS snapshot already in the inputs (its file time is recorded)",
+    )  # fmt: skip
+    calibration.add_argument("--workers", type=int, default=8)
+    calibration.add_argument(
+        "--out", type=Path, default=None, help="run: results folder (default: from the config)"
+    )
+    quality = commands.add_parser(
+        "quality", help="water-quality estimates v2: offline results from the snapshots"
+    )
+    quality.add_argument(
+        "action",
+        choices=("fetch", "fetch-usgs", "fetch-landsat", "fetch-extended", "export-lab", "run",
+                 "verify"),
+        help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
+        "the USGS pilot; fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
+        "(phase 3); fetch-extended: windows within 15 days of a sample (v3); export-lab: the "
+        "lab's training tables (A4); run: offline results; "
+        "verify: recompute and compare with the MANIFEST",
+    )  # fmt: skip
+    quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+    quality.add_argument("--stations-only", action="store_true",
+                         help="fetch, fetch-landsat: the station list only")  # fmt: skip
+    quality.add_argument("--sites-only", action="store_true", help="fetch-usgs: selection only")
+    quality.add_argument(
+        "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
+    )
+    quality.add_argument("--workers", type=int, default=8)
+    quality.add_argument(
+        "--config", type=Path, default=Path("pipeline/water-quality.yaml"),
+        help="settings, relative to the root",
+    )  # fmt: skip
+    quality.add_argument(
+        "--out", type=Path, default=None, help="run: results folder (default: from the config)"
+    )
+    reach = commands.add_parser("reach", help="observation records v2 of a reach (P3, D16)")
+    reach.add_argument(
+        "action", choices=("baseline", "run"),
+        help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
+        "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it)",
+    )  # fmt: skip
+    reach.add_argument("--site", default="magdalena-puerto-wilches", help="the reach's site id")
+    reach.add_argument("--since", type=date.fromisoformat, default=None, help="run: first day")
+    reach.add_argument("--until", type=date.fromisoformat, default=None, help="run: last day")
+    reach.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+    reach.add_argument(
+        "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
+    )
+    reach.add_argument("--workers", type=int, default=8)
+    reach.add_argument(
+        "--config", type=Path, default=Path("pipeline/reach.yaml"),
+        help="settings, relative to the root",
+    )  # fmt: skip
     return parser
 
 
@@ -199,6 +284,246 @@ def catchment_grid(args: argparse.Namespace) -> int:
     return 0
 
 
+def contract(args: argparse.Namespace) -> int:
+    """Run ``contract schema`` or ``contract sample``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code.
+    """
+    import json
+    from datetime import UTC, datetime
+
+    import httpx
+
+    from climate_pipeline.contract import observation as obs
+
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    if args.action == "schema":
+        from climate_pipeline.contract import observation_v2
+
+        text = observation_v2.schema_text() if args.record_version == 2 else obs.schema_text()
+        args.out.write_text(text, encoding="utf-8", newline="\n")
+        print(f"schema written to {args.out}")
+        return 0
+    case = json.loads(args.case.read_text(encoding="utf-8"))
+    dates = sorted(_split(args.dates)) or None
+    wanted = {
+        item_id
+        for scene in case["ui"]["scenes"]
+        if not scene["excluded"] and (dates is None or scene["date"] in dates)
+        for item_id in scene["stacItemIds"]
+    }
+    items: dict[str, obs.ItemMeta] = {}
+    with httpx.Client(timeout=60, follow_redirects=True) as http:
+        for item_id in sorted(wanted):
+            url = obs.item_json_url(item_id)
+            response = http.get(url)
+            response.raise_for_status()
+            when = datetime.now(UTC).isoformat(timespec="seconds")
+            items[item_id] = obs.item_meta_from_json(url, response.content, when)
+    records = obs.records_from_case(
+        case, args.reach_id, args.collection, items, args.threshold, dates
+    )
+    data = [r.model_dump(mode="json", by_alias=True) for r in records]
+    args.out.write_text(
+        json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
+    )
+    print(f"{len(records)} records written to {args.out}")
+    return 0
+
+
+def calibration(args: argparse.Namespace) -> int:
+    """Run ``calibration fetch``, ``run``, ``verify`` or ``acolite-list``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code (1 when verification finds a mismatch or a fetch has read errors).
+    """
+    import json
+    import platform
+    from datetime import UTC, datetime
+
+    from climate_pipeline.calibration.config import load_calibration_config
+    from climate_pipeline.calibration.fetching import (
+        CalibrationPaths,
+        fetch_stations,
+        fetch_values,
+    )
+    from climate_pipeline.calibration.report import verify, write_outputs
+    from climate_pipeline.calibration.run import analyse
+    from climate_pipeline.provenance import head, library_versions
+
+    root = args.root.resolve()
+    paths = CalibrationPaths(root, root / args.config, root / args.cache)
+    cfg = load_calibration_config(paths.config)
+    if args.action == "fetch":
+        if args.stations_only:
+            rows = fetch_stations(cfg, paths, args.workers)
+            selected = sum(1 for r in rows if r.get("selected"))
+            print(f"{len(rows)} candidates, {selected} selected")
+            return 0
+        counts = fetch_values(cfg, paths, args.workers, keep_chirps=args.keep_chirps)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "acolite-list":
+        from climate_pipeline.calibration.acolite import acolite_list
+
+        scenes = acolite_list(cfg, paths, paths.cache.parent / "acolite-work", args.workers)
+        products = {r["l1c_product"] for r in scenes if r["l1c_product"]}
+        print(f"{len(scenes)} matchup scenes, {len(products)} Level-1C products")
+        return 0
+    if args.action == "verify":
+        problems = verify(cfg, paths)
+        for line in problems:
+            print(line)
+        print("verified" if not problems else f"{len(problems)} mismatches")
+        return 1 if problems else 0
+    started = datetime.now(UTC).isoformat(timespec="seconds")
+    out = root / args.out if args.out is not None else paths.at(cfg.outputs.results)
+    write_outputs(analyse(cfg, paths), cfg, paths, out)
+    run_info = {
+        "commit": head(), "started_utc": started,
+        "finished_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+        "python": platform.python_version(), "libraries": library_versions(),
+    }  # fmt: skip
+    (out / "run.json").write_text(
+        json.dumps(run_info, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
+    print(f"results in {out}")
+    return 0
+
+
+def quality(args: argparse.Namespace) -> int:
+    """Run ``quality run`` or ``verify``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code (1 when verification finds a mismatch).
+    """
+    import json
+    import platform
+    from datetime import UTC, datetime
+
+    from climate_pipeline.provenance import head, library_versions
+    from climate_pipeline.quality.config import load_quality_config
+    from climate_pipeline.quality.report import verify, write_outputs
+    from climate_pipeline.quality.run import analyse
+
+    root = args.root.resolve()
+    config = root / args.config
+    cfg = load_quality_config(config)
+    if args.action == "export-lab":
+        from climate_pipeline.quality import lab, transfer
+
+        usgs_inputs = transfer.load_usgs(cfg, root)
+        if usgs_inputs is None:
+            print("no USGS snapshot yet: run quality fetch-usgs first")
+            return 1
+        tables = lab.export(cfg, usgs_inputs, root / "pipeline" / "out" / "lab")
+        print(f"{len(tables)} tables in pipeline/out/lab")
+        return 0
+    if args.action == "fetch-extended":
+        from climate_pipeline.quality import extended
+
+        counts = extended.fetch(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "fetch-landsat":
+        from climate_pipeline.quality import landsat
+
+        if args.stations_only:
+            stations = landsat.select_stations(cfg, root)
+            print(f"{len(stations)} Landsat stations (main channel >= 240 m)")
+            return 0
+        counts = landsat.fetch_values(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "fetch-usgs":
+        from climate_pipeline.quality import usgs
+
+        if args.sites_only:
+            sites = usgs.fetch_sites(cfg, root, root / args.cache, args.workers)
+            selected = sum(1 for r in sites if r.get("selected"))
+            print(f"{len(sites)} candidate sites, {selected} selected")
+            return 0
+        counts = usgs.fetch_values(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "fetch":
+        from climate_pipeline.quality.fetching import fetch_stations
+
+        if args.stations_only:
+            rows = fetch_stations(cfg, root, root / args.cache, args.workers)
+            selected = sum(1 for r in rows if r.get("selected"))
+            print(f"{len(rows)} candidates, {selected} selected")
+            return 0
+        from climate_pipeline.quality.values import fetch_values
+
+        counts = fetch_values(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "verify":
+        problems = verify(cfg, root, config)
+        for line in problems:
+            print(line)
+        print("verified" if not problems else f"{len(problems)} mismatches")
+        return 1 if problems else 0
+    started = datetime.now(UTC).isoformat(timespec="seconds")
+    out = root / args.out if args.out is not None else root / cfg.outputs.results
+    write_outputs(analyse(cfg, root), cfg, root, config, out)
+    run_info = {
+        "commit": head(), "started_utc": started,
+        "finished_utc": datetime.now(UTC).isoformat(timespec="seconds"),
+        "python": platform.python_version(), "libraries": library_versions(),
+    }  # fmt: skip
+    (out / "run.json").write_text(
+        json.dumps(run_info, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n"
+    )
+    print(f"results in {out}")
+    return 0
+
+
+def reach(args: argparse.Namespace) -> int:
+    """Run ``reach baseline`` or ``reach run``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code (``reach run``: 0 done, 2 partial, 3 a cap stopped it).
+    """
+    from climate_pipeline.quality.fetching import DiskBudgetError
+    from climate_pipeline.reach import run as reach_run
+    from climate_pipeline.reach.config import load_reach_config
+
+    root = args.root.resolve()
+    cfg = load_reach_config(root / args.config)
+    try:
+        if args.action == "baseline":
+            info = reach_run.build_baseline(cfg, root, args.site, root / args.cache, args.workers)
+            print(f"baseline: {info}")
+            return reach_run.EXIT_CAP if info["stopped"] else reach_run.EXIT_OK
+        summary = reach_run.run(cfg, root, args.site, args.since, args.until, root / args.cache,
+                                args.workers)  # fmt: skip
+    except DiskBudgetError as error:
+        print(f"stopped: {error}")
+        return reach_run.EXIT_CAP
+    except reach_run.ReachError as error:
+        print(f"cannot run: {error}")
+        return 1
+    print(f"{len(summary.recorded)} records, {len(summary.skipped)} skipped, "
+          f"{len(summary.failed)} failed, ~{summary.network_mb / 1000:.2f} GB"
+          + (f"; stopped: {summary.stopped}" if summary.stopped else ""))  # fmt: skip
+    return summary.exit_code
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the pipeline command-line interface.
 
@@ -212,6 +537,23 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.command == "fetch-docs":
         return fetch_docs(args)
+    if args.command == "contract":
+        return contract(args)
+    if args.command == "calibration":
+        logging.basicConfig(
+            level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+        )
+        return calibration(args)
+    if args.command == "quality":
+        logging.basicConfig(
+            level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+        )
+        return quality(args)
+    if args.command == "reach":
+        logging.basicConfig(
+            level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
+        )
+        return reach(args)
     if args.command in ("validation", "catchment-grid"):
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"

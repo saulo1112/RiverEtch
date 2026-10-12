@@ -1,0 +1,5 @@
+correction,training_pairs,rho,rho_low,rho_high,narrow_scenes,median_b11_narrow,confirmed,note
+l2a,20,0.758932,0.294006,0.897692,16,0.0153,,
+dsf,20,0.333208,-0.07949,0.801071,16,0.018877,,
+radcor,20,0.764197,0.33048,0.897555,16,0.005183,,
+rule,,0.6,,,,,true,RAdCor rho >= 0.6 and its median B11 below DSF's at stations under 250 m

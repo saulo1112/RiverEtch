@@ -1,0 +1,61 @@
+name: Calibration
+
+# Recomputes the calibration validation offline from the committed snapshots and compares every
+# CSV, JSON and Markdown output with the committed MANIFEST (figures are hashed but not compared:
+# their bytes depend on the machine). It takes several minutes, so it runs only when the code,
+# the settings, the snapshots or the outputs change.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "pipeline/src/**"
+      - "pipeline/calibration.yaml"
+      - "pipeline/pyproject.toml"
+      - "pipeline/uv.lock"
+      - "docs/magdalena-validation/calibration/**"
+      - "docs/magdalena-validation/results/scenes.csv"
+      - "docs/magdalena-validation/magdalena.sample.json"
+      - ".github/workflows/calibration.yml"
+  pull_request:
+    paths:
+      - "pipeline/src/**"
+      - "pipeline/calibration.yaml"
+      - "pipeline/pyproject.toml"
+      - "pipeline/uv.lock"
+      - "docs/magdalena-validation/calibration/**"
+      - "docs/magdalena-validation/results/scenes.csv"
+      - "docs/magdalena-validation/magdalena.sample.json"
+      - ".github/workflows/calibration.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Calibration outputs (offline recompute)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: pipeline
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          # Same uv version that wrote uv.lock, so `--locked` cannot fail on a format change.
+          version: "0.12.23"
+          working-directory: pipeline
+
+      - name: Install dependencies (locked)
+        run: uv sync --locked
+
+      - name: Recompute and compare with the committed MANIFEST
+        run: uv run climate-pipeline calibration verify --root ..
