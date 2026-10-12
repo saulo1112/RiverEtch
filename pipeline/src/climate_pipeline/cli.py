@@ -116,13 +116,15 @@ def _parser() -> argparse.ArgumentParser:
         "quality", help="water-quality estimates v2: offline results from the snapshots"
     )
     quality.add_argument(
-        "action", choices=("fetch", "fetch-usgs", "export-lab", "run", "verify"),
+        "action", choices=("fetch", "fetch-usgs", "fetch-landsat", "export-lab", "run", "verify"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
-        "the USGS pilot; export-lab: the lab's training tables (A4); run: offline results; "
+        "the USGS pilot; fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
+        "(phase 3); export-lab: the lab's training tables (A4); run: offline results; "
         "verify: recompute and compare with the MANIFEST",
     )  # fmt: skip
     quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
-    quality.add_argument("--stations-only", action="store_true", help="fetch: selection only")
+    quality.add_argument("--stations-only", action="store_true",
+                         help="fetch, fetch-landsat: the station list only")  # fmt: skip
     quality.add_argument("--sites-only", action="store_true", help="fetch-usgs: selection only")
     quality.add_argument(
         "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
@@ -424,6 +426,16 @@ def quality(args: argparse.Namespace) -> int:
         tables = lab.export(cfg, usgs_inputs, root / "pipeline" / "out" / "lab")
         print(f"{len(tables)} tables in pipeline/out/lab")
         return 0
+    if args.action == "fetch-landsat":
+        from climate_pipeline.quality import landsat
+
+        if args.stations_only:
+            stations = landsat.select_stations(cfg, root)
+            print(f"{len(stations)} Landsat stations (main channel >= 240 m)")
+            return 0
+        counts = landsat.fetch_values(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "fetch-usgs":
         from climate_pipeline.quality import usgs
 

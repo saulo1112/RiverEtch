@@ -419,6 +419,7 @@ stages. Both are written here before anything they compute exists.
 - **Data:**
   - Planetary Computer `landsat-c2-l2`, platforms Landsat 8 and 9, 2015-07-01..2026-09-30 (the
     Colombian samples start in 2015-07).
+  - Tier 1 scenes only (`landsat:collection_category` T1), the ones fit for time series.
   - The selected Colombian stations whose main channel is ≥ 240 m wide (their D15 width). The list
     is committed before any Landsat value.
 - **Reflectance:** SR = DN × 2.75 × 10⁻⁵ − 0.2 (Collection 2 Level-2). Bands: blue SR_B2, green
