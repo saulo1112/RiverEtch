@@ -278,3 +278,42 @@ last. Format: context → decision → consequences.
     always with its interval.
   - FNU (USGS) and NTU (IDEAM) are never treated as one unit.
   - GPL tools (ACOLITE, the MDN) are run, never vendored.
+
+## D17. Water-quality v4: a gauged second reach, a temporal round, Stage B (2026-10-12)
+
+- **Context:**
+  - After v3 (D16's line of work), the Magdalena turbidity estimate was at most _indicative (post
+    hoc)_, at 71.5 % by nested LOSO, and the product had never run with final cards.
+  - The estimate station of the demo reach, San Pablo, has 7 samples and 3 test units: its own
+    error cannot be rated. The diagnosis was that the data, not the model, set the limit.
+- **Decision** (the project owner's choices, preregistered as v4 before computing):
+  - **A second reach on a gauged river:** the Missouri at Hermann (USGS 06934500), chosen among four
+    pilot sites that met the hard criteria (≥ 300 m, continuous approved turbidity since 2017 or
+    earlier, values in 2024–2026, no dam or tributary in the window), for its Magdalena-like range.
+    Its validation is a locked temporal test (2023-12..2026-09) evaluated once, with models
+    trained without the Missouri's sites; the card is not refit.
+  - **The Magdalena's temporal question:** round 3 holds out whole hydrological years at every
+    station (one sample out and forward chaining as sensitivities) and adds per-station offsets.
+  - **RAdCor Stage B** for TSS (due under v2.2's rule) and turbidity (exploratory), with Level-1C
+    products the owner downloads one at a time.
+  - **Schema:** observation record v2 gains the bases `post_hoc_temporal_magdalena` and
+    `preregistered_lockbox_site`; each estimate's unit comes from its card (FNU at Hermann).
+  - **Integrity:** deviation 9 makes v3's preregistered flow features the result of record;
+    deviation 10 fixes a card hashed from a CRLF working copy (CI had failed since the v2 merge).
+- **Outcome** ([report](water-quality/report.md)):
+  - Hermann: 34.9 % on 70 locked-test overpasses (the median: 87.7 %); 90 % coverage 97.1 %, one
+    value above the preregistered ceiling, so _indicative_. Trees trained on other rivers alone
+    reach 30.4 % there.
+  - Magdalena: round 1 of record 63.1 % (none: its rank interval fell below the rule), round 3
+    102.8 % (none). The reach publishes relative indices only.
+  - RAdCor Stage B (11 more scenes): TSS 148.9 %, turbidity 115.8 % by nested LOSO on 37 pairs;
+    none. Stage A's 80 % (Dogliotti, 27 pairs) did not hold.
+  - The CVC probe stopped (at most 20 samples per station, no coordinates, 80–120 m channels); no
+    new IDEAM sample exists after 2025-11-10.
+- **Consequences:**
+  - `reach` runs several reaches (`--site all`), measures its own NDTI baseline where no validation
+    exists, reads cards per reach and stamps the card's unit.
+  - A gauged reach notes its raw estimates beside the sealed records, and `reach check` compares new
+    scenes with the gauge after the card's commit (report-only, never a level).
+  - The most valuable next step for the Magdalena is in-situ: a continuous turbidity probe at the
+    estimate station.
