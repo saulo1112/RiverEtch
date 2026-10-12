@@ -317,3 +317,28 @@ last. Format: context → decision → consequences.
     scenes with the gauge after the card's commit (report-only, never a level).
   - The most valuable next step for the Magdalena is in-situ: a continuous turbidity probe at the
     estimate station.
+
+## D18. Demo reaches on gauged rivers: the Mississippi at Belle Chasse and the Platte at Louisville (2026-10-12)
+
+- **Context:**
+  - After v4 (D17) no reach published a value: the Magdalena reached no level in any round, and
+    Hermann missed _estimated_ by one interval rule.
+  - The project owner asked for two demo reaches, anywhere, where turbidity and suspended solids
+    can be estimated well enough to publish values; the Magdalena could leave the demo.
+  - The hackathon's judges ask for measured accuracy against a baseline, good data sources, a
+    working demo and a named user.
+- **Decision** (preregistered as v5 before computing):
+  - Ten USGS rivers that met fixed data criteria were each validated once on the same locked test.
+  - The demo reaches are the two with the highest turbidity level of record, then the lowest error:
+    the **Mississippi at Belle Chasse** (17.8 %, _validated_) and the **Platte at Louisville** (20.3 %,
+    _validated_). Their records show turbidity in FNU with a 90 % interval.
+  - The **Magdalena leaves the demo** (the owner's choice). Its reach keeps running with relative
+    indices only, and every Magdalena result stays in the report.
+  - v5's level rule keeps the 80 % coverage floor and caps the interval's width instead of failing a
+    conservative interval; it was decided after Hermann and applies only to new evaluations.
+- **Consequences:**
+  - The report gives every river: the median lock-box error over the nine evaluated is 33.1 %, and
+    the two demo reaches are the best of ten.
+  - No SSC value is published: no river had 20 locked-test SSC pairs.
+  - Each demo reach has a self-measured NDTI baseline (2019–2025), records from 2026-01-01 and the
+    prospective check against its gauge after its card's commit.

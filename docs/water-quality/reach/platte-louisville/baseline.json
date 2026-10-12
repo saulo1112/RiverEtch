@@ -1,0 +1,13 @@
+{
+  "site": "platte-louisville",
+  "frozen_scenes": null,
+  "found": 522,
+  "measured": 522,
+  "usable": 193,
+  "station": "USGS-06805500",
+  "network_gb_estimated": 5.607,
+  "stopped": "",
+  "ndti_max_abs_difference": null,
+  "code_commit": "bc1a01783fdfc70e2cd20d6ed1fbb562e27e3742",
+  "created_utc": "2026-10-12T22:04:06+00:00"
+}

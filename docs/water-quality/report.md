@@ -1,7 +1,7 @@
-# Water quality from Sentinel-2: what the satellite can and cannot say (v2–v4)
+# Water quality from Sentinel-2: what the satellite can and cannot say (v2–v5)
 
-This report gathers every round of the water-quality validation (decision D16, then D17), with the
-error that counts for each, how many attempts each round made, and what the product publishes
+This report gathers every round of the water-quality validation (decisions D16, D17 and D18), with
+the error that counts for each, how many attempts each round made, and what the product publishes
 because of it. The rules are in the [preregistration](preregistration.md); every number below is
 recomputed from committed snapshots by `climate-pipeline quality run`
 ([results](results/results.md), [summary](results/summary.json)) and checked byte for byte in CI
@@ -11,7 +11,42 @@ by `quality verify`.
 > leave-one-year-out or a locked test. An in-sample fit is never shown as an error. A choice made
 > after seeing results is labelled exploratory. No output states that any actor caused anything.
 
-## The headline
+## The headline (v5): turbidity where a gauge measures it
+
+Ten gauged rivers met fixed data criteria (continuous, approved turbidity since 2017 or earlier; a
+main channel ≥ 300 m; not at a dam), written before any of their values was read. Each was
+validated with the same protocol: models trained on the hydrological years 2019–2023 (and, for the
+pretrained ones, on other rivers only), selected inside those years, then scored **once** on a lock
+box, 2023-12..2026-09, that nothing had seen.
+
+| River (USGS gauge)                         | Lock-box MdSA | Pairs | Median (null) | 90 % coverage | Interval ×/÷ | Level             |
+| ------------------------------------------ | ------------- | ----- | ------------- | ------------- | ------------ | ----------------- |
+| **Mississippi at Belle Chasse (07374525)** | **17.8 %**    | 57    | 113.7 %       | 94.7 %        | 1.48         | validated         |
+| **Platte at Louisville (06805500)**        | **20.3 %**    | 54    | 66.9 %        | 92.5 %        | 1.66         | validated         |
+| Atchafalaya at Morgan City (07381600)      | 23.4 %        | 43    | 75.2 %        | 88.3 %        | 1.72         | validated         |
+| Ohio at Ironton (03216070)                 | 28.2 %        | 122   | 149.4 %       | 88.5 %        | 2.58         | estimated         |
+| Mississippi at Cape Girardeau (07020850)   | 33.1 %        | 74    | 71.4 %        | 89.1 %        | 2.69         | estimated         |
+| San Joaquin at Jersey Point (11337190)     | 40.6 %        | 53    | 46.2 %        | 94.3 %        | 2.21         | estimated         |
+| Connecticut at Middle Haddam (01193050)    | 38.0 %        | 56    | 31.8 %        | 92.8 %        | 2.23         | none              |
+| Willamette at Portland (14211720)          | 52.2 %        | 136   | 64.9 %        | 77.2 %        | 2.50         | indicative        |
+| Columbia at Vancouver (14144700)           | 53.6 %        | 48    | 47.4 %        | 89.5 %        | 2.17         | none              |
+| Columbia at Port Westward (14246900)       | —             | 1     | —             | —             | —            | insufficient data |
+
+- **The two demo reaches follow the preregistered rule** (the highest level, then the lowest
+  error): the Mississippi at Belle Chasse and the Platte at Louisville. Their records show
+  turbidity in FNU with a 90 % interval.
+- **They are the best two of ten,** so as a pair they flatter the method. The honest summary is the
+  median over the nine rivers evaluated: **33.1 %**. Rivers carrying sediment (the lower
+  Mississippi, the Platte, the Atchafalaya) do best; clear, tidal rivers (the Columbia, the
+  Connecticut) do worst, where the median of past values is already close.
+- **Suspended solids:** no river had 20 locked-test pairs. Discrete SSC samples give 4–6 a site in
+  2023-12..2026-09, and the USGS surrogate SSC (estimated from turbidity) has no approved value in
+  that period. No SSC value is published.
+- v5 replaced v4's 97 % coverage ceiling with a cap on the interval's width, decided after Hermann
+  and applied only to new evaluations. Under it Hermann would still be _indicative_ (its interval
+  is ×/÷ 3.65).
+
+## Earlier rounds (v2–v4)
 
 | Reach                                           | Target, unit   | Validation that counts                                                            | Error (MdSA) | n   | Level      | What a record shows                |
 | ----------------------------------------------- | -------------- | --------------------------------------------------------------------------------- | ------------ | --- | ---------- | ---------------------------------- |
@@ -65,6 +100,7 @@ by `quality verify`.
 | v4 round 3 (exploratory)    | A known station, forward in time          | 480 candidates; 2 sensitivities; 2 report-only rows                | nested leave-one-hydrological-year-out | 102.8 %, none                                    |
 | v4 Stage B (RAdCor)         | RAdCor on every sensitivity pair          | R1–R3 + M0 × 2 targets                                             | nested LOSO                            | 115.8 % turbidity, 148.9 % TSS: none             |
 | v4 Hermann (preregistered)  | A gauged river, a locked temporal test    | H0–H4 + 3 transfer-only rows                                       | year-out selection, locked test once   | H3 34.9 %, indicative                            |
+| v5 (preregistered)          | Ten gauged rivers, the same locked test   | H0–H4 + 3 transfer-only rows per river and target                  | year-out selection, locked test once   | median 33.1 %; 3 validated, 3 estimated          |
 
 Counted together since v2, the Magdalena turbidity target has met about 570 candidate models
 (5 in Route A, 6 in Route B, 6 in v2.1, 4 with Landsat, 3 in v2.2, 66 in v3 round 1, 1 in round 2,
@@ -90,16 +126,21 @@ not hold: the adjacency correction does not lift the Magdalena to a level either
 
 ## What the product publishes, and why
 
-- **Magdalena reach** (`magdalena-puerto-wilches`): NDTI and NIR/red per sub-reach with their D0
+- **The demo reaches** (`mississippi-belle-chasse`, `platte-louisville`): NDTI and NIR/red per
+  sub-reach with their D0 z-scores and the verdict, plus **turbidity in FNU with its 90 % interval**
+  at the gauge's window, from the locked-test card (`preregistered_lockbox_site`, _validated_). A
+  scene whose features leave the card's training range, or whose window fails the guards, abstains
+  and says why.
+- **Magdalena reach** (left out of the demo by the owner's choice, D18; it keeps running) (`magdalena-puerto-wilches`): NDTI and NIR/red per sub-reach with their D0
   z-scores and the verdict; no turbidity or TSS value or class. Round 3 did not reach _indicative_,
   so the preregistered rule keeps round 1's card of record, whose level is _none_. TSS stays at
   v2.1's _none_.
 - **Missouri reach** (`missouri-hermann`): the same indices, plus turbidity as a relative class (the
   tercile among the gauge window's own history), never a unit, from the locked-test card
   (`preregistered_lockbox_site`, _indicative_).
-- **The prospective check:** beside the sealed records, `reach run` notes the Hermann card's raw
-  estimate of each new scene, and `reach check` compares the scenes acquired after the card's commit
-  with the gauge's value at the overpass (provisional data, labelled). It is report-only.
+- **The prospective check:** beside the sealed records, `reach run` notes each gauged reach's raw
+  estimate of every new scene, and `reach check` compares the scenes acquired after the card's
+  commit with the gauge's value at the overpass (provisional data, labelled). It is report-only.
 - Every record is sealed (SHA-256 of its canonical JSON) and chained in an append-only ledger ready
   for anchoring.
 

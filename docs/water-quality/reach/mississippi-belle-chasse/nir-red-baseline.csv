@@ -1,0 +1,828 @@
+key,date,exclusion,ndti_upstream,ndti_downstream,frozen_ndti_upstream,frozen_ndti_downstream,nir_red_upstream,nir_red_downstream
+sentinel-2a_2019-01-01_R126,2019-01-01,not observable,,,,,,
+sentinel-2b_2019-01-03_R083,2019-01-03,not observable,,,,,,
+sentinel-2b_2019-01-06_R126,2019-01-06,,0.069444,0.063918,,,0.214981,0.19112
+sentinel-2a_2019-01-08_R083,2019-01-08,not observable,,,,,,
+sentinel-2a_2019-01-11_R126,2019-01-11,,0.054639,0.055008,,,0.217782,0.20398
+sentinel-2b_2019-01-13_R083,2019-01-13,not observable,,,,,,
+sentinel-2b_2019-01-16_R126,2019-01-16,not observable,,,,,,
+sentinel-2a_2019-01-18_R083,2019-01-18,not observable,,,,,,
+sentinel-2a_2019-01-21_R126,2019-01-21,,0.038526,0.038655,,,0.212924,0.189362
+sentinel-2b_2019-01-23_R083,2019-01-23,not observable,,,,,,
+sentinel-2b_2019-01-26_R126,2019-01-26,not observable,,,,,,
+sentinel-2a_2019-01-28_R083,2019-01-28,,0.016393,0.014218,,,0.183508,0.158693
+sentinel-2a_2019-01-31_R126,2019-01-31,not observable,,,,,,
+sentinel-2b_2019-02-02_R083,2019-02-02,not observable,,,,,,
+sentinel-2b_2019-02-05_R126,2019-02-05,not observable,,,,,,
+sentinel-2a_2019-02-07_R083,2019-02-07,,0.01417,0.005774,,,0.181287,0.192053
+sentinel-2a_2019-02-10_R126,2019-02-10,not observable,,,,,,
+sentinel-2b_2019-02-12_R083,2019-02-12,not observable,,,,,,
+sentinel-2b_2019-02-15_R126,2019-02-15,not observable,,,,,,
+sentinel-2a_2019-02-17_R083,2019-02-17,not observable,,,,,,
+sentinel-2a_2019-02-20_R126,2019-02-20,not observable,,,,,,
+sentinel-2b_2019-02-22_R083,2019-02-22,not observable,,,,,,
+sentinel-2b_2019-02-25_R126,2019-02-25,not observable,,,,,,
+sentinel-2a_2019-02-27_R083,2019-02-27,,0.032988,0.027961,,,0.208333,0.218647
+sentinel-2a_2019-03-02_R126,2019-03-02,not observable,,,,,,
+sentinel-2b_2019-03-04_R083,2019-03-04,not observable,,,,,,
+sentinel-2b_2019-03-07_R126,2019-03-07,not observable,,,,,,
+sentinel-2a_2019-03-09_R083,2019-03-09,not observable,,,,,,
+sentinel-2a_2019-03-12_R126,2019-03-12,not observable,,,,,,
+sentinel-2b_2019-03-14_R083,2019-03-14,not observable,,,,,,
+sentinel-2b_2019-03-17_R126,2019-03-17,not observable,,,,,,
+sentinel-2a_2019-03-19_R083,2019-03-19,,0.019683,0.019913,,,0.258555,0.221689
+sentinel-2a_2019-03-22_R126,2019-03-22,,0.019011,0.019141,,,0.383415,0.311532
+sentinel-2b_2019-03-24_R083,2019-03-24,,0.002024,0.004136,,,0.264379,0.2276
+sentinel-2b_2019-03-27_R126,2019-03-27,,0.030973,0.028207,,,0.446841,0.313869
+sentinel-2a_2019-03-29_R083,2019-03-29,not observable,,,,,,
+sentinel-2a_2019-04-01_R126,2019-04-01,,0.056224,0.054319,,,0.5059,0.457098
+sentinel-2b_2019-04-03_R083,2019-04-03,,0.05242,0.050598,,,0.41274,0.408759
+sentinel-2b_2019-04-06_R126,2019-04-06,not observable,,,,,,
+sentinel-2a_2019-04-08_R083,2019-04-08,not observable,,,,,,
+sentinel-2a_2019-04-11_R126,2019-04-11,not observable,,,,,,
+sentinel-2b_2019-04-13_R083,2019-04-13,not observable,,,,,,
+sentinel-2b_2019-04-16_R126,2019-04-16,"upstream median B11 water reflectance 0.095 outside [-0.03, 0.08] (glint or a missing offset)",,,,,,
+sentinel-2a_2019-04-18_R083,2019-04-18,not observable,,,,,,
+sentinel-2a_2019-04-21_R126,2019-04-21,not observable,,,,,,
+sentinel-2b_2019-04-23_R083,2019-04-23,not observable,,,,,,
+sentinel-2b_2019-04-26_R126,2019-04-26,not observable,,,,,,
+sentinel-2a_2019-04-28_R083,2019-04-28,not observable,,,,,,
+sentinel-2a_2019-05-01_R126,2019-05-01,not observable,,,,,,
+sentinel-2b_2019-05-03_R083,2019-05-03,not observable,,,,,,
+sentinel-2b_2019-05-06_R126,2019-05-06,not observable,,,,,,
+sentinel-2a_2019-05-08_R083,2019-05-08,not observable,,,,,,
+sentinel-2a_2019-05-11_R126,2019-05-11,not observable,,,,,,
+sentinel-2b_2019-05-13_R083,2019-05-13,,0.020191,0.015995,,,0.361486,0.191293
+sentinel-2b_2019-05-16_R126,2019-05-16,not observable,,,,,,
+sentinel-2a_2019-05-18_R083,2019-05-18,not observable,,,,,,
+sentinel-2a_2019-05-21_R126,2019-05-21,not observable,,,,,,
+sentinel-2b_2019-05-23_R083,2019-05-23,not observable,,,,,,
+sentinel-2b_2019-05-26_R126,2019-05-26,not observable,,,,,,
+sentinel-2a_2019-05-28_R083,2019-05-28,,0.043062,0.043072,,,0.316456,0.290861
+sentinel-2a_2019-05-31_R126,2019-05-31,not observable,,,,,,
+sentinel-2b_2019-06-02_R083,2019-06-02,not observable,,,,,,
+sentinel-2b_2019-06-05_R126,2019-06-05,not observable,,,,,,
+sentinel-2a_2019-06-07_R083,2019-06-07,not observable,,,,,,
+sentinel-2a_2019-06-10_R126,2019-06-10,not observable,,,,,,
+sentinel-2b_2019-06-12_R083,2019-06-12,not observable,,,,,,
+sentinel-2b_2019-06-15_R126,2019-06-15,not observable,,,,,,
+sentinel-2a_2019-06-17_R083,2019-06-17,not observable,,,,,,
+sentinel-2a_2019-06-20_R126,2019-06-20,not observable,,,,,,
+sentinel-2b_2019-06-22_R083,2019-06-22,not observable,,,,,,
+sentinel-2b_2019-06-25_R126,2019-06-25,not observable,,,,,,
+sentinel-2a_2019-06-27_R083,2019-06-27,not observable,,,,,,
+sentinel-2a_2019-06-30_R126,2019-06-30,not observable,,,,,,
+sentinel-2b_2019-07-02_R083,2019-07-02,not observable,,,,,,
+sentinel-2b_2019-07-05_R126,2019-07-05,not observable,,,,,,
+sentinel-2a_2019-07-07_R083,2019-07-07,not observable,,,,,,
+sentinel-2a_2019-07-10_R126,2019-07-10,not observable,,,,,,
+sentinel-2b_2019-07-12_R083,2019-07-12,not observable,,,,,,
+sentinel-2b_2019-07-15_R126,2019-07-15,not observable,,,,,,
+sentinel-2a_2019-07-17_R083,2019-07-17,not observable,,,,,,
+sentinel-2a_2019-07-20_R126,2019-07-20,not observable,,,,,,
+sentinel-2b_2019-07-22_R083,2019-07-22,not observable,,,,,,
+sentinel-2b_2019-07-25_R126,2019-07-25,not observable,,,,,,
+sentinel-2a_2019-07-27_R083,2019-07-27,not observable,,,,,,
+sentinel-2a_2019-07-30_R126,2019-07-30,not observable,,,,,,
+sentinel-2b_2019-08-01_R083,2019-08-01,not observable,,,,,,
+sentinel-2b_2019-08-04_R126,2019-08-04,not observable,,,,,,
+sentinel-2a_2019-08-06_R083,2019-08-06,not observable,,,,,,
+sentinel-2a_2019-08-09_R126,2019-08-09,not observable,,,,,,
+sentinel-2b_2019-08-11_R083,2019-08-11,not observable,,,,,,
+sentinel-2b_2019-08-14_R126,2019-08-14,not observable,,,,,,
+sentinel-2a_2019-08-16_R083,2019-08-16,not observable,,,,,,
+sentinel-2a_2019-08-19_R126,2019-08-19,not observable,,,,,,
+sentinel-2b_2019-08-21_R083,2019-08-21,not observable,,,,,,
+sentinel-2b_2019-08-24_R126,2019-08-24,not observable,,,,,,
+sentinel-2a_2019-08-26_R083,2019-08-26,not observable,,,,,,
+sentinel-2a_2019-08-29_R126,2019-08-29,,-0.002915,-0.031496,,,0.599529,0.59507
+sentinel-2b_2019-08-31_R083,2019-08-31,,-0.023331,-0.046968,,,0.264151,0.124774
+sentinel-2b_2019-09-03_R126,2019-09-03,,0.002062,-0.013216,,,0.586245,0.54738
+sentinel-2a_2019-09-05_R083,2019-09-05,,-0.008696,-0.050084,,,0.121622,0.06383
+sentinel-2a_2019-09-08_R126,2019-09-08,,0.037433,0.021484,,,0.526364,0.545704
+sentinel-2b_2019-09-10_R083,2019-09-10,not observable,,,,,,
+sentinel-2b_2019-09-13_R126,2019-09-13,,0.03964,0.021926,,,0.499104,0.457306
+sentinel-2a_2019-09-15_R083,2019-09-15,not observable,,,,,,
+sentinel-2a_2019-09-18_R126,2019-09-18,not observable,,,,,,
+sentinel-2b_2019-09-20_R083,2019-09-20,not observable,,,,,,
+sentinel-2b_2019-09-23_R126,2019-09-23,not observable,,,,,,
+sentinel-2a_2019-09-25_R083,2019-09-25,not observable,,,,,,
+sentinel-2a_2019-09-28_R126,2019-09-28,,-0.041715,-0.070099,,,0.408066,0.429929
+sentinel-2b_2019-09-30_R083,2019-09-30,not observable,,,,,,
+sentinel-2b_2019-10-03_R126,2019-10-03,,-0.023552,-0.064288,,,0.386707,0.224265
+sentinel-2a_2019-10-05_R083,2019-10-05,not observable,,,,,,
+sentinel-2a_2019-10-08_R126,2019-10-08,not observable,,,,,,
+sentinel-2b_2019-10-10_R083,2019-10-10,not observable,,,,,,
+sentinel-2b_2019-10-13_R126,2019-10-13,not observable,,,,,,
+sentinel-2a_2019-10-15_R083,2019-10-15,not observable,,,,,,
+sentinel-2a_2019-10-18_R126,2019-10-18,not observable,,,,,,
+sentinel-2b_2019-10-20_R083,2019-10-20,not observable,,,,,,
+sentinel-2b_2019-10-23_R126,2019-10-23,,0.122652,0.119818,,,0.488024,0.423625
+sentinel-2a_2019-10-25_R083,2019-10-25,not observable,,,,,,
+sentinel-2a_2019-10-28_R126,2019-10-28,,0.100257,0.089638,,,0.367935,0.306005
+sentinel-2b_2019-10-30_R083,2019-10-30,not observable,,,,,,
+sentinel-2b_2019-11-02_R126,2019-11-02,not observable,,,,,,
+sentinel-2a_2019-11-04_R083,2019-11-04,not observable,,,,,,
+sentinel-2a_2019-11-07_R126,2019-11-07,not observable,,,,,,
+sentinel-2b_2019-11-09_R083,2019-11-09,,0.088147,0.080292,,,0.281215,0.24382
+sentinel-2b_2019-11-12_R126,2019-11-12,not observable,,,,,,
+sentinel-2a_2019-11-14_R083,2019-11-14,not observable,,,,,,
+sentinel-2a_2019-11-17_R126,2019-11-17,not observable,,,,,,
+sentinel-2b_2019-11-19_R083,2019-11-19,,0.064767,0.054974,,,0.253086,0.216418
+sentinel-2b_2019-11-22_R126,2019-11-22,not observable,,,,,,
+sentinel-2a_2019-11-24_R083,2019-11-24,,0.046177,0.031674,,,0.177143,0.143064
+sentinel-2a_2019-11-27_R126,2019-11-27,not observable,,,,,,
+sentinel-2b_2019-11-29_R083,2019-11-29,not observable,,,,,,
+sentinel-2b_2019-12-02_R126,2019-12-02,,0.041209,0.037171,,,0.213542,0.206329
+sentinel-2a_2019-12-04_R083,2019-12-04,,0.046541,0.033757,,,0.209964,0.181378
+sentinel-2a_2019-12-07_R126,2019-12-07,not observable,,,,,,
+sentinel-2b_2019-12-09_R083,2019-12-09,not observable,,,,,,
+sentinel-2b_2019-12-12_R126,2019-12-12,not observable,,,,,,
+sentinel-2a_2019-12-14_R083,2019-12-14,,0.053367,0.045116,,,0.350191,0.282857
+sentinel-2a_2019-12-17_R126,2019-12-17,not observable,,,,,,
+sentinel-2b_2019-12-19_R083,2019-12-19,,0.076404,0.069663,,,0.242991,0.214737
+sentinel-2b_2019-12-22_R126,2019-12-22,not observable,,,,,,
+sentinel-2a_2019-12-24_R083,2019-12-24,,0.045589,0.034884,,,0.199774,0.17226
+sentinel-2a_2019-12-27_R126,2019-12-27,not observable,,,,,,
+sentinel-2b_2019-12-29_R083,2019-12-29,not observable,,,,,,
+sentinel-2b_2020-01-01_R126,2020-01-01,not observable,,,,,,
+sentinel-2a_2020-01-03_R083,2020-01-03,not observable,,,,,,
+sentinel-2a_2020-01-06_R126,2020-01-06,,0.111307,0.097865,,,0.299521,0.251232
+sentinel-2b_2020-01-08_R083,2020-01-08,,0.085382,0.073121,,,0.266502,0.287453
+sentinel-2b_2020-01-11_R126,2020-01-11,not observable,,,,,,
+sentinel-2a_2020-01-13_R083,2020-01-13,not observable,,,,,,
+sentinel-2a_2020-01-16_R126,2020-01-16,not observable,,,,,,
+sentinel-2b_2020-01-18_R083,2020-01-18,not observable,,,,,,
+sentinel-2b_2020-01-21_R126,2020-01-21,,0.073663,0.070506,,,0.247655,0.228119
+sentinel-2a_2020-01-23_R083,2020-01-23,not observable,,,,,,
+sentinel-2a_2020-01-26_R126,2020-01-26,not observable,,,,,,
+sentinel-2b_2020-01-28_R083,2020-01-28,not observable,,,,,,
+sentinel-2b_2020-01-31_R126,2020-01-31,not observable,,,,,,
+sentinel-2a_2020-02-02_R083,2020-02-02,,0.056019,0.054765,,,0.189133,0.180785
+sentinel-2a_2020-02-05_R126,2020-02-05,not observable,,,,,,
+sentinel-2b_2020-02-07_R083,2020-02-07,,0.030233,0.030717,,,0.162374,0.150943
+sentinel-2b_2020-02-10_R126,2020-02-10,not observable,,,,,,
+sentinel-2a_2020-02-12_R083,2020-02-12,not observable,,,,,,
+sentinel-2a_2020-02-15_R126,2020-02-15,,0.025845,0.023943,,,0.264244,0.226815
+sentinel-2b_2020-02-17_R083,2020-02-17,not observable,,,,,,
+sentinel-2b_2020-02-20_R126,2020-02-20,not observable,,,,,,
+sentinel-2a_2020-02-22_R083,2020-02-22,,0.028512,0.027083,,,0.177778,0.154158
+sentinel-2a_2020-02-25_R126,2020-02-25,not observable,,,,,,
+sentinel-2b_2020-02-27_R083,2020-02-27,,0.013713,0.011518,,,0.17364,0.155136
+sentinel-2b_2020-03-01_R126,2020-03-01,not observable,,,,,,
+sentinel-2a_2020-03-03_R083,2020-03-03,not observable,,,,,,
+sentinel-2a_2020-03-06_R126,2020-03-06,not observable,,,,,,
+sentinel-2b_2020-03-08_R083,2020-03-08,not observable,,,,,,
+sentinel-2b_2020-03-11_R126,2020-03-11,not observable,,,,,,
+sentinel-2a_2020-03-13_R083,2020-03-13,not observable,,,,,,
+sentinel-2a_2020-03-16_R126,2020-03-16,not observable,,,,,,
+sentinel-2b_2020-03-18_R083,2020-03-18,not observable,,,,,,
+sentinel-2b_2020-03-21_R126,2020-03-21,not observable,,,,,,
+sentinel-2a_2020-03-23_R083,2020-03-23,not observable,,,,,,
+sentinel-2a_2020-03-26_R126,2020-03-26,,0.027419,0.020576,,,0.45302,0.363383
+sentinel-2b_2020-03-28_R083,2020-03-28,not observable,,,,,,
+sentinel-2b_2020-03-31_R126,2020-03-31,not observable,,,,,,
+sentinel-2a_2020-04-02_R083,2020-04-02,not observable,,,,,,
+sentinel-2a_2020-04-05_R126,2020-04-05,not observable,,,,,,
+sentinel-2b_2020-04-07_R083,2020-04-07,not observable,,,,,,
+sentinel-2b_2020-04-10_R126,2020-04-10,not observable,,,,,,
+sentinel-2a_2020-04-12_R083,2020-04-12,not observable,,,,,,
+sentinel-2a_2020-04-15_R126,2020-04-15,not observable,,,,,,
+sentinel-2b_2020-04-17_R083,2020-04-17,not observable,,,,,,
+sentinel-2b_2020-04-20_R126,2020-04-20,not observable,,,,,,
+sentinel-2a_2020-04-22_R083,2020-04-22,not observable,,,,,,
+sentinel-2a_2020-04-25_R126,2020-04-25,not observable,,,,,,
+sentinel-2b_2020-04-27_R083,2020-04-27,,-0.000972,-0.003545,,,0.415675,0.340788
+sentinel-2b_2020-04-30_R126,2020-04-30,not observable,,,,,,
+sentinel-2a_2020-05-02_R083,2020-05-02,,0.000664,-0.003407,,,0.305869,0.22315
+sentinel-2a_2020-05-05_R126,2020-05-05,not observable,,,,,,
+sentinel-2b_2020-05-07_R083,2020-05-07,,-0.010587,-0.017745,,,0.422269,0.284302
+sentinel-2b_2020-05-10_R126,2020-05-10,"upstream median B11 water reflectance 0.176 outside [-0.03, 0.08] (glint or a missing offset)",,,,,,
+sentinel-2a_2020-05-12_R083,2020-05-12,,-0.002634,-0.003578,,,0.533929,0.479817
+sentinel-2a_2020-05-15_R126,2020-05-15,not observable,,,,,,
+sentinel-2b_2020-05-17_R083,2020-05-17,not observable,,,,,,
+sentinel-2b_2020-05-20_R126,2020-05-20,not observable,,,,,,
+sentinel-2a_2020-05-22_R083,2020-05-22,not observable,,,,,,
+sentinel-2a_2020-05-25_R126,2020-05-25,not observable,,,,,,
+sentinel-2b_2020-05-27_R083,2020-05-27,not observable,,,,,,
+sentinel-2b_2020-05-30_R126,2020-05-30,not observable,,,,,,
+sentinel-2a_2020-06-01_R083,2020-06-01,not observable,,,,,,
+sentinel-2a_2020-06-04_R126,2020-06-04,not observable,,,,,,
+sentinel-2b_2020-06-06_R083,2020-06-06,not observable,,,,,,
+sentinel-2b_2020-06-09_R126,2020-06-09,not observable,,,,,,
+sentinel-2a_2020-06-11_R083,2020-06-11,not observable,,,,,,
+sentinel-2a_2020-06-14_R126,2020-06-14,not observable,,,,,,
+sentinel-2b_2020-06-16_R083,2020-06-16,,0.011152,0.013021,,,0.2425,0.142857
+sentinel-2b_2020-06-19_R126,2020-06-19,not observable,,,,,,
+sentinel-2a_2020-06-21_R083,2020-06-21,not observable,,,,,,
+sentinel-2a_2020-06-24_R126,2020-06-24,not observable,,,,,,
+sentinel-2b_2020-06-26_R083,2020-06-26,not observable,,,,,,
+sentinel-2b_2020-06-29_R126,2020-06-29,not observable,,,,,,
+sentinel-2a_2020-07-01_R083,2020-07-01,not observable,,,,,,
+sentinel-2a_2020-07-04_R126,2020-07-04,not observable,,,,,,
+sentinel-2b_2020-07-06_R083,2020-07-06,not observable,,,,,,
+sentinel-2b_2020-07-09_R126,2020-07-09,not observable,,,,,,
+sentinel-2a_2020-07-11_R083,2020-07-11,not observable,,,,,,
+sentinel-2a_2020-07-14_R126,2020-07-14,not observable,,,,,,
+sentinel-2b_2020-07-16_R083,2020-07-16,not observable,,,,,,
+sentinel-2b_2020-07-19_R126,2020-07-19,not observable,,,,,,
+sentinel-2a_2020-07-21_R083,2020-07-21,not observable,,,,,,
+sentinel-2a_2020-07-24_R126,2020-07-24,not observable,,,,,,
+sentinel-2b_2020-07-26_R083,2020-07-26,not observable,,,,,,
+sentinel-2b_2020-07-29_R126,2020-07-29,not observable,,,,,,
+sentinel-2a_2020-07-31_R083,2020-07-31,not observable,,,,,,
+sentinel-2a_2020-08-03_R126,2020-08-03,not observable,,,,,,
+sentinel-2b_2020-08-05_R083,2020-08-05,not observable,,,,,,
+sentinel-2b_2020-08-08_R126,2020-08-08,not observable,,,,,,
+sentinel-2a_2020-08-10_R083,2020-08-10,not observable,,,,,,
+sentinel-2a_2020-08-13_R126,2020-08-13,not observable,,,,,,
+sentinel-2b_2020-08-15_R083,2020-08-15,not observable,,,,,,
+sentinel-2b_2020-08-18_R126,2020-08-18,not observable,,,,,,
+sentinel-2a_2020-08-20_R083,2020-08-20,not observable,,,,,,
+sentinel-2a_2020-08-23_R126,2020-08-23,not observable,,,,,,
+sentinel-2b_2020-08-25_R083,2020-08-25,not observable,,,,,,
+sentinel-2b_2020-08-28_R126,2020-08-28,not observable,,,,,,
+sentinel-2a_2020-08-30_R083,2020-08-30,not observable,,,,,,
+sentinel-2a_2020-09-02_R126,2020-09-02,not observable,,,,,,
+sentinel-2b_2020-09-04_R083,2020-09-04,not observable,,,,,,
+sentinel-2b_2020-09-07_R126,2020-09-07,,-0.049702,-0.060834,,,0.519231,0.348266
+sentinel-2a_2020-09-09_R083,2020-09-09,not observable,,,,,,
+sentinel-2a_2020-09-12_R126,2020-09-12,not observable,,,,,,
+sentinel-2b_2020-09-14_R083,2020-09-14,not observable,,,,,,
+sentinel-2b_2020-09-17_R126,2020-09-17,,-0.036571,-0.062692,,,0.443182,0.46063
+sentinel-2a_2020-09-19_R083,2020-09-19,not observable,,,,,,
+sentinel-2a_2020-09-22_R126,2020-09-22,not observable,,,,,,
+sentinel-2b_2020-09-24_R083,2020-09-24,,-0.106686,-0.120133,,,0.170772,0.073585
+sentinel-2b_2020-09-27_R126,2020-09-27,,-0.079233,-0.091181,,,0.301075,0.401316
+sentinel-2a_2020-09-29_R083,2020-09-29,,0.034799,0.011375,,,0.241088,0.219008
+sentinel-2a_2020-10-02_R126,2020-10-02,,-0.004549,-0.025697,,,0.337161,0.294248
+sentinel-2b_2020-10-04_R083,2020-10-04,not observable,,,,,,
+sentinel-2b_2020-10-07_R126,2020-10-07,not observable,,,,,,
+sentinel-2a_2020-10-09_R083,2020-10-09,not observable,,,,,,
+sentinel-2a_2020-10-12_R126,2020-10-12,,-0.094574,-0.08885,,,0.285959,0.297806
+sentinel-2b_2020-10-14_R083,2020-10-14,,-0.047847,-0.068807,,,0.147132,0.115578
+sentinel-2b_2020-10-17_R126,2020-10-17,,-0.048396,-0.04387,,,0.258706,0.212589
+sentinel-2a_2020-10-19_R083,2020-10-19,not observable,,,,,,
+sentinel-2a_2020-10-22_R126,2020-10-22,not observable,,,,,,
+sentinel-2b_2020-10-24_R083,2020-10-24,not observable,,,,,,
+sentinel-2b_2020-10-27_R126,2020-10-27,not observable,,,,,,
+sentinel-2a_2020-10-29_R083,2020-10-29,,-0.077199,-0.098305,,,0.200772,0.112474
+sentinel-2a_2020-11-01_R126,2020-11-01,,-0.07425,-0.065449,,,0.27649,0.260125
+sentinel-2b_2020-11-03_R083,2020-11-03,,-0.075623,-0.094836,,,0.114754,0.064182
+sentinel-2b_2020-11-06_R126,2020-11-06,not observable,,,,,,
+sentinel-2a_2020-11-08_R083,2020-11-08,not observable,,,,,,
+sentinel-2a_2020-11-11_R126,2020-11-11,not observable,,,,,,
+sentinel-2b_2020-11-13_R083,2020-11-13,,0.033152,0.008992,,,0.216912,0.169345
+sentinel-2a_2020-11-18_R083,2020-11-18,,-0.004765,-0.024064,,,0.162534,0.125523
+sentinel-2a_2020-11-21_R126,2020-11-21,,-0.04502,-0.053571,,,0.239193,0.159357
+sentinel-2b_2020-11-23_R083,2020-11-23,"upstream median B11 water reflectance 0.303 outside [-0.03, 0.08] (glint or a missing offset)",-0.033752,-0.073281,,,0.366906,0.282443
+sentinel-2b_2020-11-26_R126,2020-11-26,not observable,,,,,,
+sentinel-2a_2020-11-28_R083,2020-11-28,not observable,,,,,,
+sentinel-2a_2020-12-01_R126,2020-12-01,,-0.028483,-0.04618,,,0.160473,0.125664
+sentinel-2b_2020-12-03_R083,2020-12-03,not observable,,,,,,
+sentinel-2b_2020-12-06_R126,2020-12-06,not observable,,,,,,
+sentinel-2a_2020-12-08_R083,2020-12-08,,-0.007052,-0.014726,,,0.174286,0.15461
+sentinel-2a_2020-12-11_R126,2020-12-11,not observable,,,,,,
+sentinel-2b_2020-12-13_R083,2020-12-13,not observable,,,,,,
+sentinel-2b_2020-12-16_R126,2020-12-16,not observable,,,,,,
+sentinel-2a_2020-12-18_R083,2020-12-18,,-0.005113,-0.009246,,,0.161527,0.135965
+sentinel-2a_2020-12-21_R126,2020-12-21,,0.001379,-0.009193,,,0.150838,0.132964
+sentinel-2b_2020-12-23_R083,2020-12-23,not observable,,,,,,
+sentinel-2b_2020-12-26_R126,2020-12-26,,0.007752,0.020707,,,0.152493,0.129723
+sentinel-2a_2020-12-28_R083,2020-12-28,,0.013986,0.009577,,,0.175317,0.154362
+sentinel-2a_2020-12-31_R126,2020-12-31,not observable,,,,,,
+sentinel-2b_2021-01-02_R083,2021-01-02,not observable,,,,,,
+sentinel-2b_2021-01-05_R126,2021-01-05,,-0.029499,-0.040978,,,0.123881,0.086103
+sentinel-2a_2021-01-07_R083,2021-01-07,not observable,,,,,,
+sentinel-2a_2021-01-10_R126,2021-01-10,not observable,,,,,,
+sentinel-2b_2021-01-12_R083,2021-01-12,not observable,,,,,,
+sentinel-2b_2021-01-15_R126,2021-01-15,,0.088797,0.080078,,,0.377917,0.343525
+sentinel-2a_2021-01-17_R083,2021-01-17,not observable,,,,,,
+sentinel-2a_2021-01-20_R126,2021-01-20,,0.074286,0.067168,,,0.354867,0.331866
+sentinel-2b_2021-01-22_R083,2021-01-22,not observable,,,,,,
+sentinel-2b_2021-01-25_R126,2021-01-25,not observable,,,,,,
+sentinel-2a_2021-01-27_R083,2021-01-27,not observable,,,,,,
+sentinel-2a_2021-01-30_R126,2021-01-30,not observable,,,,,,
+sentinel-2b_2021-02-01_R083,2021-02-01,,-0.002075,-0.001607,,,0.261572,0.241195
+sentinel-2b_2021-02-04_R126,2021-02-04,not observable,,,,,,
+sentinel-2a_2021-02-06_R083,2021-02-06,not observable,,,,,,
+sentinel-2a_2021-02-09_R126,2021-02-09,not observable,,,,,,
+sentinel-2b_2021-02-11_R083,2021-02-11,not observable,,,,,,
+sentinel-2b_2021-02-14_R126,2021-02-14,not observable,,,,,,
+sentinel-2a_2021-02-16_R083,2021-02-16,not observable,,,,,,
+sentinel-2a_2021-02-19_R126,2021-02-19,,0.080851,0.07326,,,0.352893,0.342881
+sentinel-2b_2021-02-21_R083,2021-02-21,not observable,,,,,,
+sentinel-2b_2021-02-24_R126,2021-02-24,not observable,,,,,,
+sentinel-2a_2021-02-26_R083,2021-02-26,not observable,,,,,,
+sentinel-2a_2021-03-01_R126,2021-03-01,not observable,,,,,,
+sentinel-2b_2021-03-03_R083,2021-03-03,,0.009153,-0.006818,,,0.173121,0.140715
+sentinel-2b_2021-03-06_R126,2021-03-06,,0.060773,0.058537,,,0.358779,0.341821
+sentinel-2a_2021-03-08_R083,2021-03-08,,0.073345,0.064487,,,0.307047,0.289474
+sentinel-2a_2021-03-11_R126,2021-03-11,not observable,,,,,,
+sentinel-2b_2021-03-13_R083,2021-03-13,not observable,,,,,,
+sentinel-2b_2021-03-16_R126,2021-03-16,not observable,,,,,,
+sentinel-2a_2021-03-18_R083,2021-03-18,,0.070766,0.059829,,,0.305957,0.250457
+sentinel-2a_2021-03-21_R126,2021-03-21,not observable,,,,,,
+sentinel-2b_2021-03-23_R083,2021-03-23,not observable,,,,,,
+sentinel-2b_2021-03-26_R126,2021-03-26,not observable,,,,,,
+sentinel-2a_2021-03-28_R083,2021-03-28,not observable,,,,,,
+sentinel-2a_2021-03-31_R126,2021-03-31,not observable,,,,,,
+sentinel-2b_2021-04-02_R083,2021-04-02,,0.068108,0.063332,,,0.331673,0.29667
+sentinel-2b_2021-04-05_R126,2021-04-05,,0.047468,0.043478,,,0.503106,0.407473
+sentinel-2a_2021-04-07_R083,2021-04-07,not observable,,,,,,
+sentinel-2a_2021-04-10_R126,2021-04-10,not observable,,,,,,
+sentinel-2b_2021-04-12_R083,2021-04-12,,0.037928,0.031915,,,0.339658,0.304305
+sentinel-2b_2021-04-15_R126,2021-04-15,not observable,,,,,,
+sentinel-2a_2021-04-17_R083,2021-04-17,not observable,,,,,,
+sentinel-2a_2021-04-20_R126,2021-04-20,"upstream median B11 water reflectance 0.098 outside [-0.03, 0.08] (glint or a missing offset)",0.035192,0.035376,,,0.512891,0.480104
+sentinel-2b_2021-04-22_R083,2021-04-22,,0.017576,0.013979,,,0.423221,0.367226
+sentinel-2b_2021-04-25_R126,2021-04-25,"upstream median B11 water reflectance 0.116 outside [-0.03, 0.08] (glint or a missing offset)",0.062888,,,,0.479206,
+sentinel-2a_2021-04-27_R083,2021-04-27,not observable,,,,,,
+sentinel-2a_2021-04-30_R126,2021-04-30,not observable,,,,,,
+sentinel-2b_2021-05-02_R083,2021-05-02,not observable,,,,,,
+sentinel-2b_2021-05-05_R126,2021-05-05,not observable,,,,,,
+sentinel-2a_2021-05-07_R083,2021-05-07,,0.039598,0.033772,,,0.354143,0.279126
+sentinel-2a_2021-05-10_R126,2021-05-10,not observable,,,,,,
+sentinel-2b_2021-05-12_R083,2021-05-12,not observable,,,,,,
+sentinel-2b_2021-05-15_R126,2021-05-15,not observable,,,,,,
+sentinel-2a_2021-05-17_R083,2021-05-17,not observable,,,,,,
+sentinel-2a_2021-05-20_R126,2021-05-20,not observable,,,,,,
+sentinel-2b_2021-05-22_R083,2021-05-22,not observable,,,,,,
+sentinel-2b_2021-05-25_R126,2021-05-25,not observable,,,,,,
+sentinel-2a_2021-05-27_R083,2021-05-27,not observable,,,,,,
+sentinel-2a_2021-05-30_R126,2021-05-30,not observable,,,,,,
+sentinel-2b_2021-06-01_R083,2021-06-01,not observable,,,,,,
+sentinel-2b_2021-06-04_R126,2021-06-04,not observable,,,,,,
+sentinel-2a_2021-06-06_R083,2021-06-06,not observable,,,,,,
+sentinel-2a_2021-06-09_R126,2021-06-09,not observable,,,,,,
+sentinel-2b_2021-06-11_R083,2021-06-11,not observable,,,,,,
+sentinel-2b_2021-06-14_R126,2021-06-14,"upstream median B11 water reflectance 0.241 outside [-0.03, 0.08] (glint or a missing offset)",,,,,,
+sentinel-2a_2021-06-16_R083,2021-06-16,not observable,,,,,,
+sentinel-2a_2021-06-19_R126,2021-06-19,not observable,,,,,,
+sentinel-2b_2021-06-21_R083,2021-06-21,not observable,,,,,,
+sentinel-2b_2021-06-24_R126,2021-06-24,not observable,,,,,,
+sentinel-2a_2021-06-26_R083,2021-06-26,not observable,,,,,,
+sentinel-2a_2021-06-29_R126,2021-06-29,not observable,,,,,,
+sentinel-2b_2021-07-01_R083,2021-07-01,not observable,,,,,,
+sentinel-2b_2021-07-04_R126,2021-07-04,not observable,,,,,,
+sentinel-2a_2021-07-06_R083,2021-07-06,not observable,,,,,,
+sentinel-2a_2021-07-09_R126,2021-07-09,not observable,,,,,,
+sentinel-2b_2021-07-11_R083,2021-07-11,not observable,,,,,,
+sentinel-2b_2021-07-14_R126,2021-07-14,not observable,,,,,,
+sentinel-2a_2021-07-16_R083,2021-07-16,not observable,,,,,,
+sentinel-2a_2021-07-19_R126,2021-07-19,not observable,,,,,,
+sentinel-2b_2021-07-21_R083,2021-07-21,not observable,,,,,,
+sentinel-2b_2021-07-24_R126,2021-07-24,not observable,,,,,,
+sentinel-2a_2021-07-26_R083,2021-07-26,,0.055703,0.022222,,,0.269772,0.02924
+sentinel-2a_2021-07-29_R126,2021-07-29,not observable,,,,,,
+sentinel-2b_2021-07-31_R083,2021-07-31,not observable,,,,,,
+sentinel-2b_2021-08-03_R126,2021-08-03,not observable,,,,,,
+sentinel-2a_2021-08-05_R083,2021-08-05,,-0.007503,-0.060377,,,0.359003,0.274485
+sentinel-2a_2021-08-08_R126,2021-08-08,not observable,,,,,,
+sentinel-2b_2021-08-10_R083,2021-08-10,not observable,,,,,,
+sentinel-2b_2021-08-13_R126,2021-08-13,not observable,,,,,,
+sentinel-2a_2021-08-15_R083,2021-08-15,not observable,,,,,,
+sentinel-2a_2021-08-18_R126,2021-08-18,"upstream median B11 water reflectance 0.125 outside [-0.03, 0.08] (glint or a missing offset)",-0.076923,,,,0.770732,
+sentinel-2b_2021-08-20_R083,2021-08-20,,-0.192308,-0.221122,,,0.328358,0.092827
+sentinel-2b_2021-08-23_R126,2021-08-23,"upstream median B11 water reflectance 0.101 outside [-0.03, 0.08] (glint or a missing offset)",,-0.154275,,,,0.737327
+sentinel-2a_2021-08-25_R083,2021-08-25,not observable,,,,,,
+sentinel-2a_2021-08-28_R126,2021-08-28,not observable,,,,,,
+sentinel-2b_2021-08-30_R083,2021-08-30,not observable,,,,,,
+sentinel-2b_2021-09-02_R126,2021-09-02,"downstream median B11 water reflectance 0.082 outside [-0.03, 0.08] (glint or a missing offset)",-0.103709,-0.103189,,,0.637536,0.560345
+sentinel-2a_2021-09-04_R083,2021-09-04,,-0.179487,-0.230487,,,0.28821,0.248175
+sentinel-2a_2021-09-07_R126,2021-09-07,not observable,,,,,,
+sentinel-2b_2021-09-09_R083,2021-09-09,,-0.150646,-0.174835,,,0.606312,0.638146
+sentinel-2b_2021-09-12_R126,2021-09-12,not observable,,,,,,
+sentinel-2a_2021-09-14_R083,2021-09-14,not observable,,,,,,
+sentinel-2a_2021-09-17_R126,2021-09-17,not observable,,,,,,
+sentinel-2b_2021-09-19_R083,2021-09-19,not observable,,,,,,
+sentinel-2b_2021-09-22_R126,2021-09-22,not observable,,,,,,
+sentinel-2a_2021-09-24_R083,2021-09-24,,-0.131629,-0.173489,,,0.126106,0.055024
+sentinel-2a_2021-09-27_R126,2021-09-27,not observable,,,,,,
+sentinel-2b_2021-09-29_R083,2021-09-29,not observable,,,,,,
+sentinel-2b_2021-10-02_R126,2021-10-02,not observable,,,,,,
+sentinel-2a_2021-10-04_R083,2021-10-04,not observable,,,,,,
+sentinel-2a_2021-10-07_R126,2021-10-07,not observable,,,,,,
+sentinel-2b_2021-10-09_R083,2021-10-09,not observable,,,,,,
+sentinel-2b_2021-10-12_R126,2021-10-12,not observable,,,,,,
+sentinel-2a_2021-10-14_R083,2021-10-14,not observable,,,,,,
+sentinel-2a_2021-10-17_R126,2021-10-17,,-0.163223,-0.160338,,,0.285047,0.254042
+sentinel-2b_2021-10-19_R083,2021-10-19,not observable,,,,,,
+sentinel-2b_2021-10-22_R126,2021-10-22,not observable,,,,,,
+sentinel-2a_2021-10-24_R083,2021-10-24,not observable,,,,,,
+sentinel-2a_2021-10-27_R126,2021-10-27,not observable,,,,,,
+sentinel-2b_2021-10-29_R083,2021-10-29,not observable,,,,,,
+sentinel-2b_2021-11-01_R126,2021-11-01,,-0.171859,-0.201995,,,0.141844,0.066465
+sentinel-2a_2021-11-03_R083,2021-11-03,not observable,,,,,,
+sentinel-2a_2021-11-06_R126,2021-11-06,,-0.101297,-0.118908,,,0.143777,0.126362
+sentinel-2b_2021-11-08_R083,2021-11-08,,-0.063245,-0.098605,,,0.09761,0.017058
+sentinel-2b_2021-11-11_R126,2021-11-11,not observable,,,,,,
+sentinel-2a_2021-11-13_R083,2021-11-13,,0.001925,-0.026163,,,0.188218,0.142216
+sentinel-2a_2021-11-16_R126,2021-11-16,,0.023136,-0.010423,,,0.202233,0.166247
+sentinel-2b_2021-11-18_R083,2021-11-18,not observable,,,,,,
+sentinel-2b_2021-11-21_R126,2021-11-21,not observable,,,,,,
+sentinel-2a_2021-11-23_R083,2021-11-23,,-0.011205,-0.027326,,,0.135174,0.093842
+sentinel-2a_2021-11-26_R126,2021-11-26,not observable,,,,,,
+sentinel-2b_2021-11-28_R083,2021-11-28,not observable,,,,,,
+sentinel-2b_2021-12-01_R126,2021-12-01,not observable,,,,,,
+sentinel-2a_2021-12-03_R083,2021-12-03,not observable,,,,,,
+sentinel-2a_2021-12-06_R126,2021-12-06,not observable,,,,,,
+sentinel-2b_2021-12-08_R083,2021-12-08,not observable,,,,,,
+sentinel-2b_2021-12-11_R126,2021-12-11,not observable,,,,,,
+sentinel-2a_2021-12-13_R083,2021-12-13,not observable,,,,,,
+sentinel-2a_2021-12-16_R126,2021-12-16,,-0.125759,-0.164557,,,0.217742,0.161798
+sentinel-2b_2021-12-18_R083,2021-12-18,not observable,,,,,,
+sentinel-2b_2021-12-21_R126,2021-12-21,not observable,,,,,,
+sentinel-2a_2021-12-23_R083,2021-12-23,,-0.027818,-0.093861,,,0.140909,0.080756
+sentinel-2a_2021-12-26_R126,2021-12-26,not observable,,,,,,
+sentinel-2b_2021-12-28_R083,2021-12-28,,-0.001169,-0.001121,,,0.206736,0.243959
+sentinel-2b_2021-12-31_R126,2021-12-31,not observable,,,,,,
+sentinel-2a_2022-01-02_R083,2022-01-02,not observable,,,,,,
+sentinel-2a_2022-01-05_R126,2022-01-05,not observable,,,,,,
+sentinel-2b_2022-01-07_R083,2022-01-07,not observable,,,,,,
+sentinel-2b_2022-01-10_R126,2022-01-10,not observable,,,,,,
+sentinel-2a_2022-01-12_R083,2022-01-12,not observable,,,,,,
+sentinel-2a_2022-01-15_R126,2022-01-15,not observable,,,,,,
+sentinel-2b_2022-01-17_R083,2022-01-17,,0.085161,0.068534,,,0.361842,0.283054
+sentinel-2b_2022-01-20_R126,2022-01-20,not observable,,,,,,
+sentinel-2a_2022-01-22_R083,2022-01-22,,0.088644,0.078328,,,0.343694,0.301754
+sentinel-2a_2022-01-25_R126,2022-01-25,not observable,,,,,,
+sentinel-2b_2022-01-27_R083,2022-01-27,,0.073812,0.063136,,,0.297552,0.257547
+sentinel-2b_2022-01-30_R126,2022-01-30,,0.081708,0.075314,,,0.251953,0.229941
+sentinel-2a_2022-02-01_R083,2022-02-01,not observable,,,,,,
+sentinel-2a_2022-02-04_R126,2022-02-04,not observable,,,,,,
+sentinel-2b_2022-02-06_R083,2022-02-06,,0.028169,0.010006,,,0.157534,0.119767
+sentinel-2b_2022-02-09_R126,2022-02-09,,0.014891,-0.007571,,,0.1875,0.13357
+sentinel-2a_2022-02-11_R083,2022-02-11,,-0.002342,-0.025581,,,0.189573,0.161483
+sentinel-2a_2022-02-14_R126,2022-02-14,,0.008301,-0.001727,,,0.192964,0.163616
+sentinel-2b_2022-02-16_R083,2022-02-16,not observable,,,,,,
+sentinel-2b_2022-02-19_R126,2022-02-19,not observable,,,,,,
+sentinel-2a_2022-02-21_R083,2022-02-21,not observable,,,,,,
+sentinel-2a_2022-02-24_R126,2022-02-24,not observable,,,,,,
+sentinel-2b_2022-02-26_R083,2022-02-26,not observable,,,,,,
+sentinel-2b_2022-03-01_R126,2022-03-01,,0.115385,0.105778,,,0.384909,0.302083
+sentinel-2a_2022-03-03_R083,2022-03-03,not observable,,,,,,
+sentinel-2a_2022-03-06_R126,2022-03-06,not observable,,,,,,
+sentinel-2b_2022-03-08_R083,2022-03-08,not observable,,,,,,
+sentinel-2b_2022-03-11_R126,2022-03-11,not observable,,,,,,
+sentinel-2a_2022-03-13_R083,2022-03-13,,0.076035,0.071291,,,0.294803,0.259025
+sentinel-2a_2022-03-16_R126,2022-03-16,not observable,,,,,,
+sentinel-2b_2022-03-18_R083,2022-03-18,not observable,,,,,,
+sentinel-2b_2022-03-21_R126,2022-03-21,not observable,,,,,,
+sentinel-2a_2022-03-23_R083,2022-03-23,,0.04277,0.036655,,,0.331721,0.302053
+sentinel-2a_2022-03-26_R126,2022-03-26,,0.040743,0.035294,,,0.283168,0.248016
+sentinel-2b_2022-03-28_R083,2022-03-28,not observable,,,,,,
+sentinel-2b_2022-03-31_R126,2022-03-31,,0.036082,0.031136,,,0.505335,0.47327
+sentinel-2a_2022-04-02_R083,2022-04-02,not observable,,,,,,
+sentinel-2a_2022-04-05_R126,2022-04-05,not observable,,,,,,
+sentinel-2b_2022-04-07_R083,2022-04-07,,0.044776,0.037817,,,0.44898,0.388566
+sentinel-2b_2022-04-10_R126,2022-04-10,"upstream median B11 water reflectance 0.087 outside [-0.03, 0.08] (glint or a missing offset)",,,,,,
+sentinel-2a_2022-04-12_R083,2022-04-12,not observable,,,,,,
+sentinel-2a_2022-04-15_R126,2022-04-15,not observable,,,,,,
+sentinel-2b_2022-04-17_R083,2022-04-17,not observable,,,,,,
+sentinel-2b_2022-04-20_R126,2022-04-20,not observable,,,,,,
+sentinel-2a_2022-04-22_R083,2022-04-22,not observable,,,,,,
+sentinel-2a_2022-04-25_R126,2022-04-25,not observable,,,,,,
+sentinel-2b_2022-04-27_R083,2022-04-27,,0.059512,0.056306,,,0.369565,0.282078
+sentinel-2b_2022-04-30_R126,2022-04-30,not observable,,,,,,
+sentinel-2a_2022-05-02_R083,2022-05-02,not observable,,,,,,
+sentinel-2a_2022-05-05_R126,2022-05-05,not observable,,,,,,
+sentinel-2b_2022-05-07_R083,2022-05-07,,0.016538,0.006303,,,0.464941,0.443231
+sentinel-2b_2022-05-10_R126,2022-05-10,not observable,,,,,,
+sentinel-2a_2022-05-12_R083,2022-05-12,not observable,,,,,,
+sentinel-2a_2022-05-15_R126,2022-05-15,not observable,,,,,,
+sentinel-2b_2022-05-17_R083,2022-05-17,,0.026679,0.028019,,,0.400542,0.285849
+sentinel-2b_2022-05-20_R126,2022-05-20,not observable,,,,,,
+sentinel-2a_2022-05-22_R083,2022-05-22,not observable,,,,,,
+sentinel-2a_2022-05-25_R126,2022-05-25,not observable,,,,,,
+sentinel-2b_2022-05-27_R083,2022-05-27,,0.04476,0.035823,,,0.438356,0.365751
+sentinel-2b_2022-05-30_R126,2022-05-30,not observable,,,,,,
+sentinel-2a_2022-06-01_R083,2022-06-01,not observable,,,,,,
+sentinel-2a_2022-06-04_R126,2022-06-04,not observable,,,,,,
+sentinel-2b_2022-06-06_R083,2022-06-06,not observable,,,,,,
+sentinel-2b_2022-06-09_R126,2022-06-09,not observable,,,,,,
+sentinel-2a_2022-06-11_R083,2022-06-11,not observable,,,,,,
+sentinel-2a_2022-06-14_R126,2022-06-14,not observable,,,,,,
+sentinel-2b_2022-06-16_R083,2022-06-16,,0.062602,0.026116,,,0.311828,0.433712
+sentinel-2b_2022-06-19_R126,2022-06-19,not observable,,,,,,
+sentinel-2a_2022-06-21_R083,2022-06-21,not observable,,,,,,
+sentinel-2a_2022-06-24_R126,2022-06-24,"upstream median B11 water reflectance 0.312 outside [-0.03, 0.08] (glint or a missing offset)",,,,,,
+sentinel-2b_2022-06-26_R083,2022-06-26,not observable,,,,,,
+sentinel-2b_2022-06-29_R126,2022-06-29,not observable,,,,,,
+sentinel-2a_2022-07-01_R083,2022-07-01,not observable,,,,,,
+sentinel-2a_2022-07-04_R126,2022-07-04,not observable,,,,,,
+sentinel-2b_2022-07-06_R083,2022-07-06,not observable,,,,,,
+sentinel-2b_2022-07-09_R126,2022-07-09,not observable,,,,,,
+sentinel-2a_2022-07-11_R083,2022-07-11,not observable,,,,,,
+sentinel-2a_2022-07-14_R126,2022-07-14,not observable,,,,,,
+sentinel-2b_2022-07-16_R083,2022-07-16,not observable,,,,,,
+sentinel-2b_2022-07-19_R126,2022-07-19,not observable,,,,,,
+sentinel-2a_2022-07-21_R083,2022-07-21,,-0.13852,-0.141274,,,0.146771,0.006289
+sentinel-2a_2022-07-24_R126,2022-07-24,not observable,,,,,,
+sentinel-2b_2022-07-26_R083,2022-07-26,not observable,,,,,,
+sentinel-2b_2022-07-29_R126,2022-07-29,not observable,,,,,,
+sentinel-2a_2022-07-31_R083,2022-07-31,not observable,,,,,,
+sentinel-2a_2022-08-03_R126,2022-08-03,not observable,,,,,,
+sentinel-2b_2022-08-05_R083,2022-08-05,,-0.094737,-0.116406,,,0.294286,0.140323
+sentinel-2b_2022-08-08_R126,2022-08-08,not observable,,,,,,
+sentinel-2a_2022-08-10_R083,2022-08-10,not observable,,,,,,
+sentinel-2a_2022-08-13_R126,2022-08-13,not observable,,,,,,
+sentinel-2b_2022-08-18_R126,2022-08-18,not observable,,,,,,
+sentinel-2a_2022-08-20_R083,2022-08-20,not observable,,,,,,
+sentinel-2a_2022-08-23_R126,2022-08-23,not observable,,,,,,
+sentinel-2b_2022-08-25_R083,2022-08-25,not observable,,,,,,
+sentinel-2b_2022-08-28_R126,2022-08-28,not observable,,,,,,
+sentinel-2a_2022-08-30_R083,2022-08-30,not observable,,,,,,
+sentinel-2b_2022-09-04_R083,2022-09-04,not observable,,,,,,
+sentinel-2b_2022-09-07_R126,2022-09-07,not observable,,,,,,
+sentinel-2a_2022-09-09_R083,2022-09-09,not observable,,,,,,
+sentinel-2a_2022-09-12_R126,2022-09-12,not observable,,,,,,
+sentinel-2b_2022-09-14_R083,2022-09-14,,-0.20094,-0.212256,,,0.195965,0.101449
+sentinel-2b_2022-09-17_R126,2022-09-17,,-0.129963,-0.139896,,,0.602236,0.568116
+sentinel-2a_2022-09-19_R083,2022-09-19,not observable,,,,,,
+sentinel-2a_2022-09-22_R126,2022-09-22,not observable,,,,,,
+sentinel-2b_2022-09-24_R083,2022-09-24,not observable,,,,,,
+sentinel-2b_2022-09-27_R126,2022-09-27,,-0.150512,-0.133101,,,0.533469,0.568027
+sentinel-2a_2022-09-29_R083,2022-09-29,,-0.218237,-0.207792,,,0.11859,0.094286
+sentinel-2a_2022-10-02_R126,2022-10-02,,-0.198276,-0.222222,,,0.266491,0.216524
+sentinel-2b_2022-10-04_R083,2022-10-04,not observable,,,,,,
+sentinel-2b_2022-10-07_R126,2022-10-07,,-0.22807,-0.267052,,,0.303371,0.101307
+sentinel-2a_2022-10-09_R083,2022-10-09,,-0.260442,-0.28592,,,0.178082,0.138614
+sentinel-2a_2022-10-12_R126,2022-10-12,not observable,,,,,,
+sentinel-2b_2022-10-14_R083,2022-10-14,,-0.24933,-0.279279,,,0.215054,0.103586
+sentinel-2b_2022-10-17_R126,2022-10-17,not observable,,,,,,
+sentinel-2a_2022-10-19_R083,2022-10-19,,-0.28125,-0.294118,,,0.106557,0.012552
+sentinel-2a_2022-10-22_R126,2022-10-22,,-0.246819,-0.225951,,,0.320132,0.327731
+sentinel-2b_2022-10-24_R083,2022-10-24,not observable,,,,,,
+sentinel-2b_2022-10-27_R126,2022-10-27,,-0.258523,-0.28465,,,0.169884,0.03629
+sentinel-2a_2022-10-29_R083,2022-10-29,not observable,,,,,,
+sentinel-2a_2022-11-01_R126,2022-11-01,not observable,,,,,,
+sentinel-2b_2022-11-03_R083,2022-11-03,,-0.288344,-0.307692,,,0.004484,0.004545
+sentinel-2b_2022-11-06_R126,2022-11-06,not observable,,,,,,
+sentinel-2a_2022-11-08_R083,2022-11-08,,-0.169854,-0.17907,,,0.19837,0.154696
+sentinel-2a_2022-11-11_R126,2022-11-11,,-0.164733,-0.161696,,,0.121739,0.108108
+sentinel-2b_2022-11-13_R083,2022-11-13,,-0.158058,-0.169811,,,0.050891,0.007692
+sentinel-2b_2022-11-16_R126,2022-11-16,not observable,,,,,,
+sentinel-2a_2022-11-18_R083,2022-11-18,,-0.182222,-0.194805,,,0.083333,0.037333
+sentinel-2a_2022-11-21_R126,2022-11-21,,-0.159236,-0.170732,,,0.123762,0.09
+sentinel-2b_2022-11-23_R083,2022-11-23,,-0.164767,-0.182004,,,0.078818,0.022222
+sentinel-2b_2022-11-26_R126,2022-11-26,not observable,,,,,,
+sentinel-2a_2022-11-28_R083,2022-11-28,,-0.156048,-0.161004,,,0.267857,0.340081
+sentinel-2a_2022-12-01_R126,2022-12-01,,-0.173116,-0.187177,,,0.123153,0.073892
+sentinel-2b_2022-12-03_R083,2022-12-03,not observable,,,,,,
+sentinel-2b_2022-12-06_R126,2022-12-06,not observable,,,,,,
+sentinel-2a_2022-12-08_R083,2022-12-08,not observable,,,,,,
+sentinel-2a_2022-12-11_R126,2022-12-11,not observable,,,,,,
+sentinel-2b_2022-12-13_R083,2022-12-13,not observable,,,,,,
+sentinel-2b_2022-12-16_R126,2022-12-16,,-0.063114,-0.085775,,,0.16,0.115142
+sentinel-2a_2022-12-18_R083,2022-12-18,not observable,,,,,,
+sentinel-2a_2022-12-21_R126,2022-12-21,not observable,,,,,,
+sentinel-2b_2022-12-23_R083,2022-12-23,,0.065532,0.060163,,,0.275162,0.267442
+sentinel-2b_2022-12-26_R126,2022-12-26,,0.039014,0.005871,,,0.191552,0.12963
+sentinel-2a_2022-12-28_R083,2022-12-28,,0.019674,-0.007584,,,0.168113,0.125
+sentinel-2a_2022-12-31_R126,2022-12-31,not observable,,,,,,
+sentinel-2b_2023-01-02_R083,2023-01-02,not observable,,,,,,
+sentinel-2b_2023-01-05_R126,2023-01-05,,0.030335,-0.004251,,,0.168016,0.1258
+sentinel-2a_2023-01-07_R083,2023-01-07,,0.025042,-0.010716,,,0.160576,0.119075
+sentinel-2a_2023-01-10_R126,2023-01-10,not observable,,,,,,
+sentinel-2b_2023-01-12_R083,2023-01-12,not observable,,,,,,
+sentinel-2b_2023-01-15_R126,2023-01-15,,0.089754,0.073846,,,0.306333,0.25
+sentinel-2a_2023-01-17_R083,2023-01-17,not observable,,,,,,
+sentinel-2a_2023-01-20_R126,2023-01-20,not observable,,,,,,
+sentinel-2b_2023-01-22_R083,2023-01-22,not observable,,,,,,
+sentinel-2b_2023-01-25_R126,2023-01-25,not observable,,,,,,
+sentinel-2a_2023-01-27_R083,2023-01-27,not observable,,,,,,
+sentinel-2a_2023-01-30_R126,2023-01-30,not observable,,,,,,
+sentinel-2b_2023-02-01_R083,2023-02-01,not observable,,,,,,
+sentinel-2b_2023-02-04_R126,2023-02-04,,0.10522,0.09061,,,0.343994,0.273994
+sentinel-2a_2023-02-06_R083,2023-02-06,,0.085482,0.069892,,,0.386745,0.348562
+sentinel-2a_2023-02-09_R126,2023-02-09,not observable,,,,,,
+sentinel-2b_2023-02-11_R083,2023-02-11,not observable,,,,,,
+sentinel-2b_2023-02-14_R126,2023-02-14,not observable,,,,,,
+sentinel-2a_2023-02-16_R083,2023-02-16,not observable,,,,,,
+sentinel-2a_2023-02-19_R126,2023-02-19,,0.081577,0.075134,,,0.285354,0.267617
+sentinel-2b_2023-02-21_R083,2023-02-21,not observable,,,,,,
+sentinel-2b_2023-02-24_R126,2023-02-24,not observable,,,,,,
+sentinel-2a_2023-02-26_R083,2023-02-26,not observable,,,,,,
+sentinel-2a_2023-03-01_R126,2023-03-01,not observable,,,,,,
+sentinel-2b_2023-03-03_R083,2023-03-03,,0.075386,0.065589,,,0.479798,0.459664
+sentinel-2b_2023-03-06_R126,2023-03-06,not observable,,,,,,
+sentinel-2a_2023-03-08_R083,2023-03-08,not observable,,,,,,
+sentinel-2a_2023-03-11_R126,2023-03-11,not observable,,,,,,
+sentinel-2b_2023-03-13_R083,2023-03-13,not observable,,,,,,
+sentinel-2b_2023-03-16_R126,2023-03-16,not observable,,,,,,
+sentinel-2a_2023-03-18_R083,2023-03-18,not observable,,,,,,
+sentinel-2a_2023-03-21_R126,2023-03-21,,0.063609,0.061755,,,0.524752,0.507052
+sentinel-2b_2023-03-23_R083,2023-03-23,not observable,,,,,,
+sentinel-2b_2023-03-26_R126,2023-03-26,not observable,,,,,,
+sentinel-2a_2023-03-28_R083,2023-03-28,not observable,,,,,,
+sentinel-2a_2023-03-31_R126,2023-03-31,not observable,,,,,,
+sentinel-2b_2023-04-02_R083,2023-04-02,not observable,,,,,,
+sentinel-2b_2023-04-05_R126,2023-04-05,not observable,,,,,,
+sentinel-2a_2023-04-07_R083,2023-04-07,not observable,,,,,,
+sentinel-2a_2023-04-10_R126,2023-04-10,not observable,,,,,,
+sentinel-2b_2023-04-12_R083,2023-04-12,not observable,,,,,,
+sentinel-2a_2023-04-17_R083,2023-04-17,,0.059411,0.054885,,,0.321429,0.285714
+sentinel-2a_2023-04-20_R126,2023-04-20,"upstream median B11 water reflectance 0.099 outside [-0.03, 0.08] (glint or a missing offset)",,,,,,
+sentinel-2b_2023-04-22_R083,2023-04-22,,0.053403,0.047414,,,0.345603,0.27957
+sentinel-2b_2023-04-25_R126,2023-04-25,not observable,,,,,,
+sentinel-2a_2023-04-27_R083,2023-04-27,not observable,,,,,,
+sentinel-2a_2023-04-30_R126,2023-04-30,not observable,,,,,,
+sentinel-2b_2023-05-02_R083,2023-05-02,,0.050555,0.040049,,,0.312354,0.262411
+sentinel-2b_2023-05-05_R126,2023-05-05,not observable,,,,,,
+sentinel-2a_2023-05-07_R083,2023-05-07,,0.019108,0.007259,,,0.437888,0.351496
+sentinel-2a_2023-05-10_R126,2023-05-10,not observable,,,,,,
+sentinel-2b_2023-05-12_R083,2023-05-12,not observable,,,,,,
+sentinel-2b_2023-05-15_R126,2023-05-15,not observable,,,,,,
+sentinel-2a_2023-05-17_R083,2023-05-17,not observable,,,,,,
+sentinel-2a_2023-05-20_R126,2023-05-20,not observable,,,,,,
+sentinel-2b_2023-05-22_R083,2023-05-22,not observable,,,,,,
+sentinel-2b_2023-05-25_R126,2023-05-25,not observable,,,,,,
+sentinel-2a_2023-05-27_R083,2023-05-27,not observable,,,,,,
+sentinel-2a_2023-05-30_R126,2023-05-30,not observable,,,,,,
+sentinel-2b_2023-06-01_R083,2023-06-01,not observable,,,,,,
+sentinel-2b_2023-06-04_R126,2023-06-04,not observable,,,,,,
+sentinel-2a_2023-06-06_R083,2023-06-06,not observable,,,,,,
+sentinel-2b_2023-06-11_R083,2023-06-11,,-0.10424,-0.098996,,,0.359855,0.343846
+sentinel-2b_2023-06-14_R126,2023-06-14,not observable,,,,,,
+sentinel-2a_2023-06-16_R083,2023-06-16,not observable,,,,,,
+sentinel-2b_2023-06-21_R083,2023-06-21,not observable,,,,,,
+sentinel-2b_2023-06-24_R126,2023-06-24,not observable,,,,,,
+sentinel-2a_2023-06-26_R083,2023-06-26,not observable,,,,,,
+sentinel-2a_2023-06-29_R126,2023-06-29,"upstream median B11 water reflectance 0.283 outside [-0.03, 0.08] (glint or a missing offset)",,,,,,
+sentinel-2b_2023-07-01_R083,2023-07-01,not observable,,,,,,
+sentinel-2b_2023-07-04_R126,2023-07-04,not observable,,,,,,
+sentinel-2a_2023-07-06_R083,2023-07-06,not observable,,,,,,
+sentinel-2a_2023-07-09_R126,2023-07-09,not observable,,,,,,
+sentinel-2b_2023-07-11_R083,2023-07-11,not observable,,,,,,
+sentinel-2b_2023-07-14_R126,2023-07-14,not observable,,,,,,
+sentinel-2a_2023-07-19_R126,2023-07-19,not observable,,,,,,
+sentinel-2b_2023-07-21_R083,2023-07-21,not observable,,,,,,
+sentinel-2b_2023-07-24_R126,2023-07-24,not observable,,,,,,
+sentinel-2a_2023-07-26_R083,2023-07-26,not observable,,,,,,
+sentinel-2a_2023-07-29_R126,2023-07-29,not observable,,,,,,
+sentinel-2b_2023-07-31_R083,2023-07-31,not observable,,,,,,
+sentinel-2a_2023-08-05_R083,2023-08-05,not observable,,,,,,
+sentinel-2a_2023-08-08_R126,2023-08-08,not observable,,,,,,
+sentinel-2b_2023-08-10_R083,2023-08-10,not observable,,,,,,
+sentinel-2b_2023-08-13_R126,2023-08-13,not observable,,,,,,
+sentinel-2a_2023-08-15_R083,2023-08-15,not observable,,,,,,
+sentinel-2a_2023-08-18_R126,2023-08-18,not observable,,,,,,
+sentinel-2b_2023-08-20_R083,2023-08-20,not observable,,,,,,
+sentinel-2b_2023-08-23_R126,2023-08-23,not observable,,,,,,
+sentinel-2a_2023-08-25_R083,2023-08-25,not observable,,,,,,
+sentinel-2a_2023-08-28_R126,2023-08-28,not observable,,,,,,
+sentinel-2b_2023-08-30_R083,2023-08-30,,-0.098728,-0.112412,,,0.220452,0.18984
+sentinel-2b_2023-09-02_R126,2023-09-02,not observable,,,,,,
+sentinel-2a_2023-09-04_R083,2023-09-04,not observable,,,,,,
+sentinel-2a_2023-09-07_R126,2023-09-07,,-0.10555,-0.117933,,,0.515707,0.453776
+sentinel-2b_2023-09-09_R083,2023-09-09,,-0.151251,-0.1594,,,0.257475,0.207483
+sentinel-2b_2023-09-12_R126,2023-09-12,,-0.18328,-0.161482,,,0.307143,0.3312
+sentinel-2a_2023-09-14_R083,2023-09-14,not observable,,,,,,
+sentinel-2a_2023-09-17_R126,2023-09-17,not observable,,,,,,
+sentinel-2b_2023-09-19_R083,2023-09-19,,-0.211604,-0.225806,,,0.380631,0.332536
+sentinel-2b_2023-09-22_R126,2023-09-22,not observable,,,,,,
+sentinel-2a_2023-09-24_R083,2023-09-24,not observable,,,,,,
+sentinel-2a_2023-09-27_R126,2023-09-27,,-0.20647,-0.218369,,,0.53066,0.482759
+sentinel-2b_2023-09-29_R083,2023-09-29,not observable,,,,,,
+sentinel-2b_2023-10-02_R126,2023-10-02,not observable,,,,,,
+sentinel-2a_2023-10-04_R083,2023-10-04,not observable,,,,,,
+sentinel-2a_2023-10-07_R126,2023-10-07,not observable,,,,,,
+sentinel-2b_2023-10-09_R083,2023-10-09,not observable,,,,,,
+sentinel-2b_2023-10-12_R126,2023-10-12,not observable,,,,,,
+sentinel-2a_2023-10-14_R083,2023-10-14,,0.821782,,,,1.402439,
+sentinel-2a_2023-10-17_R126,2023-10-17,,-0.224066,-0.242762,,,0.395778,0.303468
+sentinel-2b_2023-10-19_R083,2023-10-19,not observable,,,,,,
+sentinel-2b_2023-10-22_R126,2023-10-22,not observable,,,,,,
+sentinel-2a_2023-10-24_R083,2023-10-24,not observable,,,,,,
+sentinel-2a_2023-10-27_R126,2023-10-27,not observable,,,,,,
+sentinel-2b_2023-10-29_R083,2023-10-29,,-0.273224,-0.27555,,,0.121771,0.077206
+sentinel-2b_2023-11-01_R126,2023-11-01,,-0.239229,-0.202268,,,0.278689,0.348837
+sentinel-2a_2023-11-03_R083,2023-11-03,,-0.27673,-0.281159,,,0.194915,0.106299
+sentinel-2b_2023-11-08_R083,2023-11-08,not observable,,,,,,
+sentinel-2b_2023-11-11_R126,2023-11-11,not observable,,,,,,
+sentinel-2a_2023-11-13_R083,2023-11-13,not observable,,,,,,
+sentinel-2a_2023-11-16_R126,2023-11-16,not observable,,,,,,
+sentinel-2b_2023-11-18_R083,2023-11-18,not observable,,,,,,
+sentinel-2b_2023-11-21_R126,2023-11-21,not observable,,,,,,
+sentinel-2a_2023-11-23_R083,2023-11-23,not observable,,,,,,
+sentinel-2a_2023-11-26_R126,2023-11-26,not observable,,,,,,
+sentinel-2b_2023-11-28_R083,2023-11-28,,-0.193407,-0.203482,,,0.124654,0.07563
+sentinel-2b_2023-12-01_R126,2023-12-01,not observable,,,,,,
+sentinel-2a_2023-12-03_R083,2023-12-03,not observable,,,,,,
+sentinel-2a_2023-12-06_R126,2023-12-06,not observable,,,,,,
+sentinel-2b_2023-12-08_R083,2023-12-08,not observable,,,,,,
+sentinel-2b_2023-12-11_R126,2023-12-11,,-0.217963,-0.225513,,,0.065089,0.014881
+sentinel-2a_2023-12-13_R083,2023-12-13,not observable,,,,,,
+sentinel-2a_2023-12-16_R126,2023-12-16,not observable,,,,,,
+sentinel-2b_2023-12-18_R083,2023-12-18,,-0.262537,-0.268571,,,0.105882,0.015209
+sentinel-2b_2023-12-21_R126,2023-12-21,not observable,,,,,,
+sentinel-2a_2023-12-23_R083,2023-12-23,not observable,,,,,,
+sentinel-2a_2023-12-26_R126,2023-12-26,not observable,,,,,,
+sentinel-2b_2023-12-28_R083,2023-12-28,,-0.268589,-0.286136,,,0.071429,0.033613
+sentinel-2b_2023-12-31_R126,2023-12-31,,-0.312704,-0.267327,,,0.042453,0.207143
+sentinel-2a_2024-01-02_R083,2024-01-02,not observable,,,,,,
+sentinel-2a_2024-01-05_R126,2024-01-05,not observable,,,,,,
+sentinel-2b_2024-01-07_R083,2024-01-07,not observable,,,,,,
+sentinel-2b_2024-01-10_R126,2024-01-10,not observable,,,,,,
+sentinel-2a_2024-01-12_R083,2024-01-12,not observable,,,,,,
+sentinel-2a_2024-01-15_R126,2024-01-15,not observable,,,,,,
+sentinel-2b_2024-01-17_R083,2024-01-17,not observable,,,,,,
+sentinel-2b_2024-01-20_R126,2024-01-20,,0.00304,-0.008454,,,0.220297,0.201005
+sentinel-2a_2024-01-22_R083,2024-01-22,not observable,,,,,,
+sentinel-2a_2024-01-25_R126,2024-01-25,not observable,,,,,,
+sentinel-2b_2024-01-27_R083,2024-01-27,not observable,,,,,,
+sentinel-2b_2024-01-30_R126,2024-01-30,not observable,,,,,,
+sentinel-2a_2024-02-01_R083,2024-02-01,not observable,,,,,,
+sentinel-2a_2024-02-04_R126,2024-02-04,,0.098246,0.088944,,,0.381746,0.354489
+sentinel-2b_2024-02-06_R083,2024-02-06,,0.086275,0.075523,,,0.323894,0.275952
+sentinel-2b_2024-02-09_R126,2024-02-09,not observable,,,,,,
+sentinel-2a_2024-02-11_R083,2024-02-11,not observable,,,,,,
+sentinel-2a_2024-02-14_R126,2024-02-14,,0.089925,0.078378,,,0.388476,0.327093
+sentinel-2b_2024-02-16_R083,2024-02-16,not observable,,,,,,
+sentinel-2b_2024-02-19_R126,2024-02-19,,0.08642,0.078875,,,0.321828,0.268089
+sentinel-2a_2024-02-21_R083,2024-02-21,,0.077635,0.070594,,,0.289017,0.281905
+sentinel-2a_2024-02-24_R126,2024-02-24,not observable,,,,,,
+sentinel-2b_2024-02-26_R083,2024-02-26,,0.036215,0.03716,,,0.28972,0.276995
+sentinel-2a_2024-03-02_R083,2024-03-02,not observable,,,,,,
+sentinel-2a_2024-03-05_R126,2024-03-05,not observable,,,,,,
+sentinel-2b_2024-03-07_R083,2024-03-07,not observable,,,,,,
+sentinel-2b_2024-03-10_R126,2024-03-10,not observable,,,,,,
+sentinel-2a_2024-03-12_R083,2024-03-12,not observable,,,,,,
+sentinel-2a_2024-03-15_R126,2024-03-15,not observable,,,,,,
+sentinel-2b_2024-03-17_R083,2024-03-17,not observable,,,,,,
+sentinel-2b_2024-03-20_R126,2024-03-20,not observable,,,,,,
+sentinel-2a_2024-03-22_R083,2024-03-22,not observable,,,,,,
+sentinel-2a_2024-03-25_R126,2024-03-25,not observable,,,,,,
+sentinel-2b_2024-03-27_R083,2024-03-27,,0.030841,0.047371,,,0.534622,0.229703
+sentinel-2b_2024-03-30_R126,2024-03-30,not observable,,,,,,
+sentinel-2a_2024-04-01_R083,2024-04-01,not observable,,,,,,
+sentinel-2b_2024-04-06_R083,2024-04-06,,0.057226,0.046875,,,0.303442,0.231776
+sentinel-2b_2024-04-09_R126,2024-04-09,not observable,,,,,,
+sentinel-2a_2024-04-11_R083,2024-04-11,not observable,,,,,,
+sentinel-2a_2024-04-14_R126,2024-04-14,not observable,,,,,,
+sentinel-2b_2024-04-16_R083,2024-04-16,not observable,,,,,,
+sentinel-2b_2024-04-19_R126,2024-04-19,not observable,,,,,,
+sentinel-2a_2024-04-21_R083,2024-04-21,not observable,,,,,,
+sentinel-2a_2024-04-24_R126,2024-04-24,not observable,,,,,,
+sentinel-2b_2024-04-26_R083,2024-04-26,not observable,,,,,,
+sentinel-2b_2024-04-29_R126,2024-04-29,not observable,,,,,,
+sentinel-2a_2024-05-01_R083,2024-05-01,not observable,,,,,,
+sentinel-2a_2024-05-04_R126,2024-05-04,not observable,,,,,,
+sentinel-2b_2024-05-06_R083,2024-05-06,not observable,,,,,,
+sentinel-2b_2024-05-09_R126,2024-05-09,not observable,,,,,,
+sentinel-2a_2024-05-11_R083,2024-05-11,,0.038002,0.036592,,,0.539216,0.466304
+sentinel-2a_2024-05-14_R126,2024-05-14,not observable,,,,,,
+sentinel-2b_2024-05-16_R083,2024-05-16,not observable,,,,,,
+sentinel-2b_2024-05-19_R126,2024-05-19,not observable,,,,,,
+sentinel-2a_2024-05-21_R083,2024-05-21,not observable,,,,,,
+sentinel-2a_2024-05-24_R126,2024-05-24,not observable,,,,,,
+sentinel-2b_2024-05-26_R083,2024-05-26,not observable,,,,,,
+sentinel-2a_2024-05-31_R083,2024-05-31,not observable,,,,,,
+sentinel-2a_2024-06-03_R126,2024-06-03,not observable,,,,,,
+sentinel-2b_2024-06-05_R083,2024-06-05,not observable,,,,,,
+sentinel-2b_2024-06-08_R126,2024-06-08,"upstream median B11 water reflectance 0.319 outside [-0.03, 0.08] (glint or a missing offset)",,,,,,
+sentinel-2a_2024-06-10_R083,2024-06-10,not observable,,,,,,
+sentinel-2a_2024-06-13_R126,2024-06-13,not observable,,,,,,
+sentinel-2b_2024-06-15_R083,2024-06-15,not observable,,,,,,
+sentinel-2b_2024-06-18_R126,2024-06-18,not observable,,,,,,
+sentinel-2a_2024-06-20_R083,2024-06-20,not observable,,,,,,
+sentinel-2a_2024-06-23_R126,2024-06-23,not observable,,,,,,
+sentinel-2b_2024-06-25_R083,2024-06-25,not observable,,,,,,
+sentinel-2b_2024-06-28_R126,2024-06-28,not observable,,,,,,
+sentinel-2a_2024-06-30_R083,2024-06-30,not observable,,,,,,
+sentinel-2a_2024-07-03_R126,2024-07-03,not observable,,,,,,
+sentinel-2b_2024-07-05_R083,2024-07-05,not observable,,,,,,
+sentinel-2b_2024-07-08_R126,2024-07-08,not observable,,,,,,
+sentinel-2a_2024-07-10_R083,2024-07-10,not observable,,,,,,
+sentinel-2a_2024-07-13_R126,2024-07-13,not observable,,,,,,
+sentinel-2b_2024-07-15_R083,2024-07-15,not observable,,,,,,
+sentinel-2b_2024-07-18_R126,2024-07-18,not observable,,,,,,
+sentinel-2a_2024-07-20_R083,2024-07-20,not observable,,,,,,
+sentinel-2a_2024-07-23_R126,2024-07-23,not observable,,,,,,
+sentinel-2b_2024-07-25_R083,2024-07-25,not observable,,,,,,
+sentinel-2b_2024-07-28_R126,2024-07-28,not observable,,,,,,
+sentinel-2a_2024-07-30_R083,2024-07-30,not observable,,,,,,
+sentinel-2a_2024-08-02_R126,2024-08-02,not observable,,,,,,
+sentinel-2b_2024-08-04_R083,2024-08-04,not observable,,,,,,
+sentinel-2b_2024-08-07_R126,2024-08-07,not observable,,,,,,
+sentinel-2a_2024-08-09_R083,2024-08-09,not observable,,,,,,
+sentinel-2a_2024-08-12_R126,2024-08-12,not observable,,,,,,
+sentinel-2b_2024-08-14_R083,2024-08-14,,-0.160207,-0.17159,,,0.094118,0.002985
+sentinel-2b_2024-08-17_R126,2024-08-17,not observable,,,,,,
+sentinel-2a_2024-08-19_R083,2024-08-19,not observable,,,,,,
+sentinel-2a_2024-08-22_R126,2024-08-22,not observable,,,,,,
+sentinel-2b_2024-08-24_R083,2024-08-24,,-0.116041,-0.154336,,,0.397661,0.28246
+sentinel-2b_2024-08-27_R126,2024-08-27,,-0.105898,-0.092233,,,0.745514,0.81761
+sentinel-2a_2024-08-29_R083,2024-08-29,,-0.148802,-0.173543,,,0.731429,0.779497
+sentinel-2b_2024-09-03_R083,2024-09-03,not observable,,,,,,
+sentinel-2a_2024-09-08_R083,2024-09-08,,-0.145663,-0.211125,,,0.824295,0.157556
+sentinel-2a_2024-09-11_R126,2024-09-11,not observable,,,,,,
+sentinel-2b_2024-09-13_R083,2024-09-13,not observable,,,,,,
+sentinel-2a_2024-09-18_R083,2024-09-18,,-0.18323,-0.210369,,,0.197026,0.0025
+sentinel-2b_2024-09-23_R083,2024-09-23,not observable,,,,,,
+sentinel-2b_2024-09-26_R126,2024-09-26,,-0.110198,-0.102469,,,0.603916,0.61186
+sentinel-2a_2024-09-28_R083,2024-09-28,,-0.198032,-0.217391,,,0.220183,0.15
+sentinel-2a_2024-10-01_R126,2024-10-01,,-0.13976,-0.152346,,,0.481481,0.393401
+sentinel-2b_2024-10-03_R083,2024-10-03,not observable,,,,,,
+sentinel-2b_2024-10-06_R126,2024-10-06,,-0.141079,-0.13604,,,0.330986,0.295943

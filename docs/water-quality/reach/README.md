@@ -5,10 +5,12 @@ Sentinel-2 scene of a reach. The settings live in `pipeline/reach.yaml`; the cod
 `pipeline/src/climate_pipeline/reach/`. Only public data are read (Earth Search L2A, Open-Meteo),
 so no credentials are needed and a run can be unattended.
 
-| Reach                      | Site file                                   | Estimate station                        | Targets         | Baseline                                |
-| -------------------------- | ------------------------------------------- | --------------------------------------- | --------------- | --------------------------------------- |
-| `magdalena-puerto-wilches` | `pipeline/sites/`                           | San Pablo (IDEAM 23207040), downstream  | turbidity, TSS  | the Magdalena validation's 112 scenes   |
-| `missouri-hermann`         | `pipeline/reaches/` (outside the screening) | USGS 06934500 (the gauge), upstream end | turbidity (FNU) | measured by the reach itself, 2019–2025 |
+| Reach                      | Site file                                | Estimate station                        | Targets         | Level of the card   | Baseline                                |
+| -------------------------- | ---------------------------------------- | --------------------------------------- | --------------- | ------------------- | --------------------------------------- |
+| `mississippi-belle-chasse` | `pipeline/reaches/` (demo)               | USGS 07374525 (the gauge), downstream   | turbidity (FNU) | validated (17.8 %)  | measured by the reach itself, 2019–2025 |
+| `platte-louisville`        | `pipeline/reaches/` (demo)               | USGS 06805500 (the gauge), upstream end | turbidity (FNU) | validated (20.3 %)  | measured by the reach itself, 2019–2025 |
+| `missouri-hermann`         | `pipeline/reaches/`                      | USGS 06934500 (the gauge), upstream end | turbidity (FNU) | indicative (34.9 %) | measured by the reach itself, 2019–2024 |
+| `magdalena-puerto-wilches` | `pipeline/sites/` (out of the demo, D18) | San Pablo (IDEAM 23207040), downstream  | turbidity, TSS  | none                | the Magdalena validation's 112 scenes   |
 
 ## What a record says
 

@@ -1,0 +1,13 @@
+{
+  "site": "mississippi-belle-chasse",
+  "frozen_scenes": null,
+  "found": 1034,
+  "measured": 827,
+  "usable": 191,
+  "station": "USGS-07374525",
+  "network_gb_estimated": 6.014,
+  "stopped": "network cap of 6 GB reached",
+  "ndti_max_abs_difference": null,
+  "code_commit": "bc1a01783fdfc70e2cd20d6ed1fbb562e27e3742",
+  "created_utc": "2026-10-12T22:12:57+00:00"
+}
