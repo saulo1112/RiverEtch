@@ -1,0 +1,6 @@
+round,flow,predicted_range,n,rated,mdsa,sspb,rho_low,coverage90,level
+1,preregistered flow features (deviation 9),all,31,true,63.08121,-12.420592,0.228676,0.903226,none
+1,preregistered flow features (deviation 9),<30,2,false,143.037609,-135.464308,,0.5,none
+1,preregistered flow features (deviation 9),30-100,5,false,589.516364,589.516364,-0.777778,1.0,none
+1,preregistered flow features (deviation 9),100-300,14,true,49.93815,-19.18817,-0.616104,0.928571,none
+1,preregistered flow features (deviation 9),300-1000,10,true,62.956694,-5.525814,-0.077974,0.9,none

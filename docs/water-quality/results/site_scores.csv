@@ -1,0 +1,9 @@
+site,target,unit,window,candidate,evaluation,n,stations,mdsa,sspb,mape,rho,rho_low,rho_high,null_mdsa,coverage80,coverage90,training_pairs,lockbox_pairs,training_years,lockbox_years,usgs_pairs_without_river
+USGS-06934500,turbidity,FNU,core,H0,lock box,70.0,1.0,87.680549,-3.690025,65.038532,,,,87.680549,,,127,70,5,3,1925
+USGS-06934500,turbidity,FNU,core,H1,lock box,70.0,1.0,89.456716,6.454936,84.057648,0.405217,0.15345,0.614962,87.680549,0.9,0.957143,,,,,
+USGS-06934500,turbidity,FNU,core,H2,lock box,70.0,1.0,89.444767,6.07836,83.124715,0.405217,0.154715,0.614218,87.680549,0.871429,0.942857,,,,,
+USGS-06934500,turbidity,FNU,core,H3,lock box,70.0,1.0,34.869625,-19.001612,47.681451,0.635243,0.41038,0.794154,87.680549,0.814286,0.971429,,,,,
+USGS-06934500,turbidity,FNU,core,H4,lock box,70.0,1.0,30.545604,-8.057708,34.977368,0.666544,0.458363,0.81166,87.680549,0.785714,0.971429,,,,,
+USGS-06934500,turbidity,FNU,core,H2 without the site adjustment (other rivers only),lock box,70.0,1.0,109.50193,-100.918897,54.232566,0.405217,0.158285,0.619064,87.680549,,,,,,,
+USGS-06934500,turbidity,FNU,core,H3 without the site adjustment (other rivers only),lock box,70.0,1.0,66.297123,-63.294541,48.002621,0.635243,0.416518,0.796227,87.680549,,,,,,,
+USGS-06934500,turbidity,FNU,core,H4 without the site adjustment (other rivers only),lock box,70.0,1.0,30.415982,-21.405733,34.355578,0.666544,0.456374,0.812017,87.680549,,,,,,,

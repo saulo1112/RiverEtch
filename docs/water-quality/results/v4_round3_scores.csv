@@ -1,0 +1,7 @@
+round,evaluation,n,stations,mdsa,sspb,mape,rho,rho_low,rho_high,null_mdsa,coverage80,coverage90,level,candidates,years
+3,nested leave-one-hydrological-year-out (whole space),31.0,11.0,102.75595,-3.68122,271.353286,0.623764,0.274221,0.774877,130.0,0.677419,0.806452,none,480,9
+3,San Pablo (23207040) units of the primary scheme (not rated),3.0,1.0,90.930268,-90.930268,38.822558,0.5,-1.0,1.0,114.285714,,,,,
+3,sensitivity: one sample out within its station,31.0,11.0,71.712189,-9.14109,195.866053,0.567682,0.132418,0.794766,129.166667,0.774194,0.935484,,,
+3,sensitivity: forward chaining (earlier years only),26.0,11.0,140.259573,-10.931649,170.059625,0.560479,0.144609,0.773002,172.908715,0.846154,0.846154,,,
+3,"report-only: T+G, ±7 days, nearest, offsets λs 10 (form chosen with hindsight)",31.0,11.0,92.324361,-18.634583,184.812219,0.431915,-0.068931,0.724544,130.0,0.870968,0.903226,,,
+3,"report-only: Dogliotti 2015 on RAdCor with station offsets, leave-one-year-out",21.0,8.0,84.434636,11.447642,92.478958,0.586554,-0.018578,0.846004,182.608696,,,,,

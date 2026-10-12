@@ -4,6 +4,8 @@
   "input_manifests_sha256": {
     "acolite/dsf/manifest.csv": "d9b4c5fe3b1a622b68158577762b86b455486dd25c8a0261347b60acd9b25cb3",
     "acolite/radcor/manifest.csv": "260a59bd07284c4aae9a7fd34c2f6bf8eb9a62893a381a4e7ad30a0fd79af846",
+    "acolite/stage-b/manifest.csv": "fc0bfe5728bf625ae49b80c9dfacd2904bacf349d7b1d221c7ded7ccc28f3d1a",
+    "acolite/stage-b/mdn-manifest.csv": "b97e7643ce6731c03c429606f8705dc431dd9ca0b92523eeea0857c164834c81",
     "mdn/manifest.csv": "d569d251530d9e432660965127e4537bf82ea75a8dc8489417d435cd95750002"
   },
   "mdn_commit": "ae1626c7990436d512044fa878f6bf276b5ce20d",

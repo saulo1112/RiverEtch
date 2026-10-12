@@ -1,0 +1,164 @@
+{
+  "adjustment": null,
+  "basis": "post_hoc_temporal_magdalena",
+  "candidate": "S5|15|median|s1|all|10",
+  "featureRange": {
+    "B8A-B11": [
+      -0.0361,
+      0.1628
+    ],
+    "log_B04/B02": [
+      -0.801361,
+      2.564949
+    ],
+    "log_B04/B03": [
+      -2.833213,
+      0.388146
+    ],
+    "log_B8A/B04": [
+      -7.059618,
+      0.380197
+    ]
+  },
+  "intervals": {
+    "edges": [
+      124.601056,
+      246.740598
+    ],
+    "pooled": [],
+    "q": {
+      "0.8": [
+        1.645188,
+        0.887349,
+        0.845893
+      ],
+      "0.9": [
+        1.738893,
+        1.806459,
+        1.14414
+      ]
+    }
+  },
+  "levels": [
+    {
+      "coverage90": 0.8065,
+      "level": "none",
+      "mdsa": 102.756,
+      "n": 31,
+      "predicted_range": "all",
+      "rated": true,
+      "rho_low": 0.2742,
+      "sspb": -3.6812
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 275.5091,
+      "n": 1,
+      "predicted_range": "<30",
+      "rated": false,
+      "rho_low": null,
+      "sspb": -275.5091
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 52.1436,
+      "n": 2,
+      "predicted_range": "30-100",
+      "rated": false,
+      "rho_low": null,
+      "sspb": -36.8386
+    },
+    {
+      "coverage90": 0.75,
+      "level": "none",
+      "mdsa": 96.7543,
+      "n": 20,
+      "predicted_range": "100-300",
+      "rated": true,
+      "rho_low": -0.1177,
+      "sspb": -18.5054
+    },
+    {
+      "coverage90": 1.0,
+      "level": "none",
+      "mdsa": 92.0285,
+      "n": 7,
+      "predicted_range": "300-1000",
+      "rated": false,
+      "rho_low": -0.6078,
+      "sspb": 41.3192
+    },
+    {
+      "coverage90": 0.0,
+      "level": "none",
+      "mdsa": 646.2589,
+      "n": 1,
+      "predicted_range": ">=1000",
+      "rated": false,
+      "rho_low": null,
+      "sspb": 646.2589
+    }
+  ],
+  "metrics": {
+    "round3": {
+      "candidates": 480,
+      "coverage80": 0.6774,
+      "coverage90": 0.8065,
+      "mape": 271.3533,
+      "mdsa": 102.756,
+      "n": 31.0,
+      "null_mdsa": 130.0,
+      "rho": 0.6238,
+      "rho_high": 0.7749,
+      "rho_low": 0.2742,
+      "round": 3,
+      "sspb": -3.6812,
+      "stations": 11.0,
+      "years": 9
+    }
+  },
+  "modelId": "R3:turbidity:core:magdalena",
+  "parameters": {
+    "coefficients": [
+      0.0734975999,
+      -0.1445458976,
+      -0.1410421965,
+      0.6522281384
+    ],
+    "features": [
+      "log_B8A/B04",
+      "log_B04/B03",
+      "log_B04/B02",
+      "B8A-B11"
+    ],
+    "intercept": 5.3282244442,
+    "kind": "ridge-log",
+    "mean": [
+      -1.0766396659,
+      -0.024546386,
+      0.2955384795,
+      0.0296925485
+    ],
+    "operational": "g = 0 (the scene is the estimate's own day)",
+    "scale": [
+      1.4943945201,
+      0.4814987046,
+      0.415109609,
+      0.0350945634
+    ],
+    "stationOffset": 0.3864117135,
+    "tFile": "gbm-turbidity-core.json"
+  },
+  "parametersHash": "9bc624ebc7452e83d912459ba04ec4ccf5f2879daf9a8f77f74d591632b434a9",
+  "station": "23207040",
+  "target": "turbidity",
+  "targetRange": [
+    7.0,
+    1800.0
+  ],
+  "unit": "NTU",
+  "version": "1",
+  "window": "core"
+}

@@ -1,0 +1,16 @@
+round,scheme,held_out,chosen
+3,leave-one-year-out,2016,T+G|7|median|s10|strict|1
+3,leave-one-year-out,2017,S5|15|median|s1|all|10
+3,leave-one-year-out,2019,S5|15|median|s1|all|10
+3,leave-one-year-out,2020,T+G|7|nearest|none|all|10
+3,leave-one-year-out,2021,S5|15|nearest|s1|all|10
+3,leave-one-year-out,2022,S5+G|15|median|s1|all|10
+3,leave-one-year-out,2023,T|7|nearest|none|strict|10
+3,leave-one-year-out,2024,S5|3s|nearest|none|all|1
+3,leave-one-year-out,2025,S5+G|15|median|s1|all|100
+3,forward chaining,2020,T|3s|nearest|none|all|100
+3,forward chaining,2021,T+G|15|nearest|s1|all|1
+3,forward chaining,2022,S5+G|7|nearest|none|strict|100
+3,forward chaining,2023,S5|3s|nearest|s1|strict|10
+3,forward chaining,2024,S5|7|nearest|s1|all|1
+3,forward chaining,2025,S5+G|15|median|s1|all|100

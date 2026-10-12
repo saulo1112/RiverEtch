@@ -1,0 +1,5 @@
+site,target,unit,window,candidate,inner_loyo_mdsa,chosen
+USGS-06934500,turbidity,FNU,core,H1,105.51557,false
+USGS-06934500,turbidity,FNU,core,H2,105.290232,false
+USGS-06934500,turbidity,FNU,core,H3,30.756768,true
+USGS-06934500,turbidity,FNU,core,H4,29.229211,false

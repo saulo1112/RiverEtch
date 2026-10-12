@@ -1,0 +1,2 @@
+kind,error
+permanent,"S2B_15SXC_20240123_0_L2A scl: '/vsis3/sentinel-s2-l2a/tiles/15/S/XC/2024/1/23/0/R20m/SCL.jp2' does not exist in the file system, and is not recognized as a supported dataset name."

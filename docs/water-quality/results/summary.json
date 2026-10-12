@@ -103,6 +103,28 @@
       }
     }
   },
+  "site": {
+    "candidate": "H3",
+    "level": "indicative",
+    "mdsa": 34.9,
+    "n": 70,
+    "site": "USGS-06934500",
+    "unit": "FNU"
+  },
+  "stage_b": {
+    "tss": {
+      "level": "none",
+      "mdsa": 148.9,
+      "n": 37,
+      "status": "confirmatory (due under v2.2's rule)"
+    },
+    "turbidity": {
+      "level": "none",
+      "mdsa": 115.8,
+      "n": 37,
+      "status": "exploratory (owner's addition)"
+    }
+  },
   "v3": {
     "round 1": {
       "level": "indicative (post hoc)",
@@ -125,6 +147,18 @@
     "round 2: fitted on the Magdalena, scored on the other rivers": {
       "mdsa": 78.9,
       "n": 17
+    }
+  },
+  "v4_round3": {
+    "round 1 (of record)": {
+      "level": "none",
+      "mdsa": 63.1,
+      "n": 31
+    },
+    "round 3": {
+      "level": "none",
+      "mdsa": 102.8,
+      "n": 31
     }
   }
 }
