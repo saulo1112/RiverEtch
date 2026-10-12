@@ -273,7 +273,9 @@ class UsgsInputs:
     )  # pretrained_objects, computed once per target, window and forest
 
 
-def load_usgs(cfg: QualityConfig, root: Path, folder: str = "usgs") -> UsgsInputs | None:
+def load_usgs(cfg: QualityConfig, root: Path, folder: str = "usgs",
+              sites_file: str = "usgs/sites.csv",
+              turbidity_file: str = "turbidity.csv") -> UsgsInputs | None:  # fmt: skip
     """The USGS pilot's pairs (None until its value fetch has run).
 
     Turbidity pairs join each clear scene with its overpass value; SSC pairs join a sample with a
@@ -282,8 +284,10 @@ def load_usgs(cfg: QualityConfig, root: Path, folder: str = "usgs") -> UsgsInput
     Args:
         cfg: Settings.
         root: Repository root.
-        folder: The snapshot folder under the inputs (v4's second reach: ``usgs-hermann``); the
-            site list is always the pilot's.
+        folder: The snapshot folder under the inputs (v4's second reach: ``usgs-hermann``).
+        sites_file: The site list under the inputs (default: the pilot's; v5 has its own).
+        turbidity_file: The overpass values joined as ``turbidity`` (v5's surrogate SSC reuses the
+            join with ``ssc-surrogate.csv``).
 
     Returns:
         The inputs, or None.
@@ -291,9 +295,9 @@ def load_usgs(cfg: QualityConfig, root: Path, folder: str = "usgs") -> UsgsInput
     from climate_pipeline.quality.route_a import scenes_from_windows
 
     base = root / cfg.outputs.inputs / folder
-    if not (base / "windows.csv").exists() or not (base / "turbidity.csv").exists():
+    if not (base / "windows.csv").exists() or not (base / turbidity_file).exists():
         return None
-    site_list = root / cfg.outputs.inputs / "usgs" / "sites.csv"
+    site_list = root / cfg.outputs.inputs / sites_file
     sites = [r for r in read_stations(site_list) if r["selected"] == "true"]
     widths = {r["site_id"]: number(r["width_m"]) for r in sites}
     text = (base / "windows.csv").read_text(encoding="utf-8")
@@ -301,7 +305,7 @@ def load_usgs(cfg: QualityConfig, root: Path, folder: str = "usgs") -> UsgsInput
         cfg.features, {w: scenes_from_windows(text, w) for w in ("300m", "core")}, widths
     )
     guards = cfg.window.as_calibration()
-    turbidity = list(csv.DictReader(io.StringIO((base / "turbidity.csv").read_text("utf-8"))))
+    turbidity = list(csv.DictReader(io.StringIO((base / turbidity_file).read_text("utf-8"))))
     ssc_path = base / "ssc.csv"
     ssc = (
         list(csv.DictReader(io.StringIO(ssc_path.read_text("utf-8")))) if ssc_path.exists() else []

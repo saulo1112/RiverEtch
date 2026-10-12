@@ -274,13 +274,92 @@ def keep_bodies(path: Path, bodies: Sequence[bytes]) -> None:
     os.replace(partial_path, path)
 
 
+SURROGATE = "99409"  # v5: the USGS surrogate SSC, estimated from turbidity (labelled as such)
+
+
+def overpass_rows(client: httpx.Client, cfg: QualityConfig, rec: sources.Recorder, sid: str,
+                  clear: Sequence[Acquisition], responses: Path, parameter: str,
+                  unit: str) -> tuple[list[dict[str, Any]], bool]:  # fmt: skip
+    """A continuous parameter at each clear overpass of one site, by the pilot's rule.
+
+    Responses are cached per parameter (a rerun resumes); approved values only.
+
+    Args:
+        client: HTTP client.
+        cfg: Settings (the overpass rule).
+        rec: The snapshot recorder (failures).
+        sid: The site.
+        clear: Its clear acquisitions.
+        responses: The cache folder of this site and parameter.
+        parameter: E.g. ``63680`` (turbidity) or ``99409`` (surrogate SSC).
+        unit: Its unit.
+
+    Returns:
+        The rows and whether the API's rate limit stopped the step.
+    """
+    u = cfg.usgs
+    margin = timedelta(minutes=u.overpass_nearest_minutes)
+    responses.mkdir(parents=True, exist_ok=True)
+    found: dict[str, list[bytes]] = {}
+    pending = []
+    for a in clear:
+        saved = responses / f"{a.key}.json"
+        bodies = cached_bodies(saved) if saved.exists() else None
+        if bodies is None:
+            pending.append(a)
+        else:
+            found[a.key] = bodies
+    limited = False
+    for start in range(0, len(pending), OVERPASS_BATCH):
+        batch = pending[start : start + OVERPASS_BATCH]
+        times = [a.datetime.astimezone(UTC) for a in batch]
+        label = f"{u.api} continuous {sid} {parameter} {len(batch)} overpasses from {times[0]}"
+        try:
+            windows = [(t - margin, t + margin) for t in times]
+            _, bodies = usgs.continuous_many(client, u.api, sid, parameter, windows)
+        except httpx.HTTPStatusError as error:
+            if error.response.status_code == 429:
+                limited = True
+                break
+            rec.fail(label, error)
+            continue
+        except httpx.HTTPError as error:
+            rec.fail(label, error)
+            continue
+        name = "batch-" + hashlib.sha256("|".join(a.key for a in batch).encode()).hexdigest()[:16]
+        keep_bodies(responses / f"{name}.json", bodies)
+        for a in batch:
+            pointer = responses / f"{a.key}.json"
+            pointer.write_text(json.dumps({"batch": f"{name}.json"}), encoding="utf-8")
+            found[a.key] = bodies
+    rows = []
+    for a in clear:
+        if a.key not in found:
+            continue
+        when = a.datetime.astimezone(UTC)
+        bodies = found[a.key]
+        readings = usgs.readings_from_bodies(bodies)
+        value, rule, n = usgs.overpass_value(readings, when, u.overpass_median_minutes,
+                                             u.overpass_nearest_minutes, u.approval,
+                                             u.exclude_qualified)  # fmt: skip
+        rows.append({
+            "site_id": sid, "key": a.key, "datetime_utc": when.isoformat(timespec="seconds"),
+            "value": value, "unit": unit, "rule": rule, "n": n,
+            "response_sha256": hashlib.sha256(b"".join(bodies)).hexdigest(),
+        })  # fmt: skip
+    return rows, limited
+
+
 def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
                  http: httpx.Client | None = None, site_ids: set[str] | None = None,
                  max_clear: int | None = None, folder: str = "usgs", ssc: bool = True,
-                 cap_gb: float | None = None) -> dict[str, Any]:  # fmt: skip
+                 cap_gb: float | None = None, sites_file: str = "usgs/sites.csv",
+                 surrogate: bool = False) -> dict[str, Any]:  # fmt: skip
     """Snapshot the pilot's windows, turbidity at the overpass and SSC samples.
 
-    v4's second reach reuses it for one site, every clear scene and its own folder.
+    v4's second reach reuses it for one site, every clear scene and its own folder; v5 for its
+    own site list, where a column ``ssc_target`` names each site's suspended-sediment target
+    (discrete 80154 samples, or the USGS surrogate record 99409 at the overpass).
 
     Args:
         cfg: The v2 settings.
@@ -293,6 +372,8 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
         folder: Output folder under the inputs (default: the pilot's).
         ssc: Also the discrete SSC samples.
         cap_gb: Network cap (default: the pilot's).
+        sites_file: The site list, under the inputs (default: the pilot's).
+        surrogate: Also the surrogate SSC (99409) where the list names it.
 
     Returns:
         Counts and the incomplete parts.
@@ -301,8 +382,9 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
 
     u = cfg.usgs
     inputs = root / cfg.outputs.inputs
-    sites = [r for r in read_stations(inputs / "usgs" / "sites.csv") if r["selected"] == "true"
+    sites = [r for r in read_stations(inputs / sites_file) if r["selected"] == "true"
              and (site_ids is None or r["site_id"] in site_ids)]  # fmt: skip
+    target_of = {r["site_id"]: r["ssc_target"] for r in sites if "ssc_target" in r}
     most = u.max_clear_scenes_per_site if max_clear is None else max_clear
     d15 = load_calibration_config(root / cfg.calibration_config)
     screening = load_screening_config(root / cfg.screening_config)
@@ -379,65 +461,30 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
             incomplete.append(f"imagery: network cap reached during the pass to {cap} scenes")
             break
     limited = False
-    margin = timedelta(minutes=u.overpass_nearest_minutes)
     for sid, st in state.items():  # turbidity at each clear overpass
-        responses = progress / sid
-        responses.mkdir(exist_ok=True)
-        found: dict[str, list[bytes]] = {}
-        pending = []
-        for a in st["clear"]:
-            saved = responses / f"{a.key}.json"
-            bodies = cached_bodies(saved) if saved.exists() else None
-            if bodies is None:
-                pending.append(a)
-            else:
-                found[a.key] = bodies
-        for start in range(0, len(pending), OVERPASS_BATCH):
-            batch = pending[start : start + OVERPASS_BATCH]
-            times = [a.datetime.astimezone(UTC) for a in batch]
-            label = f"{u.api} continuous {sid} {len(batch)} overpasses from {times[0].isoformat()}"
-            try:
-                windows = [(t - margin, t + margin) for t in times]
-                _, bodies = usgs.continuous_many(client, u.api, sid, u.turbidity_parameter,
-                                                 windows)  # fmt: skip
-            except httpx.HTTPStatusError as error:
-                if error.response.status_code == 429:
-                    limited = True
-                    break
-                rec.fail(label, error)
-                continue
-            except httpx.HTTPError as error:
-                rec.fail(label, error)
-                continue
-            name = (
-                "batch-" + hashlib.sha256("|".join(a.key for a in batch).encode()).hexdigest()[:16]
-            )
-            keep_bodies(responses / f"{name}.json", bodies)
-            for a in batch:
-                pointer = responses / f"{a.key}.json"
-                pointer.write_text(json.dumps({"batch": f"{name}.json"}), encoding="utf-8")
-                found[a.key] = bodies
-        for a in st["clear"]:
-            if a.key not in found:
-                continue
-            when = a.datetime.astimezone(UTC)
-            bodies = found[a.key]
-            readings = usgs.readings_from_bodies(bodies)
-            value, rule, n = usgs.overpass_value(readings, when, u.overpass_median_minutes,
-                                                 u.overpass_nearest_minutes, u.approval,
-                                                 u.exclude_qualified)  # fmt: skip
-            turbidity_rows.append({
-                "site_id": sid, "key": a.key,
-                "datetime_utc": when.isoformat(timespec="seconds"), "value": value, "unit": "FNU",
-                "rule": rule, "n": n,
-                "response_sha256": hashlib.sha256(b"".join(bodies)).hexdigest(),
-            })  # fmt: skip
+        rows, limited = overpass_rows(client, cfg, rec, sid, st["clear"], progress / sid,
+                                      u.turbidity_parameter, "FNU")  # fmt: skip
+        turbidity_rows += rows
         if limited:
             incomplete.append("turbidity: the USGS API's rate limit stopped the step; a rerun "
                               "resumes from the cached responses")  # fmt: skip
             break
+    surrogate_rows: list[dict[str, Any]] = []
+    for sid, st in state.items() if surrogate else []:  # v5: the USGS surrogate SSC (99409)
+        if target_of.get(sid) != SURROGATE:
+            continue
+        cached = progress / f"{sid}-{SURROGATE}"
+        rows, limited = overpass_rows(client, cfg, rec, sid, st["clear"], cached, SURROGATE,
+                                      "mg/L")  # fmt: skip
+        surrogate_rows += rows
+        if limited:
+            incomplete.append("surrogate SSC: the USGS API's rate limit stopped the step; a "
+                              "rerun resumes from the cached responses")  # fmt: skip
+            break
     ssc_rows: list[dict[str, Any]] = []
     for sid in state if ssc else []:  # discrete SSC samples
+        if target_of and target_of.get(sid) != u.ssc_parameter:
+            continue
         try:
             body = usgs.samples(client, sid, u.ssc_parameter, u.period.start.isoformat(),
                                 u.period.end.isoformat())  # fmt: skip
@@ -451,6 +498,10 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
              note="continuous 63680 at each clear overpass, preregistered rule")  # fmt: skip
     rec.save(f"{folder}/ssc.csv", _csv(ssc_rows, SSC_COLUMNS), usgs.SAMPLES,
              note=f"discrete {u.ssc_parameter} samples of the selected sites")  # fmt: skip
+    if surrogate:
+        rec.save(f"{folder}/ssc-surrogate.csv", _csv(surrogate_rows, TURBIDITY_COLUMNS), u.api,
+                 note="continuous 99409 at each clear overpass: SSC estimated by the USGS from "
+                 "turbidity (surrogate record), not an independent measurement")  # fmt: skip
     rec.save(f"{folder}/items.csv", _csv(item_rows, ("station", "source", "acquisitions",
                                                 "item_ids_sha256")), "derived")  # fmt: skip
     errors = error_rows([*reader.errors, *geo_reader.errors])
@@ -463,7 +514,9 @@ def fetch_values(cfg: QualityConfig, root: Path, cache: Path, workers: int,
     return {
         "sites": len(state), "clear_scenes": sum(len(s["clear"]) for s in state.values()),
         "turbidity_pairs": sum(1 for r in turbidity_rows if math.isfinite(r["value"])),
-        "ssc_samples": len(ssc_rows), "failures": len(rec.failures),
+        "ssc_samples": len(ssc_rows), "surrogate_pairs": sum(1 for r in surrogate_rows
+                                                            if math.isfinite(r["value"])),
+        "failures": len(rec.failures),
         "read_errors": sum(1 for e in errors if e["kind"] == "transient"),
         "estimated_gb": round(budget.mb / 1000, 2), "incomplete": incomplete,
     }  # fmt: skip

@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from climate_pipeline.quality import (
+    gauged,
     lab,
     phase3,
     physical,
@@ -143,6 +144,9 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
     later_site = site.analyse(cfg, root, usgs)
     results.extra_cards += later_site.pop("_site_cards", [])
     results.tables.update(later_site)
+    later_v5 = gauged.analyse(cfg, root, usgs)
+    results.extra_cards += later_v5.pop("_v5_cards", [])
+    results.tables.update(later_v5)
     results.summary = {
         "incomplete": missing,
         "route_a": route_a.summary(results.tables) if ci is not None else {},
@@ -154,5 +158,6 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         "site": site.summary(results.tables),
         "v4_round3": temporal.summary(results.tables),
         "stage_b": stage_b.summary(results.tables),
+        "v5": gauged.summary(results.tables),
     }
     return results

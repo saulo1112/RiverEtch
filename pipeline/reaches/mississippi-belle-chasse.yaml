@@ -1,0 +1,61 @@
+# Mississippi River, Chalmette to Belle Chasse (Louisiana, USA): a v5 demo reach (preregistration v5).
+# The estimate station is the continuous, approved turbidity gauge at the downstream end (USGS 07374525).
+# It lives outside pipeline/sites/ so the Colombian site screening never reads it.
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: mississippi-belle-chasse
+name: Mississippi River, Chalmette to Belle Chasse (Louisiana, USA)
+river: Mississippi River
+category: D
+rationale:
+  "Validation reach (category D). The lower Mississippi River from Chalmette to the USGS streamgage
+  07374525 at Belle Chasse, which records continuous turbidity (parameter 63680, FNU). The main
+  channel is about 770 m wide at the gauge (pilot selection). No dam lies on the lower Mississippi.
+  The reach is chosen for its measurement, not for any pressure: no actor is the subject of any
+  record."
+center:
+  lon: -89.9841
+  lat: 29.9002
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -90.06
+  - 29.80
+  - -89.88
+  - 29.99
+upstream_anchor:
+  lon: -89.9903
+  lat: 29.9433
+  description: Chalmette Battlefield, Louisiana, on the river's east bank
+  basis:
+    "Estimated from the Chalmette Battlefield park (OpenStreetMap Nominatim, 29.943 N 89.990 W),
+    on the bank; the town's centre lay more than 1.5 km from the water mask. To be snapped to it."
+  source_url: https://nominatim.openstreetmap.org/search?q=Chalmette+Battlefield%2C+Louisiana
+downstream_anchor:
+  lon: -89.977847
+  lat: 29.857151
+  description: USGS 07374525, Mississippi River at Belle Chasse, LA (the streamgage)
+  basis: "Stated by source: the monitoring location's coordinates in the USGS Water Data API."
+  source_url: https://waterdata.usgs.gov/monitoring-location/USGS-07374525/
+confluences: []
+regime_changes: []
+rain_points:
+  - lon: -89.9841
+    lat: 29.9002
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  None. No dam, licence or permitted works are the subject of this reach; it is used because its
+  turbidity is measured continuously.
+regulator: Not applicable (no permit parameter is compared).
+river_width_note: about 772 m at the gauge (SCL water frequency, pilot selection)
+climate_note: Humid subtropical; frequent summer convection, so fewer clear scenes than inland sites.
+citations:
+  - url: https://waterdata.usgs.gov/monitoring-location/USGS-07374525/
+    title: USGS 07374525 Mississippi River at Belle Chasse, LA (USGS Water Data for the Nation)
+    supports: The streamgage, its coordinates and its continuous turbidity (63680) series
+    verification: USGS Water Data API (monitoring-locations and time-series-metadata snapshots)
+unverified:
+  - "Chalmette anchor: a riverside park's coordinates; snapped to the water mask by the run"
+  - "The reach crosses the Port of New Orleans area: ship traffic and wakes can raise local turbidity"

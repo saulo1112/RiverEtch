@@ -117,11 +117,12 @@ def _parser() -> argparse.ArgumentParser:
     )
     quality.add_argument(
         "action",
-        choices=("fetch", "fetch-usgs", "fetch-site", "fetch-landsat", "fetch-extended",
-                 "export-lab", "stage-b-list", "run", "verify"),
+        choices=("fetch", "fetch-usgs", "fetch-site", "fetch-v5", "fetch-landsat",
+                 "fetch-extended", "export-lab", "stage-b-list", "run", "verify"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
         "the USGS pilot; fetch-site --site ID: every clear scene of one pilot site (v4's second "
-        "reach); fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
+        "reach); fetch-v5: every clear scene, turbidity and SSC of v5's gauged rivers; "
+        "fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
         "(phase 3); fetch-extended: windows within 15 days of a sample (v3); export-lab: the "
         "lab's training tables (A4); stage-b-list: the Level-1C scenes of RAdCor Stage B (v4); "
         "run: offline results; verify: recompute and compare with the MANIFEST",
@@ -131,9 +132,11 @@ def _parser() -> argparse.ArgumentParser:
                          help="fetch, fetch-landsat: the station list only")  # fmt: skip
     quality.add_argument("--sites-only", action="store_true", help="fetch-usgs: selection only")
     quality.add_argument("--site", default="USGS-06934500", help="fetch-site: the USGS site")
+    quality.add_argument("--lab-targets", default="turbidity",
+                         help="export-lab --without-river: targets, comma-separated")  # fmt: skip
     quality.add_argument(
         "--without-river", default="",
-        help="export-lab: leave this river's sites out (v4: MISSOURI, turbidity core only)",
+        help="export-lab: leave this river's sites out (core window; see --lab-targets)",
     )  # fmt: skip
     quality.add_argument(
         "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
@@ -411,6 +414,7 @@ def calibration(args: argparse.Namespace) -> int:
 
 SITE_FOLDERS = {"USGS-06934500": "usgs-hermann"}  # v4: inputs folder of a second-reach site
 SITE_CAP_GB = 4.0  # v4, section A: estimated network of the site's full fetch
+V5_CAP_GB = 40.0  # v5: estimated network of the whole fetch (30 GB raised by deviation 11)
 
 
 def quality(args: argparse.Namespace) -> int:
@@ -445,8 +449,12 @@ def quality(args: argparse.Namespace) -> int:
             from climate_pipeline.quality import site
 
             reduced = site.without_river(usgs_inputs, args.without_river, None)
-            folder = root / "pipeline" / "out" / f"lab-no-{args.without_river.lower()}"
-            tables = lab.export(cfg, reduced, folder, only=(site.TARGET, site.WINDOW))
+            targets = [t for t in args.lab_targets.split(",") if t]
+            name = f"lab-no-{args.without_river.lower()}" + (
+                "" if targets == ["turbidity"] else "-" + "-".join(targets)
+            )
+            folder = root / "pipeline" / "out" / name
+            tables = lab.export(cfg, reduced, folder, only={(t, site.WINDOW) for t in targets})
             print(f"{len(tables)} tables in {folder}")
             return 0
         tables = lab.export(cfg, usgs_inputs, root / "pipeline" / "out" / "lab")
@@ -485,6 +493,14 @@ def quality(args: argparse.Namespace) -> int:
                                    site_ids={args.site}, max_clear=100_000,
                                    folder=SITE_FOLDERS.get(args.site, args.site.lower()),
                                    ssc=False, cap_gb=SITE_CAP_GB)  # fmt: skip
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "fetch-v5":
+        from climate_pipeline.quality import usgs
+
+        counts = usgs.fetch_values(cfg, root, root / args.cache, args.workers, max_clear=100_000,
+                                   folder="usgs-v5", ssc=True, cap_gb=V5_CAP_GB,
+                                   sites_file="usgs-v5/sites.csv", surrogate=True)  # fmt: skip
         print(f"snapshots: {counts}")
         return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "fetch-usgs":
