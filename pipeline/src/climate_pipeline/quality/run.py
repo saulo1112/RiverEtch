@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from climate_pipeline.quality import lab, posthoc, route_a, route_b, transfer
+from climate_pipeline.quality import lab, phase3, physical, posthoc, route_a, route_b, transfer
 from climate_pipeline.quality.config import QualityConfig
 
 
@@ -97,10 +97,16 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         later = posthoc.analyse(cfg, ci, confirmed, usgs, ci.lab_dir)
         results.posthoc_cards = later.pop("_posthoc_cards", [])
         results.tables.update(later)
+        landsat_scenes = phase3.load(cfg, root)
+        if landsat_scenes is not None:
+            results.tables.update(phase3.analyse(cfg, ci, landsat_scenes, confirmed, usgs))
+    results.tables.update(physical.analyse(cfg, rb, posthoc.summary(results.tables)))
     results.summary = {
         "incomplete": missing,
         "route_a": route_a.summary(results.tables) if ci is not None else {},
         "posthoc": posthoc.summary(results.tables) if ci is not None else {},
+        "physical": physical.summary(results.tables),
+        "landsat": phase3.summary(results.tables),
         "route_b": route_b.summary(results.tables),
     }
     return results

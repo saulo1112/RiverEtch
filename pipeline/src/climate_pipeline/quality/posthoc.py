@@ -94,21 +94,22 @@ def candidates(cfg: QualityConfig, usgs: transfer.UsgsInputs | None, target: str
     return out
 
 
-def choose(scores: Mapping[str, float], margin: float) -> str:
+def choose(scores: Mapping[str, float], margin: float, order: Sequence[str] = ORDER) -> str:
     """The lowest MdSA; within ``margin`` points, the simplest.
 
     Args:
         scores: Candidate -> inner MdSA.
         margin: MdSA points.
+        order: The candidates, simplest first.
 
     Returns:
-        The candidate (``P1`` when none has a finite score).
+        The candidate (the simplest when none has a finite score).
     """
     finite = {c: s for c, s in scores.items() if math.isfinite(s)}
     if not finite:
-        return "P1"
+        return order[0]
     best = min(finite.values())
-    return next(c for c in ORDER if c in finite and finite[c] <= best + margin)
+    return next(c for c in order if c in finite and finite[c] <= best + margin)
 
 
 @dataclass
@@ -121,8 +122,10 @@ class Nested:
     inside: dict[float, list[bool | None]]  # coverage -> per pair (None without an estimate)
 
 
-def nested(cfg: QualityConfig, pool: Sequence[Pair], options: Mapping[str, Predictor],
-           group: Callable[[Pair], str] = station) -> Nested:  # fmt: skip
+def nested(
+    cfg: QualityConfig, pool: Sequence[Pair], options: Mapping[str, Predictor],
+    group: Callable[[Pair], str] = station, order: Sequence[str] = ORDER,
+) -> Nested:  # fmt: skip
     """Nested leave-one-group-out: inner selection by LOSO over stations, outer held-out groups.
 
     Args:
@@ -130,6 +133,7 @@ def nested(cfg: QualityConfig, pool: Sequence[Pair], options: Mapping[str, Predi
         pool: The Magdalena pairs.
         options: Candidate -> predictor.
         group: The outer group (stations; hydrological years for the sensitivity).
+        order: The candidates, simplest first.
 
     Returns:
         The held-out estimates, the null's, the choice per group and interval hits.
@@ -145,7 +149,7 @@ def nested(cfg: QualityConfig, pool: Sequence[Pair], options: Mapping[str, Predi
         observed = [p.value for p in train]
         inner = {c: route_a.leave_one_group_out(train, station, f) for c, f in options.items()}
         pick = choose({c: stats.mdsa(*_valid(e, observed)) for c, e in inner.items()},
-                      cfg.selection.simpler_within_mdsa)  # fmt: skip
+                      cfg.selection.simpler_within_mdsa, order)  # fmt: skip
         chosen[g] = pick
         q = route_a.conformal(inner[pick], observed, cfg.intervals.coverages)
         values = options[pick](train, test)
