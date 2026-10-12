@@ -574,6 +574,33 @@ another way.
   days of a Magdalena sample and of the other Colombian samples. A fetch of its own, capped at
   25 GB of network, keeps the existing snapshots untouched.
 
+**Round 2 (exploratory, 2026-10-11, written before computing it)**
+
+Round 1 reached 71.5 % by nested LOSO (indicative, post hoc). Its inner selection chose T+G on the
+±7-day pairs with the nearest scene in 7 of 11 folds. That form's plain Magdalena LOSO, seen with
+hindsight, was 38 %: half of v2.1's error, but chosen on the same pairs. Round 2 tests the form on
+data round 1 never used.
+
+- **The form, fixed:**
+  - a ridge in log space on the log of A4's USGS estimate (T) and the flow change g (G);
+  - trained on ±7-day pairs, nearest scene;
+  - λ by inner LOSO.
+- **Checks:**
+  1. **Magdalena LOSO** (biased by hindsight, reported as such).
+  2. **External LORO:** the same form on the Colombian rivers off the Magdalena. Each river is
+     predicted by a fit on the others, with their ±3-day stable pairs as test units. Round 1 never
+     used these data.
+  3. **Transfer:** the form fitted on every Magdalena pair, scored on the other rivers' test units.
+  4. **Magdalena leave-one-year-out.**
+- **The rule for publishing values:** the reach's records may show a value from this form only if
+  both of these hold:
+  - check 1 meets v2.1's _estimated_ criteria;
+  - check 2 gives MdSA ≤ 60 % with |SSPB| ≤ 30 % (the form generalises to other rivers).
+
+  The label is then "estimated (post hoc; form chosen on the Magdalena, confirmed on other rivers)".
+  The interval comes from check 1's residuals. Otherwise the product stays at round 1's
+  _indicative (post hoc)_.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.
@@ -674,3 +701,16 @@ another way.
    - **The change:** that acquisition counts as no data, like an asset in a non-public bucket. Its
      window has no water pixel with red and NIR, so it makes no pair either way.
    - **What was seen:** the read errors and the item's band list. No Landsat value was examined.
+8. **2026-10-11, after v3 round 1's first run: candidates compared on different units.**
+   - **What the first run showed:** a candidate with the flow index (Q) or the flow change (G)
+     could not predict a unit whose station or day lacks flow data, and the unit was dropped.
+     - Inside each fold, candidates were then scored on different subsets of units. The selection
+       favoured those that skipped the hard cases.
+     - The run scored 23 of the 31 test units at 9 of 11 stations: nested MdSA 81.7 %.
+   - **The fix:** where the flow is unknown, its standardised index is taken as 0 (the station's
+     typical flow, no change) at prediction time. Every candidate then predicts every unit. The
+     training rows still need real flow.
+   - **What does not change:** the candidate space, the pair sets, the test units and the
+     selection rule.
+   - **Reported:** both runs. The fixed run is round 1's result. It was designed after the first
+     run's number was seen, so it carries that caveat.
