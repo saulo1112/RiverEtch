@@ -523,6 +523,57 @@ LOSO, labelled post hoc, never _validated_.
   owner's account, credentials in environment variables only) and RAdCor on a box around the
   estimate station. The record's atmospheric correction then names ACOLITE RAdCor.
 
+### v3: an open search to halve the turbidity error (2026-10-11, before computing it)
+
+The project owner asked for every reasonable attempt to bring the Magdalena turbidity error to at
+most half of v2.1's (77 % → ≤ 38 %), without a limit on attempts. The obstacle is data, not the
+model class. 184 Magdalena turbidity samples since 2015 give 31 pairs, because a clear scene
+within ±3 days is rare. A date-based lock box would hold only 7 pairs, so the search stays honest
+another way.
+
+- **Rounds:** each round fixes its candidate space before it is computed, and the report lists
+  every round.
+- **Error that counts:** a round's error is its nested leave-one-station-out (LOSO) over the
+  Magdalena stations. The inner loops choose among the whole candidate space (feature set, pair
+  set, penalty), so the error includes the cost of choosing.
+- **Test pairs:** the outer test pairs are always the Magdalena pairs within ±3 days with stable
+  flow (v2.1's main set), the ones closest to how the product is used. Longer matchups only ever
+  train.
+- **Later rounds:** a round designed after seeing an earlier one is labelled exploratory. Only
+  round 1 is reported as confirmatory.
+- **Levels:** as v2.1 (post hoc, never _validated_). A model that uses discharge needs the
+  estimate station's daily flow in operation, and its records name that input.
+
+**Round 1 candidate space**
+
+- **Pair sets** (training only):
+  - the ±3-day stable set;
+  - ±7 days;
+  - ±15 days.
+
+  Beyond ±3 days a pair carries the flow ratio g = ln(Q_sample / Q_scene) (Q_MEDIA_D, or the level
+  in metres where only NV_MEDIA_D exists). Each sample's pairs are weighted 1/n, so a sample with
+  many scenes counts once.
+
+- **Per-sample aggregation:**
+  - the nearest scene;
+  - the median of the estimates over every valid scene in the window.
+- **Feature sets** (ridge in log space, λ from {0.1, 1, 10, 100} by inner LOSO):
+  - **S:** log B8A/B04;
+  - **S5:** v2.1's four features;
+  - **T:** log of A4's USGS estimate;
+  - **Q:** log Q_sample (or the level);
+  - **G:** g, when the pair set has gaps.
+
+  The combinations S, S5, T, Q, S+Q, S5+Q, T+Q, S+G, S5+G, T+G, S+Q+G, S5+Q+G and T+Q+G are all in
+  the space.
+
+- **Physical ensemble:** on the pairs that also have ACOLITE RAdCor, the geometric mean of the
+  chosen L2A estimate and Dogliotti 2015 on RAdCor.
+- **New imagery:** Sentinel-2 L2A windows, measured as before, for the acquisitions within ±15
+  days of a Magdalena sample and of the other Colombian samples. A fetch of its own, capped at
+  25 GB of network, keeps the existing snapshots untouched.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.
