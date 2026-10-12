@@ -151,6 +151,7 @@ class Table:
     station: NDArray[np.str_]
     sample: NDArray[np.int64]  # sample index
     nearest: NDArray[np.bool_]  # the sample's nearest pair in this set
+    year: NDArray[np.int64]  # the sample's hydrological year (December opens the next)
 
 
 def table(pairs: Sequence[Pair], index: Mapping[str, dict[date, float]],
@@ -181,9 +182,10 @@ def table(pairs: Sequence[Pair], index: Mapping[str, dict[date, float]],
     for s in set(sample.tolist()):
         idx = np.flatnonzero(sample == s)
         nearest[idx[np.argmin(gaps[idx])]] = True
+    year = np.array([p.sample_day.year + (p.sample_day.month == 12) for p in pairs], dtype=np.int64)
     return Table(list(pairs), np.array(rows, dtype=np.float64).reshape(len(pairs), len(NAMES)),
                  np.log(np.array([p.value for p in pairs], dtype=np.float64)),
-                 np.array([p.station for p in pairs]), sample, nearest)  # fmt: skip
+                 np.array([p.station for p in pairs]), sample, nearest, year)  # fmt: skip
 
 
 @dataclass(frozen=True)
@@ -270,10 +272,23 @@ def train(c: Candidate, t: Table, stations: set[str]) -> Model | None:
     Returns:
         The model, or None.
     """
-    allowed = np.isin(t.station, sorted(stations))
+    return train_mask(c, t, np.isin(t.station, sorted(stations)))
+
+
+def train_mask(c: Candidate, t: Table, allowed: NDArray[np.bool_]) -> Model | None:
+    """A candidate fitted on some rows, λ by LOSO over their stations (pair-level MdSA).
+
+    Args:
+        c: The candidate.
+        t: Its pair set.
+        allowed: The training rows.
+
+    Returns:
+        The model, or None.
+    """
     keep, w = weights(t, allowed, c.aggregation)
     best: tuple[float, float] | None = None
-    names = sorted(stations)
+    names = sorted(set(t.station[allowed].tolist()))
     for lam in LAMBDAS:
         oof = np.full(len(t.y), math.nan)
         for s in names:
@@ -338,27 +353,41 @@ class Data:
     """Round 1's inputs: the pair sets, the test units and their values."""
 
     tables: dict[str, Table]
-    units: dict[str, list[int]]  # Magdalena station -> its test samples
+    units: dict[str, list[int]]  # group (station or river) -> its test samples
     value: dict[int, float]
     pool: dict[int, Pair]  # each unit's nearest test pair (for stats and clusters)
+    members: dict[str, list[str]]  # group -> its stations
+
+    def stations(self, groups: Sequence[str]) -> set[str]:
+        """The stations of some groups.
+
+        Args:
+            groups: Group names.
+
+        Returns:
+            Their stations.
+        """
+        return {s for g in groups for s in self.members[g]}
 
 
 def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
-         t_model: Callable[[Pair], float] | None) -> Data:  # fmt: skip
-    """The Magdalena turbidity pair sets and test units.
+         t_model: Callable[[Pair], float] | None, external: bool = False) -> Data:  # fmt: skip
+    """The turbidity pair sets and test units: the Magdalena's, or the other rivers'.
 
     Args:
         cfg: Settings.
         ci: The Colombian inputs (samples, flow, streams).
         scenes: Every core-window scene (v2's and the extended fetch's).
         t_model: A4's USGS model.
+        external: The rivers off the Magdalena, grouped by river (default: the Magdalena,
+            grouped by station).
 
     Returns:
         The data.
     """
     test_stream = cfg.stations.test_stream
     samples = [s for s in ci.samples if s.target == TARGET
-               and ci.stream_of.get(s.station) == test_stream]  # fmt: skip
+               and (ci.stream_of.get(s.station) == test_stream) != external]  # fmt: skip
     ids = {(s.station, s.day): k for k, s in enumerate(samples)}
     index = flow_index(ci.flow)
     guards = cfg.window.as_calibration()
@@ -371,12 +400,16 @@ def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
     test = tables["3s"]
     units: dict[str, list[int]] = {}
     pool: dict[int, Pair] = {}
+    members: dict[str, list[str]] = {}
     for k, p in enumerate(test.pairs):
         u = int(test.sample[k])
         if test.nearest[k]:
+            group = ci.stream_of.get(p.station, p.station) if external else p.station
             pool[u] = p
-            units.setdefault(p.station, []).append(u)
-    return Data(tables, units, {u: p.value for u, p in pool.items()}, pool)
+            units.setdefault(group, []).append(u)
+            if p.station not in members.setdefault(group, []):
+                members[group].append(p.station)
+    return Data(tables, units, {u: p.value for u, p in pool.items()}, pool, members)
 
 
 def _mdsa(estimates: Mapping[int, float], value: Mapping[int, float]) -> float:
@@ -397,9 +430,8 @@ def loso(c: Candidate, d: Data, stations: Sequence[str], impute: bool = True) ->
         Unit -> estimate.
     """
     out: dict[int, float] = {}
-    rest = set(stations)
     for s in stations:
-        model = train(c, d.tables[c.pair_set], rest - {s})
+        model = train(c, d.tables[c.pair_set], d.stations([g for g in stations if g != s]))
         for u, e in zip(d.units[s], predict_units(model, c, d.tables["3s"], d.units[s], impute),
                         strict=True):  # fmt: skip
             out[u] = e
@@ -451,7 +483,7 @@ def nested(cfg: QualityConfig, d: Data, candidates: Sequence[Candidate], impute:
         inner = {c.id: loso(c, d, rest, impute) for c in candidates}
         winner = pick({k: _mdsa(v, d.value) for k, v in inner.items()}, candidates, margin)
         chosen[s] = winner.id
-        model = train(winner, d.tables[winner.pair_set], set(rest))
+        model = train(winner, d.tables[winner.pair_set], d.stations(rest))
         values = predict_units(model, winner, d.tables["3s"], d.units[s], impute)
         train_units = [u for x in rest for u in d.units[x]]
         observed = [d.value[u] for u in train_units]
@@ -491,6 +523,7 @@ def analyse(
         "v3_levels": [],
         "v3_choices": [],
         "v3_candidates": [],
+        "v3_round2": [],
     }
     counts: dict[str, Any] = {f"pairs_{ps}": len(t.pairs) for ps, t in d.tables.items()}
     counts["samples_in_15"] = len(set(d.tables["15"].sample.tolist()))
@@ -528,6 +561,7 @@ def analyse(
     tables["v3_levels"] += [{"round": 1, **r} for r in rows]
     tables["v3_choices"] += [{"round": 1, "held_out_station": s, "chosen": c}
                              for s, c in result.chosen.items()]  # fmt: skip
+    tables["v3_round2"] = round2(cfg, ci, scenes, t_model)
     ranked = sorted(plain.items(), key=lambda kv: kv[1])
     tables["v3_candidates"] += [{"round": 1, "candidate": k, "plain_loso_mdsa": v,
                                  "note": "report-only: chosen with hindsight"}
@@ -574,4 +608,75 @@ def summary(tables: Mapping[str, list[dict[str, Any]]]) -> dict[str, Any]:
             lv = f"{r['level']} (post hoc)" if r["level"] != "none" else "none"
             out[f"round {r['round']}"] = {"mdsa": round(r["mdsa"], 1), "level": lv,
                                           "n": int(r["n"])}  # fmt: skip
+    for r in tables.get("v3_round2", []):
+        if "mdsa" in r:
+            key = "round 2: " + str(r["check"]).split(" ", 1)[1]
+            out[key] = {"mdsa": round(r["mdsa"], 1), "n": int(r["n"]),
+                        **({"publish_values": r["publish_values"]}
+                           if "publish_values" in r else {})}  # fmt: skip
     return out
+
+
+FORM = Candidate("7", "nearest", "T+G")
+
+
+def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
+           t_model: Callable[[Pair], float] | None) -> list[dict[str, Any]]:  # fmt: skip
+    """Round 2: round 1's most chosen form, checked on data round 1 never used.
+
+    Args:
+        cfg: Settings.
+        ci: The Colombian inputs.
+        scenes: Every core-window scene.
+        t_model: A4's USGS model.
+
+    Returns:
+        One row per check, with the publishing rule's verdict on the first.
+    """
+    from climate_pipeline.quality.route_b import _seed
+
+    seed = _seed(cfg.seed, "v3", "round2")
+    rows: list[dict[str, Any]] = []
+    mag = data(cfg, ci, scenes, t_model)
+    one, order, _ = nested(cfg, mag, [FORM])
+    pool = [mag.pool[u] for u in order]
+    m1 = posthoc.metrics(cfg, pool, one, list(range(len(pool))), seed)
+    lv1 = route_a.level(m1, cfg, bin_level=True)
+    ext = data(cfg, ci, scenes, t_model, external=True)
+    if len(ext.units) >= 2:
+        two, order2, _ = nested(cfg, ext, [FORM])
+        pool2 = [ext.pool[u] for u in order2]
+        m2 = posthoc.metrics(cfg, pool2, two, list(range(len(pool2))), seed + 1)
+        model = train(FORM, mag.tables[FORM.pair_set], mag.stations(list(mag.units)))
+        units = [u for g in sorted(ext.units) for u in ext.units[g]]
+        est3 = predict_units(model, FORM, ext.tables["3s"], units)
+        pool3 = [ext.pool[u] for u in units]
+        null3 = [float(np.median([mag.value[u] for u in mag.value]))] * len(units)
+        m3 = route_a.evaluate(cfg, pool3, est3, null3, None, seed + 2)
+    else:
+        m2 = m3 = {"mdsa": math.nan, "sspb": math.nan, "n": 0.0}
+    confirmed = bool(m2["mdsa"] <= 60 and abs(m2["sspb"]) <= 30)
+    publish = lv1 in ("estimated", "validated") and confirmed
+    verdict = {"level": lv1, "external_confirmed": confirmed, "publish_values": publish}
+    rows.append({"round": 2, "check": "1 Magdalena LOSO (form chosen with hindsight)", **m1,
+                 **verdict})  # fmt: skip
+    rows.append({"round": 2, "check": "2 external LORO, rivers off the Magdalena", **m2,
+                 "rivers": len(ext.units)})  # fmt: skip
+    rows.append({"round": 2, "check": "3 fitted on the Magdalena, scored on the other rivers",
+                 **m3})  # fmt: skip
+    t7 = mag.tables[FORM.pair_set]
+    years = sorted({int(y) for u, p in mag.pool.items()
+                    for y in [p.sample_day.year + (p.sample_day.month == 12)]})  # fmt: skip
+    est4: dict[int, float] = {}
+    for y in years:
+        units = [u for u, p in mag.pool.items()
+                 if p.sample_day.year + (p.sample_day.month == 12) == y]  # fmt: skip
+        model = train_mask(FORM, t7, t7.year != y)
+        for u, e in zip(units, predict_units(model, FORM, mag.tables["3s"], units), strict=True):
+            est4[u] = e
+    units4 = sorted(est4)
+    pool4 = [mag.pool[u] for u in units4]
+    null4 = [float(np.median([mag.value[u] for u in mag.value]))] * len(units4)
+    m4 = route_a.evaluate(cfg, pool4, [est4[u] for u in units4], null4, None, seed + 3)
+    rows.append({"round": 2, "check": "4 Magdalena leave-one-year-out", **m4})
+    return rows

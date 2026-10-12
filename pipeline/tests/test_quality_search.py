@@ -66,7 +66,8 @@ def synthetic() -> search.Data:
         u = int(test.sample[k])
         pool[u] = p
         units.setdefault(p.station, []).append(u)
-    return search.Data(tables, units, {u: p.value for u, p in pool.items()}, pool)
+    members = {s: [s] for s in units}
+    return search.Data(tables, units, {u: p.value for u, p in pool.items()}, pool, members)
 
 
 def test_nested_loso_finds_a_clean_relation() -> None:
