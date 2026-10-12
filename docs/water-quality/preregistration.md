@@ -601,6 +601,266 @@ data round 1 never used.
   The interval comes from check 1's residuals. Otherwise the product stays at round 1's
   _indicative (post hoc)_.
 
+## v4: a second reach, a temporal validation and Stage B (2026-10-12, before computing any of it)
+
+v3 ended at round 1's _indicative (post hoc)_ (71.5 % by nested LOSO). Round 2 did not confirm its
+form. The project owner asked for three things:
+
+1. a river with reliable continuous measurements, as a second demo reach;
+2. the lowest out-of-sample error for the Magdalena reach, validated the way the product is used;
+3. a closed product.
+
+The owner's choices of 2026-10-12:
+
+- the Missouri River at Hermann (USGS 06934500) as the second reach;
+- leave-one-hydrological-year-out as the Magdalena's primary temporal validation;
+- RAdCor Stage B for TSS, as v2.2 requires, and also for turbidity (exploratory);
+- the observation record v2 schema gains two `basis` values, and each estimate's unit is read from
+  its model card.
+
+Each part below is fixed before it is computed. The report counts every round and candidate.
+
+### What was seen before this section
+
+- **USGS pilot (`inputs/usgs/`), per site:**
+  - the number of turbidity pairs per year;
+  - the 10 %, 50 % and 90 % quantiles of the turbidity values at the drawn scenes, over all years
+    (the lock box below included).
+
+  No error of any model at any site was computed or examined.
+
+- **Hermann's earlier use:** its 165 pilot pairs trained A2–A4 in v2 and entered the
+  leave-one-river-out tuning of A3's λ and A4's grid (the Missouri fold). Those per-river scores
+  were never reported or examined.
+- **Magdalena counts:** per-station counts of samples and pairs in each set. San Pablo (23207040),
+  the reach's estimate station, has 7 turbidity samples (2021-07..2023-06) and 3 test units. Its
+  values are in tables committed with v2.
+- **A code review** found that v3's flow features are standardised per station (deviation 9).
+- **The water-quality CI** has failed since the v2 merge: the v2.1 turbidity card recorded the
+  SHA-256 of its LightGBM file with CRLF line endings (deviation 10).
+- **Searches for open continuous turbidity outside the US:**
+  - Rijkswaterstaat AQUALARM at Lobith (FTU; the history on request);
+  - the Rhône sediment observatory (BDOH: suspended solids derived from turbidity, with an
+    account);
+  - Elbe stations (no open download found);
+  - New South Wales and Queensland portals (continuous turbidity at narrow sites, unconfirmed);
+  - ANA (no continuous turbidity found).
+
+  None offers an open, approved, continuous series on a river ≥ 300 m wide that can be fetched now.
+
+### A. The second reach: the Missouri River at Hermann
+
+**Selection.** The hard criteria are:
+
+1. a main channel ≥ 300 m wide;
+2. continuous turbidity (63680) since 2017 or earlier, with approved values at clear scenes in
+   2024–2026 (a held-out period needs them);
+3. no dam on the main stem within the reach;
+4. no tributary entering the station window.
+
+Of the 13 pilot sites ≥ 300 m wide:
+
+| Site                         | Outcome                                          |
+| ---------------------------- | ------------------------------------------------ |
+| Susquehanna near Darlington  | fails: below Conowingo Dam                       |
+| Ohio at Olmsted              | fails: at a lock and dam                         |
+| Mississippi at Dam 13        | fails: at a dam, and its series starts in 2021   |
+| Mississippi at Keokuk        | fails: at a dam, and its series starts in 2021   |
+| Mississippi at Clinton       | fails: its series ended in 2021                  |
+| Missouri near Council Bluffs | fails: its series ended in 2022                  |
+| Missouri at Napoleon         | fails: its series starts in 2023                 |
+| Mississippi at Memphis       | fails: its series starts in 2023                 |
+| Mississippi at Baton Rouge   | fails: approved values at its scenes end in 2023 |
+| Ohio at Ironton              | passes (172 pairs)                               |
+| Platte at Louisville         | passes (121 pairs)                               |
+| Mississippi at Belle Chasse  | passes (121 pairs)                               |
+| Missouri at Hermann          | passes (165 pairs)                               |
+
+The owner chose Hermann among the four that pass:
+
+- its range (p50 51 FNU, p90 263 FNU) is the closest to the Magdalena's;
+- Ironton lies in a navigation pool, with a median of 9.5 FNU;
+- the Platte is braided and shallow;
+- Belle Chasse is tidally influenced, with no 2026 values.
+
+**Data.**
+
+- **Scenes:** every Earth Search L2A acquisition 2018-12-01..2026-09-30 at Hermann with item cloud
+  ≤ 70 %, measured and guarded as in the pilot. The pilot drew at most 200; this fetch adds the
+  rest. The cap is 4 GB of estimated network.
+- **Values:** the pilot's rules (approved 15-minute values, the median within ±30 min of the
+  acquisition, else the nearest within ±60 min, qualifiers excluded).
+- **Window:** the core window (adjacency was confirmed in v2).
+- **Target:** turbidity in FNU only. No TSS is estimated at Hermann.
+
+**Splits.**
+
+- **Training:** pairs dated 2018-12-01..2023-11-30, the hydrological years 2019–2023 (December
+  opens the next year).
+- **Lock box:** 2023-12-01..2026-09-30. It is evaluated once.
+
+**Candidates.** Selection runs in the order H1, H2, H3, H4.
+
+- **H0:** the median of the training values.
+- **H1:** log-log OLS on B8A/B04, fitted on Hermann's training pairs.
+- **H2, H3, H4:** A2, A3 and A4 trained on the pilot pairs **without the Missouri's five sites**,
+  then the site adjustment log y = a + b·log ŷ fitted on Hermann's training pairs.
+  - A3's λ comes from leave-one-river-out over the remaining rivers.
+  - A4's grid, seed and determinism are v2's. It is retrained in the lab environment and exported
+    as JSON.
+  - The adjustment is a ridge on (a, b − 1). λ comes from {0.1, 1, 10} by leave-one-year-out
+    within the training years; with fewer than 10 pairs it is the identity.
+- **Report-only:** H2–H4 without the site adjustment (trained on other rivers only), scored on the
+  lock box.
+
+**Selection and the card.**
+
+- Inside the training years, each candidate is scored by leave-one-hydrological-year-out. The
+  lowest MdSA wins; within 5 points, the simpler wins.
+- The selected candidate, fitted on the training years only, is the card. **There is no refit,**
+  so the lock-box error is the card's own error, and the reach's records from 2023-12 onward are
+  out of sample.
+- Every candidate's lock-box score is reported. The level comes from the selected one.
+
+**Intervals.** Split conformal in log space, on the selected candidate's inner leave-one-year-out
+residuals (Mondrian terciles with deviation 4's pooled fallback). Coverage is checked on the lock
+box.
+
+**Levels, per predicted range in FNU** (bins < 30, 30–100, 100–300, 300–1,000, ≥ 1,000; a bin under
+8 pairs takes the overall level, capped at _estimated_):
+
+- **validated (site):** lock-box MdSA ≤ 50 %, |SSPB| ≤ 25 %, MdSA ≤ 0.8 × H0's, N ≥ 20 in at
+  least 2 hydrological years, and 90 % coverage in [80 %, 97 %].
+  - Basis `preregistered_lockbox_site`.
+  - Wording: "validated at USGS 06934500 (Missouri River at Hermann) on the held-out period
+    2023-12..2026-09, range A–B FNU".
+- **estimated (site):** MdSA ≤ 60 %, |SSPB| ≤ 30 %, MdSA below H0's, and the same coverage.
+- **indicative:** Spearman ρ with a 95 % lower bound > 0.3 (10,000 acquisition-cluster bootstrap
+  draws).
+
+**Prospective check (report-only).** The card's SHA-256 is fixed by its commit. `reach check` pairs
+every record of a scene acquired after that commit with the USGS value at the overpass, labelled
+with its approval state (usually provisional). It reports MdSA with n and never sets a level.
+
+**The reach.**
+
+- **Baseline:** NDTI and NIR/red computed by the reach itself on its usable scenes from 2019-01-01
+  to 2025-12-31 (the D0 rule unchanged). The cap is 6 GB of estimated network.
+- **Records:** from 2026-01-01 onward. The estimate station is the gauge's snapped point, in the
+  core window.
+
+### B. Magdalena round 3 (exploratory): a known station, validated forward in time
+
+The product always runs at a station with history, so the question here is the error at a known
+station on dates it has not seen. Leave-one-station-out measures a new station instead. Round 3
+was designed after rounds 1 and 2, so it is exploratory.
+
+**Test units:** v3's 31 units (±3 days with stable flow, nearest scene).
+
+**Outer folds:** the hydrological years (December to November) that hold a unit. In a fold, every
+pair of any set whose sample falls in that year leaves training, at every station. IDEAM samples
+several stations in one campaign, so holding out a single date would leave that campaign's samples
+at neighbouring stations in training.
+
+**Inner selection:** inside the outer training years, the candidates are scored by
+leave-one-hydrological-year-out on those years' units. The lowest MdSA wins; within 5 points, the
+simplest wins. Simplicity runs: fewer features, then shorter matchups, the nearest scene, a weaker
+station effect, all pairs, and the larger λ. The winner is fitted on the outer training years and
+predicts the held-out year.
+
+**Candidate space** (a weighted ridge in log space, each sample weighted 1/n as in v3):
+
+- **feature sets:** S5, T, T+G and S5+G, with G only where the pairs have gaps.
+  - G is the preregistered flow change: g = ln(Q_sample / Q_scene) on `Q_MEDIA_D`, or the level
+    change in metres where only `NV_MEDIA_D` exists (deviation 9).
+  - Where the flow is unknown, g is 0 at prediction time (deviation 8); training rows need real
+    flow;
+- **training pairs:** ±3 days stable, ±7 days, ±15 days;
+- **aggregation:** the nearest scene or the median;
+- **station effect:**
+  - none;
+  - one offset per station, ridge-penalised with λₛ ∈ {1, 10}. A station without training pairs
+    gets 0 (the pool). The penalty is in the units of the 1/n weights;
+- **pair quality (training rows only):** all, or strict (gap ≤ 7 days, ≥ 50 valid pixels, glint
+  share ≤ 0.1);
+- **feature penalty:** λ ∈ {0.1, 1, 10, 100};
+- **+CVC:** each candidate also with the CVC rows of section D added to training, only if its probe
+  passes.
+
+**Intervals:** split conformal on the winner's inner residuals, with v2.1's rule.
+
+**Levels:** v2.1's post-hoc criteria, on the outer predictions. The label is "(post hoc, temporal
+validation, exploratory)" and the basis is `post_hoc_temporal_magdalena`.
+
+**Reported, never levels:**
+
+- **sensitivities:**
+  - one sample out within its station (each unit held out alone, with the same inner selection);
+  - forward chaining (each year predicted from earlier years only, for years with at least 3
+    earlier years that hold units);
+- the form T+G, ±7 days, nearest scene, with station offsets (λₛ = 10, λ by the inner selection),
+  labelled as chosen with hindsight;
+- Dogliotti 2015 on RAdCor with a common offset and station offsets (λₛ from {none, 1, 10} by the
+  inner selection), on the units that have RAdCor at the time of the run;
+- San Pablo's own units (3), not rated.
+
+**The product's Magdalena card:**
+
+- Round 1's card is written now, at the level of round 1's result of record (deviation 9). Round
+  2's rule already said the product stays at round 1's level, but no card was ever written.
+- The reach uses round 3's card (the same selection on every year, then a fit on all of them) only
+  when round 3's overall level is at least _indicative_; otherwise round 1's.
+- Values appear only at _estimated (post hoc, temporal validation, exploratory)_.
+
+### C. RAdCor Stage B
+
+- **TSS:** due under v2.2's rule (Stage A's 137 % is below v2.1's 165 %), so it is run as v2.2
+  states.
+- **Turbidity:** the owner's addition. It is exploratory, since Stage A's 80 % did not beat v2.1's
+  77 %.
+- **Scenes:** the acquisitions of v2's sensitivity-set pairs (±1 day, or ±3 days with stable flow,
+  core window) at Magdalena stations that Route B lacks under RAdCor. They are listed after this
+  section is committed, without values.
+- **Processing:** v2.2's.
+  - Level-1C products come through the owner's account, one at a time, each deleted once its
+    windows are extracted.
+  - ACOLITE `ca477dd` with deviation 1's patch and `settings-radcor.txt`, on a ±0.05° box (±0.08°
+    when a station falls near the box edge).
+  - The medians are taken over the core window's L2A pixels.
+  - The ACOLITE time box is 6 h, and the downloads stop under 20 GB of free disk.
+- **Evaluation:** Stage A's candidates (R1 as published, R2 adjusted, R3 log-log on RAdCor's
+  B8A/B04, and M0), by nested LOSO on every RAdCor pair of each target, with v2.1's levels. One
+  more row (report-only) gives the selected candidate under round 3's outer folds.
+- **If a level is reached:** the operational path with ACOLITE is documented. It needs the owner's
+  credentials, so it is never unattended.
+
+### D. CVC data (datos.gov.co `d3ft-wu2b`): a probe with a stop rule
+
+- **Metadata only first:** points, coordinates and the number of turbidity samples since
+  2018-12-01.
+- **Station rule:** each point with ≥ 30 samples goes through the station rule (snap within
+  1.5 km to a main channel ≥ 150 m wide, from SCL over 2022–2025).
+- **If at least 3 points pass:**
+  - their values (NTU) and Sentinel-2 windows within ±15 days are fetched, capped at 5 GB of
+    estimated network;
+  - they enter round 3 only as training rows, with their own station offsets.
+- **Otherwise:** the report says "not suitable", and round 3 runs without them.
+
+### E. Prospective IDEAM samples
+
+The snapshot's last sample is 2025-11-10. Samples in `62gv-3857` at the Magdalena stations dated
+later are counted. Those with a usable scene within ±3 days and stable flow are predicted by the
+committed product card. This is report-only, with no level under 8 pairs.
+
+### F. What will not be done
+
+- No table of v2, v2.1, v2.2, Landsat or v3 changes, except added rows labelled as such.
+- No Magdalena pair trains anything at Hermann.
+- No Hermann lock-box pair enters training, selection or the conformal residuals.
+- No round 3 outer fold's pairs enter its own selection.
+- No unit is shown at a level that was not reached.
+- No actor is said to have caused anything.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.
@@ -714,3 +974,39 @@ data round 1 never used.
      selection rule.
    - **Reported:** both runs. The fixed run is round 1's result. It was designed after the first
      run's number was seen, so it carries that caveat.
+9. **2026-10-12, found in a code review after v3's results were seen: the flow features of v3.**
+   - **What was preregistered** (v3, round 1): Q is log Q_sample (or the level), and G is
+     g = ln(Q_sample / Q_scene) (Q_MEDIA_D, or the level in metres where only NV_MEDIA_D exists).
+   - **What the code did** (`quality/search.py`, `flow_index`):
+     - it standardised each station's log discharge (or level in metres) by the station's own
+       median and 1.4826 × MAD;
+     - it used that index as Q, and the index's change z_sample − z_scene as G.
+
+     G was therefore the preregistered g divided by a scale that differs between stations. This
+     choice was made in the code before any v3 result existed, but it was not written in the
+     preregistration.
+
+   - **The fix** (the deviation protocol for a bug found after results were seen):
+     - rounds 1 and 2 are computed again with Q and G as preregistered;
+     - those runs become the rounds' results of record;
+     - the standardised runs stay in the tables, labelled "standardised flow (first computed)".
+   - **Round 3 (v4)** uses the preregistered g.
+   - **What was seen:** every v3 result (round 1: 71.5 %, indicative; round 2's four checks). No
+     result with the preregistered features had been computed.
+10. **2026-10-12, found when CI failed after the v2 merge: a card hashed a CRLF working copy.**
+    - **What happened:**
+      - The v2.1 turbidity card (`models/turbidity.posthoc.json`, candidate P4) records the SHA-256
+        of `inputs/lab/gbm-turbidity-core.json`.
+      - It was written from a Windows working copy that held the file with CRLF line endings. The
+        repository holds it with LF, so every checkout recomputes another hash, and `quality verify`
+        fails on that card. CI has failed since the merge of v2.
+    - **The fix:** the card hashes a model file with LF line endings, whatever the checkout wrote.
+      The card is written again.
+    - **What does not change:**
+      - every estimate, coefficient, interval and level;
+      - the trees, which are the same JSON with either line ending.
+
+      Only the card's `sha256` and `parametersHash` change.
+
+    - **What was seen:** the CI log, the two hashes and that the committed blob hashes to the
+      recomputed value.
