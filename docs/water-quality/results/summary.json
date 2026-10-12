@@ -1,5 +1,17 @@
 {
   "incomplete": [],
+  "posthoc": {
+    "tss": {
+      "level": "none",
+      "mdsa": 164.8,
+      "n": 31
+    },
+    "turbidity": {
+      "level": "none",
+      "mdsa": 77.4,
+      "n": 31
+    }
+  },
   "route_a": {
     "tss": {
       "candidate": "A3",
