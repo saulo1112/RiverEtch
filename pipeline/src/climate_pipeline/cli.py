@@ -117,11 +117,12 @@ def _parser() -> argparse.ArgumentParser:
     )
     quality.add_argument(
         "action",
-        choices=("fetch", "fetch-usgs", "fetch-site", "fetch-v5", "fetch-landsat",
+        choices=("fetch", "fetch-usgs", "fetch-site", "fetch-v5", "fetch-v6", "fetch-landsat",
                  "fetch-extended", "export-lab", "stage-b-list", "run", "verify"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
         "the USGS pilot; fetch-site --site ID: every clear scene of one pilot site (v4's second "
         "reach); fetch-v5: every clear scene, turbidity and SSC of v5's gauged rivers; "
+        "fetch-v6: the demo gauges' SSC samples and readings, and Landsat thermal at the Platte; "
         "fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
         "(phase 3); fetch-extended: windows within 15 days of a sample (v3); export-lab: the "
         "lab's training tables (A4); stage-b-list: the Level-1C scenes of RAdCor Stage B (v4); "
@@ -151,12 +152,15 @@ def _parser() -> argparse.ArgumentParser:
     )
     reach = commands.add_parser("reach", help="observation records v2 of a reach (P3, D16)")
     reach.add_argument(
-        "action", choices=("baseline", "run", "check", "examples", "render", "verify"),
+        "action",
+        choices=("baseline", "run", "check", "examples", "render", "thermal", "context", "verify"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); check: a "
         "gauged reach's estimates against its gauge after the card's commit (report-only); "
         "examples: copy the newest outputs to docs/water-quality/reach/<site>/examples/; render: "
         "the reach's geometry and each recorded scene's NDTI map, beside the examples (web); "
+        "thermal: water-temperature records of the Landsat passes (a reach with a temperature "
+        "card); context: the gauge's own readings at each recorded pass; "
         "verify: every record's seal, the ledger chain and the cards (exit 1 on any problem)",
     )  # fmt: skip
     reach.add_argument(
@@ -504,6 +508,12 @@ def quality(args: argparse.Namespace) -> int:
                                    ssc=False, cap_gb=SITE_CAP_GB)  # fmt: skip
         print(f"snapshots: {counts}")
         return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "fetch-v6":
+        from climate_pipeline.quality import variables
+
+        counts = variables.fetch(cfg, root, root / args.cache, args.workers)
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "fetch-v5":
         from climate_pipeline.quality import usgs
 
@@ -588,6 +598,20 @@ def reach(args: argparse.Namespace) -> int:
             try:
                 out = reach_run.write_examples(cfg, root, site, everything=args.all_records)
                 print(f"{site}: {out}")
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+        return 0
+    if args.action in ("thermal", "context"):
+        from climate_pipeline.reach import thermal
+
+        for site in sites:
+            try:
+                if args.action == "thermal":
+                    outcome = thermal.thermal(cfg, root, site, root / args.cache, args.since,
+                                            args.until, args.workers)  # fmt: skip
+                else:
+                    outcome = {"context_rows": thermal.context(cfg, root, site)}
+                print(f"{site}: {outcome}")
             except reach_run.ReachError as error:
                 print(f"{site}: {error}")
         return 0

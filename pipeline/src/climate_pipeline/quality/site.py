@@ -23,7 +23,7 @@ import hashlib
 import json
 import math
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -379,6 +379,8 @@ class Evaluation:
     levels: list[dict[str, Any]]
     inner: list[dict[str, Any]]
     card: dict[str, Any]
+    # The chosen candidate's inner log errors, ln(estimate / observed) (v6's chain reads them).
+    inner_log_errors: list[float] = field(default_factory=list)
 
 
 def evaluate(cfg: QualityConfig, root: Path, usgs: transfer.UsgsInputs, run: Run,
@@ -446,7 +448,9 @@ def evaluate(cfg: QualityConfig, root: Path, usgs: transfer.UsgsInputs, run: Run
     the_card = card(cfg, target, pick, train, other, oofs[pick], rows,
                     {"inner": inner_m, "lockbox": lock_metrics[pick]},
                     root / cfg.outputs.inputs / "lab", run)  # fmt: skip
-    return Evaluation(scores, levels, inner_rows, the_card)
+    errors = [math.log(e / p.value) for e, p in zip(oofs[pick], train, strict=True)
+              if e > 0 and p.value > 0]  # fmt: skip
+    return Evaluation(scores, levels, inner_rows, the_card, errors)
 
 
 def analyse(cfg: QualityConfig, root: Path,

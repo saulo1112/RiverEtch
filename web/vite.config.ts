@@ -15,6 +15,7 @@ const TYPES: Record<string, string> = {
   ".jsonl": "application/jsonl",
   ".csv": "text/csv",
   ".png": "image/png",
+  ".webp": "image/webp",
 };
 
 // The cases with a thumbnail, rendered by `npm run capture:thumbnail`
@@ -45,13 +46,18 @@ function listFiles(folder: string): string[] {
 function reachData(): Plugin {
   const serve = (
     req: { url?: string },
-    res: { setHeader: (k: string, v: string) => void; end: (b: Buffer) => void },
-    next: () => void,
+    res: {
+      statusCode: number;
+      setHeader: (k: string, v: string) => void;
+      end: (b?: Buffer) => void;
+    },
   ) => {
     const path = decodeURIComponent((req.url ?? "").split("?")[0] ?? "");
     const file = examplesFile(path);
+    // A file a reach does not have is missing, not the app's page.
     if (file === null) {
-      next();
+      res.statusCode = 404;
+      res.end();
       return;
     }
     res.setHeader("Content-Type", TYPES[extname(file)] ?? "application/octet-stream");

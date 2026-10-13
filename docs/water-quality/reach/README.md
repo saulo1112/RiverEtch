@@ -91,6 +91,23 @@ the overpass (the pilot's rule; approved, else provisional, and labelled) and wr
 | `checks/*`       | Gauged reaches: unpublished raw estimates and the prospective check                          |
 | `runs.log`       | Output of the scheduled runs                                                                 |
 
+## More variables (v6)
+
+```powershell
+uv run climate-pipeline reach thermal --site platte-louisville --since 2026-01-01 --root ..
+uv run climate-pipeline reach context --site all --root ..
+```
+
+- **`thermal`:** a reach with a water-temperature card (`models/<site>/water_temperature.json`,
+  today the Platte) gets a record per Landsat 8/9 pass with at least the card's clear-water pixels
+  in the gauge's core window: the card's value in °C, its level and its 90 % interval, sealed
+  (`docs/schema/README.md`, water-temperature record v1) and chained in `thermal/ledger.jsonl`.
+  Beside them, `thermal/checks.csv` notes the gauge's own water temperature at each pass (approved,
+  else provisional, labelled).
+- **`context`:** `checks/context.csv` notes, at each recorded Sentinel-2 pass, what the gauge itself
+  measured (discharge and gage height; at the Platte also water temperature, dissolved oxygen,
+  specific conductance and nitrate plus nitrite). Measurements, never estimates.
+
 ## Files for the web (`docs/water-quality/reach/<site>/examples/`, committed)
 
 ```powershell
@@ -98,18 +115,21 @@ uv run climate-pipeline reach examples --site mississippi-belle-chasse --all-rec
 uv run climate-pipeline reach render --site mississippi-belle-chasse --root ..
 ```
 
-| File               | Content                                                                                       |
-| ------------------ | --------------------------------------------------------------------------------------------- |
-| `records/*.json`   | The sealed records, unchanged (every one with `--all-records`, else the newest three)         |
-| `latest.json`      | The newest record                                                                             |
-| `series.json`      | Every record by date, trimmed for a chart                                                     |
-| `ledger.jsonl`     | The whole ledger (`--all-records`; else `ledger.tail.jsonl`, its last lines)                  |
-| `checks/*`         | The prospective check: each scene's estimate beside the gauge (report-only)                   |
-| `cards/*.json`     | The reach's model cards: their hash is each record's `modelCardSha256`                        |
-| `reach.json`       | The site, the estimate station (with its USGS page), the targets and the baseline's period    |
-| `geometry.geojson` | `render`: the centreline (with chainage), the two sub-reaches, the station and its window     |
-| `maps/*.png`       | `render`: each recorded scene's NDTI over the pixels its medians read (encoding: `maps.json`) |
-| `maps.json`        | `render`: the PNG encoding, the image's corners in WGS84 and one entry per scene              |
+| File                 | Content                                                                                       |
+| -------------------- | --------------------------------------------------------------------------------------------- |
+| `records/*.json`     | The sealed records, unchanged (every one with `--all-records`, else the newest three)         |
+| `latest.json`        | The newest record                                                                             |
+| `series.json`        | Every record by date, trimmed for a chart                                                     |
+| `ledger.jsonl`       | The whole ledger (`--all-records`; else `ledger.tail.jsonl`, its last lines)                  |
+| `checks/*`           | The prospective check: each scene's estimate beside the gauge (report-only)                   |
+| `cards/*.json`       | The reach's model cards: their hash is each record's `modelCardSha256`                        |
+| `reach.json`         | The site, the estimate station (with its USGS page), the targets, the baseline and the cards  |
+| `geometry.geojson`   | `render`: the centreline (with chainage), the two sub-reaches, the station and its window     |
+| `maps/*.png`         | `render`: each recorded scene's NDTI over the pixels its medians read (encoding: `maps.json`) |
+| `maps.json`          | `render`: the PNG encoding, the image's corners in WGS84 and one entry per scene              |
+| `maps/*.rgb.webp`    | `render`: each pass in true color (bands 4, 3, 2) over the same box, for comparison           |
+| `thermal/*`          | v6: the water-temperature records, their ledger, series and the gauge check                   |
+| `checks/context.csv` | v6: the gauge's own readings at each pass (measurements, labelled)                            |
 
 A map is a picture of the record's own pixels: NDTI is relative, so the maps carry no unit. A test
 (`pipeline/tests/test_reach_examples.py`) fails if a committed record stops matching the schema, its

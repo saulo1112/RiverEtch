@@ -1,0 +1,4 @@
+site,slug,target,unit,candidate,pairs,inner_loyo_mae,chosen
+USGS-06805500,platte-louisville,water_temperature,°C,W0,34,2.472,false
+USGS-06805500,platte-louisville,water_temperature,°C,W1,34,1.3232,true
+USGS-06805500,platte-louisville,water_temperature,°C,W2,34,1.0368,false

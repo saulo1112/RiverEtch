@@ -1,0 +1,10 @@
+site,slug,target,unit,candidate,evaluation,n,mdsa,sspb,rho,rho_low,training_pairs,lockbox_years,mae,bias,rmse,coverage90
+USGS-07374525,mississippi-belle-chasse,ssc,mg/L,median of the training samples,lock box,16.0,76.8541,4.0222,,,,,,,,
+USGS-07374525,mississippi-belle-chasse,ssc,mg/L,R1,lock box (link 2: the gauge's rating),16.0,15.9364,13.9765,0.9816,0.9725,176,2,,,,
+USGS-07374525,mississippi-belle-chasse,ssc,mg/L,"turbidity card, then R1","end to end, report-only (lock-box samples on a clear pass's day)",6.0,26.0527,26.0527,0.8857,0.2,,,,,,
+USGS-06805500,platte-louisville,ssc,mg/L,median of the training samples,lock box,23.0,92.402,46.4552,,,,,,,,
+USGS-06805500,platte-louisville,ssc,mg/L,R2,lock box (link 2: the gauge's rating),23.0,50.723,45.0585,0.8814,0.7714,260,2,,,,
+USGS-06805500,platte-louisville,ssc,mg/L,"turbidity card, then R2","end to end, report-only (lock-box samples on a clear pass's day)",0.0,,,,,,,,,,
+USGS-06805500,platte-louisville,water_temperature,°C,W0,lock box,21.0,,,0.857,0.7574,34,3,2.5139,-0.0535,2.8695,
+USGS-06805500,platte-louisville,water_temperature,°C,W1,lock box,24.0,,,0.9867,0.8929,34,3,1.2813,1.1089,1.5572,0.9583
+USGS-06805500,platte-louisville,water_temperature,°C,W2,lock box,24.0,,,0.9867,0.8929,34,3,0.8734,-0.0851,1.0949,

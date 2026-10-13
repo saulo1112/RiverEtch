@@ -1,0 +1,65 @@
+{
+  "basis": "chained_rating",
+  "candidate": "R1",
+  "interval90": {
+    "logErrorQ05": -0.768493,
+    "logErrorQ95": 0.701069
+  },
+  "kind": "chained-rating",
+  "levels": [
+    {
+      "interval_factor90": 2.085,
+      "level": "indicative",
+      "mdsa": 15.9364,
+      "n": 16.0,
+      "predicted_range": "all"
+    }
+  ],
+  "link1": {
+    "card": "mississippi-belle-chasse/turbidity.json",
+    "sha256": "b7eceb64239d283e0a2bf5c2e7a9a9d5d125c7bc6e5c30b2b9c668ee15881331"
+  },
+  "metrics": {
+    "end_to_end_report_only": {
+      "mdsa": 26.0527,
+      "n": 6.0,
+      "rho": 0.8857,
+      "rho_low": 0.2,
+      "sspb": 26.0527
+    },
+    "rating_lockbox": {
+      "mdsa": 15.9364,
+      "n": 16.0,
+      "rho": 0.9816,
+      "rho_low": 0.9725,
+      "sspb": 13.9765
+    },
+    "rating_null": {
+      "mdsa": 76.8541,
+      "n": 16.0,
+      "rho": null,
+      "rho_low": null,
+      "sspb": 4.0222
+    }
+  },
+  "modelId": "chain:ssc:mississippi-belle-chasse",
+  "parametersHash": "1909907da1a19d77c174ea582a9ef3362b341a3306d81114b54cc2347095a1a8",
+  "rating": {
+    "candidate": "R1",
+    "coefficients": [
+      0.5859319146,
+      1.063990497
+    ],
+    "features": [
+      "ln_turbidity"
+    ],
+    "smearing": 1.0450514227
+  },
+  "site": "USGS-07374525",
+  "target": "ssc",
+  "trainingPairs": {
+    "site": 176
+  },
+  "unit": "mg/L",
+  "version": "1"
+}

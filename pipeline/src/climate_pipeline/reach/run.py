@@ -821,9 +821,40 @@ def write_examples(cfg: ReachConfig, root: Path, site_id: str, records_kept: int
     for target, card in reach.cards.items():
         (out / "cards").mkdir(exist_ok=True)
         (out / "cards" / f"{target}.json").write_bytes((root / card).read_bytes())
+    # v6: water temperature (its own records and ledger) and the gauge's context at each pass.
+    temperature = temperature_card(root, site_id)
+    if temperature.exists():
+        (out / "cards").mkdir(exist_ok=True)
+        (out / "cards" / "water_temperature.json").write_bytes(temperature.read_bytes())
+    thermal = folder / "thermal"
+    if (thermal / "series.json").exists():
+        (out / "thermal" / "records").mkdir(parents=True, exist_ok=True)
+        for path in thermal.glob("records/*.json"):
+            (out / "thermal" / "records" / path.name).write_bytes(path.read_bytes())
+        for name in ("series.json", "ledger.jsonl", "checks.csv"):
+            if (thermal / name).exists():
+                (out / "thermal" / name).write_bytes((thermal / name).read_bytes())
+    if (folder / check.FOLDER / "context.csv").exists():
+        (out / check.FOLDER).mkdir(exist_ok=True)
+        (out / check.FOLDER / "context.csv").write_bytes(
+            (folder / check.FOLDER / "context.csv").read_bytes()
+        )
     info = json.dumps(reach_info(cfg, root, site_id), indent=2) + "\n"
     (out / "reach.json").write_text(info, encoding="utf-8", newline="\n")
     return out
+
+
+def temperature_card(root: Path, site_id: str) -> Path:
+    """Where a reach's water-temperature card lives (preregistration v6).
+
+    Args:
+        root: Repository root.
+        site_id: The reach.
+
+    Returns:
+        The path (it may not exist: only some reaches have one).
+    """
+    return root / "docs/water-quality/results/models" / site_id / "water_temperature.json"
 
 
 def reach_info(cfg: ReachConfig, root: Path, site_id: str) -> dict[str, Any]:
@@ -835,7 +866,8 @@ def reach_info(cfg: ReachConfig, root: Path, site_id: str) -> dict[str, Any]:
         site_id: The reach.
 
     Returns:
-        The site, the estimate station, the targets, the baseline's period and the card files.
+        The site, the estimate station, the targets, the baseline's period and the card files
+        (with the water-temperature card where the reach has one).
     """
     reach = cfg.reach(site_id)
     site = load_site(reach.site_path(root))
@@ -847,10 +879,13 @@ def reach_info(cfg: ReachConfig, root: Path, site_id: str) -> dict[str, Any]:
                                "name": row.get("name", "")}  # fmt: skip
     if reach.station_source == "usgs":
         station["url"] = f"https://waterdata.usgs.gov/monitoring-location/{reach.estimate_station}/"
+    files = {t: f"cards/{t}.json" for t in reach.cards}
+    if temperature_card(root, site_id).exists():
+        files["water_temperature"] = "cards/water_temperature.json"
     return {
         "site": site_id, "name": site.name, "river": site.river, "timezone": reach.timezone,
         "station": station, "targets": list(reach.targets),
-        "cards": {t: f"cards/{t}.json" for t in reach.cards},
+        "cards": files,
         "baseline": {"first": days[0] if days else None, "last": days[-1] if days else None,
                      "usableScenes": len(days)},
     }  # fmt: skip

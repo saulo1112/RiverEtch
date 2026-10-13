@@ -1,0 +1,4 @@
+site,slug,target,unit,candidate,link1_level,lockbox_n,lockbox_years,mdsa,sspb,null_mdsa,rho_low,interval_factor90,level,half_width90,n,mae,bias,rmse,coverage90,rho,null_mae
+USGS-07374525,mississippi-belle-chasse,ssc,mg/L,R1,validated,16.0,2,15.9364,13.9765,76.8541,0.9725,2.085,indicative,,,,,,,,
+USGS-06805500,platte-louisville,ssc,mg/L,R2,validated,23.0,2,50.723,45.0585,92.402,0.7714,2.8276,indicative,,,,,,,,
+USGS-06805500,platte-louisville,water_temperature,°C,W1,,,3,,,,0.8929,,estimated,2.786,24.0,1.2813,1.1089,1.5572,0.9583,0.9867,2.5139

@@ -1,0 +1,49 @@
+{
+  "basis": "preregistered_lockbox_site",
+  "candidate": "W1",
+  "halfWidth90": 2.786,
+  "kind": "thermal-linear",
+  "levels": [
+    {
+      "level": "estimated",
+      "mae": 1.2813,
+      "n": 24.0,
+      "predicted_range": "all"
+    }
+  ],
+  "metrics": {
+    "lockbox": {
+      "bias": 1.1089,
+      "coverage90": 0.9583,
+      "mae": 1.2813,
+      "n": 24.0,
+      "rho": 0.9867,
+      "rho_low": 0.8929,
+      "rmse": 1.5572
+    },
+    "null_lockbox": {
+      "bias": -0.0535,
+      "coverage90": null,
+      "mae": 2.5139,
+      "n": 21.0,
+      "rho": 0.857,
+      "rho_low": 0.7574,
+      "rmse": 2.8695
+    }
+  },
+  "minWaterPixels": 10,
+  "modelId": "W1:water_temperature:core:platte-louisville",
+  "parameters": {
+    "a": 0.0,
+    "b": 1.0
+  },
+  "parametersHash": "1ee467e844283e4c96b108b9843bab1e0b94e593e3883f71cbe881269596b2ea",
+  "site": "USGS-06805500",
+  "source": "landsat-c2-l2 ST_B10 (lwir11)",
+  "target": "water_temperature",
+  "trainingPairs": {
+    "site": 34
+  },
+  "unit": "°C",
+  "version": "1"
+}

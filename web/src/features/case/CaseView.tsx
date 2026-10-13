@@ -1,9 +1,11 @@
 // The case view: a MapLibre map of the reach under night shades, with the case file, legend,
-// record and timeline panels and the optional wallet in the corner. In a flythrough it mounts
-// hidden at the top-down handoff pose, crossfades in over the globe on `go`, tilts onto the reach,
-// fills the river and slides the panels in. The map module is loaded on demand (loadMap.ts) and
-// created once per mount, StrictMode double mounts included. Selecting a pass on the timeline
-// redraws its NDTI map and updates the case file and the record.
+// record and timeline panels, the map's toolbar and controls, and the optional wallet in the
+// corner. In a flythrough it mounts hidden at the top-down handoff pose, crossfades in over the
+// globe on `go`, tilts onto the reach, fills the river and slides the panels in. Once landed the
+// map can be explored like a satellite viewer's: layers, a pixel inspector, the profile along the
+// river, the pass's statistics, a time-lapse of the year and two passes compared side by side. The
+// map module is loaded on demand (loadMap.ts) and created once per mount, StrictMode double mounts
+// included.
 import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/geist-mono";
 import "../../styles/tokens.css";
@@ -12,19 +14,38 @@ import "./case.css";
 import { useEffect, useEffectEvent, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { cubicBezier } from "../../lib/easing.ts";
+import { passStats, profile } from "../reaches/analysis.ts";
 import type { ReachCase } from "../reaches/catalog.ts";
 import { ndtiDomain } from "../reaches/colorize.ts";
-import { defaultScene, mapFile, ndtiMedians, turbidity } from "../reaches/scene.ts";
+import {
+  defaultScene,
+  defaultThermal,
+  mapFile,
+  ndtiMedians,
+  photoFile,
+  sceneKey,
+  turbidity,
+} from "../reaches/scene.ts";
 import type { ReachData } from "../reaches/types.ts";
 import { WalletControl } from "../wallet/WalletControl.tsx";
 import { FLIGHT, IMAGERY, MAP_LOOK, RETURN, TERRAIN } from "./config.ts";
-import { CASE_COPY, formatValue } from "./content.ts";
+import { CASE_COPY, formatDate, formatValue } from "./content.ts";
 import { loadCaseMap } from "./loadMap.ts";
-import type { CaseMapHandle, FinalFrame } from "./map.ts";
+import type {
+  CameraState,
+  CaseMapHandle,
+  CompareHandle,
+  FinalFrame,
+  HoverInfo,
+  LayerMode,
+  Overlays,
+} from "./map.ts";
 import { CaseFile } from "./panels/CaseFile.tsx";
 import { Legend } from "./panels/Legend.tsx";
+import { Inspector, MapControls, ScaleBar } from "./panels/MapControls.tsx";
+import { MapToolbar } from "./panels/MapToolbar.tsx";
 import { RecordPanel } from "./panels/RecordPanel.tsx";
-import { Timeline } from "./panels/Timeline.tsx";
+import { Timeline, type BottomTab } from "./panels/Timeline.tsx";
 import { markFlight } from "./qa.ts";
 
 /**
@@ -46,6 +67,8 @@ export interface CaseViewProps {
   readonly reachCase: ReachCase;
   /** Its data. */
   readonly reach: ReachData;
+  /** The pass to open on (its acquisition key; the latest with a value when absent). */
+  readonly initialPass?: string | null;
   /** How the view enters. */
   readonly entrance: CaseEntrance;
   /** Zoom of the top-down handoff pose (`flight`). */
@@ -89,6 +112,8 @@ type MapStatus = "loading" | "ready" | "failed";
 
 const flyEase = cubicBezier(...FLIGHT.flyEase);
 const zoomOutEase = cubicBezier(...RETURN.zoomOutEase);
+// The time-lapse's pace, per pass.
+const PLAY_STEP_MS = 1100;
 
 // The least free room the reach keeps between the panels, and the gap kept around panels.
 const MIN_FREE = { width: 160, height: 140 };
@@ -120,7 +145,7 @@ function finalFrame(root: HTMLElement | null): FinalFrame {
   let bottom = 0;
   let left = 0;
   let right = 0;
-  for (const panel of root?.querySelectorAll<HTMLElement>(".case-panel") ?? []) {
+  for (const panel of root?.querySelectorAll<HTMLElement>(".case-panel[data-frame]") ?? []) {
     const panelLeft = panel.offsetLeft;
     const panelRight = panelLeft + panel.offsetWidth;
     const panelTop = panel.offsetTop;
@@ -155,13 +180,15 @@ function wantsThumbnailCapture(): boolean {
 
 /**
  * Full-viewport case view: the map of the reach, the case file, legend, record and timeline
- * panels, the wallet corner and the map attribution. It stays inert until it has landed.
+ * panels, the map's tools, the wallet corner and the map attribution. It stays inert until it has
+ * landed.
  *
  * @returns The case view.
  */
 export function CaseView({
   reachCase,
   reach,
+  initialPass = null,
   entrance,
   handoffZoom,
   go,
@@ -180,15 +207,55 @@ export function CaseView({
 }: CaseViewProps) {
   const rootRef = useRef<HTMLElement>(null);
   const mapRef = useRef<HTMLDivElement>(null);
+  const compareRef = useRef<HTMLDivElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const handleRef = useRef<CaseMapHandle | null>(null);
   const [mapStatus, setMapStatus] = useState<MapStatus>("loading");
   const [crossfaded, setCrossfaded] = useState(false);
   const [panelsIn, setPanelsIn] = useState(false);
   const [flightLanded, setFlightLanded] = useState(false);
-  const [selected, setSelected] = useState(() => defaultScene(reach.series));
+  const [selected, setSelected] = useState(() => {
+    const index = reach.series.findIndex((row) => sceneKey(row) === initialPass);
+    return index >= 0 ? index : defaultScene(reach.series);
+  });
+  const [mode, setMode] = useState<LayerMode>("ndti");
+  const [opacity, setOpacity] = useState(1);
+  const [overlays, setOverlays] = useState<Overlays>({ outline: true, parts: true, window: true });
+  const [terrain3d, setTerrain3d] = useState(true);
+  const [hover, setHover] = useState<HoverInfo | null>(null);
+  const [camera, setCamera] = useState<CameraState>({
+    bearing: reachCase.bearing,
+    pitch: reachCase.pitch,
+    metresPerPixel: 20,
+  });
+  const [scene, setScene] = useState<{ file: string; data: ImageData } | null>(null);
+  const [playing, setPlaying] = useState(false);
+  const [compareWith, setCompareWith] = useState<number | null>(null);
+  const [split, setSplit] = useState(0.5);
+  const [tab, setTab] = useState<BottomTab>("series");
+  const [thermalSelected, setThermalSelected] = useState(() =>
+    defaultThermal(reach.thermal?.series ?? []),
+  );
+  const [probe, setProbe] = useState<number | null>(null);
   const domain = useMemo(() => ndtiDomain(ndtiMedians(reach.series)), [reach.series]);
   const row = reach.series[selected] ?? null;
+  const thermalRow =
+    thermalSelected === null ? null : (reach.thermal?.series[thermalSelected] ?? null);
+  const file = row === null ? null : mapFile(reach, row);
+  const photo = row === null ? null : photoFile(reach, row);
+
+  // The selected pass's profile and statistics, once its map is decoded.
+  const sceneData = scene !== null && scene.file === file ? scene.data : null;
+  const analysed = useMemo(
+    () =>
+      sceneData === null || reach.maps === null
+        ? null
+        : {
+            profile: profile(reach.maps, sceneData.data),
+            stats: passStats(reach.maps, sceneData.data, domain),
+          },
+    [sceneData, reach.maps, domain],
+  );
 
   const visible = (go || skip) && !fadeOut;
   const shownAtOnce = skip || entrance === "direct";
@@ -251,6 +318,11 @@ export function CaseView({
           start: startsOnFinal() ? "final" : "handoff",
           handoffZoom,
           stubTiles: wantsStubTiles(),
+          onHover: setHover,
+          onScene: (shown, data) => {
+            setScene({ file: shown, data });
+          },
+          onCamera: setCamera,
         });
         if (!live()) {
           created.dispose();
@@ -292,23 +364,93 @@ export function CaseView({
     };
   }, [reachCase, reach, domain, handoffZoom]);
 
-  // The selected pass: its NDTI map and the gauge's label.
+  // The selected pass: its maps and the gauge's label.
   useEffect(() => {
     const handle = handleRef.current;
     if (handle === null || row === null) {
       return;
     }
-    handle.showScene(mapFile(reach, row));
+    handle.showScene(file, photo);
     const estimate = turbidity(row);
-    const caption = reach.info.station.id.replace("USGS-", "USGS ");
     handle.setGauge({
       value:
         typeof estimate?.value === "number"
           ? `${formatValue(estimate.value)} ${estimate.unit}`
           : "",
-      caption,
+      caption: reach.info.station.id.replace("USGS-", "USGS "),
     });
-  }, [reach, row, mapStatus]);
+  }, [reach, row, file, photo, mapStatus]);
+
+  // Once landed, the map is the user's; the URL names the pass (a link opens it).
+  useEffect(() => {
+    handleRef.current?.setInteractive(landed && exit === null);
+  }, [landed, exit, mapStatus]);
+  useEffect(() => {
+    if (!landed || row === null || wantsThumbnailCapture()) {
+      return;
+    }
+    const url = new URL(window.location.href);
+    url.searchParams.set("case", reachCase.id);
+    url.searchParams.set("pass", sceneKey(row));
+    window.history.replaceState(null, "", url);
+  }, [landed, row, reachCase.id]);
+
+  // The map's layers follow the toolbar.
+  useEffect(() => {
+    handleRef.current?.setLayer(mode, opacity);
+  }, [mode, opacity, mapStatus]);
+  useEffect(() => {
+    handleRef.current?.setOverlays(overlays);
+  }, [overlays, mapStatus]);
+  const firstTerrain = useRef(true);
+  useEffect(() => {
+    if (firstTerrain.current) {
+      firstTerrain.current = false;
+      return;
+    }
+    handleRef.current?.setTerrain3d(terrain3d);
+  }, [terrain3d]);
+  useEffect(() => {
+    handleRef.current?.setProbe(probe);
+  }, [probe]);
+
+  // The time-lapse: the next pass every step, looping over the year.
+  useEffect(() => {
+    if (!playing) {
+      return undefined;
+    }
+    const timer = window.setInterval(() => {
+      setSelected((index) => (index + 1) % Math.max(1, reach.series.length));
+    }, PLAY_STEP_MS);
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [playing, reach.series.length]);
+
+  // Compare: a synchronised copy of the map, right of the split, showing the other pass. It closes
+  // when the way back starts, so the flight out shows one map.
+  const compareHandle = useRef<CompareHandle | null>(null);
+  const comparing = compareWith !== null && mapStatus === "ready" && exit === null;
+  useEffect(() => {
+    const element = compareRef.current;
+    const handle = handleRef.current;
+    if (!comparing || element === null || handle === null) {
+      return undefined;
+    }
+    const copy = handle.compare(element);
+    compareHandle.current = copy;
+    return () => {
+      copy.dispose();
+      compareHandle.current = null;
+    };
+  }, [comparing]);
+  const other = compareWith === null ? null : (reach.series[compareWith] ?? null);
+  useEffect(() => {
+    if (other !== null) {
+      compareHandle.current?.setScene(mapFile(reach, other), photoFile(reach, other));
+    }
+    compareHandle.current?.setLayer(mode, opacity);
+  }, [comparing, other, reach, mode, opacity]);
 
   // Crossfade in; the caller removes what was underneath once it is done.
   useEffect(() => {
@@ -428,7 +570,12 @@ export function CaseView({
 
   const style = {
     "--crossfade": `${String(fadeOut ? fadeOutMs : crossfadeMs)}ms`,
+    "--split": `${(split * 100).toFixed(2)}%`,
   } as CSSProperties;
+  const select = (index: number) => {
+    setPlaying(false);
+    setSelected(index);
+  };
   return (
     <section
       ref={rootRef}
@@ -441,33 +588,115 @@ export function CaseView({
       data-haze={entrance === "flight" && go && !skip}
       data-haze-out={fadeOut && exit === "flight"}
       data-panels={panels}
+      data-landed={landed && exit === null}
       data-capture={wantsThumbnailCapture() ? "thumb" : undefined}
       inert={!landed || exit !== null}
     >
       <div className="case-view__map" ref={mapRef} aria-hidden="true" />
+      {comparing ? (
+        <>
+          <div className="case-view__compare" ref={compareRef} aria-hidden="true" />
+          <div
+            className="case-split"
+            role="slider"
+            tabIndex={0}
+            aria-label={CASE_COPY.tools.compareHint}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(split * 100)}
+            onPointerDown={(event) => {
+              event.currentTarget.setPointerCapture(event.pointerId);
+            }}
+            onPointerMove={(event) => {
+              if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                setSplit(Math.min(0.95, Math.max(0.05, event.clientX / window.innerWidth)));
+              }
+            }}
+            onKeyDown={(event) => {
+              const step =
+                event.key === "ArrowRight" ? 0.02 : event.key === "ArrowLeft" ? -0.02 : 0;
+              if (step !== 0) {
+                setSplit((s) => Math.min(0.95, Math.max(0.05, s + step)));
+              }
+            }}
+          >
+            <span className="case-split__label case-split__label--left">
+              {CASE_COPY.compare.left} · {row === null ? "" : formatDate(row.date, true)}
+            </span>
+            <span className="case-split__grip" aria-hidden="true" />
+            <span className="case-split__label case-split__label--right">
+              {CASE_COPY.compare.right} · {other === null ? "" : formatDate(other.date, true)}
+            </span>
+          </div>
+        </>
+      ) : null}
       <div className="case-view__shade case-view__shade--top" aria-hidden="true" />
       <div className="case-view__shade case-view__shade--bottom" aria-hidden="true" />
       <div className="case-view__haze" aria-hidden="true" />
       {mapStatus === "failed" ? (
         <p className="case-view__note">{CASE_COPY.mapUnavailable}</p>
       ) : null}
+      <Inspector hover={hover} reach={reach} />
       <div className="case-view__panels">
         <CaseFile
           reachCase={reachCase}
           reach={reach}
           row={row}
+          thermal={thermalRow}
           headingRef={headingRef}
           onBack={onBack}
+        />
+        <MapToolbar
+          reach={reach}
+          mode={mode}
+          onMode={setMode}
+          photoAvailable={photo !== null}
+          opacity={opacity}
+          onOpacity={setOpacity}
+          overlays={overlays}
+          onOverlays={setOverlays}
+          terrain3d={terrain3d}
+          onTerrain3d={setTerrain3d}
+          compareWith={compareWith}
+          onCompare={setCompareWith}
+          selected={selected}
         />
         <div className="case-side">
           {/* Outside the panels' frame (finalFrame): on phones it sits on the Back row. */}
           <div className="case-corner">
             <WalletControl variant="corner" />
           </div>
-          <Legend />
-          <RecordPanel reach={reach} row={row} />
+          <Legend mode={mode} />
+          <RecordPanel reach={reach} row={row} thermal={tab === "thermal" ? thermalRow : null} />
         </div>
-        <Timeline reach={reach} selected={selected} onSelect={setSelected} />
+        <MapControls
+          bearing={camera.bearing}
+          terrain3d={terrain3d}
+          onZoom={(delta) => {
+            handleRef.current?.zoomBy(delta);
+          }}
+          onNorth={() => {
+            handleRef.current?.resetNorth();
+          }}
+          onTerrain3d={setTerrain3d}
+        />
+        <ScaleBar metresPerPixel={camera.metresPerPixel} hover={hover} />
+        <Timeline
+          reach={reach}
+          selected={selected}
+          compared={compareWith}
+          onSelect={select}
+          thermalSelected={thermalSelected}
+          onThermalSelect={setThermalSelected}
+          tab={tab}
+          onTab={setTab}
+          playing={playing}
+          onPlaying={setPlaying}
+          profile={analysed?.profile ?? null}
+          stats={analysed?.stats ?? null}
+          domain={domain}
+          onProbe={setProbe}
+        />
       </div>
       <p className="case-view__attribution">
         <a href={IMAGERY.homepage} target="_blank" rel="noopener noreferrer">

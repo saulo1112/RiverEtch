@@ -27,6 +27,7 @@ from climate_pipeline.quality import (
     stage_b,
     temporal,
     transfer,
+    v6,
 )
 from climate_pipeline.quality.config import QualityConfig
 
@@ -146,7 +147,12 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
     results.tables.update(later_site)
     later_v5 = gauged.analyse(cfg, root, usgs)
     results.extra_cards += later_v5.pop("_v5_cards", [])
+    link1 = {r["slug"]: r for r in later_v5.pop("_v6_link1", [])}
+    end_to_end = {r["slug"]: r["pairs"] for r in later_v5.pop("_v6_end_to_end", [])}
     results.tables.update(later_v5)
+    later_v6 = v6.analyse(cfg, root, link1, end_to_end)
+    results.extra_cards += later_v6.pop("_v6_cards", [])
+    results.tables.update(later_v6)
     results.summary = {
         "incomplete": missing,
         "route_a": route_a.summary(results.tables) if ci is not None else {},
@@ -159,5 +165,6 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         "v4_round3": temporal.summary(results.tables),
         "stage_b": stage_b.summary(results.tables),
         "v5": gauged.summary(results.tables),
+        "v6": v6.summary(results.tables),
     }
     return results

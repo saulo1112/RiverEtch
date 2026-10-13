@@ -38,6 +38,8 @@ const reach: ReachData = {
   checks: parseChecks(readFileSync(new URL("checks/checks.csv", EXAMPLES), "utf8")),
   maps: json("maps.json") as MapsIndex,
   geometry: null,
+  thermal: null,
+  context: [],
 };
 
 void test("formatters keep the sign and one decimal under 100", () => {

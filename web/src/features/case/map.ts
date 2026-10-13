@@ -1,7 +1,9 @@
 // The case map: MapLibre over Sentinel-2 cloudless imagery and Terrarium terrain, with the reach's
-// real corridor (geometry.geojson) filled and outlined, and the selected scene's NDTI drawn over
-// its water pixel by pixel (maps/<key>.png, colored in the browser). The gauge sits on its window.
-// Loaded on demand (loadMap.ts), so MapLibre and its CSS live in their own chunk.
+// real corridor (geometry.geojson) filled and outlined, and the selected pass drawn over it: its
+// NDTI pixel by pixel (maps/<key>.png, colored in the browser) or the pass in true color
+// (maps/<key>.rgb.webp). The gauge sits on its window. Once landed the map can be explored, its
+// layers switched, a pixel inspected and two passes compared side by side. Loaded on demand
+// (loadMap.ts), so MapLibre and its CSS live in their own chunk.
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import {
@@ -11,17 +13,51 @@ import {
   type CanvasSource,
   type ExpressionSpecification,
   type FilterSpecification,
+  type ImageSource,
   type RasterDEMSourceSpecification,
   type StyleSpecification,
 } from "maplibre-gl";
 
-import { colorize } from "../reaches/colorize.ts";
+import { pixelAt, readPixel, type PixelReading } from "../reaches/analysis.ts";
 import type { ReachCase } from "../reaches/catalog.ts";
+import { colorize } from "../reaches/colorize.ts";
 import type { LngLat, ReachData } from "../reaches/types.ts";
 import { IMAGERY, MAP_LOOK, TERRAIN } from "./config.ts";
 
 /** Where the camera starts: the top-down handoff pose, or directly on the final view. */
 export type CaseMapStart = "handoff" | "final";
+
+/** What the river shows: the pass's NDTI, the pass in true color, or nothing over the basemap. */
+export type LayerMode = "ndti" | "photo" | "none";
+
+/** The vector overlays that can be switched off. */
+export interface Overlays {
+  /** The corridor's fill, glow and edge. */
+  readonly outline: boolean;
+  /** The two sub-reaches a record measures. */
+  readonly parts: boolean;
+  /** The gauge's window. */
+  readonly window: boolean;
+}
+
+/** What is under the cursor. */
+export interface HoverInfo {
+  /** Position in the map container, CSS px. */
+  readonly x: number;
+  readonly y: number;
+  readonly lng: number;
+  readonly lat: number;
+  /** The pass's pixel there (null off the corridor or before the map is drawn). */
+  readonly reading: PixelReading | null;
+}
+
+/** Where the camera is. */
+export interface CameraState {
+  readonly bearing: number;
+  readonly pitch: number;
+  /** Metres per CSS pixel at the centre. */
+  readonly metresPerPixel: number;
+}
 
 /** Options for {@link createCaseMap}. */
 export interface CreateCaseMapOptions {
@@ -37,6 +73,12 @@ export interface CreateCaseMapOptions {
   readonly handoffZoom: number;
   /** Development only: draw canvas-generated stub tiles instead of fetching real ones. */
   readonly stubTiles: boolean;
+  /** The cursor moved over the map (null: it left). */
+  readonly onHover?: (info: HoverInfo | null) => void;
+  /** A pass's packed map was decoded (for its profile and statistics). */
+  readonly onScene?: (file: string, data: ImageData) => void;
+  /** The camera moved (for the compass and the scale bar). */
+  readonly onCamera?: (camera: CameraState) => void;
 }
 
 /** How the final view fits around the panels. */
@@ -66,6 +108,26 @@ export interface GaugeLabel {
   readonly value: string;
   /** E.g. "USGS 07374525". */
   readonly caption: string;
+}
+
+/** A second pass drawn on a synchronised copy of the map, shown right of a split. */
+export interface CompareHandle {
+  /**
+   * Shows a pass on the compared side.
+   *
+   * @param file - Its NDTI map.
+   * @param photo - Its true-color image.
+   */
+  readonly setScene: (file: string | null, photo: string | null) => void;
+  /**
+   * Follows the main map's layer choice.
+   *
+   * @param mode - What the river shows.
+   * @param opacity - The layer's opacity.
+   */
+  readonly setLayer: (mode: LayerMode, opacity: number) => void;
+  /** Removes the copy. */
+  readonly dispose: () => void;
 }
 
 /** Handle returned by {@link createCaseMap}. */
@@ -113,17 +175,66 @@ export interface CaseMapHandle {
    */
   readonly animateRiver: (to: number, durationMs: number) => void;
   /**
-   * Shows one scene's NDTI map (null: none, the corridor alone).
+   * Shows one pass (null: none, the corridor alone).
    *
-   * @param file - The map's path in the reach's folder (`maps/<key>.png`).
+   * @param file - Its NDTI map (`maps/<key>.png`).
+   * @param photo - Its true-color image (`maps/<key>.rgb.webp`), when drawn.
    */
-  readonly showScene: (file: string | null) => void;
+  readonly showScene: (file: string | null, photo: string | null) => void;
   /**
    * Sets what the gauge marker says (null hides its value).
    *
    * @param label - The value and its caption.
    */
   readonly setGauge: (label: GaugeLabel | null) => void;
+  /**
+   * Lets the user pan, zoom, rotate and tilt (after landing), or not (during flights).
+   *
+   * @param on - Whether the map takes input.
+   */
+  readonly setInteractive: (on: boolean) => void;
+  /**
+   * Chooses what the river shows and how opaque it is.
+   *
+   * @param mode - NDTI, true color or nothing.
+   * @param opacity - 0..1.
+   */
+  readonly setLayer: (mode: LayerMode, opacity: number) => void;
+  /**
+   * Switches the vector overlays.
+   *
+   * @param overlays - Which are shown.
+   */
+  readonly setOverlays: (overlays: Overlays) => void;
+  /**
+   * 3D (terrain, tilted) or 2D (flat, top-down).
+   *
+   * @param on - 3D.
+   */
+  readonly setTerrain3d: (on: boolean) => void;
+  /**
+   * Zooms in or out by a step.
+   *
+   * @param delta - Zoom levels (positive: in).
+   */
+  readonly zoomBy: (delta: number) => void;
+  /**
+   * Turns the map back to north (and the case's tilt).
+   */
+  readonly resetNorth: () => void;
+  /**
+   * Marks a place along the river (the profile's cursor), or clears it.
+   *
+   * @param place - 0 at the upstream anchor to 1 at the downstream one (null: none).
+   */
+  readonly setProbe: (place: number | null) => void;
+  /**
+   * Draws a second pass on a synchronised copy of the map inside `container` (compare mode).
+   *
+   * @param container - An element over the map, clipped by the caller.
+   * @returns The copy's handle.
+   */
+  readonly compare: (container: HTMLElement) => CompareHandle;
   /**
    * Projects a geographic point with the current camera.
    *
@@ -145,6 +256,7 @@ const SOURCE = {
   hillshade: "hillshade",
   reach: "reach",
   ndti: "ndti",
+  photo: "photo",
 };
 const LAYER = {
   hillshade: "hillshade",
@@ -152,10 +264,23 @@ const LAYER = {
   glow: "reach-glow",
   edge: "reach-edge",
   ndti: "reach-ndti",
+  photo: "reach-photo",
   parts: "reach-parts",
   window: "reach-window",
 };
+const HANDLERS = [
+  "scrollZoom",
+  "boxZoom",
+  "dragRotate",
+  "dragPan",
+  "keyboard",
+  "doubleClickZoom",
+  "touchZoomRotate",
+  "touchPitch",
+] as const;
 const KIND = (kind: string): FilterSpecification => ["==", ["get", "kind"], kind];
+const EARTH_CIRCUMFERENCE_M = 40_075_016.686;
+type Corners = [[number, number], [number, number], [number, number], [number, number]];
 
 // A zoom-driven interpolation from flat [zoom, value, zoom, value, ...] pairs.
 function byZoom(pairs: readonly number[]): ExpressionSpecification {
@@ -202,10 +327,7 @@ function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
       [SOURCE.hillshade]: { ...dem },
       [SOURCE.reach]: {
         type: "geojson",
-        data: reach.geometry ?? {
-          type: "FeatureCollection",
-          features: [],
-        },
+        data: reach.geometry ?? { type: "FeatureCollection", features: [] },
       },
     },
     layers: [
@@ -320,6 +442,30 @@ function gaugePoint(reach: ReachData): LngLat | null {
   return station?.geometry.type === "Point" ? station.geometry.coordinates : null;
 }
 
+// The point at a place along the centreline (0..1 of the corridor's length), interpolated.
+function centrelinePoint(reach: ReachData, place: number): LngLat | null {
+  const features = reach.geometry?.features ?? [];
+  const line = features.find((f) => f.properties.kind === "centreline");
+  const river = features.find((f) => f.properties.kind === "river");
+  const chain = (line?.properties as { chainageM?: readonly number[] } | undefined)?.chainageM;
+  if (line?.geometry.type !== "LineString" || chain === undefined) {
+    return null;
+  }
+  const coords = line.geometry.coordinates;
+  const target = place * (river?.properties.lengthM ?? chain.at(-1) ?? 0);
+  for (let k = 1; k < coords.length; k += 1) {
+    const c0 = chain[k - 1] ?? 0;
+    const c1 = chain[k] ?? 0;
+    const a = coords[k - 1];
+    const b = coords[k];
+    if (a !== undefined && b !== undefined && target <= c1) {
+      const t = c1 === c0 ? 0 : (target - c0) / (c1 - c0);
+      return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+    }
+  }
+  return coords.at(-1) ?? null;
+}
+
 // The packed bytes of one map, decoded without color management or premultiplied alpha.
 async function decodeMap(url: string): Promise<ImageData> {
   const response = await fetch(url);
@@ -358,12 +504,218 @@ function gaugeElement(): { root: HTMLElement; value: HTMLElement; caption: HTMLE
 }
 
 /**
- * Creates the case map inside `container`. The map is not interactive: the flythrough drives it.
- * If the elevation tiles fail, it drops the terrain and the hillshade and carries on; if the
- * imagery fails, the dark background, the river and the panels still show.
+ * One map's pass layers: the NDTI canvas (colored up to the reveal) and the true-color image,
+ * inserted under the sub-reaches' outlines. Shared by the main map and its compared copy.
+ */
+class PassLayers {
+  readonly canvas = document.createElement("canvas");
+  packed: ImageData | null = null;
+  reveal: number;
+  animating = false;
+  /** What the river shows. */
+  mode: LayerMode = "ndti";
+  private readonly map: MapLibreMap;
+  private readonly reach: ReachData;
+  private readonly domain: readonly [number, number];
+  private colored: ImageData | null = null;
+  private readonly context: CanvasRenderingContext2D | null;
+  private opacity = 1;
+  private photo: string | null = null;
+  private request = 0;
+  private file: string | null = null;
+  private disposed = false;
+
+  /**
+   * Prepares the canvas for a map's passes.
+   *
+   * @param map - The map.
+   * @param reach - The reach (its maps' index).
+   * @param domain - The NDTI ramp's domain.
+   * @param reveal - Share of the reach shown at first.
+   */
+  constructor(
+    map: MapLibreMap,
+    reach: ReachData,
+    domain: readonly [number, number],
+    reveal: number,
+  ) {
+    this.map = map;
+    this.reach = reach;
+    this.domain = domain;
+    this.reveal = reveal;
+    this.canvas.width = reach.maps?.width ?? 1;
+    this.canvas.height = reach.maps?.height ?? 1;
+    this.context = this.canvas.getContext("2d");
+  }
+
+  private corners(): Corners | null {
+    return this.reach.maps === null
+      ? null
+      : (this.reach.maps.corners.map((c) => [c[0], c[1]]) as Corners);
+  }
+
+  /** Adds the NDTI canvas source and layer (once the style is parsed). */
+  attach(): void {
+    const coordinates = this.corners();
+    if (coordinates === null || this.map.getSource(SOURCE.ndti) !== undefined) {
+      return;
+    }
+    this.map.addSource(SOURCE.ndti, {
+      type: "canvas",
+      canvas: this.canvas,
+      coordinates,
+      animate: false,
+    });
+    this.map.addLayer(
+      {
+        id: LAYER.ndti,
+        type: "raster",
+        source: SOURCE.ndti,
+        paint: { "raster-fade-duration": 0, "raster-resampling": "linear" },
+      },
+      LAYER.parts,
+    );
+    this.applyLayer();
+    this.paint();
+  }
+
+  /** Colors the packed map up to the reveal and hands the canvas to MapLibre. */
+  paint(): void {
+    const { context, packed, reach } = this;
+    if (context === null) {
+      return;
+    }
+    if (packed === null || reach.maps === null) {
+      context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    } else {
+      this.colored ??= context.createImageData(packed.width, packed.height);
+      colorize(packed.data, packed.width, this.colored.data, {
+        domain: this.domain,
+        packed: reach.maps.encoding.r.ndti,
+        reveal: this.reveal,
+        feather: MAP_LOOK.corridor.revealFeather,
+        opacity: MAP_LOOK.corridor.ndtiOpacity,
+      });
+      context.putImageData(this.colored, 0, 0);
+    }
+    const source = this.map.getSource<CanvasSource>(SOURCE.ndti);
+    if (source !== undefined) {
+      // A static canvas source is read once: a short play makes it pick up the new pixels.
+      source.play();
+      requestAnimationFrame(() => {
+        if (!this.disposed && !this.animating) {
+          source.pause();
+        }
+      });
+    }
+  }
+
+  /**
+   * Loads a pass's NDTI map and true-color image.
+   *
+   * @param file - The NDTI map.
+   * @param photo - The true-color image.
+   * @param onData - Called with the decoded NDTI map.
+   */
+  show(file: string | null, photo: string | null, onData?: (data: ImageData) => void): void {
+    if (this.disposed) {
+      return;
+    }
+    if (file !== this.file) {
+      this.file = file;
+      this.request += 1;
+      const request = this.request;
+      if (file === null) {
+        this.packed = null;
+        this.paint();
+      } else {
+        decodeMap(`${this.reach.base}${file}`)
+          .then((data) => {
+            if (!this.disposed && request === this.request) {
+              this.packed = data;
+              this.colored = null;
+              this.paint();
+              onData?.(data);
+            }
+          })
+          .catch((error: unknown) => {
+            if (import.meta.env.DEV) {
+              console.warn(`[case] ${file} could not be drawn.`, error);
+            }
+          });
+      }
+    }
+    if (photo !== this.photo) {
+      this.photo = photo;
+      this.showPhoto();
+    }
+  }
+
+  private showPhoto(): void {
+    const coordinates = this.corners();
+    if (coordinates === null || this.photo === null || !this.map.isStyleLoaded()) {
+      return;
+    }
+    const url = `${this.reach.base}${this.photo}`;
+    const source = this.map.getSource<ImageSource>(SOURCE.photo);
+    if (source === undefined) {
+      this.map.addSource(SOURCE.photo, { type: "image", url, coordinates });
+      this.map.addLayer(
+        {
+          id: LAYER.photo,
+          type: "raster",
+          source: SOURCE.photo,
+          paint: { "raster-fade-duration": 0 },
+        },
+        LAYER.water,
+      );
+      this.applyLayer();
+    } else {
+      void source.updateImage({ url, coordinates });
+    }
+  }
+
+  /**
+   * Chooses the visible layer and its opacity.
+   *
+   * @param mode - NDTI, true color or none.
+   * @param opacity - 0..1.
+   */
+  setLayer(mode: LayerMode, opacity: number): void {
+    this.mode = mode;
+    this.opacity = opacity;
+    if (mode === "photo") {
+      this.showPhoto();
+    }
+    this.applyLayer();
+  }
+
+  private applyLayer(): void {
+    const { map } = this;
+    if (map.getLayer(LAYER.ndti) !== undefined) {
+      map.setLayoutProperty(LAYER.ndti, "visibility", this.mode === "ndti" ? "visible" : "none");
+      map.setPaintProperty(LAYER.ndti, "raster-opacity", this.opacity);
+    }
+    if (map.getLayer(LAYER.photo) !== undefined) {
+      map.setLayoutProperty(LAYER.photo, "visibility", this.mode === "photo" ? "visible" : "none");
+      map.setPaintProperty(LAYER.photo, "raster-opacity", this.opacity);
+    }
+  }
+
+  /** Stops painting. */
+  dispose(): void {
+    this.disposed = true;
+  }
+}
+
+/**
+ * Creates the case map inside `container`. During flights the flythrough drives it; once landed
+ * {@link CaseMapHandle.setInteractive} lets the user move it. If the elevation tiles fail, it drops
+ * the terrain and the hillshade and carries on; if the imagery fails, the dark background, the
+ * river and the panels still show.
  *
  * @param container - Element MapLibre takes over; it must already have its final size.
- * @param options - Case, data, starting pose and tile mode.
+ * @param options - Case, data, starting pose, tile mode and callbacks.
  * @returns The map handle.
  */
 export async function createCaseMap(
@@ -389,31 +741,39 @@ export async function createCaseMap(
     zoom: handoffZoom,
     pitch: 0,
     bearing: 0,
-    interactive: false,
+    interactive: true,
     attributionControl: false,
     maxZoom: MAP_LOOK.maxZoom,
-    maxPitch: 60,
+    maxPitch: 70,
     pixelRatio: Math.min(window.devicePixelRatio, 2),
   });
+  // Input waits for the landing (setInteractive).
+  for (const name of HANDLERS) {
+    map[name].disable();
+  }
+  let interactive = false;
+  let terrain3d = true;
 
   // The final view: the corridor fitted into the panels' free area, then tilted.
+  let lastFrame: FinalFrame = { padding: { top: 0, bottom: 0, left: 0, right: 0 }, zoomOffset: 0 };
   const framed = (frame: FinalFrame) => {
+    lastFrame = frame;
     const fitted = map.cameraForBounds(bounds, {
       padding: frame.padding,
       bearing: reachCase.bearing,
       maxZoom: MAP_LOOK.maxZoom,
     });
-    const zoom = (fitted?.zoom ?? 11) + frame.zoomOffset - MAP_LOOK.pitchZoomLoss;
+    const zoom = (fitted?.zoom ?? 11) + frame.zoomOffset - (terrain3d ? MAP_LOOK.pitchZoomLoss : 0);
     return {
       center: fitted?.center ?? center,
       zoom,
-      pitch: reachCase.pitch,
+      pitch: terrain3d ? reachCase.pitch : 0,
       bearing: reachCase.bearing,
       padding: frame.padding,
     };
   };
   if (start === "final") {
-    map.jumpTo(framed({ padding: { top: 0, bottom: 0, left: 0, right: 0 }, zoomOffset: 0 }));
+    map.jumpTo(framed(lastFrame));
   }
 
   let disposed = false;
@@ -454,79 +814,38 @@ export async function createCaseMap(
     }
   });
 
-  // The NDTI canvas: the packed map of the shown scene, colored up to the reveal.
-  const canvas = document.createElement("canvas");
-  canvas.width = reach.maps?.width ?? 1;
-  canvas.height = reach.maps?.height ?? 1;
-  const context = canvas.getContext("2d");
-  let packed: ImageData | null = null;
-  let colored: ImageData | null = null;
-  let reveal = start === "final" ? 1 : 0;
-  let shownFile: string | null = null;
+  const layers = new PassLayers(map, reach, domain, start === "final" ? 1 : 0);
+  let overlays: Overlays = { outline: true, parts: true, window: true };
   let revealFrame = 0;
-  let animating = false;
-  let sceneRequest = 0;
+  let shownFile: string | null = null;
   const { corridor } = MAP_LOOK;
 
-  function paint(): void {
-    if (context === null) {
+  // The corridor's overlays follow the reveal and the user's toggles.
+  function paintOverlays(): void {
+    if (map.getLayer(LAYER.water) === undefined) {
       return;
     }
-    if (packed === null || reach.maps === null) {
-      context.clearRect(0, 0, canvas.width, canvas.height);
-    } else {
-      colored ??= context.createImageData(packed.width, packed.height);
-      colorize(packed.data, packed.width, colored.data, {
-        domain,
-        packed: reach.maps.encoding.r.ndti,
-        reveal,
-        feather: corridor.revealFeather,
-        opacity: corridor.ndtiOpacity,
-      });
-      context.putImageData(colored, 0, 0);
-    }
-    const source = map.getSource<CanvasSource>(SOURCE.ndti);
-    if (source !== undefined) {
-      // A static canvas source is read once: a short play makes it pick up the new pixels.
-      source.play();
-      requestAnimationFrame(() => {
-        if (!disposed && !animating) {
-          source.pause();
-        }
-      });
-    }
-    const shown = Math.min(1, reveal * 1.4);
-    if (map.getLayer(LAYER.water) !== undefined) {
-      map.setPaintProperty(LAYER.water, "fill-opacity", corridor.waterOpacity * shown);
-      map.setPaintProperty(LAYER.glow, "line-opacity", corridor.glowOpacity * shown);
-      map.setPaintProperty(LAYER.edge, "line-opacity", corridor.edgeOpacity * shown);
-      map.setPaintProperty(LAYER.parts, "line-opacity", corridor.partsOpacity * shown);
-      map.setPaintProperty(LAYER.window, "line-opacity", shown);
-    }
+    const shown = Math.min(1, layers.reveal * 1.4);
+    const on = (flag: boolean) => (flag ? shown : 0);
+    // The true-color image shows the water itself: no dark fill over it.
+    const water = layers.mode === "photo" ? 0 : corridor.waterOpacity;
+    map.setPaintProperty(LAYER.water, "fill-opacity", water * on(overlays.outline));
+    map.setPaintProperty(LAYER.glow, "line-opacity", corridor.glowOpacity * on(overlays.outline));
+    map.setPaintProperty(LAYER.edge, "line-opacity", corridor.edgeOpacity * on(overlays.outline));
+    map.setPaintProperty(LAYER.parts, "line-opacity", corridor.partsOpacity * on(overlays.parts));
+    map.setPaintProperty(LAYER.window, "line-opacity", on(overlays.window));
+  }
+
+  function paint(): void {
+    layers.paint();
+    paintOverlays();
   }
 
   // The NDTI layer joins as soon as the style is parsed, not on `load` (which waits for every
   // imagery and terrain tile), so the fill shows during the flight.
   map.on("style.load", () => {
-    if (reach.maps !== null) {
-      const corners = reach.maps.corners.map((c) => [c[0], c[1]]) as [
-        [number, number],
-        [number, number],
-        [number, number],
-        [number, number],
-      ];
-      map.addSource(SOURCE.ndti, { type: "canvas", canvas, coordinates: corners, animate: false });
-      map.addLayer(
-        {
-          id: LAYER.ndti,
-          type: "raster",
-          source: SOURCE.ndti,
-          paint: { "raster-fade-duration": 0, "raster-resampling": "linear" },
-        },
-        LAYER.parts,
-      );
-    }
-    paint();
+    layers.attach();
+    paintOverlays();
   });
 
   // The gauge marker, at the station.
@@ -539,6 +858,45 @@ export async function createCaseMap(
   marker?.addTo(map);
   gauge.root.dataset.shown = "false";
 
+  // The profile's cursor on the river.
+  const probe = document.createElement("div");
+  probe.className = "case-probe";
+  const probeMarker = new Marker({ element: probe, anchor: "center" });
+
+  // The pixel under the cursor, at most once a frame.
+  let hoverFrame = 0;
+  map.on("mousemove", (event) => {
+    if (!interactive || options.onHover === undefined) {
+      return;
+    }
+    cancelAnimationFrame(hoverFrame);
+    hoverFrame = requestAnimationFrame(() => {
+      const { lng, lat } = event.lngLat;
+      const pixel = reach.maps === null ? null : pixelAt(reach.maps, [lng, lat]);
+      const reading =
+        pixel === null || layers.packed === null || reach.maps === null
+          ? null
+          : readPixel(reach.maps, layers.packed.data, pixel.col, pixel.row);
+      options.onHover?.({ x: event.point.x, y: event.point.y, lng, lat, reading });
+    });
+  });
+  map.getCanvas().addEventListener("mouseleave", () => {
+    cancelAnimationFrame(hoverFrame);
+    options.onHover?.(null);
+  });
+  let cameraFrame = 0;
+  map.on("move", () => {
+    cancelAnimationFrame(cameraFrame);
+    cameraFrame = requestAnimationFrame(() => {
+      const lat = (map.getCenter().lat * Math.PI) / 180;
+      options.onCamera?.({
+        bearing: map.getBearing(),
+        pitch: map.getPitch(),
+        metresPerPixel: (EARTH_CIRCUMFERENCE_M * Math.cos(lat)) / (512 * 2 ** map.getZoom()),
+      });
+    });
+  });
+
   let settleFlight: (() => void) | null = null;
   function endFlight(): void {
     const settle = settleFlight;
@@ -548,6 +906,7 @@ export async function createCaseMap(
   // Ends the pending flight, whether it completes or is interrupted (`stop`, `jumpTo`).
   map.on("moveend", endFlight);
 
+  const compares = new Set<CompareHandle>();
   const handle: CaseMapHandle = {
     ready,
     flyToFinal(durationMs, easing, frame) {
@@ -596,19 +955,19 @@ export async function createCaseMap(
       const target = Math.min(1, Math.max(0, to));
       gauge.root.dataset.shown = String(target > 0);
       if (durationMs <= 0) {
-        reveal = target;
-        animating = false;
+        layers.reveal = target;
+        layers.animating = false;
         paint();
         return;
       }
-      const from = reveal;
+      const from = layers.reveal;
       const startTime = performance.now();
-      animating = true;
+      layers.animating = true;
       const step = (now: number) => {
         const t = Math.min(1, (now - startTime) / durationMs);
         // Ease-out (sine): the fill slows down as it arrives.
-        reveal = from + (target - from) * Math.sin((t * Math.PI) / 2);
-        animating = t < 1;
+        layers.reveal = from + (target - from) * Math.sin((t * Math.PI) / 2);
+        layers.animating = t < 1;
         paint();
         if (t < 1) {
           revealFrame = requestAnimationFrame(step);
@@ -616,36 +975,127 @@ export async function createCaseMap(
       };
       revealFrame = requestAnimationFrame(step);
     },
-    showScene(file) {
-      if (disposed || file === shownFile) {
-        return;
-      }
+    showScene(file, photo) {
       shownFile = file;
-      sceneRequest += 1;
-      const request = sceneRequest;
-      if (file === null) {
-        packed = null;
-        paint();
-        return;
-      }
-      decodeMap(`${reach.base}${file}`)
-        .then((data) => {
-          if (!disposed && request === sceneRequest) {
-            packed = data;
-            colored = null;
-            paint();
-          }
-        })
-        .catch((error: unknown) => {
-          if (import.meta.env.DEV) {
-            console.warn(`[case] ${file} could not be drawn.`, error);
-          }
-        });
+      layers.show(file, photo, (data) => {
+        if (file !== null) {
+          options.onScene?.(file, data);
+        }
+      });
     },
     setGauge(label) {
       gauge.value.textContent = label?.value ?? "";
       gauge.caption.textContent = label?.caption ?? "";
       gauge.root.dataset.empty = String(label === null || label.value === "");
+    },
+    setInteractive(on) {
+      interactive = on;
+      for (const name of HANDLERS) {
+        if (on) {
+          map[name].enable();
+        } else {
+          map[name].disable();
+        }
+      }
+    },
+    setLayer(mode, opacity) {
+      layers.setLayer(mode, opacity);
+      paintOverlays();
+      for (const copy of compares) {
+        copy.setLayer(mode, opacity);
+      }
+    },
+    setOverlays(next) {
+      overlays = next;
+      paintOverlays();
+    },
+    setTerrain3d(on) {
+      terrain3d = on;
+      if (terrainEnabled) {
+        map.setTerrain(on ? { source: SOURCE.terrain, exaggeration: TERRAIN.exaggeration } : null);
+        map.setLayoutProperty(LAYER.hillshade, "visibility", on ? "visible" : "none");
+      }
+      map.easeTo({ pitch: on ? reachCase.pitch : 0, duration: 600 });
+    },
+    zoomBy(delta) {
+      map.easeTo({ zoom: map.getZoom() + delta, duration: 300 });
+    },
+    resetNorth() {
+      map.easeTo({ ...framed(lastFrame), duration: 700 });
+    },
+    setProbe(place) {
+      const at = place === null ? null : centrelinePoint(reach, place);
+      if (at === null) {
+        probeMarker.remove();
+      } else {
+        probeMarker.setLngLat([at[0], at[1]]).addTo(map);
+      }
+    },
+    compare(element) {
+      const copy = new MapLibreMap({
+        container: element,
+        style: buildStyle(reach, tiles),
+        interactive: false,
+        attributionControl: false,
+        maxZoom: MAP_LOOK.maxZoom,
+        maxPitch: 70,
+        pixelRatio: Math.min(window.devicePixelRatio, 2),
+        center: map.getCenter(),
+        zoom: map.getZoom(),
+        bearing: map.getBearing(),
+        pitch: map.getPitch(),
+      });
+      const sync = () => {
+        copy.jumpTo({
+          center: map.getCenter(),
+          zoom: map.getZoom(),
+          bearing: map.getBearing(),
+          pitch: map.getPitch(),
+          padding: map.getPadding(),
+        });
+      };
+      sync();
+      const moving = map.on("move", sync);
+      const passes = new PassLayers(copy, reach, domain, 1);
+      let pending: { file: string | null; photo: string | null } | null = null;
+      let layer: { mode: LayerMode; opacity: number } | null = null;
+      copy.on("style.load", () => {
+        if (!terrain3d) {
+          copy.setTerrain(null);
+        }
+        passes.attach();
+        if (layer !== null) {
+          passes.setLayer(layer.mode, layer.opacity);
+        }
+        if (pending !== null) {
+          passes.show(pending.file, pending.photo);
+        }
+        copy.setPaintProperty(LAYER.water, "fill-opacity", corridor.waterOpacity);
+        copy.setPaintProperty(LAYER.edge, "line-opacity", corridor.edgeOpacity);
+      });
+      const compareHandle: CompareHandle = {
+        setScene(file, photo) {
+          pending = { file, photo };
+          if (copy.isStyleLoaded()) {
+            passes.show(file, photo);
+          }
+        },
+        setLayer(mode, opacity) {
+          layer = { mode, opacity };
+          passes.setLayer(mode, opacity);
+        },
+        // Once: the main map's own dispose removes its copies before React's cleanup does.
+        dispose() {
+          if (!compares.delete(compareHandle)) {
+            return;
+          }
+          moving.unsubscribe();
+          passes.dispose();
+          copy.remove();
+        },
+      };
+      compares.add(compareHandle);
+      return compareHandle;
     },
     project(lng, lat) {
       const projected = map.project([lng, lat]);
@@ -659,10 +1109,11 @@ export async function createCaseMap(
         bearing: map.getBearing(),
         center: [mapCenter.lng, mapCenter.lat],
         terrain: map.getTerrain() !== null,
-        reveal,
+        reveal: layers.reveal,
         scene: shownFile,
         ndtiLayer: map.getLayer(LAYER.ndti) !== undefined,
-        ndtiDecoded: packed !== null,
+        ndtiDecoded: layers.packed !== null,
+        interactive,
         styleLoaded: map.isStyleLoaded(),
         loaded: map.loaded(),
         tilesLoaded: map.areTilesLoaded(),
@@ -675,9 +1126,16 @@ export async function createCaseMap(
       }
       disposed = true;
       cancelAnimationFrame(revealFrame);
+      cancelAnimationFrame(hoverFrame);
+      cancelAnimationFrame(cameraFrame);
+      for (const copy of [...compares]) {
+        copy.dispose();
+      }
+      layers.dispose();
       settleReady();
       endFlight();
       marker?.remove();
+      probeMarker.remove();
       map.remove();
     },
   };

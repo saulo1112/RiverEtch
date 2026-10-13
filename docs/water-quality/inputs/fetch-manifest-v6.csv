@@ -1,0 +1,5 @@
+path,url,status,bytes,sha256,fetched_utc,note
+v6/gauge-readings.csv,raw,200,488414,16906417e325ea5119d55669efeaeb3a1e8078626705b0f8f45fb716818bf2d0,2026-10-13T04:06:05+00:00,USGS continuous readings within 60 min of each sample or Landsat pass
+v6/read-errors.csv,derived,200,1209,c74935b3b382960953ee691b80e5eb1cdadb34b071bd724da41c6765ebf6ed7b,2026-10-13T04:06:05+00:00,
+v6/ssc.csv,raw,200,38632,98cdf69eb9cb46aa5a577abd55a6b10b7f2c8c07ae12e913da9bcee3d674cb5d,2026-10-13T04:06:05+00:00,"USGS discrete samples, 80154, since each gauge's continuous turbidity began"
+v6/thermal-windows.csv,derived,200,38890,a531452fe4ff5523b7c8b9c5e7220313ddde0cea33e47776f59281711e82d66e,2026-10-13T04:06:05+00:00,Landsat 8/9 C2-L2 T1 surface temperature at the Platte gauge's core window
