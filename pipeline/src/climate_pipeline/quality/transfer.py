@@ -199,7 +199,8 @@ class Adjustment:
 
 
 def adjustment(estimates: Sequence[float], pairs: Sequence[Pair], lambdas: Sequence[float],
-               min_pairs: int) -> Adjustment:  # fmt: skip
+               min_pairs: int, group: Callable[[Pair], str] | None = None
+               ) -> Adjustment:  # fmt: skip
     """The Colombian adjustment, lambda by leave-one-station-out (identity under the minimum).
 
     Args:
@@ -207,6 +208,8 @@ def adjustment(estimates: Sequence[float], pairs: Sequence[Pair], lambdas: Seque
         pairs: Colombian training pairs.
         lambdas: Candidate penalties.
         min_pairs: Fewer valid pairs: the identity.
+        group: The cross-validation group of a pair (default: its station; v4's single site
+            uses its hydrological year).
 
     Returns:
         The adjustment.
@@ -215,14 +218,18 @@ def adjustment(estimates: Sequence[float], pairs: Sequence[Pair], lambdas: Seque
     if len(ok) < min_pairs:
         return Adjustment()
     best: tuple[float, float] | None = None
+    key = group or (lambda p: p.station)
+    stations = sorted({key(p) for _, p in ok})
+    rests = {s: [(e2, p2) for e2, p2 in ok if key(p2) != s] for s in stations}
     for lam in sorted(lambdas, reverse=True):
+        fits = {s: fit_adjustment([x for x, _ in r], [q.value for _, q in r], lam)
+                for s, r in rests.items() if len(r) >= 2}  # fmt: skip
         oof = []
         for e, p in ok:
-            rest = [(e2, p2) for e2, p2 in ok if p2.station != p.station]
-            if len(rest) < 2:
+            if key(p) not in fits:
                 oof.append(math.nan)
                 continue
-            a, b = fit_adjustment([x for x, _ in rest], [q.value for _, q in rest], lam)
+            a, b = fits[key(p)]
             oof.append(math.exp(a + b * math.log(e)))
         score = stats.mdsa(oof, [p.value for _, p in ok])
         if math.isfinite(score) and (best is None or score < best[0]):
@@ -232,12 +239,14 @@ def adjustment(estimates: Sequence[float], pairs: Sequence[Pair], lambdas: Seque
     return Adjustment(a, b, lam)
 
 
-def transfer_predictor(pretrained: Callable[[Pair], float], cfg: QualityConfig) -> Predictor:
+def transfer_predictor(pretrained: Callable[[Pair], float], cfg: QualityConfig,
+                       group: Callable[[Pair], str] | None = None) -> Predictor:  # fmt: skip
     """A Route A predictor: the pretrained model, adjusted on the Colombian training pairs.
 
     Args:
         pretrained: The USGS-trained model of one pair.
         cfg: Settings (the adjustment's lambdas and minimum).
+        group: The adjustment's cross-validation group (default: the station).
 
     Returns:
         ``(colombian_train, test) -> estimates``.
@@ -246,7 +255,7 @@ def transfer_predictor(pretrained: Callable[[Pair], float], cfg: QualityConfig) 
 
     def predict(train: Sequence[Pair], test: Sequence[Pair]) -> list[float]:
         adj = adjustment([pretrained(p) for p in train], train, sel.adjustment_lambdas,
-                         sel.adjustment_min_pairs)  # fmt: skip
+                         sel.adjustment_min_pairs, group)  # fmt: skip
         return [adj.apply(pretrained(p)) for p in test]
 
     return predict
@@ -259,9 +268,14 @@ class UsgsInputs:
     pairs: dict[tuple[str, str], list[Pair]]  # (target, window) -> pairs
     river_of: dict[str, str]
     forests: dict[tuple[str, str], trees.Forest] = field(default_factory=dict)  # A4, from the lab
+    fitted: dict[tuple[str, str, int], dict[str, Pretrained]] = field(
+        default_factory=dict, repr=False, compare=False
+    )  # pretrained_objects, computed once per target, window and forest
 
 
-def load_usgs(cfg: QualityConfig, root: Path) -> UsgsInputs | None:
+def load_usgs(cfg: QualityConfig, root: Path, folder: str = "usgs",
+              sites_file: str = "usgs/sites.csv",
+              turbidity_file: str = "turbidity.csv") -> UsgsInputs | None:  # fmt: skip
     """The USGS pilot's pairs (None until its value fetch has run).
 
     Turbidity pairs join each clear scene with its overpass value; SSC pairs join a sample with a
@@ -270,23 +284,28 @@ def load_usgs(cfg: QualityConfig, root: Path) -> UsgsInputs | None:
     Args:
         cfg: Settings.
         root: Repository root.
+        folder: The snapshot folder under the inputs (v4's second reach: ``usgs-hermann``).
+        sites_file: The site list under the inputs (default: the pilot's; v5 has its own).
+        turbidity_file: The overpass values joined as ``turbidity`` (v5's surrogate SSC reuses the
+            join with ``ssc-surrogate.csv``).
 
     Returns:
         The inputs, or None.
     """
     from climate_pipeline.quality.route_a import scenes_from_windows
 
-    base = root / cfg.outputs.inputs / "usgs"
-    if not (base / "windows.csv").exists() or not (base / "turbidity.csv").exists():
+    base = root / cfg.outputs.inputs / folder
+    if not (base / "windows.csv").exists() or not (base / turbidity_file).exists():
         return None
-    sites = [r for r in read_stations(base / "sites.csv") if r["selected"] == "true"]
+    site_list = root / cfg.outputs.inputs / sites_file
+    sites = [r for r in read_stations(site_list) if r["selected"] == "true"]
     widths = {r["site_id"]: number(r["width_m"]) for r in sites}
     text = (base / "windows.csv").read_text(encoding="utf-8")
     windows = features.with_features(
         cfg.features, {w: scenes_from_windows(text, w) for w in ("300m", "core")}, widths
     )
     guards = cfg.window.as_calibration()
-    turbidity = list(csv.DictReader(io.StringIO((base / "turbidity.csv").read_text("utf-8"))))
+    turbidity = list(csv.DictReader(io.StringIO((base / turbidity_file).read_text("utf-8"))))
     ssc_path = base / "ssc.csv"
     ssc = (
         list(csv.DictReader(io.StringIO(ssc_path.read_text("utf-8")))) if ssc_path.exists() else []
@@ -336,6 +355,14 @@ def pretrained_objects(cfg: QualityConfig, usgs: UsgsInputs, target: str, window
     Returns:
         Candidate id -> pretrained model (empty under the minimum of USGS pairs).
     """
+    key = (target, window, id(usgs.forests.get((target, window))))
+    if key not in usgs.fitted:
+        usgs.fitted[key] = _pretrained_objects(cfg, usgs, target, window)
+    return dict(usgs.fitted[key])
+
+
+def _pretrained_objects(cfg: QualityConfig, usgs: UsgsInputs, target: str, window: str
+                        ) -> dict[str, Pretrained]:  # fmt: skip
     pairs = usgs.pairs.get((target, window), [])
 
     def river(p: Pair) -> str:

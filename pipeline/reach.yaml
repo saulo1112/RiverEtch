@@ -15,12 +15,60 @@ lookback_days: 30 # a run without --since starts this many days before today
 reaches:
   - site: magdalena-puerto-wilches
     estimate_station: "23207040" # San Pablo, at the downstream end (a Magdalena test station)
+    cards: # v4, B: round 3's card if it reached indicative, else round 1's of record
+      turbidity: docs/water-quality/results/models/magdalena/turbidity.json
+      tss: docs/water-quality/results/models/tss.posthoc.json # v2.1 (level none)
     rainy_months: [4, 5, 6, 8, 10, 11] # the screening's, as in the Magdalena validation
     geometry_start: 2022-01-01 # the screening's period: the water mask is built from it only
     geometry_end: 2025-12-31
     ndti_scenes: docs/magdalena-validation/results/scenes.csv
     nir_red_baseline: docs/water-quality/reach/magdalena-puerto-wilches/nir-red-baseline.csv
     baseline_end: 2025-12-31
+  - site: missouri-hermann # v4, section A: the second reach (preregistration)
+    site_file: pipeline/reaches/missouri-hermann.yaml # outside the Colombian screening
+    estimate_station: USGS-06934500 # the streamgage, at the upstream end
+    station_source: usgs
+    timezone: America/Chicago
+    targets: [turbidity] # FNU; no TSS at Hermann
+    cards:
+      turbidity: docs/water-quality/results/models/missouri-hermann/turbidity.json
+    rainy_months: [4, 5, 6, 7] # spring and early-summer high water (general hydrology, not sourced)
+    geometry_start: 2022-01-01
+    geometry_end: 2025-12-31
+    baseline_start: 2019-01-01 # the reach measures its own NDTI baseline (no validation scenes)
+    nir_red_baseline: docs/water-quality/reach/missouri-hermann/nir-red-baseline.csv
+    baseline_end: 2025-12-31
+    baseline_max_gb: 6.0 # v4, section A
+  - site: mississippi-belle-chasse # v5: a demo reach (preregistration v5)
+    site_file: pipeline/reaches/mississippi-belle-chasse.yaml
+    estimate_station: USGS-07374525 # the streamgage, at the downstream end
+    station_source: usgs
+    timezone: America/Chicago
+    targets: [turbidity] # FNU
+    cards:
+      turbidity: docs/water-quality/results/models/mississippi-belle-chasse/turbidity.json
+    rainy_months: [5, 6, 7, 8, 9] # summer convection (general climatology, not sourced)
+    geometry_start: 2022-01-01
+    geometry_end: 2025-12-31
+    baseline_start: 2019-01-01
+    nir_red_baseline: docs/water-quality/reach/mississippi-belle-chasse/nir-red-baseline.csv
+    baseline_end: 2025-12-31
+    baseline_max_gb: 6.0 # v5
+  - site: platte-louisville # v5: a demo reach (preregistration v5)
+    site_file: pipeline/reaches/platte-louisville.yaml
+    estimate_station: USGS-06805500 # the streamgage, at the upstream end
+    station_source: usgs
+    timezone: America/Chicago
+    targets: [turbidity] # FNU
+    cards:
+      turbidity: docs/water-quality/results/models/platte-louisville/turbidity.json
+    rainy_months: [4, 5, 6, 7] # spring and early-summer high water (general hydrology, not sourced)
+    geometry_start: 2022-01-01
+    geometry_end: 2025-12-31
+    baseline_start: 2019-01-01
+    nir_red_baseline: docs/water-quality/reach/platte-louisville/nir-red-baseline.csv
+    baseline_end: 2025-12-31
+    baseline_max_gb: 6.0 # v5
 
 budgets:
   max_gb: 2.0 # per run (a month of scenes is ~0.3 GB)

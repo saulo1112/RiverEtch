@@ -1,0 +1,13 @@
+{
+  "site": "missouri-hermann",
+  "frozen_scenes": null,
+  "found": 522,
+  "measured": 429,
+  "usable": 165,
+  "station": "USGS-06934500",
+  "network_gb_estimated": 6.023,
+  "stopped": "network cap of 6 GB reached",
+  "ndti_max_abs_difference": null,
+  "code_commit": "7d4ec74b61f4d375a6a0e5d9a016ff1c84cde017",
+  "created_utc": "2026-10-12T16:35:46+00:00"
+}

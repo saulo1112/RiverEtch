@@ -181,9 +181,9 @@
     ],
     "file": "gbm-turbidity-core.json",
     "kind": "lightgbm",
-    "sha256": "7a5c01acb7f39414d7441a2ad528389c7aa6da2b9f68429ece3b2c1f5289e9b8"
+    "sha256": "0aaf2292e61952563f6a382d08308b63452fcd69a43568fd007734156b5abed3"
   },
-  "parametersHash": "f06d49875621b1e0b7b8d050f5270b8a2945fdc8ebb941117f790cbcb97a4611",
+  "parametersHash": "195ba8315dc43632ea0a60ba30758f5cd4768f948768c83889edc316962fc4ef",
   "target": "turbidity",
   "targetRange": [
     9.8,

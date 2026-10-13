@@ -1,0 +1,42 @@
+{
+  "section": "v4, D (preregistration): the CVC probe with a stop rule",
+  "dataset": "datos.gov.co d3ft-wu2b (CVC, Calidad del agua del Rio Cauca; CC BY-SA 4.0)",
+  "query": "$select=estaciones, count(turbiedad_unt), min/max(fecha_de_muestreo); $where=fecha_de_muestreo >= '2018-12-01' AND turbiedad_unt IS NOT NULL; $group=estaciones",
+  "response_sha256": "5fe98c07889d0e201352fbc4a4d13f1bb81f063cf1e403b765d9a2c922afd9d5",
+  "fetched_utc": "2026-10-12T16:13:20+00:00",
+  "values_read": false,
+  "coordinates_in_dataset": false,
+  "samples_since_2018_12_by_station": {
+    "ANACARO": 20,
+    "ANTES INTERCEPTOR": 6,
+    "ANTES INTERCEPTOR SUR": 14,
+    "ANTES RIO OVEJAS": 19,
+    "ANTES RIO TIMBA": 19,
+    "ANTES SUAREZ": 19,
+    "JUANCHITO": 20,
+    "LA VICTORIA": 20,
+    "MEDIACANOA": 20,
+    "PASO DE LA BALSA": 20,
+    "PASO DE LA BOLSA": 20,
+    "PASO DE LA TORRE": 20,
+    "PASO DEL COMERCIO": 20,
+    "PUENTE GUAYABAL": 20,
+    "PUENTE HORMIGUERO": 20,
+    "PUENTE LA VIRGINIA": 20,
+    "PUERTO ISAACS": 20,
+    "RIOFRIO": 20,
+    "VIJES": 17,
+    "VIJES LA TORRE": 3,
+    "YOTOCO": 20
+  },
+  "max_samples_at_one_station": 20,
+  "rule": "at least 3 points with >= 30 turbidity samples since 2018-12-01 that pass the station rule (main channel >= 150 m)",
+  "same_stretch_in_the_v2_station_selection": {
+    "26067010 JUANCHITO": "main channel 80 m wide, 150 m needed",
+    "26087140 MEDIACANOA": "main channel 89 m wide, 150 m needed",
+    "26107070 LA VICTORIA": "main channel 113 m wide, 150 m needed",
+    "26177030 LA VIRGINIA": "main channel 120 m wide, 150 m needed",
+    "rca-cauca-val-yumbo-paso-de-la-torre-cauca": "main channel 89 m wide, 150 m needed"
+  },
+  "verdict": "not suitable: no station has 30 samples (at most 20), the dataset has no coordinates, and the v2 station rule rejected every station on this stretch as narrower than 150 m; round 3 runs without CVC rows"
+}

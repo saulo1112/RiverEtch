@@ -40,7 +40,13 @@ SCHEMA_VERSION: Final = 2
 SCHEMA_ID: Final = "observation-record.v2"
 
 Level = Literal["validated", "estimated", "indicative", "none"]
-Basis = Literal["preregistered_test", "post_hoc_nested_loso_magdalena"]
+Basis = Literal[
+    "preregistered_test",  # v2: the Magdalena test, evaluated once
+    "post_hoc_nested_loso_magdalena",  # v2.1 and v3: nested leave-one-station-out
+    "post_hoc_temporal_magdalena",  # v4, round 3: leave-one-hydrological-year-out, exploratory
+    "preregistered_lockbox_site",  # v4: one site's held-out years, evaluated once
+]
+PREREGISTERED: Final = ("preregistered_test", "preregistered_lockbox_site")
 Target = Literal["turbidity", "tss"]
 RelativeClass = Literal["low", "medium", "high"]
 
@@ -124,8 +130,8 @@ class Estimate(_Model):
         needed = (self.model_id, self.model_version, self.model_card_sha256, self.basis)
         if any(v is None for v in needed):
             raise ValueError("an estimate names its model, version, model card and basis")
-        if self.level == "validated" and self.basis != "preregistered_test":
-            raise ValueError("only the preregistered test validates")
+        if self.level == "validated" and self.basis not in PREREGISTERED:
+            raise ValueError("only a preregistered test validates")
         if quantitative and self.abstain_reason is None:
             if self.value is None or self.interval is None or self.valid_range is None:
                 raise ValueError("a validated or estimated level carries value, interval, range")
@@ -235,7 +241,7 @@ def json_schema() -> dict[str, Any]:
         },
         {
             "if": {"properties": {"level": {"const": "validated"}}, "required": ["level"]},
-            "then": {"properties": {"basis": {"const": "preregistered_test"}}},
+            "then": {"properties": {"basis": {"enum": list(PREREGISTERED)}}},
         },
         {
             "if": {"properties": {"level": {"not": {"const": "indicative"}}},

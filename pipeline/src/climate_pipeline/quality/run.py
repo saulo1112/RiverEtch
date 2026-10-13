@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from climate_pipeline.quality import (
+    gauged,
     lab,
     phase3,
     physical,
@@ -22,6 +23,9 @@ from climate_pipeline.quality import (
     route_a,
     route_b,
     search,
+    site,
+    stage_b,
+    temporal,
     transfer,
 )
 from climate_pipeline.quality.config import QualityConfig
@@ -35,6 +39,7 @@ class Results:
     summary: dict[str, Any] = field(default_factory=dict)
     cards: list[dict[str, Any]] = field(default_factory=list)  # the product models
     posthoc_cards: list[dict[str, Any]] = field(default_factory=list)  # v2.1, labelled post hoc
+    extra_cards: list[dict[str, Any]] = field(default_factory=list)  # v4: {"path", "card"}
 
 
 def _rows(path: Path) -> list[dict[str, str]]:
@@ -110,6 +115,8 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         if landsat_scenes is not None:
             results.tables.update(phase3.analyse(cfg, ci, landsat_scenes, confirmed, usgs))
     results.tables.update(physical.analyse(cfg, rb, posthoc.summary(results.tables)))
+    if ci is not None:
+        results.tables.update(stage_b.analyse(cfg, root, rb, ci, posthoc.summary(results.tables)))
     every = search.scenes(cfg, root, ci) if ci is not None else None
     if ci is not None and every is not None:
         a4 = (
@@ -119,6 +126,27 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         radcor = {(p.station, p.sample_day): dogliotti(p, physical.CORRECTION)
                   for p in route_b.common_pairs(rb, "turbidity")[physical.CORRECTION]}  # fmt: skip
         results.tables.update(search.analyse(cfg, ci, every, a4, radcor))
+        record = search.of_record(cfg, ci, every, a4)
+        results.tables.update(record.tables)
+        if record.data is not None:
+            later3 = temporal.analyse(cfg, record.data, radcor)
+            cards3 = later3.pop("_round3_card", [])
+            round3 = cards3[0] if cards3 else None
+            results.tables.update(later3)
+            round1 = temporal.round1_card(cfg, record.data, record.plain,
+                                          results.tables.get("v3_record_levels", []))  # fmt: skip
+            chosen = temporal.product_card(round1, round3)
+            named = (("turbidity.round1.json", round1), ("turbidity.round3.json", round3),
+                     ("turbidity.json", chosen))  # fmt: skip
+            for name, card in named:
+                if card is not None:
+                    results.extra_cards.append({"path": f"magdalena/{name}", "card": card})
+    later_site = site.analyse(cfg, root, usgs)
+    results.extra_cards += later_site.pop("_site_cards", [])
+    results.tables.update(later_site)
+    later_v5 = gauged.analyse(cfg, root, usgs)
+    results.extra_cards += later_v5.pop("_v5_cards", [])
+    results.tables.update(later_v5)
     results.summary = {
         "incomplete": missing,
         "route_a": route_a.summary(results.tables) if ci is not None else {},
@@ -127,5 +155,9 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         "landsat": phase3.summary(results.tables),
         "v3": search.summary(results.tables),
         "route_b": route_b.summary(results.tables),
+        "site": site.summary(results.tables),
+        "v4_round3": temporal.summary(results.tables),
+        "stage_b": stage_b.summary(results.tables),
+        "v5": gauged.summary(results.tables),
     }
     return results

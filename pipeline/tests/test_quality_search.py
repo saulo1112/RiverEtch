@@ -79,3 +79,14 @@ def test_nested_loso_finds_a_clean_relation() -> None:
     mdsa = 100 * (math.exp(float(np.median(np.abs(np.log(np.array(est) / np.array(obs)))))) - 1)
     assert mdsa < 5 and set(result.chosen) == {f"st{s}" for s in range(5)}
     assert plain and min(plain.values()) < 5
+
+
+def test_each_candidate_and_station_set_is_fitted_once() -> None:
+    d = synthetic()
+    c = next(c for c in search.space() if c.combo == "S")
+    stations = {"st0", "st1", "st2"}
+    model = search.trained(c, d, stations)
+    assert search.trained(c, d, set(stations)) is model
+    direct = search.train(c, d.tables[c.pair_set], stations)
+    assert model is not None and direct is not None
+    assert np.array_equal(model.coef, direct.coef) and model.intercept == direct.intercept

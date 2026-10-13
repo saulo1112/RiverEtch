@@ -1,0 +1,5 @@
+round,check,n,stations,mdsa,sspb,mape,rho,rho_low,rho_high,null_mdsa,coverage80,coverage90,level,external_confirmed,publish_values,flow,rivers
+2,1 Magdalena LOSO (form chosen with hindsight),31.0,11.0,50.727726,-12.090261,163.821769,0.5465,0.086722,0.82863,144.444444,0.903226,0.903226,estimated,false,false,preregistered flow features (deviation 9),
+2,"2 external LORO, rivers off the Magdalena",17.0,7.0,117.568202,8.483597,91.909782,0.419375,-0.292714,0.919085,140.963855,0.941176,0.941176,,,,preregistered flow features (deviation 9),6
+2,"3 fitted on the Magdalena, scored on the other rivers",17.0,7.0,81.290956,51.778442,148.117401,0.540773,-0.167847,0.949822,70.068027,,,,,,preregistered flow features (deviation 9),
+2,4 Magdalena leave-one-year-out,31.0,11.0,82.154163,-14.769252,183.496096,0.458745,0.012386,0.766506,120.0,,,,,,preregistered flow features (deviation 9),

@@ -1,0 +1,1030 @@
+[
+  {
+    "date": "2026-01-12",
+    "sceneId": "missouri-hermann:sentinel-2b_2026-01-12_R026",
+    "file": "records/2026-01-12_sentinel-2b_2026-01-12_R026.json",
+    "recordSha256": "a54f8eb3b89dfaeef0e90932fc6a2c234b2c4ab31305caa4bb1cd4f5491ac468",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1044,
+        "downstream": -0.1077,
+        "reach": -0.106,
+        "delta": -0.0033,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.14,
+          "downstream": -0.23,
+          "delta": -0.26
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1292,
+        "downstream": 0.1698,
+        "reach": 0.1495,
+        "delta": 0.0405,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.22,
+          "downstream": -1.17,
+          "delta": 0.64
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-01-22",
+    "sceneId": "missouri-hermann:sentinel-2b_2026-01-22_R026",
+    "file": "records/2026-01-22_sentinel-2b_2026-01-22_R026.json",
+    "recordSha256": "b3f89125e052553bf79bb54cc3938129e562ebc40122646cbb502957efef14b3",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1066,
+        "downstream": -0.1201,
+        "reach": -0.1134,
+        "delta": -0.0135,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.16,
+          "downstream": -0.37,
+          "delta": -1.28
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3389,
+        "downstream": 0.2541,
+        "reach": 0.2965,
+        "delta": -0.0848,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.2,
+          "downstream": -0.72,
+          "delta": -2.78
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-02-26",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-02-26_R026",
+    "file": "records/2026-02-26_sentinel-2c_2026-02-26_R026.json",
+    "recordSha256": "76e64179d924da7660981eea2bc112a296cc8bc65d26589857051c57d2b7147b",
+    "indices": {
+      "ndti": {
+        "upstream": -0.134,
+        "downstream": -0.1264,
+        "reach": -0.1302,
+        "delta": 0.0076,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.45,
+          "downstream": -0.44,
+          "delta": 0.83
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2931,
+        "downstream": 0.301,
+        "reach": 0.2971,
+        "delta": 0.0079,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.42,
+          "downstream": -0.47,
+          "delta": -0.25
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-03-08",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-03-08_R026",
+    "file": "records/2026-03-08_sentinel-2c_2026-03-08_R026.json",
+    "recordSha256": "45213431c18917553934bfda976d3b65d45c87839eec0eb66ff5d870848caae8",
+    "indices": {
+      "ndti": {
+        "upstream": 0.1392,
+        "downstream": 0.1279,
+        "reach": 0.1336,
+        "delta": -0.0114,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 2.42,
+          "downstream": 2.49,
+          "delta": -1.07
+        }
+      },
+      "nirRed": {
+        "upstream": 0.6227,
+        "downstream": 0.5847,
+        "reach": 0.6037,
+        "delta": -0.0381,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.17,
+          "downstream": 1.02,
+          "delta": -1.5
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "indicative",
+        "value": null,
+        "interval": null,
+        "relativeClass": "high",
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-03-18",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-03-18_R026",
+    "file": "records/2026-03-18_sentinel-2c_2026-03-18_R026.json",
+    "recordSha256": "0172b8115924ed8c6f695b1cd2975cb1b5897b9f7b7f7a05f4abd4f1bde9cb72",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0268,
+        "downstream": -0.0078,
+        "reach": 0.0095,
+        "delta": -0.0345,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.24,
+          "downstream": 0.93,
+          "delta": -3.38
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3107,
+        "downstream": 0.2813,
+        "reach": 0.296,
+        "delta": -0.0295,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.34,
+          "downstream": -0.58,
+          "delta": -1.27
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "delta"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-03-28",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-03-28_R026",
+    "file": "records/2026-03-28_sentinel-2c_2026-03-28_R026.json",
+    "recordSha256": "499316d94d5aa9554df2f04dafae7fdeea9a5d3170bc6fde0a0181c6c5e3abe3",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0975,
+        "downstream": -0.0911,
+        "reach": -0.0943,
+        "delta": 0.0064,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.06,
+          "downstream": -0.04,
+          "delta": 0.71
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2957,
+        "downstream": 0.3177,
+        "reach": 0.3067,
+        "delta": 0.0221,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.41,
+          "downstream": -0.39,
+          "delta": 0.14
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-03-30",
+    "sceneId": "missouri-hermann:sentinel-2a_2026-03-30_R026",
+    "file": "records/2026-03-30_sentinel-2a_2026-03-30_R026.json",
+    "recordSha256": "3b14710a445136f5bce36389c8f80dd42b66a31ba2cc3f09e5f157e1b191935d",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0642,
+        "downstream": -0.0643,
+        "reach": -0.0643,
+        "delta": -0.0001,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.29,
+          "downstream": 0.27,
+          "delta": 0.06
+        }
+      },
+      "nirRed": {
+        "upstream": 0.4545,
+        "downstream": 0.4733,
+        "reach": 0.4639,
+        "delta": 0.0188,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.36,
+          "downstream": 0.43,
+          "delta": 0.05
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-19",
+    "sceneId": "missouri-hermann:sentinel-2a_2026-04-19_R026",
+    "file": "records/2026-04-19_sentinel-2a_2026-04-19_R026.json",
+    "recordSha256": "2845c9a515a4a5ef35415d845af3d33715f20e1e1c667abac931841330aac0d5",
+    "indices": {
+      "ndti": {
+        "upstream": 0.1415,
+        "downstream": 0.1317,
+        "reach": 0.1366,
+        "delta": -0.0099,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.01,
+          "downstream": 1.24,
+          "delta": 0.04
+        }
+      },
+      "nirRed": {
+        "upstream": 0.7911,
+        "downstream": 0.7331,
+        "reach": 0.7621,
+        "delta": -0.058,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.0,
+          "downstream": 0.84,
+          "delta": -0.99
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": true,
+      "catchment": null,
+      "union": "yes"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "indicative",
+        "value": null,
+        "interval": null,
+        "relativeClass": "high",
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-09",
+    "sceneId": "missouri-hermann:sentinel-2a_2026-05-09_R026",
+    "file": "records/2026-05-09_sentinel-2a_2026-05-09_R026.json",
+    "recordSha256": "385536611bf8237db67a29603b68849745216656f4c0362dd613ad74edbef91f",
+    "indices": {
+      "ndti": {
+        "upstream": 0.051,
+        "downstream": 0.041,
+        "reach": 0.046,
+        "delta": -0.01,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.18,
+          "downstream": -0.14,
+          "delta": 0.03
+        }
+      },
+      "nirRed": {
+        "upstream": 0.4865,
+        "downstream": 0.4768,
+        "reach": 0.4817,
+        "delta": -0.0097,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.6,
+          "downstream": -0.65,
+          "delta": 0.28
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-12",
+    "sceneId": "missouri-hermann:sentinel-2b_2026-05-12_R026",
+    "file": "records/2026-05-12_sentinel-2b_2026-05-12_R026.json",
+    "recordSha256": "b2550b3f5dae758c527c1ddbfdeef9dac7850dd492ad3819e36411c6b0d6a346",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0156,
+        "downstream": -0.0147,
+        "reach": -0.0152,
+        "delta": 0.0008,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.05,
+          "downstream": -0.99,
+          "delta": 1.1
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3682,
+        "downstream": 0.4074,
+        "reach": 0.3878,
+        "delta": 0.0392,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.22,
+          "downstream": -1.05,
+          "delta": 1.57
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-27",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-05-27_R026",
+    "file": "records/2026-05-27_sentinel-2c_2026-05-27_R026.json",
+    "recordSha256": "9116a9fe0c71d6b61645ddd3d1cc71b0aa6679d4c608375f7e11f30523725120",
+    "indices": {
+      "ndti": {
+        "upstream": 0.144,
+        "downstream": 0.1437,
+        "reach": 0.1439,
+        "delta": -0.0003,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.04,
+          "downstream": 1.42,
+          "delta": 0.99
+        }
+      },
+      "nirRed": {
+        "upstream": 0.8158,
+        "downstream": 0.6554,
+        "reach": 0.7356,
+        "delta": -0.1604,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.13,
+          "downstream": 0.39,
+          "delta": -3.7
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "indicative",
+        "value": null,
+        "interval": null,
+        "relativeClass": "high",
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-16",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-07-16_R026",
+    "file": "records/2026-07-16_sentinel-2c_2026-07-16_R026.json",
+    "recordSha256": "a65e67b8043450164c12c67117538e75ab528490e8ae4375e1b186d1e8f4b0da",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0552,
+        "downstream": 0.028,
+        "reach": 0.0416,
+        "delta": -0.0272,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.13,
+          "downstream": -0.34,
+          "delta": -1.7
+        }
+      },
+      "nirRed": {
+        "upstream": 0.4662,
+        "downstream": 0.5679,
+        "reach": 0.5171,
+        "delta": 0.1017,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.7,
+          "downstream": -0.12,
+          "delta": 3.22
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "indicative",
+        "value": null,
+        "interval": null,
+        "relativeClass": "high",
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-18",
+    "sceneId": "missouri-hermann:sentinel-2a_2026-07-18_R026",
+    "file": "records/2026-07-18_sentinel-2a_2026-07-18_R026.json",
+    "recordSha256": "cc7a774f96dd594887da4ba6afbf4e7f9473ada9e3b4d8865de74adf39c9a9cd",
+    "indices": {
+      "ndti": {
+        "upstream": 0.068,
+        "downstream": 0.0664,
+        "reach": 0.0672,
+        "delta": -0.0017,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.04,
+          "downstream": 0.25,
+          "delta": 0.85
+        }
+      },
+      "nirRed": {
+        "upstream": 0.6412,
+        "downstream": 0.5808,
+        "reach": 0.611,
+        "delta": -0.0604,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.21,
+          "downstream": -0.04,
+          "delta": -1.06
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-25",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-08-25_R026",
+    "file": "records/2026-08-25_sentinel-2c_2026-08-25_R026.json",
+    "recordSha256": "26b9238ce501fd6e91ddc62cfebcfa998293666367ae17637ba4283c3bf2a48f",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0115,
+        "downstream": 0.0077,
+        "reach": 0.0096,
+        "delta": -0.0039,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.08,
+          "downstream": 1.1,
+          "delta": -0.31
+        }
+      },
+      "nirRed": {
+        "upstream": 0.5788,
+        "downstream": 0.5979,
+        "reach": 0.5884,
+        "delta": 0.0191,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.96,
+          "downstream": 1.09,
+          "delta": 0.06
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-04",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-09-04_R026",
+    "file": "records/2026-09-04_sentinel-2c_2026-09-04_R026.json",
+    "recordSha256": "cd6b3ebd10fa40d84b3ae4741cfcd6c6e4af7607782437a79cc475b7189249e5",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0815,
+        "downstream": -0.0779,
+        "reach": -0.0797,
+        "delta": 0.0036,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.1,
+          "downstream": 0.12,
+          "delta": 0.43
+        }
+      },
+      "nirRed": {
+        "upstream": 0.4534,
+        "downstream": 0.4676,
+        "reach": 0.4605,
+        "delta": 0.0142,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.35,
+          "downstream": 0.4,
+          "delta": -0.08
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-29",
+    "sceneId": "missouri-hermann:sentinel-2b_2026-09-29_R026",
+    "file": "records/2026-09-29_sentinel-2b_2026-09-29_R026.json",
+    "recordSha256": "dbfb496fe611a6e7edf42122895dae110ece9392b28dbc8d90bcc3b4915a688f",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0636,
+        "downstream": 0.048,
+        "reach": 0.0558,
+        "delta": -0.0156,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.62,
+          "downstream": 1.57,
+          "delta": -1.49
+        }
+      },
+      "nirRed": {
+        "upstream": 0.5134,
+        "downstream": 0.616,
+        "reach": 0.5647,
+        "delta": 0.1026,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.64,
+          "downstream": 1.19,
+          "delta": 2.34
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-04",
+    "sceneId": "missouri-hermann:sentinel-2c_2026-10-04_R026",
+    "file": "records/2026-10-04_sentinel-2c_2026-10-04_R026.json",
+    "recordSha256": "fd10363a2df7e2c8a099eabf000645434e2533bc5a792fa7dac4a1da41e65bc7",
+    "indices": {
+      "ndti": {
+        "upstream": 0.1538,
+        "downstream": 0.1487,
+        "reach": 0.1513,
+        "delta": -0.0052,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 2.57,
+          "downstream": 2.73,
+          "delta": -0.45
+        }
+      },
+      "nirRed": {
+        "upstream": 1.2566,
+        "downstream": 1.25,
+        "reach": 1.2533,
+        "delta": -0.0066,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 4.25,
+          "downstream": 4.53,
+          "delta": -0.64
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "indicative",
+        "value": null,
+        "interval": null,
+        "relativeClass": "high",
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-06",
+    "sceneId": "missouri-hermann:sentinel-2a_2026-10-06_R026",
+    "file": "records/2026-10-06_sentinel-2a_2026-10-06_R026.json",
+    "recordSha256": "1eaf270161f331409c241db9b617f9778bca2db816bcbf0615a17b27e33a75d6",
+    "indices": {
+      "ndti": {
+        "upstream": 0.1636,
+        "downstream": 0.1507,
+        "reach": 0.1571,
+        "delta": -0.013,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 2.67,
+          "downstream": 2.75,
+          "delta": -1.23
+        }
+      },
+      "nirRed": {
+        "upstream": 1.2831,
+        "downstream": 1.2782,
+        "reach": 1.2806,
+        "delta": -0.0049,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 4.38,
+          "downstream": 4.67,
+          "delta": -0.6
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "indicative",
+        "value": null,
+        "interval": null,
+        "relativeClass": "high",
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-09",
+    "sceneId": "missouri-hermann:sentinel-2b_2026-10-09_R026",
+    "file": "records/2026-10-09_sentinel-2b_2026-10-09_R026.json",
+    "recordSha256": "cd5b0560c1edd2a719ce7727af2f3c11d9499c60348c57b85b355370898830c6",
+    "indices": {
+      "ndti": {
+        "upstream": 0.1367,
+        "downstream": 0.129,
+        "reach": 0.1329,
+        "delta": -0.0077,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 2.39,
+          "downstream": 2.5,
+          "delta": -0.7
+        }
+      },
+      "nirRed": {
+        "upstream": 0.9388,
+        "downstream": 0.94,
+        "reach": 0.9394,
+        "delta": 0.0012,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 2.71,
+          "downstream": 2.89,
+          "delta": -0.43
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "indicative",
+        "value": null,
+        "interval": null,
+        "relativeClass": "high",
+        "abstainReason": null
+      }
+    ]
+  }
+]

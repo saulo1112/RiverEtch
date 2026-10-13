@@ -1,0 +1,7 @@
+target,status,published,stage_a_pairs,stage_b_pairs,evaluation,n,stations,mdsa,sspb,mape,rho,rho_low,rho_high,null_mdsa,coverage80,coverage90,level,v21_mdsa
+turbidity,exploratory (owner's addition),B1 Dogliotti 2015,27,10,nested LOSO (Stage A + B),37.0,13.0,115.766665,-0.217945,157.122342,0.485352,0.067115,0.750956,118.181818,0.783784,0.837838,none,77.4
+turbidity,exploratory (owner's addition),B1 Dogliotti 2015,27,10,R1 as published (no fit),37.0,13.0,90.267363,-11.538104,99.82456,0.580833,0.163603,0.812588,118.181818,,,,
+turbidity,exploratory (owner's addition),B1 Dogliotti 2015,27,10,report-only: outer folds by hydrological year (round 3's),36.0,13.0,140.760364,-8.781961,171.217088,0.498519,0.095454,0.77495,124.387278,0.75,0.861111,,
+tss,confirmatory (due under v2.2's rule),B3 MDN,26,11,nested LOSO (Stage A + B),37.0,13.0,148.867794,-44.316878,228.866348,0.46328,0.061604,0.721216,165.517241,0.837838,0.864865,none,164.8
+tss,confirmatory (due under v2.2's rule),B3 MDN,26,11,R1 as published (no fit),37.0,13.0,115.099272,-50.112625,98.308669,0.518404,0.059339,0.797806,165.517241,,,,
+tss,confirmatory (due under v2.2's rule),B3 MDN,26,11,report-only: outer folds by hydrological year (round 3's),37.0,13.0,135.847442,-26.188577,104.592546,0.476439,0.012923,0.751446,173.667205,0.810811,0.864865,,

@@ -1,0 +1,8 @@
+path,url,status,bytes,sha256,fetched_utc,note
+usgs-v5/incomplete.json,derived,200,3,37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570,2026-10-12T20:18:22+00:00,
+usgs-v5/items.csv,derived,200,1100,8ec7160e7238c4543e0ae192e1a33430c36a07e49c17f434ebbf66659c269ee3,2026-10-12T20:18:22+00:00,
+usgs-v5/read-errors.csv,derived,200,1540,c8efc27cb2ae6be6739838780bfbd0d06a21fa63e7ba868bd79580b73fbaae7d,2026-10-12T20:18:22+00:00,
+usgs-v5/ssc-surrogate.csv,https://api.waterdata.usgs.gov/ogcapi/v0,200,232994,2240451dc3900f5d479e9250d2f7b2c7620fcdca6f3d61ca2c48d5a900447d1e,2026-10-12T20:18:22+00:00,"continuous 99409 at each clear overpass: SSC estimated by the USGS from turbidity (surrogate record), not an independent measurement"
+usgs-v5/ssc.csv,https://api.waterdata.usgs.gov/samples-data/results/narrow,200,34219,eea6d13356f11360875a3ea1eac91ade92e5e0638d4b5b26dad46ecb694aa337,2026-10-12T20:18:22+00:00,discrete 80154 samples of the selected sites
+usgs-v5/turbidity.csv,https://api.waterdata.usgs.gov/ogcapi/v0,200,538679,e422ecf873e6f356f92db77453468376fa2968b1e966d6b5a1955ec543312d70,2026-10-12T20:18:22+00:00,"continuous 63680 at each clear overpass, preregistered rule"
+usgs-v5/windows.csv,derived,200,2207280,2850c2470e53454f6c53bfa4a83c81156e563567d3174be21e8afaa2e88e85e0,2026-10-12T20:18:22+00:00,"station-window statistics and band medians, Earth Search"

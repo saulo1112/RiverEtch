@@ -29,6 +29,7 @@ from typing import Any
 
 INPUTS = "docs/water-quality/inputs"
 SOURCES = {"dsf": "acolite/dsf/windows.csv", "radcor": "acolite/radcor/windows.csv"}
+STAGE_B = "acolite/stage-b"  # v4: RAdCor Stage B (its windows and the MDN's TSS)
 BANDS = ("B01", "B02", "B03", "B04", "B05", "B06", "B07")  # the MDN's MSI bands, in order
 COMMIT = "ae1626c7990436d512044fa878f6bf276b5ce20d"
 WEIGHTS = "Weights/MSI/1b79098defa9693eb03ac734467c3854cf4fb81ce3d1a96b9bf0f511f1c997b1.zip"
@@ -128,7 +129,13 @@ def main() -> int:
     parser.add_argument("--root", type=Path, default=here.parent.parent, help="repository root")
     parser.add_argument("--mdn", type=Path, default=here.parent / "out" / "mdn-src",
                         help="folder that holds the MDN clone as MDN/")  # fmt: skip
+    parser.add_argument(
+        "--stage-b", action="store_true",
+        help="v4's RAdCor Stage B: its windows in, its own predictions out (acolite/stage-b/)",
+    )  # fmt: skip
     args = parser.parse_args()
+    sources = {"radcor": STAGE_B + "/windows.csv"} if args.stage_b else SOURCES
+    folder, prefix = (STAGE_B, "mdn-") if args.stage_b else ("mdn", "")
     clone = args.mdn / "MDN"
     commit = subprocess.run(["git", "-C", str(clone), "rev-parse", "HEAD"], capture_output=True,
                             text=True, check=True).stdout.strip()  # fmt: skip
@@ -141,7 +148,7 @@ def main() -> int:
     mdn = importlib.import_module("MDN")
     rows: list[dict[str, object]] = []
     used: dict[str, str] = {}
-    for correction, relative in SOURCES.items():
+    for correction, relative in sources.items():
         path = args.root / INPUTS / relative
         if not path.exists():
             print(f"{correction}: {relative} not found, skipped", flush=True)
@@ -161,16 +168,17 @@ def main() -> int:
                 "local_date": row["local_date"], "valid_px": row["valid_px"],
                 "tss_mg_l": float(tss[k]),
             })  # fmt: skip
-    out = args.root / INPUTS / "mdn"
+    out = args.root / INPUTS / folder
     out.mkdir(parents=True, exist_ok=True)
     body = _csv(rows, COLUMNS)
-    (out / "predictions.csv").write_bytes(body)
+    (out / f"{prefix}predictions.csv").write_bytes(body)
     note = f"MDN {commit}; weights {WEIGHTS} sha256 {weights_sha}; product {PRODUCT}"
-    manifest = [{"path": "predictions.csv", "sha256": hashlib.sha256(body).hexdigest(),
+    manifest = [{"path": f"{prefix}predictions.csv", "sha256": hashlib.sha256(body).hexdigest(),
                  "bytes": len(body), "note": note}]  # fmt: skip
-    manifest += [{"path": f"../{relative}", "sha256": sha, "bytes": "", "note": "input"}
+    manifest += [{"path": f"../{relative}" if not args.stage_b else Path(relative).name,
+                  "sha256": sha, "bytes": "", "note": "input"}
                  for relative, sha in sorted(used.items())]  # fmt: skip
-    (out / "manifest.csv").write_bytes(_csv(manifest, ("path", "sha256", "bytes", "note")))
+    (out / f"{prefix}manifest.csv").write_bytes(_csv(manifest, ("path", "sha256", "bytes", "note")))
     print(f"{len(rows)} TSS estimates written to {out}")
     return 0
 

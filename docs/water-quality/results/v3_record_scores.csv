@@ -1,0 +1,2 @@
+round,flow,evaluation,n,stations,mdsa,sspb,mape,rho,rho_low,rho_high,null_mdsa,coverage80,coverage90,level,candidates,pairs_3s,pairs_7,pairs_15,samples_in_15
+1,preregistered flow features (deviation 9),nested LOSO (whole space),31.0,11.0,63.08121,-12.420592,144.006023,0.663305,0.228676,0.820879,144.444444,0.870968,0.903226,none,66,31,92,206,103

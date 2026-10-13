@@ -1,0 +1,6 @@
+site,target,unit,window,candidate,predicted_range,n,years,rated,mdsa,sspb,rho_low,null_mdsa,coverage90,level
+USGS-06934500,turbidity,FNU,core,H3,all,70,3,true,34.869625,-19.001612,0.421108,87.680549,0.971429,indicative
+USGS-06934500,turbidity,FNU,core,H3,<30,14,3,true,54.358803,-37.207197,-0.274835,42.75501,0.928571,none
+USGS-06934500,turbidity,FNU,core,H3,30-100,39,3,true,33.206998,-2.422132,-0.150361,55.750799,1.0,none
+USGS-06934500,turbidity,FNU,core,H3,100-300,16,3,true,33.278793,-31.17421,0.642949,370.759175,0.9375,indicative
+USGS-06934500,turbidity,FNU,core,H3,300-1000,1,1,false,4.694323,-4.694323,,608.717949,1.0,indicative

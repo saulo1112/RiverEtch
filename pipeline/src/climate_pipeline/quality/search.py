@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable, Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -109,6 +109,29 @@ def flow_index(flow: Mapping[str, tuple[str, Mapping[date, float]]]
         median = float(np.median(x))
         scale = max(1.4826 * float(np.median(np.abs(x - median))), 1e-6)
         out[station] = {d: (v - median) / scale for d, v in values.items()}
+    return out
+
+
+def flow_raw(flow: Mapping[str, tuple[str, Mapping[date, float]]]
+             ) -> dict[str, dict[date, float]]:  # fmt: skip
+    """Each station's flow as preregistered (deviation 9): log discharge, or level in metres.
+
+    The same series as :func:`flow_index` (at least 30 days), not standardised, so G is
+    g = ln(Q_sample / Q_scene), or the level change in metres where only the level exists.
+
+    Args:
+        flow: Station -> (label, day -> value).
+
+    Returns:
+        Station -> day -> value.
+    """
+    out = {}
+    for station, (label, series) in flow.items():
+        values = {d: (math.log(v) if label == "Q_MEDIA_D" else v / 100)
+                  for d, v in series.items()
+                  if math.isfinite(v) and (v > 0 or label != "Q_MEDIA_D")}  # fmt: skip
+        if len(values) >= 30:
+            out[station] = values
     return out
 
 
@@ -357,6 +380,9 @@ class Data:
     value: dict[int, float]
     pool: dict[int, Pair]  # each unit's nearest test pair (for stats and clusters)
     members: dict[str, list[str]]  # group -> its stations
+    models: dict[tuple[str, frozenset[str]], Model | None] = field(
+        default_factory=dict, repr=False
+    )  # (candidate, training stations) -> fit; a fit depends on nothing else
 
     def stations(self, groups: Sequence[str]) -> set[str]:
         """The stations of some groups.
@@ -371,7 +397,8 @@ class Data:
 
 
 def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
-         t_model: Callable[[Pair], float] | None, external: bool = False) -> Data:  # fmt: skip
+         t_model: Callable[[Pair], float] | None, external: bool = False,
+         raw_flow: bool = False) -> Data:  # fmt: skip
     """The turbidity pair sets and test units: the Magdalena's, or the other rivers'.
 
     Args:
@@ -381,6 +408,7 @@ def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
         t_model: A4's USGS model.
         external: The rivers off the Magdalena, grouped by river (default: the Magdalena,
             grouped by station).
+        raw_flow: Q and G as preregistered (deviation 9) instead of the standardised index.
 
     Returns:
         The data.
@@ -389,7 +417,7 @@ def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
     samples = [s for s in ci.samples if s.target == TARGET
                and (ci.stream_of.get(s.station) == test_stream) != external]  # fmt: skip
     ids = {(s.station, s.day): k for k, s in enumerate(samples)}
-    index = flow_index(ci.flow)
+    index = flow_raw(ci.flow) if raw_flow else flow_index(ci.flow)
     guards = cfg.window.as_calibration()
     tables = {}
     for ps in PAIR_SETS:
@@ -412,6 +440,23 @@ def data(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
     return Data(tables, units, {u: p.value for u, p in pool.items()}, pool, members)
 
 
+def trained(c: Candidate, d: Data, stations: set[str]) -> Model | None:
+    """:func:`train` on ``d``'s pair set, each (candidate, stations) fitted once.
+
+    Args:
+        c: The candidate.
+        d: The data.
+        stations: Training stations.
+
+    Returns:
+        The model, or None.
+    """
+    key = (c.id, frozenset(stations))
+    if key not in d.models:
+        d.models[key] = train(c, d.tables[c.pair_set], stations)
+    return d.models[key]
+
+
 def _mdsa(estimates: Mapping[int, float], value: Mapping[int, float]) -> float:
     ok = [(e, value[u]) for u, e in estimates.items() if math.isfinite(e) and e > 0]
     return stats.mdsa([e for e, _ in ok], [o for _, o in ok]) if len(ok) >= 5 else math.inf
@@ -431,7 +476,7 @@ def loso(c: Candidate, d: Data, stations: Sequence[str], impute: bool = True) ->
     """
     out: dict[int, float] = {}
     for s in stations:
-        model = train(c, d.tables[c.pair_set], d.stations([g for g in stations if g != s]))
+        model = trained(c, d, d.stations([g for g in stations if g != s]))
         for u, e in zip(d.units[s], predict_units(model, c, d.tables["3s"], d.units[s], impute),
                         strict=True):  # fmt: skip
             out[u] = e
@@ -483,7 +528,7 @@ def nested(cfg: QualityConfig, d: Data, candidates: Sequence[Candidate], impute:
         inner = {c.id: loso(c, d, rest, impute) for c in candidates}
         winner = pick({k: _mdsa(v, d.value) for k, v in inner.items()}, candidates, margin)
         chosen[s] = winner.id
-        model = train(winner, d.tables[winner.pair_set], d.stations(rest))
+        model = trained(winner, d, d.stations(rest))
         values = predict_units(model, winner, d.tables["3s"], d.units[s], impute)
         train_units = [u for x in rest for u in d.units[x]]
         observed = [d.value[u] for u in train_units]
@@ -561,12 +606,66 @@ def analyse(
     tables["v3_levels"] += [{"round": 1, **r} for r in rows]
     tables["v3_choices"] += [{"round": 1, "held_out_station": s, "chosen": c}
                              for s, c in result.chosen.items()]  # fmt: skip
-    tables["v3_round2"] = round2(cfg, ci, scenes, t_model)
+    tables["v3_round2"] = round2(cfg, ci, scenes, t_model, d)
     ranked = sorted(plain.items(), key=lambda kv: kv[1])
     tables["v3_candidates"] += [{"round": 1, "candidate": k, "plain_loso_mdsa": v,
                                  "note": "report-only: chosen with hindsight"}
                                 for k, v in ranked[:15]]  # fmt: skip
     return tables
+
+
+DEV9 = "preregistered flow features (deviation 9)"
+
+
+@dataclass
+class Record:
+    """Rounds 1 and 2 of record (deviation 9): the tables, and what round 1's card needs."""
+
+    tables: dict[str, list[dict[str, Any]]]
+    plain: dict[str, float]  # each candidate's plain-LOSO MdSA over every station
+    data: Data | None  # None with too few stations
+
+
+def of_record(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
+              t_model: Callable[[Pair], float] | None) -> Record:  # fmt: skip
+    """Rounds 1 and 2 again with Q and G as preregistered: their results of record (deviation 9).
+
+    Args:
+        cfg: Settings.
+        ci: The Colombian inputs.
+        scenes: Every core-window scene.
+        t_model: A4's USGS model.
+
+    Returns:
+        ``v3_record_scores``, ``v3_record_levels``, ``v3_record_choices`` and
+        ``v3_record_round2``, with the plain-LOSO scores and the data.
+    """
+    from climate_pipeline.quality.route_b import _seed
+
+    d = data(cfg, ci, scenes, t_model, raw_flow=True)
+    out: dict[str, list[dict[str, Any]]] = {"v3_record_scores": [], "v3_record_levels": [],
+                                            "v3_record_choices": [],
+                                            "v3_record_round2": []}  # fmt: skip
+    if len(d.units) < 3:
+        return Record(out, {}, None)
+    candidates = space()
+    counts: dict[str, Any] = {f"pairs_{ps}": len(t.pairs) for ps, t in d.tables.items()}
+    counts["samples_in_15"] = len(set(d.tables["15"].sample.tolist()))
+    seed = _seed(cfg.seed, "v3", "round1")
+    result, order, plain = nested(cfg, d, candidates)
+    pool = [d.pool[u] for u in order]
+    m = posthoc.metrics(cfg, pool, result, list(range(len(pool))), seed)
+    rows = posthoc.level_rows(cfg, cfg.target(TARGET), pool, result, seed)
+    out["v3_record_scores"].append({"round": 1, "flow": DEV9,
+                                    "evaluation": "nested LOSO (whole space)", **m,
+                                    "level": rows[0]["level"], "candidates": len(candidates),
+                                    **counts})  # fmt: skip
+    out["v3_record_levels"] += [{"round": 1, "flow": DEV9, **r} for r in rows]
+    out["v3_record_choices"] += [{"round": 1, "flow": DEV9, "held_out_station": s, "chosen": c}
+                                 for s, c in result.chosen.items()]  # fmt: skip
+    again = round2(cfg, ci, scenes, t_model, d, raw_flow=True)
+    out["v3_record_round2"] = [{**r, "flow": DEV9} for r in again]
+    return Record(out, plain, d)
 
 
 def scenes(cfg: QualityConfig, root: Path, ci: ColombianInputs) -> list[SceneRow] | None:
@@ -621,7 +720,8 @@ FORM = Candidate("7", "nearest", "T+G")
 
 
 def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
-           t_model: Callable[[Pair], float] | None) -> list[dict[str, Any]]:  # fmt: skip
+           t_model: Callable[[Pair], float] | None, mag: Data | None = None,
+           raw_flow: bool = False) -> list[dict[str, Any]]:  # fmt: skip
     """Round 2: round 1's most chosen form, checked on data round 1 never used.
 
     Args:
@@ -629,6 +729,8 @@ def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
         ci: The Colombian inputs.
         scenes: Every core-window scene.
         t_model: A4's USGS model.
+        mag: Round 1's Magdalena data (built again when absent).
+        raw_flow: The preregistered flow features (deviation 9).
 
     Returns:
         One row per check, with the publishing rule's verdict on the first.
@@ -637,17 +739,17 @@ def round2(cfg: QualityConfig, ci: ColombianInputs, scenes: Sequence[SceneRow],
 
     seed = _seed(cfg.seed, "v3", "round2")
     rows: list[dict[str, Any]] = []
-    mag = data(cfg, ci, scenes, t_model)
+    mag = mag if mag is not None else data(cfg, ci, scenes, t_model, raw_flow=raw_flow)
     one, order, _ = nested(cfg, mag, [FORM])
     pool = [mag.pool[u] for u in order]
     m1 = posthoc.metrics(cfg, pool, one, list(range(len(pool))), seed)
     lv1 = route_a.level(m1, cfg, bin_level=True)
-    ext = data(cfg, ci, scenes, t_model, external=True)
+    ext = data(cfg, ci, scenes, t_model, external=True, raw_flow=raw_flow)
     if len(ext.units) >= 2:
         two, order2, _ = nested(cfg, ext, [FORM])
         pool2 = [ext.pool[u] for u in order2]
         m2 = posthoc.metrics(cfg, pool2, two, list(range(len(pool2))), seed + 1)
-        model = train(FORM, mag.tables[FORM.pair_set], mag.stations(list(mag.units)))
+        model = trained(FORM, mag, mag.stations(list(mag.units)))
         units = [u for g in sorted(ext.units) for u in ext.units[g]]
         est3 = predict_units(model, FORM, ext.tables["3s"], units)
         pool3 = [ext.pool[u] for u in units]

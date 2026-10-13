@@ -1,0 +1,122 @@
+{
+  "adjustment": null,
+  "basis": "preregistered_lockbox_site",
+  "candidate": "H1",
+  "featureRange": {
+    "B8A/B04": [
+      0.005155,
+      1.435065
+    ]
+  },
+  "intervals": {
+    "edges": [
+      2.396001,
+      2.907824
+    ],
+    "pooled": [],
+    "q": {
+      "0.8": [
+        0.542975,
+        0.624994,
+        1.052646
+      ],
+      "0.9": [
+        0.602368,
+        0.9174,
+        1.494306
+      ]
+    }
+  },
+  "levels": [
+    {
+      "coverage90": 0.7721,
+      "interval_factor90": 2.5028,
+      "level": "indicative",
+      "mdsa": 52.1908,
+      "n": 136,
+      "null_mdsa": 64.9377,
+      "predicted_range": "all",
+      "rated": true,
+      "rho_low": 0.4374,
+      "sspb": 29.4599,
+      "years": 3
+    },
+    {
+      "coverage90": 0.7721,
+      "interval_factor90": 2.5028,
+      "level": "indicative",
+      "mdsa": 52.1908,
+      "n": 136,
+      "null_mdsa": 64.9377,
+      "predicted_range": "<30",
+      "rated": true,
+      "rho_low": 0.4379,
+      "sspb": 29.4599,
+      "years": 3
+    }
+  ],
+  "lockbox": [
+    "2023-12-01",
+    "2026-09-30"
+  ],
+  "metrics": {
+    "inner": {
+      "coverage80": 0.8101,
+      "coverage90": 0.9114,
+      "mape": 52.4999,
+      "mdsa": 49.7619,
+      "n": 237.0,
+      "null_mdsa": 56.25,
+      "rho": 0.4495,
+      "rho_high": 0.5476,
+      "rho_low": 0.3357,
+      "sspb": 12.9493,
+      "stations": 1.0
+    },
+    "lockbox": {
+      "coverage80": 0.7059,
+      "coverage90": 0.7721,
+      "mape": 84.3203,
+      "mdsa": 52.1908,
+      "n": 136.0,
+      "null_mdsa": 64.9377,
+      "rho": 0.5674,
+      "rho_high": 0.6714,
+      "rho_low": 0.4384,
+      "sspb": 29.4599,
+      "stations": 1.0
+    }
+  },
+  "modelId": "H1:turbidity:core:willamette-portland",
+  "parameters": {
+    "coefficients": [
+      0.734256999,
+      -0.3018932228
+    ],
+    "features": [
+      "B8A/B04"
+    ],
+    "kind": "loglog",
+    "transforms": [
+      "log"
+    ]
+  },
+  "parametersHash": "2e54c2e975e64a6b11b4395769ba92e2f0ef1b5de743b2b9d5d20e87593cc13d",
+  "site": "USGS-14211720",
+  "target": "turbidity",
+  "targetRange": [
+    0.9,
+    52.45
+  ],
+  "training": [
+    "2018-12-01",
+    "2023-11-30"
+  ],
+  "trainingPairs": {
+    "site": 238,
+    "usgs": 2447
+  },
+  "unit": "FNU",
+  "version": "1",
+  "window": "core"
+}

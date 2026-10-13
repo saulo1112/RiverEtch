@@ -11,6 +11,7 @@ record. :func:`estimate` applies a card to one scene's features.
 
 from __future__ import annotations
 
+import functools
 import hashlib
 import json
 import math
@@ -24,6 +25,23 @@ from climate_pipeline.quality import transfer, trees
 from climate_pipeline.quality.config import QualityConfig, Target
 
 VERSION = "1"
+CRLF, LF = b"\r\n", b"\n"
+RANGE_TOLERANCE = 5e-7  # half the precision of a card's stored feature range (6 decimals)
+
+
+def file_sha256(path: Path) -> str:
+    """The SHA-256 of a text file with LF line endings, whatever the checkout wrote.
+
+    A Windows working copy can hold CRLF where the repository holds LF (deviation 10), so the
+    hash is taken over the LF form.
+
+    Args:
+        path: The file.
+
+    Returns:
+        The hex digest.
+    """
+    return hashlib.sha256(path.read_bytes().replace(CRLF, LF)).hexdigest()
 
 
 def _range(pairs: Sequence[Pair], names: Sequence[str]) -> dict[str, list[float]]:
@@ -125,7 +143,7 @@ def product_card(
             path = lab_dir / f"gbm-{target.id}-{window}.json"
             parameters = {"kind": "lightgbm", "features": list(model.feature_names),
                           "file": path.name,
-                          "sha256": hashlib.sha256(path.read_bytes()).hexdigest()}  # fmt: skip
+                          "sha256": file_sha256(path)}  # fmt: skip
             names = list(model.feature_names)
         ranges = _range([*usgs.pairs.get((target.id, window), []), *every], names)
     intervals = _quantiles([*oof, *refit], [p.value for p in every], cfg.intervals.coverages)
@@ -177,14 +195,41 @@ def estimate(card: Mapping[str, Any], row: Mapping[str, float], lab_dir: Path) -
             return math.nan
         a, b = p["coefficients"]
         return math.exp(a + b * math.log(x))
+    if p["kind"] == "ridge-log":
+        return _ridge_log(p, row, lab_dir)
     if p["kind"] == "linear-log":
         raw = transfer.Linear(tuple(p["features"]), tuple(p["mean"]), tuple(p["scale"]),
                               tuple(p["coefficients"]), p["ridgeLambda"]).predict(row)  # fmt: skip
     else:
-        forest = trees.load(lab_dir / p["file"])
+        forest = _forest(lab_dir / p["file"])
         raw = forest.predict(row) if forest is not None else math.nan
     adj = card.get("adjustment") or {"a": 0.0, "b": 1.0}
     return transfer.Adjustment(adj["a"], adj["b"]).apply(raw)
+
+
+@functools.lru_cache(maxsize=8)
+def _forest(path: Path) -> trees.Forest | None:
+    """A lab forest, parsed once per run (the files are about 2 MB)."""
+    return trees.load(path)
+
+
+def _ridge_log(p: Mapping[str, Any], row: Mapping[str, float], lab_dir: Path) -> float:
+    """v3 and v4's ridge in log space (its station offset is in the intercept).
+
+    ``log_T`` is A4's raw output for the scene; ``g`` is 0, as the scene is the estimate's own day.
+    A feature the scene lacks (the day's flow index) makes the estimate NaN, so it abstains.
+    """
+    values = dict(row)
+    if "log_T" in p["features"]:
+        forest = _forest(lab_dir / p["tFile"])
+        values["log_T"] = forest.log_estimate(row) if forest is not None else math.nan
+    if "g" in p["features"]:
+        values["g"] = 0.0
+    x = [values.get(n, math.nan) for n in p["features"]]
+    if not all(math.isfinite(v) for v in x):
+        return math.nan
+    z = [(v - m) / s for v, m, s in zip(x, p["mean"], p["scale"], strict=True)]
+    return math.exp(p["intercept"] + sum(c * v for c, v in zip(p["coefficients"], z, strict=True)))
 
 
 def interval(card: Mapping[str, Any], value: float, coverage: float) -> tuple[float, float]:
@@ -242,6 +287,7 @@ def outside_range(card: Mapping[str, Any], row: Mapping[str, float]) -> str | No
     """
     for name, (low, high) in card.get("featureRange", {}).items():
         v = row.get(name, math.nan)
-        if not (math.isfinite(v) and low <= v <= high):
+        # The range is stored rounded to 6 decimals: a training extreme may sit just outside it.
+        if not (math.isfinite(v) and low - RANGE_TOLERANCE <= v <= high + RANGE_TOLERANCE):
             return f"{name} outside the training range"
     return None

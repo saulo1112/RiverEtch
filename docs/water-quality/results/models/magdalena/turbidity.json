@@ -1,0 +1,122 @@
+{
+  "adjustment": null,
+  "basis": "post_hoc_nested_loso_magdalena",
+  "candidate": "T+G|7|median",
+  "featureRange": {},
+  "intervals": {
+    "edges": [
+      150.628875,
+      257.31731
+    ],
+    "pooled": [],
+    "q": {
+      "0.8": [
+        2.441344,
+        2.015388,
+        0.976993
+      ],
+      "0.9": [
+        3.401406,
+        2.529912,
+        1.139485
+      ]
+    }
+  },
+  "levels": [
+    {
+      "coverage90": 0.9032,
+      "flow": "preregistered flow features (deviation 9)",
+      "level": "none",
+      "mdsa": 63.0812,
+      "n": 31,
+      "predicted_range": "all",
+      "rated": true,
+      "rho_low": 0.2287,
+      "round": 1,
+      "sspb": -12.4206
+    },
+    {
+      "coverage90": 0.5,
+      "flow": "preregistered flow features (deviation 9)",
+      "level": "none",
+      "mdsa": 143.0376,
+      "n": 2,
+      "predicted_range": "<30",
+      "rated": false,
+      "rho_low": null,
+      "round": 1,
+      "sspb": -135.4643
+    },
+    {
+      "coverage90": 1.0,
+      "flow": "preregistered flow features (deviation 9)",
+      "level": "none",
+      "mdsa": 589.5164,
+      "n": 5,
+      "predicted_range": "30-100",
+      "rated": false,
+      "rho_low": -0.7778,
+      "round": 1,
+      "sspb": 589.5164
+    },
+    {
+      "coverage90": 0.9286,
+      "flow": "preregistered flow features (deviation 9)",
+      "level": "none",
+      "mdsa": 49.9382,
+      "n": 14,
+      "predicted_range": "100-300",
+      "rated": true,
+      "rho_low": -0.6161,
+      "round": 1,
+      "sspb": -19.1882
+    },
+    {
+      "coverage90": 0.9,
+      "flow": "preregistered flow features (deviation 9)",
+      "level": "none",
+      "mdsa": 62.9567,
+      "n": 10,
+      "predicted_range": "300-1000",
+      "rated": true,
+      "rho_low": -0.078,
+      "round": 1,
+      "sspb": -5.5258
+    }
+  ],
+  "metrics": {},
+  "modelId": "R1:turbidity:core:magdalena",
+  "parameters": {
+    "coefficients": [
+      0.8654823768,
+      0.2214112405
+    ],
+    "features": [
+      "log_T",
+      "g"
+    ],
+    "intercept": 5.1248474893,
+    "kind": "ridge-log",
+    "mean": [
+      3.899841942,
+      0.0131797102
+    ],
+    "operational": "g = 0 (the scene is the estimate's own day)",
+    "scale": [
+      1.1913846673,
+      0.2319898164
+    ],
+    "stationOffset": 0.0,
+    "tFile": "gbm-turbidity-core.json"
+  },
+  "parametersHash": "0bfbd239a46162166a628143cbba36adbf4a2e2019f02c6c7d740c362c78c2f5",
+  "station": "23207040",
+  "target": "turbidity",
+  "targetRange": [
+    8.27,
+    1800.0
+  ],
+  "unit": "NTU",
+  "version": "1",
+  "window": "core"
+}

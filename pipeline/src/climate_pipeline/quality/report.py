@@ -25,7 +25,13 @@ NOTE = (
     "Route B is a physics check: none of its values reaches a record. Indices and band ratios "
     "are relative until a level says otherwise. No output states that any actor caused anything."
 )
-MANIFESTS = ("acolite/dsf/manifest.csv", "acolite/radcor/manifest.csv", "mdn/manifest.csv")
+MANIFESTS = (
+    "acolite/dsf/manifest.csv",
+    "acolite/radcor/manifest.csv",
+    "mdn/manifest.csv",
+    "acolite/stage-b/manifest.csv",
+    "acolite/stage-b/mdn-manifest.csv",
+)
 
 
 def _json(data: object, path: Path) -> None:
@@ -97,6 +103,46 @@ def render(results: Results, cfg: QualityConfig, names: Sequence[str]) -> str:
           "coverage90", "level", "external_confirmed", "publish_values", "rivers"]),
         ("v3_candidates", "v3: the best plain-LOSO candidates (hindsight; report-only)",
          ["round", "candidate", "plain_loso_mdsa", "note"]),
+        ("v3_record_scores", "v3 of record (deviation 9): round 1 with the preregistered flow "
+         "features", ["round", "flow", "evaluation", "n", "stations", "mdsa", "sspb", "rho",
+                      "rho_low", "null_mdsa", "coverage90", "level", "candidates"]),
+        ("v3_record_levels", "v3 of record (deviation 9): levels by predicted range",
+         ["round", "predicted_range", "n", "rated", "mdsa", "sspb", "rho_low", "coverage90",
+          "level"]),
+        ("v3_record_round2", "v3 of record (deviation 9): round 2's checks",
+         ["round", "check", "n", "stations", "mdsa", "sspb", "rho", "rho_low", "null_mdsa",
+          "coverage90", "level", "external_confirmed", "publish_values", "rivers"]),
+        ("v3_record_choices", "v3 of record (deviation 9): the candidate chosen per station",
+         ["round", "held_out_station", "chosen"]),
+        ("v4_round3_scores", "v4 round 3 (exploratory): a known station, leave-one-hydrological-"
+         "year-out", ["round", "evaluation", "n", "stations", "mdsa", "sspb", "rho", "rho_low",
+                      "null_mdsa", "coverage80", "coverage90", "level", "candidates", "years"]),
+        ("v4_round3_levels", "v4 round 3: levels by predicted range (post hoc, never validated)",
+         ["round", "predicted_range", "n", "rated", "mdsa", "sspb", "rho_low", "coverage90",
+          "level"]),
+        ("v4_round3_choices", "v4 round 3: the candidate chosen per held-out year",
+         ["round", "scheme", "held_out", "chosen"]),
+        ("v5_demo", "v5: the gauged reaches by turbidity level (the demo rule)",
+         ["slug", "site", "record", "level", "mdsa", "n", "demo", "rank"]),
+        ("v5_scores", "v5: every gauged river's lock box 2023-12..2026-09 (each evaluated once)",
+         ["site", "target", "unit", "source", "candidate", "evaluation", "n", "mdsa", "sspb", "rho",
+          "rho_low", "null_mdsa", "coverage90", "interval_factor90", "level", "training_pairs",
+          "lockbox_pairs", "lockbox_years", "status"]),
+        ("v5_levels", "v5: the cards' levels by predicted range (v5 rules)",
+         ["site", "target", "unit", "source", "candidate", "predicted_range", "n", "years",
+          "rated", "mdsa", "sspb", "rho_low", "null_mdsa", "coverage90", "interval_factor90",
+          "level"]),
+        ("v5_inner", "v5: inner leave-one-year-out in the training years (selection)",
+         ["site", "target", "candidate", "inner_loyo_mdsa", "chosen"]),
+        ("site_scores", "v4, A: the Missouri at Hermann, the lock box 2023-12..2026-09 (FNU)",
+         ["site", "candidate", "evaluation", "n", "mdsa", "sspb", "rho", "rho_low", "null_mdsa",
+          "coverage80", "coverage90", "training_pairs", "lockbox_pairs", "training_years",
+          "lockbox_years", "usgs_pairs_without_river", "status"]),
+        ("site_inner", "v4, A: inner leave-one-year-out in the training years (selection)",
+         ["site", "candidate", "inner_loyo_mdsa", "chosen"]),
+        ("site_levels", "v4, A: the card's levels by predicted range (site rules, FNU)",
+         ["site", "candidate", "predicted_range", "n", "years", "rated", "mdsa", "sspb",
+          "rho_low", "null_mdsa", "coverage90", "level"]),
         ("landsat_counts", "Phase 3 (Landsat 8/9): pairs",
          ["target", "variant", "window", "landsat_training_pairs", "landsat_training_streams",
           "landsat_test_pairs", "landsat_test_stations"]),
@@ -113,6 +159,15 @@ def render(results: Results, cfg: QualityConfig, names: Sequence[str]) -> str:
          ["target", "predicted_range", "n", "rated", "mdsa", "sspb", "rho_low", "coverage90",
           "level"]),
         ("physical_choices", "v2.2 (post hoc): the candidate chosen for each held-out station",
+         ["target", "held_out_station", "chosen"]),
+        ("stage_b_scores", "v4, C: RAdCor Stage B (v2.2's candidates on Stage A + B pairs)",
+         ["target", "status", "published", "evaluation", "stage_a_pairs", "stage_b_pairs", "n",
+          "stations", "mdsa", "sspb", "rho", "rho_low", "null_mdsa", "coverage90", "level",
+          "v21_mdsa"]),
+        ("stage_b_levels", "v4, C: Stage B levels by predicted range (post hoc, never validated)",
+         ["target", "predicted_range", "n", "rated", "mdsa", "sspb", "rho_low", "coverage90",
+          "level"]),
+        ("stage_b_choices", "v4, C: Stage B, the candidate chosen per held-out station",
          ["target", "held_out_station", "chosen"]),
         ("route_b_scores", "Route B: published and pretrained models on the same Magdalena pairs",
          ["target", "model", "correction", "n", "stations", "mdsa", "sspb", "rho", "rho_low",
@@ -157,6 +212,11 @@ def write_outputs(results: Results, cfg: QualityConfig, root: Path, config: Path
         path = out / "models" / f"{card['target']}{suffix}.json"
         path.parent.mkdir(exist_ok=True)
         _json(card, path)
+        written.append(path)
+    for extra in results.extra_cards:  # v4: a reach's own card, under models/<reach>/
+        path = out / "models" / extra["path"]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        _json(extra["card"], path)
         written.append(path)
     inputs = root / cfg.outputs.inputs
     provenance = {

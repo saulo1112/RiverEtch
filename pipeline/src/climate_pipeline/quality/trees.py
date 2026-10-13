@@ -11,17 +11,52 @@ from __future__ import annotations
 import json
 import math
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+
+# A compiled tree: per node (feature, threshold, left, right); a leaf is (-1, value, -1, -1).
+Compiled = tuple[tuple[int, float, int, int], ...]
+
+
+def _compile(tree: Mapping[str, Any]) -> Compiled:
+    nodes: list[tuple[int, float, int, int]] = []
+
+    def visit(node: Mapping[str, Any]) -> int:
+        k = len(nodes)
+        if "leaf_value" in node:
+            nodes.append((-1, float(node["leaf_value"]), -1, -1))
+            return k
+        if node.get("decision_type", "<=") != "<=":
+            raise ValueError(f"unsupported split {node.get('decision_type')}")
+        nodes.append((0, 0.0, 0, 0))
+        left = visit(node["left_child"])
+        right = visit(node["right_child"])
+        nodes[k] = (int(node["split_feature"]), float(node["threshold"]), left, right)
+        return k
+
+    visit(tree)
+    return tuple(nodes)
 
 
 @dataclass(frozen=True)
 class Forest:
-    """A LightGBM regression model on log(target)."""
+    """A LightGBM regression model on log(target).
+
+    The trees are compiled to flat tuples once, and each distinct feature row is evaluated once
+    (the same leaves are summed in the same order, so the result is unchanged).
+    """
 
     feature_names: tuple[str, ...]
     trees: tuple[Mapping[str, Any], ...]
+    _compiled: tuple[Compiled, ...] = field(init=False, repr=False, compare=False)
+    _memo: dict[tuple[float, ...], float] = field(
+        init=False, repr=False, compare=False, default_factory=dict
+    )
+
+    def __post_init__(self) -> None:
+        """Compile the trees (a frozen dataclass sets the field through ``object``)."""
+        object.__setattr__(self, "_compiled", tuple(_compile(t) for t in self.trees))
 
     def log_estimate(self, row: Mapping[str, float]) -> float:
         """The model's raw output for one row (log space).
@@ -32,18 +67,19 @@ class Forest:
         Returns:
             The sum of the leaves reached (NaN when a feature is missing).
         """
-        x = [row.get(n, math.nan) for n in self.feature_names]
+        x = tuple(row.get(n, math.nan) for n in self.feature_names)
         if not all(math.isfinite(v) for v in x):
             return math.nan
+        cached = self._memo.get(x)
+        if cached is not None:
+            return cached
         total = 0.0
-        for tree in self.trees:
-            node = tree
-            while "leaf_value" not in node:
-                if node.get("decision_type", "<=") != "<=":
-                    raise ValueError(f"unsupported split {node.get('decision_type')}")
-                go_left = x[int(node["split_feature"])] <= float(node["threshold"])
-                node = node["left_child"] if go_left else node["right_child"]
-            total += float(node["leaf_value"])
+        for nodes in self._compiled:
+            feature, value, left, right = nodes[0]
+            while feature >= 0:
+                feature, value, left, right = nodes[left if x[feature] <= value else right]
+            total += value
+        self._memo[x] = total
         return total
 
     def predict(self, row: Mapping[str, float]) -> float:

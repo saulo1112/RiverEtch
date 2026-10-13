@@ -39,6 +39,7 @@ from climate_pipeline.calibration import extract
 from climate_pipeline.calibration.config import CalibrationConfig, load_calibration_config
 from climate_pipeline.calibration.fetching import _csv, _reader, candidate_of, read_stations
 from climate_pipeline.calibration.models import window_abstain_reason
+from climate_pipeline.calibration.stations import Candidate
 from climate_pipeline.contract import observation_v2 as v2
 from climate_pipeline.contract.observation import RainFlags
 from climate_pipeline.provenance import head
@@ -47,8 +48,8 @@ from climate_pipeline.quality.config import QualityConfig, load_quality_config
 from climate_pipeline.quality.fetching import check_disk
 from climate_pipeline.quality.route_a import scenes_from_windows
 from climate_pipeline.quality.values import BAND_MB, SCL_MB, WINDOW_COLUMNS
+from climate_pipeline.reach import check, records
 from climate_pipeline.reach import measure as m
-from climate_pipeline.reach import records
 from climate_pipeline.reach.config import Reach, ReachConfig
 from climate_pipeline.screening import stage1
 from climate_pipeline.screening.config import (
@@ -117,7 +118,8 @@ def corridor_mb(grid: Grid) -> float:
 def load_cards(folder: Path) -> dict[str, dict[str, Any]]:
     """The product's model cards by target; v2.1's post-hoc card wins where one exists.
 
-    Its records then name the basis "post hoc, nested LOSO on the Magdalena".
+    Its records then name the basis "post hoc, nested LOSO on the Magdalena". A reach that
+    declares its cards (:func:`reach_cards`) never reads this folder.
 
     Args:
         folder: ``docs/water-quality/results/models``.
@@ -134,7 +136,104 @@ def load_cards(folder: Path) -> dict[str, dict[str, Any]]:
     return out
 
 
-def setup(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int) -> Setup:
+def reach_cards(cfg: ReachConfig, reach: Reach, root: Path, strict: bool = True
+                ) -> dict[str, dict[str, Any]]:  # fmt: skip
+    """The model cards of a reach's targets: the ones it declares, else the models folder.
+
+    Args:
+        cfg: Reach settings.
+        reach: The reach.
+        root: Repository root.
+        strict: A declared card that is missing is an error (False: it is skipped, as the
+            baseline needs no card).
+
+    Returns:
+        Target -> card.
+
+    Raises:
+        ReachError: When a declared card is missing (strict) or names another target.
+    """
+    if not reach.cards:
+        return {t: c for t, c in load_cards(root / cfg.models).items() if t in reach.targets}
+    out: dict[str, dict[str, Any]] = {}
+    for target, path in reach.cards.items():
+        file = root / path
+        if not file.exists():
+            if not strict:
+                continue
+            raise ReachError(f"{reach.site}: no model card at {path}")
+        card = json.loads(file.read_text(encoding="utf-8"))
+        if card["target"] != target:
+            raise ReachError(f"{reach.site}: {path} is a {card['target']} card, not {target}")
+        out[target] = card
+    return out
+
+
+USGS_LISTS = ("usgs-v5/sites.csv", "usgs/sites.csv")  # v5's list first, then the pilot's
+
+
+def station_row(reach: Reach, quality: QualityConfig, root: Path) -> dict[str, str] | None:
+    """The estimate station's row in its frozen station list.
+
+    Args:
+        reach: The reach.
+        quality: The v2 settings (the inputs folder).
+        root: Repository root.
+
+    Returns:
+        The row (None when the station is not listed).
+    """
+    inputs = root / quality.outputs.inputs
+    if reach.station_source == "usgs":
+        for name in USGS_LISTS:
+            path = inputs / name
+            for r in read_stations(path) if path.exists() else []:
+                if r["site_id"] == reach.estimate_station:
+                    return r
+        return None
+    rows = read_stations(inputs / "stations" / "stations.csv")
+    return next((r for r in rows if r["station_id"] == reach.estimate_station), None)
+
+
+def station_candidate(reach: Reach, quality: QualityConfig, root: Path) -> Candidate | None:
+    """The estimate station as a selection candidate, from its station list.
+
+    Args:
+        reach: The reach.
+        quality: The v2 settings (the inputs folder).
+        root: Repository root.
+
+    Returns:
+        The candidate (None when the station is not listed).
+    """
+    row = station_row(reach, quality, root)
+    if row is None:
+        return None
+    if reach.station_source == "usgs":
+        return Candidate(row["site_id"], row["name"], float(row["lon"]), float(row["lat"]), "usgs")
+    return candidate_of({**row, "files": ""})
+
+
+def frozen_width(reach: Reach, quality: QualityConfig, root: Path) -> float:
+    """The main-channel width the models were trained with (the station list's), in metres.
+
+    The live geometry can measure a slightly different width; the feature ``log_width_m`` must be
+    the one the card saw, or a scene abstains for a width outside the training range.
+
+    Args:
+        reach: The reach.
+        quality: The v2 settings.
+        root: Repository root.
+
+    Returns:
+        The width (NaN when the list gives none).
+    """
+    row = station_row(reach, quality, root)
+    return _num(row.get("width_m", "")) if row is not None else math.nan
+
+
+def setup(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int,
+          need_cards: bool = True) -> Setup:  # fmt: skip
     """Load the settings, the frozen geometry, the estimate station and the model cards.
 
     Args:
@@ -143,41 +242,50 @@ def setup(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int)
         site_id: The reach.
         cache: Cache folder.
         workers: Parallel reads.
+        need_cards: Every declared model card must exist (the baseline needs none).
 
     Returns:
         The setup.
 
     Raises:
-        ReachError: When the geometry fails or the cards disagree on their window.
+        ReachError: When the geometry fails, a card is missing or the cards disagree on their
+            window.
     """
     reach = cfg.reach(site_id)
     screening = load_screening_config(root / cfg.screening_config)
     quality = load_quality_config(root / cfg.quality_config)
+    if quality.timezone != reach.timezone or screening.rain.timezone != reach.timezone:
+        # Local dates (records, station windows) and the rain window follow the reach's zone.
+        quality = quality.model_copy(update={"timezone": reach.timezone})
+        rain = screening.rain.model_copy(update={"timezone": reach.timezone})
+        screening = screening.model_copy(update={"rain": rain})
     d15 = load_calibration_config(root / cfg.calibration_config)
-    site = load_site(root / "pipeline" / "sites" / f"{site_id}.yaml")
+    site = load_site(reach.site_path(root))
     source = make_source(screening.stac.source, screening.stac.sources, screening.stac.page_size)
     span = (reach.geometry_start, reach.geometry_end)
     full = stage1.run_stage1(site, screening, source, AcquisitionReader(source, cache / "bands"),
                              None, workers, period=span, geometry_period=span)  # fmt: skip
     if full.geometry.failed:
         raise ReachError(f"{site_id}: no geometry ({full.geometry.failed})")
-    model_cards = load_cards(root / cfg.models)
+    model_cards = reach_cards(cfg, reach, root, strict=need_cards)
     windows = {str(c["window"]) for c in model_cards.values()}
     if len(windows) > 1:
         raise ReachError(f"the model cards use different windows: {sorted(windows)}")
     window = windows.pop() if windows else "300m"
-    rows = read_stations(root / quality.outputs.inputs / "stations" / "stations.csv")
-    row = next((r for r in rows if r["station_id"] == reach.estimate_station), None)
+    cand = station_candidate(reach, quality, root)
     station = None
-    if row is not None:
-        cand = candidate_of({**row, "files": ""})
+    if cand is None:
+        log.warning("%s: estimate station %s is not listed", site_id, reach.estimate_station)
+    else:
         bbox = extract.bbox_around(cand.lon, cand.lat, quality.stations.grid_half_size_m)
         acqs = extract.search(d15, d15.imagery.primary, bbox, quality.geometry_period.start,
                               quality.geometry_period.end)  # fmt: skip
         geo = extract.station_geometry(cand, acqs, _reader(d15, screening, cache), d15, screening,
                                        workers)  # fmt: skip
         if geo.selected:
-            station = m.Station(cand.station_id, geo.width_m, imagery.small_windows(geo, quality))
+            width = frozen_width(reach, quality, root)
+            station = m.Station(cand.station_id, width if math.isfinite(width) else geo.width_m,
+                                imagery.small_windows(geo, quality))  # fmt: skip
     reader = m.MemoReader(make_source("earth-search", screening.stac.sources,
                                       screening.stac.page_size), cache / "bands")  # fmt: skip
     return Setup(cfg, reach, root, screening, quality, d15, site, full, m.corridor(full), station,
@@ -202,12 +310,13 @@ def _num(text: str) -> float:
         return math.nan
 
 
-def frozen_ndti(path: Path, site_id: str) -> dict[str, dict[str, Any]]:
+def frozen_ndti(path: Path, site_id: str, end: date | None = None) -> dict[str, dict[str, Any]]:
     """The frozen NDTI of the reach's usable scenes, by acquisition key.
 
     Args:
         path: The validation's ``scenes.csv``.
         site_id: The reach.
+        end: The baseline's last day (later scenes are left out).
 
     Returns:
         Key -> ``date``, ``upstream``, ``downstream``.
@@ -215,6 +324,8 @@ def frozen_ndti(path: Path, site_id: str) -> dict[str, dict[str, Any]]:
     out = {}
     with path.open(encoding="utf-8", newline="") as handle:
         for r in csv.DictReader(handle):
+            if end is not None and date.fromisoformat(r["date"]) > end:
+                continue
             if r["site_id"] == site_id and not r["excluded"]:
                 out[r["acquisition"]] = {"date": date.fromisoformat(r["date"]),
                                          "upstream": _num(r["upstream_ndti"]),
@@ -250,7 +361,10 @@ def station_estimates(s: Setup, text: str) -> dict[str, list[float]]:
 
 
 def load_baseline(s: Setup) -> records.Baseline:
-    """The frozen history: NDTI from the validation, NIR/red and the station from ``baseline``.
+    """The frozen history: NDTI, NIR/red and the station's estimates up to ``baseline_end``.
+
+    NDTI comes from the validation's ``scenes.csv`` when the reach names one; otherwise from the
+    usable scenes the reach's own baseline measured.
 
     Args:
         s: The setup.
@@ -261,11 +375,18 @@ def load_baseline(s: Setup) -> records.Baseline:
     Raises:
         ReachError: When the NIR/red baseline has not been written.
     """
-    ndti = frozen_ndti(s.root / s.reach.ndti_scenes, s.reach.site)
     path = s.root / s.reach.nir_red_baseline
     if not path.exists():
         raise ReachError(f"no NIR/red baseline at {path}: run `reach baseline` first")
     ratio = {r["key"]: r for r in csv.DictReader(io.StringIO(path.read_text(encoding="utf-8")))}
+    end = s.reach.baseline_end
+    if s.reach.ndti_scenes:
+        ndti = frozen_ndti(s.root / s.reach.ndti_scenes, s.reach.site, end)
+    else:
+        ndti = {k: {"date": date.fromisoformat(r["date"]), "upstream": _num(r["ndti_upstream"]),
+                    "downstream": _num(r["ndti_downstream"])}
+                for k, r in ratio.items()
+                if not r["exclusion"] and date.fromisoformat(r["date"]) <= end}  # fmt: skip
     keys = sorted(ndti, key=lambda k: (ndti[k]["date"], k))
     days = tuple(ndti[k]["date"] for k in keys)
 
@@ -434,7 +555,7 @@ class RunSummary:
 
 def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: date | None,
         cache: Path, workers: int = 8, http: httpx.Client | None = None,
-        prepared: Setup | None = None) -> RunSummary:  # fmt: skip
+        prepared: Setup | None = None, config_path: Path | None = None) -> RunSummary:  # fmt: skip
     """Publish the reach's new scenes (see the module docstring).
 
     Args:
@@ -447,6 +568,7 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
         workers: Parallel reads for the geometry.
         http: HTTP client for rain (injectable).
         prepared: A setup already loaded (tests).
+        config_path: The settings file the run read (its bytes enter the parameters' hash).
 
     Returns:
         The summary; ``exit_code`` is 0, 2 or 3.
@@ -464,8 +586,9 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
     lab = root / s.quality.outputs.inputs / "lab"
     hashes = {t: cards.card_hash(c) for t, c in s.cards.items()}
     guards = s.quality.window.as_calibration()
-    params = hashlib.sha256(b"".join((root / p).read_bytes() for p in (
-        "pipeline/reach.yaml", cfg.screening_config, cfg.quality_config))).hexdigest()  # fmt: skip
+    settings = config_path or root / "pipeline" / "reach.yaml"
+    params = hashlib.sha256(b"".join(p.read_bytes() for p in (
+        settings, root / cfg.screening_config, root / cfg.quality_config))).hexdigest()  # fmt: skip
     commit = head()
     created = datetime.now(UTC).isoformat(timespec="seconds")
     acqs, sun = imagery.search(s.quality, "earth-search", _bbox(s.site), since, until)
@@ -499,7 +622,7 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
             estimates = [
                 records.estimate(s.cards.get(t.id), hashes.get(t.id, ""), t, measure,
                                  baseline.estimates.get(t.id, []), guards, lab)
-                for t in s.quality.targets
+                for t in s.quality.targets if t.id in s.reach.targets
             ]  # fmt: skip
             rec = records.record(site_id, measure, baseline, estimates,
                                  rain_flags(s, acq, http, cache), set(s.reach.rainy_months),
@@ -513,6 +636,15 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
         (folder / file).write_text(rec.model_dump_json(indent=2, by_alias=True) + "\n",
                                    encoding="utf-8", newline="\n")  # fmt: skip
         append_ledger(folder / "ledger.jsonl", rec, file, created)
+        if s.reach.station_source == "usgs":  # v4's prospective check: beside the record
+            for e in estimates:
+                card = s.cards.get(e.target)
+                if card is None or e.level == "none" or e.abstain_reason is not None:
+                    continue
+                value = cards.estimate(card, measure.window, lab)
+                if math.isfinite(value) and value > 0:
+                    check.note_estimate(folder, rec.scene_id, acq.key, acq.datetime, e.target,
+                                        hashes[e.target], value)  # fmt: skip
         log.info("%s: recorded %s (anomalous: %s)", site_id, file, rec.verdict.anomalous)
         state.decided[acq.key] = "recorded"
         summary.recorded.append(file)
@@ -523,7 +655,12 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
 
 def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 8,
                    prepared: Setup | None = None) -> dict[str, Any]:  # fmt: skip
-    """Measure NIR/red and the station windows on the frozen baseline's usable scenes, once.
+    """Measure NIR/red, NDTI and the station windows on the baseline's scenes, once.
+
+    With ``ndti_scenes`` the scenes are the validation's frozen usable ones, and NDTI is measured
+    again as a reproduction check. Without it, every acquisition from ``baseline_start`` to
+    ``baseline_end`` is decided here: SCL first (the screening's observable rule), then the bands
+    of the observable ones; the scene's own exclusion rule decides which enter the history.
 
     A rerun keeps the scenes already in the baseline files and measures only the missing ones; the
     network cap counts the earlier run's estimate too.
@@ -540,15 +677,23 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
         Counts, the estimated network volume and the NDTI reproduction check.
     """
     check_disk(root, cfg.budgets.keep_free_gb)
-    s = prepared or setup(cfg, root, site_id, cache, workers)
-    ndti = frozen_ndti(root / s.reach.ndti_scenes, site_id)
-    days = sorted(v["date"] for v in ndti.values())
-    acqs, sun = imagery.search(s.quality, "earth-search", _bbox(s.site),
-                               days[0] - timedelta(days=1),
-                               days[-1] + timedelta(days=1))  # fmt: skip
-    wanted = [a for a in sorted(acqs, key=lambda a: (a.datetime, a.key)) if a.key in ndti]
+    s = prepared or setup(cfg, root, site_id, cache, workers, need_cards=False)
+    reach = s.reach
+    cap_gb = reach.baseline_max_gb or cfg.budgets.baseline_max_gb
+    frozen_mode = reach.ndti_scenes is not None
+    ndti = (frozen_ndti(root / reach.ndti_scenes, site_id, reach.baseline_end)
+            if reach.ndti_scenes else {})  # fmt: skip
+    if frozen_mode:
+        days = sorted(v["date"] for v in ndti.values())
+        first, last = days[0] - timedelta(days=1), days[-1] + timedelta(days=1)
+    else:
+        assert reach.baseline_start is not None  # checked by the settings
+        first, last = reach.baseline_start, reach.baseline_end
+    acqs, sun = imagery.search(s.quality, "earth-search", _bbox(s.site), first, last)
+    ordered = sorted(acqs, key=lambda a: (a.datetime, a.key))
+    wanted = [a for a in ordered if a.key in ndti] if frozen_mode else ordered
     scene_mb = corridor_mb(s.corridor.grid) + (BAND_MB["earth-search"] if s.station else 0.0)
-    path = root / s.reach.nir_red_baseline
+    path = root / reach.nir_red_baseline
     windows_path = path.with_name("station-windows.csv")
     info_path = path.with_name("baseline.json")
     kept = {r["key"]: r for r in _rows(path)}
@@ -560,15 +705,27 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
     window_rows: list[dict[str, Any]] = []
     spent = float(earlier.get("network_gb_estimated", 0.0)) * 1000 if kept else 0.0
     stopped = ""
+    nan = math.nan
     for acq in wanted:
         if acq.key in kept:
             rows.append(kept[acq.key])
             window_rows += kept_windows.get(acq.key, [])
             continue
-        if spent / 1000 >= cfg.budgets.baseline_max_gb:
-            stopped = f"network cap of {cfg.budgets.baseline_max_gb:g} GB reached"
+        if spent / 1000 >= cap_gb:
+            stopped = f"network cap of {cap_gb:g} GB reached"
             break
         check_disk(root, cfg.budgets.keep_free_gb)
+        day = ndti[acq.key]["date"] if frozen_mode else extract.local_date(acq, s.quality.timezone)
+        if not frozen_mode:
+            spent += SCL_MB * 5
+            if not m.observable(acq, s.reader, s.full, s.screening):
+                s.reader.forget(acq)
+                rows.append({"key": acq.key, "date": day.isoformat(),
+                             "exclusion": "not observable", "ndti_upstream": nan,
+                             "ndti_downstream": nan, "frozen_ndti_upstream": nan,
+                             "frozen_ndti_downstream": nan, "nir_red_upstream": nan,
+                             "nir_red_downstream": nan})  # fmt: skip
+                continue
         spent += scene_mb
         scene = measure_acquisition(s.corridor, acq, s.reader, s.screening)
         ratio = m.nir_red(s.corridor, acq, s.reader, s.screening)
@@ -577,19 +734,19 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
                                           s.station.station_id, sun, s.d15, s.screening,
                                           s.quality.timezone)  # fmt: skip
         s.reader.forget(acq)
-        frozen = ndti[acq.key]
+        frozen = ndti.get(acq.key, {"upstream": nan, "downstream": nan})
         if len(rows) % 10 == 0:
             log.info("%s: baseline scene %d of %d, about %.2f GB read", site_id, len(rows) + 1,
                      len(wanted), spent / 1000)  # fmt: skip
         rows.append({
-            "key": acq.key, "date": frozen["date"].isoformat(), "exclusion": scene.exclusion,
-            "ndti_upstream": scene.sub["upstream"].ndti if "upstream" in scene.sub else math.nan,
+            "key": acq.key, "date": day.isoformat(), "exclusion": scene.exclusion,
+            "ndti_upstream": scene.sub["upstream"].ndti if "upstream" in scene.sub else nan,
             "ndti_downstream": (scene.sub["downstream"].ndti if "downstream" in scene.sub
-                                else math.nan),
+                                else nan),
             "frozen_ndti_upstream": frozen["upstream"],
             "frozen_ndti_downstream": frozen["downstream"],
-            "nir_red_upstream": ratio.get("upstream", math.nan),
-            "nir_red_downstream": ratio.get("downstream", math.nan),
+            "nir_red_upstream": ratio.get("upstream", nan),
+            "nir_red_downstream": ratio.get("downstream", nan),
         })  # fmt: skip
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(_csv(rows, BASELINE_COLUMNS))
@@ -597,8 +754,10 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
     gaps = [abs(_num(str(r.get(f"ndti_{side}"))) - _num(str(r.get(f"frozen_ndti_{side}"))))
             for r in rows for side in ("upstream", "downstream")]  # fmt: skip
     gaps = [g for g in gaps if math.isfinite(g)]
+    usable = sum(1 for r in rows if not r["exclusion"])
     info = {
-        "site": site_id, "frozen_scenes": len(ndti), "found": len(wanted), "measured": len(rows),
+        "site": site_id, "frozen_scenes": len(ndti) if frozen_mode else None,
+        "found": len(wanted), "measured": len(rows), "usable": usable,
         "station": s.station.station_id if s.station else None,
         "network_gb_estimated": round(spent / 1000, 3), "stopped": stopped,
         "ndti_max_abs_difference": round(max(gaps), 6) if gaps else None,
@@ -606,3 +765,83 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
     }  # fmt: skip
     info_path.write_text(json.dumps(info, indent=2) + "\n", encoding="utf-8", newline="\n")
     return info
+
+
+def write_examples(cfg: ReachConfig, root: Path, site_id: str, records_kept: int = 3) -> Path:
+    """Copy a reach's newest outputs to ``docs/water-quality/reach/<site>/examples/`` (frontend).
+
+    The latest record, the series, the newest records and the ledger's last lines, unchanged, so
+    the web can be built against real files; the README says what each field means.
+
+    Args:
+        cfg: Reach settings.
+        root: Repository root.
+        site_id: The reach.
+        records_kept: How many of the newest records to copy.
+
+    Returns:
+        The examples folder.
+
+    Raises:
+        ReachError: Before the reach has a record.
+    """
+    folder = root / cfg.out / site_id
+    files = sorted((folder / "records").glob("*.json"))
+    if not files or not (folder / "series.json").exists():
+        raise ReachError(f"{site_id}: no records yet; run `reach run` first")
+    out = root / "docs" / "water-quality" / "reach" / site_id / "examples"
+    (out / "records").mkdir(parents=True, exist_ok=True)
+    for name in ("latest.json", "series.json"):
+        (out / name).write_bytes((folder / name).read_bytes())
+    for path in files[-records_kept:]:
+        (out / "records" / path.name).write_bytes(path.read_bytes())
+    lines = (folder / "ledger.jsonl").read_text(encoding="utf-8").splitlines()
+    tail = "\n".join(lines[-(records_kept + 2) :]) + "\n"
+    (out / "ledger.tail.jsonl").write_text(tail, encoding="utf-8", newline="\n")
+    return out
+
+
+def verify_outputs(cfg: ReachConfig, root: Path, site_id: str) -> list[str]:
+    """Check a reach's published outputs: every record's seal, the ledger and the cards.
+
+    A record whose JSON was edited no longer matches its ``recordSha256``; a ledger line edited,
+    removed or reordered breaks the chain; a record that names another hash than its file's, or
+    a card whose hash differs from the one a record names, is reported too.
+
+    Args:
+        cfg: Reach settings.
+        root: Repository root.
+        site_id: The reach.
+
+    Returns:
+        One line per problem (empty when everything checks out).
+    """
+    folder = root / cfg.out / site_id
+    problems: list[str] = []
+    if not (folder / "ledger.jsonl").exists():
+        return [f"{site_id}: no ledger yet"]
+    if not ledger_ok(folder / "ledger.jsonl"):
+        problems.append("ledger.jsonl: a line does not name the hash of the line before it")
+    lines = [json.loads(t) for t in (folder / "ledger.jsonl").read_text(encoding="utf-8")
+             .splitlines() if t.strip()]  # fmt: skip
+    published = reach_cards(cfg, cfg.reach(site_id), root, strict=False)
+    cards_now = {t: cards.card_hash(c) for t, c in published.items()}
+    for line in lines:
+        path = folder / line["file"]
+        if not path.exists():
+            problems.append(f"{line['file']}: in the ledger but missing")
+            continue
+        try:
+            rec = v2.ObservationRecordV2.model_validate_json(path.read_text(encoding="utf-8"))
+        except ValueError as error:
+            problems.append(f"{line['file']}: not a valid record ({str(error)[:80]})")
+            continue
+        if not v2.is_sealed(rec):
+            problems.append(f"{line['file']}: its content no longer matches its recordSha256")
+        if rec.record_sha256 != line["recordSha256"]:
+            problems.append(f"{line['file']}: the ledger names another record hash")
+        for e in rec.estimates:
+            named = e.model_card_sha256
+            if named and e.target in cards_now and named != cards_now[e.target]:
+                problems.append(f"{line['file']}: its {e.target} card is not the published one")
+    return problems

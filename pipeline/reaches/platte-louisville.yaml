@@ -1,0 +1,60 @@
+# Platte River, Louisville to near its mouth (Nebraska, USA): a v5 demo reach (preregistration v5).
+# The estimate station is the continuous, approved turbidity gauge at the upstream end (USGS 06805500).
+# It lives outside pipeline/sites/ so the Colombian site screening never reads it.
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: platte-louisville
+name: Platte River, Louisville to near Oreapolis (Nebraska, USA)
+river: Platte River
+category: D
+rationale:
+  "Validation reach (category D). The lower Platte River below the USGS streamgage 06805500 at
+  Louisville, which records continuous turbidity (parameter 63680, FNU). The braided main channel is
+  about 305 m wide at the gauge (pilot selection). The reach ends above the Missouri River
+  confluence. It is chosen for its measurement, not for any pressure: no actor is the subject of any
+  record."
+center:
+  lon: -96.0563
+  lat: 41.03
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -96.20
+  - 40.97
+  - -95.92
+  - 41.09
+upstream_anchor:
+  lon: -96.1575
+  lat: 41.014978
+  description: USGS 06805500, Platte River at Louisville, NE (the streamgage)
+  basis: "Stated by source: the monitoring location's coordinates in the USGS Water Data API."
+  source_url: https://waterdata.usgs.gov/monitoring-location/USGS-06805500/
+downstream_anchor:
+  lon: -95.955
+  lat: 41.045
+  description: The Platte River about 3 km west of Oreapolis, NE, above the Missouri confluence
+  basis: "Estimated from Oreapolis, NE (OpenStreetMap Nominatim, 41.047 N 95.919 W), moved 3 km
+    upstream so the anchor stays on the Platte; to be snapped to the water mask."
+  source_url: https://nominatim.openstreetmap.org/search?q=Oreapolis%2C+Nebraska
+confluences: []
+regime_changes: []
+rain_points:
+  - lon: -96.0563
+    lat: 41.03
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  None. No dam, licence or permitted works are the subject of this reach; it is used because its
+  turbidity is measured continuously.
+regulator: Not applicable (no permit parameter is compared).
+river_width_note: about 305 m at the gauge (braided; SCL water frequency, pilot selection)
+climate_note: Continental; winter ice and high sun zenith angles make the cards abstain in some scenes.
+citations:
+  - url: https://waterdata.usgs.gov/monitoring-location/USGS-06805500/
+    title: USGS 06805500 Platte River at Louisville, Nebr. (USGS Water Data for the Nation)
+    supports: The streamgage, its coordinates and its continuous turbidity (63680) series
+    verification: USGS Water Data API (monitoring-locations and time-series-metadata snapshots)
+unverified:
+  - "Downstream anchor: estimated from Oreapolis, NE; snapped to the water mask by the run"
+  - "Sand-pit lakes line the valley; the water mask's main channel must follow the river"
