@@ -5,6 +5,7 @@ import { loadText } from "../../reaches/data.ts";
 import type { ObservationRecord, ReachData, SeriesRow } from "../../reaches/types.ts";
 import { verifyRecord, type Verification } from "../../reaches/verify.ts";
 import { CASE_COPY } from "../content.ts";
+import { VerifyDialog } from "./VerifyDialog.tsx";
 
 /** Props of {@link RecordPanel}. */
 export interface RecordPanelProps {
@@ -55,6 +56,7 @@ export function RecordPanel({ reach, row }: RecordPanelProps) {
   const [record, setRecord] = useState<{ file: string; data: ObservationRecord } | null>(null);
   const [alter, setAlter] = useState(false);
   const [stored, setCheck] = useState<CheckState>({ state: "idle" });
+  const [proof, setProof] = useState<Verification | null>(null);
   const file = row?.file ?? null;
   const check: CheckState =
     stored.state !== "idle" && stored.file === file ? stored : { state: "idle" };
@@ -94,6 +96,7 @@ export function RecordPanel({ reach, row }: RecordPanelProps) {
       ]);
       const result = await verifyRecord(recordText, ledger, card, alter);
       setCheck({ state: "done", file, result });
+      setProof(result);
     } catch {
       setCheck({ state: "failed", file });
     }
@@ -138,7 +141,11 @@ export function RecordPanel({ reach, row }: RecordPanelProps) {
         ];
 
   return (
-    <section className="case-panel case-record case-glass" aria-labelledby="case-record-title">
+    <section
+      className="case-panel case-record case-glass"
+      data-frame=""
+      aria-labelledby="case-record-title"
+    >
       <h2 className="case-record__title" id="case-record-title">
         {copy.title}
       </h2>
@@ -204,6 +211,12 @@ export function RecordPanel({ reach, row }: RecordPanelProps) {
         </a>
       )}
       <p className="case-record__hint">{copy.notAnchored}</p>
+      <VerifyDialog
+        result={proof}
+        onClose={() => {
+          setProof(null);
+        }}
+      />
     </section>
   );
 }

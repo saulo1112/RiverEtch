@@ -1,0 +1,283 @@
+import { Columns2, Download, Layers } from "lucide-react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+
+import type { ReachData, SeriesRow } from "../../reaches/types.ts";
+import { CASE_COPY, formatDate } from "../content.ts";
+import type { LayerMode, Overlays } from "../map.ts";
+
+/** Props of {@link MapToolbar}. */
+export interface MapToolbarProps {
+  readonly reach: ReachData;
+  /** What the river shows. */
+  readonly mode: LayerMode;
+  readonly onMode: (mode: LayerMode) => void;
+  /** Whether the selected pass has a true-color image. */
+  readonly photoAvailable: boolean;
+  readonly opacity: number;
+  readonly onOpacity: (opacity: number) => void;
+  readonly overlays: Overlays;
+  readonly onOverlays: (overlays: Overlays) => void;
+  readonly terrain3d: boolean;
+  readonly onTerrain3d: (on: boolean) => void;
+  /** The pass compared with the selected one (null: compare is off). */
+  readonly compareWith: number | null;
+  readonly onCompare: (index: number | null) => void;
+  /** Index of the selected pass. */
+  readonly selected: number;
+}
+
+const MODES: readonly { readonly id: LayerMode; readonly label: string }[] = [
+  { id: "ndti", label: CASE_COPY.tools.ndti },
+  { id: "photo", label: CASE_COPY.tools.photo },
+  { id: "none", label: CASE_COPY.tools.none },
+];
+
+// A popover anchored under its button, closed by a click outside or Escape.
+function Popover({
+  label,
+  icon,
+  active = false,
+  children,
+}: {
+  readonly label: string;
+  readonly icon: ReactNode;
+  readonly active?: boolean;
+  readonly children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const id = useId();
+  useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+    const onDown = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    window.addEventListener("pointerdown", onDown);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+  return (
+    <div className="case-tools__group" ref={rootRef}>
+      <button
+        type="button"
+        className="case-tools__btn"
+        data-active={active || open}
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={() => {
+          setOpen(!open);
+        }}
+      >
+        {icon}
+        <span>{label}</span>
+      </button>
+      {open ? (
+        <div className="case-tools__popover case-glass" id={id}>
+          {children}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function csvOfSeries(reach: ReachData): string {
+  const head = [
+    "date",
+    "sceneId",
+    "level",
+    "turbidity_fnu",
+    "interval90_low",
+    "interval90_high",
+    "abstain_reason",
+    "gauge_fnu",
+    "gauge_approval",
+    "ndti_upstream",
+    "ndti_downstream",
+    "recordSha256",
+  ];
+  const lines = reach.series.map((row: SeriesRow) => {
+    const e = row.estimates.find((x) => x.target === "turbidity");
+    const key = row.file
+      .split("/")
+      .at(-1)
+      ?.replace(/\.json$/, "")
+      .split("_")
+      .slice(1)
+      .join("_");
+    const gauge = reach.checks.find((c) => c.key === key);
+    const cells = [
+      row.date,
+      row.sceneId,
+      e?.level ?? "",
+      e?.value ?? "",
+      e?.interval?.low ?? "",
+      e?.interval?.high ?? "",
+      e?.abstainReason ?? "",
+      gauge?.value ?? "",
+      gauge?.value === null || gauge === undefined ? "" : gauge.approval,
+      row.indices.ndti.upstream ?? "",
+      row.indices.ndti.downstream ?? "",
+      row.recordSha256,
+    ];
+    return cells
+      .map((c) => (/[",]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : String(c)))
+      .join(",");
+  });
+  return `${[head.join(","), ...lines].join("\n")}\n`;
+}
+
+/**
+ * The map's toolbar, top centre: what the river shows (NDTI, true color or nothing) and its
+ * opacity, the overlays and 3D terrain, comparing two passes, and the downloads (the series as
+ * CSV, the reach's geometry, its ledger).
+ *
+ * @param props - The toolbar's state and its handlers.
+ * @returns The toolbar.
+ */
+export function MapToolbar(props: MapToolbarProps) {
+  const { reach, mode, overlays, compareWith, selected } = props;
+  const { tools } = CASE_COPY;
+  const opacityId = useId();
+  const compareId = useId();
+  const download = () => {
+    const blob = new Blob([csvOfSeries(reach)], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${reach.info.site}-2026.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+  const toggle = (key: keyof Overlays) => {
+    props.onOverlays({ ...overlays, [key]: !overlays[key] });
+  };
+  return (
+    <div className="case-panel case-tools case-glass" role="toolbar" aria-label={tools.label}>
+      <div className="case-tools__segmented" role="radiogroup" aria-label={tools.layer}>
+        {MODES.map((m) => (
+          <button
+            key={m.id}
+            type="button"
+            role="radio"
+            aria-checked={mode === m.id}
+            className="case-tools__segment"
+            disabled={m.id === "photo" && !props.photoAvailable}
+            onClick={() => {
+              props.onMode(m.id);
+            }}
+          >
+            {m.label}
+          </button>
+        ))}
+      </div>
+      <label className="case-tools__opacity" htmlFor={opacityId}>
+        <span className="case-visually-hidden">{tools.opacity}</span>
+        <input
+          id={opacityId}
+          type="range"
+          min={0.2}
+          max={1}
+          step={0.05}
+          value={props.opacity}
+          disabled={mode === "none"}
+          onChange={(event) => {
+            props.onOpacity(Number(event.target.value));
+          }}
+        />
+      </label>
+      <Popover
+        label={tools.layers}
+        icon={<Layers size={15} strokeWidth={1.8} aria-hidden="true" />}
+      >
+        <p className="case-tools__heading">{tools.overlays}</p>
+        {(
+          [
+            ["outline", tools.outline],
+            ["parts", tools.parts],
+            ["window", tools.window],
+          ] as const
+        ).map(([key, label]) => (
+          <label key={key} className="case-tools__check">
+            <input
+              type="checkbox"
+              checked={overlays[key]}
+              onChange={() => {
+                toggle(key);
+              }}
+            />
+            {label}
+          </label>
+        ))}
+        <label className="case-tools__check">
+          <input
+            type="checkbox"
+            checked={props.terrain3d}
+            onChange={(event) => {
+              props.onTerrain3d(event.target.checked);
+            }}
+          />
+          {tools.terrain}
+        </label>
+      </Popover>
+      <Popover
+        label={tools.compare}
+        active={compareWith !== null}
+        icon={<Columns2 size={15} strokeWidth={1.8} aria-hidden="true" />}
+      >
+        <label className="case-tools__heading" htmlFor={compareId}>
+          {tools.compareWith}
+        </label>
+        <select
+          id={compareId}
+          className="case-tools__select"
+          value={compareWith === null ? "" : String(compareWith)}
+          onChange={(event) => {
+            props.onCompare(event.target.value === "" ? null : Number(event.target.value));
+          }}
+        >
+          <option value="">{tools.compareOff}</option>
+          {reach.series.map((row, index) =>
+            index === selected ? null : (
+              <option key={row.sceneId} value={String(index)}>
+                {formatDate(row.date, true)}
+                {typeof row.estimates[0]?.value === "number"
+                  ? ` · ${row.estimates[0].value.toFixed(1)} FNU`
+                  : ""}
+              </option>
+            ),
+          )}
+        </select>
+        <p className="case-tools__note">{tools.compareHint}</p>
+      </Popover>
+      <Popover
+        label={tools.export}
+        icon={<Download size={15} strokeWidth={1.8} aria-hidden="true" />}
+      >
+        <button type="button" className="case-tools__item" onClick={download}>
+          {tools.exportCsv}
+        </button>
+        <a className="case-tools__item" href={`${reach.base}geometry.geojson`} download>
+          {tools.exportGeometry}
+        </a>
+        <a className="case-tools__item" href={`${reach.base}ledger.jsonl`} download>
+          {tools.exportLedger}
+        </a>
+        <a className="case-tools__item" href={`${reach.base}cards/turbidity.json`} download>
+          {tools.exportCard}
+        </a>
+      </Popover>
+    </div>
+  );
+}

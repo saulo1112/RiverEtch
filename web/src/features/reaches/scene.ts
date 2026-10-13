@@ -51,6 +51,18 @@ export function mapFile(reach: ReachData, row: SeriesRow): string | null {
 }
 
 /**
+ * The pass in true color (the same box as its NDTI map).
+ *
+ * @param reach - The reach.
+ * @param row - The series row.
+ * @returns The image's path in the reach's folder, or null when it was not drawn.
+ */
+export function photoFile(reach: ReachData, row: SeriesRow): string | null {
+  const key = sceneKey(row);
+  return reach.maps?.maps.find((m) => m.key === key)?.trueColor ?? null;
+}
+
+/**
  * The gauge's value at the pass's overpass.
  *
  * @param reach - The reach.

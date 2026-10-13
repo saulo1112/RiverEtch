@@ -53,7 +53,7 @@ export function CaseFile({ reachCase, reach, row, headingRef, onBack }: CaseFile
   const gauge = row === null ? null : gaugeAt(reach, row);
   const unit = estimate?.unit ?? card?.unit ?? "FNU";
   return (
-    <div className="case-panel case-top">
+    <div className="case-panel case-top" data-frame="">
       <button type="button" className="case-btn case-btn--ghost case-top__back" onClick={onBack}>
         <ArrowLeft size={16} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
         {CASE_COPY.back}

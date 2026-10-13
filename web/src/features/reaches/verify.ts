@@ -21,6 +21,21 @@ export interface Verification {
   readonly cardMatches: boolean | null;
   /** The value that was altered (null when nothing was). */
   readonly altered: { readonly path: string; readonly from: string; readonly to: string } | null;
+  /** The canonical text that was hashed. */
+  readonly canonical: string;
+  /** Each ledger line: the record it names, its own hash and the hash it names before it. */
+  readonly ledger: readonly LedgerLink[];
+  /** The index of the line naming this record (-1: none). */
+  readonly position: number;
+}
+
+/** One line of the ledger, as the chain view draws it. */
+export interface LedgerLink {
+  readonly sceneId: string;
+  readonly date: string;
+  readonly recordSha256: string;
+  readonly lineSha256: string;
+  readonly previousLineSha256: string | null;
 }
 
 type JsonObject = Record<string, JsonValue>;
@@ -84,18 +99,35 @@ export async function verifyRecord(
   const content: JsonObject = { ...record };
   delete content.recordSha256;
   const altered = alter ? alterOne(content) : null;
-  const computed = await sha256Hex(canonical(content));
+  const text = canonical(content);
+  const computed = await sha256Hex(text);
 
   const lines = ledgerText.split("\n").filter((line) => line.trim() !== "");
   let chainIntact = true;
   let previous: string | null = null;
-  let inLedger = false;
+  let position = -1;
+  const links: LedgerLink[] = [];
   for (const line of lines) {
-    const entry = JSON.parse(line) as { previousLineSha256: string | null; recordSha256: string };
+    const entry = JSON.parse(line) as {
+      previousLineSha256: string | null;
+      recordSha256: string;
+      sceneId: string;
+      date: string;
+    };
     chainIntact &&= entry.previousLineSha256 === previous;
-    inLedger ||= entry.recordSha256 === stated;
+    if (entry.recordSha256 === stated) {
+      position = links.length;
+    }
     previous = await sha256Hex(line);
+    links.push({
+      sceneId: entry.sceneId,
+      date: entry.date,
+      recordSha256: entry.recordSha256,
+      lineSha256: previous,
+      previousLineSha256: entry.previousLineSha256,
+    });
   }
+  const inLedger = position >= 0;
 
   let cardMatches: boolean | null = null;
   const estimates = record.estimates;
@@ -113,5 +145,8 @@ export async function verifyRecord(
     ledgerLines: lines.length,
     cardMatches,
     altered,
+    canonical: text,
+    ledger: links,
+    position,
   };
 }

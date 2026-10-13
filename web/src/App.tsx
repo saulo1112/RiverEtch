@@ -44,10 +44,13 @@ function siteTarget(site: ReachCase): { lat: number; lng: number; zoom: number }
   return { lat: site.center[1], lng: site.center[0], zoom: site.handoffZoom };
 }
 
-// Development shortcut: `?view=case` opens the featured case directly (`&reach=<id>` another).
+// A link to a pass (`?case=<id>&pass=<key>`, the case view writes it) opens that case directly;
+// in development `?view=case` opens the featured one (`&reach=<id>` another).
 const query = new URLSearchParams(window.location.search);
-const openCaseView = import.meta.env.DEV && query.get("view") === "case";
-const firstCase = reachCase(query.get("reach") ?? REACH_CASES[0]?.id ?? "");
+const linkedCase = query.get("case");
+const openCaseView = linkedCase !== null || (import.meta.env.DEV && query.get("view") === "case");
+const firstCase = reachCase(linkedCase ?? query.get("reach") ?? REACH_CASES[0]?.id ?? "");
+const linkedPass = query.get("pass");
 const initialFlight: Flight | null = openCaseView
   ? {
       id: 0,
@@ -245,6 +248,8 @@ export function App() {
       skip: false,
     };
     markFlight("back");
+    // The pass's link no longer applies.
+    window.history.replaceState(null, "", window.location.pathname);
     const exitZoom = handoffFrame(
       site.handoffZoom,
       site.center[1],
@@ -379,6 +384,7 @@ export function App() {
           key={flight.id}
           reachCase={reachCase(flight.caseId)}
           reach={reach}
+          initialPass={flight.id === 0 ? linkedPass : null}
           entrance={flight.entrance}
           handoffZoom={flight.handoffZoom}
           go={atHandoff && mapReady}

@@ -135,17 +135,3 @@ export const RETURN = {
   // Share of the rise at which the hero UI fades back in.
   uiInAt: 0.7,
 } as const;
-
-/**
- * Development-only capture mode (`?view=case&capture=thumb`, used by
- * web/scripts/capture-case-thumbnail.mjs): the map alone at the final pose, rendered for the
- * cases panel's thumbnail of the reference case.
- */
-export const CAPTURE = {
-  // Zoom levels closer than the landed view: the card shows the image about five times smaller
-  // than the map, where the reach alone would be a short line. 0 is exactly the landed framing.
-  zoomOffset: 1,
-  // Share of the image's height kept clear at the bottom, where the card lays its imagery credit:
-  // the view shifts up by half of it (same pose, centre and zoom).
-  clearBottom: 0.2,
-} as const;

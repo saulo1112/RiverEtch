@@ -144,6 +144,8 @@ export interface MapsIndex {
     readonly sceneId: string;
     readonly date: string;
     readonly file: string;
+    /** The pass in true color over the same box (WebP), when it was drawn. */
+    readonly trueColor?: string;
   }[];
 }
 
