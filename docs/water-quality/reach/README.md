@@ -110,6 +110,7 @@ uv run climate-pipeline reach render --site mississippi-belle-chasse --root ..
 | `geometry.geojson` | `render`: the centreline (with chainage), the two sub-reaches, the station and its window     |
 | `maps/*.png`       | `render`: each recorded scene's NDTI over the pixels its medians read (encoding: `maps.json`) |
 | `maps.json`        | `render`: the PNG encoding, the image's corners in WGS84 and one entry per scene              |
+| `maps/*.rgb.webp`  | `render`: each pass in true color (bands 4, 3, 2) over the same box, for comparison           |
 
 A map is a picture of the record's own pixels: NDTI is relative, so the maps carry no unit. A test
 (`pipeline/tests/test_reach_examples.py`) fails if a committed record stops matching the schema, its

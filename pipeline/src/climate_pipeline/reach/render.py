@@ -2,7 +2,8 @@
 
 Written beside the examples, never into a record. ``geometry.geojson`` holds the river corridor
 between the anchors, its centreline (with chainage), the two sub-reaches a record measures, the
-estimate station and its window. Each ``maps/<key>.png`` holds one recorded scene's NDTI at 10 m
+estimate station and its window. Each ``maps/<key>.rgb.webp`` is the pass in true color over the
+corridor's box, and each ``maps/<key>.png`` holds one recorded scene's NDTI at 10 m
 over the corridor's eroded water, under the screening's pixel guards (SCL, the red + green floor,
 B11 glint): inside the sub-reaches these are the pixels the record's medians read. A PNG packs four
 bytes per pixel:
@@ -45,6 +46,7 @@ NDTI_RANGE = (-0.3, 0.3)
 CODES = {"upstream": 1, "downstream": 2, "between": 3}
 UNUSABLE = 4
 MARGIN_PX = 8  # 20 m pixels kept around the corridor
+TRUE_COLOR = {"gain": 3.2, "gamma": 1 / 1.8, "quality": 72}  # the photo of each pass (WebP)
 CENTRELINE_STEP = 5  # every fifth centreline pixel (100 m)
 DIGITS = 6  # about 0.1 m in WGS84 degrees
 
@@ -166,6 +168,28 @@ def scene_map(s: reach_run.Setup, frame: Frame, acquisition: Any) -> NDArray[np.
     return encode(ndti, area, use, np.asarray(frame.progress, dtype=np.float64))
 
 
+def true_color(s: reach_run.Setup, frame: Frame, acquisition: Any) -> NDArray[np.uint8]:
+    """The pass as the eye would see it (B04, B03, B02) over the corridor's box, at 10 m.
+
+    Reflectance is brightened by ``TRUE_COLOR["gain"]`` and given a display gamma, as true-color
+    viewers do; no data is black.
+
+    Args:
+        s: The reach's setup.
+        frame: The cropped corridor.
+        acquisition: The pass.
+
+    Returns:
+        RGB bytes on the corridor's 10 m grid (the NDTI map's grid).
+    """
+    grid10 = frame.grid.with_resolution(10.0)
+    bands = [read_reflectance(s.reader, acquisition, name, grid10)[0]
+             for name in ("red", "green", "blue")]  # fmt: skip
+    rgb = np.nan_to_num(np.stack(bands, axis=-1), nan=0.0)
+    shown = np.clip(rgb * TRUE_COLOR["gain"], 0.0, 1.0) ** TRUE_COLOR["gamma"]
+    return np.asarray(np.rint(shown * 255), dtype=np.uint8)
+
+
 def _ring(points: list[tuple[float, float]]) -> list[list[float]]:
     return [[round(lon, DIGITS), round(lat, DIGITS)] for lon, lat in points]
 
@@ -258,21 +282,27 @@ def render(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int
     by_key = {a.key: a for a in acqs}
     entries, drawn, missing = [], 0, []
     for key, rec in zip(keys, records, strict=True):
-        name = f"maps/{key}.png"
-        if not (out / name).exists():
+        name, photo = f"maps/{key}.png", f"maps/{key}.rgb.webp"
+        if not ((out / name).exists() and (out / photo).exists()):
             acq = by_key.get(key)
             if acq is None:
                 missing.append(key)
                 continue
             check_disk(root, cfg.budgets.keep_free_gb)
-            rgba = scene_map(s, frame, acq)
             (out / "maps").mkdir(parents=True, exist_ok=True)
-            Image.fromarray(rgba, "RGBA").save(out / name, format="PNG", optimize=True)
+            if not (out / name).exists():
+                rgba = scene_map(s, frame, acq)
+                Image.fromarray(rgba, "RGBA").save(out / name, format="PNG", optimize=True)
+            if not (out / photo).exists():
+                Image.fromarray(true_color(s, frame, acq), "RGB").save(
+                    out / photo, format="WEBP", quality=TRUE_COLOR["quality"], method=6
+                )
             s.reader.forget(acq)
             drawn += 1
             log.info("%s: drew %s", site_id, name)
         entries.append({"key": key, "sceneId": rec["sceneId"], "date": rec["date"],
-                        "recordSha256": rec["recordSha256"], "file": name})  # fmt: skip
+                        "recordSha256": rec["recordSha256"], "file": name,
+                        "trueColor": photo})  # fmt: skip
     grid10 = frame.grid.with_resolution(10.0)
     _write_json(out / "maps.json", {
         "site": site_id, "codeCommit": head(), "width": grid10.width, "height": grid10.height,
