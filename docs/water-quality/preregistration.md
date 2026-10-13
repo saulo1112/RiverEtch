@@ -995,6 +995,115 @@ The thresholds stay, except the coverage rule:
 - The Magdalena leaves the demo (the owner's choice). Its reach stays in the repository and keeps
   its results.
 
+## v6: more variables at the demo reaches (2026-10-12, before computing any of it)
+
+The project owner asked to include as many variables as the satellite can predict with a
+relatively low error. v6 adds the variables that are both observable from orbit and measured by
+the demo gauges, so each can be validated under the same rules as turbidity.
+
+### What was seen before this section
+
+- Every v5 result. Discrete SSC was `insufficient_data` at both demo sites: the lock box held 6
+  (Belle Chasse) and 4 (the Platte) samples on a clear pass's local day.
+- **USGS time-series metadata on 2026-10-12** (no value):
+  - Belle Chasse (07374525): discharge (00060), gage height (00065), turbidity (63680) and mean
+    velocity;
+  - the Platte at Louisville (06805500): water temperature (00010), discharge, gage height,
+    specific conductance (00095), dissolved oxygen (00300), nitrate plus nitrite (00630) and
+    turbidity.
+- The number of discrete SSC samples (80154): 176 at Belle Chasse, 148 at the Platte.
+
+No pair of SSC with the gauge's turbidity, no gauge temperature and no Landsat thermal value has
+been read at either site.
+
+### The variables, and why only these
+
+| Variable                        | Reaches               | How                                         | Validated against            |
+| ------------------------------- | --------------------- | ------------------------------------------- | ---------------------------- |
+| Suspended-sediment conc. (mg/L) | both                  | the turbidity card, then the gauge's rating | discrete SSC samples (80154) |
+| Suspended-sediment flux (t/day) | both                  | SSC × the gauge's discharge                 | follows SSC                  |
+| Water temperature (°C)          | the Platte            | Landsat 8/9 surface temperature (thermal)   | the gauge's 00010            |
+| Gauge context (no estimate)     | both (more at Platte) | the gauge's own readings at the overpass    | — (measurements)             |
+
+- **Not estimated from the satellite:** dissolved oxygen, nitrate, specific conductance and pH are
+  not optically active; chlorophyll is measured by neither gauge, and suspended sediment confounds
+  its red-edge retrievals. Their gauge readings may appear as context, always labelled "measured
+  by the USGS gauge", never as an estimate.
+- **No temperature at Belle Chasse:** its gauge does not measure it.
+
+### A. Suspended-sediment concentration: a chain of two links
+
+- **Link 1:** the turbidity card of record (v5), unchanged.
+- **Link 2: the gauge's rating, turbidity → SSC.**
+  - **Pairs:** every discrete SSC sample (80154, accepted or approved) with the gauge's continuous
+    turbidity (63680, approved) at the sample's time, by the overpass rule (median within ±30 min,
+    else the nearest within ±60 min, qualifiers excluded).
+  - **Candidates:** R1, OLS of ln SSC on ln turbidity with Duan's smearing factor (the USGS
+    surrogate method); R2, R1 plus ln discharge at the sample's time (same rule).
+  - **Selection:** leave-one-hydrological-year-out MdSA within the training samples (before
+    2023-12-01), with the 5-point margin; R1 is the simpler.
+  - **Locked test:** the samples of 2023-12-01..2026-09-30, scored once with the rating fitted on
+    the training samples.
+- **The chain:** SSC = rating(turbidity estimate). Its 90 % interval comes from the sum of the two
+  links' log errors, taken as independent: every pair of link 1's inner residuals (its card's) and
+  link 2's leave-one-year-out residuals.
+- **End-to-end check (report-only):** the lock-box samples on a clear pass's local day (6 and 4)
+  against the chained estimate.
+- **Level (`chained_rating`), never validated** (no end-to-end lock box of 20 pairs exists):
+  - **estimated** when link 1 is _validated_ or _estimated_ and link 2's locked test has N ≥ 20 in
+    ≥ 2 hydrological years, MdSA ≤ 30 %, |SSPB| ≤ 15 %, MdSA ≤ 0.8 × its null (the training
+    median SSC), and the chain's median 90 % interval factor is ≤ 3.0;
+  - **indicative** when link 2's Spearman ρ has a 95 % lower bound > 0.3;
+  - otherwise **none**.
+
+### B. Suspended-sediment flux
+
+- **Discharge:** the gauge's 00060 at the overpass by the same rule, approved else provisional
+  (labelled), ft³/s converted to m³/s.
+- **Flux (t/day)** = SSC (mg/L) × discharge (m³/s) × 0.0864. Its interval is SSC's times the
+  discharge. The discharge record's own uncertainty is stated, not propagated.
+- **Level:** SSC's. The flux is written beside the records (the record holds SSC; the discharge is
+  the gauge's measurement).
+
+### C. Water temperature at the Platte (Landsat 8/9 thermal)
+
+- **Scenes:** Landsat 8/9 Collection 2 Level-2, Tier 1 (Planetary Computer),
+  2018-12-01..2026-09-30, scene cloud ≤ 70 %.
+- **Value:** the median surface temperature (ST_B10 × 0.00341802 + 149.0 K) of the core window's
+  pixels that QA_PIXEL marks clear and water (no fill, dilated cloud, cirrus, cloud, cloud shadow or
+  snow), with at least 10 such 30 m pixels.
+- **Pairs:** the gauge's water temperature (00010, approved) at the overpass, by the overpass rule.
+- **Candidates:** W0, the gauge's day-of-year climatology in the training years (the null); W1, the
+  product as it is (ST − 273.15); W2, a + b · ST fitted on the training pairs.
+- **Selection:** leave-one-hydrological-year-out MAE in the training years (2018-12-01..2023-11-30);
+  within 0.3 °C the simpler wins (W1, then W2).
+- **Locked test:** 2023-12-01..2026-09-30, scored once, with no refit.
+- **Metrics:** MAE, mean bias and RMSE in °C, Spearman ρ. MdSA is not used (temperatures near 0 °C).
+- **Intervals:** split conformal on the absolute inner residuals (°C), 90 %.
+- **Levels (`preregistered_lockbox_site`):**
+  - **validated:** MAE ≤ 1.5 °C, |bias| ≤ 0.75 °C, MAE ≤ 0.8 × W0's, N ≥ 20 in ≥ 2 hydrological
+    years, 90 % coverage ≥ 80 %, and a median 90 % half-width ≤ 3 °C;
+  - **estimated:** MAE ≤ 2.5 °C, |bias| ≤ 1.5 °C, MAE below W0's, 90 % coverage ≥ 80 %, and a
+    median 90 % half-width ≤ 4.5 °C;
+  - **indicative:** Spearman ρ with a 95 % lower bound > 0.3.
+- **Records:** Landsat passes are not Sentinel-2 passes, so temperature gets its own sealed records
+  and ledger per reach, with the same seal and chain rules.
+
+### D. Gauge context (no estimate)
+
+At each recorded pass: the gauge's discharge and gage height (both reaches), and at the Platte its
+water temperature, dissolved oxygen, specific conductance and nitrate plus nitrite, by the overpass
+rule with the approval labelled. Written beside the records (`context.csv`), never in them.
+
+### E. Attempts, budgets and what will not be done
+
+- **Attempts:** 2 rating candidates per site (R1, R2); 3 temperature candidates (W0–W2), one site.
+  Each locked test is scored once.
+- **Budgets:** ≤ 6 GB of estimated network for v6; the fetch stops under 20 GB of free disk.
+- **Not done:** no change to the turbidity cards; no satellite estimate of dissolved oxygen,
+  nitrate, conductance, pH or chlorophyll; no temperature at Belle Chasse; no variable that misses
+  every level is shown with a unit.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.
