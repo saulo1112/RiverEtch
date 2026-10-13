@@ -153,7 +153,7 @@ export const CAMERA = {
   far: 4000,
   // Viewpoint south-east of the orbit's pass point (ORBIT.passLatLng), so the orbit does not
   // collapse onto a line.
-  viewLatDeg: -8,
+  viewLatDeg: 12,
   viewLngOffsetDeg: 18,
   // Globe disc diameter as a fraction of the viewport height (also bounded by the width).
   discFraction: 0.72,
@@ -248,7 +248,7 @@ export const ORBIT = {
   periodS: 50,
   // Where the ascending pass peaks (lat/lng with the Earth at its starting turn): a framing anchor
   // only, which the camera's viewpoint and look-at derive from. Nothing is singled out there.
-  passLatLng: { lat: 3.914, lng: -73.081 },
+  passLatLng: { lat: 24, lng: -110 },
   // Scene time of the first pass.
   peakTimeS: 9,
   // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp (slow over the pass point, fast on the far side

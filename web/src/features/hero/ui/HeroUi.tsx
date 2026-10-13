@@ -28,8 +28,8 @@ export interface HeroUiProps {
   readonly titleId: string;
   /** The overlay is hidden or fading out (the flythrough either way) and takes no input. */
   readonly leaving?: boolean;
-  /** "Open case": starts the flythrough. */
-  readonly onExplore?: () => void;
+  /** "Open case": starts the flythrough to that case. */
+  readonly onExplore?: (caseId: string) => void;
   /** The pointer or the focus reached a control that leads to the case view. */
   readonly onWarmUp?: () => void;
   /** Focus "Open case" (when this turns true: back from the case view). */

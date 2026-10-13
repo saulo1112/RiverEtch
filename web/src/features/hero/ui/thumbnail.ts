@@ -1,5 +1,5 @@
 // SVG outline of a river reach for the case cards, drawn from the same geometry the case map uses.
-import type { LngLat } from "../../case/types.ts";
+import type { LngLat } from "../../reaches/types.ts";
 
 /** Size of the thumbnail's view box, in SVG units. */
 export interface ThumbnailBox {

@@ -21,8 +21,10 @@ from climate_pipeline.screening.rio import Grid
 from climate_pipeline.screening.stac import Acquisition
 
 PIPELINE = Path(__file__).parents[1]
-SITE = "magdalena-puerto-wilches"
-FILES = ("pipeline/reach.yaml", "pipeline/screening.yaml", "pipeline/water-quality.yaml")
+SITE = "magdalena-puerto-wilches"  # the frozen-scenes reach, kept in a fixture (not the product)
+FROZEN = PIPELINE / "tests/fixtures/reach.frozen.yaml"
+FILES = {"pipeline/reach.yaml": FROZEN, "pipeline/screening.yaml": PIPELINE / "screening.yaml",
+         "pipeline/water-quality.yaml": PIPELINE / "water-quality.yaml"}  # fmt: skip
 
 
 def acquisition(day: date, name: str) -> Acquisition:
@@ -32,9 +34,9 @@ def acquisition(day: date, name: str) -> Acquisition:
 
 @pytest.fixture
 def root(tmp_path: Path) -> Path:
-    for f in FILES:
+    for f, source in FILES.items():
         (tmp_path / f).parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy(PIPELINE.parent / f, tmp_path / f)
+        shutil.copy(source, tmp_path / f)
     scenes = tmp_path / "docs/magdalena-validation/results/scenes.csv"
     scenes.parent.mkdir(parents=True)
     lines = ["site_id,acquisition,date,excluded,upstream_ndti,downstream_ndti"]
@@ -262,7 +264,7 @@ def test_verify_catches_an_edited_record_and_a_broken_ledger(
 
 
 def test_the_station_keeps_the_width_its_card_was_trained_with() -> None:
-    cfg = load_reach_config(PIPELINE / "reach.yaml")
+    cfg = load_reach_config(FROZEN)
     quality = load_quality_config(PIPELINE / "water-quality.yaml")
     assert reach_run.frozen_width(cfg.reach("missouri-hermann"), quality, PIPELINE.parent) == 394.0
     assert reach_run.frozen_width(cfg.reach(SITE), quality, PIPELINE.parent) == 572.7

@@ -1,4 +1,4 @@
-"""The committed frontend examples stay valid, sealed records with a chained ledger tail."""
+"""The committed frontend examples stay valid, sealed records with a chained ledger."""
 
 import hashlib
 import itertools
@@ -9,11 +9,17 @@ import jsonschema  # type: ignore[import-untyped]
 import pytest
 
 from climate_pipeline.contract import observation_v2 as v2
+from climate_pipeline.quality import cards
 
 DOCS = Path(__file__).parents[2] / "docs"
 SCHEMA = json.loads((DOCS / "schema" / "observation-record.v2.schema.json").read_text("utf-8"))
 EXAMPLES = sorted((DOCS / "water-quality" / "reach").glob("*/examples"))
 RECORDS = sorted(p for e in EXAMPLES for p in [e / "latest.json", *(e / "records").glob("*.json")])
+
+
+def ledger(folder: Path) -> list[str]:
+    path = folder / "ledger.jsonl"  # the whole ledger (a demo reach), else its tail
+    return (path if path.exists() else folder / "ledger.tail.jsonl").read_text("utf-8").splitlines()
 
 
 @pytest.mark.parametrize("path", RECORDS, ids=lambda p: f"{p.parts[-3]}/{p.name}")
@@ -24,11 +30,21 @@ def test_an_example_record_is_valid_and_sealed(path: Path) -> None:
 
 
 @pytest.mark.parametrize("folder", EXAMPLES, ids=lambda p: p.parent.name)
-def test_an_example_ledger_tail_is_chained_and_names_its_records(folder: Path) -> None:
-    lines = (folder / "ledger.tail.jsonl").read_text("utf-8").splitlines()
+def test_an_example_ledger_is_chained_and_names_its_records(folder: Path) -> None:
+    lines = ledger(folder)
     for before, after in itertools.pairwise(lines):
         previous = hashlib.sha256(before.encode()).hexdigest()
         assert json.loads(after)["previousLineSha256"] == previous
     named = {json.loads(t)["recordSha256"] for t in lines}
     for path in (folder / "records").glob("*.json"):
         assert json.loads(path.read_text("utf-8"))["recordSha256"] in named
+
+
+@pytest.mark.parametrize("folder", EXAMPLES, ids=lambda p: p.parent.name)
+def test_an_example_card_is_the_one_its_records_name(folder: Path) -> None:
+    copied = {p.stem: json.loads(p.read_text("utf-8")) for p in (folder / "cards").glob("*.json")}
+    for path in (folder / "records").glob("*.json"):
+        for estimate in json.loads(path.read_text("utf-8"))["estimates"]:
+            card = copied.get(estimate["target"])
+            if card is not None and estimate.get("modelCardSha256"):
+                assert cards.card_hash(card) == estimate["modelCardSha256"]

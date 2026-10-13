@@ -1,26 +1,31 @@
-// The case view: a MapLibre map of the study site under night shades, with the case file (alert),
-// legend, record and timeline panels and the optional wallet in the corner. In a flythrough it mounts hidden at the top-down handoff pose, crossfades in over
-// the globe on `go`, tilts onto the reach, draws the river and slides the panels in. The map module
-// is loaded on demand (loadMap.ts) and created once per mount, StrictMode double mounts included.
+// The case view: a MapLibre map of the reach under night shades, with the case file, legend,
+// record and timeline panels and the optional wallet in the corner. In a flythrough it mounts
+// hidden at the top-down handoff pose, crossfades in over the globe on `go`, tilts onto the reach,
+// fills the river and slides the panels in. The map module is loaded on demand (loadMap.ts) and
+// created once per mount, StrictMode double mounts included. Selecting a pass on the timeline
+// redraws its NDTI map and updates the case file and the record.
 import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/geist-mono";
 import "../../styles/tokens.css";
 import "./case.css";
 
-import { useEffect, useEffectEvent, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useEffectEvent, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { cubicBezier } from "../../lib/easing.ts";
+import type { ReachCase } from "../reaches/catalog.ts";
+import { ndtiDomain } from "../reaches/colorize.ts";
+import { defaultScene, mapFile, ndtiMedians, turbidity } from "../reaches/scene.ts";
+import type { ReachData } from "../reaches/types.ts";
 import { WalletControl } from "../wallet/WalletControl.tsx";
-import { CAPTURE, FLIGHT, IMAGERY, MAP_LOOK, RETURN, TERRAIN } from "./config.ts";
-import { CASE_COPY } from "./content.ts";
+import { FLIGHT, IMAGERY, MAP_LOOK, RETURN, TERRAIN } from "./config.ts";
+import { CASE_COPY, formatValue } from "./content.ts";
 import { loadCaseMap } from "./loadMap.ts";
 import type { CaseMapHandle, FinalFrame } from "./map.ts";
-import { AlertCard } from "./panels/AlertCard.tsx";
+import { CaseFile } from "./panels/CaseFile.tsx";
 import { Legend } from "./panels/Legend.tsx";
 import { RecordPanel } from "./panels/RecordPanel.tsx";
 import { Timeline } from "./panels/Timeline.tsx";
 import { markFlight } from "./qa.ts";
-import type { CaseData } from "./types.ts";
 
 /**
  * How the case view enters: `flight` starts the map at the handoff pose and flies in on `go`;
@@ -29,7 +34,7 @@ import type { CaseData } from "./types.ts";
 export type CaseEntrance = "flight" | "direct";
 
 /**
- * How the case view leaves on "Back to your cases": `flight` slides the panels out, retracts the
+ * How the case view leaves on "Back to your cases": `flight` slides the panels out, empties the
  * river and eases the map back to the top-down handoff pose; `fade` just waits to fade out
  * (reduced motion).
  */
@@ -38,7 +43,9 @@ export type CaseExit = "flight" | "fade";
 /** Props of {@link CaseView}. */
 export interface CaseViewProps {
   /** The case to show. */
-  readonly data: CaseData;
+  readonly reachCase: ReachCase;
+  /** Its data. */
+  readonly reach: ReachData;
   /** How the view enters. */
   readonly entrance: CaseEntrance;
   /** Zoom of the top-down handoff pose (`flight`). */
@@ -83,12 +90,8 @@ type MapStatus = "loading" | "ready" | "failed";
 const flyEase = cubicBezier(...FLIGHT.flyEase);
 const zoomOutEase = cubicBezier(...RETURN.zoomOutEase);
 
-// Screen size (px) of the reach at the final pose, the least free room the site keeps between
-// the panels, the most the final zoom backs off where even that is too small (phones), and the
-// gap kept around panels.
-const REACH_SIZE = { width: 220, height: 300 };
+// The least free room the reach keeps between the panels, and the gap kept around panels.
 const MIN_FREE = { width: 160, height: 140 };
-const MAX_ZOOM_BACKOFF = 1.5;
 const PANEL_GAP = 12;
 
 // Shrinks two opposite insets proportionally so at least `min` px stay free between them.
@@ -103,9 +106,9 @@ function keepFree(a: number, b: number, size: number, min: number): [number, num
 
 /**
  * Fits the final view around the panels. A panel in the left or right column insets that side;
- * a panel across the middle insets the top or the bottom, by the half it sits in. Where the free
- * rectangle is smaller than the reach, the zoom backs off. Layout boxes are used, so the panels'
- * hidden offset does not count.
+ * a panel across the middle insets the top or the bottom, by the half it sits in. The map fits the
+ * reach's corridor into what is left. Layout boxes are used, so the panels' hidden offset does not
+ * count.
  *
  * @param root - The case view element (null before mount: no padding).
  * @returns Map padding in CSS pixels and a zoom offset.
@@ -132,42 +135,9 @@ function finalFrame(root: HTMLElement | null): FinalFrame {
       bottom = Math.max(bottom, height - panelTop + PANEL_GAP);
     }
   }
-  const freeWidth = Math.max(60, width - left - right);
-  const freeHeight = Math.max(60, height - top - bottom);
-  const shortfall = Math.max(
-    0,
-    Math.log2(REACH_SIZE.width / freeWidth),
-    Math.log2(REACH_SIZE.height / freeHeight),
-  );
   [left, right] = keepFree(left, right, width, MIN_FREE.width);
   [top, bottom] = keepFree(top, bottom, height, MIN_FREE.height);
-  return {
-    padding: { top, bottom, left, right },
-    zoomOffset: -Math.min(MAX_ZOOM_BACKOFF, shortfall),
-  };
-}
-
-// `?capture=thumb` (development only, with `?view=case`): the map alone at the final pose, for
-// web/scripts/capture-case-thumbnail.mjs. No panels, back button, wallet corner, attribution line
-// or shades (case.css), and the reach framed without the panels' insets.
-function wantsThumbnailCapture(): boolean {
-  return (
-    import.meta.env.DEV && new URLSearchParams(window.location.search).get("capture") === "thumb"
-  );
-}
-
-// The capture's frame: no panels to clear, only the card's credit line at the bottom.
-function captureFrame(root: HTMLElement | null): FinalFrame {
-  const height = root?.clientHeight ?? window.innerHeight;
-  return {
-    padding: { top: 0, bottom: Math.round(height * CAPTURE.clearBottom), left: 0, right: 0 },
-    zoomOffset: CAPTURE.zoomOffset,
-  };
-}
-
-// The final view's frame: around the panels, or the capture's.
-function frameFor(root: HTMLElement | null): FinalFrame {
-  return wantsThumbnailCapture() ? captureFrame(root) : finalFrame(root);
+  return { padding: { top, bottom, left, right }, zoomOffset: 0 };
 }
 
 // `?tiles=stub` (development only) draws generated tiles instead of fetching real ones.
@@ -175,14 +145,23 @@ function wantsStubTiles(): boolean {
   return import.meta.env.DEV && new URLSearchParams(window.location.search).get("tiles") === "stub";
 }
 
+// `?capture=thumb` (development only, with `?view=case`): the landed view without its motion,
+// for web/scripts/capture-case-thumbnail.mjs.
+function wantsThumbnailCapture(): boolean {
+  return (
+    import.meta.env.DEV && new URLSearchParams(window.location.search).get("capture") === "thumb"
+  );
+}
+
 /**
- * Full-viewport case view: the map of the site, the case file, legend, record and timeline panels,
- * the wallet corner and the map attribution. It stays inert until it has landed.
+ * Full-viewport case view: the map of the reach, the case file, legend, record and timeline
+ * panels, the wallet corner and the map attribution. It stays inert until it has landed.
  *
  * @returns The case view.
  */
 export function CaseView({
-  data,
+  reachCase,
+  reach,
   entrance,
   handoffZoom,
   go,
@@ -207,6 +186,9 @@ export function CaseView({
   const [crossfaded, setCrossfaded] = useState(false);
   const [panelsIn, setPanelsIn] = useState(false);
   const [flightLanded, setFlightLanded] = useState(false);
+  const [selected, setSelected] = useState(() => defaultScene(reach.series));
+  const domain = useMemo(() => ndtiDomain(ndtiMedians(reach.series)), [reach.series]);
+  const row = reach.series[selected] ?? null;
 
   const visible = (go || skip) && !fadeOut;
   const shownAtOnce = skip || entrance === "direct";
@@ -263,7 +245,9 @@ export function CaseView({
           return;
         }
         const created = await createCaseMap(container, {
-          data,
+          reachCase,
+          reach,
+          domain,
           start: startsOnFinal() ? "final" : "handoff",
           handoffZoom,
           stubTiles: wantsStubTiles(),
@@ -279,7 +263,7 @@ export function CaseView({
         }
         // Skipped while the map was loading: it started at the handoff pose.
         if (startsOnFinal()) {
-          created.jumpToFinal(frameFor(rootRef.current));
+          created.jumpToFinal(finalFrame(rootRef.current));
           created.animateRiver(1, 0);
         }
         await created.ready;
@@ -306,7 +290,25 @@ export function CaseView({
         delete (window as CaseQAWindow).__caseQA;
       }
     };
-  }, [data, handoffZoom]);
+  }, [reachCase, reach, domain, handoffZoom]);
+
+  // The selected pass: its NDTI map and the gauge's label.
+  useEffect(() => {
+    const handle = handleRef.current;
+    if (handle === null || row === null) {
+      return;
+    }
+    handle.showScene(mapFile(reach, row));
+    const estimate = turbidity(row);
+    const caption = reach.info.station.id.replace("USGS-", "USGS ");
+    handle.setGauge({
+      value:
+        typeof estimate?.value === "number"
+          ? `${formatValue(estimate.value)} ${estimate.unit}`
+          : "",
+      caption,
+    });
+  }, [reach, row, mapStatus]);
 
   // Crossfade in; the caller removes what was underneath once it is done.
   useEffect(() => {
@@ -341,7 +343,7 @@ export function CaseView({
         setFlightLanded(true);
       }
     };
-    void handle?.flyToFinal(FLIGHT.flyMs, flyEase, frameFor(rootRef.current)).then(() => {
+    void handle?.flyToFinal(FLIGHT.flyMs, flyEase, finalFrame(rootRef.current)).then(() => {
       flightDone = true;
       land();
     });
@@ -351,7 +353,7 @@ export function CaseView({
       if (!riverStarted && t >= FLIGHT.riverAt) {
         riverStarted = true;
         markFlight("river");
-        handle?.animateRiver(1, MAP_LOOK.river.revealMs);
+        handle?.animateRiver(1, MAP_LOOK.corridor.revealMs);
       }
       if (!panelsStarted && t >= FLIGHT.panelsAt) {
         panelsStarted = true;
@@ -375,7 +377,7 @@ export function CaseView({
   // Skip: straight to the final pose with the whole river.
   useEffect(() => {
     if (skip) {
-      handleRef.current?.jumpToFinal(frameFor(rootRef.current));
+      handleRef.current?.jumpToFinal(finalFrame(rootRef.current));
       handleRef.current?.animateRiver(1, 0);
     }
   }, [skip]);
@@ -386,7 +388,7 @@ export function CaseView({
     }
   }, [landed]);
 
-  // The way back: the panels slide out (CSS), the river retracts upstream and the map eases back
+  // The way back: the panels slide out (CSS), the river empties upstream and the map eases back
   // to the top-down handoff pose, where the globe will take over.
   useEffect(() => {
     if (exit === null) {
@@ -450,16 +452,22 @@ export function CaseView({
         <p className="case-view__note">{CASE_COPY.mapUnavailable}</p>
       ) : null}
       <div className="case-view__panels">
-        <AlertCard data={data} headingRef={headingRef} onBack={onBack} />
+        <CaseFile
+          reachCase={reachCase}
+          reach={reach}
+          row={row}
+          headingRef={headingRef}
+          onBack={onBack}
+        />
         <div className="case-side">
           {/* Outside the panels' frame (finalFrame): on phones it sits on the Back row. */}
           <div className="case-corner">
             <WalletControl variant="corner" />
           </div>
           <Legend />
-          <RecordPanel />
+          <RecordPanel reach={reach} row={row} />
         </div>
-        <Timeline data={data} />
+        <Timeline reach={reach} selected={selected} onSelect={setSelected} />
       </div>
       <p className="case-view__attribution">
         <a href={IMAGERY.homepage} target="_blank" rel="noopener noreferrer">

@@ -22,7 +22,7 @@ import numpy as np
 import rasterio
 from numpy.typing import NDArray
 from rasterio.enums import Resampling
-from rasterio.features import rasterize
+from rasterio.features import rasterize, shapes
 from rasterio.transform import Affine
 from rasterio.vrt import WarpedVRT
 from rasterio.warp import transform as warp_transform
@@ -208,6 +208,44 @@ def rowcols_lonlat(
         return []
     lons, lats = warp_transform(f"EPSG:{grid.epsg}", "EPSG:4326", xs, ys)
     return [(float(lon), float(lat)) for lon, lat in zip(lons, lats, strict=True)]
+
+
+def corners_lonlat(grid: Grid) -> list[tuple[float, float]]:
+    """The WGS84 positions of a grid's outer corners.
+
+    Args:
+        grid: The grid.
+
+    Returns:
+        Top left, top right, bottom right and bottom left, as ``(longitude, latitude)``.
+    """
+    x1 = grid.x0 + grid.width * grid.resolution
+    y1 = grid.y0 - grid.height * grid.resolution
+    lons, lats = warp_transform(f"EPSG:{grid.epsg}", "EPSG:4326", [grid.x0, x1, x1, grid.x0],
+                                [grid.y0, grid.y0, y1, y1])  # fmt: skip
+    return [(float(lon), float(lat)) for lon, lat in zip(lons, lats, strict=True)]
+
+
+def mask_polygons(grid: Grid, mask: NDArray[np.bool_]) -> list[list[list[tuple[float, float]]]]:
+    """A boolean mask as WGS84 polygons along its pixel edges.
+
+    Args:
+        grid: The mask's grid.
+        mask: True inside.
+
+    Returns:
+        One polygon per connected part: its outer ring, then its holes, as ``(longitude,
+        latitude)`` rings.
+    """
+    polygons = []
+    for geometry, _ in shapes(mask.astype(np.uint8), mask=mask, transform=grid.affine()):
+        rings = []
+        for ring in geometry["coordinates"]:
+            lons, lats = warp_transform(f"EPSG:{grid.epsg}", "EPSG:4326",
+                                        [p[0] for p in ring], [p[1] for p in ring])  # fmt: skip
+            rings.append([(float(lon), float(lat)) for lon, lat in zip(lons, lats, strict=True)])
+        polygons.append(rings)
+    return polygons
 
 
 def rasterize_polygon(grid: Grid, ring: Sequence[tuple[float, float]]) -> NDArray[np.bool_]:

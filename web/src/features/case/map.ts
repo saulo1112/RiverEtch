@@ -1,26 +1,36 @@
-// The case map: MapLibre over Sentinel-2 cloudless imagery and Terrarium terrain, with the river
-// reach drawn as a glowing line colored by NDTI. Loaded on demand (loadMap.ts), so MapLibre and its
-// CSS live in their own chunk.
+// The case map: MapLibre over Sentinel-2 cloudless imagery and Terrarium terrain, with the reach's
+// real corridor (geometry.geojson) filled and outlined, and the selected scene's NDTI drawn over
+// its water pixel by pixel (maps/<key>.png, colored in the browser). The gauge sits on its window.
+// Loaded on demand (loadMap.ts), so MapLibre and its CSS live in their own chunk.
 import "maplibre-gl/dist/maplibre-gl.css";
 
 import {
+  LngLatBounds,
   MapLibreMap,
+  Marker,
+  type CanvasSource,
   type ExpressionSpecification,
+  type FilterSpecification,
   type RasterDEMSourceSpecification,
   type StyleSpecification,
 } from "maplibre-gl";
 
+import { colorize } from "../reaches/colorize.ts";
+import type { ReachCase } from "../reaches/catalog.ts";
+import type { LngLat, ReachData } from "../reaches/types.ts";
 import { IMAGERY, MAP_LOOK, TERRAIN } from "./config.ts";
-import { NO_DATA, ndtiPosition, rampRgb, rgba, type Rgb } from "./ramp.ts";
-import type { CaseData } from "./types.ts";
 
 /** Where the camera starts: the top-down handoff pose, or directly on the final view. */
 export type CaseMapStart = "handoff" | "final";
 
 /** Options for {@link createCaseMap}. */
 export interface CreateCaseMapOptions {
-  /** The case to show. */
-  readonly data: CaseData;
+  /** The case (its centre, pitch and bearing). */
+  readonly reachCase: ReachCase;
+  /** Its data (the corridor, the maps' index). */
+  readonly reach: ReachData;
+  /** The NDTI the ramp spans for this reach. */
+  readonly domain: readonly [number, number];
   /** Initial camera pose. */
   readonly start: CaseMapStart;
   /** Zoom of the handoff pose (the globe may adjust the site's to fit the viewport). */
@@ -38,7 +48,7 @@ export interface FinalFrame {
     readonly left: number;
     readonly right: number;
   };
-  /** Added to the site's final zoom (negative where the free area is too short for the reach). */
+  /** Added to the fitted zoom (negative where the free area is too short for the reach). */
   readonly zoomOffset: number;
 }
 
@@ -50,16 +60,24 @@ export interface ScreenPoint {
   readonly y: number;
 }
 
+/** What the gauge marker says for the selected scene. */
+export interface GaugeLabel {
+  /** E.g. "30.5 FNU". */
+  readonly value: string;
+  /** E.g. "USGS 07374525". */
+  readonly caption: string;
+}
+
 /** Handle returned by {@link createCaseMap}. */
 export interface CaseMapHandle {
   /** Resolves on the map's first `idle`, or after `MAP_LOOK.readyTimeoutMs`, whichever is first. */
   readonly ready: Promise<void>;
   /**
-   * Eases from the current pose to the site's final zoom, pitch and bearing.
+   * Eases from the current pose to the reach's final view.
    *
    * @param durationMs - Flight duration.
    * @param easing - Easing of the flight, from 0..1 to 0..1.
-   * @param frame - Where to center the site, and a zoom adjustment, for the panels' free area.
+   * @param frame - The panels' free area and a zoom adjustment.
    * @returns Resolves when the flight ends or is interrupted.
    */
   readonly flyToFinal: (
@@ -70,7 +88,7 @@ export interface CaseMapHandle {
   /**
    * Stops any flight and jumps to the final pose.
    *
-   * @param frame - Where to center the site, and a zoom adjustment, for the panels' free area.
+   * @param frame - The panels' free area and a zoom adjustment.
    */
   readonly jumpToFinal: (frame: FinalFrame) => void;
   /**
@@ -88,12 +106,24 @@ export interface CaseMapHandle {
     zoom: number,
   ) => Promise<void>;
   /**
-   * Draws the river from upstream to downstream (`to` 1), or retracts it back upstream (`to` 0).
+   * Fills the river from upstream to downstream (`to` 1), or empties it back upstream (`to` 0).
    *
    * @param to - Share of the reach to show at the end, 0..1.
    * @param durationMs - Duration; 0 jumps there at once.
    */
   readonly animateRiver: (to: number, durationMs: number) => void;
+  /**
+   * Shows one scene's NDTI map (null: none, the corridor alone).
+   *
+   * @param file - The map's path in the reach's folder (`maps/<key>.png`).
+   */
+  readonly showScene: (file: string | null) => void;
+  /**
+   * Sets what the gauge marker says (null hides its value).
+   *
+   * @param label - The value and its caption.
+   */
+  readonly setGauge: (label: GaugeLabel | null) => void;
   /**
    * Projects a geographic point with the current camera.
    *
@@ -113,62 +143,19 @@ const SOURCE = {
   imageryBase: "imagery-base",
   terrain: "terrain",
   hillshade: "hillshade",
-  river: "river",
+  reach: "reach",
+  ndti: "ndti",
 };
-const LAYER = { hillshade: "hillshade", glow: "river-glow", core: "river-core" };
-
-interface RiverStop {
-  readonly at: number;
-  readonly rgb: Rgb;
-  readonly alpha: number;
-}
-
-// Colors along the reach, from the anomaly scene's samples.
-function riverStops(data: CaseData): RiverStop[] {
-  const scene =
-    data.samples.find((candidate) => candidate.date === data.anomaly.sceneDate) ??
-    data.samples.at(-1);
-  return data.sampleProgress.map((at, index) => {
-    const value = scene?.values[index] ?? null;
-    return value === null
-      ? { at, rgb: NO_DATA.rgb, alpha: NO_DATA.alpha }
-      : { at, rgb: rampRgb(ndtiPosition(value)), alpha: 1 };
-  });
-}
-
-// `line-gradient` showing the reach up to `reveal` (0..1), with a short soft leading edge.
-function riverGradient(stops: readonly RiverStop[], reveal: number): ExpressionSpecification {
-  const pairs: (number | string)[] = [];
-  if (reveal >= 1) {
-    for (const stop of stops) {
-      pairs.push(stop.at, rgba(stop.rgb, stop.alpha));
-    }
-  } else {
-    let head: RiverStop | undefined;
-    for (const stop of stops) {
-      if (stop.at >= reveal) {
-        break;
-      }
-      pairs.push(stop.at, rgba(stop.rgb, stop.alpha));
-      head = stop;
-    }
-    const edge = head ?? stops[0];
-    if (edge === undefined || reveal <= 0) {
-      return [
-        "interpolate",
-        ["linear"],
-        ["line-progress"],
-        0,
-        "rgba(0, 0, 0, 0)",
-        1,
-        "rgba(0, 0, 0, 0)",
-      ];
-    }
-    pairs.push(reveal, rgba(edge.rgb, edge.alpha));
-    pairs.push(Math.min(1, reveal + MAP_LOOK.river.revealFeather), rgba(edge.rgb, 0));
-  }
-  return ["interpolate", ["linear"], ["line-progress"], ...pairs] as ExpressionSpecification;
-}
+const LAYER = {
+  hillshade: "hillshade",
+  water: "reach-water",
+  glow: "reach-glow",
+  edge: "reach-edge",
+  ndti: "reach-ndti",
+  parts: "reach-parts",
+  window: "reach-window",
+};
+const KIND = (kind: string): FilterSpecification => ["==", ["get", "kind"], kind];
 
 // A zoom-driven interpolation from flat [zoom, value, zoom, value, ...] pairs.
 function byZoom(pairs: readonly number[]): ExpressionSpecification {
@@ -180,12 +167,7 @@ interface TileUrls {
   readonly dem: string;
 }
 
-function buildStyle(
-  data: CaseData,
-  stops: readonly RiverStop[],
-  reveal: number,
-  tiles: TileUrls,
-): StyleSpecification {
+function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
   const dem: RasterDEMSourceSpecification = {
     type: "raster-dem",
     tiles: [tiles.dem],
@@ -193,8 +175,7 @@ function buildStyle(
     tileSize: TERRAIN.tileSize,
     maxzoom: TERRAIN.maxzoom,
   };
-  const { imagery, hillshade, river, sky } = MAP_LOOK;
-  const gradient = riverGradient(stops, reveal);
+  const { imagery, hillshade, corridor, sky } = MAP_LOOK;
   const grading = {
     "raster-saturation": imagery.saturation,
     "raster-contrast": imagery.contrast,
@@ -219,16 +200,11 @@ function buildStyle(
       },
       [SOURCE.terrain]: dem,
       [SOURCE.hillshade]: { ...dem },
-      [SOURCE.river]: {
+      [SOURCE.reach]: {
         type: "geojson",
-        lineMetrics: true,
-        data: {
-          type: "Feature",
-          properties: { name: data.reach.properties.name },
-          geometry: {
-            type: "LineString",
-            coordinates: data.reach.geometry.coordinates.map(([lng, lat]) => [lng, lat]),
-          },
+        data: reach.geometry ?? {
+          type: "FeatureCollection",
+          features: [],
         },
       },
     },
@@ -258,23 +234,53 @@ function buildStyle(
         },
       },
       {
+        id: LAYER.water,
+        type: "fill",
+        source: SOURCE.reach,
+        filter: KIND("river"),
+        paint: { "fill-color": corridor.water, "fill-opacity": 0 },
+      },
+      {
         id: LAYER.glow,
         type: "line",
-        source: SOURCE.river,
-        layout: { "line-cap": "round", "line-join": "round" },
+        source: SOURCE.reach,
+        filter: KIND("river"),
+        layout: { "line-join": "round" },
         paint: {
-          "line-width": byZoom(river.glowWidth),
-          "line-blur": byZoom(river.glowBlur),
-          "line-opacity": river.glowOpacity,
-          "line-gradient": gradient,
+          "line-color": corridor.glow,
+          "line-width": byZoom(corridor.glowWidth),
+          "line-blur": byZoom(corridor.glowBlur),
+          "line-opacity": 0,
         },
       },
       {
-        id: LAYER.core,
+        id: LAYER.edge,
         type: "line",
-        source: SOURCE.river,
-        layout: { "line-cap": "round", "line-join": "round" },
-        paint: { "line-width": byZoom(river.coreWidth), "line-gradient": gradient },
+        source: SOURCE.reach,
+        filter: KIND("river"),
+        layout: { "line-join": "round" },
+        paint: { "line-color": corridor.edge, "line-width": 1, "line-opacity": 0 },
+      },
+      {
+        id: LAYER.parts,
+        type: "line",
+        source: SOURCE.reach,
+        filter: KIND("subreach"),
+        layout: { "line-join": "round" },
+        paint: {
+          "line-color": corridor.parts,
+          "line-width": 1.2,
+          "line-dasharray": [2, 2],
+          "line-opacity": 0,
+        },
+      },
+      {
+        id: LAYER.window,
+        type: "line",
+        source: SOURCE.reach,
+        filter: KIND("window"),
+        layout: { "line-join": "round" },
+        paint: { "line-color": corridor.window, "line-width": 1.6, "line-opacity": 0 },
       },
     ],
     terrain: { source: SOURCE.terrain, exaggeration: TERRAIN.exaggeration },
@@ -290,20 +296,81 @@ function buildStyle(
   };
 }
 
+// The corridor's bounds (the river polygons), else a small box around the case's centre.
+function reachBounds(reach: ReachData, center: LngLat): LngLatBounds {
+  const bounds = new LngLatBounds();
+  for (const feature of reach.geometry?.features ?? []) {
+    if (feature.properties.kind === "river" && feature.geometry.type === "MultiPolygon") {
+      for (const polygon of feature.geometry.coordinates) {
+        for (const point of polygon[0] ?? []) {
+          bounds.extend([point[0], point[1]]);
+        }
+      }
+    }
+  }
+  if (bounds.isEmpty()) {
+    bounds.extend([center[0] - 0.05, center[1] - 0.05]);
+    bounds.extend([center[0] + 0.05, center[1] + 0.05]);
+  }
+  return bounds;
+}
+
+function gaugePoint(reach: ReachData): LngLat | null {
+  const station = reach.geometry?.features.find((f) => f.properties.kind === "station");
+  return station?.geometry.type === "Point" ? station.geometry.coordinates : null;
+}
+
+// The packed bytes of one map, decoded without color management or premultiplied alpha.
+async function decodeMap(url: string): Promise<ImageData> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`${url}: ${String(response.status)}`);
+  }
+  const bitmap = await createImageBitmap(await response.blob(), {
+    colorSpaceConversion: "none",
+    premultiplyAlpha: "none",
+  });
+  const canvas = document.createElement("canvas");
+  canvas.width = bitmap.width;
+  canvas.height = bitmap.height;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  if (context === null) {
+    throw new Error("no 2D canvas");
+  }
+  context.drawImage(bitmap, 0, 0);
+  bitmap.close();
+  return context.getImageData(0, 0, canvas.width, canvas.height);
+}
+
+function gaugeElement(): { root: HTMLElement; value: HTMLElement; caption: HTMLElement } {
+  const root = document.createElement("div");
+  root.className = "case-gauge";
+  root.innerHTML =
+    '<span class="case-gauge__pulse"></span><span class="case-gauge__dot"></span>' +
+    '<span class="case-gauge__label"><span class="case-gauge__value"></span>' +
+    '<span class="case-gauge__caption"></span></span>';
+  const value = root.querySelector<HTMLElement>(".case-gauge__value");
+  const caption = root.querySelector<HTMLElement>(".case-gauge__caption");
+  if (value === null || caption === null) {
+    throw new Error("gauge marker");
+  }
+  return { root, value, caption };
+}
+
 /**
  * Creates the case map inside `container`. The map is not interactive: the flythrough drives it.
  * If the elevation tiles fail, it drops the terrain and the hillshade and carries on; if the
  * imagery fails, the dark background, the river and the panels still show.
  *
  * @param container - Element MapLibre takes over; it must already have its final size.
- * @param options - Case data, starting pose and tile mode.
+ * @param options - Case, data, starting pose and tile mode.
  * @returns The map handle.
  */
 export async function createCaseMap(
   container: HTMLElement,
   options: CreateCaseMapOptions,
 ): Promise<CaseMapHandle> {
-  const { data, start, handoffZoom } = options;
+  const { reachCase, reach, domain, start, handoffZoom } = options;
   // `import.meta.env.DEV` is a build-time constant: production drops the stub branch entirely.
   const stubTiles = import.meta.env.DEV && options.stubTiles;
   let tiles: TileUrls = { imagery: IMAGERY.tiles, dem: TERRAIN.tiles };
@@ -313,27 +380,41 @@ export async function createCaseMap(
     tiles = { imagery: "stub://imagery/{z}/{x}/{y}", dem: "stub://dem/{z}/{x}/{y}" };
   }
 
-  const { site } = data;
-  const center: [number, number] = [site.center[0], site.center[1]];
-  const final = { center, zoom: site.finalZoom, pitch: site.pitch, bearing: site.bearing };
-  const framed = (frame: FinalFrame) => ({
-    ...final,
-    zoom: final.zoom + frame.zoomOffset,
-    padding: frame.padding,
-  });
-  const stops = riverStops(data);
-  let reveal = start === "final" ? 1 : 0;
-
+  const center: [number, number] = [reachCase.center[0], reachCase.center[1]];
+  const bounds = reachBounds(reach, reachCase.center);
   const map = new MapLibreMap({
     container,
-    style: buildStyle(data, stops, reveal, tiles),
-    ...(start === "final" ? final : { center, zoom: handoffZoom, pitch: 0, bearing: 0 }),
+    style: buildStyle(reach, tiles),
+    center,
+    zoom: handoffZoom,
+    pitch: 0,
+    bearing: 0,
     interactive: false,
     attributionControl: false,
     maxZoom: MAP_LOOK.maxZoom,
     maxPitch: 60,
     pixelRatio: Math.min(window.devicePixelRatio, 2),
   });
+
+  // The final view: the corridor fitted into the panels' free area, then tilted.
+  const framed = (frame: FinalFrame) => {
+    const fitted = map.cameraForBounds(bounds, {
+      padding: frame.padding,
+      bearing: reachCase.bearing,
+      maxZoom: MAP_LOOK.maxZoom,
+    });
+    const zoom = (fitted?.zoom ?? 11) + frame.zoomOffset - MAP_LOOK.pitchZoomLoss;
+    return {
+      center: fitted?.center ?? center,
+      zoom,
+      pitch: reachCase.pitch,
+      bearing: reachCase.bearing,
+      padding: frame.padding,
+    };
+  };
+  if (start === "final") {
+    map.jumpTo(framed({ padding: { top: 0, bottom: 0, left: 0, right: 0 }, zoomOffset: 0 }));
+  }
 
   let disposed = false;
   let markReady: (() => void) | null = null;
@@ -373,17 +454,90 @@ export async function createCaseMap(
     }
   });
 
+  // The NDTI canvas: the packed map of the shown scene, colored up to the reveal.
+  const canvas = document.createElement("canvas");
+  canvas.width = reach.maps?.width ?? 1;
+  canvas.height = reach.maps?.height ?? 1;
+  const context = canvas.getContext("2d");
+  let packed: ImageData | null = null;
+  let colored: ImageData | null = null;
+  let reveal = start === "final" ? 1 : 0;
+  let shownFile: string | null = null;
   let revealFrame = 0;
-  function applyReveal(): void {
-    if (map.getLayer(LAYER.core) === undefined) {
+  let animating = false;
+  let sceneRequest = 0;
+  const { corridor } = MAP_LOOK;
+
+  function paint(): void {
+    if (context === null) {
       return;
     }
-    const gradient = riverGradient(stops, reveal);
-    map.setPaintProperty(LAYER.glow, "line-gradient", gradient);
-    map.setPaintProperty(LAYER.core, "line-gradient", gradient);
+    if (packed === null || reach.maps === null) {
+      context.clearRect(0, 0, canvas.width, canvas.height);
+    } else {
+      colored ??= context.createImageData(packed.width, packed.height);
+      colorize(packed.data, packed.width, colored.data, {
+        domain,
+        packed: reach.maps.encoding.r.ndti,
+        reveal,
+        feather: corridor.revealFeather,
+        opacity: corridor.ndtiOpacity,
+      });
+      context.putImageData(colored, 0, 0);
+    }
+    const source = map.getSource<CanvasSource>(SOURCE.ndti);
+    if (source !== undefined) {
+      // A static canvas source is read once: a short play makes it pick up the new pixels.
+      source.play();
+      requestAnimationFrame(() => {
+        if (!disposed && !animating) {
+          source.pause();
+        }
+      });
+    }
+    const shown = Math.min(1, reveal * 1.4);
+    if (map.getLayer(LAYER.water) !== undefined) {
+      map.setPaintProperty(LAYER.water, "fill-opacity", corridor.waterOpacity * shown);
+      map.setPaintProperty(LAYER.glow, "line-opacity", corridor.glowOpacity * shown);
+      map.setPaintProperty(LAYER.edge, "line-opacity", corridor.edgeOpacity * shown);
+      map.setPaintProperty(LAYER.parts, "line-opacity", corridor.partsOpacity * shown);
+      map.setPaintProperty(LAYER.window, "line-opacity", shown);
+    }
   }
-  // A reveal requested before the style loaded is applied on load.
-  map.on("load", applyReveal);
+
+  // The NDTI layer joins as soon as the style is parsed, not on `load` (which waits for every
+  // imagery and terrain tile), so the fill shows during the flight.
+  map.on("style.load", () => {
+    if (reach.maps !== null) {
+      const corners = reach.maps.corners.map((c) => [c[0], c[1]]) as [
+        [number, number],
+        [number, number],
+        [number, number],
+        [number, number],
+      ];
+      map.addSource(SOURCE.ndti, { type: "canvas", canvas, coordinates: corners, animate: false });
+      map.addLayer(
+        {
+          id: LAYER.ndti,
+          type: "raster",
+          source: SOURCE.ndti,
+          paint: { "raster-fade-duration": 0, "raster-resampling": "linear" },
+        },
+        LAYER.parts,
+      );
+    }
+    paint();
+  });
+
+  // The gauge marker, at the station.
+  const gauge = gaugeElement();
+  const point = gaugePoint(reach);
+  const marker =
+    point === null
+      ? null
+      : new Marker({ element: gauge.root, anchor: "center" }).setLngLat([point[0], point[1]]);
+  marker?.addTo(map);
+  gauge.root.dataset.shown = "false";
 
   let settleFlight: (() => void) | null = null;
   function endFlight(): void {
@@ -440,27 +594,62 @@ export async function createCaseMap(
         return;
       }
       const target = Math.min(1, Math.max(0, to));
+      gauge.root.dataset.shown = String(target > 0);
       if (durationMs <= 0) {
         reveal = target;
-        applyReveal();
+        animating = false;
+        paint();
         return;
       }
       const from = reveal;
       const startTime = performance.now();
+      animating = true;
       const step = (now: number) => {
         const t = Math.min(1, (now - startTime) / durationMs);
-        // Ease-out (sine): the line's end slows down as it arrives.
+        // Ease-out (sine): the fill slows down as it arrives.
         reveal = from + (target - from) * Math.sin((t * Math.PI) / 2);
-        applyReveal();
+        animating = t < 1;
+        paint();
         if (t < 1) {
           revealFrame = requestAnimationFrame(step);
         }
       };
       revealFrame = requestAnimationFrame(step);
     },
+    showScene(file) {
+      if (disposed || file === shownFile) {
+        return;
+      }
+      shownFile = file;
+      sceneRequest += 1;
+      const request = sceneRequest;
+      if (file === null) {
+        packed = null;
+        paint();
+        return;
+      }
+      decodeMap(`${reach.base}${file}`)
+        .then((data) => {
+          if (!disposed && request === sceneRequest) {
+            packed = data;
+            colored = null;
+            paint();
+          }
+        })
+        .catch((error: unknown) => {
+          if (import.meta.env.DEV) {
+            console.warn(`[case] ${file} could not be drawn.`, error);
+          }
+        });
+    },
+    setGauge(label) {
+      gauge.value.textContent = label?.value ?? "";
+      gauge.caption.textContent = label?.caption ?? "";
+      gauge.root.dataset.empty = String(label === null || label.value === "");
+    },
     project(lng, lat) {
-      const point = map.project([lng, lat]);
-      return { x: point.x, y: point.y };
+      const projected = map.project([lng, lat]);
+      return { x: projected.x, y: projected.y };
     },
     stats() {
       const mapCenter = map.getCenter();
@@ -470,8 +659,11 @@ export async function createCaseMap(
         bearing: map.getBearing(),
         center: [mapCenter.lng, mapCenter.lat],
         terrain: map.getTerrain() !== null,
-        elevationM: map.queryTerrainElevation(center),
         reveal,
+        scene: shownFile,
+        ndtiLayer: map.getLayer(LAYER.ndti) !== undefined,
+        ndtiDecoded: packed !== null,
+        styleLoaded: map.isStyleLoaded(),
         loaded: map.loaded(),
         tilesLoaded: map.areTilesLoaded(),
         moving: map.isMoving(),
@@ -485,6 +677,7 @@ export async function createCaseMap(
       cancelAnimationFrame(revealFrame);
       settleReady();
       endFlight();
+      marker?.remove();
       map.remove();
     },
   };

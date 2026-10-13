@@ -1,11 +1,26 @@
-// The featured case card's preview: the captured thumbnail of the case view once it exists and has
-// loaded, the reach's outline otherwise, so the card never shows a broken image icon.
+// A case card's preview: the captured view of the landed case once it exists and has loaded, the
+// reach's outline otherwise, so the card never shows a broken image icon.
 
-/** The thumbnail's files in `public/` (scripts/capture-case-thumbnail.mjs writes them). */
-export const CASE_THUMBNAIL = {
-  full: { path: "cases/magdalena-reference.webp", width: 1920, height: 960 },
-  narrow: { path: "cases/magdalena-reference-960.webp", width: 960, height: 480 },
-} as const;
+/** One size of a thumbnail. */
+export interface ThumbnailFile {
+  /** Path under `public/`. */
+  readonly path: string;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * A case's thumbnail files in `public/cases/` (scripts/capture-case-thumbnail.mjs writes them).
+ *
+ * @param id - The case's id.
+ * @returns The full and the narrow size.
+ */
+export function caseThumbnail(id: string): { full: ThumbnailFile; narrow: ThumbnailFile } {
+  return {
+    full: { path: `cases/${id}.webp`, width: 1920, height: 960 },
+    narrow: { path: `cases/${id}-960.webp`, width: 960, height: 480 },
+  };
+}
 
 /** Where the thumbnail image stands. */
 export type PreviewStatus = "pending" | "loaded" | "failed";
@@ -40,12 +55,13 @@ export function previewLayers(assetAvailable: boolean, status: PreviewStatus): P
 }
 
 /**
- * The `srcset` for the thumbnail, both widths under a base URL.
+ * The `srcset` for a case's thumbnail, both widths under a base URL.
  *
  * @param baseUrl - The app's base URL (`import.meta.env.BASE_URL`), ending in "/".
- * @returns E.g. "/cases/magdalena-reference-960.webp 960w, /cases/magdalena-reference.webp 1920w".
+ * @param id - The case's id.
+ * @returns E.g. "/cases/platte-louisville-960.webp 960w, /cases/platte-louisville.webp 1920w".
  */
-export function thumbnailSrcSet(baseUrl: string): string {
-  const { full, narrow } = CASE_THUMBNAIL;
+export function thumbnailSrcSet(baseUrl: string, id: string): string {
+  const { full, narrow } = caseThumbnail(id);
   return `${baseUrl}${narrow.path} ${String(narrow.width)}w, ${baseUrl}${full.path} ${String(full.width)}w`;
 }

@@ -1,5 +1,5 @@
-// Every string in the hero's UI layer, in one place. NDTI is a relative index: nothing here may
-// claim physical units, water-quality measurement, causes or proof of compliance.
+// Every string in the hero's UI layer, in one place. A value in FNU is claimed only where a gauge
+// validated it, with its error; NDTI stays relative; nothing claims causes or proof of compliance.
 
 /**
  * Product name. A placeholder: changing it here renames the product everywhere in the UI.
@@ -29,14 +29,14 @@ export const PROFILE = {
  * screen readers read words, not letters.
  */
 export const COPY = {
-  eyebrow: ["Sentinel-2", "Public registry", "Sepolia"],
+  eyebrow: ["Sentinel-2", "USGS gauges", "Sealed records"],
   title: ["See the river.", "Verify the reading."],
   subtitle:
-    "A public, tamper-evident record of what satellites see in a river. Rain and drought are separated from what they don't explain, and anyone can recompute every observation.",
+    "Turbidity read from Sentinel-2 on rivers where a gauge validated it, with a stated error. Every reading is sealed, so anyone can recompute it and see that it has not changed.",
   // A button: it opens the cases screen.
   primary: { label: "Explore your cases" },
   primaryNote:
-    "Demo workspace. You're viewing as a simulated environmental authority analyst. No account needed.",
+    "Demo workspace: real records from two US rivers, viewed as a simulated analyst. No account needed.",
   // A button: it opens the "How it works" dialog.
   secondary: { label: "How it works" },
 } as const;
@@ -44,7 +44,7 @@ export const COPY = {
 /** A step of the pipeline, as the hero's strip shows it. */
 export interface Step {
   /** Stable key; also picks the step's icon. */
-  readonly id: "observe" | "explain" | "verify";
+  readonly id: "observe" | "estimate" | "verify";
   /** Two-digit position, shown before the label (the list itself is ordered). */
   readonly number: string;
   /** Short label, set in capitals by CSS. */
@@ -55,14 +55,9 @@ export interface Step {
 
 /** The three steps, in order. */
 export const STEPS: readonly Step[] = [
-  {
-    id: "observe",
-    number: "01",
-    label: "Observe",
-    description: "Sentinel-2 index, departures in σ",
-  },
-  { id: "explain", number: "02", label: "Explain", description: "Rainfall context (CHIRPS)" },
-  { id: "verify", number: "03", label: "Verify", description: "Anchored record, recomputable" },
+  { id: "observe", number: "01", label: "Observe", description: "Sentinel-2 NDTI, pixel by pixel" },
+  { id: "estimate", number: "02", label: "Estimate", description: "Turbidity in FNU, validated" },
+  { id: "verify", number: "03", label: "Verify", description: "Sealed record, recomputable" },
 ];
 
 /** Status chip: what this page is and the imagery it describes. Static; never claims to be live. */
@@ -71,42 +66,25 @@ export const STATUS = ["Demo workspace", "Sentinel-2 L2A"] as const;
 /** Credits for the scene's data, shown under the strip. */
 export const ATTRIBUTION = "Earth imagery: NASA Earth Observatory (Blue Marble).";
 
-/** The cases screen. Every case on it is illustrative. */
+/** The cases screen: the pipeline's demo reaches. */
 export const CASES = {
   heading: "Your cases",
-  note: "Cases here are illustrative.",
+  note: "Real passes from the pipeline, sealed and verifiable.",
   back: "Back",
   backLabel: "Back to the start",
   listLabel: "Cases",
-  announceOpen: "Your cases. Cases here are illustrative.",
+  announceOpen: "Your cases.",
   announceBack: "Start screen.",
   externalHint: "(opens in a new tab)",
-  reference: {
-    title: "Magdalena · reference reach",
-    description: "A synthetic index departure on the real reach, not explained by rainfall.",
-    maturityPrefix: "Maturity:",
-    maturity: "Observable",
-    maturityHint: "Observable: index departures only",
-    synthetic: "Synthetic event · Illustrative data",
-    lastScene: "Last scene (synthetic sample)",
+  card: {
     open: "Open case",
-    // The preview (image or outline) is a second way to open the case.
-    previewLabel: "Open case: Magdalena · reference reach.",
-    imageAlt:
-      "Satellite view of the Magdalena reference reach with the reach drawn. Illustrative data.",
-    illustrative: "Illustrative data",
-  },
-  // Checked against docs/urra-validation: the reach label and the verdict come from urra.sample.json
-  // (`ui.reachLabel`, `ui.validation`), the quote from report.md ("Result"), with the dam's name
-  // left out as those documents require.
-  evaluated: {
-    title: "Sinú · near Tierralta",
-    place: "Río Sinú near Tierralta, Córdoba",
-    status: "Evaluated · no robust signal",
-    quote:
-      "The anomalies the screening found […] do not persist across reasonable changes of the assumptions, away from rain, more often than at the control.",
-    source: "Validation report",
-    closed: "No case opened: the evaluation found no robust signal.",
+    previewLabel: "Open case:",
+    imageAlt: "The landed case view: the river, its turbidity and the record panels.",
+    realData: "Real data · 2026",
+    levelHint: "Level from a locked test on years the model never saw",
+    error: "typical error",
+    lastPass: "Last pass",
+    passes: "passes recorded in 2026",
   },
 } as const;
 
@@ -118,40 +96,41 @@ export const HOW_IT_WORKS = {
     {
       number: "01",
       label: "Observe",
-      text: "Sentinel-2 L2A imagery gives a relative index (NDTI) along the river. Each reading is compared with the reach's own baseline and reported as a departure in σ.",
+      text: "At every clear Sentinel-2 pass, each water pixel of the reach gets its NDTI, a relative turbidity index. Clouds, glint and the banks are masked out.",
     },
     {
       number: "02",
-      label: "Explain",
-      text: "Rainfall over the upstream catchment (CHIRPS) sits next to each departure, separating what rain or drought explains from what it does not.",
+      label: "Estimate",
+      text: "At the USGS gauge's window, a model turns the pass into turbidity in FNU with a 90 % interval. It was tested once, on three years it had never seen.",
     },
     {
       number: "03",
       label: "Verify",
-      text: "Each observation is recorded with its scene, processing version and parameters. Once its record is anchored on Sepolia, anyone can recompute the reading from public data and see that it has not changed. Nothing is anchored in this demo.",
+      text: "Each pass is sealed as a record (the SHA-256 of its content) and chained in a ledger. Anyone can recompute it from public data and check that it has not changed. Anchoring the ledger on a public chain comes next.",
     },
   ],
   limitsTitle: "What this can and cannot say",
   canTitle: "It can",
   can: [
-    "Be reproduced from public data and a recorded recipe.",
-    "Show tampering once anchored: a changed record no longer matches its anchor.",
-    "Flag departures from a river's own baseline, and separate rainfall-explained from unexplained variation.",
+    "Estimate turbidity in FNU where a gauge validated it, with a stated error and interval.",
+    "Be reproduced from public data (Sentinel-2, USGS) and a recorded recipe.",
+    "Show tampering: a changed record no longer matches its seal.",
   ],
   cannotTitle: "It cannot",
   cannot: [
-    "Measure water quality in physical units: the index is relative.",
-    "Identify the cause of a departure, or who is responsible for it.",
-    "Prove the data is true: an on-chain anchor only shows that a record has not changed since it was recorded.",
+    "See through clouds: about three passes in four are lost to them.",
+    "Measure what light does not show (dissolved oxygen, metals, pathogens): turbidity is an indicator, not pollution.",
+    "Give a value on a river no gauge has validated, or on clear rivers, where it does no better than the usual value.",
+    "Prove a value true: a seal shows that a record has not changed, not that the estimate is right.",
   ],
   maturityTitle: "Maturity",
   maturity: [
-    { label: "Observable", text: "Index departures against the reach's own baseline only." },
-    { label: "Baselined", text: "Enough observation history for a stable seasonal baseline." },
+    { label: "Observable", text: "Relative NDTI against the reach's own baseline only." },
+    { label: "Indicative", text: "Turbidity as a class (low, medium, high), never a unit." },
     {
-      label: "Validated in situ",
-      text: "Calibrated against in-situ measurements, with a stated error.",
+      label: "Validated",
+      text: "Turbidity in FNU, tested once against a gauge on years the model never saw.",
     },
   ],
-  maturityNote: "A new reach starts as Observable.",
+  maturityNote: "Both demo reaches are Validated.",
 } as const;

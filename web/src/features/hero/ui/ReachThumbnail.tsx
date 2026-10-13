@@ -1,10 +1,13 @@
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 
-import { REFERENCE_REACH } from "../../case/reachGeometry.ts";
+import { NDTI_RAMP } from "../../case/ramp.ts";
+import type { LngLat } from "../../reaches/types.ts";
 import { reachThumbnailPath, type ThumbnailBox } from "./thumbnail.ts";
 
 /** Props of {@link ReachThumbnail}. */
 export interface ReachThumbnailProps {
+  /** The reach's centreline, upstream first (`[lng, lat]`). */
+  readonly coordinates: readonly LngLat[];
   /** View box and margin of the drawing. */
   readonly box: ThumbnailBox;
   /** Class of the `<svg>`. */
@@ -12,13 +15,14 @@ export interface ReachThumbnailProps {
 }
 
 /**
- * The reference reach's outline as a line, north up, drawn from the same geometry as the case map.
- * Decorative: the card around it names the case.
+ * A reach's centreline as a glowing line on the NDTI ramp, north up, drawn from the same geometry
+ * as the case map. Decorative: the card around it names the case.
  *
  * @returns The outline.
  */
-export function ReachThumbnail({ box, className }: ReachThumbnailProps) {
-  const path = useMemo(() => reachThumbnailPath(REFERENCE_REACH.geometry.coordinates, box), [box]);
+export function ReachThumbnail({ coordinates, box, className }: ReachThumbnailProps) {
+  const gradientId = useId();
+  const path = useMemo(() => reachThumbnailPath(coordinates, box), [coordinates, box]);
   return (
     <svg
       className={className}
@@ -27,7 +31,14 @@ export function ReachThumbnail({ box, className }: ReachThumbnailProps) {
       aria-hidden="true"
       focusable="false"
     >
-      <path d={path} />
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+          {NDTI_RAMP.map((stop) => (
+            <stop key={stop.at} offset={stop.at} stopColor={stop.color} />
+          ))}
+        </linearGradient>
+      </defs>
+      <path d={path} stroke={`url(#${gradientId})`} />
     </svg>
   );
 }

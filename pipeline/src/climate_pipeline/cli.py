@@ -151,16 +151,21 @@ def _parser() -> argparse.ArgumentParser:
     )
     reach = commands.add_parser("reach", help="observation records v2 of a reach (P3, D16)")
     reach.add_argument(
-        "action", choices=("baseline", "run", "check", "examples", "verify"),
+        "action", choices=("baseline", "run", "check", "examples", "render", "verify"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); check: a "
         "gauged reach's estimates against its gauge after the card's commit (report-only); "
-        "examples: copy the newest outputs to docs/water-quality/reach/<site>/examples/; verify: "
-        "every record's seal, the ledger chain and the cards (exit 1 on any problem)",
+        "examples: copy the newest outputs to docs/water-quality/reach/<site>/examples/; render: "
+        "the reach's geometry and each recorded scene's NDTI map, beside the examples (web); "
+        "verify: every record's seal, the ledger chain and the cards (exit 1 on any problem)",
     )  # fmt: skip
     reach.add_argument(
-        "--site", default="magdalena-puerto-wilches",
+        "--site", default="all",
         help="the reach's site id, or 'all' for every reach in the settings",
+    )  # fmt: skip
+    reach.add_argument(
+        "--all-records", action="store_true",
+        help="examples: every record, the whole ledger, the gauge check and the cards (web)",
     )  # fmt: skip
     reach.add_argument(
         "--since", type=date.fromisoformat, default=None,
@@ -581,7 +586,17 @@ def reach(args: argparse.Namespace) -> int:
     if args.action == "examples":
         for site in sites:
             try:
-                print(f"{site}: {reach_run.write_examples(cfg, root, site)}")
+                out = reach_run.write_examples(cfg, root, site, everything=args.all_records)
+                print(f"{site}: {out}")
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+        return 0
+    if args.action == "render":
+        from climate_pipeline.reach.render import render
+
+        for site in sites:
+            try:
+                print(f"{site}: {render(cfg, root, site, root / args.cache, args.workers)}")
             except reach_run.ReachError as error:
                 print(f"{site}: {error}")
         return 0

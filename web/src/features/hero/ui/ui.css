@@ -734,10 +734,6 @@
   background: rgb(255 255 255 / 0.03);
 }
 
-.hero-case--closed {
-  background: transparent;
-}
-
 /*
  * The featured case: a 2:1 preview of the case view on top (16:9 on phones), the body under it.
  * The preview's box is fixed by its aspect ratio, so the image arriving shifts nothing.
@@ -802,10 +798,11 @@
   height: 68%;
 }
 
+/* The stroke is the NDTI ramp (ReachThumbnail), with a soft glow. */
 .hero-case__fallback path {
   fill: none;
-  stroke: var(--accent);
-  stroke-width: 2;
+  stroke-width: 3;
+  filter: drop-shadow(0 0 6px rgb(34 211 238 / 0.55));
   stroke-linecap: round;
   stroke-linejoin: round;
   vector-effect: non-scaling-stroke;
@@ -881,6 +878,13 @@
   backdrop-filter: blur(6px);
 }
 
+/* Real records: the flag in the accent instead of the illustrative amber. */
+.hero-case__flag--real {
+  border-color: rgb(34 211 238 / 0.4);
+  background: rgb(4 22 32 / 0.72);
+  color: #a5f0fc;
+}
+
 .hero-case__body {
   min-width: 0;
 }
@@ -935,11 +939,11 @@
   line-height: 1.25;
 }
 
-/* Same look as the case view's "Illustrative data" chip. */
-.hero-case__chip--synthetic {
-  border-color: rgb(245 185 66 / 0.32);
-  background: rgb(245 185 66 / 0.1);
-  color: #f6d38f;
+/* The level of the reach's model card, as the case view's level chip. */
+.hero-case__chip--level {
+  border-color: rgb(34 211 238 / 0.35);
+  background: rgb(34 211 238 / 0.1);
+  color: #a5f0fc;
 }
 
 .hero-case__meta {
@@ -954,36 +958,6 @@
   margin-top: 14px;
   padding-inline: 16px 14px;
   font-size: 14px;
-}
-
-.hero-case__quote {
-  margin: 12px 0 0;
-  padding-left: 12px;
-  border-left: 2px solid var(--hairline);
-}
-
-.hero-case__quote blockquote {
-  margin: 0;
-}
-
-.hero-case__quote p {
-  margin: 0;
-  color: var(--text-2);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.hero-case__quote figcaption {
-  margin-top: 6px;
-  color: var(--text-3);
-  font-size: 12px;
-}
-
-.hero-case__closed {
-  margin: 12px 0 0;
-  color: var(--text-3);
-  font-size: 12px;
-  line-height: 1.45;
 }
 
 /*

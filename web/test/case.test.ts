@@ -2,68 +2,88 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { ALERT_TITLES, alertTitle, CASE_COPY, formatSigned } from "../src/features/case/content.ts";
-import { REFERENCE_REACH, REFERENCE_REACH_CENTER } from "../src/features/case/reachGeometry.ts";
-import { ILLUSTRATIVE_CASE } from "../src/features/case/sample.ts";
-import { canShowPhysicalUnits } from "../src/features/case/units.ts";
+import {
+  CASE_COPY,
+  formatSigned,
+  formatValue,
+  LEVEL_LABELS,
+} from "../src/features/case/content.ts";
+import { colorize, ndtiDomain } from "../src/features/reaches/colorize.ts";
+import { parseChecks } from "../src/features/reaches/checks.ts";
+import {
+  defaultScene,
+  gaugeAt,
+  hasValue,
+  mapFile,
+  sceneKey,
+  turbidity,
+} from "../src/features/reaches/scene.ts";
+import type { MapsIndex, ReachData, ReachInfo, SeriesRow } from "../src/features/reaches/types.ts";
 
-interface SampleJson {
-  readonly ui: { readonly reach: unknown };
+const EXAMPLES = new URL(
+  "../../docs/water-quality/reach/mississippi-belle-chasse/examples/",
+  import.meta.url,
+);
+
+function json(path: string): unknown {
+  return JSON.parse(readFileSync(new URL(path, EXAMPLES), "utf8"));
 }
 
-const docs = JSON.parse(
-  readFileSync(
-    new URL("../../docs/magdalena-validation/magdalena.sample.json", import.meta.url),
-    "utf8",
-  ),
-) as SampleJson;
+const series = json("series.json") as SeriesRow[];
+const reach: ReachData = {
+  base: "/",
+  info: json("reach.json") as ReachInfo,
+  series,
+  card: null,
+  checks: parseChecks(readFileSync(new URL("checks/checks.csv", EXAMPLES), "utf8")),
+  maps: json("maps.json") as MapsIndex,
+  geometry: null,
+};
 
-void test("the reference reach is the docs' Magdalena centreline, unchanged", () => {
-  assert.deepEqual(REFERENCE_REACH, docs.ui.reach);
-  assert.equal(REFERENCE_REACH.geometry.coordinates.length, 151);
+void test("formatters keep the sign and one decimal under 100", () => {
+  assert.equal(formatSigned(0.11, 2), "+0.11");
+  assert.equal(formatSigned(-0.04, 2), "−0.04");
+  assert.equal(formatValue(30.49), "30.5");
+  assert.equal(formatValue(124.4), "124");
+  assert.equal(LEVEL_LABELS.validated, "Validated");
 });
 
-void test("the reach centre is the centre of its bounding box", () => {
-  assert.deepEqual(
-    REFERENCE_REACH_CENTER.map((value) => Number(value.toFixed(6))),
-    [-73.909205, 7.414155],
-  );
-});
-
-void test("alertTitle names each verdict without claiming a cause", () => {
-  assert.equal(alertTitle("normal"), "No departure from the baseline");
-  assert.equal(alertTitle("explained_by_climate"), "Departure explained by rainfall");
-  assert.equal(alertTitle("candidate_human_pressure"), "Departure not explained by rainfall");
-  for (const title of Object.values(ALERT_TITLES)) {
-    assert.doesNotMatch(title, /pressure|human|operator|pollut/i);
-  }
-});
-
-void test("canShowPhysicalUnits needs a calibration that passed", () => {
-  assert.equal(canShowPhysicalUnits(ILLUSTRATIVE_CASE), false);
-  assert.equal(canShowPhysicalUnits(null), false);
-  assert.equal(canShowPhysicalUnits("passed"), false);
-  assert.equal(canShowPhysicalUnits({ calibration: null }), false);
-  assert.equal(canShowPhysicalUnits({ calibration: { status: "pending" } }), false);
-  assert.equal(canShowPhysicalUnits({ calibration: { status: "PASSED" } }), false);
-  assert.equal(canShowPhysicalUnits({ calibration: { status: "passed" } }), true);
-});
-
-void test("the illustrative case keeps the figures the panels quote", () => {
-  const data = ILLUSTRATIVE_CASE;
-  assert.equal(data.illustrative, true);
-  assert.equal(data.reach, REFERENCE_REACH);
-  assert.equal(data.classification, "candidate_human_pressure");
-  assert.equal(formatSigned(data.anomaly.zScore, 1), "+2.8");
-  assert.equal(formatSigned(data.stats.deltaNdti, 2), "+0.11");
-  assert.equal(data.anomaly.onsetDate, "2025-03-09");
-  assert.equal(data.anomaly.sceneDate, "2025-03-14");
-  assert.equal(data.samples.at(-1)?.date, "2025-03-14");
-  assert.equal(data.rainfall.at(-1)?.mm, 12.4);
-  assert.equal(data.sampleProgress.length, 41);
-});
-
-void test("the case view's strings stay relative", () => {
+void test("no string of the case view claims a cause or an actor", () => {
   const text = JSON.stringify(CASE_COPY);
-  assert.doesNotMatch(text, /\bNTU\b|mg\/L|water quality|verified|guarantee|proves?\b/i);
+  assert.doesNotMatch(text, /pressure|human|operator|pollut|caus/i);
+});
+
+void test("a pass's key, map and gauge value join across the reach's files", () => {
+  const index = defaultScene(series);
+  const row = series[index];
+  assert.ok(row !== undefined && hasValue(row));
+  assert.match(sceneKey(row), /^sentinel-2[abc]_\d{4}-\d{2}-\d{2}_R\d{3}$/);
+  assert.equal(row.sceneId, `mississippi-belle-chasse:${sceneKey(row)}`);
+  assert.equal(mapFile(reach, row), `maps/${sceneKey(row)}.png`);
+  assert.equal(turbidity(row)?.unit, "FNU");
+  const withGauge = series.filter((r) => gaugeAt(reach, r) !== null);
+  assert.equal(withGauge.length, 18);
+});
+
+void test("the ramp's domain is the reach's own range, widened", () => {
+  assert.deepEqual(ndtiDomain([]), [-0.1, 0.1]);
+  const [low, high] = ndtiDomain([0, 0.1]);
+  assert.ok(Math.abs(low + 0.025) < 1e-9 && Math.abs(high - 0.125) < 1e-9);
+});
+
+void test("colorize reveals from upstream and hatches unusable pixels", () => {
+  // Four pixels: usable upstream, usable downstream, unusable, outside the corridor.
+  const packed = new Uint8ClampedArray([
+    128, 0, 1, 255, 255, 255, 2, 255, 0, 64, 7, 255, 0, 0, 0, 0,
+  ]);
+  const out = new Uint8ClampedArray(packed.length);
+  const options = { domain: [-0.3, 0.3], packed: [-0.3, 0.3], feather: 0, opacity: 1 } as const;
+  colorize(packed, 4, out, { ...options, reveal: 0.5 });
+  assert.equal(out[3], 255); // upstream, revealed
+  assert.equal(out[7], 0); // downstream, not yet
+  assert.ok((out[11] ?? 0) > 0); // unusable but revealed: hatched
+  assert.equal(out[15], 0); // outside
+  colorize(packed, 4, out, { ...options, reveal: 1 });
+  assert.equal(out[7], 255);
+  assert.deepEqual([out[4], out[5], out[6]], [255, 79, 63]); // the top of the ramp
 });

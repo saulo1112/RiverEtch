@@ -1,8 +1,22 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { REFERENCE_REACH } from "../src/features/case/reachGeometry.ts";
+import type { LngLat, ReachGeometry } from "../src/features/reaches/types.ts";
 import { reachThumbnailPath } from "../src/features/hero/ui/thumbnail.ts";
+
+const geometry = JSON.parse(
+  readFileSync(
+    new URL(
+      "../../docs/water-quality/reach/mississippi-belle-chasse/examples/geometry.geojson",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+) as ReachGeometry;
+const centreline = geometry.features.find((f) => f.properties.kind === "centreline");
+const LINE: readonly LngLat[] =
+  centreline?.geometry.type === "LineString" ? centreline.geometry.coordinates : [];
 
 const BOX = { width: 48, height: 96, padding: 8 };
 
@@ -30,16 +44,17 @@ void test("reachThumbnailPath fits a north-south line to the box height, centred
   assert.equal(path, "M24,88 L24,8");
 });
 
-void test("reachThumbnailPath draws every vertex of the reference reach inside the margins", () => {
-  const drawn = points(reachThumbnailPath(REFERENCE_REACH.geometry.coordinates, BOX));
-  assert.equal(drawn.length, REFERENCE_REACH.geometry.coordinates.length);
+void test("reachThumbnailPath draws every vertex of a real centreline inside the margins", () => {
+  assert.ok(LINE.length > 10);
+  const drawn = points(reachThumbnailPath(LINE, BOX));
+  assert.equal(drawn.length, LINE.length);
   for (const [x, y] of drawn) {
     assert.ok(x >= BOX.padding && x <= BOX.width - BOX.padding, `x ${String(x)} in the box`);
     assert.ok(y >= BOX.padding && y <= BOX.height - BOX.padding, `y ${String(y)} in the box`);
   }
-  // Upstream (south) at the bottom, downstream (north) at the top.
+  // Upstream (Chalmette, north) at the top, downstream (Belle Chasse, south) at the bottom.
   const first = drawn[0];
   const last = drawn.at(-1);
   assert.ok(first !== undefined && last !== undefined);
-  assert.ok(first[1] > last[1]);
+  assert.ok(first[1] < last[1]);
 });
