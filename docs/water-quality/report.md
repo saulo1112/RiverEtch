@@ -142,7 +142,45 @@ not hold: the adjacency correction does not lift the Magdalena to a level either
   estimate of every new scene, and `reach check` compares the scenes acquired after the card's
   commit with the gauge's value at the overpass (provisional data, labelled). It is report-only.
 - Every record is sealed (SHA-256 of its canonical JSON) and chained in an append-only ledger ready
-  for anchoring.
+  for anchoring. Each record names one satellite pass (`sceneId`), so two passes on one day are two
+  records.
+
+## The reaches in operation (2026)
+
+`reach run --since 2026-01-01` with the committed cards, one record per usable pass:
+
+| Reach                    | Records | Turbidity in FNU                    | Abstained or without a value                                      | Anomalous verdicts |
+| ------------------------ | ------- | ----------------------------------- | ----------------------------------------------------------------- | ------------------ |
+| mississippi-belle-chasse | 33      | 29 (validated)                      | 4: window too cloudy (3), contamination above 0.2 (1)             | 6                  |
+| platte-louisville        | 16      | 13 (12 validated, 1 estimated)      | 3 in the 100–300 FNU range, which earned no level in the lock box | 0                  |
+| missouri-hermann         | 19      | none (indicative: 7 classed "high") | 12 predicted under 100 FNU, ranges without a level                | 1                  |
+| magdalena-puerto-wilches | 10      | none (relative indices only)        | turbidity and TSS at level _none_ in all 10                       | 0                  |
+
+Clouds weigh on every reach, the Magdalena most: 68 of its 78 passes in 2026 were not observable
+(87 %), against 99 of 137 at Belle Chasse (72 %, and 5 more excluded), 50 of 66 on the Platte
+(76 %) and 49 of 68 at Hermann (72 %).
+
+**The prospective check** (report-only, `reach check --since 2026-01-01`): each record's estimate
+against the gauge's value at the overpass.
+
+| Reach                    | Pairs | Approved / provisional | MdSA       | Bias (SSPB) | Inside the 90 % interval |
+| ------------------------ | ----- | ---------------------- | ---------- | ----------- | ------------------------ |
+| mississippi-belle-chasse | 18    | 0 / 18                 | **18.9 %** | −13.9 %     | 13 of 18                 |
+| platte-louisville        | 8     | 2 / 6                  | 54.7 %     | +54.7 %     | 7 of 8                   |
+
+- **The provisional values are the first data the cards never saw:** the lock box took approved
+  values only. The USGS can still revise them, so the check never changes a level (preregistration
+  v4, A). The two approved Platte values (March and June) were already in the lock box.
+- **Belle Chasse holds its error** on new data (18.9 %, against 17.8 % in the lock box), but its
+  intervals covered 13 of 18 values: under the nominal 90 %, and a 2.8 % chance if they truly
+  covered 90 % and the pairs were independent. That is a warning to watch.
+- **The Platte overestimated all six provisional summer values** (July–September 2026) by a factor
+  of 1.5–2.0; its approved values and October's were close. Untested explanations: low summer flow
+  in a shallow, braided channel (sandbars or the bed inside the window), a summer bloom, or
+  revisions of the provisional values. Until those values are approved and more seasons arrive,
+  this is a warning, not a result: the card stays as its lock box rated it.
+- No scene after the cards' commit (2026-10-12) has a gauge value yet. The scheduled task runs the
+  check daily from that date, so the strictly prospective count grows on its own.
 
 ## Data, probes and checks of v4
 
@@ -191,7 +229,7 @@ not hold: the adjacency correction does not lift the Magdalena to a level either
 
 ## Integrity
 
-- Ten deviations are listed in the preregistration, each with what was seen when it was found.
+- Eleven deviations are listed in the preregistration, each with what was seen when it was found.
   Deviation 9 (v3's flow features were standardised in code but not in the preregistration) lowered
   round 1's error and removed its level; the preregistered version is the result of record.
 - The pipeline runs `quality run` in about 3.5 minutes (it was 4 before v4 added round 3, Stage B
