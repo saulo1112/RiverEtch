@@ -767,17 +767,22 @@ def build_baseline(cfg: ReachConfig, root: Path, site_id: str, cache: Path, work
     return info
 
 
-def write_examples(cfg: ReachConfig, root: Path, site_id: str, records_kept: int = 3) -> Path:
+def write_examples(cfg: ReachConfig, root: Path, site_id: str, records_kept: int = 3,
+                   everything: bool = False) -> Path:  # fmt: skip
     """Copy a reach's newest outputs to ``docs/water-quality/reach/<site>/examples/`` (frontend).
 
     The latest record, the series, the newest records and the ledger's last lines, unchanged, so
-    the web can be built against real files; the README says what each field means.
+    the web can be built against real files; the README says what each field means. With
+    ``everything`` (a demo reach): every record (a record file no longer in the outputs leaves),
+    the whole ledger, the gauge check, the reach's model cards and ``reach.json`` (the site, the
+    estimate station and the baseline's period).
 
     Args:
         cfg: Reach settings.
         root: Repository root.
         site_id: The reach.
         records_kept: How many of the newest records to copy.
+        everything: Copy every record and the files the web reads.
 
     Returns:
         The examples folder.
@@ -793,12 +798,62 @@ def write_examples(cfg: ReachConfig, root: Path, site_id: str, records_kept: int
     (out / "records").mkdir(parents=True, exist_ok=True)
     for name in ("latest.json", "series.json"):
         (out / name).write_bytes((folder / name).read_bytes())
-    for path in files[-records_kept:]:
+    kept = files if everything else files[-records_kept:]
+    if everything:
+        names = {p.name for p in kept}
+        for stale in (out / "records").glob("*.json"):
+            if stale.name not in names:
+                stale.unlink()
+    for path in kept:
         (out / "records" / path.name).write_bytes(path.read_bytes())
     lines = (folder / "ledger.jsonl").read_text(encoding="utf-8").splitlines()
-    tail = "\n".join(lines[-(records_kept + 2) :]) + "\n"
-    (out / "ledger.tail.jsonl").write_text(tail, encoding="utf-8", newline="\n")
+    if not everything:
+        tail = "\n".join(lines[-(records_kept + 2) :]) + "\n"
+        (out / "ledger.tail.jsonl").write_text(tail, encoding="utf-8", newline="\n")
+        return out
+    (out / "ledger.tail.jsonl").unlink(missing_ok=True)
+    (out / "ledger.jsonl").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
+    for name in ("checks.csv", "summary.json"):
+        if (folder / check.FOLDER / name).exists():
+            (out / check.FOLDER).mkdir(exist_ok=True)
+            (out / check.FOLDER / name).write_bytes((folder / check.FOLDER / name).read_bytes())
+    reach = cfg.reach(site_id)
+    for target, card in reach.cards.items():
+        (out / "cards").mkdir(exist_ok=True)
+        (out / "cards" / f"{target}.json").write_bytes((root / card).read_bytes())
+    info = json.dumps(reach_info(cfg, root, site_id), indent=2) + "\n"
+    (out / "reach.json").write_text(info, encoding="utf-8", newline="\n")
     return out
+
+
+def reach_info(cfg: ReachConfig, root: Path, site_id: str) -> dict[str, Any]:
+    """What the web shows about a reach beside its records.
+
+    Args:
+        cfg: Reach settings.
+        root: Repository root.
+        site_id: The reach.
+
+    Returns:
+        The site, the estimate station, the targets, the baseline's period and the card files.
+    """
+    reach = cfg.reach(site_id)
+    site = load_site(reach.site_path(root))
+    quality = load_quality_config(root / cfg.quality_config)
+    row = station_row(reach, quality, root) or {}
+    baseline = root / reach.nir_red_baseline
+    days = sorted(r["date"] for r in _rows(baseline) if not r.get("exclusion"))
+    station: dict[str, Any] = {"id": reach.estimate_station, "source": reach.station_source,
+                               "name": row.get("name", "")}  # fmt: skip
+    if reach.station_source == "usgs":
+        station["url"] = f"https://waterdata.usgs.gov/monitoring-location/{reach.estimate_station}/"
+    return {
+        "site": site_id, "name": site.name, "river": site.river, "timezone": reach.timezone,
+        "station": station, "targets": list(reach.targets),
+        "cards": {t: f"cards/{t}.json" for t in reach.cards},
+        "baseline": {"first": days[0] if days else None, "last": days[-1] if days else None,
+                     "usableScenes": len(days)},
+    }  # fmt: skip
 
 
 def verify_outputs(cfg: ReachConfig, root: Path, site_id: str) -> list[str]:
