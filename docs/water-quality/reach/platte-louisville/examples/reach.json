@@ -1,0 +1,23 @@
+{
+  "site": "platte-louisville",
+  "name": "Platte River, Louisville to near Oreapolis (Nebraska, USA)",
+  "river": "Platte River",
+  "timezone": "America/Chicago",
+  "station": {
+    "id": "USGS-06805500",
+    "source": "usgs",
+    "name": "Platte River at Louisville, Nebr.",
+    "url": "https://waterdata.usgs.gov/monitoring-location/USGS-06805500/"
+  },
+  "targets": [
+    "turbidity"
+  ],
+  "cards": {
+    "turbidity": "cards/turbidity.json"
+  },
+  "baseline": {
+    "first": "2019-02-04",
+    "last": "2025-12-29",
+    "usableScenes": 193
+  }
+}
