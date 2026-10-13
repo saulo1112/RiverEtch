@@ -5,12 +5,14 @@ import { FLIGHT, RETURN } from "./features/case/config.ts";
 import { CASE_COPY } from "./features/case/content.ts";
 import { loadCaseMap } from "./features/case/loadMap.ts";
 import { markFlight } from "./features/case/qa.ts";
-import { ILLUSTRATIVE_CASE } from "./features/case/sample.ts";
 import { SkipButton } from "./features/case/SkipButton.tsx";
 import { CAMERA, DIVE } from "./features/hero/config.ts";
 import type { AscentHandle, DiveHandle } from "./features/hero/globe.ts";
 import { handoffFrame } from "./features/hero/handoff.ts";
 import { Hero, type HeroApi } from "./features/hero/Hero.tsx";
+import { REACH_CASES, reachCase, type ReachCase } from "./features/reaches/catalog.ts";
+import { loadReach } from "./features/reaches/data.ts";
+import type { ReachData } from "./features/reaches/types.ts";
 
 /**
  * What is on screen: the hero, the flythrough into the case, the landed case view, or the way
@@ -21,6 +23,8 @@ type View = "hero" | "flying" | "case" | "returning";
 /** One trip into the case view; each one mounts a fresh case view. */
 interface Flight {
   readonly id: number;
+  /** The case it flies to. */
+  readonly caseId: string;
   readonly entrance: CaseEntrance;
   readonly handoffZoom: number;
   readonly crossfadeMs: number;
@@ -35,15 +39,23 @@ interface ReturnTrip {
   readonly exitZoom: number;
 }
 
-const data = ILLUSTRATIVE_CASE;
-const { site } = data;
-const siteTarget = { lat: site.center[1], lng: site.center[0], zoom: site.handoffZoom };
+// The globe's target for a case: its centre and handoff zoom.
+function siteTarget(site: ReachCase): { lat: number; lng: number; zoom: number } {
+  return { lat: site.center[1], lng: site.center[0], zoom: site.handoffZoom };
+}
 
-// Development shortcut: `?view=case` opens the case view directly.
-const openCaseView =
-  import.meta.env.DEV && new URLSearchParams(window.location.search).get("view") === "case";
+// Development shortcut: `?view=case` opens the featured case directly (`&reach=<id>` another).
+const query = new URLSearchParams(window.location.search);
+const openCaseView = import.meta.env.DEV && query.get("view") === "case";
+const firstCase = reachCase(query.get("reach") ?? REACH_CASES[0]?.id ?? "");
 const initialFlight: Flight | null = openCaseView
-  ? { id: 0, entrance: "direct", handoffZoom: site.handoffZoom, crossfadeMs: 0 }
+  ? {
+      id: 0,
+      caseId: firstCase.id,
+      entrance: "direct",
+      handoffZoom: firstCase.handoffZoom,
+      crossfadeMs: 0,
+    }
   : null;
 
 function prefersReducedMotion(): boolean {
@@ -83,6 +95,11 @@ export function App() {
   const [exitReady, setExitReady] = useState(false);
   const [heroReady, setHeroReady] = useState(false);
   const [heroWaitOver, setHeroWaitOver] = useState(false);
+  // The case of the current (or last) trip, and its data once loaded.
+  const [caseId, setCaseId] = useState(firstCase.id);
+  const [reach, setReach] = useState<ReachData | null>(null);
+  const [reachFailed, setReachFailed] = useState(false);
+  const site = reachCase(caseId);
   const heroRef = useRef<HeroApi>(null);
   const diveRef = useRef<DiveHandle | null>(null);
   const ascentRef = useRef<AscentHandle | null>(null);
@@ -96,15 +113,18 @@ export function App() {
   });
   const flightCount = useRef(initialFlight === null ? 0 : 1);
 
-  const explore = () => {
+  const explore = (openedId: string) => {
     if (view !== "hero") {
       return;
     }
+    const opened = reachCase(openedId);
+    setCaseId(opened.id);
+    setReachFailed(false);
     flightCount.current += 1;
     const id = flightCount.current;
     markFlight("explore");
     const reduced = prefersReducedMotion();
-    const target = siteTarget;
+    const target = siteTarget(opened);
     // Once per flight, and only for the current one (a newer flight or Back replaces it).
     let handedOver = false;
     const reachHandoff = () => {
@@ -126,8 +146,9 @@ export function App() {
     diveRef.current = dive;
     setFlight({
       id,
+      caseId: opened.id,
       entrance: reduced ? "direct" : "flight",
-      handoffZoom: dive?.handoffZoom ?? site.handoffZoom,
+      handoffZoom: dive?.handoffZoom ?? opened.handoffZoom,
       crossfadeMs: reduced
         ? FLIGHT.reducedCrossfadeMs
         : dive === null
@@ -315,6 +336,29 @@ export function App() {
     }
   }, [heroGone]);
 
+  // The case's files, fetched as its flight starts (the dive gives them time).
+  const flyingTo = flight?.caseId ?? null;
+  useEffect(() => {
+    if (flyingTo === null) {
+      return undefined;
+    }
+    let live = true;
+    loadReach(flyingTo)
+      .then((data) => {
+        if (live) {
+          setReach(data);
+        }
+      })
+      .catch(() => {
+        if (live) {
+          setReachFailed(true);
+        }
+      });
+    return () => {
+      live = false;
+    };
+  }, [flyingTo]);
+
   return (
     <>
       {heroGone ? null : (
@@ -325,15 +369,16 @@ export function App() {
           onWarmUp={warmUp}
           focusExplore={view === "hero" && returned}
           initialScreen={returned ? "cases" : "entry"}
-          arriveFrom={view === "returning" && returnTrip?.motion === true ? siteTarget : null}
+          arriveFrom={view === "returning" && returnTrip?.motion === true ? siteTarget(site) : null}
           returning={view === "returning"}
           onSceneReady={onSceneReady}
         />
       )}
-      {flight === null ? null : (
+      {flight === null || reach?.info.site !== flight.caseId ? null : (
         <CaseView
           key={flight.id}
-          data={data}
+          reachCase={reachCase(flight.caseId)}
+          reach={reach}
           entrance={flight.entrance}
           handoffZoom={flight.handoffZoom}
           go={atHandoff && mapReady}
@@ -348,9 +393,7 @@ export function App() {
           }}
           onLanded={() => {
             setView("case");
-            setAnnouncement(
-              `${CASE_COPY.announceCase} ${site.name}. ${CASE_COPY.illustrativeLabel}.`,
-            );
+            setAnnouncement(`${CASE_COPY.announceCase} ${reachCase(flight.caseId).title}.`);
           }}
           onBack={back}
           exit={
@@ -371,6 +414,11 @@ export function App() {
       )}
       {(view === "flying" || view === "returning") && showSkip ? (
         <SkipButton onSkip={skip} />
+      ) : null}
+      {flight !== null && reachFailed ? (
+        <p className="case-load-failed" role="alert">
+          {CASE_COPY.loadFailed}
+        </p>
       ) : null}
       <p className="case-visually-hidden" aria-live="polite">
         {announcement}

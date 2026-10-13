@@ -1,75 +1,80 @@
-// Every string of the case view, and the formatters its panels share.
-import type { CaseClassification } from "./types.ts";
+// Every string of the case view, and the formatters its panels share. A value in FNU appears only
+// with its level, its interval and the error its locked test measured; NDTI stays relative.
+import type { Level } from "../reaches/types.ts";
 
-/** Labels of the case view. NDTI is relative: no physical units, causes or compliance claims. */
+/** Labels of the case view. */
 export const CASE_COPY = {
   back: "Back to your cases",
   caseFile: "Case file",
-  syntheticNote: "(synthetic event)",
-  illustrativeChip: "Illustrative data",
-  illustrativeLabel: "Illustrative sample data",
-  scenePrefix: "Sentinel-2 scene",
-  rows: {
-    departure: "Index departure",
-    rainfall: "Rainfall upstream",
-    delta: "Upstream vs downstream",
+  pipelineChip: "Pipeline records · 2026",
+  scenePrefix: "Sentinel-2 pass",
+  turbidity: "Turbidity at the gauge",
+  interval: "90 % interval",
+  gaugeAt: "USGS gauge at the overpass",
+  gaugeNone: "no gauge value at the overpass",
+  gaugeLink: "Gauge page (USGS)",
+  noValue: "No value for this pass",
+  rangeWithoutLevel:
+    "The prediction fell in a range the locked test did not rate, so no value is published.",
+  validation: {
+    lead: "Locked test",
+    error: "typical error",
+    on: "on",
+    overpasses: "overpasses it never saw",
+    baseline: "Median of past values",
   },
-  vsBaseline: "σ vs baseline",
-  lastDay: "last day",
-  relative: "relative",
-  // Shown while no in-situ calibration has passed (always, for now): see units.ts.
-  relativeNote: "Relative index: no physical units until calibrated in situ.",
-  reply: "Operator reply (private)",
-  replyHint: "Not available in this demo",
   record: {
     title: "Record",
-    note: "Illustrative · not anchored in this demo",
     scene: "Scene",
-    version: "Processing version",
-    parameters: "Parameters",
-    root: "Anchored root",
-    placeholder: "illustrative",
-    notAnchored: "not anchored in this demo",
-    recompute: "Recompute this observation",
-    recomputeHint: "Not available yet",
+    images: "Sentinel-2 images",
+    processing: "Processing",
+    code: "Code",
+    card: "Model card",
+    seal: "Record SHA-256",
+    verify: "Verify this record",
+    verifying: "Verifying…",
+    alter: "Alter one value first",
+    download: "Download the record (JSON)",
+    sealed: "Its content matches its seal (SHA-256)",
+    broken: "Its content no longer matches its seal",
+    inLedger: "Listed in the reach's ledger",
+    notInLedger: "Not found in the ledger",
+    chain: "Ledger chain intact",
+    chainBroken: "Ledger chain broken",
+    lines: "lines",
+    cardOk: "Model card matches the hash the record names",
+    cardBad: "Model card does not match the hash the record names",
+    altered: "Changed in memory",
+    notAnchored: "Not anchored on a public chain yet: the seal and the ledger are checked here.",
+    failed: "The record could not be checked.",
   },
-  legendTitle: "NDTI (relative index)",
+  legendTitle: "NDTI per pixel (relative)",
   legendLow: "Low",
   legendHigh: "High",
-  noData: "Cloud / no data",
-  timelineTitle: "Scenes and rainfall",
-  laneScenes: "NDTI downstream, per scene",
-  laneRain: "Rainfall upstream, mm per day",
-  onset: "Departure onset",
-  cloudy: "cloud / no data",
+  legendRange: "within this reach's 2026 passes",
+  noData: "Cloud, glint or no data on this pass",
+  parts: "Sub-reaches each record measures",
+  window: "The gauge window (where turbidity is estimated)",
+  timelineTitle: "Turbidity, 2026",
+  timelineSatellite: "Satellite estimate (FNU) and its 90 % interval",
+  timelineGauge: "USGS gauge at the overpass (provisional)",
+  timelineNoValue: "Pass without a value",
+  timelineHint: "Select a pass to see its map and record.",
   externalHint: "(opens in a new tab)",
   mapUnavailable: "The map could not load in this browser.",
+  loading: "Loading the reach…",
+  loadFailed: "The reach's records could not be loaded.",
   announceCase: "Case file:",
   announceBack: "Back to your cases.",
 } as const;
 
-/** Maturity of the reference reach: one constant drives the chip and its explanation. */
-export const CASE_MATURITY = {
-  label: "Observable: index departures only",
-  hint: "Maturity: Observable. Next come Baselined, then Validated in situ (calibrated, with a stated error).",
-} as const;
-
-/** The alert's title for each verdict. */
-export const ALERT_TITLES = {
-  normal: "No departure from the baseline",
-  explained_by_climate: "Departure explained by rainfall",
-  candidate_human_pressure: "Departure not explained by rainfall",
-} as const satisfies Record<CaseClassification, string>;
-
-/**
- * The alert's title for a verdict.
- *
- * @param classification - The verdict on the latest scene.
- * @returns E.g. "Departure not explained by rainfall".
- */
-export function alertTitle(classification: CaseClassification): string {
-  return ALERT_TITLES[classification];
-}
+/** How each level reads on a panel. */
+export const LEVEL_LABELS = {
+  validated: "Validated",
+  estimated: "Estimated",
+  indicative: "Indicative",
+  none: "No level",
+} as const satisfies Record<Level, string>;
 
 const dayMonth = new Intl.DateTimeFormat("en-GB", {
   day: "numeric",
@@ -105,6 +110,16 @@ export function formatDate(isoDate: string, withYear = false): string {
 export function formatSigned(value: number, digits: number): string {
   const text = Math.abs(value).toFixed(digits);
   return value < 0 ? `−${text}` : `+${text}`;
+}
+
+/**
+ * Formats a turbidity value for a panel: one decimal under 100, none above.
+ *
+ * @param value - The value.
+ * @returns E.g. "30.5" or "124".
+ */
+export function formatValue(value: number): string {
+  return value < 100 ? value.toFixed(1) : value.toFixed(0);
 }
 
 /**

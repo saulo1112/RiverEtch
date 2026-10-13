@@ -12,7 +12,7 @@ import {
   type Ref,
 } from "react";
 
-import { REFERENCE_REACH_CENTER } from "../case/reachGeometry.ts";
+import { REACH_CASES } from "../reaches/catalog.ts";
 import { parseHeroUrlOptions, type HeroUrlOptions } from "./config.ts";
 import type {
   AscentHandle,
@@ -50,8 +50,8 @@ export interface HeroProps {
   readonly ref?: Ref<HeroApi>;
   /** The flythrough has started: the UI fades out and takes no input; the scene keeps rendering. */
   readonly leaving?: boolean;
-  /** "Open case": starts the flythrough. */
-  readonly onExplore?: () => void;
+  /** "Open case": starts the flythrough to that case. */
+  readonly onExplore?: (caseId: string) => void;
   /** The pointer or the focus reached a control leading to the case: warm up the case view. */
   readonly onWarmUp?: () => void;
   /** Focus "Open case" (back from the case view, once the UI shows again). */
@@ -109,8 +109,9 @@ function getReducedMotion(): boolean {
   return window.matchMedia(reducedMotionQuery).matches;
 }
 
-// The reference reach (the only case that opens): the satellite's dish tracks it. Nothing marks it.
-const REACH_SITE = { lat: REFERENCE_REACH_CENTER[1], lng: REFERENCE_REACH_CENTER[0] };
+// The featured case: the satellite's dish tracks it. Nothing marks it.
+const FEATURED = REACH_CASES[0]?.center ?? [0, 0];
+const REACH_SITE = { lat: FEATURED[1], lng: FEATURED[0] };
 
 /**
  * Full-viewport hero: a lit 3D Earth, slowly turning, with a satellite on its orbit, over a

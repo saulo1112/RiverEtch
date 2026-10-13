@@ -1,4 +1,4 @@
-import { CloudRain, type LucideIcon, Satellite, ShieldCheck } from "lucide-react";
+import { Gauge, type LucideIcon, Satellite, ShieldCheck } from "lucide-react";
 
 import { ATTRIBUTION, STATUS, STEPS, type Step } from "./content.ts";
 import { Dotted } from "./Dotted.tsx";
@@ -6,7 +6,7 @@ import { Dotted } from "./Dotted.tsx";
 /** Icon per step. */
 const STEP_ICONS: Record<Step["id"], LucideIcon> = {
   observe: Satellite,
-  explain: CloudRain,
+  estimate: Gauge,
   verify: ShieldCheck,
 };
 

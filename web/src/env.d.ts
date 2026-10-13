@@ -10,5 +10,5 @@ interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
 
-/** Whether `public/cases/` holds the reference case's thumbnail (vite.config.ts, at startup). */
-declare const __CASE_THUMBNAIL__: boolean;
+/** The cases whose thumbnail `public/cases/` holds, both sizes (vite.config.ts, at startup). */
+declare const __CASE_THUMBNAILS__: readonly string[];

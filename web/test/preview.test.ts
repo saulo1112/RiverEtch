@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 
-import { CASE_THUMBNAIL, previewLayers, thumbnailSrcSet } from "../src/features/hero/ui/preview.ts";
+import { caseThumbnail, previewLayers, thumbnailSrcSet } from "../src/features/hero/ui/preview.ts";
 
 void test("without the thumbnail the card shows the outline and requests no image", () => {
   for (const status of ["pending", "loaded", "failed"] as const) {
@@ -23,10 +23,11 @@ void test("a failed image falls back to the outline alone", () => {
 
 void test("the srcset lists both widths under the base URL, narrow first", () => {
   assert.equal(
-    thumbnailSrcSet("/"),
-    "/cases/magdalena-reference-960.webp 960w, /cases/magdalena-reference.webp 1920w",
+    thumbnailSrcSet("/", "platte-louisville"),
+    "/cases/platte-louisville-960.webp 960w, /cases/platte-louisville.webp 1920w",
   );
-  assert.equal(thumbnailSrcSet("/app/").split(", ").length, 2);
-  assert.equal(CASE_THUMBNAIL.full.width / CASE_THUMBNAIL.full.height, 2);
-  assert.equal(CASE_THUMBNAIL.narrow.width / CASE_THUMBNAIL.narrow.height, 2);
+  assert.equal(thumbnailSrcSet("/app/", "x").split(", ").length, 2);
+  const { full, narrow } = caseThumbnail("x");
+  assert.equal(full.width / full.height, 2);
+  assert.equal(narrow.width / narrow.height, 2);
 });

@@ -64,16 +64,27 @@ export const MAP_LOOK = {
   },
   // Only visible if a tall viewport shows the horizon: keep it night-dark.
   sky: { sky: "#02040a", horizon: "#0b1a3d", fog: "#02040a" },
-  river: {
-    // Core and glow widths (px) by zoom, the glow's blur and opacity.
-    coreWidth: [5, 1.2, 9, 2.2, 12, 3.5, 14, 4.5],
-    glowWidth: [5, 5, 9, 9, 12, 16, 14, 22],
-    glowBlur: [5, 3, 12, 9, 14, 12],
-    glowOpacity: 0.55,
-    // Length of the soft leading edge of the reveal, as a share of the reach.
-    revealFeather: 0.04,
-    revealMs: 1100,
+  // The reach's corridor: a dark water fill, a soft glow and a fine edge along its banks, the
+  // scene's NDTI over its water, the sub-reaches dashed and the gauge's window in amber.
+  corridor: {
+    water: "#04101f",
+    waterOpacity: 0.55,
+    glow: "#22d3ee",
+    glowWidth: [8, 2, 11, 6, 13, 12, 14, 16],
+    glowBlur: [8, 2, 11, 6, 14, 10],
+    glowOpacity: 0.32,
+    edge: "#c8f0ff",
+    edgeOpacity: 0.5,
+    parts: "#f4f8ff",
+    partsOpacity: 0.65,
+    window: "#f5b942",
+    ndtiOpacity: 0.92,
+    // Length of the soft leading edge of the fill, as a share of the reach.
+    revealFeather: 0.05,
+    revealMs: 1400,
   },
+  // Zoom given back after fitting the corridor top-down, as the final view is tilted.
+  pitchZoomLoss: 0.35,
 } as const;
 
 /**
