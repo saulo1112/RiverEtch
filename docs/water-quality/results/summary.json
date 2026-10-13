@@ -231,5 +231,19 @@
         "record": "v5"
       }
     }
+  },
+  "v6": {
+    "mississippi-belle-chasse/ssc": {
+      "candidate": "R1",
+      "level": "indicative"
+    },
+    "platte-louisville/ssc": {
+      "candidate": "R2",
+      "level": "indicative"
+    },
+    "platte-louisville/water_temperature": {
+      "candidate": "W1",
+      "level": "estimated"
+    }
   }
 }

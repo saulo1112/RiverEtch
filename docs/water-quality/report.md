@@ -40,7 +40,38 @@ box, 2023-12..2026-09, that nothing had seen.
   Connecticut) do worst, where the median of past values is already close.
 - **Suspended solids:** no river had 20 locked-test pairs. Discrete SSC samples give 4–6 a site in
   2023-12..2026-09, and the USGS surrogate SSC (estimated from turbidity) has no approved value in
-  that period. No SSC value is published.
+  that period. No SSC value is published (v6 below tries again, with each gauge's own rating).
+
+## More variables (v6)
+
+v6 added the variables that are both observable from orbit and measured by the demo gauges, each
+validated under the same rules (a lock box scored once, written before any value was read).
+
+| Variable, reach                           | Model chosen                | Lock box                                  | Baseline        | Level         |
+| ----------------------------------------- | --------------------------- | ----------------------------------------- | --------------- | ------------- |
+| **Water temperature, the Platte**         | W1: Landsat 8/9 ST as it is | **MAE 1.28 °C**, bias +1.11 °C, 24 passes | 2.51 °C (W0)    | **estimated** |
+| Suspended sediment, Belle Chasse (link 2) | R1: ln SSC on ln turbidity  | MdSA 15.9 %, 16 samples                   | 76.9 % (median) | indicative    |
+| Suspended sediment, the Platte (link 2)   | R2: with ln discharge       | MdSA 50.7 %, bias +45 %, 23 samples       | 92.4 % (median) | indicative    |
+| Suspended-sediment flux, both             | SSC × the gauge's discharge | follows SSC                               | —               | indicative    |
+
+- **Water temperature at the Platte is published in °C** with a 90 % interval of ±2.8 °C (covered
+  23 of 24 lock-box passes). It missed _validated_ on its bias (+1.11 °C against 0.75 °C). The
+  linear adjustment W2 would have reached _validated_ (MAE 0.87 °C, bias −0.09 °C), but in the
+  training years it was within 0.3 °C of W1, so the rule kept the simpler one; W2 stays a
+  report-only row. In 2026, against the gauge, the records erred by 1.41 °C on 13 passes (8 of them
+  provisional, so new to the model), 11 inside their interval.
+- **Suspended sediment at Belle Chasse missed _estimated_ on its sample count alone:** the gauge's
+  rating erred by 15.9 % on the lock box (the median, 76.9 %), but the lock box holds 16 approved
+  samples and the rule asks 20. Satellite to sediment end to end, report-only: 26.1 % on 6 samples.
+  At the Platte the rating itself erred by 50.7 %. Neither reach shows SSC in mg/L, and the flux
+  follows SSC. (An indicative SSC class would only repeat the turbidity class: the rating is
+  monotonic.)
+- **The gauge's own readings** (discharge and gage height at both reaches; water temperature,
+  dissolved oxygen, specific conductance and nitrate at the Platte) are shown beside each pass as
+  context, labelled as measurements, never as satellite estimates.
+- **Data note:** two Landsat files were unreadable at the source after two attempts (2022, in the
+  training years); one pass was lost and one kept from its other tile.
+- **Attempts:** 2 ratings at each gauge and 3 temperature candidates; each lock box scored once.
 
 ## Missouri at Hermann (v4)
 

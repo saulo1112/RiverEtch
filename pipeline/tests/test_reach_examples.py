@@ -9,12 +9,14 @@ import jsonschema  # type: ignore[import-untyped]
 import pytest
 
 from climate_pipeline.contract import observation_v2 as v2
+from climate_pipeline.contract import thermal
 from climate_pipeline.quality import cards
 
 DOCS = Path(__file__).parents[2] / "docs"
 SCHEMA = json.loads((DOCS / "schema" / "observation-record.v2.schema.json").read_text("utf-8"))
 EXAMPLES = sorted((DOCS / "water-quality" / "reach").glob("*/examples"))
 RECORDS = sorted(p for e in EXAMPLES for p in [e / "latest.json", *(e / "records").glob("*.json")])
+THERMAL = sorted(e / "thermal" for e in EXAMPLES if (e / "thermal").exists())
 
 
 def ledger(folder: Path) -> list[str]:
@@ -48,3 +50,25 @@ def test_an_example_card_is_the_one_its_records_name(folder: Path) -> None:
             card = copied.get(estimate["target"])
             if card is not None and estimate.get("modelCardSha256"):
                 assert cards.card_hash(card) == estimate["modelCardSha256"]
+
+
+@pytest.mark.parametrize("folder", THERMAL, ids=lambda p: p.parents[1].name)
+def test_the_water_temperature_examples_are_sealed_chained_and_name_their_card(
+    folder: Path,
+) -> None:
+    lines = (folder / "ledger.jsonl").read_text("utf-8").splitlines()
+    for before, after in itertools.pairwise(lines):
+        assert (
+            json.loads(after)["previousLineSha256"] == hashlib.sha256(before.encode()).hexdigest()
+        )
+    named = {json.loads(t)["recordSha256"] for t in lines}
+    card = json.loads((folder.parent / "cards" / "water_temperature.json").read_text("utf-8"))
+    info = json.loads((folder.parent / "reach.json").read_text("utf-8"))
+    assert info["cards"]["water_temperature"] == "cards/water_temperature.json"
+    records = sorted((folder / "records").glob("*.json"))
+    assert records
+    for path in records:
+        record = thermal.ThermalRecordV1.model_validate_json(path.read_text("utf-8"))
+        assert thermal.is_sealed(record)
+        assert record.record_sha256 in named
+        assert record.estimate.model_card_sha256 == cards.card_hash(card)

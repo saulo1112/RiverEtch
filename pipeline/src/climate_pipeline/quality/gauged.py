@@ -20,7 +20,8 @@ import numpy as np
 
 from climate_pipeline.calibration.fetching import read_stations
 from climate_pipeline.calibration.matchups import Pair
-from climate_pipeline.quality import site, transfer
+from climate_pipeline.quality import cards as cards_mod
+from climate_pipeline.quality import site, transfer, variables
 from climate_pipeline.quality.config import QualityConfig
 
 FOLDER = "usgs-v5"
@@ -133,6 +134,7 @@ def analyse(cfg: QualityConfig, root: Path,
         return tables
     cards: list[dict[str, Any]] = []
     candidates: list[dict[str, Any]] = []
+    link1: dict[str, dict[str, Any]] = {}  # v6's chain: each demo gauge's turbidity card
     for run, source in planned:
         pairs = [p for p in by_source[source] if p.station == run.site]
         _, lock = site.split(pairs)
@@ -148,6 +150,9 @@ def analyse(cfg: QualityConfig, root: Path,
         tables["v5_inner"] += result.inner
         card = {**result.card, **({"measurement": SURROGATE_NOTE} if source == "surrogate" else {})}
         cards.append({"path": run.card_path, "card": card})
+        if run.target == "turbidity" and run.slug in variables.GAUGES:
+            link1[run.slug] = {"card": result.card, "card_path": run.card_path,
+                               "residuals": result.inner_log_errors}  # fmt: skip
         if run.target == "turbidity":
             overall = result.levels[0]
             candidates.append({"slug": run.slug, "site": run.site, "level": overall["level"],
@@ -176,6 +181,17 @@ def analyse(cfg: QualityConfig, root: Path,
                           "rank": chosen.index(c["slug"]) + 1 if c["slug"] in chosen else None}
                          for c in sorted(candidates, key=lambda c: c["slug"])]  # fmt: skip
     tables["_v5_cards"] = cards
+    # v6's end-to-end check: the lock-box SSC samples on a clear pass's day, with the turbidity
+    # card's estimate of that pass.
+    lab = root / cfg.outputs.inputs / "lab"
+    end_to_end: dict[str, list[tuple[float, float]]] = {}
+    for slug, link in link1.items():
+        site_id = variables.GAUGES[slug]
+        _, lock = site.split([p for p in by_source.get("ssc", []) if p.station == site_id])
+        end_to_end[slug] = [(cards_mod.estimate(link["card"], p.features, lab), p.value)
+                            for p in lock]  # fmt: skip
+    tables["_v6_link1"] = [{"slug": s, **v} for s, v in link1.items()]
+    tables["_v6_end_to_end"] = [{"slug": s, "pairs": v} for s, v in end_to_end.items()]
     return tables
 
 

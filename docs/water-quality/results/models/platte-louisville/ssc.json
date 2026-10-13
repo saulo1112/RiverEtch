@@ -1,0 +1,67 @@
+{
+  "basis": "chained_rating",
+  "candidate": "R2",
+  "interval90": {
+    "logErrorQ05": -1.010127,
+    "logErrorQ95": 1.068699
+  },
+  "kind": "chained-rating",
+  "levels": [
+    {
+      "interval_factor90": 2.8276,
+      "level": "indicative",
+      "mdsa": 50.723,
+      "n": 23.0,
+      "predicted_range": "all"
+    }
+  ],
+  "link1": {
+    "card": "platte-louisville/turbidity.json",
+    "sha256": "beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06"
+  },
+  "metrics": {
+    "end_to_end_report_only": {
+      "mdsa": null,
+      "n": 0.0,
+      "rho": null,
+      "rho_low": null,
+      "sspb": null
+    },
+    "rating_lockbox": {
+      "mdsa": 50.723,
+      "n": 23.0,
+      "rho": 0.8814,
+      "rho_low": 0.7714,
+      "sspb": 45.0585
+    },
+    "rating_null": {
+      "mdsa": 92.402,
+      "n": 23.0,
+      "rho": null,
+      "rho_low": null,
+      "sspb": 46.4552
+    }
+  },
+  "modelId": "chain:ssc:platte-louisville",
+  "parametersHash": "e4a091ddda1f17279141157fe0fa2a59705da28689b730237eb9acb8a34c1d55",
+  "rating": {
+    "candidate": "R2",
+    "coefficients": [
+      -0.8312094411,
+      0.5950072519,
+      0.4672073421
+    ],
+    "features": [
+      "ln_turbidity",
+      "ln_discharge"
+    ],
+    "smearing": 1.1846847973
+  },
+  "site": "USGS-06805500",
+  "target": "ssc",
+  "trainingPairs": {
+    "site": 260
+  },
+  "unit": "mg/L",
+  "version": "1"
+}

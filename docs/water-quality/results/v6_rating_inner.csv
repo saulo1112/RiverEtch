@@ -1,0 +1,5 @@
+site,slug,target,unit,candidate,pairs,inner_loyo_mdsa,chosen
+USGS-07374525,mississippi-belle-chasse,ssc,mg/L,R1,169,20.4125,true
+USGS-07374525,mississippi-belle-chasse,ssc,mg/L,R2,169,15.5661,false
+USGS-06805500,platte-louisville,ssc,mg/L,R1,255,50.4989,false
+USGS-06805500,platte-louisville,ssc,mg/L,R2,255,44.7561,true
