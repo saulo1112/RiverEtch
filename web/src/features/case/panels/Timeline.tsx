@@ -2,14 +2,16 @@ import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
+import { sceneKey } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
 import { PassStatsView } from "./PassStatsView.tsx";
 import { ProfileChart } from "./ProfileChart.tsx";
 import { SeriesChart } from "./SeriesChart.tsx";
+import { ThermalChart } from "./ThermalChart.tsx";
 
 /** The bottom panel's tabs. */
-export type BottomTab = "series" | "profile" | "pass";
+export type BottomTab = "series" | "thermal" | "profile" | "pass";
 
 /** Props of {@link Timeline}. */
 export interface TimelineProps {
@@ -20,6 +22,10 @@ export interface TimelineProps {
   readonly compared: number | null;
   /** Selects a pass. */
   readonly onSelect: (index: number) => void;
+  /** Index of the selected Landsat pass (water temperature; null: none). */
+  readonly thermalSelected: number | null;
+  /** Selects a Landsat pass. */
+  readonly onThermalSelect: (index: number) => void;
   readonly tab: BottomTab;
   readonly onTab: (tab: BottomTab) => void;
   /** The time-lapse is running. */
@@ -34,7 +40,7 @@ export interface TimelineProps {
   readonly onProbe: (place: number | null) => void;
 }
 
-const TABS: readonly BottomTab[] = ["series", "profile", "pass"];
+const TABS: readonly BottomTab[] = ["series", "thermal", "profile", "pass"];
 
 function IconButton({
   label,
@@ -62,8 +68,9 @@ function IconButton({
 }
 
 /**
- * Bottom panel: the year's passes (turbidity in FNU beside the gauge), the selected pass along
- * the river, and its statistics, on three tabs; the time-lapse plays the year pass by pass.
+ * Bottom panel: the year's passes (turbidity in FNU beside the gauge), the water temperature from
+ * Landsat where the reach has it, the selected pass along the river, and its statistics and the
+ * gauge's readings, on tabs; the time-lapse plays the year pass by pass.
  *
  * @param props - The reach, the selection, the tab, the time-lapse and the pass's analysis.
  * @returns The panel.
@@ -72,6 +79,8 @@ export function Timeline(props: TimelineProps) {
   const { reach, selected, tab, playing } = props;
   const { play, tabs } = CASE_COPY;
   const last = reach.series.length - 1;
+  const row = reach.series[selected] ?? null;
+  const shown = TABS.filter((t) => t !== "thermal" || reach.thermal !== null);
   return (
     <section className="case-panel case-timeline case-glass" data-frame="" aria-label={tabs[tab]}>
       <header className="case-timeline__head">
@@ -109,7 +118,7 @@ export function Timeline(props: TimelineProps) {
           </IconButton>
         </div>
         <div className="case-timeline__tabs" role="tablist">
-          {TABS.map((t) => (
+          {shown.map((t) => (
             <button
               key={t}
               type="button"
@@ -139,6 +148,21 @@ export function Timeline(props: TimelineProps) {
               {CASE_COPY.timelineNoValue}
             </li>
           </ul>
+        ) : tab === "thermal" ? (
+          <ul className="case-timeline__keys">
+            <li>
+              <span className="case-timeline__key case-timeline__key--thermal" aria-hidden="true" />
+              {CASE_COPY.thermal.satellite}
+            </li>
+            <li>
+              <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
+              {CASE_COPY.thermal.gauge}
+            </li>
+            <li>
+              <span className="case-timeline__key case-timeline__key--cursor" aria-hidden="true" />
+              {CASE_COPY.thermal.cursor}
+            </li>
+          </ul>
         ) : tab === "profile" ? (
           <p className="case-timeline__note">{CASE_COPY.profile.hint}</p>
         ) : null}
@@ -151,6 +175,13 @@ export function Timeline(props: TimelineProps) {
             compared={props.compared}
             onSelect={props.onSelect}
           />
+        ) : tab === "thermal" ? (
+          <ThermalChart
+            reach={reach}
+            selected={props.thermalSelected}
+            cursor={row?.date ?? null}
+            onSelect={props.onThermalSelect}
+          />
         ) : tab === "profile" ? (
           <ProfileChart
             reach={reach}
@@ -159,7 +190,11 @@ export function Timeline(props: TimelineProps) {
             onProbe={props.onProbe}
           />
         ) : (
-          <PassStatsView stats={props.stats} row={reach.series[selected] ?? null} />
+          <PassStatsView
+            stats={props.stats}
+            row={row}
+            context={row === null ? [] : reach.context.filter((c) => c.key === sceneKey(row))}
+          />
         )}
       </div>
     </section>

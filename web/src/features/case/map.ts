@@ -1084,8 +1084,11 @@ export async function createCaseMap(
           layer = { mode, opacity };
           passes.setLayer(mode, opacity);
         },
+        // Once: the main map's own dispose removes its copies before React's cleanup does.
         dispose() {
-          compares.delete(compareHandle);
+          if (!compares.delete(compareHandle)) {
+            return;
+          }
           moving.unsubscribe();
           passes.dispose();
           copy.remove();

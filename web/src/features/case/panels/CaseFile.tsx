@@ -3,8 +3,15 @@ import type { Ref } from "react";
 
 import type { ReachCase } from "../../reaches/catalog.ts";
 import { gaugeAt, turbidity } from "../../reaches/scene.ts";
-import type { ReachData, SeriesRow } from "../../reaches/types.ts";
-import { CASE_COPY, formatDate, formatValue, LEVEL_LABELS } from "../content.ts";
+import type { ReachData, SeriesRow, ThermalRow } from "../../reaches/types.ts";
+import {
+  CASE_COPY,
+  formatCelsius,
+  formatDate,
+  formatValue,
+  landsatName,
+  LEVEL_LABELS,
+} from "../content.ts";
 
 /** Props of {@link CaseFile}. */
 export interface CaseFileProps {
@@ -14,6 +21,8 @@ export interface CaseFileProps {
   readonly reach: ReachData;
   /** The selected pass (null before the series loads). */
   readonly row: SeriesRow | null;
+  /** The water-temperature pass to show (null: the reach has none). */
+  readonly thermal?: ThermalRow | null;
   /** Ref to the site heading, which receives focus when the view lands. */
   readonly headingRef?: Ref<HTMLHeadingElement>;
   /** Called by "Back to your cases". */
@@ -36,14 +45,67 @@ function intervalPosition(value: number, low: number, high: number): number {
   return Math.min(1, Math.max(0, Math.log(value / low) / Math.log(high / low)));
 }
 
+// The water temperature from Landsat (v6): the pass's value, its 90 % half-width, its level and
+// the error its locked test measured, beside the day-of-year average's.
+function Temperature({
+  reach,
+  thermal,
+}: {
+  readonly reach: ReachData;
+  readonly thermal: ThermalRow;
+}) {
+  const copy = CASE_COPY.thermal;
+  const { estimate } = thermal;
+  const value = typeof estimate.value === "number" ? estimate.value : null;
+  const half =
+    estimate.interval == null ? null : (estimate.interval.high - estimate.interval.low) / 2;
+  const lockbox = reach.thermal?.card?.metrics.lockbox;
+  const baseline = reach.thermal?.card?.metrics.null_lockbox;
+  return (
+    <section className="case-file__thermal" aria-label={copy.title}>
+      <p className="case-file__metric">
+        {copy.title} · {landsatName(thermal.platform)} · {formatDate(thermal.date)}
+      </p>
+      <p className="case-file__thermal-value">
+        {value === null ? (
+          CASE_COPY.noValue
+        ) : (
+          <>
+            <strong>{formatCelsius(value)}</strong> °C
+            {half === null ? null : <span> ± {half.toFixed(1)}</span>}
+          </>
+        )}
+        <span className="case-chip case-chip--level" data-level={estimate.level}>
+          {LEVEL_LABELS[estimate.level]}
+        </span>
+      </p>
+      {lockbox === undefined ? null : (
+        <p className="case-file__thermal-note">
+          {copy.lead}: <strong>{lockbox.mae.toFixed(1)} °C</strong> {copy.error} {copy.on}{" "}
+          {String(lockbox.n)} {copy.overpasses}
+          {baseline === undefined ? null : ` (${copy.baseline}: ${baseline.mae.toFixed(1)} °C)`}
+        </p>
+      )}
+    </section>
+  );
+}
+
 /**
  * Top-left panel: the way back and the case file: the reach, its card's level, the selected pass
  * with its turbidity in FNU and 90 % interval (or why it has none), the gauge's own reading at the
- * overpass, and the error the locked test measured.
+ * overpass, the error the locked test measured and, where Landsat measures it, the water
+ * temperature.
  *
  * @returns The case file panel.
  */
-export function CaseFile({ reachCase, reach, row, headingRef, onBack }: CaseFileProps) {
+export function CaseFile({
+  reachCase,
+  reach,
+  row,
+  thermal = null,
+  headingRef,
+  onBack,
+}: CaseFileProps) {
   const card = reach.card;
   const overall = card?.levels.find((l) => l.predicted_range === "all");
   const lockbox = card?.metrics.lockbox;
@@ -142,6 +204,8 @@ export function CaseFile({ reachCase, reach, row, headingRef, onBack }: CaseFile
             </div>
           </dl>
         )}
+
+        {thermal === null ? null : <Temperature reach={reach} thermal={thermal} />}
 
         {reach.info.station.url === undefined ? null : (
           <a

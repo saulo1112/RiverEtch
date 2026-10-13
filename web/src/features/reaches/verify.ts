@@ -1,6 +1,7 @@
 // Checks a record in the browser, as `climate-pipeline reach verify` does: its seal (SHA-256 of its
 // canonical JSON), its place in the hash-chained ledger and its model card's hash. "Alter a value"
 // changes one number in memory first, to show that a tampered record no longer matches its seal.
+// Observation records (v2) and water-temperature records (v1) are sealed the same way.
 import { canonical, NumberText, parseJson, sha256Hex, type JsonValue } from "./canonical.ts";
 
 /** What a check found. */
@@ -50,12 +51,23 @@ function isObject(value: JsonValue | undefined): value is JsonObject {
   );
 }
 
+// The record's first estimate: `estimates[0]` in an observation record, `estimate` in a
+// water-temperature record.
+function firstEstimate(record: JsonObject): { value: JsonObject; path: string } | undefined {
+  const estimates = record.estimates;
+  if (Array.isArray(estimates)) {
+    const first = estimates[0];
+    return isObject(first) ? { value: first, path: "estimates[0]" } : undefined;
+  }
+  const single = record.estimate;
+  return isObject(single) ? { value: single, path: "estimate" } : undefined;
+}
+
 // The number to alter: the first estimate's value, else the downstream NDTI.
 function alterOne(record: JsonObject): Verification["altered"] {
-  const estimates = record.estimates;
-  const first = Array.isArray(estimates) ? estimates[0] : undefined;
+  const first = firstEstimate(record);
   const candidates: [JsonObject | undefined, string, string][] = [
-    [isObject(first) ? first : undefined, "value", "estimates[0].value"],
+    [first?.value, "value", `${first?.path ?? "estimates[0]"}.value`],
   ];
   const indices = record.indices;
   const ndti = isObject(indices) ? indices.ndti : undefined;
@@ -130,9 +142,7 @@ export async function verifyRecord(
   const inLedger = position >= 0;
 
   let cardMatches: boolean | null = null;
-  const estimates = record.estimates;
-  const first = Array.isArray(estimates) ? estimates[0] : undefined;
-  const named = isObject(first) ? first.modelCardSha256 : undefined;
+  const named = firstEstimate(record)?.value.modelCardSha256;
   if (cardText !== null && typeof named === "string") {
     cardMatches = (await sha256Hex(canonical(parseJson(cardText), true))) === named;
   }

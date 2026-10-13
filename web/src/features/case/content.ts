@@ -25,9 +25,15 @@ export const CASE_COPY = {
   },
   record: {
     title: "Record",
+    ofPass: "Sentinel-2 pass",
+    ofThermal: "water temperature",
     scene: "Scene",
     images: "Sentinel-2 images",
+    landsatImages: "Landsat images",
     processing: "Processing",
+    thermalProcessing: "Collection 2 Level-2 · band 10 surface temperature",
+    window: "Gauge window",
+    waterPixels: "water pixels",
     code: "Code",
     card: "Model card",
     seal: "Record SHA-256",
@@ -100,7 +106,40 @@ export const CASE_COPY = {
     of: "of",
     parts: { upstream: "upstream sub-reach", downstream: "downstream sub-reach", between: "" },
   },
-  tabs: { series: "Turbidity, 2026", profile: "Along the river", pass: "This pass" },
+  tabs: {
+    series: "Turbidity, 2026",
+    thermal: "Water temperature",
+    profile: "Along the river",
+    pass: "This pass",
+  },
+  thermal: {
+    title: "Water temperature",
+    satellite: "Landsat estimate (°C) and its 90 % interval",
+    gauge: "USGS gauge at the overpass",
+    cursor: "Selected Sentinel-2 pass",
+    hint: "Select a Landsat pass to see its record.",
+    pixels: "water pixels in the gauge window",
+    lead: "Locked test",
+    error: "mean error",
+    on: "on",
+    overpasses: "overpasses",
+    baseline: "day-of-year average",
+  },
+  context: {
+    title: "Measured by the USGS gauge at this pass",
+    none: "The gauge reported no other value at this pass.",
+    provisional: "Provisional data, subject to revision by the USGS.",
+    provisionalShort: "provisional",
+    approvedShort: "approved",
+    names: {
+      "00060": "Discharge",
+      "00065": "Gage height",
+      "00010": "Water temperature",
+      "00300": "Dissolved oxygen",
+      "00095": "Specific conductance",
+      "00630": "Nitrate + nitrite (N)",
+    } as Readonly<Record<string, string>>,
+  },
   play: { play: "Play 2026", pause: "Pause", previous: "Previous pass", next: "Next pass" },
   profile: {
     title: "NDTI along the river, upstream to downstream",
@@ -191,6 +230,40 @@ export function formatSigned(value: number, digits: number): string {
  */
 export function formatValue(value: number): string {
   return value < 100 ? value.toFixed(1) : value.toFixed(0);
+}
+
+/**
+ * Formats a temperature in °C with one decimal (and a true minus sign).
+ *
+ * @param value - The temperature.
+ * @returns E.g. "18.9" or "−1.4".
+ */
+export function formatCelsius(value: number): string {
+  return value.toFixed(1).replace("-", "−");
+}
+
+/**
+ * Formats one of the gauge's readings: whole units from 100, one decimal from 10, two below.
+ *
+ * @param value - The reading.
+ * @returns E.g. "1,240", "10.8" or "1.40".
+ */
+export function formatReading(value: number): string {
+  const digits = Math.abs(value) >= 100 ? 0 : Math.abs(value) >= 10 ? 1 : 2;
+  return value.toLocaleString("en-US", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+/**
+ * A Landsat platform as people write it.
+ *
+ * @param platform - The record's platform, e.g. `landsat-9`.
+ * @returns E.g. "Landsat 9".
+ */
+export function landsatName(platform: string): string {
+  return platform.replace(/^landsat-/, "Landsat ");
 }
 
 /**

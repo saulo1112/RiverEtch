@@ -1,6 +1,6 @@
 // Joins one pass of a reach across its files: the series row, its NDTI map, the gauge's value at
 // the overpass and its turbidity estimate.
-import type { Estimate, GaugeCheck, ReachData, SeriesRow } from "./types.ts";
+import type { Estimate, GaugeCheck, ReachData, SeriesRow, ThermalRow } from "./types.ts";
 
 /**
  * A pass's acquisition key, from its record file (`records/<date>_<key>.json`).
@@ -101,4 +101,19 @@ export function ndtiMedians(series: readonly SeriesRow[]): number[] {
   return series
     .flatMap((row) => [row.indices.ndti.upstream, row.indices.ndti.downstream])
     .filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+}
+
+/**
+ * The water-temperature pass a case shows first: the latest with a value, else the latest.
+ *
+ * @param series - The reach's Landsat passes, by date (`thermal/series.json`).
+ * @returns Its index (null for none).
+ */
+export function defaultThermal(series: readonly ThermalRow[]): number | null {
+  for (let k = series.length - 1; k >= 0; k -= 1) {
+    if (typeof series[k]?.estimate.value === "number") {
+      return k;
+    }
+  }
+  return series.length > 0 ? series.length - 1 : null;
 }

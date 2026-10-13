@@ -173,6 +173,81 @@ export interface ReachGeometry {
   readonly features: readonly ReachFeature[];
 }
 
+/** One water-temperature pass (`thermal/series.json`, preregistration v6). */
+export interface ThermalRow {
+  readonly date: string;
+  readonly sceneId: string;
+  readonly file: string;
+  readonly recordSha256: string;
+  readonly platform: string;
+  readonly waterPixels: number;
+  readonly estimate: {
+    readonly level: Level;
+    readonly value?: number | null;
+    readonly interval?: Interval | null;
+    readonly unit: string;
+  };
+}
+
+/** One sealed water-temperature record (v1, docs/schema/README.md). */
+export interface ThermalRecord {
+  readonly schemaVersion: 1;
+  readonly kind: "water_temperature";
+  readonly reachId: string;
+  readonly date: string;
+  readonly datetimeUtc: string;
+  readonly sceneId: string;
+  readonly platform: string;
+  readonly window: {
+    readonly pixels: number;
+    readonly waterPixels: number;
+    /** The median surface temperature of the window's clear water, kelvin. */
+    readonly surfaceTemperatureK: number;
+  };
+  readonly estimate: Estimate;
+  readonly provenance: {
+    readonly collection: string;
+    readonly stacItems: readonly { readonly id: string; readonly url: string }[];
+    readonly codeCommit: string;
+    readonly processingParamsSha256: string;
+  };
+  readonly recordSha256: string;
+}
+
+/** The gauge's water temperature at a Landsat pass (`thermal/checks.csv`). */
+export interface ThermalCheck {
+  readonly sceneId: string;
+  readonly date: string;
+  readonly value: number | null;
+  readonly approval: string;
+}
+
+/** One of the gauge's own readings at a Sentinel-2 pass (`checks/context.csv`). */
+export interface ContextReading {
+  readonly key: string;
+  readonly parameter: string;
+  readonly name: string;
+  readonly value: number;
+  readonly unit: string;
+  readonly approval: string;
+}
+
+/** The parts of the water-temperature card the case view shows. */
+export interface TemperatureCard {
+  readonly modelId: string;
+  readonly candidate: string;
+  readonly halfWidth90: number;
+  readonly levels: readonly {
+    readonly level: Level;
+    readonly mae: number | null;
+    readonly n: number;
+  }[];
+  readonly metrics: {
+    readonly lockbox: { readonly mae: number; readonly bias: number; readonly n: number };
+    readonly null_lockbox: { readonly mae: number };
+  };
+}
+
 /** Everything the case view loads for one reach, up front. */
 export interface ReachData {
   /** Where the files live (ends with a slash). */
@@ -183,4 +258,12 @@ export interface ReachData {
   readonly checks: readonly GaugeCheck[];
   readonly maps: MapsIndex | null;
   readonly geometry: ReachGeometry | null;
+  /** Water temperature (v6): its passes, the gauge at each and its card (null: none here). */
+  readonly thermal: {
+    readonly series: readonly ThermalRow[];
+    readonly checks: readonly ThermalCheck[];
+    readonly card: TemperatureCard | null;
+  } | null;
+  /** The gauge's own readings at each Sentinel-2 pass (v6). */
+  readonly context: readonly ContextReading[];
 }

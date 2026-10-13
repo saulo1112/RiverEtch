@@ -316,7 +316,9 @@
     "top . side"
     ". . ."
     "timeline timeline timeline";
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  /* The top row takes what its panels need, never more than the room left by the timeline: on
+     short screens the case file and the record scroll inside instead. */
+  grid-template-rows: minmax(0, auto) minmax(0, 1fr) auto;
   grid-template-columns: minmax(0, 352px) minmax(0, 1fr) auto;
   gap: 16px;
   padding: var(--pad-y) var(--pad-x) calc(var(--pad-y) + 14px);
@@ -383,6 +385,7 @@
   grid-area: top;
   gap: 12px;
   align-items: flex-start;
+  min-height: 0;
 }
 
 .case-top__back {
@@ -393,7 +396,9 @@
 
 .case-file {
   align-self: stretch;
+  min-height: 0;
   padding: 18px 20px 16px;
+  overflow-y: auto;
   border-radius: 18px;
 }
 
@@ -611,6 +616,54 @@
   text-decoration: underline;
 }
 
+/* Water temperature from Landsat (v6): one line under the turbidity, with its level. */
+.case-file__thermal {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+}
+
+.case-file__thermal .case-file__metric {
+  margin-top: 0;
+}
+
+.case-file__thermal-value {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+  margin: 4px 0 0;
+  color: var(--text-2);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+.case-file__thermal-value strong {
+  color: var(--text-1);
+  font-size: 24px;
+  font-weight: 620;
+  letter-spacing: -0.02em;
+}
+
+.case-file__thermal-value .case-chip {
+  align-self: center;
+  height: 20px;
+  margin-left: auto;
+  padding-inline: 8px;
+  font-size: 11px;
+}
+
+.case-file__thermal-note {
+  margin: 4px 0 0;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.case-file__thermal-note strong {
+  color: var(--text-1);
+  font-weight: 600;
+}
+
 .case-legend {
   --i: 1;
   --from: 16px 0;
@@ -634,6 +687,12 @@
   margin: 0;
   font-size: 13px;
   font-weight: 560;
+}
+
+.case-record__caption {
+  margin: 2px 0 0;
+  color: var(--text-3);
+  font-size: 11.5px;
 }
 
 .case-record__rows {
@@ -904,6 +963,18 @@
 
 .case-timeline__key--gauge {
   border: 1.5px solid #f5b942;
+}
+
+.case-timeline__key--thermal {
+  background: #f4f8ff;
+  box-shadow: 0 0 0 2px rgb(251 113 133 / 0.5);
+}
+
+.case-timeline__key--cursor {
+  width: 1px;
+  height: 11px;
+  border-radius: 0;
+  background: repeating-linear-gradient(180deg, rgb(240 246 255 / 0.7) 0 2px, transparent 2px 4px);
 }
 
 .case-timeline__key--none {
@@ -1605,6 +1676,16 @@
   fill: #f5b942;
 }
 
+/* Water temperature: the same marks in a warm hue. */
+.case-series__interval--thermal {
+  stroke: rgb(251 113 133 / 0.62);
+}
+
+.case-series__dot--thermal[data-selected="true"] {
+  fill: #fb7185;
+  filter: drop-shadow(0 0 6px rgb(251 113 133 / 0.85));
+}
+
 .case-series__none {
   fill: none;
   stroke: rgb(150 162 186 / 0.75);
@@ -1635,6 +1716,7 @@
   margin: 0;
   padding: 8px 11px;
   border-radius: 10px;
+  background: rgb(9 15 30 / 0.94);
   pointer-events: none;
   translate: 14px -50%;
 }
@@ -1708,7 +1790,8 @@
 
 .case-pass {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr) minmax(0, 1.1fr);
   gap: 18px;
   height: 100%;
 }
@@ -1783,6 +1866,65 @@
   margin: 4px 0 0;
   color: var(--text-3);
   font-size: 11px;
+}
+
+/* What the USGS gauge measured at the pass (its values, not the satellite's). */
+.case-pass__gauge {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.case-pass__gauge-title {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin: 0;
+  color: var(--text-3);
+  font-size: 11.5px;
+}
+
+.case-pass__readings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 16px;
+  margin: 6px 0 0;
+}
+
+.case-pass__readings div {
+  display: flex;
+  flex-direction: column;
+  padding: 3px 0 4px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.case-pass__readings dt {
+  overflow: hidden;
+  color: var(--text-3);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-pass__readings dd {
+  margin: 1px 0 0;
+  color: var(--text-1);
+  font-size: 14px;
+  font-weight: 560;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.case-pass__readings dd span {
+  color: var(--text-3);
+  font-size: 11.5px;
+  font-weight: 450;
+}
+
+.case-pass__gauge-note {
+  margin: 6px 0 0;
+  color: var(--text-3);
+  font-size: 11px;
+  line-height: 1.4;
 }
 
 .case-legend__photo {
@@ -2050,9 +2192,9 @@
   }
 }
 
-/* Landscape screens up to 860 px tall: compact case file, record and a shorter timeline, so the
+/* Landscape screens up to 920 px tall: compact case file, record and a shorter timeline, so the
    columns fit the height. */
-@media (min-width: 761px) and (max-height: 860px) {
+@media (min-width: 761px) and (max-height: 920px) {
   .case-view__panels {
     gap: 12px;
   }
@@ -2084,6 +2226,11 @@
 
   .case-record__hint {
     display: none;
+  }
+
+  .case-file__thermal {
+    margin-top: 10px;
+    padding-top: 8px;
   }
 
   .case-timeline {
@@ -2206,6 +2353,15 @@
 
   .case-timeline__body {
     height: 100px;
+  }
+
+  .case-file__thermal-note {
+    display: none;
+  }
+
+  .case-pass {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
   }
 
   .case-view__attribution {

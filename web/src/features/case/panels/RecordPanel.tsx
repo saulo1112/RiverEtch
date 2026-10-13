@@ -2,9 +2,15 @@ import { Check, Download, ShieldCheck, X } from "lucide-react";
 import { useEffect, useId, useState, type ReactNode } from "react";
 
 import { loadText } from "../../reaches/data.ts";
-import type { ObservationRecord, ReachData, SeriesRow } from "../../reaches/types.ts";
+import type {
+  ObservationRecord,
+  ReachData,
+  SeriesRow,
+  ThermalRecord,
+  ThermalRow,
+} from "../../reaches/types.ts";
 import { verifyRecord, type Verification } from "../../reaches/verify.ts";
-import { CASE_COPY } from "../content.ts";
+import { CASE_COPY, formatDate, landsatName } from "../content.ts";
 import { VerifyDialog } from "./VerifyDialog.tsx";
 
 /** Props of {@link RecordPanel}. */
@@ -13,6 +19,8 @@ export interface RecordPanelProps {
   readonly reach: ReachData;
   /** The selected pass (null before the series loads). */
   readonly row: SeriesRow | null;
+  /** A water-temperature pass to show instead (the temperature tab; null: the pass's record). */
+  readonly thermal?: ThermalRow | null;
 }
 
 /** The repository the records' code commits belong to. */
@@ -24,6 +32,44 @@ type CheckState =
   | { readonly state: "running"; readonly file: string }
   | { readonly state: "done"; readonly file: string; readonly result: Verification }
   | { readonly state: "failed"; readonly file: string };
+
+// The record shown: its file, the ledger and card it is checked against (paths in the reach's
+// folder) and a caption naming it.
+interface Source {
+  readonly file: string;
+  readonly ledger: string;
+  readonly card: string | undefined;
+  readonly caption: string;
+}
+
+function sourceOf(
+  reach: ReachData,
+  row: SeriesRow | null,
+  thermal: ThermalRow | null,
+): Source | null {
+  const { record: copy } = CASE_COPY;
+  if (thermal !== null) {
+    const date = formatDate(thermal.date, true);
+    return {
+      file: `thermal/${thermal.file}`,
+      ledger: "thermal/ledger.jsonl",
+      card: reach.info.cards.water_temperature,
+      caption: `${landsatName(thermal.platform)} · ${copy.ofThermal} · ${date}`,
+    };
+  }
+  return row === null
+    ? null
+    : {
+        file: row.file,
+        ledger: "ledger.jsonl",
+        card: reach.info.cards.turbidity,
+        caption: `${copy.ofPass} · ${formatDate(row.date, true)}`,
+      };
+}
+
+function isThermal(record: ObservationRecord | ThermalRecord): record is ThermalRecord {
+  return "kind" in record;
+}
 
 function short(hash: string, size = 12): string {
   return hash.length > size ? `${hash.slice(0, size)}…` : hash;
@@ -43,21 +89,26 @@ function Line({ ok, children }: { readonly ok: boolean; readonly children: React
 }
 
 /**
- * Right panel: the selected pass's record (its scene, Sentinel-2 images, processing, code, model
+ * Right panel: the selected pass's record (its scene, satellite images, processing, code, model
  * card and seal) and "Verify this record", which recomputes its SHA-256 in the browser and checks
- * it against the ledger and the model card. "Alter one value first" changes a number in memory to
- * show a tampered record failing.
+ * it against the ledger and the model card. On the temperature tab it shows the selected Landsat
+ * pass's water-temperature record, checked against its own ledger and card. "Alter one value
+ * first" changes a number in memory to show a tampered record failing.
  *
  * @returns The record panel.
  */
-export function RecordPanel({ reach, row }: RecordPanelProps) {
+export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
   const { record: copy } = CASE_COPY;
   const alterId = useId();
-  const [record, setRecord] = useState<{ file: string; data: ObservationRecord } | null>(null);
+  const [record, setRecord] = useState<{
+    file: string;
+    data: ObservationRecord | ThermalRecord;
+  } | null>(null);
   const [alter, setAlter] = useState(false);
   const [stored, setCheck] = useState<CheckState>({ state: "idle" });
   const [proof, setProof] = useState<Verification | null>(null);
-  const file = row?.file ?? null;
+  const source = sourceOf(reach, row, thermal);
+  const file = source?.file ?? null;
   const check: CheckState =
     stored.state !== "idle" && stored.file === file ? stored : { state: "idle" };
 
@@ -69,7 +120,7 @@ export function RecordPanel({ reach, row }: RecordPanelProps) {
     loadText(reach.base, file)
       .then((text) => {
         if (live) {
-          setRecord({ file, data: JSON.parse(text) as ObservationRecord });
+          setRecord({ file, data: JSON.parse(text) as ObservationRecord | ThermalRecord });
         }
       })
       .catch(() => {
@@ -83,44 +134,54 @@ export function RecordPanel({ reach, row }: RecordPanelProps) {
   }, [reach.base, file]);
 
   const verify = async () => {
-    if (file === null) {
+    if (source === null) {
       return;
     }
-    setCheck({ state: "running", file });
+    const { file: path, ledger: ledgerPath, card: cardPath } = source;
+    setCheck({ state: "running", file: path });
     try {
-      const cardPath = reach.info.cards.turbidity;
       const [recordText, ledger, card] = await Promise.all([
-        loadText(reach.base, file),
-        loadText(reach.base, "ledger.jsonl"),
+        loadText(reach.base, path),
+        loadText(reach.base, ledgerPath),
         cardPath === undefined ? Promise.resolve(null) : loadText(reach.base, cardPath),
       ]);
       const result = await verifyRecord(recordText, ledger, card, alter);
-      setCheck({ state: "done", file, result });
+      setCheck({ state: "done", file: path, result });
       setProof(result);
     } catch {
-      setCheck({ state: "failed", file });
+      setCheck({ state: "failed", file: path });
     }
   };
 
   const data = record !== null && record.file === file ? record.data : null;
-  const estimate = data?.estimates[0];
+  const estimate = data === null ? undefined : isThermal(data) ? data.estimate : data.estimates[0];
   const rows =
     data === null
       ? []
       : [
           { label: copy.scene, value: data.sceneId.split(":").at(-1) ?? data.sceneId },
           {
-            label: copy.images,
+            label: isThermal(data) ? copy.landsatImages : copy.images,
             value: data.provenance.stacItems.map((item) => (
               <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer">
                 {item.id}
               </a>
             )),
           },
-          {
-            label: copy.processing,
-            value: `Sen2Cor L2A · baseline ${data.provenance.processingBaseline.join(", ")}`,
-          },
+          isThermal(data)
+            ? { label: copy.processing, value: copy.thermalProcessing }
+            : {
+                label: copy.processing,
+                value: `Sen2Cor L2A · baseline ${data.provenance.processingBaseline.join(", ")}`,
+              },
+          ...(isThermal(data)
+            ? [
+                {
+                  label: copy.window,
+                  value: `${String(data.window.waterPixels)} ${copy.waterPixels} · ${String(data.window.surfaceTemperatureK)} K`,
+                },
+              ]
+            : []),
           {
             label: copy.code,
             value: (
@@ -149,6 +210,7 @@ export function RecordPanel({ reach, row }: RecordPanelProps) {
       <h2 className="case-record__title" id="case-record-title">
         {copy.title}
       </h2>
+      {source === null ? null : <p className="case-record__caption">{source.caption}</p>}
       <label className="case-record__alter" htmlFor={alterId}>
         <input
           id={alterId}

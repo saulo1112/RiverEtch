@@ -19,6 +19,7 @@ import type { ReachCase } from "../reaches/catalog.ts";
 import { ndtiDomain } from "../reaches/colorize.ts";
 import {
   defaultScene,
+  defaultThermal,
   mapFile,
   ndtiMedians,
   photoFile,
@@ -232,9 +233,14 @@ export function CaseView({
   const [compareWith, setCompareWith] = useState<number | null>(null);
   const [split, setSplit] = useState(0.5);
   const [tab, setTab] = useState<BottomTab>("series");
+  const [thermalSelected, setThermalSelected] = useState(() =>
+    defaultThermal(reach.thermal?.series ?? []),
+  );
   const [probe, setProbe] = useState<number | null>(null);
   const domain = useMemo(() => ndtiDomain(ndtiMedians(reach.series)), [reach.series]);
   const row = reach.series[selected] ?? null;
+  const thermalRow =
+    thermalSelected === null ? null : (reach.thermal?.series[thermalSelected] ?? null);
   const file = row === null ? null : mapFile(reach, row);
   const photo = row === null ? null : photoFile(reach, row);
 
@@ -421,9 +427,10 @@ export function CaseView({
     };
   }, [playing, reach.series.length]);
 
-  // Compare: a synchronised copy of the map, right of the split, showing the other pass.
+  // Compare: a synchronised copy of the map, right of the split, showing the other pass. It closes
+  // when the way back starts, so the flight out shows one map.
   const compareHandle = useRef<CompareHandle | null>(null);
-  const comparing = compareWith !== null && mapStatus === "ready";
+  const comparing = compareWith !== null && mapStatus === "ready" && exit === null;
   useEffect(() => {
     const element = compareRef.current;
     const handle = handleRef.current;
@@ -635,6 +642,7 @@ export function CaseView({
           reachCase={reachCase}
           reach={reach}
           row={row}
+          thermal={thermalRow}
           headingRef={headingRef}
           onBack={onBack}
         />
@@ -659,7 +667,7 @@ export function CaseView({
             <WalletControl variant="corner" />
           </div>
           <Legend mode={mode} />
-          <RecordPanel reach={reach} row={row} />
+          <RecordPanel reach={reach} row={row} thermal={tab === "thermal" ? thermalRow : null} />
         </div>
         <MapControls
           bearing={camera.bearing}
@@ -678,6 +686,8 @@ export function CaseView({
           selected={selected}
           compared={compareWith}
           onSelect={select}
+          thermalSelected={thermalSelected}
+          onThermalSelect={setThermalSelected}
           tab={tab}
           onTab={setTab}
           playing={playing}
