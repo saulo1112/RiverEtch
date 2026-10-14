@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "kind": "water_temperature",
+  "reachId": "platte-louisville",
+  "date": "2026-01-06",
+  "datetimeUtc": "2026-01-06T17:06:19+00:00",
+  "sceneId": "platte-louisville:landsat-9_2026-01-06_R028",
+  "platform": "landsat-9",
+  "window": {
+    "pixels": 109,
+    "waterPixels": 107,
+    "surfaceTemperatureK": 274.51
+  },
+  "estimate": {
+    "target": "water_temperature",
+    "unit": "°C",
+    "level": "estimated",
+    "value": 1.36,
+    "interval": {
+      "low": -1.43,
+      "high": 4.15,
+      "coverage": 0.9,
+      "method": "split_conformal_absolute"
+    },
+    "modelId": "W1:water_temperature:core:platte-louisville",
+    "modelVersion": "1",
+    "modelCardSha256": "d563bb7e4283205b61f27c5a1c37c112dc2051eef5c64499c58128aab4962c78",
+    "basis": "preregistered_lockbox_site"
+  },
+  "provenance": {
+    "collection": "landsat-c2-l2",
+    "stacItems": [
+      {
+        "id": "LC09_L2SP_028031_20260106_02_T1",
+        "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC09_L2SP_028031_20260106_02_T1"
+      },
+      {
+        "id": "LC09_L2SP_028032_20260106_02_T1",
+        "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC09_L2SP_028032_20260106_02_T1"
+      }
+    ],
+    "codeCommit": "5e2a9ad944198fdd8e8dc6664eabfe615f106df6",
+    "processingParamsSha256": "ab4acf3163454fe0e08fb676dbf4ccfecb8d08d1fbc97153a8123f0765f67507"
+  },
+  "recordSha256": "8e0f7c32084eebe7e89394b9ee0468d7689c63e956bdf1fefa9bafb58873b894"
+}
