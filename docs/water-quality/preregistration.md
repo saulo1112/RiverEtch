@@ -1104,6 +1104,140 @@ rule with the approval labelled. Written beside the records (`context.csv`), nev
   nitrate, conductance, pH or chlorophyll; no temperature at Belle Chasse; no variable that misses
   every level is shown with a unit.
 
+## v7: discharge at the Platte from its water surface (2026-10-13, before computing any of it)
+
+After v6 the product shows two variables: turbidity at both demo reaches and water temperature at
+the Platte. The project owner asked whether a third can be added. Of the candidates checked (below),
+only one is both visible from orbit and measured by a demo gauge: the discharge of a braided river,
+whose wetted area grows as the flow covers its sand bars.
+
+**Basis:**
+
+- at-a-station hydraulic geometry: width grows as a power of discharge (Leopold & Maddock 1953,
+  USGS Professional Paper 252);
+- discharge from satellite water extent on braided rivers (Smith et al. 1996, _Water Resources
+  Research_ 32(7); Smith & Pavelsky 2008, _Water Resources Research_ 44);
+- MNDWI for open water, including turbid water (Xu 2006, _International Journal of Remote
+  Sensing_ 27(14)).
+
+### What was seen before this section
+
+- Every v6 result.
+- **v6's rating R2 at the Platte** used ln discharge at each SSC sample's time
+  (`inputs/v6/gauge-readings.csv`, 2018-12..2026-09). Only its aggregate scores were read.
+- **The gauge's discharge at the 16 recorded 2026 passes** (`checks/context.csv`), shown in the web
+  on 2026-10-12 and 2026-10-13.
+- **USGS time-series metadata on 2026-10-13** (no value):
+  - the Platte at Louisville (06805500) has continuous discharge (00060) since 1988 and daily
+    values since 1953;
+  - no demo gauge, nor Hermann, measures chlorophyll; Hermann alone has fDOM (32295).
+- **The frozen geometry** (river mask, corridor) and, per 2026 pass, the corridor's area and its
+  usable share in the web. Both are fixed areas, not water extent.
+- **The screening's per-scene SCL water counts** inside the sub-reaches (the scene classification).
+  They were not written for the Platte and were never compared with discharge.
+
+No water extent of any scene has been compared with any discharge value.
+
+### The candidates checked, and why only this one
+
+| Candidate                              | Outcome                                                         |
+| -------------------------------------- | --------------------------------------------------------------- |
+| Discharge at the Platte (water area)   | **Evaluated here**                                              |
+| Discharge at Belle Chasse              | Not done: the river runs between levees; its width barely moves |
+| Chlorophyll                            | Not done: no gauge measures it, so it cannot be validated       |
+| Dissolved oxygen, nitrate, conductance | Not done: not optically active                                  |
+| fDOM                                   | Not done: Hermann only; sediment masks its signal               |
+
+### Area of interest (fixed here)
+
+- **The active channel:** the pixels of the frozen corridor (between the anchors, the 20 m site
+  grid) whose SCL water frequency in the geometry period (2022–2025) is at least 0.05, kept only
+  where they connect (8-connectivity) to the frozen river mask.
+- This keeps the sand bars the river covers at high flow, and drops the sand-pit lakes that line the
+  valley but do not connect to the channel.
+- The water frequency used is SCL classes only. It holds no discharge, so the area of interest
+  carries no information on the target.
+
+### Data
+
+- **Scenes:** every Earth Search L2A acquisition 2018-12-01..2026-10-10 with item cloud ≤ 70 %.
+- **Clear rule:** at least 95 % of the area of interest's pixels have data and are not in the
+  invalid SCL classes (1, 3, 8, 9, 10, 11: saturated, cloud shadow, cloud, cirrus, snow). A scene
+  that fails is skipped, never filled in.
+- **SCL first:** SCL is read first; B03 and B11 are read only for the scenes that pass.
+- **Water, two ways (each on the 20 m grid, over the clear pixels):**
+  - SCL class 6;
+  - MNDWI = (B03 − B11) / (B03 + B11) > 0, with B03 averaged to 20 m. The threshold is fixed at 0
+    and is not tuned.
+- **Feature:** the water fraction f = water pixels / clear pixels of the area of interest.
+- **Pairs:** the gauge's discharge (00060) at the overpass, by the overpass rule (median of the
+  15-minute values within ±30 min, else the nearest within ±60 min). Any value carrying a qualifier
+  (ice-affected, estimated, equipment) is excluded. Training and the locked test use approved
+  values only; ft³/s are converted to m³/s.
+
+### Candidates
+
+| Id                | Model                                                                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **Q0** (the null) | The gauge's day-of-year climatology: the median daily discharge (00060, statistic 00003) of the training years within ±15 days |
+| **Q1**            | ln Q = a + b · ln f, with f from SCL water; OLS with Duan's smearing factor                                                    |
+| **Q2**            | The same power law, with f from MNDWI                                                                                          |
+
+- **Simplest first:** Q1, then Q2 (SCL needs no extra band).
+- **Abstention:** when f lies outside the range of the training pairs' f, the estimate abstains
+  ("outside the fitted range"). There is no extrapolation.
+
+### Selection, locked test and the card
+
+- **Training:** hydrological years 2019–2023 (2018-12-01..2023-11-30).
+- **Selection:** leave-one-hydrological-year-out MdSA in the training years. Within 5 points the
+  simpler wins.
+- **Locked test:** hydrological years 2024–2025 (2023-12-01..2025-11-30), scored once.
+- **The card:** the winner fitted on the training years, with no refit.
+- **Prospective check (report-only):** 2025-12-01 onwards, against approved or provisional values,
+  labelled. It holds the 2026 passes whose discharge was already seen, so it never enters a level.
+- **Metrics:** MdSA, SSPB and Spearman ρ (95 % lower bound by a block bootstrap over hydrological
+  years), as for turbidity.
+- **Intervals:** split conformal on the inner leave-one-year-out log residuals, 90 %: the estimate
+  ×/÷ exp(q₉₀ of |log residual|).
+- **Report-only:** the locked test's error by tercile of the gauge's discharge, and the share of
+  scenes the clear rule skipped by the same terciles (cloud-flagged turbid water can bias which
+  flows are seen).
+
+### Levels (`preregistered_lockbox_site`, one overall level)
+
+The thresholds are stricter than turbidity's: the gauge itself measures discharge within about 10 %,
+so an estimate has to be well inside the river's natural spread to be worth showing.
+
+- **validated:** MdSA ≤ 30 %, |SSPB| ≤ 15 %, MdSA ≤ 0.8 × Q0's, N ≥ 20 in ≥ 2 hydrological years,
+  90 % coverage ≥ 80 %, and a median 90 % interval factor ≤ 2.0;
+- **estimated:** MdSA ≤ 45 %, |SSPB| ≤ 25 %, MdSA below Q0's, 90 % coverage ≥ 80 %, and a median
+  90 % interval factor ≤ 2.5;
+- **indicative:** Spearman ρ with a 95 % lower bound > 0.3;
+- otherwise **none**.
+
+### Records and the web (only at _estimated_ or better)
+
+- **Records:** each 2026 Sentinel-2 pass that passes the clear rule gets a sealed discharge record.
+  It has its own ledger and the same seal and chain rules as the water-temperature records. It holds
+  the water fraction, the estimate in m³/s with its interval, and the card's hash.
+- **The web:** a discharge tab beside the gauge's own discharge at each pass.
+- **Below _estimated_:** the result is reported and nothing is shown. The water area is not shown on
+  its own either.
+
+### Attempts, budgets and what will not be done
+
+- **Attempts:** 2 candidates (Q1, Q2) and the null, one site. The locked test is scored once.
+- **Budgets:**
+  - ≤ 6 GB of estimated network (SCL for every scene; B03 and B11 only for those that pass);
+  - the fetch stops under 20 GB of free disk;
+  - one day of computing.
+- **Not done:**
+  - no discharge from the gauge's own stage (that is the gauge's rating, not the satellite);
+  - no other threshold, area of interest or water index after results are seen;
+  - no discharge at Belle Chasse;
+  - no change to the turbidity or water-temperature cards.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.
