@@ -41,8 +41,8 @@ Rules: imperative mood ("add", not "added"), lower-case summary, no trailing per
 72 characters. Mark breaking changes with `!` after the type/scope and a `BREAKING CHANGE:` footer.
 
 ```text
-feat(circuits): add permit compliance circuit for daily turbidity readings
-fix(web): show the connected chain before submitting a proof
+feat(pipeline): seal water-temperature records with their own ledger
+fix(web): keep the case view alive when leaving compare mode
 docs: explain the trusted setup assumptions
 build(deps): bump hardhat to 3.19
 ```

@@ -1,167 +1,155 @@
-# Climate Change IEEE
+# TerraChain
 
-Mining and heavy rainfall can both turn a Colombian river brown, but they mean very different
-things. This project watches rivers from space: it uses free Sentinel-2 satellite imagery to detect
-unusual turbidity (sediment-laden, cloudy water) and checks every anomaly against rainfall records,
-to tell storm runoff apart from other likely causes such as mining discharges. Mining operations,
-in turn, can prove on the Ethereum blockchain that their discharges stayed within their
-environmental permit, using a zero-knowledge proof: anyone can verify that the permit was
-respected, while the company's confidential operational data is never revealed.
+**Satellite water-quality estimates, validated against river gauges, with a record nobody can
+quietly rewrite.**
 
-Built for the IEEE ClimateChain Global Hackathon (October 5–25, 2026).
+TerraChain reads rivers from free satellite imagery (Sentinel-2 and Landsat). It turns each clear
+pass into water-quality values with a stated error. Every value was tested once, on years its model
+never saw, against a USGS gauge. Each pass is sealed as a record (the SHA-256 of its content) and
+chained in an append-only ledger, so anyone can recompute it from public data and see that it has not
+changed.
 
-## Status
+Built for the IEEE ClimateChain Global Hackathon (October 5–25, 2026), Track 4: climate data and
+monitoring.
 
-**Hackathon work in progress. As of 2026-10-05, this repository contains scaffolding only:**
-tooling, CI, a toolchain-demo circuit, a placeholder contract and a placeholder UI. No project
-feature is implemented yet. "Climate Change IEEE" is a working title.
+## Who it is for
 
-## Architecture overview
+A water-quality analyst at an environmental agency. They need an independent estimate they can cite,
+and they need to show it was not adjusted after the fact. The gauge is the referee: TerraChain
+publishes a value only where a gauge validated its model. Every record says which model card
+produced it.
 
-The system has two layers with deliberately different properties. Separating them is the core
-design decision of the project.
+## What it measures today
 
-|                         | Public satellite-detection layer                                      | Private ZK-compliance layer                                  |
-| ----------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------ |
-| **Question it answers** | Did the river's turbidity behave abnormally, and did it rain heavily? | Did this operator stay within its discharge permit?          |
-| **Inputs**              | Open data: Sentinel-2 imagery, rainfall records                       | Confidential: the operator's own discharge measurements      |
-| **Who computes**        | Anyone (open code + open data)                                        | The operator, in their own browser                           |
-| **What is published**   | Anomaly events and the evidence behind them                           | Only a proof and a commitment, never the measurements        |
-| **Why it is trusted**   | Reproducibility: anyone can re-run the pipeline                       | Cryptography: a Groth16 proof checked by a Solidity verifier |
+Every error is out of sample: a locked test (December 2023 to September 2026) that training and
+model selection never saw, scored once. Each error sits next to its baseline, the error a user would
+get without the satellite.
 
-**Public layer: transparency.** The Python pipeline (`pipeline/`) pulls Sentinel-2 imagery
-through Sentinel Hub (Copernicus Data Space Ecosystem), estimates turbidity for river reaches,
-flags anomalies against each reach's normal behaviour, and correlates them with extreme-rainfall
-events. Nothing is secret, so the results are credible because anyone can reproduce them.
+| Variable, reach                              | Locked-test error            | Baseline (no satellite)         | Level     |
+| -------------------------------------------- | ---------------------------- | ------------------------------- | --------- |
+| Turbidity, Mississippi at Belle Chasse (LA)  | **17.8 %** median, 57 passes | 113.7 % (median of past values) | validated |
+| Turbidity, Platte at Louisville (NE)         | **20.3 %** median, 54 passes | 66.9 % (median of past values)  | validated |
+| Water temperature, Platte at Louisville (NE) | **1.28 °C** mean, 24 passes  | 2.51 °C (day-of-year average)   | estimated |
+| Suspended sediment, both reaches             | too few samples, or biased   | —                               | not shown |
 
-**Private layer: confidentiality with verifiability.** Operating data of a mine is commercially
-sensitive, so asking companies to publish it does not work. Instead, the operator proves a
-statement about that data with a zero-knowledge circuit (`contracts/circuits/`), for example
-"every discharge reading in this period was below my permit limit". The proof is generated in the
-browser and verified on-chain (Sepolia) by a contract generated from the circuit; only the result
-and a commitment to the data become public.
+- **The two reaches are the best two of ten rivers** validated with the same protocol. The honest
+  summary of the method is the median over the nine evaluated: **33.1 %**. Turbid rivers do best;
+  clear, tidal rivers do worst. Every river's result is in the
+  [report](docs/water-quality/report.md).
+- **In progress:** discharge, specific conductance and dissolved oxygen at the Platte, and water
+  temperature at Belle Chasse. They are preregistered as v7 and v7.1, and none is computed yet.
+  They are shown only if they reach _estimated_.
 
-**How they meet.** Both layers are indexed by place and time. An anomaly downstream of a site can be
-compared with that site's compliance proof for the same period and with the rainfall record: a
-spike during a storm with a valid compliance proof reads very differently from a spike in dry
-weather with no proof.
+## How it works
 
-**Trust boundary.** A zero-knowledge proof shows that the operator's data satisfies the permit; it
-cannot show that the data is truthful. Data authenticity (for example, readings signed by certified
-sensors) is an open design question, and the independent satellite layer is the external check.
+1. **Observe.** At every clear Sentinel-2 pass, each water pixel of the reach gets its NDTI, a
+   relative turbidity index. Clouds, glint and the banks are masked out.
+2. **Estimate.** At the gauge's window, a model card turns the pass into a value with a 90 %
+   interval: turbidity in FNU from Sentinel-2, water temperature in °C from Landsat's thermal band.
+   A value outside the card's training range abstains and says why.
+3. **Seal.** Each pass becomes a record: the SHA-256 of its canonical JSON. The record names its
+   model card's hash and the code commit that produced it. Records are chained in a ledger, where
+   each line names the hash of the line before.
+4. **Verify.** The web app recomputes a record's seal in the browser, walks the ledger chain and
+   checks the model card. Changing a single digit breaks the seal.
+5. **Check.** After each run, the estimates are compared with the gauge's own readings
+   (report-only). That shows whether the error holds on new data.
 
-```mermaid
-flowchart LR
-  subgraph PUBLIC["Public layer: open data, reproducible"]
-    S2["Sentinel-2 imagery"] --> PIPE["pipeline/ (Python)"]
-    RAIN["Rainfall records"] --> PIPE
-    PIPE --> ANOM["Turbidity anomalies + rainfall correlation"]
-  end
-  subgraph PRIVATE["Private layer: zero-knowledge"]
-    DATA["Operator discharge data (stays private)"] --> PROVER["circom circuit + snarkjs prover (browser)"]
-    PROVER --> PROOF["Groth16 proof"]
-  end
-  ANOM --> WEB["web/ dApp"]
-  PROOF --> WEB
-  WEB -->|"MetaMask"| CHAIN["Verifier + registry contracts (Sepolia)"]
-```
+The daily run is a scheduled task (`pipeline/scripts/reach-run.ps1`). It reads public data only.
 
-More detail: [docs/architecture.md](docs/architecture.md) (design draft),
-[docs/zk-circuits.md](docs/zk-circuits.md) (circuit pipeline and trusted setup) and
-[docs/decisions.md](docs/decisions.md) (why each tool was chosen).
+**On-chain anchoring is the next step.** The ledger is built for it (one hash per line), but nothing
+is anchored yet. The `contracts/` workspace holds a toolchain scaffold: a demo circuit and a
+placeholder contract.
+
+## Limits (read these before the numbers)
+
+- **Clouds:** about three passes in four are lost to them (72–76 % in 2026).
+- **Validated only at the gauge:** a value with a unit is published only at a validated gauge's
+  window. The per-pixel map along the reach is relative (NDTI) and not validated.
+- **The live check raises two warnings:**
+  - At Belle Chasse the error holds on new data (18.9 %), but the 90 % intervals covered 13 of 18
+    values.
+  - The Platte overestimated six provisional summer values by 1.5–2×.
+  - Both are reported, not hidden: see [The reaches in operation](docs/water-quality/report.md).
+- **Timing:** the 2026 records up to 2026-10-12 were produced in a batch after their gauge values
+  were public. What they prove is that the model card was frozen and committed first, and that the
+  pipeline reads no gauge value to make an estimate. The strictly prospective check starts with the
+  passes after the cards' commit.
+- **A seal shows a record has not changed, not that it is right.** Correctness comes from the locked
+  tests and the live check.
+- **Our own process rejected our first pitch.** TerraChain started on Colombian rivers. IDEAM's
+  point samples met too few clear scenes to validate any model, so no Colombian value is published.
+  Those rounds stay in the [preregistration](docs/water-quality/preregistration.md) with every
+  attempt counted.
+
+## Glossary
+
+| Term            | Meaning                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| NDTI            | Normalized Difference Turbidity Index, (red − green) / (red + green): relative, with no unit    |
+| FNU             | Formazin Nephelometric Units, the unit the USGS turbidity sensors report                        |
+| Median error    | MdSA, median symmetric accuracy: 100 × (exp(median of abs(ln(estimate / gauge))) − 1), in %     |
+| Locked test     | Years held out from training and selection, scored once                                         |
+| Preregistration | The rules (candidates, metrics, thresholds) written and committed before any result is computed |
+| Level           | _validated_ / _estimated_ / _indicative_: what a locked test earned; below _estimated_, no unit |
+| Model card      | The frozen model of a reach and target, with its locked-test scores; records name its SHA-256   |
+| Seal, ledger    | A record's SHA-256, and the append-only list of seals where each line names the one before      |
 
 ## Repository structure
 
 ```text
 .
-├── contracts/            npm workspace: Solidity (Hardhat 3) + circom circuits
-│   ├── src/              Solidity sources (src/generated/ holds snarkjs verifiers, not committed)
-│   ├── circuits/         circom circuits and sample inputs
-│   ├── scripts/zk/       circuit build pipeline (compile → witness → setup → verifier)
-│   ├── test/contracts/   Hardhat tests: Solidity (forge-std) and TypeScript (ethers)
-│   ├── test/circuits/    circuit constraint tests (circom_tester)
-│   └── ignition/         deployment modules
-├── web/                  npm workspace: Vite + React + wagmi + RainbowKit dApp
-├── pipeline/             Python 3.12 project (uv): satellite and climate pipeline
-├── docs/                 architecture notes and decision log
-├── .github/workflows/    CI
-└── package.json          npm workspaces root: shared lint, format and hook tooling
+├── pipeline/   Python 3.12 (uv): screening, water-quality validation (`quality`), reach records (`reach`)
+├── web/        Vite + React: the globe, the cases and the case view (map, charts, record verification)
+├── contracts/  Hardhat 3 + circom: toolchain scaffold for the on-chain layer (demo circuit, placeholder)
+├── docs/       the water-quality report and preregistration, the record schema, the decision log
+└── .github/    CI: every result is recomputed byte for byte
 ```
 
-`contracts/` and `web/` are npm workspaces. `pipeline/` is a Python project managed by
-[uv](https://docs.astral.sh/uv/) that lives in the same repository; root npm scripts wrap its
-commands. Lint, format and TypeScript settings are shared from the root.
+**Key documents:**
+
+- **Results:** [report](docs/water-quality/report.md), [preregistration](docs/water-quality/preregistration.md)
+  and [results](docs/water-quality/results/results.md).
+- **Records:** [the record schema](docs/schema/README.md) and
+  [the reach pipeline](docs/water-quality/reach/README.md).
+- **Design:** [architecture](docs/architecture.md) and [decision log](docs/decisions.md).
 
 ## Getting started
-
-These steps start from a fresh clone and are the same ones CI runs.
 
 ### Prerequisites
 
 | Tool                                                           | Version                                | Needed for                                       |
 | -------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ |
 | [Git](https://git-scm.com/)                                    | any recent                             | everything                                       |
-| [Node.js](https://nodejs.org/)                                 | 24 LTS (see `.nvmrc`; npm 11 included) | contracts, circuits, web, hooks                  |
-| [circom](https://docs.circom.io/getting-started/installation/) | 2.2.3                                  | compiling circuits and circuit tests             |
+| [Node.js](https://nodejs.org/)                                 | 24 LTS (see `.nvmrc`; npm 11 included) | web, contracts, hooks                            |
 | [uv](https://docs.astral.sh/uv/getting-started/installation/)  | 0.12 or newer                          | Python pipeline (uv installs Python 3.12 itself) |
+| [circom](https://docs.circom.io/getting-started/installation/) | 2.2.3                                  | the circuit scaffold only                        |
 
-Installing circom: download the binary for your OS from the
-[v2.2.3 release](https://github.com/iden3/circom/releases/tag/v2.2.3) and put it on your `PATH`,
-or build it with Rust:
-
-```bash
-git clone --branch v2.2.3 https://github.com/iden3/circom.git
-cargo install --path circom/circom
-circom --version   # circom compiler 2.2.3
-```
-
-### 1. Install
+### Run the web app
 
 ```bash
 git clone https://github.com/saulo1112/Climate_Change_IEEE.git
 cd Climate_Change_IEEE
 nvm use            # or any other way to run Node 24
 npm install        # installs every workspace and the Git pre-commit hook
+npm run dev        # http://localhost:5173
 ```
 
-### 2. Compile the contracts
+The app reads the reaches' committed records from `docs/water-quality/reach/*/examples/`. It needs
+no account and no wallet. `web/.env.example` lists the optional WalletConnect and Sepolia settings.
 
-```bash
-npm run zk:build   # builds every circuit and generates its Solidity verifier
-npm run compile    # compiles all contracts (including generated verifiers) and TypeChain bindings
-```
-
-`zk:build` runs the whole circuit pipeline and writes the verifier to
-`contracts/src/generated/`, so run it before `compile`. The first run downloads a Powers of Tau
-file from the public Hermez ceremony and verifies its hash; to work offline, use
-`npm run zk:build -- --local-ptau` (development only, see [docs/zk-circuits.md](docs/zk-circuits.md)).
-
-### 3. Run the circuit tests
-
-```bash
-npm run test:circuits
-```
-
-### 4. Run the contract tests
-
-```bash
-npm run test:contracts   # Solidity tests + TypeScript tests, incl. on-chain proof verification
-```
-
-### 5. Run the frontend
-
-```bash
-cp web/.env.example web/.env.local   # optional: WalletConnect id and Sepolia RPC URL
-npm run dev                          # http://localhost:5173
-```
-
-### 6. Run the pipeline
+### Reproduce the results
 
 ```bash
 cd pipeline
-uv sync                    # creates .venv with Python 3.12 and the locked dependencies
-uv run climate-pipeline
+uv sync                                                  # Python 3.12 and the locked dependencies
+uv run climate-pipeline quality run --root ..            # recompute every validation from the snapshots
+uv run climate-pipeline quality verify --root ..         # check them byte for byte against the MANIFEST
+uv run pytest tests/test_reach_examples.py               # check every committed record's seal, ledger and card
 ```
+
+`reach run`, `reach thermal` and `reach check` make new records from public data and compare them
+with the gauges. See [docs/water-quality/reach/README.md](docs/water-quality/reach/README.md).
 
 ### Run every check
 
@@ -170,33 +158,32 @@ npm run check            # format, lint, circuits, compile, types, all tests, fr
 npm run pipeline:check   # ruff format + lint, mypy --strict, pytest
 ```
 
+### The contracts scaffold
+
+```bash
+npm run zk:build         # demo circuit → Groth16 setup → Solidity verifier (see docs/zk-circuits.md)
+npm run compile          # contracts and TypeChain bindings
+npm test                 # circuit tests, then contract tests
+```
+
+Secrets for Sepolia are read from environment variables or Hardhat's encrypted keystore, never from
+committed files (`npx hardhat keystore set SEPOLIA_RPC_URL`, `SEPOLIA_PRIVATE_KEY`).
+
 ## Useful scripts
 
 Run from the repository root.
 
 | Script                          | What it does                                                                           |
 | ------------------------------- | -------------------------------------------------------------------------------------- |
-| `npm run zk:build`              | Circuit pipeline: compile → witness → Groth16 setup → Solidity verifier → sanity proof |
-| `npm run compile`               | Compile Solidity with Hardhat (also generates TypeChain bindings)                      |
-| `npm test`                      | Circuit tests, then contract tests                                                     |
 | `npm run dev` / `npm run build` | Frontend dev server / production build                                                 |
+| `npm run pipeline:check`        | Everything CI runs for the Python side                                                 |
+| `npm run check`                 | Everything CI runs for the JavaScript side                                             |
 | `npm run lint`                  | ESLint (TypeScript + TSDoc) and Solhint (Solidity + NatSpec)                           |
 | `npm run format`                | Format everything with Prettier                                                        |
 | `npm run typecheck`             | `tsc` in every workspace                                                               |
-| `npm run check`                 | Everything CI runs for the JavaScript side                                             |
-| `npm run pipeline:check`        | Everything CI runs for the Python side                                                 |
-
-## Deploying to Sepolia
-
-Not needed yet. Secrets are read lazily from environment variables or from Hardhat's encrypted
-keystore, never from committed files:
-
-```bash
-cd contracts
-npx hardhat keystore set SEPOLIA_RPC_URL
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-npx hardhat ignition deploy ignition/modules/Placeholder.ts --network sepolia
-```
+| `npm run zk:build`              | Circuit pipeline: compile → witness → Groth16 setup → Solidity verifier → sanity proof |
+| `npm run compile`               | Compile Solidity with Hardhat (also generates TypeChain bindings)                      |
+| `npm test`                      | Circuit tests, then contract tests                                                     |
 
 ## Contributing
 

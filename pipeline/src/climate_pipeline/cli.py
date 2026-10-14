@@ -5,8 +5,10 @@ docs/site-screening/method.md); ``climate-pipeline fetch-docs`` fetches public d
 provenance manifest (see docs/urra-validation/regulatory.md); ``climate-pipeline catchment-grid``
 and ``climate-pipeline validation`` run the pre-registered validation of the chosen reach (see
 docs/urra-validation/method.md); ``climate-pipeline contract`` writes the observation record's
-JSON Schema and sample records (see docs/schema/README.md). The other stages (operational
-ingestion, anomaly publication) are not implemented yet.
+JSON Schema and sample records (see docs/schema/README.md); ``climate-pipeline quality``
+recomputes the water-quality validations from their snapshots (see docs/water-quality/report.md);
+``climate-pipeline reach`` writes a reach's sealed records, its ledger and the check against its
+gauge (see docs/water-quality/reach/README.md).
 """
 
 from __future__ import annotations
