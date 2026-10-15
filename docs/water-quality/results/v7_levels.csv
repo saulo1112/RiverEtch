@@ -1,0 +1,5 @@
+site,slug,target,unit,candidate,level,lockbox_years,abstained,interval_factor90,null_mdsa,n,mdsa,sspb,rho,rho_low,coverage90,level_before_cap,half_width90,null_mae,provisional_in_lockbox,mae,bias,rmse
+USGS-06805500,platte-louisville,discharge,m³/s,Q1,none,2,5,6.2868,65.4529,47.0,110.6484,103.2054,0.3971,-0.2274,0.9787,,,,,,,
+USGS-06805500,platte-louisville,specific_conductance,µS/cm,C1,estimated,2,0,1.7844,25.4026,37.0,22.0518,-11.0685,0.0294,0.0245,0.973,,,,,,,
+USGS-06805500,platte-louisville,dissolved_oxygen,mg/L,O2,none,2,,,,16.0,,,0.2294,-0.05,0.75,none,1.4083,1.3421,0,1.0156,-0.6474,1.1928
+USGS-07374000,mississippi-belle-chasse,water_temperature,°C,W2,estimated,2,,,,37.0,,,0.9768,0.9681,0.8919,validated,1.7644,1.4144,40,0.8583,-0.3288,1.2992

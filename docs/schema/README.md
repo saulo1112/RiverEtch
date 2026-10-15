@@ -147,10 +147,10 @@ records beside the observation records v2, defined in
 SHA-256 of the record's canonical JSON (keys sorted, no whitespace, the seal left out), and each
 reach's temperature ledger chains them.
 
-| Field                      | Meaning                                                                                                                |
-| -------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `sceneId`, `datetimeUtc`   | `<reachId>:<acquisition key>` of the Landsat pass, and its time                                                        |
-| `window`                   | The gauge's core window on Landsat's 30 m pixels: its pixels, the clear-water ones, the median surface temperature (K) |
-| `estimate`                 | `water_temperature` in °C with its `level`; for `validated` or `estimated`, a `value` and its 90 % `interval`          |
-| `estimate.model*`, `basis` | The temperature card it came from (its hash) and the basis of its level                                                |
-| `provenance`               | The Landsat items, the code commit and the SHA-256 of the settings                                                     |
+| Field                      | Meaning                                                                                                                                                          |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sceneId`, `datetimeUtc`   | `<reachId>:<acquisition key>` of the Landsat pass, and its time                                                                                                  |
+| `window`                   | The gauge's core window on Landsat's 30 m pixels: its pixels, the clear-water ones, the median surface temperature (K)                                           |
+| `estimate`                 | `water_temperature` in °C with its `level`; for `validated` or `estimated`, a `value` and its 90 % `interval`                                                    |
+| `estimate.model*`, `basis` | The temperature card it came from (its hash) and the basis of its level (`preregistered_lockbox_upstream_site`: tested at another gauge of the same river, v7.1) |
+| `provenance`               | The Landsat items, the code commit and the SHA-256 of the settings                                                                                               |

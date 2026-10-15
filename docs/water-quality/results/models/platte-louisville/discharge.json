@@ -1,0 +1,54 @@
+{
+  "activeChannelSha256": "b2caffbb122a228ecc00d7fe44c0abdc0d4e9745fb986ab2e7f6e4a41122ff22",
+  "basis": "preregistered_lockbox_site",
+  "candidate": "Q1",
+  "coefficients": [
+    5.4871646378,
+    1.2116673533
+  ],
+  "feature": "water_fraction_scl",
+  "fittedRange": {
+    "max": 0.98202744,
+    "min": 0.64497649
+  },
+  "harmonic": false,
+  "intervalFactor90": 6.286834,
+  "kind": "water-surface-power-law",
+  "levels": [
+    {
+      "interval_factor90": 6.2868,
+      "level": "none",
+      "mdsa": 110.6484,
+      "n": 47.0,
+      "predicted_range": "all"
+    }
+  ],
+  "metrics": {
+    "lockbox": {
+      "coverage90": 0.9787,
+      "mdsa": 110.6484,
+      "n": 47.0,
+      "rho": 0.3971,
+      "rho_low": -0.2274,
+      "sspb": 103.2054
+    },
+    "null_lockbox": {
+      "coverage90": null,
+      "mdsa": 65.4529,
+      "n": 52.0,
+      "rho": 0.4604,
+      "rho_low": 0.0157,
+      "sspb": 7.3927
+    }
+  },
+  "modelId": "Q1:discharge:platte-louisville",
+  "parametersHash": "470b29a69e13e13da5bbb7ee8f282ad0ada8a78ae62f9c971281906e5a4f76a9",
+  "site": "USGS-06805500",
+  "smearing": 1.5717643515,
+  "target": "discharge",
+  "trainingPairs": {
+    "site": 112
+  },
+  "unit": "m³/s",
+  "version": "1"
+}

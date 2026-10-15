@@ -1544,3 +1544,27 @@ Pairs use approved values only, except at Baton Rouge (see C).
     - **What happened:** the cap stopped the first run during Connecticut (197 clear scenes). The
       rerun at 40 GB completed every site (3,481 clear scenes, 32.5 GB estimated, nothing
       incomplete).
+
+12. **2026-10-14, found while writing v7, after v6's results were seen: v6's temperature level
+    asked for the pair count at every level.**
+    - **What was preregistered (v6, C):** N ≥ 20 in ≥ 2 hydrological years is a condition of
+      _validated_ only. _Estimated_ asks for the MAE, the bias, the margin over W0, the coverage and
+      the half-width.
+    - **What the code did:** `temperature_level` applied N ≥ 20 in ≥ 2 years to both levels.
+    - **The fix:** the count applies to _validated_ only, as written. v7 and v7.1 use the same rule.
+    - **What changes:** nothing. The Platte's locked test held 24 pairs in 3 years, so its level
+      (_estimated_) is the same under both rules, and every v6 output stays byte for byte.
+
+13. **2026-10-14, during v7's fetch, before any v7 value was examined: the network meter.**
+    - **What was preregistered (v7, A):** ≤ 6 GB of estimated network for the water surface: SCL for
+      every scene, B03 and B11 only for clear ones.
+    - **What the first run showed:** the meter stopped it after 131 of 371 passes. It charged each
+      scene's SCL over the whole site grid even though 370 of the 371 passes were already cached
+      on disk, and it charged five corridor bands for the two read.
+    - **The fix:** the meter charges nothing for a cached read, and charges B03 and B11 over the
+      active channel's box (932 × 363 pixels at 20 m). It uses the same per-block costs as the
+      reach run. The cap stays 6 GB.
+    - **What does not change:** the area of interest, the clear rule, the water detections, the
+      pairs and every analysis rule.
+    - **What was seen:** the run log's counts and the meter. No water count or gauge value of the
+      first run was read. Its snapshots were overwritten by the rerun.

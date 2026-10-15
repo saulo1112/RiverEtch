@@ -462,6 +462,20 @@ class AcquisitionReader:
                     return None
         return None
 
+    def is_cached(self, acquisition: Acquisition, asset: str, grid: Grid) -> bool:
+        """Whether a read is already on disk (it costs no network).
+
+        Args:
+            acquisition: The pass.
+            asset: Logical asset name.
+            grid: Target grid.
+
+        Returns:
+            True when the cached file exists.
+        """
+        path = self._cache_path(acquisition, asset, grid)
+        return path is not None and path.exists()
+
     def _cache_path(self, acquisition: Acquisition, asset: str, grid: Grid) -> Path | None:
         if self._cache_dir is None or asset not in self._cache_assets:
             return None

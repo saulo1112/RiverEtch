@@ -21,6 +21,15 @@ def test_an_estimated_card_gives_a_value_with_its_interval() -> None:
     assert e.unit == "°C" and e.level == "estimated"
 
 
+def test_a_card_validated_upstream_abstains_outside_its_input_range() -> None:
+    card = {**CARD, "basis": "preregistered_lockbox_upstream_site",
+            "inputRange": {"min": 6.5, "max": 33.5}}  # fmt: skip
+    inside = thermal.estimate(card, 300.15)
+    assert inside.value == pytest.approx(27.0) and inside.basis == card["basis"]
+    outside = thermal.estimate(card, 278.15)  # 5 °C: colder than any training pass
+    assert outside.value is None and outside.interval is None and outside.level == "estimated"
+
+
 def test_an_indicative_card_gives_no_value() -> None:
     card = {**CARD, "levels": [{"predicted_range": "all", "level": "indicative"}]}
     e = thermal.estimate(card, 300.15)

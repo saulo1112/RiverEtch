@@ -245,5 +245,23 @@
       "candidate": "W1",
       "level": "estimated"
     }
+  },
+  "v7": {
+    "mississippi-belle-chasse/water_temperature": {
+      "candidate": "W2",
+      "level": "estimated"
+    },
+    "platte-louisville/discharge": {
+      "candidate": "Q1",
+      "level": "none"
+    },
+    "platte-louisville/dissolved_oxygen": {
+      "candidate": "O2",
+      "level": "none"
+    },
+    "platte-louisville/specific_conductance": {
+      "candidate": "C1",
+      "level": "estimated"
+    }
   }
 }

@@ -194,6 +194,31 @@ def continuous(client: httpx.Client, api: str, site: str, parameter: str, start:
     return readings_from_bodies(bodies), bodies
 
 
+def daily(client: httpx.Client, api: str, site: str, parameter: str, start: str, end: str,
+          statistic: str = "00003") -> tuple[list[Reading], list[bytes]]:  # fmt: skip
+    """Daily values of one site between two days (the daily mean by default).
+
+    Args:
+        client: HTTP client.
+        api: OGC API root.
+        site: E.g. ``USGS-06805500``.
+        parameter: E.g. ``00060``.
+        start: First day, ``YYYY-MM-DD``.
+        end: Last day, ``YYYY-MM-DD``.
+        statistic: The statistic code (``00003``: mean).
+
+    Returns:
+        One reading per day (its ``time`` is the day at midnight) and the raw page bodies.
+    """
+    params = {
+        "monitoring_location_id": site, "parameter_code": parameter, "statistic_id": statistic,
+        "f": "json", "datetime": f"{start}/{end}", "limit": "1000", "skipGeometry": "true",
+        "properties": "time,value,approval_status,qualifier",
+    }  # fmt: skip
+    _, bodies = features(client, f"{api}/collections/daily/items", params)
+    return readings_from_bodies(bodies), bodies
+
+
 def continuous_many(client: httpx.Client, api: str, site: str, parameter: str,
                     windows: Sequence[tuple[datetime, datetime]]
                     ) -> tuple[list[Reading], list[bytes]]:  # fmt: skip

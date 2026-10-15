@@ -1,0 +1,18 @@
+site,slug,target,unit,candidate,evaluation,n,mdsa,sspb,rho,rho_low,coverage90,training_pairs,lockbox_years,provisional,mae,bias,rmse
+USGS-06805500,platte-louisville,discharge,m³/s,day-of-year climatology (null),lock box,52.0,65.4529,7.3927,0.4604,0.0157,,,,,,,
+USGS-06805500,platte-louisville,discharge,m³/s,Q1,lock box,47.0,110.6484,103.2054,0.3971,-0.2274,0.9787,112,2,,,,
+USGS-06805500,platte-louisville,discharge,m³/s,Q2,"lock box (not chosen, report-only)",52.0,97.6838,89.7175,0.8114,0.7432,,112,2,,,,
+USGS-06805500,platte-louisville,discharge,m³/s,Q1,"prospective, report-only (from 2025-12-01)",13.0,118.8835,118.8835,0.3132,,1.0,,,11,,,
+USGS-06805500,platte-louisville,specific_conductance,µS/cm,day-of-year climatology (null),lock box,36.0,25.4026,-15.5011,0.0451,-0.2324,,,,,,,
+USGS-06805500,platte-louisville,specific_conductance,µS/cm,C1,lock box,37.0,22.0518,-11.0685,0.0294,0.0245,0.973,74,2,,,,
+USGS-06805500,platte-louisville,specific_conductance,µS/cm,C2,"lock box (not chosen, report-only)",37.0,20.9528,-7.2888,-0.1228,-0.218,,74,2,,,,
+USGS-06805500,platte-louisville,specific_conductance,µS/cm,C1,"prospective, report-only (from 2025-12-01)",12.0,25.5319,25.2974,0.2028,,1.0,,,6,,,
+USGS-06805500,platte-louisville,dissolved_oxygen,mg/L,O0,lock box,19.0,,,0.2205,-0.1259,,34,2,,1.3421,-1.3421,1.6042
+USGS-06805500,platte-louisville,dissolved_oxygen,mg/L,O1,"lock box (not chosen, report-only)",16.0,,,0.2294,-0.05,,34,2,,2.378,-2.378,2.6267
+USGS-06805500,platte-louisville,dissolved_oxygen,mg/L,O2,lock box,16.0,,,0.2294,-0.05,0.75,34,2,,1.0156,-0.6474,1.1928
+USGS-06805500,platte-louisville,dissolved_oxygen,mg/L,O2,"prospective, report-only (from 2025-12-01)",10.0,,,-0.3708,,0.5,,,8,1.8544,-0.9921,2.3167
+USGS-07374000,mississippi-belle-chasse,water_temperature,°C,W0,lock box,40.0,,,0.9823,0.9691,,48,2,,1.4144,-0.7851,1.6924
+USGS-07374000,mississippi-belle-chasse,water_temperature,°C,W1,"lock box (not chosen, report-only)",37.0,,,0.9768,0.9681,,48,2,,1.3579,0.9589,1.5529
+USGS-07374000,mississippi-belle-chasse,water_temperature,°C,W2,lock box,37.0,,,0.9768,0.9681,0.8919,48,2,,0.8583,-0.3288,1.2992
+USGS-07374000,mississippi-belle-chasse,water_temperature,°C,W2,"prospective, report-only (from 2025-12-01)",9.0,,,0.8667,,0.6667,,,9,2.5223,-2.1712,4.026
+USGS-07374525,mississippi-belle-chasse,water_temperature,°C,W2,"report-only: Belle Chasse's estimate against Baton Rouge's gauge, same pass",96.0,,,,,,,,,0.8963,0.3472,

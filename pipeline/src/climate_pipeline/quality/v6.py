@@ -510,12 +510,13 @@ def temperature_level(lock: Mapping[str, float], years: int, null_mae: float,
         ``validated``, ``estimated``, ``indicative`` or ``none``.
     """
     r = TEMPERATURE_COMMON
-    common = (lock["n"] >= r["min_pairs"] and years >= r["min_years"]
-              and lock["coverage90"] >= r["coverage_min"])  # fmt: skip
     for level, t in TEMPERATURE_LEVELS.items():
+        # The pair count is a condition of validated only (deviation 12).
+        counted = level != "validated" or (lock["n"] >= r["min_pairs"] and years >= r["min_years"])
         ratio_ok = (lock["mae"] <= t["null_ratio"] * null_mae if level == "validated"
                     else lock["mae"] < null_mae)  # fmt: skip
-        if (common and lock["mae"] <= t["mae"] and abs(lock["bias"]) <= t["bias"] and ratio_ok
+        if (counted and lock["coverage90"] >= r["coverage_min"] and lock["mae"] <= t["mae"]
+                and abs(lock["bias"]) <= t["bias"] and ratio_ok
                 and half_width <= t["half_width"]):  # fmt: skip
             return level
     if lock.get("rho_low", -1.0) > r["rho_low_min"]:

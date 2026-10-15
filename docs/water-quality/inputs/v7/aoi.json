@@ -1,0 +1,21 @@
+{
+  "area_km2": 7.4012,
+  "epsg": 32614,
+  "geometryPeriod": [
+    "2022-01-01",
+    "2025-12-31"
+  ],
+  "height": 707,
+  "maskSha256": "b2caffbb122a228ecc00d7fe44c0abdc0d4e9745fb986ab2e7f6e4a41122ff22",
+  "measured": 371,
+  "minClearShare": 0.95,
+  "minFrequency": 0.05,
+  "networkGbEstimated": 4.4,
+  "passes": 371,
+  "pixels": 18503,
+  "resolution": 20.0,
+  "site": "platte-louisville",
+  "width": 1201,
+  "x0": 735160.0,
+  "y0": 4553340.0
+}

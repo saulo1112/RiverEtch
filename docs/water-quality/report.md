@@ -73,6 +73,58 @@ validated under the same rules (a lock box scored once, written before any value
   training years); one pass was lost and one kept from its other tile.
 - **Attempts:** 2 ratings at each gauge and 3 temperature candidates; each lock box scored once.
 
+## Four more variables (v7 and v7.1)
+
+v7 tried discharge from the river's water surface. v7.1 tried specific conductance and dissolved
+oxygen at the Platte, and water temperature at Belle Chasse. Each was preregistered before any value
+was read, then scored once on hydrological years 2024–2025.
+
+| Variable, reach                     | Model chosen                         | Lock box                                     | Baseline (no satellite) | Level                       |
+| ----------------------------------- | ------------------------------------ | -------------------------------------------- | ----------------------- | --------------------------- |
+| **Water temperature, Belle Chasse** | W2 at Baton Rouge: a + b · ST        | **MAE 0.86 °C**, bias −0.33 °C, 37 passes    | 1.41 °C (W0)            | **estimated** (capped)      |
+| Specific conductance, the Platte    | C1: power law of the water fraction  | MdSA 22.1 %, bias −11 %, 37 passes; ρ = 0.03 | 25.4 % (day-of-year)    | estimated, **not shown**    |
+| Dissolved oxygen, the Platte        | O2: a + b · saturation at Landsat T  | MAE 1.02 mg/L, bias −0.65 mg/L, 16 passes    | 1.34 mg/L (day-of-year) | none (12 of 16 in interval) |
+| Discharge, the Platte               | Q1: power law of the SCL water share | MdSA 110.6 %, bias +103 %, 47 passes         | 65.5 % (day-of-year)    | none                        |
+
+- **Water temperature at Belle Chasse:**
+  - The Belle Chasse gauge does not measure temperature, so the model was validated at Baton Rouge,
+    the only main-stem gauge that does (about 245 km upstream).
+  - It met every threshold of _validated_, but Baton Rouge's temperatures are provisional since
+    2024, so the preregistered cap keeps it at _estimated_. Its 90 % interval is ±1.8 °C and covered
+    33 of 37 passes.
+  - Report-only: Belle Chasse's estimates against Baton Rouge's gauge on the same passes erred by
+    0.90 °C (96 passes). Belle Chasse runs about 0.35 °C warmer.
+  - **A warning:** on the 9 provisional passes after the lock box (2025-12 onwards) the model erred
+    by 2.5 °C and ran 2.2 °C cold. As with the Platte's turbidity, this does not change the level of
+    record, but it is watched.
+- **Specific conductance earned _estimated_ by the rule, and is not shown:**
+  - Its fit is nearly flat. The exponent is +0.14, the opposite sign of dilution, and the estimates
+    stay within 690–740 µS/cm.
+  - Its correlation with the gauge is 0.03. It beats the seasonal average by giving the river's
+    usual value, not by following its changes.
+  - Presenting that as a satellite measurement would mislead, so the product does not show it. This
+    is a product choice made after seeing the result, and it only withholds; the level of record
+    stands. The gauge's own conductance stays visible as context.
+- **Dissolved oxygen missed _estimated_ on its interval alone:**
+  - Its error (1.02 mg/L) and bias were within the thresholds and below the seasonal average's
+    1.34 mg/L, but its 90 % interval covered 12 of 16 passes and the rule asks 80 % (13).
+  - Pure saturation (O1, report-only) erred by 2.4 mg/L: at midday this river holds more oxygen than
+    saturation (photosynthesis), which no satellite sees.
+- **Discharge failed:**
+  - Both water detections overestimated in the lock box. The MNDWI share (report-only) tracked the
+    flow (ρ = 0.81) but read about twice the discharge, so the relation between the water surface
+    and the flow drifted between the training years and 2024–2025.
+  - By tercile of the gauge's discharge (report-only), low flows (≤ 142 m³/s) erred by 258 % and
+    high flows (> 201 m³/s) by 38 %. The clear rule skipped 42 %, 30 % and 49 % of the passes in the
+    three terciles, so it does not favour one flow.
+  - No discharge is published; the gauge's own discharge stays visible as context.
+- **Data note:** two Landsat files of path 22, row 39 (2022, in the training years) were unreadable
+  at the source in both runs. Their passes are missing.
+- **Network:** 4.4 GB estimated for the water surface (deviation 13 corrected the meter) and 0.5 GB
+  for Landsat.
+- **Attempts:** 2 candidates and a null for discharge, conductance and oxygen; 3 temperature
+  candidates. Each lock box scored once.
+
 ## Missouri at Hermann (v4)
 
 The first gauged reach, validated under the same locked-test protocol before v5:
@@ -108,6 +160,11 @@ The first gauged reach, validated under the same locked-test protocol before v5:
   at the gauge's window, from the locked-test card (`preregistered_lockbox_site`, _validated_). A
   scene whose features leave the card's training range, or whose window fails the guards, abstains
   and says why.
+- **Water temperature at both demo reaches**, from Landsat 8/9:
+  - each pass is its own sealed record, in its own ledger, with its 90 % interval;
+  - the Platte's card was validated at its gauge;
+  - Belle Chasse's was validated at Baton Rouge (`preregistered_lockbox_upstream_site`), so its
+    values are labelled that way and checked against Baton Rouge's gauge.
 - **Missouri reach** (`missouri-hermann`): the same indices, plus turbidity as a relative class (the
   tercile among the gauge window's own history), never a unit, from the locked-test card
   (`preregistered_lockbox_site`, _indicative_).

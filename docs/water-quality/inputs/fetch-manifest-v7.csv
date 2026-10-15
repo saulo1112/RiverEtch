@@ -1,0 +1,8 @@
+path,url,status,bytes,sha256,fetched_utc,note
+v7/aoi.json,derived,200,445,9e9b40bb06b21975977d397c12991295264b39acf74af974ac343167232fd5f1,2026-10-14T19:01:21+00:00,"The Platte's active channel (v7, A)"
+v7/daily.csv,raw,200,177959,20afa6f412f674cfbc1bf849ad33e4105bac335a928721116deab3b2f7706058,2026-10-14T19:01:21+00:00,"USGS daily means of the Platte gauge, training years"
+v7/gauge-readings.csv,raw,200,266853,ecdeb6818d28703902bb28b5c1a3cfb46d7f5dc8f726b3cd1d43ca1c5ac36d7e,2026-10-14T19:01:21+00:00,USGS continuous readings within 60 min of each pass
+v7/read-errors.csv,derived,200,713,0064800186e01452b00f9b4a3d6d89caabf72756041c1ed9ed7521f519b1de76,2026-10-14T19:01:21+00:00,
+v7/sites.csv,raw,200,236,b9a9faf1c6de19654b982c2912480266445020b42c81340c66323c9487acf420,2026-10-14T19:01:21+00:00,USGS monitoring-location names and datum altitudes
+v7/surface.csv,derived,200,54903,f24e7a64d1522a2aece6d8f40634d4d838e0bd95a73be43b584c67270f73aedf,2026-10-14T19:01:21+00:00,Sentinel-2 L2A water counts over the Platte's active channel
+v7/thermal-windows.csv,derived,200,53114,79364ede305fe5b074ac78f02b7fcd3d44a90c71e771cca6b459101e16f4df14,2026-10-14T19:01:21+00:00,Landsat 8/9 C2-L2 T1 at Baton Rouge's and Belle Chasse's core windows

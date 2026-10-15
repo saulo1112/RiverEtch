@@ -1,0 +1,11 @@
+site,slug,target,unit,candidate,pairs,inner_loyo_mdsa,chosen,inner_loyo_mae
+USGS-06805500,platte-louisville,discharge,m³/s,Q1,99,101.5141,true,
+USGS-06805500,platte-louisville,discharge,m³/s,Q2,99,100.273,false,
+USGS-06805500,platte-louisville,specific_conductance,µS/cm,C1,70,30.8354,true,
+USGS-06805500,platte-louisville,specific_conductance,µS/cm,C2,70,32.153,false,
+USGS-06805500,platte-louisville,dissolved_oxygen,mg/L,O0,34,,false,1.0412
+USGS-06805500,platte-louisville,dissolved_oxygen,mg/L,O1,34,,false,1.8155
+USGS-06805500,platte-louisville,dissolved_oxygen,mg/L,O2,34,,true,0.8312
+USGS-07374000,mississippi-belle-chasse,water_temperature,°C,W0,48,,false,1.2645
+USGS-07374000,mississippi-belle-chasse,water_temperature,°C,W1,48,,false,1.3315
+USGS-07374000,mississippi-belle-chasse,water_temperature,°C,W2,48,,true,0.9625
