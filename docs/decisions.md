@@ -342,3 +342,39 @@ last. Format: context → decision → consequences.
   - No SSC value is published: no river had 20 locked-test SSC pairs.
   - Each demo reach has a self-measured NDTI baseline (2019–2025), records from 2026-01-01 and the
     prospective check against its gauge after its card's commit.
+
+## D19. Direction for the submission: what the product claims, and four more variables (2026-10-14)
+
+- **Context:**
+  - An advisory review of the project (five independent perspectives, an anonymous peer review and a
+    synthesis) found these problems:
+    - the README and the architecture still pitched Colombian rivers and ZK proofs of mining
+      compliance;
+    - the product had no named user;
+    - a judge would ask why a satellite is needed where a gauge already measures;
+    - the chain in "TerraChain" did not exist yet.
+  - It also found that "sealed before the gauge publishes" would be false: USGS values are public
+    within hours, and the 2026 records were produced in a batch on 2026-10-12/13.
+  - The owner found turbidity and temperature too few for the water-quality story.
+- **Decision:**
+  - **What the product claims:** satellite water-quality estimates, validated against river gauges,
+    with a record nobody can quietly rewrite. The gauge is the referee, not the competitor.
+  - **Named user:** a water-quality analyst at an environmental agency, who needs an independent
+    estimate they can cite and must show it was not adjusted after the fact.
+  - **Documents:**
+    - the README and the architecture describe the system as built;
+    - every error is stated beside its baseline;
+    - the limits come before the numbers;
+    - the Colombian rounds become one visible sentence ("our own process rejected our first
+      pitch").
+  - **More variables (the owner's choice; the review had advised cutting further science):**
+    - v7 (discharge at the Platte, from the water surface) and v7.1 (conductance and dissolved
+      oxygen at the Platte; water temperature at Belle Chasse, validated at Baton Rouge) were
+      preregistered before any of them was computed.
+  - **Kept as is until the owner decides the on-chain layer:** `contracts/` (the demo circuit and the
+    placeholder) and the web app's wallet button.
+- **Consequences:**
+  - The README states what timing the records can show (the frozen, committed model card; no gauge
+    input to an estimate). It does not claim a commit before the gauge value.
+  - The on-chain anchoring of the ledger head is the open decision. An anchor can prove the state
+    only from its own date on.

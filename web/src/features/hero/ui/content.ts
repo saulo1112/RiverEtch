@@ -32,7 +32,7 @@ export const COPY = {
   eyebrow: ["Sentinel-2", "USGS gauges", "Sealed records"],
   title: ["See the river.", "Verify the reading."],
   subtitle:
-    "Turbidity read from Sentinel-2 on rivers where a gauge validated it, with a stated error. Every reading is sealed, so anyone can recompute it and see that it has not changed.",
+    "Turbidity and water temperature read from Sentinel-2 and Landsat on rivers where a gauge validated them, each with a stated error. Every reading is sealed, so anyone can recompute it and see that it has not changed.",
   // A button: it opens the cases screen.
   primary: { label: "Explore your cases" },
   primaryNote:
@@ -56,7 +56,7 @@ export interface Step {
 /** The three steps, in order. */
 export const STEPS: readonly Step[] = [
   { id: "observe", number: "01", label: "Observe", description: "Sentinel-2 NDTI, pixel by pixel" },
-  { id: "estimate", number: "02", label: "Estimate", description: "Turbidity in FNU, validated" },
+  { id: "estimate", number: "02", label: "Estimate", description: "Values validated by a gauge" },
   { id: "verify", number: "03", label: "Verify", description: "Sealed record, recomputable" },
 ];
 
@@ -101,7 +101,7 @@ export const HOW_IT_WORKS = {
     {
       number: "02",
       label: "Estimate",
-      text: "At the USGS gauge's window, a model turns the pass into turbidity in FNU with a 90 % interval. It was tested once, on three years it had never seen.",
+      text: "At the USGS gauge's window, a model turns the pass into a value with a 90 % interval: turbidity in FNU from Sentinel-2, water temperature in °C from Landsat. Each model was tested once, on years it had never seen.",
     },
     {
       number: "03",

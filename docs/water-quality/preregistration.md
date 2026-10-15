@@ -1238,6 +1238,147 @@ so an estimate has to be well inside the river's natural spread to be worth show
   - no discharge at Belle Chasse;
   - no change to the turbidity or water-temperature cards.
 
+## v7.1: conductance and dissolved oxygen at the Platte, temperature at Belle Chasse (2026-10-14, before computing any of it)
+
+After v7 was committed, the project owner asked for more water-quality variables. v7.1 adds three.
+Each is validated against a USGS gauge, and each is shown only if it reaches _estimated_. v7's
+discharge section stays as committed. Nothing of v7 or v7.1 has been computed.
+
+**What changed since v7's table.** v7 left conductance and dissolved oxygen out because they are not
+optically active. v7.1 does not claim the satellite sees them. Each comes through a physical link
+from something it does see:
+
+- **specific conductance** from the water surface (high flows dilute dissolved salts);
+- **dissolved oxygen** from the water temperature (oxygen solubility).
+
+The locked tests decide whether those links are strong enough at this river.
+
+### What was seen before this section
+
+Everything listed in v7, plus:
+
+- **The Platte gauge's other readings at the 16 recorded 2026 Sentinel-2 passes**
+  (`checks/context.csv`): water temperature, dissolved oxygen, specific conductance and nitrate.
+  They were shown in the web on 2026-10-12..14. Two of those passes (07-17 and 10-05) fall on a
+  Landsat day.
+- **The Platte's water temperature at its 2026 Landsat passes** (v6's prospective check).
+- **USGS metadata on 2026-10-14** (no value read):
+  - the gauges in the lower Mississippi box (−91.3..−89.2 E, 29.2..30.6 N) that publish
+    temperature, dissolved oxygen or conductance, and their names. The only main-stem gauge with
+    temperature is Baton Rouge (07374000); the others are bays, canals and marsh stations.
+  - the approval status alone, on four days, of Baton Rouge's temperature (provisional from 2024)
+    and of the Platte's dissolved oxygen and conductance (approved through 2025-10).
+- **Baton Rouge's pilot data** (sites, windows, turbidity pairs; v2). No temperature value was read
+  there.
+
+No Landsat temperature at Baton Rouge or Belle Chasse, and no saturation value, has been compared
+with any gauge value.
+
+### Common rules (v7's)
+
+These are v7's rules, unchanged:
+
+- training: hydrological years 2019–2023;
+- selection: leave-one-hydrological-year-out within training;
+- the locked test: hydrological years 2024–2025, scored once, with no refit;
+- the prospective check: report-only, from 2025-12-01, with provisional values labelled;
+- the overpass rule, with qualified values excluded;
+- the null: the gauge's day-of-year climatology from daily values;
+- abstention outside the training range;
+- split-conformal 90 % intervals;
+- Spearman ρ, with a block-bootstrap lower bound.
+
+Pairs use approved values only, except at Baton Rouge (see C).
+
+### A. Specific conductance at the Platte (µS/cm)
+
+- **Feature:** v7's water fraction f of the active channel, from the water detection v7 selects for
+  discharge. There is no second choice.
+- **Candidates:**
+  - **C0**, the null;
+  - **C1**, ln SC = a + b · ln f, fitted by OLS with Duan's smearing factor;
+  - **C2**, C1 plus an annual harmonic (sin and cos of 2π · day-of-year / 365.25).
+- **Selection:** C1 is the simpler, with a margin of 3 points of MdSA.
+- **Metrics:** MdSA, SSPB and Spearman ρ against the gauge's 00095.
+- **Levels** (strict, because conductance moves within a narrow range):
+  - **validated:** MdSA ≤ 15 %, |SSPB| ≤ 10 %, MdSA ≤ 0.8 × C0's, N ≥ 20 in ≥ 2 hydrological
+    years, 90 % coverage ≥ 80 %, and a median 90 % interval factor ≤ 1.5;
+  - **estimated:** MdSA ≤ 25 %, |SSPB| ≤ 15 %, MdSA below C0's, 90 % coverage ≥ 80 %, and a median
+    factor ≤ 2.0.
+
+### B. Dissolved oxygen at the Platte (mg/L)
+
+- **Input:** the water temperature T from v6's committed card (W1, the Landsat surface temperature
+  as it is) at each Landsat pass that meets v6's window rule.
+- **Saturation:** C\*(T, P), from the Benson & Krause (1984) equations for fresh water, as
+  tabulated by the USGS in DOTABLES. P is fixed: the standard-atmosphere pressure at the gauge's
+  datum elevation, taken from the USGS monitoring-location metadata.
+- **Candidates:**
+  - **O0**, the null;
+  - **O1**, DO = C\*(T, P): 100 % saturation, with no fitted parameter;
+  - **O2**, DO = a + b · C\*(T, P), fitted on the training pairs.
+- **Selection:** O1 is the simpler, with a margin of 0.3 mg/L of MAE.
+- **Metrics:** MAE, mean bias and RMSE in mg/L, and Spearman ρ, against the gauge's 00300.
+- **Intervals:** ± a half-width from the absolute residuals.
+- **Levels:**
+  - **validated:** MAE ≤ 0.75 mg/L, |bias| ≤ 0.4 mg/L, MAE ≤ 0.8 × O0's, N ≥ 20 in ≥ 2
+    hydrological years, 90 % coverage ≥ 80 %, and a median 90 % half-width ≤ 1.5 mg/L;
+  - **estimated:** MAE ≤ 1.2 mg/L, |bias| ≤ 0.75 mg/L, MAE below O0's, 90 % coverage ≥ 80 %, and a
+    median 90 % half-width ≤ 2.5 mg/L.
+- **What it cannot see:** C\* is the oxygen that water at that temperature holds at equilibrium.
+  Blooms raise oxygen above it, and decomposition lowers it below. Neither shows from orbit.
+
+### C. Water temperature at Belle Chasse, validated at Baton Rouge (°C)
+
+- **Why Baton Rouge:** the Belle Chasse gauge does not measure temperature. The only main-stem gauge
+  on the lower Mississippi that does is Baton Rouge (07374000), about 245 km upstream. Its channel
+  is 640 m wide (in the pilot).
+- **Validation at Baton Rouge, by v6's method:**
+  - Landsat 8/9 Collection 2 Level-2: the median surface temperature of the clear water pixels
+    (QA_PIXEL) in Baton Rouge's pilot core window, with at least 10 pixels;
+  - candidates W0 (the null), W1 (ST − 273.15) and W2 (a + b · ST);
+  - within 0.3 °C of MAE, the simpler wins (W1, then W2);
+  - v6's metrics and thresholds.
+- **Provisional values:** Baton Rouge's temperature has been provisional since 2024. Its pairs use
+  approved values where they exist, else provisional values, each labelled. Because the locked test
+  rests on provisional values, the level is capped at _estimated_.
+- **At Belle Chasse:**
+  - the card is applied to the median surface temperature of Belle Chasse's core window (the
+    turbidity station's window, with the same pixel rules);
+  - it takes Baton Rouge's level, capped at _estimated_, and every value is labelled "validated at
+    Baton Rouge, about 245 km upstream, against provisional values";
+  - **report-only:** Belle Chasse's estimate is compared with Baton Rouge's gauge on the same pass
+    day, to show how far the two places differ. That comparison never enters a level.
+
+### Records and the web (only at _estimated_ or better)
+
+- **Conductance:** shares v7's discharge record for each clear 2026 Sentinel-2 pass, as a second
+  estimate with its own card hash.
+- **Dissolved oxygen:** a sealed record per 2026 Landsat pass at the Platte, with its own ledger. It
+  names the SHA-256 of the water-temperature record it was computed from.
+- **Water temperature at Belle Chasse:** v6's water-temperature records, with the label above.
+- **The web:** each variable appears beside the gauge's own reading at the pass, with its level, its
+  locked-test error and its null's error.
+- **A variable below _estimated_** is reported and not shown.
+
+### Attempts, budgets and what will not be done
+
+- **Attempts:**
+  - 2 candidates and a null for A, and the same for B;
+  - 3 candidates (W0–W2) for C.
+  - Each locked test is scored once.
+- **Budgets:**
+  - A and B read no new image beyond v7's;
+  - C reads ≤ 2 GB of estimated network (the Landsat windows at Baton Rouge and Belle Chasse);
+  - the fetches stop under 20 GB of free disk;
+  - computing is time-boxed to two days, together with v7.
+- **Not done:**
+  - nitrate (no physical link to anything the satellite sees);
+  - pH and chlorophyll;
+  - discharge at Belle Chasse;
+  - no other validation gauge, threshold or link after results are seen;
+  - no change to any v5, v6 or v7 rule.
+
 ## Deviation protocol
 
 - A technical failure (network, timeout) is rerun, unchanged.

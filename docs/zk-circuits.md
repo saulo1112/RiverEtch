@@ -1,5 +1,8 @@
 # ZK circuits: build pipeline, trusted setup and testing
 
+> **Status (2026-10-14):** a toolchain scaffold. The product does not use ZK proofs; the only
+> circuit is a demo. It stays until the on-chain layer is decided ([D19](decisions.md)).
+
 Circuits live in the contracts workspace, next to the Solidity verifiers generated from them.
 Tooling: [circom](https://docs.circom.io/) 2.2.3 (compiler), [snarkjs](https://github.com/iden3/snarkjs)
 0.7 (setup, proving, verifier export), [circomlib](https://github.com/iden3/circomlib) (standard
