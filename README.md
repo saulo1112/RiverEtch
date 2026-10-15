@@ -30,15 +30,23 @@ get without the satellite.
 | Turbidity, Mississippi at Belle Chasse (LA)  | **17.8 %** median, 57 passes | 113.7 % (median of past values) | validated |
 | Turbidity, Platte at Louisville (NE)         | **20.3 %** median, 54 passes | 66.9 % (median of past values)  | validated |
 | Water temperature, Platte at Louisville (NE) | **1.28 °C** mean, 24 passes  | 2.51 °C (day-of-year average)   | estimated |
+| Water temperature, Mississippi (LA)          | **0.86 °C** mean, 37 passes  | 1.41 °C (day-of-year average)   | estimated |
 | Suspended sediment, both reaches             | too few samples, or biased   | —                               | not shown |
+| Discharge, dissolved oxygen (Platte)         | 110.6 % and 1.02 mg/L        | 65.5 % and 1.34 mg/L            | not shown |
 
 - **The two reaches are the best two of ten rivers** validated with the same protocol. The honest
   summary of the method is the median over the nine evaluated: **33.1 %**. Turbid rivers do best;
   clear, tidal rivers do worst. Every river's result is in the
   [report](docs/water-quality/report.md).
-- **In progress:** discharge, specific conductance and dissolved oxygen at the Platte, and water
-  temperature at Belle Chasse. They are preregistered as v7 and v7.1, and none is computed yet.
-  They are shown only if they reach _estimated_.
+- **Water temperature at Belle Chasse** was validated at Baton Rouge, the only main-stem gauge on
+  the lower Mississippi that measures it (about 245 km upstream), against provisional values, so it
+  is capped at _estimated_.
+- **What did not pass (v7, v7.1):**
+  - discharge from the water surface erred more than the seasonal average;
+  - dissolved oxygen missed on its interval's coverage;
+  - specific conductance earned _estimated_ by the rule but does not follow the river's changes
+    (correlation 0.03), so it is not shown.
+  - The gauges' own readings of all three stay visible as context, labelled as measurements.
 
 ## How it works
 
@@ -57,9 +65,12 @@ get without the satellite.
 
 The daily run is a scheduled task (`pipeline/scripts/reach-run.ps1`). It reads public data only.
 
-**On-chain anchoring is the next step.** The ledger is built for it (one hash per line), but nothing
-is anchored yet. The `contracts/` workspace holds a toolchain scaffold: a demo circuit and a
-placeholder contract.
+**Anchored on Ethereum (Sepolia).** `contracts/src/LedgerAnchor.sol` stores each ledger's head
+(the SHA-256 of its last line, which commits to every line above it) with the block's time. The
+reach's owner anchors from the web app with a wallet. **Verify this record** then reads the anchor
+without a wallet: anchored at block N, recorded after the last anchor, or changed since. An anchor
+proves the ledger's state from its own date on, never before. See
+[docs/anchoring.md](docs/anchoring.md).
 
 ## Limits (read these before the numbers)
 
@@ -101,7 +112,7 @@ placeholder contract.
 .
 ├── pipeline/   Python 3.12 (uv): screening, water-quality validation (`quality`), reach records (`reach`)
 ├── web/        Vite + React: the globe, the cases and the case view (map, charts, record verification)
-├── contracts/  Hardhat 3 + circom: toolchain scaffold for the on-chain layer (demo circuit, placeholder)
+├── contracts/  Hardhat 3: the ledger anchor (LedgerAnchor, Sepolia) and a ZK toolchain scaffold
 ├── docs/       the water-quality report and preregistration, the record schema, the decision log
 └── .github/    CI: every result is recomputed byte for byte
 ```
@@ -158,16 +169,17 @@ npm run check            # format, lint, circuits, compile, types, all tests, fr
 npm run pipeline:check   # ruff format + lint, mypy --strict, pytest
 ```
 
-### The contracts scaffold
+### The contracts
 
 ```bash
 npm run zk:build         # demo circuit → Groth16 setup → Solidity verifier (see docs/zk-circuits.md)
 npm run compile          # contracts and TypeChain bindings
-npm test                 # circuit tests, then contract tests
+npm test                 # circuit tests, then contract tests (LedgerAnchor included)
 ```
 
-Secrets for Sepolia are read from environment variables or Hardhat's encrypted keystore, never from
-committed files (`npx hardhat keystore set SEPOLIA_RPC_URL`, `SEPOLIA_PRIVATE_KEY`).
+Deploying the ledger anchor to Sepolia and anchoring the ledgers is described in
+[docs/anchoring.md](docs/anchoring.md). Secrets are read from Hardhat's encrypted keystore, never
+from committed files.
 
 ## Useful scripts
 
