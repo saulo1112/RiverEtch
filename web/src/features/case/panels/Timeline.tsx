@@ -2,16 +2,17 @@ import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import type { ReactNode } from "react";
 
 import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
-import { sceneKey } from "../../reaches/scene.ts";
+import { thermalValidatedAt } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
 import { PassStatsView } from "./PassStatsView.tsx";
 import { ProfileChart } from "./ProfileChart.tsx";
 import { SeriesChart } from "./SeriesChart.tsx";
 import { ThermalChart } from "./ThermalChart.tsx";
+import { WaterQualityView } from "./WaterQualityView.tsx";
 
 /** The bottom panel's tabs. */
-export type BottomTab = "series" | "thermal" | "profile" | "pass";
+export type BottomTab = "quality" | "series" | "thermal" | "profile" | "pass";
 
 /** Props of {@link Timeline}. */
 export interface TimelineProps {
@@ -40,7 +41,7 @@ export interface TimelineProps {
   readonly onProbe: (place: number | null) => void;
 }
 
-const TABS: readonly BottomTab[] = ["series", "thermal", "profile", "pass"];
+const TABS: readonly BottomTab[] = ["quality", "series", "thermal", "profile", "pass"];
 
 function IconButton({
   label,
@@ -79,6 +80,7 @@ export function Timeline(props: TimelineProps) {
   const { reach, selected, tab, playing } = props;
   const { play, tabs } = CASE_COPY;
   const last = reach.series.length - 1;
+  const upstream = thermalValidatedAt(reach);
   const row = reach.series[selected] ?? null;
   const shown = TABS.filter((t) => t !== "thermal" || reach.thermal !== null);
   return (
@@ -133,7 +135,9 @@ export function Timeline(props: TimelineProps) {
             </button>
           ))}
         </div>
-        {tab === "series" ? (
+        {tab === "quality" ? (
+          <p className="case-timeline__note">{CASE_COPY.quality.hint}</p>
+        ) : tab === "series" ? (
           <ul className="case-timeline__keys">
             <li>
               <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
@@ -156,7 +160,9 @@ export function Timeline(props: TimelineProps) {
             </li>
             <li>
               <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
-              {CASE_COPY.thermal.gauge}
+              {upstream === null
+                ? CASE_COPY.thermal.gauge
+                : CASE_COPY.thermal.upstreamGauge(upstream)}
             </li>
             <li>
               <span className="case-timeline__key case-timeline__key--cursor" aria-hidden="true" />
@@ -168,7 +174,9 @@ export function Timeline(props: TimelineProps) {
         ) : null}
       </header>
       <div className="case-timeline__body" role="tabpanel">
-        {tab === "series" ? (
+        {tab === "quality" ? (
+          <WaterQualityView reach={reach} selected={selected} />
+        ) : tab === "series" ? (
           <SeriesChart
             reach={reach}
             selected={selected}
@@ -190,11 +198,7 @@ export function Timeline(props: TimelineProps) {
             onProbe={props.onProbe}
           />
         ) : (
-          <PassStatsView
-            stats={props.stats}
-            row={row}
-            context={row === null ? [] : reach.context.filter((c) => c.key === sceneKey(row))}
-          />
+          <PassStatsView stats={props.stats} row={row} />
         )}
       </div>
     </section>

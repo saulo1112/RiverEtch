@@ -52,6 +52,20 @@ export const CASE_COPY = {
     cardBad: "Model card does not match the hash the record names",
     altered: "Changed in memory",
     notAnchored: "Not anchored on a public chain yet: the seal and the ledger are checked here.",
+    anchoredHint:
+      "Each ledger's last line is anchored on Ethereum (Sepolia) as a public timestamp.",
+    contract: "Anchor contract",
+    chainAnchored: (date: string, block: number) =>
+      `Ledger anchored on Sepolia on ${date} (block ${String(block)})`,
+    chainPending: "Recorded after the last anchor on Sepolia: not anchored yet",
+    chainMismatch: "The ledger no longer matches its anchor on Sepolia",
+    chainUnavailable: "The anchor on Sepolia could not be read",
+    anchorAction: "Anchor this reach's ledgers on Sepolia",
+    anchoring: "Waiting for the wallet and the block…",
+    anchoredTx: (ledgers: number) =>
+      `${String(ledgers)} ${ledgers === 1 ? "ledger" : "ledgers"} anchored · view the transaction`,
+    upToDate: "The ledgers are already anchored up to their last line.",
+    anchorFailed: "The anchor failed or was rejected in the wallet.",
     failed: "The record could not be checked.",
   },
   legendTitle: "NDTI per pixel (relative)",
@@ -107,6 +121,7 @@ export const CASE_COPY = {
     parts: { upstream: "upstream sub-reach", downstream: "downstream sub-reach", between: "" },
   },
   tabs: {
+    quality: "Water quality",
     series: "Turbidity, 2026",
     thermal: "Water temperature",
     profile: "Along the river",
@@ -116,6 +131,9 @@ export const CASE_COPY = {
     title: "Water temperature",
     satellite: "Landsat estimate (°C) and its 90 % interval",
     gauge: "USGS gauge at the overpass",
+    upstreamGauge: (name: string) => `USGS gauge at ${name} (where it was validated)`,
+    upstreamNote: (name: string) =>
+      `Validated at ${name}, the nearest gauge on the river that measures temperature.`,
     cursor: "Selected Sentinel-2 pass",
     hint: "Select a Landsat pass to see its record.",
     pixels: "water pixels in the gauge window",
@@ -124,6 +142,21 @@ export const CASE_COPY = {
     on: "on",
     overpasses: "overpasses",
     baseline: "day-of-year average",
+  },
+  quality: {
+    satellite: "Estimated from the satellite",
+    gauge: "Measured by the USGS gauge at the pass",
+    hint: "Satellite values carry the level a locked test gave them; gauge values are measurements.",
+    turbidity: "Turbidity",
+    temperature: "Water temperature",
+    sentinel: "Sentinel-2",
+    landsat: "Landsat 8/9",
+    error: "error",
+    without: "without the satellite",
+    validatedAt: "validated at",
+    noLandsat: "No clear Landsat pass within 16 days",
+    measured: "measured",
+    measuredChip: "Measured",
   },
   context: {
     title: "Measured by the USGS gauge at this pass",
@@ -166,6 +199,9 @@ export const CASE_COPY = {
     step3Note:
       "Each line names the SHA-256 of the line before: changing one breaks every link after it.",
     step4: "Model card",
+    step5: "Anchored on a public chain",
+    step5Note:
+      "The SHA-256 of a ledger line, stored on Ethereum at a block's time, commits to every line above it.",
     verified: "Verified: the record is exactly as it was sealed.",
     tampered: "Tampered: the content no longer matches its seal.",
     close: "Close",

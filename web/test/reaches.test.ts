@@ -6,7 +6,11 @@ import { test } from "node:test";
 import { REACH_CASES } from "../src/features/reaches/catalog.ts";
 import { canonical, NumberText, parseJson, sha256Hex } from "../src/features/reaches/canonical.ts";
 import { parseChecks, parseContext, parseThermalChecks } from "../src/features/reaches/checks.ts";
-import { defaultThermal } from "../src/features/reaches/scene.ts";
+import {
+  defaultThermal,
+  nearestThermal,
+  thermalValidatedAt,
+} from "../src/features/reaches/scene.ts";
 import type { ReachInfo, ThermalRow } from "../src/features/reaches/types.ts";
 import { verifyRecord } from "../src/features/reaches/verify.ts";
 
@@ -163,4 +167,31 @@ void test("defaultThermal opens on the latest pass with a value", () => {
   assert.equal(defaultThermal([row(1), row(2), row(null)]), 1);
   assert.equal(defaultThermal([row(null)]), 0);
   assert.equal(defaultThermal([]), null);
+});
+
+void test("nearestThermal finds the Landsat pass with a value within 16 days", () => {
+  const row = (date: string, value: number | null) =>
+    ({ date, estimate: { level: "estimated", unit: "°C", value } }) as unknown as ThermalRow;
+  const series = [row("2026-03-01", 5), row("2026-03-20", null), row("2026-04-02", 9)];
+  assert.equal(nearestThermal(series, "2026-03-18"), 2); // the nearer pass has no value
+  assert.equal(nearestThermal(series, "2026-03-03"), 0);
+  assert.equal(nearestThermal(series, "2026-06-01"), null);
+});
+
+void test("thermalValidatedAt names the upstream gauge's place, or null", () => {
+  const reach = (name?: string) =>
+    ({
+      thermal: {
+        series: [],
+        checks: [],
+        card:
+          name === undefined
+            ? null
+            : {
+                validationSiteName: name,
+              },
+      },
+    }) as unknown as Parameters<typeof thermalValidatedAt>[0];
+  assert.equal(thermalValidatedAt(reach("Mississippi River at Baton Rouge, LA")), "Baton Rouge");
+  assert.equal(thermalValidatedAt(reach()), null);
 });

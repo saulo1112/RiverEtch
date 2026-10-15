@@ -1,5 +1,6 @@
 import { useState, type KeyboardEvent } from "react";
 
+import { thermalValidatedAt } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY, daysBetween, formatCelsius, formatDate, landsatName } from "../content.ts";
 import { useSize } from "./useSize.ts";
@@ -36,6 +37,7 @@ export function ThermalChart({ reach, selected, cursor, onSelect }: ThermalChart
   const [hovered, setHovered] = useState<number | null>(null);
   const series = reach.thermal?.series ?? [];
   const checks = reach.thermal?.checks ?? [];
+  const upstream = thermalValidatedAt(reach);
   const points = series.map((row, index) => {
     const check = checks.find((c) => c.sceneId === row.sceneId);
     return {
@@ -227,8 +229,8 @@ export function ThermalChart({ reach, selected, cursor, onSelect }: ThermalChart
           </p>
           {tip.gauge === null ? null : (
             <p className="case-series__tip-gauge">
-              USGS {formatCelsius(tip.gauge)} °C ({tip.approval.toLowerCase()}) ·{" "}
-              {signed(tip.value - tip.gauge)} °C
+              USGS{upstream === null ? "" : ` ${upstream}`} {formatCelsius(tip.gauge)} °C (
+              {tip.approval.toLowerCase()}) · {signed(tip.value - tip.gauge)} °C
             </p>
           )}
           <p className="case-series__tip-date">

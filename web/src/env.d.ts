@@ -4,6 +4,8 @@ interface ImportMetaEnv {
   readonly VITE_WALLETCONNECT_PROJECT_ID?: string;
   /** Sepolia JSON-RPC URL; the chain's public endpoint is used when unset. */
   readonly VITE_SEPOLIA_RPC_URL?: string;
+  /** The ledger anchor's address on Sepolia; overrides the committed Ignition deployment. */
+  readonly VITE_LEDGER_ANCHOR_ADDRESS?: string;
 }
 
 interface ImportMeta {
@@ -12,3 +14,6 @@ interface ImportMeta {
 
 /** The cases whose thumbnail `public/cases/` holds, both sizes (vite.config.ts, at startup). */
 declare const __CASE_THUMBNAILS__: readonly string[];
+
+/** The ledger anchor's Sepolia address from contracts/ignition/deployments (null: not deployed). */
+declare const __LEDGER_ANCHOR__: string | null;

@@ -235,6 +235,9 @@ export interface ContextReading {
 /** The parts of the water-temperature card the case view shows. */
 export interface TemperatureCard {
   readonly modelId: string;
+  /** Set when the card was validated at another gauge of the same river (v7.1). */
+  readonly validationSite?: string;
+  readonly validationSiteName?: string;
   readonly candidate: string;
   readonly halfWidth90: number;
   readonly levels: readonly {

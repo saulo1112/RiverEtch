@@ -27,6 +27,20 @@ const thumbnails = readdirSync(REACHES).filter((site) =>
   ),
 );
 
+// The ledger anchor's Sepolia address, from Hardhat Ignition's committed deployment (null until
+// it is deployed; VITE_LEDGER_ANCHOR_ADDRESS overrides it at runtime).
+const DEPLOYMENT = fileURLToPath(
+  new URL(
+    "../contracts/ignition/deployments/chain-11155111/deployed_addresses.json",
+    import.meta.url,
+  ),
+);
+const ledgerAnchor: string | null = existsSync(DEPLOYMENT)
+  ? ((JSON.parse(readFileSync(DEPLOYMENT, "utf8")) as Record<string, string>)[
+      "LedgerAnchorModule#LedgerAnchor"
+    ] ?? null)
+  : null;
+
 function examplesFile(path: string): string | null {
   const [site, ...rest] = path.split("/").filter(Boolean);
   if (site === undefined || rest.length === 0) {
@@ -93,5 +107,8 @@ function reachData(): Plugin {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), reachData()],
-  define: { __CASE_THUMBNAILS__: JSON.stringify(thumbnails) },
+  define: {
+    __CASE_THUMBNAILS__: JSON.stringify(thumbnails),
+    __LEDGER_ANCHOR__: JSON.stringify(ledgerAnchor),
+  },
 });
