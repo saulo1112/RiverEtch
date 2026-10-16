@@ -840,8 +840,13 @@
 .case-record__anchor-button {
   gap: 6px;
   width: 100%;
-  height: 32px;
+  height: auto;
+  min-height: 32px;
+  padding-block: 6px;
   font-size: 12.5px;
+  line-height: 1.25;
+  text-align: left;
+  white-space: normal;
 }
 
 .case-record__anchor-note {

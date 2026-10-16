@@ -78,12 +78,20 @@ export async function anchorLedgers(
   address: string,
   ledgers: readonly LedgerState[],
 ): Promise<string> {
-  const tx = await call<{ hash: string; wait: () => Promise<unknown> }>(
-    contract(address, signer),
-    "anchorBatch",
+  const target = contract(address, signer);
+  const args = [
     ledgers.map((l) => id(l.label)),
     ledgers.map((l) => l.head),
     ledgers.map((l) => l.lines),
+  ];
+  // An explicit gas limit with 50 % to spare: a wallet that wraps the call (MetaMask's smart
+  // accounts) otherwise leaves the inner call too little and it runs out of gas.
+  const estimate = await target.getFunction("anchorBatch").estimateGas(...args);
+  const tx = await call<{ hash: string; wait: () => Promise<unknown> }>(
+    target,
+    "anchorBatch",
+    ...args,
+    { gasLimit: (estimate * 3n) / 2n },
   );
   await tx.wait();
   return tx.hash;
