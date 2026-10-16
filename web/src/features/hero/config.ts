@@ -151,8 +151,8 @@ export const CAMERA = {
   fovDeg: 50,
   near: 1,
   far: 4000,
-  // Viewpoint south-east of the orbit's pass point (ORBIT.passLatLng), so the orbit does not
-  // collapse onto a line.
+  // Viewpoint east of the orbit's pass point (ORBIT.passLatLng) and not below it, so the orbit
+  // does not collapse onto a line.
   viewLatDeg: 12,
   viewLngOffsetDeg: 18,
   // Globe disc diameter as a fraction of the viewport height (also bounded by the width).
@@ -242,13 +242,15 @@ export const ASCENT = {
 export const ORBIT = {
   // The single orbit knob. A real Earth-observation orbit would be sun-synchronous (~98°, like
   // Sentinel-2), but it crosses the frame top to bottom; it was dropped purely for composition.
-  // Keep it well above 0: from this camera a near-equatorial orbit collapses into a flat line.
-  inclinationDeg: 30,
+  // Keep it well above 0: from this camera a near-equatorial orbit collapses into a flat line (at
+  // 20° with the pass at 6°N it already does). 24° with the pass at 12°N crosses central Mexico and
+  // the Caribbean, near the middle of the disc.
+  inclinationDeg: 24,
   radius: 134,
   periodS: 50,
   // Where the ascending pass peaks (lat/lng with the Earth at its starting turn): a framing anchor
   // only, which the camera's viewpoint and look-at derive from. Nothing is singled out there.
-  passLatLng: { lat: 24, lng: -110 },
+  passLatLng: { lat: 12, lng: -110 },
   // Scene time of the first pass.
   peakTimeS: 9,
   // Time warp θ = 2πp − a·sin 2πp + b·sin 4πp (slow over the pass point, fast on the far side

@@ -70,7 +70,7 @@ import {
 const inclination = MathUtils.degToRad(ORBIT.inclinationDeg);
 const passLat = MathUtils.degToRad(ORBIT.passLatLng.lat);
 // Argument of latitude at the pass point: the ascending solution of sin(lat) = sin(i)·sin(u). From
-// the camera (south-east of the pass) the descending solution lies almost edge-on and collapses
+// the camera (east of the pass) the descending solution lies almost edge-on and collapses
 // into a line; the ascending one is an open ellipse crossed left to right.
 const passAngle = Math.asin(Math.sin(passLat) / Math.sin(inclination));
 // Longitude of the ascending node that puts that point on the pass point.
