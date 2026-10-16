@@ -1,6 +1,13 @@
-import { Check, Download, ShieldCheck, X } from "lucide-react";
+import { Anchor, Check, Clock, Download, ExternalLink, ShieldCheck, X } from "lucide-react";
 import { useEffect, useId, useState, type ReactNode } from "react";
 
+import { explorerUrl } from "../../chain/config.ts";
+import type { LedgerKind } from "../../chain/ledger.ts";
+import {
+  useLedgerAnchor,
+  type AnchorOutcome,
+  type ChainCheck,
+} from "../../chain/useLedgerAnchor.ts";
 import { loadText } from "../../reaches/data.ts";
 import type {
   ObservationRecord,
@@ -30,12 +37,18 @@ export const REPOSITORY = "https://github.com/saulo1112/Climate_Change_IEEE";
 type CheckState =
   | { readonly state: "idle" }
   | { readonly state: "running"; readonly file: string }
-  | { readonly state: "done"; readonly file: string; readonly result: Verification }
+  | {
+      readonly state: "done";
+      readonly file: string;
+      readonly result: Verification;
+      readonly chain: ChainCheck | null;
+    }
   | { readonly state: "failed"; readonly file: string };
 
 // The record shown: its file, the ledger and card it is checked against (paths in the reach's
 // folder) and a caption naming it.
 interface Source {
+  readonly kind: LedgerKind;
   readonly file: string;
   readonly ledger: string;
   readonly card: string | undefined;
@@ -51,6 +64,7 @@ function sourceOf(
   if (thermal !== null) {
     const date = formatDate(thermal.date, true);
     return {
+      kind: "water-temperature",
       file: `thermal/${thermal.file}`,
       ledger: "thermal/ledger.jsonl",
       card: reach.info.cards.water_temperature,
@@ -60,6 +74,7 @@ function sourceOf(
   return row === null
     ? null
     : {
+        kind: "observations",
         file: row.file,
         ledger: "ledger.jsonl",
         card: reach.info.cards.turbidity,
@@ -75,16 +90,83 @@ function short(hash: string, size = 12): string {
   return hash.length > size ? `${hash.slice(0, size)}…` : hash;
 }
 
-function Line({ ok, children }: { readonly ok: boolean; readonly children: ReactNode }) {
+function Line({ ok, children }: { readonly ok: boolean | null; readonly children: ReactNode }) {
   return (
-    <li className="case-verify__line" data-ok={ok}>
-      {ok ? (
+    <li className="case-verify__line" data-ok={ok ?? "pending"}>
+      {ok === null ? (
+        <Clock size={14} strokeWidth={2.25} aria-hidden="true" />
+      ) : ok ? (
         <Check size={14} strokeWidth={2.25} aria-hidden="true" />
       ) : (
         <X size={14} strokeWidth={2.25} aria-hidden="true" />
       )}
       <span>{children}</span>
     </li>
+  );
+}
+
+// A record's anchor as a line of the panel's check.
+function ChainItem({ chain }: { readonly chain: ChainCheck }) {
+  const { record: copy } = CASE_COPY;
+  if (chain.state === "anchored") {
+    const day = new Date(chain.anchor.timestamp * 1000).toISOString().slice(0, 10);
+    return (
+      <Line ok>
+        <a
+          href={explorerUrl("block", chain.anchor.blockNumber)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {copy.chainAnchored(formatDate(day, true), chain.anchor.blockNumber)}
+        </a>
+      </Line>
+    );
+  }
+  if (chain.state === "mismatch") {
+    return <Line ok={false}>{copy.chainMismatch}</Line>;
+  }
+  return (
+    <Line ok={null}>{chain.state === "pending" ? copy.chainPending : copy.chainUnavailable}</Line>
+  );
+}
+
+// The owner's action: anchor the reach's ledgers on Sepolia in one transaction.
+function AnchorAction({ run }: { readonly run: () => Promise<AnchorOutcome> }) {
+  const { record: copy } = CASE_COPY;
+  const [state, setState] = useState<
+    | { readonly step: "idle" | "running" | "failed" }
+    | { readonly step: "finished"; readonly outcome: AnchorOutcome }
+  >({ step: "idle" });
+  return (
+    <div className="case-record__anchor">
+      <button
+        type="button"
+        className="case-btn case-btn--ghost case-record__anchor-button"
+        disabled={state.step === "running"}
+        onClick={() => {
+          setState({ step: "running" });
+          run()
+            .then((outcome) => {
+              setState({ step: "finished", outcome });
+            })
+            .catch(() => {
+              setState({ step: "failed" });
+            });
+        }}
+      >
+        <Anchor size={14} strokeWidth={1.9} aria-hidden="true" />
+        {state.step === "running" ? copy.anchoring : copy.anchorAction}
+      </button>
+      <p className="case-record__anchor-note" aria-live="polite">
+        {state.step === "failed" ? copy.anchorFailed : null}
+        {state.step === "finished" && state.outcome.state === "upToDate" ? copy.upToDate : null}
+        {state.step === "finished" && state.outcome.state === "done" ? (
+          <a href={explorerUrl("tx", state.outcome.hash)} target="_blank" rel="noopener noreferrer">
+            {copy.anchoredTx(state.outcome.ledgers)}
+          </a>
+        ) : null}
+      </p>
+    </div>
   );
 }
 
@@ -106,7 +188,10 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
   } | null>(null);
   const [alter, setAlter] = useState(false);
   const [stored, setCheck] = useState<CheckState>({ state: "idle" });
-  const [proof, setProof] = useState<Verification | null>(null);
+  const [proof, setProof] = useState<{ result: Verification; chain: ChainCheck | null } | null>(
+    null,
+  );
+  const anchor = useLedgerAnchor(reach);
   const source = sourceOf(reach, row, thermal);
   const file = source?.file ?? null;
   const check: CheckState =
@@ -137,7 +222,7 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
     if (source === null) {
       return;
     }
-    const { file: path, ledger: ledgerPath, card: cardPath } = source;
+    const { file: path, ledger: ledgerPath, card: cardPath, kind } = source;
     setCheck({ state: "running", file: path });
     try {
       const [recordText, ledger, card] = await Promise.all([
@@ -146,8 +231,15 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
         cardPath === undefined ? Promise.resolve(null) : loadText(reach.base, cardPath),
       ]);
       const result = await verifyRecord(recordText, ledger, card, alter);
-      setCheck({ state: "done", file: path, result });
-      setProof(result);
+      const chain = anchor.configured
+        ? await anchor.check(
+            kind,
+            result.position,
+            result.ledger.map((l) => l.lineSha256),
+          )
+        : null;
+      setCheck({ state: "done", file: path, result, chain });
+      setProof({ result, chain });
     } catch {
       setCheck({ state: "failed", file: path });
     }
@@ -255,6 +347,7 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
                 {check.result.cardMatches ? copy.cardOk : copy.cardBad}
               </Line>
             )}
+            {check.chain === null ? null : <ChainItem chain={check.chain} />}
           </ul>
         ) : null}
       </div>
@@ -272,9 +365,25 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
           {copy.download}
         </a>
       )}
-      <p className="case-record__hint">{copy.notAnchored}</p>
+      {anchor.address === null ? (
+        <p className="case-record__hint">{copy.notAnchored}</p>
+      ) : (
+        <p className="case-record__hint">
+          {copy.anchoredHint}{" "}
+          <a
+            href={explorerUrl("address", anchor.address)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {copy.contract}
+            <ExternalLink size={11} strokeWidth={1.75} aria-hidden="true" />
+          </a>
+        </p>
+      )}
+      {anchor.isOwner ? <AnchorAction run={anchor.anchorReach} /> : null}
       <VerifyDialog
-        result={proof}
+        result={proof?.result ?? null}
+        chain={proof?.chain ?? null}
         onClose={() => {
           setProof(null);
         }}

@@ -1,0 +1,53 @@
+{
+  "altitudeM": 307.037,
+  "basis": "preregistered_lockbox_site",
+  "candidate": "O2",
+  "equation": "Benson & Krause 1984 (USGS DOTABLES)",
+  "halfWidth90": 1.408341,
+  "inputRange": {
+    "max": 10.199907,
+    "min": 6.853328
+  },
+  "kind": "oxygen-saturation",
+  "levels": [
+    {
+      "level": "none",
+      "mae": 1.0156,
+      "n": 16.0,
+      "predicted_range": "all"
+    }
+  ],
+  "metrics": {
+    "lockbox": {
+      "bias": -0.6474,
+      "coverage90": 0.75,
+      "mae": 1.0156,
+      "n": 16.0,
+      "rho": 0.2294,
+      "rho_low": -0.05,
+      "rmse": 1.1928
+    },
+    "null_lockbox": {
+      "mae": 1.3421
+    }
+  },
+  "minWaterPixels": 10,
+  "modelId": "O2:dissolved_oxygen:platte-louisville",
+  "parameters": {
+    "a": 4.14750518,
+    "b": 0.70881766
+  },
+  "parametersHash": "b793a058cb72dadc2029ba536811def2808012619b3e25cd28066b6f913d4abf",
+  "pressureAtm": 0.96413,
+  "site": "USGS-06805500",
+  "target": "dissolved_oxygen",
+  "temperatureCard": {
+    "modelId": "W1:water_temperature:core:platte-louisville",
+    "sha256": "d563bb7e4283205b61f27c5a1c37c112dc2051eef5c64499c58128aab4962c78"
+  },
+  "trainingPairs": {
+    "site": 34
+  },
+  "unit": "mg/L",
+  "version": "1"
+}

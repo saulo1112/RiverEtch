@@ -42,7 +42,8 @@ class Estimate(_Model):
     model_id: str = Field(alias="modelId")
     model_version: str = Field(alias="modelVersion")
     model_card_sha256: str = Field(alias="modelCardSha256")
-    basis: Literal["preregistered_lockbox_site"]
+    # v7.1, C: a card validated at another gauge of the same river (Belle Chasse at Baton Rouge).
+    basis: Literal["preregistered_lockbox_site", "preregistered_lockbox_upstream_site"]
 
 
 class Window(_Model):

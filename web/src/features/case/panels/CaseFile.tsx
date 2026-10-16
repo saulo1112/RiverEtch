@@ -2,7 +2,7 @@ import { ArrowLeft, ExternalLink } from "lucide-react";
 import type { Ref } from "react";
 
 import type { ReachCase } from "../../reaches/catalog.ts";
-import { gaugeAt, turbidity } from "../../reaches/scene.ts";
+import { gaugeAt, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
 import type { ReachData, SeriesRow, ThermalRow } from "../../reaches/types.ts";
 import {
   CASE_COPY,
@@ -61,6 +61,7 @@ function Temperature({
     estimate.interval == null ? null : (estimate.interval.high - estimate.interval.low) / 2;
   const lockbox = reach.thermal?.card?.metrics.lockbox;
   const baseline = reach.thermal?.card?.metrics.null_lockbox;
+  const upstream = thermalValidatedAt(reach);
   return (
     <section className="case-file__thermal" aria-label={copy.title}>
       <p className="case-file__metric">
@@ -84,6 +85,7 @@ function Temperature({
           {copy.lead}: <strong>{lockbox.mae.toFixed(1)} °C</strong> {copy.error} {copy.on}{" "}
           {String(lockbox.n)} {copy.overpasses}
           {baseline === undefined ? null : ` (${copy.baseline}: ${baseline.mae.toFixed(1)} °C)`}
+          {upstream === null ? null : <>. {copy.upstreamNote(upstream)}</>}
         </p>
       )}
     </section>

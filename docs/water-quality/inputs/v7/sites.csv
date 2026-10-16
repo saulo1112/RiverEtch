@@ -1,0 +1,4 @@
+site_id,name,altitude_ft,vertical_datum
+USGS-06805500,"Platte River at Louisville, Nebr.",1007.34,NAVD88
+USGS-07374000,"Mississippi River at Baton Rouge, LA",0.0,NAVD88
+USGS-07374525,"Mississippi River at Belle Chasse, LA",-6.58,NAVD88

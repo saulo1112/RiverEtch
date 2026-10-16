@@ -232,7 +232,7 @@ export function CaseView({
   const [playing, setPlaying] = useState(false);
   const [compareWith, setCompareWith] = useState<number | null>(null);
   const [split, setSplit] = useState(0.5);
-  const [tab, setTab] = useState<BottomTab>("series");
+  const [tab, setTab] = useState<BottomTab>("quality");
   const [thermalSelected, setThermalSelected] = useState(() =>
     defaultThermal(reach.thermal?.series ?? []),
   );

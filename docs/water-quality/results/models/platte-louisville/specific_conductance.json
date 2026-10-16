@@ -1,0 +1,54 @@
+{
+  "activeChannelSha256": "b2caffbb122a228ecc00d7fe44c0abdc0d4e9745fb986ab2e7f6e4a41122ff22",
+  "basis": "preregistered_lockbox_site",
+  "candidate": "C1",
+  "coefficients": [
+    6.5525853065,
+    0.141675731
+  ],
+  "feature": "water_fraction_scl",
+  "fittedRange": {
+    "max": 0.98027347,
+    "min": 0.63060044
+  },
+  "harmonic": false,
+  "intervalFactor90": 1.784371,
+  "kind": "water-surface-power-law",
+  "levels": [
+    {
+      "interval_factor90": 1.7844,
+      "level": "estimated",
+      "mdsa": 22.0518,
+      "n": 37.0,
+      "predicted_range": "all"
+    }
+  ],
+  "metrics": {
+    "lockbox": {
+      "coverage90": 0.973,
+      "mdsa": 22.0518,
+      "n": 37.0,
+      "rho": 0.0294,
+      "rho_low": 0.0245,
+      "sspb": -11.0685
+    },
+    "null_lockbox": {
+      "coverage90": null,
+      "mdsa": 25.4026,
+      "n": 36.0,
+      "rho": 0.0451,
+      "rho_low": -0.2324,
+      "sspb": -15.5011
+    }
+  },
+  "modelId": "C1:specific_conductance:platte-louisville",
+  "parametersHash": "fb9c4c0e506709322a31ef6f04424002efc717c5aab928728dcb3619ccd76102",
+  "site": "USGS-06805500",
+  "smearing": 1.0519403725,
+  "target": "specific_conductance",
+  "trainingPairs": {
+    "site": 74
+  },
+  "unit": "µS/cm",
+  "version": "1"
+}

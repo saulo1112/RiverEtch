@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "kind": "water_temperature",
+  "reachId": "mississippi-belle-chasse",
+  "date": "2026-09-01",
+  "datetimeUtc": "2026-09-01T16:31:55+00:00",
+  "sceneId": "mississippi-belle-chasse:landsat-8_2026-09-01_R022",
+  "platform": "landsat-8",
+  "window": {
+    "pixels": 287,
+    "waterPixels": 24,
+    "surfaceTemperatureK": 304.118
+  },
+  "estimate": {
+    "target": "water_temperature",
+    "unit": "°C",
+    "level": "estimated",
+    "value": 29.24,
+    "interval": {
+      "low": 27.48,
+      "high": 31.01,
+      "coverage": 0.9,
+      "method": "split_conformal_absolute"
+    },
+    "modelId": "W2:water_temperature:core:mississippi-belle-chasse",
+    "modelVersion": "1",
+    "modelCardSha256": "9493a61bc96b62c0292c8f1af87db9c669e9baeb86eb07e8d916962c9789bb8c",
+    "basis": "preregistered_lockbox_upstream_site"
+  },
+  "provenance": {
+    "collection": "landsat-c2-l2",
+    "stacItems": [
+      {
+        "id": "LC08_L2SP_022039_20260901_02_T1",
+        "url": "https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_022039_20260901_02_T1"
+      }
+    ],
+    "codeCommit": "d61e5e1aebc7d44b5b00111dc6272e46855aaef3",
+    "processingParamsSha256": "ea8846c7bf3b8c15fb9e20d5768fe9217aa0702cd651183744953901f81d25bf"
+  },
+  "recordSha256": "d2d6ae556a77b190ac97f62cbf87c496395cf1ca77f6fe664361de66c49bb6b6"
+}

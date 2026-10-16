@@ -28,6 +28,8 @@ from climate_pipeline.quality import (
     temporal,
     transfer,
     v6,
+    v7,
+    variables,
 )
 from climate_pipeline.quality.config import QualityConfig
 
@@ -151,8 +153,14 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
     end_to_end = {r["slug"]: r["pairs"] for r in later_v5.pop("_v6_end_to_end", [])}
     results.tables.update(later_v5)
     later_v6 = v6.analyse(cfg, root, link1, end_to_end)
-    results.extra_cards += later_v6.pop("_v6_cards", [])
+    v6_cards = later_v6.pop("_v6_cards", [])
+    results.extra_cards += v6_cards
     results.tables.update(later_v6)
+    platte = f"{variables.THERMAL_REACH}/water_temperature.json"
+    temperature = next((c["card"] for c in v6_cards if c["path"] == platte), None)
+    later_v7 = v7.analyse(cfg, root, temperature)
+    results.extra_cards += later_v7.pop("_v7_cards", [])
+    results.tables.update(later_v7)
     results.summary = {
         "incomplete": missing,
         "route_a": route_a.summary(results.tables) if ci is not None else {},
@@ -166,5 +174,6 @@ def analyse(cfg: QualityConfig, root: Path) -> Results:
         "stage_b": stage_b.summary(results.tables),
         "v5": gauged.summary(results.tables),
         "v6": v6.summary(results.tables),
+        "v7": v7.summary(results.tables),
     }
     return results

@@ -787,6 +787,15 @@
   color: #ff4f3f;
 }
 
+/* Not anchored yet: neither a pass nor a failure. */
+.case-verify__line[data-ok="pending"] svg {
+  color: #f5b942;
+}
+
+.case-verify__line a {
+  color: inherit;
+}
+
 .case-verify__altered {
   color: #f6d38f;
   font-size: 11.5px;
@@ -819,6 +828,40 @@
 
 .case-record__download:hover {
   text-decoration: underline;
+}
+
+/* The owner's action: anchor the reach's ledgers on Sepolia. */
+.case-record__anchor {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+}
+
+.case-record__anchor-button {
+  gap: 6px;
+  width: 100%;
+  height: auto;
+  min-height: 32px;
+  padding-block: 6px;
+  font-size: 12.5px;
+  line-height: 1.25;
+  text-align: left;
+  white-space: normal;
+}
+
+.case-record__anchor-note {
+  margin: 6px 0 0;
+  color: var(--text-2);
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.case-record__anchor-note a,
+.case-record__hint a {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  color: var(--accent);
 }
 
 .case-record__hint {
@@ -1790,8 +1833,7 @@
 
 .case-pass {
   display: grid;
-  grid-template-rows: minmax(0, 1fr);
-  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 18px;
   height: 100%;
 }
@@ -1868,63 +1910,171 @@
   font-size: 11px;
 }
 
-/* What the USGS gauge measured at the pass (its values, not the satellite's). */
-.case-pass__gauge {
-  min-height: 0;
-  overflow-y: auto;
-}
-
-.case-pass__gauge-title {
+/* The water-quality tab: what the satellite estimates, then what the gauge measured. */
+.case-quality {
   display: flex;
-  gap: 7px;
-  align-items: center;
-  margin: 0;
-  color: var(--text-3);
-  font-size: 11.5px;
+  gap: 18px;
+  height: 100%;
+  overflow-x: auto;
 }
 
-.case-pass__readings {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0 16px;
-  margin: 6px 0 0;
-}
-
-.case-pass__readings div {
+.case-quality__group {
   display: flex;
   flex-direction: column;
-  padding: 3px 0 4px;
-  border-bottom: 1px solid var(--hairline);
+  min-width: 0;
 }
 
-.case-pass__readings dt {
-  overflow: hidden;
+.case-quality__label {
+  margin: 0 0 6px;
   color: var(--text-3);
   font-size: 11px;
+  white-space: nowrap;
+}
+
+.case-quality__tiles {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-quality__tile {
+  display: flex;
+  flex: 1 1 140px;
+  flex-direction: column;
+  min-width: 128px;
+  max-width: 170px;
+  padding: 8px 10px;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.03);
+}
+
+.case-quality__tile > * {
+  flex: none;
+}
+
+.case-quality__tile:is([data-tone="sat"], [data-tone="thermal"]) {
+  flex-basis: 220px;
+  min-width: 210px;
+  max-width: 260px;
+}
+
+.case-quality__tile[data-tone="sat"] {
+  border-color: rgb(34 211 238 / 0.35);
+}
+
+.case-quality__tile[data-tone="thermal"] {
+  border-color: rgb(251 113 133 / 0.4);
+}
+
+.case-quality__head {
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.case-quality__title {
+  overflow: hidden;
+  color: var(--text-1);
+  font-weight: 560;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.case-pass__readings dd {
-  margin: 1px 0 0;
-  color: var(--text-1);
-  font-size: 14px;
-  font-weight: 560;
-  font-variant-numeric: tabular-nums;
+.case-quality__source {
+  color: var(--text-3);
   white-space: nowrap;
 }
 
-.case-pass__readings dd span {
-  color: var(--text-3);
+.case-quality__value {
+  display: flex;
+  gap: 4px;
+  align-items: baseline;
+  margin: 4px 0 0;
+  color: var(--text-1);
+  font-size: 20px;
+  font-weight: 620;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.case-quality__unit {
+  color: var(--text-2);
   font-size: 11.5px;
   font-weight: 450;
 }
 
-.case-pass__gauge-note {
-  margin: 6px 0 0;
+.case-quality__none {
   color: var(--text-3);
-  font-size: 11px;
-  line-height: 1.4;
+}
+
+.case-quality__chip {
+  align-self: center;
+  height: 18px;
+  margin-left: auto;
+  padding-inline: 7px;
+  font-size: 10.5px;
+}
+
+/* Satellite estimates carry a level (the accent); gauge values are measurements (amber). */
+.case-quality__chip[data-measured="false"] {
+  border-color: rgb(34 211 238 / 0.35);
+  background: rgb(34 211 238 / 0.1);
+  color: #a5f0fc;
+}
+
+.case-quality__detail {
+  margin: 2px 0 0;
+  overflow: hidden;
+  color: var(--text-3);
+  font-size: 10.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.case-quality__spark {
+  width: 100%;
+  height: 26px;
+  margin-top: 4px;
+  overflow: visible;
+}
+
+.case-quality__spark polyline {
+  fill: none;
+  stroke: rgb(240 246 255 / 0.45);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.case-quality__spark[data-tone="sat"] polyline {
+  stroke: rgb(34 211 238 / 0.75);
+}
+
+.case-quality__spark[data-tone="thermal"] polyline {
+  stroke: rgb(251 113 133 / 0.8);
+}
+
+.case-quality__spark[data-tone="gauge"] polyline {
+  stroke: rgb(245 185 66 / 0.75);
+}
+
+.case-quality__spark circle {
+  fill: #f4f8ff;
+}
+
+.case-quality__foot {
+  margin: 3px 0 0;
+  color: var(--text-2);
+  font-size: 10.5px;
+  line-height: 1.3;
 }
 
 .case-legend__photo {
@@ -2159,6 +2309,14 @@
   color: #ff4f3f;
 }
 
+.case-proof__line[data-ok="pending"] svg {
+  color: #f5b942;
+}
+
+.case-proof__line a {
+  color: var(--accent);
+}
+
 .case-proof__verdict {
   margin: 16px 0 0;
   padding: 12px 14px;
@@ -2239,6 +2397,10 @@
 
   .case-timeline__body {
     height: 120px;
+  }
+
+  .case-quality__spark {
+    display: none;
   }
 }
 
@@ -2361,6 +2523,11 @@
 
   .case-pass {
     grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .case-quality {
+    flex-direction: column;
     overflow-y: auto;
   }
 

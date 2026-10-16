@@ -54,7 +54,7 @@ CONTEXT = {
     "00630": ("nitrate plus nitrite (as N)", "mg/L", 1.0),
 }
 CONTEXT_COLUMNS = ("key", "date", "datetimeUtc", "parameter", "name", "value", "unit", "approval")
-CHECK_COLUMNS = ("date", "sceneId", "datetimeUtc", "estimate", "value", "approval")
+CHECK_COLUMNS = ("date", "sceneId", "datetimeUtc", "estimate", "gauge", "value", "approval")
 
 
 def card_path(root: Path, site_id: str) -> Path:
@@ -78,11 +78,16 @@ def estimate(card: Mapping[str, Any], surface_k: float) -> contract.Estimate:
         surface_k: The median surface temperature, kelvin.
 
     Returns:
-        The estimate with its level and 90 % interval (no value under level ``indicative``).
+        The estimate with its level and 90 % interval (no value under level ``indicative``, nor
+        when the card names an input range and the pass lies outside it).
     """
     p = card["parameters"]
     level = next((r["level"] for r in card["levels"] if r["predicted_range"] == "all"), "none")
-    value = p["a"] + p["b"] * (surface_k - 273.15)
+    st_c = surface_k - 273.15
+    value = p["a"] + p["b"] * st_c
+    bounds = card.get("inputRange")
+    if bounds is not None and not float(bounds["min"]) <= st_c <= float(bounds["max"]):
+        value = math.nan  # outside the fitted range: abstain (v7's common rule)
     model = {"level": level, "modelId": card["modelId"], "modelVersion": card["version"],
              "modelCardSha256": card_hash(card), "basis": card["basis"]}  # fmt: skip
     if level not in ("validated", "estimated") or not math.isfinite(value):
@@ -252,7 +257,9 @@ def gauge_check(root: Path, cfg: ReachConfig, site_id: str, folder: Path,
     """
     quality = load_quality_config(root / cfg.quality_config)
     u = quality.usgs
-    station = cfg.reach(site_id).estimate_station
+    card = json.loads(card_path(root, site_id).read_text(encoding="utf-8"))
+    # A card validated at another gauge is checked there (v7.1, C: Belle Chasse at Baton Rouge).
+    station = str(card.get("validationSite") or cfg.reach(site_id).estimate_station)
     client = http or httpx.Client(timeout=120, follow_redirects=True)
     rows = []
     for path in sorted((folder / "records").glob("*.json")):
@@ -264,6 +271,7 @@ def gauge_check(root: Path, cfg: ReachConfig, site_id: str, folder: Path,
         rows.append({"date": rec.date, "sceneId": rec.scene_id,
                      "datetimeUtc": when.isoformat(timespec="seconds"),
                      "estimate": rec.estimate.value if rec.estimate.value is not None else math.nan,
+                     "gauge": station,
                      "value": round(value, 2) if math.isfinite(value) else value,
                      "approval": approval})  # fmt: skip
     _write_csv(folder / "checks.csv", rows, CHECK_COLUMNS)

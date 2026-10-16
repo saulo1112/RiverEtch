@@ -1,6 +1,8 @@
-import { Check, Link2, Unlink, X } from "lucide-react";
+import { Check, Clock, Link2, Unlink, X } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 
+import { explorerUrl } from "../../chain/config.ts";
+import type { ChainCheck } from "../../chain/useLedgerAnchor.ts";
 import type { Verification } from "../../reaches/verify.ts";
 import { CASE_COPY, formatDate } from "../content.ts";
 
@@ -8,6 +10,8 @@ import { CASE_COPY, formatDate } from "../content.ts";
 export interface VerifyDialogProps {
   /** The check to show (null: closed). */
   readonly result: Verification | null;
+  /** The record's anchor on Sepolia (null: no anchor contract configured). */
+  readonly chain?: ChainCheck | null;
   /** The dialog closed. */
   readonly onClose: () => void;
 }
@@ -51,6 +55,40 @@ function HashLine({ label, hash, against }: { label: string; hash: string; again
   );
 }
 
+// The anchor's line: anchored (with its block), pending, changed since, or unreadable.
+function ChainLine({ chain }: { readonly chain: ChainCheck }) {
+  const copy = CASE_COPY.record;
+  if (chain.state === "anchored") {
+    const day = new Date(chain.anchor.timestamp * 1000).toISOString().slice(0, 10);
+    return (
+      <p className="case-proof__line" data-ok="true">
+        <Check size={14} strokeWidth={2.25} aria-hidden="true" />
+        <a
+          href={explorerUrl("block", chain.anchor.blockNumber)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {copy.chainAnchored(formatDate(day, true), chain.anchor.blockNumber)}
+        </a>
+      </p>
+    );
+  }
+  if (chain.state === "mismatch") {
+    return (
+      <p className="case-proof__line" data-ok="false">
+        <X size={14} strokeWidth={2.25} aria-hidden="true" />
+        {copy.chainMismatch}
+      </p>
+    );
+  }
+  return (
+    <p className="case-proof__line" data-ok="pending">
+      <Clock size={14} strokeWidth={2.25} aria-hidden="true" />
+      {chain.state === "pending" ? copy.chainPending : copy.chainUnavailable}
+    </p>
+  );
+}
+
 /**
  * "Verifying the record", step by step: the record's canonical content (an altered value marked),
  * the SHA-256 recomputed beside the sealed one, the record's place in the hash-chained ledger and
@@ -58,7 +96,7 @@ function HashLine({ label, hash, against }: { label: string; hash: string; again
  *
  * @returns The dialog element (closed while `result` is null).
  */
-export function VerifyDialog({ result, onClose }: VerifyDialogProps) {
+export function VerifyDialog({ result, chain = null, onClose }: VerifyDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [shown, setShown] = useState(0);
@@ -82,7 +120,7 @@ export function VerifyDialog({ result, onClose }: VerifyDialogProps) {
     const timer = window.setInterval(() => {
       step += 1;
       setShown(step);
-      if (step >= 5) {
+      if (step >= 6) {
         window.clearInterval(timer);
       }
     }, 650);
@@ -190,8 +228,21 @@ export function VerifyDialog({ result, onClose }: VerifyDialogProps) {
                 {result.cardMatches !== false ? CASE_COPY.record.cardOk : CASE_COPY.record.cardBad}
               </p>
             </li>
+            {chain === null ? null : (
+              <li className="case-proof__step" data-shown={shown >= 5}>
+                <p className="case-proof__step-title">
+                  <span>5</span> {verify.step5}
+                </p>
+                <p className="case-proof__note">{verify.step5Note}</p>
+                <ChainLine chain={chain} />
+              </li>
+            )}
           </ol>
-          <p className="case-proof__verdict" data-shown={shown >= 5} data-ok={result.sealed}>
+          <p
+            className="case-proof__verdict"
+            data-shown={shown >= (chain === null ? 5 : 6)}
+            data-ok={result.sealed}
+          >
             {result.sealed ? verify.verified : verify.tampered}
           </p>
         </div>

@@ -68,7 +68,9 @@ def test_water_temperature_levels_follow_the_preregistered_thresholds() -> None:
     assert v6.temperature_level(temp(mae=2.0), 3, 1.9, 2.5) == "indicative"
     assert v6.temperature_level(temp(coverage90=0.7), 3, 3.0, 2.5) == "indicative"
     assert v6.temperature_level(temp(), 3, 3.0, 5.0) == "indicative"
-    assert v6.temperature_level(temp(n=5.0, rho_low=0.1), 3, 3.0, 2.5) == "none"
+    # Few pairs bar validated only (deviation 12).
+    assert v6.temperature_level(temp(n=5.0), 3, 3.0, 2.5) == "estimated"
+    assert v6.temperature_level(temp(mae=3.0, rho_low=0.1), 3, 3.0, 2.5) == "none"
 
 
 def test_the_climatology_wraps_around_the_new_year() -> None:

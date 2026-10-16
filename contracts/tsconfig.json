@@ -4,6 +4,8 @@
     "module": "node20",
     "types": ["node", "mocha"],
     "noEmit": true,
+    // The anchor's integration test imports the web app's chain client, whose imports end in .ts.
+    "allowImportingTsExtensions": true,
     // TypeChain bindings generated into types/ use `export namespace`; this workspace's TS
     // runs through Hardhat/tsx, not Node's type stripping, so the flag is not needed here.
     "erasableSyntaxOnly": false

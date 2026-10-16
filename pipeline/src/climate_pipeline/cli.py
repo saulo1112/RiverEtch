@@ -119,12 +119,14 @@ def _parser() -> argparse.ArgumentParser:
     )
     quality.add_argument(
         "action",
-        choices=("fetch", "fetch-usgs", "fetch-site", "fetch-v5", "fetch-v6", "fetch-landsat",
-                 "fetch-extended", "export-lab", "stage-b-list", "run", "verify"),
+        choices=("fetch", "fetch-usgs", "fetch-site", "fetch-v5", "fetch-v6", "fetch-v7",
+                 "fetch-landsat", "fetch-extended", "export-lab", "stage-b-list", "run", "verify"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
         "the USGS pilot; fetch-site --site ID: every clear scene of one pilot site (v4's second "
         "reach); fetch-v5: every clear scene, turbidity and SSC of v5's gauged rivers; "
         "fetch-v6: the demo gauges' SSC samples and readings, and Landsat thermal at the Platte; "
+        "fetch-v7: the Platte's water surface and gauge readings, Landsat at Baton Rouge and "
+        "Belle Chasse (v7, v7.1); "
         "fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
         "(phase 3); fetch-extended: windows within 15 days of a sample (v3); export-lab: the "
         "lab's training tables (A4); stage-b-list: the Level-1C scenes of RAdCor Stage B (v4); "
@@ -508,6 +510,12 @@ def quality(args: argparse.Namespace) -> int:
                                    site_ids={args.site}, max_clear=100_000,
                                    folder=SITE_FOLDERS.get(args.site, args.site.lower()),
                                    ssc=False, cap_gb=SITE_CAP_GB)  # fmt: skip
+        print(f"snapshots: {counts}")
+        return 1 if counts["read_errors"] or counts["failures"] else 0
+    if args.action == "fetch-v7":
+        from climate_pipeline.quality import fetch_v7
+
+        counts = fetch_v7.fetch(cfg, root, root / args.cache, args.workers)
         print(f"snapshots: {counts}")
         return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "fetch-v6":

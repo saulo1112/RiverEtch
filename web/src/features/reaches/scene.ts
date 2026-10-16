@@ -117,3 +117,43 @@ export function defaultThermal(series: readonly ThermalRow[]): number | null {
   }
   return series.length > 0 ? series.length - 1 : null;
 }
+
+/**
+ * The place a reach's water-temperature card was validated, when it is not the reach's own gauge.
+ *
+ * @param reach - The reach.
+ * @returns E.g. "Baton Rouge", or null.
+ */
+export function thermalValidatedAt(reach: ReachData): string | null {
+  const name = reach.thermal?.card?.validationSiteName;
+  if (name === undefined) {
+    return null;
+  }
+  const place = name.split(",")[0] ?? name;
+  return place.replace(/^.* at /, "");
+}
+
+// A Landsat pass counts as "at" a Sentinel-2 pass within this many days.
+const NEAREST_DAYS = 16;
+const DAY_MS = 86_400_000;
+
+/**
+ * The Landsat pass nearest to a day that has a temperature value.
+ *
+ * @param series - The reach's Landsat passes.
+ * @param date - The day (ISO).
+ * @returns Its index, or null when none lies within 16 days.
+ */
+export function nearestThermal(series: readonly ThermalRow[], date: string): number | null {
+  let best: number | null = null;
+  let gap = Infinity;
+  series.forEach((row, index) => {
+    const days =
+      Math.abs(Date.parse(`${row.date}T00:00:00Z`) - Date.parse(`${date}T00:00:00Z`)) / DAY_MS;
+    if (typeof row.estimate.value === "number" && days < gap) {
+      best = index;
+      gap = days;
+    }
+  });
+  return gap <= NEAREST_DAYS ? best : null;
+}

@@ -378,3 +378,30 @@ last. Format: context → decision → consequences.
     input to an estimate). It does not claim a commit before the gauge value.
   - The on-chain anchoring of the ledger head is the open decision. An anchor can prove the state
     only from its own date on.
+
+## D20. Anchoring the ledgers on Ethereum Sepolia (2026-10-14)
+
+- **Context:**
+  - D19 left the on-chain layer to the owner's decision. The advisory review had found that
+    "TerraChain" had no chain.
+  - Every record is already sealed and chained in an append-only ledger, but the ledger lives in a
+    repository its owner can rewrite.
+  - The owner asked to implement the blockchain part.
+- **Decision:**
+  - **What is anchored:** a minimal contract, `LedgerAnchor`, stores each ledger's head (the SHA-256
+    of its last line) and its line count, with the block's time. One subject per reach and ledger
+    (`keccak256("terrachain:<reach>:<ledger>")`).
+  - **Rules:** only the deploying account anchors, a ledger only grows, and a batch anchors several
+    ledgers in one transaction.
+  - **Who anchors:** the owner, from the web app with a wallet (RainbowKit, MetaMask). No key is
+    stored in any file or scheduled task. Deployment uses Hardhat Ignition with the keystore.
+  - **Who verifies:** anyone, in the browser, with no wallet. The app reads the anchors through the
+    public RPC and compares them with the published ledger.
+  - **Libraries:** ethers v6 through wagmi's documented adapter (D11). The address comes from the
+    committed Ignition deployment.
+  - **The ZK circuit stays a scaffold.** Proofs of permit compliance are not part of the product.
+- **Consequences:**
+  - An anchor proves a ledger's state from its date on. The records sealed before the first anchor
+    are covered only from then.
+  - Sepolia is a test network: the proof is public and checkable, not mainnet.
+  - Anchoring needs a person with the owner's wallet; the daily pipeline run does not anchor.

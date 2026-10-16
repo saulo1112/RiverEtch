@@ -1,0 +1,4 @@
+target,tercile,lockbox_pairs,estimated,mdsa,passes,skipped_by_clear_rule,skipped_share
+discharge,≤ 142 m³/s,18,18,258.1624,84,35,0.4167
+discharge,142 to 201 m³/s,17,15,102.3157,61,18,0.2951
+discharge,> 201 m³/s,17,14,37.6371,141,69,0.4894

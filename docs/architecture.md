@@ -12,17 +12,18 @@
 2. **Seal** every estimate, so anyone can recompute it from public data and see that it has not
    changed.
 3. **Check** the estimates against the gauges as new data arrives, and report the result openly.
-4. **Anchor** the ledger of seals on a public chain (the next step).
+4. **Anchor** each ledger's head on a public chain (Ethereum Sepolia), as a timestamp nobody
+   controls.
 
 ## Components
 
-| Component             | Location                        | Role                                                                    |
-| --------------------- | ------------------------------- | ----------------------------------------------------------------------- |
-| Validation            | `pipeline/` (`quality`)         | Preregistered model selection and locked tests; writes the model cards  |
-| Reach records         | `pipeline/` (`reach`)           | Per-pass measurement, estimates, sealed records, the ledger, the check  |
-| Web app               | `web/` (Vite + React, MapLibre) | The cases, the map of each pass, charts, in-browser record verification |
-| On-chain scaffold     | `contracts/` (Hardhat, circom)  | Toolchain scaffold (demo circuit, placeholder contract)                 |
-| Results and contracts | `docs/`                         | Report, preregistration, record schema, decision log                    |
+| Component             | Location                         | Role                                                                    |
+| --------------------- | -------------------------------- | ----------------------------------------------------------------------- |
+| Validation            | `pipeline/` (`quality`)          | Preregistered model selection and locked tests; writes the model cards  |
+| Reach records         | `pipeline/` (`reach`)            | Per-pass measurement, estimates, sealed records, the ledger, the check  |
+| Web app               | `web/` (Vite + React, MapLibre)  | The cases, the map of each pass, charts, in-browser record verification |
+| Ledger anchor         | `contracts/` (Hardhat, Solidity) | `LedgerAnchor`: each ledger's head with its block time, on Sepolia      |
+| Results and contracts | `docs/`                          | Report, preregistration, record schema, decision log                    |
 
 ```mermaid
 flowchart LR
@@ -46,7 +47,8 @@ flowchart LR
   USGS --> CHECK["Check against the gauge (report-only)"]
   REC --> CHECK
   LEDGER --> WEB["Web app: map, charts, verification"]
-  LEDGER -.->|"next step"| CHAIN["Anchor on Sepolia"]
+  LEDGER -->|"head: SHA-256 of the last line"| CHAIN["LedgerAnchor on Sepolia"]
+  CHAIN --> WEB
 ```
 
 ## Validation (`climate-pipeline quality`)
@@ -109,8 +111,11 @@ flowchart LR
   - the 2026 records up to 2026-10-12 were produced in a batch, after their gauge values were
     public;
   - the strictly prospective check starts with the passes after the cards' commit.
-- **Anchoring the ledger head on a public chain** would add a third-party timestamp. It can only
-  prove the state from the first anchor on, never before.
+- **Anchoring the ledger head on a public chain adds a third-party timestamp.** The contract
+  stores each ledger's head and line count at a block's time ([anchoring.md](anchoring.md)). A
+  record is covered by the first anchor with more lines than its position, and the anchor holds
+  only while the local ledger's hash of that line equals it. An anchor proves the state from its
+  own date on, never before.
 
 ## Not in the product
 
@@ -122,7 +127,7 @@ flowchart LR
 
 ## Open questions
 
-- **Anchoring:** what to anchor (ledger heads, model-card and preregistration hashes), how often,
-  and who signs (a scheduled key, or the operator's wallet from the web app).
+- **Anchoring cadence:** the owner anchors from the web app with a wallet, so each anchor needs a
+  person. A scheduled anchor would need a funded key in the scheduled task.
 - **Coverage:** clouds hide about three passes in four. A cloud-probability mask or more satellites
   (Landsat for turbidity) would shorten the gaps.
