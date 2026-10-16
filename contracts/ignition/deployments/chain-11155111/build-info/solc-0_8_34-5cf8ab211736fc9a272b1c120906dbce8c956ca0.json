@@ -1,0 +1,47 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_34-5cf8ab211736fc9a272b1c120906dbce8c956ca0",
+  "solcVersion": "0.8.34",
+  "solcLongVersion": "0.8.34+commit.80d5c536",
+  "compilerType": "solc",
+  "toolVersions": {
+    "hardhat": "3.18.1"
+  },
+  "userSourceNameMap": {
+    "src/LedgerAnchor.sol": "project/src/LedgerAnchor.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "osaka",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": ["ast"],
+          "*": [
+            "abi",
+            "evm.bytecode.linkReferences",
+            "evm.bytecode.object",
+            "evm.bytecode.opcodes",
+            "evm.bytecode.sourceMap",
+            "evm.deployedBytecode.immutableReferences",
+            "evm.deployedBytecode.linkReferences",
+            "evm.deployedBytecode.object",
+            "evm.deployedBytecode.opcodes",
+            "evm.deployedBytecode.sourceMap",
+            "evm.methodIdentifiers"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/src/LedgerAnchor.sol": {
+        "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.34;\n\n/// @title LedgerAnchor\n/// @notice Public timestamps for TerraChain's append-only ledgers of sealed records.\n/// @dev Each ledger line names the SHA-256 of the line before it, so the SHA-256 of its last line\n/// (the head) commits to every record listed so far. Anchoring a head here proves that the ledger,\n/// up to that line, existed at the block's time. A subject names one ledger, as\n/// `keccak256(\"terrachain:<reach>:<ledger>\")`.\ncontract LedgerAnchor {\n    /// @notice One anchored state of a ledger.\n    /// @param head The SHA-256 of the ledger's last line.\n    /// @param lines The ledger's number of lines at that head.\n    /// @param timestamp The block's timestamp.\n    /// @param blockNumber The block's number.\n    struct Anchor {\n        bytes32 head;\n        uint64 lines;\n        uint64 timestamp;\n        uint64 blockNumber;\n    }\n\n    /// @notice The only account allowed to anchor (the pipeline's operator), as `owner()`.\n    address public immutable owner; // solhint-disable-line immutable-vars-naming\n\n    mapping(bytes32 subject => Anchor[] anchors) private _anchors;\n\n    /// @notice Emitted for every anchored head.\n    /// @param subject The ledger.\n    /// @param index The anchor's position in the ledger's history.\n    /// @param head The SHA-256 of the ledger's last line.\n    /// @param lines The ledger's number of lines.\n    event Anchored(\n        bytes32 indexed subject,\n        uint256 indexed index,\n        bytes32 head,\n        uint64 indexed lines\n    );\n\n    /// @notice Thrown when someone other than the owner anchors.\n    /// @param caller The account that tried.\n    error NotOwner(address caller);\n\n    /// @notice Thrown for an empty head or a ledger without lines.\n    error EmptyAnchor();\n\n    /// @notice Thrown when a ledger would shrink or repeat its last anchored head.\n    /// @param lines The lines offered.\n    /// @param previousLines The lines of the last anchor.\n    error NotGrowing(uint64 lines, uint64 previousLines);\n\n    /// @notice Thrown when the batch's arrays differ in length.\n    error LengthMismatch();\n\n    /// @notice Sets the deployer as the owner.\n    constructor() {\n        owner = msg.sender;\n    }\n\n    /// @notice Anchors one ledger's head.\n    /// @param subject The ledger.\n    /// @param head The SHA-256 of its last line.\n    /// @param lines Its number of lines.\n    function anchor(bytes32 subject, bytes32 head, uint64 lines) external {\n        if (msg.sender != owner) revert NotOwner(msg.sender);\n        _anchor(subject, head, lines);\n    }\n\n    /// @notice Anchors several ledgers' heads in one transaction.\n    /// @param subjects The ledgers.\n    /// @param heads The SHA-256 of each ledger's last line.\n    /// @param lines Each ledger's number of lines.\n    function anchorBatch(\n        bytes32[] calldata subjects,\n        bytes32[] calldata heads,\n        uint64[] calldata lines\n    ) external {\n        if (msg.sender != owner) revert NotOwner(msg.sender);\n        if (subjects.length != heads.length || subjects.length != lines.length) {\n            revert LengthMismatch();\n        }\n        for (uint256 i = 0; i < subjects.length; ++i) {\n            _anchor(subjects[i], heads[i], lines[i]);\n        }\n    }\n\n    /// @notice How many times a ledger was anchored.\n    /// @param subject The ledger.\n    /// @return total The number of anchors.\n    function count(bytes32 subject) external view returns (uint256 total) {\n        total = _anchors[subject].length;\n    }\n\n    /// @notice One anchor of a ledger, oldest first.\n    /// @param subject The ledger.\n    /// @param index The anchor's position.\n    /// @return anchored The anchor.\n    function anchorAt(\n        bytes32 subject,\n        uint256 index\n    ) external view returns (Anchor memory anchored) {\n        anchored = _anchors[subject][index];\n    }\n\n    function _anchor(bytes32 subject, bytes32 head, uint64 lines) private {\n        if (head == bytes32(0) || lines == 0) revert EmptyAnchor();\n        Anchor[] storage list = _anchors[subject];\n        uint256 n = list.length;\n        if (n > 0) {\n            Anchor storage last = list[n - 1];\n            // A ledger only grows: the same head again, or fewer lines, is refused.\n            if (!(lines > last.lines)) revert NotGrowing(lines, last.lines);\n        }\n        list.push(Anchor(head, lines, uint64(block.timestamp), uint64(block.number)));\n        emit Anchored(subject, n, head, lines);\n    }\n}\n"
+      }
+    }
+  }
+}
