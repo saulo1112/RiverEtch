@@ -13,7 +13,8 @@
     "turbidity"
   ],
   "cards": {
-    "turbidity": "cards/turbidity.json"
+    "turbidity": "cards/turbidity.json",
+    "water_temperature": "cards/water_temperature.json"
   },
   "baseline": {
     "first": "2019-01-06",

@@ -1,0 +1,51 @@
+{
+  "basis": "preregistered_lockbox_upstream_site",
+  "candidate": "W2",
+  "halfWidth90": 1.764442,
+  "inputRange": {
+    "max": 33.451,
+    "min": 6.673
+  },
+  "kind": "thermal-linear",
+  "levelCap": "estimated",
+  "levels": [
+    {
+      "level": "estimated",
+      "mae": 0.8583,
+      "n": 37.0,
+      "predicted_range": "all"
+    }
+  ],
+  "metrics": {
+    "lockbox": {
+      "bias": -0.3288,
+      "coverage90": 0.8919,
+      "mae": 0.8583,
+      "n": 37.0,
+      "rho": 0.9768,
+      "rho_low": 0.9681,
+      "rmse": 1.2992
+    },
+    "null_lockbox": {
+      "mae": 1.4144
+    }
+  },
+  "minWaterPixels": 10,
+  "modelId": "W2:water_temperature:core:mississippi-belle-chasse",
+  "parameters": {
+    "a": -0.43391513,
+    "b": 0.95829243
+  },
+  "parametersHash": "527355f02085417672cf45a45a40a644ecb03820a7fa7d69eefcd143f70504a1",
+  "site": "USGS-07374525",
+  "source": "landsat-c2-l2 ST_B10 (lwir11)",
+  "target": "water_temperature",
+  "trainingPairs": {
+    "site": 48
+  },
+  "unit": "°C",
+  "validatedAgainst": "approved values, else provisional",
+  "validationSite": "USGS-07374000",
+  "validationSiteName": "Mississippi River at Baton Rouge, LA",
+  "version": "1"
+}
