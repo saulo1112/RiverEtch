@@ -1,8 +1,9 @@
 """Outputs of the water-quality validation v2, the MANIFEST and its verification.
 
 As in D15, every CSV, JSON and Markdown output is deterministic (no times, sorted keys, rounded
-floats), so a recomputation from the committed snapshots matches the MANIFEST byte for byte. Run
-times and library versions live in ``run.json``, outside the MANIFEST.
+floats), so a recomputation from the committed snapshots matches the MANIFEST byte for byte on the
+machine that wrote it; elsewhere it agrees to the last printed digit (:func:`verify`). Run times and
+library versions live in ``run.json``, outside the MANIFEST.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 from climate_pipeline.calibration.report import VERIFIED, git_blob, read_manifest, write_table
+from climate_pipeline.quality import agreement
 from climate_pipeline.quality.config import QualityConfig
 from climate_pipeline.quality.run import Results, analyse
 from climate_pipeline.screening.report import markdown_table
@@ -246,8 +248,12 @@ def write_outputs(results: Results, cfg: QualityConfig, root: Path, config: Path
     return written
 
 
-def verify(cfg: QualityConfig, root: Path, config: Path) -> list[str]:
-    """Recompute from the snapshots and compare CSV, JSON and Markdown with the MANIFEST.
+def verify(cfg: QualityConfig, root: Path, config: Path) -> tuple[list[str], list[str]]:
+    """Recompute from the snapshots and compare CSV, JSON and Markdown with the committed files.
+
+    Every committed file must still have its MANIFEST hash. A recomputed file matches when its bytes
+    are the same or, where floating point rounds differently on another machine, when it agrees to
+    the last printed digit (:mod:`climate_pipeline.quality.agreement`).
 
     Args:
         cfg: Settings.
@@ -255,18 +261,36 @@ def verify(cfg: QualityConfig, root: Path, config: Path) -> list[str]:
         config: The settings file.
 
     Returns:
-        Mismatches (empty when every verified file matches).
+        The mismatches (empty when every verified file matches) and the files that agree only to
+        the last printed digit.
     """
-    committed = root / cfg.outputs.results / "MANIFEST"
+    results = root / cfg.outputs.results
+    committed = results / "MANIFEST"
     if not committed.exists():
-        return [f"no MANIFEST at {committed}"]
+        return [f"no MANIFEST at {committed}"], []
     expected = read_manifest(committed)
+    problems: list[str] = []
+    near: list[str] = []
     with tempfile.TemporaryDirectory() as tmp:
         target = Path(tmp) / "results"
         write_outputs(analyse(cfg, root), cfg, root, config, target)
         actual = read_manifest(target / "MANIFEST")
-    return [
-        f"{name}: committed {expected.get(name)} recomputed {actual.get(name)}"
-        for name in sorted(set(expected) | set(actual))
-        if name.endswith(VERIFIED) and expected.get(name) != actual.get(name)
-    ]
+        for name in sorted(set(expected) | set(actual)):
+            if not name.endswith(VERIFIED):
+                continue
+            if name not in expected or name not in actual:
+                missing = "not committed" if name in actual else "not recomputed"
+                problems.append(f"{name}: {missing}")
+                continue
+            ours, theirs = results / name, target / name
+            if not ours.exists() or hashlib.sha256(ours.read_bytes()).hexdigest() != expected[name]:
+                problems.append(f"{name}: the committed file does not match the MANIFEST")
+            elif expected[name] != actual[name]:
+                found = agreement.disagreements(
+                    ours.read_text(encoding="utf-8"), theirs.read_text(encoding="utf-8")
+                )
+                if found:
+                    problems.append(f"{name}: {'; '.join(found)}")
+                else:
+                    near.append(name)
+    return problems, near

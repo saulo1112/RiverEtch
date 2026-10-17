@@ -4,7 +4,8 @@ This report gives the result the product publishes (the water-quality validation
 how the reaches behave in operation, and the limits of the method. The rules are in the
 [preregistration](preregistration.md); every number below is recomputed from committed snapshots by
 `climate-pipeline quality run` ([results](results/results.md), [summary](results/summary.json)) and
-checked byte for byte in CI by `quality verify`.
+checked in CI by `quality verify`: byte for byte, or to the last printed digit where another
+machine rounds floating point differently (deviation 14).
 
 > Every published error is out of sample: a locked test evaluated once, or leave-one-year-out. An
 > in-sample fit is never shown as an error. A choice made after seeing results is labelled
@@ -249,8 +250,9 @@ against the gauge's value at the overpass.
 
 ## Integrity
 
-- Eleven deviations are listed in the preregistration, each with what was seen when it was found.
-- The pipeline runs `quality run` in about 3.5 minutes and CI recomputes everything byte for byte.
+- Fourteen deviations are listed in the preregistration, each with what was seen when it was found.
+- `quality run` recomputes every result in a few minutes, and CI checks them against the MANIFEST
+  (deviation 14).
 
 ## Annex: earlier rounds on a Colombian reach
 
