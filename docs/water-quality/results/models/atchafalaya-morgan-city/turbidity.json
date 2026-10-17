@@ -164,7 +164,7 @@
   "metrics": {
     "inner": {
       "coverage80": 0.8462,
-      "coverage90": 0.9487,
+      "coverage90": 0.9615,
       "mape": 20.9906,
       "mdsa": 16.8703,
       "n": 78.0,

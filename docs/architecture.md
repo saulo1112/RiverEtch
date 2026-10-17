@@ -55,7 +55,8 @@ flowchart LR
 
 - **Snapshots:** every input (gauge values, satellite windows, Landsat temperatures) is fetched once
   into `docs/water-quality/inputs/` with a manifest. `quality run` recomputes every result from them
-  offline, and `quality verify` checks the outputs byte for byte against `results/MANIFEST` in CI.
+  offline, and `quality verify` checks the outputs against `results/MANIFEST` in CI: byte for
+  byte, or to the last printed digit where another machine rounds floating point differently.
 - **Protocol:** the [preregistration](water-quality/preregistration.md) fixes the candidates, the
   metrics and the levels before anything is computed.
   - Training covers hydrological years 2019–2023.

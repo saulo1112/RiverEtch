@@ -557,9 +557,11 @@ def quality(args: argparse.Namespace) -> int:
         print(f"snapshots: {counts}")
         return 1 if counts["read_errors"] or counts["failures"] else 0
     if args.action == "verify":
-        problems = verify(cfg, root, config)
+        problems, near = verify(cfg, root, config)
         for line in problems:
             print(line)
+        for name in near:
+            print(f"{name}: agrees to the last printed digit (floating point on this machine)")
         print("verified" if not problems else f"{len(problems)} mismatches")
         return 1 if problems else 0
     started = datetime.now(UTC).isoformat(timespec="seconds")

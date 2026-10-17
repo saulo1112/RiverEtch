@@ -114,7 +114,7 @@ proves the ledger's state from its own date on, never before. See
 ├── web/        Vite + React: the globe, the cases and the case view (map, charts, record verification)
 ├── contracts/  Hardhat 3: the ledger anchor (LedgerAnchor, Sepolia) and a ZK toolchain scaffold
 ├── docs/       the water-quality report and preregistration, the record schema, the decision log
-└── .github/    CI: every result is recomputed byte for byte
+└── .github/    CI: every result is recomputed and checked against its MANIFEST
 ```
 
 **Key documents:**
@@ -155,7 +155,7 @@ no account and no wallet. `web/.env.example` lists the optional WalletConnect an
 cd pipeline
 uv sync                                                  # Python 3.12 and the locked dependencies
 uv run climate-pipeline quality run --root ..            # recompute every validation from the snapshots
-uv run climate-pipeline quality verify --root ..         # check them byte for byte against the MANIFEST
+uv run climate-pipeline quality verify --root ..         # compare them with the MANIFEST, to the last digit
 uv run pytest tests/test_reach_examples.py               # check every committed record's seal, ledger and card
 ```
 

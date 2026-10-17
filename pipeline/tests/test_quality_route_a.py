@@ -63,6 +63,17 @@ def test_conformal_quantiles_cover_their_own_residuals() -> None:
     assert route_a.conformal([1.0, math.nan], [1.0, 2.0], (0.9,)) is None
 
 
+def test_a_value_on_the_interval_edge_is_inside_on_every_machine() -> None:
+    # Its residual is the quantile; e * exp(q) can round below it (445.24699999999996 here).
+    estimate, observed = 196.418, 445.247
+    edge = float(route_a.log_residuals(np.array([estimate]), np.array([observed]))[0])
+    q = route_a.Quantiles((1.0, 2.0), {0.9: (edge, edge, edge)})
+    assert q.contains(estimate, observed, 0.9)
+    assert not q.contains(estimate, observed * (1 + 1e-9), 0.9)
+    assert not q.contains(estimate, 0.0, 0.9)
+    assert route_a.Quantiles((1.0, 2.0), {0.9: (math.inf,) * 3}).contains(estimate, 0.0, 0.9)
+
+
 def test_small_terciles_fall_back_to_one_pooled_quantile() -> None:
     estimates = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
     observed = [e * f for e, f in zip(estimates, [1.1, 0.8, 1.3, 0.9, 1.5, 1.2], strict=True)]

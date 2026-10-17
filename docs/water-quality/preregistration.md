@@ -1568,3 +1568,34 @@ Pairs use approved values only, except at Baton Rouge (see C).
       pairs and every analysis rule.
     - **What was seen:** the run log's counts and the meter. No water count or gauge value of the
       first run was read. Its snapshots were overwritten by the rerun.
+
+14. **2026-10-16, found because CI kept failing on Linux, after every result was seen: a value on
+    an interval's edge.**
+    - **What happened:**
+      - `quality verify` recomputes every output and compared its bytes with the MANIFEST. On
+        GitHub's Linux runners it failed on every run since the v4 merge (#16), on a set of files
+        that changed from run to run. On the Windows machine that wrote the MANIFEST it passed.
+      - On that machine, a recomputation with another OpenBLAS kernel
+        (`OPENBLAS_CORETYPE=Sandybridge`) changed five files, and only their coverages: one
+        measured value more or less inside an interval.
+      - The cause: a split-conformal quantile is one of the residuals it comes from. Where a
+        coverage is checked on those same residuals (Route A's and the Landsat leave-one-river-out
+        scores, a card's inner coverage), one value per quantile lies exactly on the interval's
+        edge. The check compared the measured value with ŷ·exp(±q), so the last bit of `exp` and of
+        the product decided whether that value was inside, and it differs between machines.
+    - **The fix:** a value is inside when |log(o / ŷ)| ≤ q, with the residual computed as the
+      quantile's was. In exact arithmetic it is the same rule; a value on the edge is now inside on
+      every machine. After the fix, the two OpenBLAS kernels give identical outputs.
+    - **What changes:** 38 coverages, each up by the values on an edge:
+      - 15 in `landsat_scores.csv` and 23 in `route_a_scores.csv`, and `results.md` with them;
+      - the inner 90 % coverage of two cards: Atchafalaya at Morgan City (0.9487 → 0.9615) and
+        San Joaquin at Jersey Point (0.9046 → 0.9129).
+    - **What does not change:**
+      - every estimate, coefficient, quantile, locked-test score and level, and `summary.json`;
+      - the cards of the demo reaches (Platte, Belle Chasse, Hermann), whose hashes the anchored
+        ledgers name.
+    - **Verification from now on:** every committed output must match the MANIFEST. A recomputed
+      output must match it byte for byte or, where another machine rounds floating point
+      differently, agree to its last printed digit, with every label, level and count identical.
+    - **What was seen:** the CI logs, the coverages above and their recomputation under the two
+      kernels.
