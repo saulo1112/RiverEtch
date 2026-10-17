@@ -299,9 +299,56 @@ class Quantiles:
         Returns:
             ``(low, high)``; infinite when even the pooled residuals were too few.
         """
-        k = 0 if estimate < self.edges[0] else 1 if estimate < self.edges[1] else 2
-        q = self.q[coverage][k]
+        q = self.quantile(estimate, coverage)
         return estimate * math.exp(-q), estimate * math.exp(q)
+
+    def quantile(self, estimate: float, coverage: float) -> float:
+        """The quantile of an estimate's tercile.
+
+        Args:
+            estimate: The estimate.
+            coverage: E.g. 0.9.
+
+        Returns:
+            The quantile of the log residual (infinite when the residuals were too few).
+        """
+        k = 0 if estimate < self.edges[0] else 1 if estimate < self.edges[1] else 2
+        return self.q[coverage][k]
+
+    def contains(self, estimate: float, observed: float, coverage: float) -> bool:
+        """Whether a measured value lies in an estimate's interval.
+
+        Judged on the log residual the quantiles are built from, so a value on the interval's
+        edge (the residual that is the quantile) is inside on every machine. The interval's bounds
+        go through exp and a product, whose last bit decided that value before.
+
+        Args:
+            estimate: The estimate (finite and positive).
+            observed: The measured value.
+            coverage: E.g. 0.9.
+
+        Returns:
+            True when ``|log(observed / estimate)|`` is at most the quantile.
+        """
+        q = self.quantile(estimate, coverage)
+        if not observed > 0:  # no log residual: only an unbounded interval reaches zero
+            return observed == 0 and math.isinf(q)
+        residual = log_residuals(np.array([estimate]), np.array([observed]))[0]
+        return bool(residual <= q)
+
+
+def log_residuals(estimates: NDArray[np.float64], observed: NDArray[np.float64]
+                  ) -> NDArray[np.float64]:  # fmt: skip
+    """``|log(observed / estimate)|``, the residual the intervals are built from and checked on.
+
+    Args:
+        estimates: Estimates (positive).
+        observed: Measured values (positive).
+
+    Returns:
+        The residuals.
+    """
+    return np.abs(np.log(observed / estimates))
 
 
 def conformal(estimates: Sequence[float], observed: Sequence[float],
@@ -324,7 +371,7 @@ def conformal(estimates: Sequence[float], observed: Sequence[float],
     if len(ok) < 3:
         return None
     est = np.array([e for e, _ in ok])
-    res = np.abs(np.log(np.array([o for _, o in ok]) / est))
+    res = log_residuals(est, np.array([o for _, o in ok]))
     edges = (float(np.quantile(est, 1 / 3)), float(np.quantile(est, 2 / 3)))
     tercile = np.where(est < edges[0], 0, np.where(est < edges[1], 1, 2))
     q: dict[float, tuple[float, float, float]] = {}
@@ -362,8 +409,7 @@ def covered(quantiles: Quantiles | None, estimates: Sequence[float], observed: S
     inside = []
     for e, o in zip(estimates, observed, strict=True):
         if math.isfinite(e) and e > 0:
-            low, high = quantiles.interval(e, coverage)
-            inside.append(low <= o <= high)
+            inside.append(quantiles.contains(e, o, coverage))
     return float(np.mean(inside)) if inside else math.nan
 
 

@@ -171,8 +171,7 @@ def _valid(
 def _hit(q: Quantiles | None, estimate: float, observed: float, coverage: float) -> bool | None:
     if q is None or not (math.isfinite(estimate) and estimate > 0):
         return None
-    low, high = q.interval(estimate, coverage)
-    return low <= observed <= high
+    return q.contains(estimate, observed, coverage)
 
 
 def metrics(cfg: QualityConfig, pool: Sequence[Pair], result: Nested, idx: Sequence[int],
