@@ -25,7 +25,9 @@ export type AnchorStatus =
   | { readonly state: "mismatch"; readonly anchor: ChainAnchor; readonly index: number };
 
 /**
- * The label a ledger is anchored under; the contract's subject is its keccak256.
+ * The label a ledger is anchored under; the contract's subject is its keccak256. It keeps the
+ * project's first name (TerraChain): the anchors already on Sepolia were made under it, so a new
+ * prefix would leave every record unanchored.
  *
  * @param reachId - The reach.
  * @param ledger - Which ledger.

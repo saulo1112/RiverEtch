@@ -5,6 +5,7 @@ import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
 import { thermalValidatedAt } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
+import { ClimateView } from "./ClimateView.tsx";
 import { PassStatsView } from "./PassStatsView.tsx";
 import { ProfileChart } from "./ProfileChart.tsx";
 import { SeriesChart } from "./SeriesChart.tsx";
@@ -12,7 +13,7 @@ import { ThermalChart } from "./ThermalChart.tsx";
 import { WaterQualityView } from "./WaterQualityView.tsx";
 
 /** The bottom panel's tabs. */
-export type BottomTab = "quality" | "series" | "thermal" | "profile" | "pass";
+export type BottomTab = "quality" | "series" | "thermal" | "climate" | "profile" | "pass";
 
 /** Props of {@link Timeline}. */
 export interface TimelineProps {
@@ -41,7 +42,7 @@ export interface TimelineProps {
   readonly onProbe: (place: number | null) => void;
 }
 
-const TABS: readonly BottomTab[] = ["quality", "series", "thermal", "profile", "pass"];
+const TABS: readonly BottomTab[] = ["quality", "series", "thermal", "climate", "profile", "pass"];
 
 function IconButton({
   label,
@@ -70,8 +71,9 @@ function IconButton({
 
 /**
  * Bottom panel: the year's passes (turbidity in FNU beside the gauge), the water temperature from
- * Landsat where the reach has it, the selected pass along the river, and its statistics and the
- * gauge's readings, on tabs; the time-lapse plays the year pass by pass.
+ * Landsat where the reach has it, the gauge's whole record as climate context, the selected pass
+ * along the river, and its statistics and the gauge's readings, on tabs; the time-lapse plays the
+ * year pass by pass.
  *
  * @param props - The reach, the selection, the tab, the time-lapse and the pass's analysis.
  * @returns The panel.
@@ -82,7 +84,10 @@ export function Timeline(props: TimelineProps) {
   const last = reach.series.length - 1;
   const upstream = thermalValidatedAt(reach);
   const row = reach.series[selected] ?? null;
-  const shown = TABS.filter((t) => t !== "thermal" || reach.thermal !== null);
+  const shown = TABS.filter(
+    (t) =>
+      (t !== "thermal" || reach.thermal !== null) && (t !== "climate" || reach.climate !== null),
+  );
   return (
     <section className="case-panel case-timeline case-glass" data-frame="" aria-label={tabs[tab]}>
       <header className="case-timeline__head">
@@ -169,6 +174,14 @@ export function Timeline(props: TimelineProps) {
               {CASE_COPY.thermal.cursor}
             </li>
           </ul>
+        ) : tab === "climate" ? (
+          <p className="case-timeline__note">
+            {CASE_COPY.climate.lead} (
+            <a href={CASE_COPY.climate.citeUrl} target="_blank" rel="noreferrer">
+              {CASE_COPY.climate.cite}
+            </a>
+            ). {CASE_COPY.climate.note}
+          </p>
         ) : tab === "profile" ? (
           <p className="case-timeline__note">{CASE_COPY.profile.hint}</p>
         ) : null}
@@ -190,6 +203,8 @@ export function Timeline(props: TimelineProps) {
             cursor={row?.date ?? null}
             onSelect={props.onThermalSelect}
           />
+        ) : tab === "climate" && reach.climate !== null ? (
+          <ClimateView climate={reach.climate} />
         ) : tab === "profile" ? (
           <ProfileChart
             reach={reach}

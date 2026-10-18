@@ -1,9 +1,9 @@
-# TerraChain
+# RiverEtch
 
 **Satellite water-quality estimates, validated against river gauges, with a record nobody can
 quietly rewrite.**
 
-TerraChain reads rivers from free satellite imagery (Sentinel-2 and Landsat). It turns each clear
+RiverEtch reads rivers from free satellite imagery (Sentinel-2 and Landsat). It turns each clear
 pass into water-quality values with a stated error. Every value was tested once, on years its model
 never saw, against a USGS gauge. Each pass is sealed as a record (the SHA-256 of its content) and
 chained in an append-only ledger, so anyone can recompute it from public data and see that it has not
@@ -15,13 +15,13 @@ monitoring.
 ## Who it is for
 
 A water-quality analyst at an environmental agency. They need an independent estimate they can cite,
-and they need to show it was not adjusted after the fact. The gauge is the referee: TerraChain
+and they need to show it was not adjusted after the fact. The gauge is the referee: RiverEtch
 publishes a value only where a gauge validated its model. Every record says which model card
 produced it.
 
 ## Why it matters for climate
 
-Rivers carry the climate's extremes, and the two reaches TerraChain follows have lived through
+Rivers carry the climate's extremes, and the two reaches RiverEtch follows have lived through
 them. These numbers are the USGS gauges' own daily records (`reach climate`), not satellite
 estimates:
 
@@ -122,7 +122,7 @@ See [docs/anchoring.md](docs/anchoring.md).
   passes after the cards' commit.
 - **A seal shows a record has not changed, not that it is right.** Correctness comes from the locked
   tests and the live check.
-- **Our own process rejected our first pitch.** TerraChain started on Colombian rivers. IDEAM's
+- **Our own process rejected our first pitch.** RiverEtch started on Colombian rivers. IDEAM's
   point samples met too few clear scenes to validate any model, so no Colombian value is published.
   Those rounds stay in the [preregistration](docs/water-quality/preregistration.md) with every
   attempt counted.

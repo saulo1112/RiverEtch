@@ -2,10 +2,10 @@
 // validated it, with its error; NDTI stays relative; nothing claims causes or proof of compliance.
 
 /**
- * Product name. A placeholder: changing it here renames the product everywhere in the UI.
+ * Product name: changing it here renames the product in the UI and in the wallets.
  * `web/index.html` repeats it in the page title.
  */
-export const BRAND_NAME = "TerraChain";
+export const BRAND_NAME = "RiverEtch";
 
 /** Header: the brand link and the profile button. */
 export const HEADER = {

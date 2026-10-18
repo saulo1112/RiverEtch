@@ -1799,6 +1799,116 @@
   color: var(--text-2);
 }
 
+/* Climate context: the gauge's record, year by year. Its marks wear the gauge's amber. */
+.case-timeline__note a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.case-climate {
+  display: grid;
+  grid-template-columns: minmax(200px, 270px) minmax(0, 1fr);
+  gap: 16px;
+  height: 100%;
+}
+
+.case-climate__facts {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.case-climate__fact {
+  display: grid;
+  gap: 0;
+  padding: 2px 9px;
+  line-height: 1.2;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-2);
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.case-climate__fact:hover {
+  background: rgb(255 255 255 / 0.05);
+}
+
+.case-climate__fact[aria-checked="true"] {
+  border-color: rgb(245 185 66 / 0.45);
+  background: rgb(245 185 66 / 0.08);
+}
+
+.case-climate__fact-what {
+  color: var(--text-3);
+  font-size: 10.5px;
+}
+
+.case-climate__fact-value {
+  color: var(--text-1);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.case-climate__fact-value span {
+  color: var(--text-3);
+}
+
+.case-climate__since {
+  margin: auto 0 0;
+  padding-inline: 9px;
+  color: var(--text-3);
+  font-size: 10.5px;
+}
+
+.case-climate__bar {
+  fill: rgb(244 248 255 / 0.32);
+}
+
+.case-climate__dot {
+  fill: rgb(244 248 255 / 0.55);
+  stroke: #0a1122;
+  stroke-width: 1.5;
+}
+
+.case-climate__bar[data-tone="top"],
+.case-climate__dot[data-tone="top"] {
+  fill: #f5b942;
+}
+
+.case-climate__bar[data-tone="gap"],
+.case-climate__dot[data-tone="gap"] {
+  fill: rgb(244 248 255 / 0.14);
+}
+
+.case-climate__bar[data-tone="now"],
+.case-climate__dot[data-tone="now"] {
+  fill: none;
+  stroke: rgb(244 248 255 / 0.7);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+
+.case-climate__bar[data-active="true"] {
+  fill: #f4f8ff;
+}
+
+.case-climate__dot[data-active="true"] {
+  fill: #f4f8ff;
+}
+
+.case-climate__label {
+  fill: var(--text-1);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .case-profile__part {
   fill: rgb(244 248 255 / 0.05);
   stroke: rgb(244 248 255 / 0.35);
@@ -2357,6 +2467,10 @@
     gap: 12px;
   }
 
+  .case-climate__since {
+    display: none;
+  }
+
   .case-side {
     gap: 10px;
   }
@@ -2515,6 +2629,28 @@
 
   .case-timeline__body {
     height: 100px;
+  }
+
+  /* Climate: the record years become one row of compact choices above the chart. */
+  .case-climate {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 4px;
+  }
+
+  .case-climate__facts {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .case-climate__fact {
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  .case-climate__fact-what,
+  .case-climate__since {
+    display: none;
   }
 
   .case-file__thermal-note {
