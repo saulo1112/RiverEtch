@@ -507,7 +507,10 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   let bloomPass: UnrealBloomPass | null = null;
   let outputPass: OutputPass | null = null;
   if (preset.bloom) {
-    const samples = pixelRatio < 1.25 ? 4 : pixelRatio < 1.75 ? 2 : 0;
+    // MSAA samples by the drawing buffer's size: 4 up to about 1440p (also laptops at 125-150 %
+    // display scaling, where 2 left the bright limb visibly stepped), 2 above it, none from 1.75x.
+    const bufferPixels = container.clientWidth * container.clientHeight * pixelRatio ** 2;
+    const samples = pixelRatio >= 1.75 ? 0 : bufferPixels <= 4.2e6 ? 4 : 2;
     composer.reset(new WebGLRenderTarget(1, 1, { type: HalfFloatType, samples }));
     composer.setPixelRatio(pixelRatio);
     const { strength, radius, threshold } = POST.bloom;
