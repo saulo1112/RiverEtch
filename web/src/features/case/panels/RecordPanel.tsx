@@ -31,7 +31,7 @@ export interface RecordPanelProps {
 }
 
 /** The repository the records' code commits belong to. */
-export const REPOSITORY = "https://github.com/saulo1112/Climate_Change_IEEE";
+export const REPOSITORY = "https://github.com/saulo1112/RiverEtch";
 
 // A check, and the record file it is about (a new selection shows none).
 type CheckState =
