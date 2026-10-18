@@ -40,6 +40,7 @@ const reach: ReachData = {
   geometry: null,
   thermal: null,
   context: [],
+  climate: null,
 };
 
 void test("formatters keep the sign and one decimal under 100", () => {

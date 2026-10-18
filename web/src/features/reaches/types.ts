@@ -251,6 +251,63 @@ export interface TemperatureCard {
   };
 }
 
+/** What every year of `climate.json` holds (`reach climate`, docs/water-quality/reach/README.md). */
+interface ClimateYearBase {
+  readonly year: number;
+  /** Days with a value (for the temperature, days from June to September). */
+  readonly days: number;
+  /** Covered enough to be ranked (never the year of the last value). */
+  readonly complete: boolean;
+  /** The year of the last value: shown to date, never ranked. */
+  readonly toDate: boolean;
+  /** Some of its values are still provisional. */
+  readonly provisional: boolean;
+}
+
+/** One calendar year of the gauge's discharge (m³/s). */
+export interface ClimateFlowYear extends ClimateYearBase {
+  readonly peak: number;
+  readonly peakDay: string;
+  /** 1 = the highest of the ranked years (null: not ranked). */
+  readonly peakRank: number | null;
+  /** The lowest mean of 7 consecutive days (null: no full week). */
+  readonly low7: number | null;
+  /** The last day of that week. */
+  readonly low7Day: string | null;
+  /** 1 = the lowest of the ranked years. */
+  readonly low7Rank: number | null;
+}
+
+/** One calendar year of the gauge's water temperature (°C). */
+export interface ClimateHeatYear extends ClimateYearBase {
+  /** The warmest daily mean from June to September. */
+  readonly warmest: number;
+  readonly warmestDay: string;
+  /** 1 = the warmest of the ranked years. */
+  readonly warmestRank: number | null;
+}
+
+/** `climate.json`: the gauge's own daily record, year by year (never an estimate). */
+export interface ClimateRecord {
+  readonly station: { readonly id: string; readonly name: string; readonly url?: string };
+  readonly source: string;
+  /** The last day with a value. */
+  readonly through: string;
+  readonly discharge: {
+    readonly unit: string;
+    /** The first day of the record. */
+    readonly first: string;
+    readonly rankedYears: number;
+    readonly years: readonly ClimateFlowYear[];
+  };
+  readonly temperature: {
+    readonly unit: string;
+    readonly first: string;
+    readonly rankedYears: number;
+    readonly years: readonly ClimateHeatYear[];
+  } | null;
+}
+
 /** Everything the case view loads for one reach, up front. */
 export interface ReachData {
   /** Where the files live (ends with a slash). */
@@ -269,4 +326,6 @@ export interface ReachData {
   } | null;
   /** The gauge's own readings at each Sentinel-2 pass (v6). */
   readonly context: readonly ContextReading[];
+  /** The gauge's whole daily record, year by year: the climate context (null: none yet). */
+  readonly climate: ClimateRecord | null;
 }

@@ -2,6 +2,7 @@
 // see vite.config.ts): once per reach, shared by the cases screen and the case view.
 import { parseChecks, parseContext, parseThermalChecks } from "./checks.ts";
 import type {
+  ClimateRecord,
   MapsIndex,
   ModelCard,
   ReachData,
@@ -45,8 +46,9 @@ async function fetchJson<T>(url: string): Promise<T | null> {
 const loads = new Map<string, Promise<ReachData>>();
 
 /**
- * Loads a reach's info, series, card, gauge check, map index, geometry, the gauge's readings and,
- * where it has them, its water temperatures (cached; a failed load is retried on the next call).
+ * Loads a reach's info, series, card, gauge check, map index, geometry, the gauge's readings, its
+ * climate context and, where it has them, its water temperatures (cached; a failed load is
+ * retried on the next call).
  * The info and the series are required; any other file may be missing.
  *
  * @param id - The reach's site id.
@@ -59,13 +61,14 @@ export function loadReach(id: string): Promise<ReachData> {
   }
   const base = reachBase(id);
   const pending = (async (): Promise<ReachData> => {
-    const [info, series, maps, geometry, checks, context] = await Promise.all([
+    const [info, series, maps, geometry, checks, context, climate] = await Promise.all([
       fetchJson<ReachInfo>(`${base}reach.json`),
       fetchJson<SeriesRow[]>(`${base}series.json`),
       fetchJson<MapsIndex>(`${base}maps.json`),
       fetchJson<ReachGeometry>(`${base}geometry.geojson`),
       fetchText(`${base}checks/checks.csv`),
       fetchText(`${base}checks/context.csv`),
+      fetchJson<ClimateRecord>(`${base}climate.json`),
     ]);
     if (info === null || series === null) {
       throw new Error(`${id}: the reach's files could not be loaded`);
@@ -96,6 +99,7 @@ export function loadReach(id: string): Promise<ReachData> {
               card: tempCard,
             },
       context: context === null ? [] : parseContext(context),
+      climate,
     };
   })();
   loads.set(id, pending);
