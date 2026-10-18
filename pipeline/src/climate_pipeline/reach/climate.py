@@ -1,0 +1,275 @@
+"""A reach's gauge record, year by year: the climate context of its passes (never an estimate).
+
+``reach climate`` fetches the estimate station's daily mean discharge, and its daily mean water
+temperature where the gauge measures it, for the whole period of record from the USGS OGC API. It
+keeps them as a snapshot (``docs/water-quality/reach/<site>/climate/daily.csv``) and writes
+``climate.json`` beside the reach's examples for the web. Per calendar year:
+
+* **peak**: the highest daily mean discharge, and its day;
+* **7-day low**: the lowest mean of 7 consecutive days inside the year (all seven measured), and
+  the last of those days;
+* **warmest**: the highest daily mean water temperature, and its day.
+
+A year is ranked when at least 90 % of its days have a discharge (for the temperature, 90 % of the
+days from June to September). The year of the last value is shown to date and never ranked. A year
+with a provisional value is labelled. These are the gauge's own measurements: nothing here comes
+from a satellite, and nothing states a trend or a cause.
+"""
+
+from __future__ import annotations
+
+import csv
+import io
+import json
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass
+from datetime import date, timedelta
+from pathlib import Path
+from typing import Any
+
+import httpx
+
+from climate_pipeline.quality.config import load_quality_config
+from climate_pipeline.reach import run as reach_run
+from climate_pipeline.reach.config import ReachConfig
+from climate_pipeline.sources import usgs
+
+DISCHARGE, TEMPERATURE = "00060", "00010"
+FT3_TO_M3 = 0.028316846592  # (0.3048 m)³, exact
+COVERAGE = 0.9  # share of a year's days (of June-September's for the temperature) to rank it
+LOW_WINDOW = 7
+SUMMER = (6, 7, 8, 9)
+FIRST_DAY = "1800-01-01"  # before any USGS daily value
+SNAPSHOT_COLUMNS = ("day", "parameter", "value", "approval")
+
+
+@dataclass(frozen=True)
+class Daily:
+    """One daily mean value of the gauge."""
+
+    day: date
+    value: float
+    provisional: bool
+
+
+def fetch(client: httpx.Client, api: str, station: str, until: date) -> list[dict[str, Any]]:
+    """The station's daily mean discharge and water temperature over its period of record.
+
+    Args:
+        client: HTTP client.
+        api: OGC API root.
+        station: E.g. ``USGS-06805500``.
+        until: Last day.
+
+    Returns:
+        Snapshot rows (``day``, ``parameter``, ``value`` in ft³/s or °C, ``approval``), sorted.
+    """
+    rows = []
+    for parameter in (DISCHARGE, TEMPERATURE):
+        readings, _ = usgs.daily(client, api, station, parameter, FIRST_DAY, until.isoformat())
+        rows += [{"day": r.time.date().isoformat(), "parameter": parameter, "value": r.value,
+                  "approval": r.approval} for r in readings]  # fmt: skip
+    return sorted(rows, key=lambda r: (r["parameter"], r["day"]))
+
+
+def write_snapshot(path: Path, rows: Iterable[Mapping[str, Any]]) -> None:
+    """The fetched values, one row per day and parameter (LF line ends).
+
+    Args:
+        path: The CSV.
+        rows: Snapshot rows.
+    """
+    out = io.StringIO()
+    writer = csv.writer(out, lineterminator="\n")
+    writer.writerow(SNAPSHOT_COLUMNS)
+    for r in rows:
+        writer.writerow([r[c] for c in SNAPSHOT_COLUMNS])
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(out.getvalue(), encoding="utf-8", newline="\n")
+
+
+def read_snapshot(path: Path) -> dict[str, list[Daily]]:
+    """A snapshot's values per parameter, in day order.
+
+    Args:
+        path: The CSV.
+
+    Returns:
+        ``parameter -> values``.
+    """
+    out: dict[str, list[Daily]] = {}
+    for r in csv.DictReader(io.StringIO(path.read_text(encoding="utf-8"))):
+        out.setdefault(r["parameter"], []).append(
+            Daily(date.fromisoformat(r["day"]), float(r["value"]), r["approval"] != "Approved")
+        )
+    for values in out.values():
+        values.sort(key=lambda d: d.day)
+    return out
+
+
+def _days_in(year: int, months: Sequence[int] | None = None) -> int:
+    first, last = date(year, 1, 1), date(year, 12, 31)
+    days = (last - first).days + 1
+    if months is None:
+        return days
+    return sum(1 for k in range(days) if (first + timedelta(days=k)).month in months)
+
+
+def _ranks(values: Mapping[int, float], highest_first: bool) -> dict[int, int]:
+    # Competition ranking: a tie shares the better rank.
+    sign = -1.0 if highest_first else 1.0
+    return {y: 1 + sum(1 for w in values.values() if sign * w < sign * v)
+            for y, v in values.items()}  # fmt: skip
+
+
+def discharge_years(values: Sequence[Daily], through: date) -> list[dict[str, Any]]:
+    """Each calendar year's peak and 7-day low discharge (m³/s), ranked over the complete years.
+
+    Args:
+        values: Daily mean discharge (ft³/s, as published), in day order.
+        through: The last day with a value: its year is shown to date, never ranked.
+
+    Returns:
+        One row per year with a value.
+    """
+    by_year: dict[int, dict[date, Daily]] = {}
+    for d in values:
+        by_year.setdefault(d.day.year, {})[d.day] = d
+    rows: list[dict[str, Any]] = []
+    for year, days in sorted(by_year.items()):
+        peak = max(days.values(), key=lambda d: (d.value, -d.day.toordinal()))
+        low: tuple[float, date] | None = None
+        for first in sorted(days):
+            window = [first + timedelta(days=k) for k in range(LOW_WINDOW)]
+            if window[-1].year != year or any(w not in days for w in window):
+                continue
+            mean = sum(days[w].value for w in window) / LOW_WINDOW
+            if low is None or mean < low[0]:
+                low = (mean, window[-1])
+        complete = year != through.year and len(days) >= COVERAGE * _days_in(year)
+        rows.append({
+            "year": year, "days": len(days), "complete": complete, "toDate": year == through.year,
+            "provisional": any(d.provisional for d in days.values()),
+            "peak": round(peak.value * FT3_TO_M3, 1), "peakDay": peak.day.isoformat(),
+            "low7": None if low is None else round(low[0] * FT3_TO_M3, 1),
+            "low7Day": None if low is None else low[1].isoformat(),
+        })  # fmt: skip
+    ranked = [r for r in rows if r["complete"]]
+    peaks = _ranks({r["year"]: r["peak"] for r in ranked}, highest_first=True)
+    lows = _ranks({r["year"]: r["low7"] for r in ranked if r["low7"] is not None}, False)
+    for r in rows:
+        r["peakRank"] = peaks.get(r["year"])
+        r["low7Rank"] = lows.get(r["year"])
+    return rows
+
+
+def temperature_years(values: Sequence[Daily], through: date) -> list[dict[str, Any]]:
+    """Each calendar year's warmest daily mean water temperature (°C), ranked over complete years.
+
+    Args:
+        values: Daily mean water temperature (°C), in day order.
+        through: The last day with a discharge or temperature: its year is never ranked.
+
+    Returns:
+        One row per year with a summer value.
+    """
+    by_year: dict[int, list[Daily]] = {}
+    for d in values:
+        if d.day.month in SUMMER:
+            by_year.setdefault(d.day.year, []).append(d)
+    rows: list[dict[str, Any]] = []
+    for year, days in sorted(by_year.items()):
+        warmest = max(days, key=lambda d: (d.value, -d.day.toordinal()))
+        complete = year != through.year and len(days) >= COVERAGE * _days_in(year, SUMMER)
+        rows.append({
+            "year": year, "days": len(days), "complete": complete, "toDate": year == through.year,
+            "provisional": any(d.provisional for d in days),
+            "warmest": round(warmest.value, 1), "warmestDay": warmest.day.isoformat(),
+        })  # fmt: skip
+    ranks = _ranks({r["year"]: r["warmest"] for r in rows if r["complete"]}, highest_first=True)
+    for r in rows:
+        r["warmestRank"] = ranks.get(r["year"])
+    return rows
+
+
+def summarise(snapshot: Mapping[str, Sequence[Daily]], station: Mapping[str, Any]
+              ) -> dict[str, Any]:  # fmt: skip
+    """``climate.json``: the station, the rules and each year's extremes.
+
+    Args:
+        snapshot: The snapshot's values per parameter.
+        station: The station as ``reach.json`` names it (``id``, ``name``, ``url``).
+
+    Returns:
+        The document (deterministic for a given snapshot).
+    """
+    flow = list(snapshot.get(DISCHARGE, []))
+    warm = list(snapshot.get(TEMPERATURE, []))
+    if not flow:
+        raise reach_run.ReachError(f"{station.get('id')}: no daily discharge")
+    through = max(d.day for d in [*flow, *warm])
+    years = discharge_years(flow, through)
+    out: dict[str, Any] = {
+        "station": dict(station),
+        "source": "USGS Water Data, daily mean values (OGC API)",
+        "through": through.isoformat(),
+        "rules": {"coverage": COVERAGE, "lowWindowDays": LOW_WINDOW, "summerMonths": list(SUMMER)},
+        "discharge": {"unit": "m³/s", "first": flow[0].day.isoformat(),
+                      "rankedYears": sum(1 for r in years if r["complete"]), "years": years},
+        "temperature": None,
+    }  # fmt: skip
+    if warm:
+        rows = temperature_years(warm, through)
+        out["temperature"] = {"unit": "°C", "first": warm[0].day.isoformat(),
+                              "rankedYears": sum(1 for r in rows if r["complete"]),
+                              "years": rows}  # fmt: skip
+    return out
+
+
+def snapshot_path(root: Path, site_id: str) -> Path:
+    """Where a reach's daily snapshot lives (beside its examples, not served to the web).
+
+    Args:
+        root: Repository root.
+        site_id: The reach.
+
+    Returns:
+        The CSV path.
+    """
+    return root / "docs" / "water-quality" / "reach" / site_id / "climate" / "daily.csv"
+
+
+def climate(cfg: ReachConfig, root: Path, site_id: str, until: date | None = None,
+            http: httpx.Client | None = None) -> dict[str, Any]:  # fmt: skip
+    """Fetch a reach's gauge record and write its snapshot and ``climate.json``.
+
+    Args:
+        cfg: Reach settings.
+        root: Repository root.
+        site_id: The reach.
+        until: Last day to fetch (default: yesterday).
+        http: HTTP client (injectable).
+
+    Returns:
+        The counts written.
+
+    Raises:
+        ReachError: For a reach whose estimate station is not a USGS gauge.
+    """
+    reach = cfg.reach(site_id)
+    if reach.station_source != "usgs":
+        raise reach_run.ReachError(f"{site_id}: the climate context needs a USGS gauge")
+    api = load_quality_config(root / cfg.quality_config).usgs.api
+    client = http or httpx.Client(timeout=120, follow_redirects=True)
+    last = until or date.today() - timedelta(days=1)
+    rows = fetch(client, api, reach.estimate_station, last)
+    path = snapshot_path(root, site_id)
+    write_snapshot(path, rows)
+    station = reach_run.reach_info(cfg, root, site_id)["station"]
+    doc = summarise(read_snapshot(path), station)
+    out = root / "docs" / "water-quality" / "reach" / site_id / "examples" / "climate.json"
+    out.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",
+                   newline="\n")  # fmt: skip
+    counts = {p: sum(1 for r in rows if r["parameter"] == p) for p in (DISCHARGE, TEMPERATURE)}
+    return {"days": counts, "through": doc["through"],
+            "rankedYears": doc["discharge"]["rankedYears"]}  # fmt: skip

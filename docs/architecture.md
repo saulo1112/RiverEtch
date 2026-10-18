@@ -82,6 +82,8 @@ flowchart LR
   before it, so changing or removing a line breaks every link after it.
 - **Check:** `reach check` and `reach thermal` compare the estimates with the gauge's value at the
   overpass. They write beside the records, never inside them.
+- **Climate context:** `reach climate` fetches each gauge's whole daily record and writes each
+  year's peak, 7-day low and warmest day, ranked, beside the examples (`climate.json`).
 - **Isolation:** the estimate never reads a gauge value. Gauge values enter only the validation and
   the check.
 
@@ -92,8 +94,8 @@ flowchart LR
   - a MapLibre map of the reach (3D terrain; per-pixel NDTI or true color; compare; time-lapse);
   - the case file (value, interval, level, the gauge at the overpass);
   - the record panel;
-  - charts per variable, the profile along the river and the pass's statistics with the gauge's own
-    readings.
+  - charts per variable, the gauge's whole record (the Climate tab), the profile along the river
+    and the pass's statistics with the gauge's own readings.
 - **Verification in the browser:** it recomputes a record's seal from its canonical JSON (number
   lexemes kept), walks the whole ledger and checks the model card's hash. "Alter one value first"
   shows a tampered record failing.

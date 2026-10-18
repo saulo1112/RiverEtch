@@ -19,6 +19,40 @@ and they need to show it was not adjusted after the fact. The gauge is the refer
 publishes a value only where a gauge validated its model. Every record says which model card
 produced it.
 
+## Why it matters for climate
+
+Rivers carry the climate's extremes, and the two reaches TerraChain follows have lived through
+them. These numbers are the USGS gauges' own daily records (`reach climate`), not satellite
+estimates:
+
+**Platte at Louisville, Nebraska** (daily record since 1953):
+
+- **2019:** the highest annual peak in 72 complete years, 6,201 m³/s on 16 March
+  ([the March 2019 floods](https://www.usgs.gov/media/images/spring-2019-flooding-louisville-ne)).
+- **2022:** its annual peak ranked 70th of 72.
+- **2023:** the warmest summer day in 20 summers, 32.1 °C.
+
+**Mississippi at Belle Chasse, Louisiana** (daily record since 2008):
+
+- **2023, 2022 and 2024:** the three lowest 7-day flows in 16 complete years. In 2022 and 2023,
+  [saltwater moved up the river](https://www.wwno.org/coastal-desk/2023-09-19/saltwater-threatens-south-louisiana-drinking-water-second-year-in-a-row-amid-severe-drought)
+  towards the parish's drinking-water intakes.
+
+What these years mean:
+
+- **More of these years are expected.** Continued warming is projected to make wet and dry
+  extremes more severe ([IPCC AR6 WGI, SPM B.3.1](https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/)).
+  Those are the years an agency most needs to read a river, between and beyond its gauges.
+- **Water temperature is a climate variable in itself.** The Belle Chasse gauge does not measure
+  it. Landsat does, with a 0.86 °C error validated at Baton Rouge.
+- **Adaptation runs on records.** Drinking-water intakes, permits and insurance claims all depend
+  on readings that nobody revised after the fact. Each pass is sealed, and its ledger is anchored on
+  Ethereum, so the record of a flood or a drought stays as it was measured.
+- **What this does not claim.** One gauge's record attributes no event to climate change, and the
+  satellite record (since 2018) is far too short for a trend.
+
+In the web app, each case's **Climate** tab shows its gauge's whole record, year by year.
+
 ## What it measures today
 
 Every error is out of sample: a locked test (December 2023 to September 2026) that training and
@@ -67,10 +101,10 @@ The daily run is a scheduled task (`pipeline/scripts/reach-run.ps1`). It reads p
 
 **Anchored on Ethereum (Sepolia).** `contracts/src/LedgerAnchor.sol` stores each ledger's head
 (the SHA-256 of its last line, which commits to every line above it) with the block's time. The
-reach's owner anchors from the web app with a wallet. **Verify this record** then reads the anchor
-without a wallet: anchored at block N, recorded after the last anchor, or changed since. An anchor
-proves the ledger's state from its own date on, never before. See
-[docs/anchoring.md](docs/anchoring.md).
+contract's owner anchors the ledgers from the terminal (`contracts/scripts/anchor.ts`). **Verify
+this record** then reads the anchor without a wallet: anchored at block N, recorded after the last
+anchor, or changed since. An anchor proves the ledger's state from its own date on, never before.
+See [docs/anchoring.md](docs/anchoring.md).
 
 ## Limits (read these before the numbers)
 
@@ -105,6 +139,7 @@ proves the ledger's state from its own date on, never before. See
 | Level           | _validated_ / _estimated_ / _indicative_: what a locked test earned; below _estimated_, no unit |
 | Model card      | The frozen model of a reach and target, with its locked-test scores; records name its SHA-256   |
 | Seal, ledger    | A record's SHA-256, and the append-only list of seals where each line names the one before      |
+| 7-day low flow  | A year's lowest mean discharge over 7 consecutive days: the standard measure of a dry spell     |
 
 ## Repository structure
 
@@ -160,7 +195,8 @@ uv run pytest tests/test_reach_examples.py               # check every committed
 ```
 
 `reach run`, `reach thermal` and `reach check` make new records from public data and compare them
-with the gauges. See [docs/water-quality/reach/README.md](docs/water-quality/reach/README.md).
+with the gauges. `reach climate` fetches each gauge's whole daily record for the Climate tab. See
+[docs/water-quality/reach/README.md](docs/water-quality/reach/README.md).
 
 ### Run every check
 

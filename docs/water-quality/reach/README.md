@@ -108,6 +108,29 @@ uv run climate-pipeline reach context --site all --root ..
   measured (discharge and gage height; at the Platte also water temperature, dissolved oxygen,
   specific conductance and nitrate plus nitrite). Measurements, never estimates.
 
+## Climate context
+
+```powershell
+uv run climate-pipeline reach climate --site all --until 2026-10-17 --root ..
+```
+
+`climate` fetches the estimate station's daily mean discharge, and its daily mean water temperature
+where the gauge measures it, over the whole period of record (USGS OGC API, `daily`). The values
+stay as a snapshot in `docs/water-quality/reach/<site>/climate/daily.csv`, not served to the web.
+From them it writes `examples/climate.json`, beside the examples, without touching any record or
+ledger. These rules were fixed before the first value was fetched:
+
+- **Per calendar year:** the peak (the highest daily mean discharge and its day); the 7-day low (the
+  lowest mean of 7 consecutive days inside the year, all seven measured, and the last of them); the
+  warmest day (the highest daily mean water temperature from June to September).
+- **Ranked years:** a year is ranked when at least 90 % of its days have a discharge (for the
+  temperature, 90 % of the days from June to September). The year of the last value is shown to
+  date and never ranked. Ties share the better rank.
+- **Labels:** a year with a provisional value says so. Discharge is converted to m³/s
+  (1 ft³/s = 0.028316846592 m³/s).
+- **What it is not:** the gauge's measurements, never a satellite estimate. It states no trend and
+  no cause.
+
 ## Files for the web (`docs/water-quality/reach/<site>/examples/`, committed)
 
 ```powershell
@@ -130,6 +153,7 @@ uv run climate-pipeline reach render --site mississippi-belle-chasse --root ..
 | `maps/*.rgb.webp`    | `render`: each pass in true color (bands 4, 3, 2) over the same box, for comparison           |
 | `thermal/*`          | v6: the water-temperature records, their ledger, series and the gauge check                   |
 | `checks/context.csv` | v6: the gauge's own readings at each pass (measurements, labelled)                            |
+| `climate.json`       | `climate`: the gauge's whole record, each year's peak, 7-day low and warmest day, ranked      |
 
 A map is a picture of the record's own pixels: NDTI is relative, so the maps carry no unit. A test
 (`pipeline/tests/test_reach_examples.py`) fails if a committed record stops matching the schema, its

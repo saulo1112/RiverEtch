@@ -157,15 +157,17 @@ def _parser() -> argparse.ArgumentParser:
     reach = commands.add_parser("reach", help="observation records v2 of a reach (P3, D16)")
     reach.add_argument(
         "action",
-        choices=("baseline", "run", "check", "examples", "render", "thermal", "context", "verify"),
+        choices=("baseline", "run", "check", "examples", "render", "thermal", "context", "climate",
+                 "verify"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); check: a "
         "gauged reach's estimates against its gauge after the card's commit (report-only); "
         "examples: copy the newest outputs to docs/water-quality/reach/<site>/examples/; render: "
         "the reach's geometry and each recorded scene's NDTI map, beside the examples (web); "
         "thermal: water-temperature records of the Landsat passes (a reach with a temperature "
-        "card); context: the gauge's own readings at each recorded pass; "
-        "verify: every record's seal, the ledger chain and the cards (exit 1 on any problem)",
+        "card); context: the gauge's own readings at each recorded pass; climate: the gauge's "
+        "whole daily record and each year's extremes, beside the examples (web; --until: last "
+        "day); verify: every record's seal, the ledger chain and the cards (exit 1 on any problem)",
     )  # fmt: skip
     reach.add_argument(
         "--site", default="all",
@@ -179,7 +181,9 @@ def _parser() -> argparse.ArgumentParser:
         "--since", type=date.fromisoformat, default=None,
         help="run: first day; check: first scene day (default: the card's commit)",
     )  # fmt: skip
-    reach.add_argument("--until", type=date.fromisoformat, default=None, help="run: last day")
+    reach.add_argument(
+        "--until", type=date.fromisoformat, default=None, help="run, climate: last day"
+    )
     reach.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     reach.add_argument(
         "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
@@ -610,6 +614,15 @@ def reach(args: argparse.Namespace) -> int:
             try:
                 out = reach_run.write_examples(cfg, root, site, everything=args.all_records)
                 print(f"{site}: {out}")
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+        return 0
+    if args.action == "climate":
+        from climate_pipeline.reach.climate import climate
+
+        for site in sites:
+            try:
+                print(f"{site}: {climate(cfg, root, site, args.until)}")
             except reach_run.ReachError as error:
                 print(f"{site}: {error}")
         return 0
