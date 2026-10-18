@@ -405,3 +405,27 @@ last. Format: context → decision → consequences.
     are covered only from then.
   - Sepolia is a test network: the proof is public and checkable, not mainnet.
   - Anchoring needs a person with the owner's wallet; the daily pipeline run does not anchor.
+- **Update (2026-10-16):** a MetaMask smart account (EIP-7702) made the web app's transaction run
+  out of gas. The owner anchors from the terminal (`contracts/scripts/anchor.ts`) with the keystore
+  account; the demo reaches' four ledgers were anchored at block 11924112. The web button stays,
+  shown only to the owner's wallet.
+
+## D21. The climate context of a reach: its gauge's whole record (2026-10-16)
+
+- **Context:**
+  - The product showed one year of passes and never said why its rivers matter for climate. The
+    owner asked for that link, in the documentation and in the web app.
+  - The demo gauges have long daily records (the Platte since 1953, Belle Chasse since 2008) that
+    hold the 2019 floods and the 2022-2024 low water.
+- **Decision:**
+  - `reach climate` fetches each estimate station's daily mean discharge, and its water temperature
+    where it measures it, over the whole period of record. Per calendar year it ranks the peak, the
+    7-day low and the warmest summer day, under rules written before the fetch
+    ([reach README](water-quality/reach/README.md#climate-context)).
+  - The snapshot and `climate.json` sit beside the examples. No record, ledger or anchor changes.
+  - The web app shows them in a **Climate** tab, with one cited sentence from the IPCC (AR6 WGI,
+    SPM B.3.1) and the label "measurements, not a trend or an attribution".
+- **Consequences:**
+  - The link to climate rests on measured, ranked years, not on a claim about causes. One gauge's
+    record attributes no event to climate change, and the satellite record is too short for a trend.
+  - The snapshot ends on the day it was fetched; fetching again extends it.

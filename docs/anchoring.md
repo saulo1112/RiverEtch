@@ -54,12 +54,22 @@ You need an Ethereum account with a little Sepolia ETH (from a faucet). Use a te
 
 ## Anchoring (each time new records arrive)
 
-1. Open a case in the web app and connect the owner's wallet (MetaMask, on Sepolia).
-2. In the record panel, press **Anchor this reach's ledgers on Sepolia**.
-   - The app computes each ledger's head from the published records.
-   - It skips any ledger already anchored up to its last line.
-   - It sends one `anchorBatch` transaction for the rest.
-3. The panel links the transaction on Etherscan once it is mined.
+From `contracts/`, with the owner's account in the keystore:
+
+```bash
+npx hardhat run scripts/anchor.ts --network sepolia
+```
+
+- The script computes each ledger's head from the published records, with the web app's own code.
+- It skips any ledger already anchored up to its last line.
+- It sends one `anchorBatch` transaction for the rest and prints its hash.
+
+The demo reaches' four ledgers were anchored this way at block 11924112.
+
+The web app also offers **Anchor this reach's ledgers on Sepolia** in the record panel, shown only
+when the connected wallet is the contract's owner. It sends the same transaction. A MetaMask smart
+account (EIP-7702) routes the call through a delegation that ran out of gas in our test, so the
+terminal is the supported path.
 
 ## Verifying
 
