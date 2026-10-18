@@ -32,7 +32,7 @@ import httpx
 
 USER_AGENT = (
     "climate-pipeline/0.1 (research fetch of public documents for a hackathon study; "
-    "+https://github.com/saulo1112/Climate_Change_IEEE)"
+    "+https://github.com/saulo1112/RiverEtch)"
 )
 CDX_URL = "https://web.archive.org/cdx/search/cdx"
 ARCHIVED = "archived copy"

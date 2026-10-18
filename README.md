@@ -174,8 +174,8 @@ See [docs/anchoring.md](docs/anchoring.md).
 ### Run the web app
 
 ```bash
-git clone https://github.com/saulo1112/Climate_Change_IEEE.git
-cd Climate_Change_IEEE
+git clone https://github.com/saulo1112/RiverEtch.git
+cd RiverEtch
 nvm use            # or any other way to run Node 24
 npm install        # installs every workspace and the Git pre-commit hook
 npm run dev        # http://localhost:5173
