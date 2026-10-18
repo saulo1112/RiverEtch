@@ -429,3 +429,20 @@ last. Format: context → decision → consequences.
   - The link to climate rests on measured, ranked years, not on a claim about causes. One gauge's
     record attributes no event to climate change, and the satellite record is too short for a trend.
   - The snapshot ends on the day it was fetched; fetching again extends it.
+
+## D22. The product's name: TerraChain becomes RiverEtch (2026-10-18)
+
+- **Context:** the owner renamed the project.
+- **Decision:** the new name appears wherever people read it: the web app (its header, the page
+  title and the name wallets show), the README and the documentation.
+- **What keeps the first name, and why:**
+  - the anchoring label `terrachain:<reach>:<ledger>`: its keccak256 is the subject of the anchors
+    already on Sepolia (block 11924112), so a new prefix would leave every record unanchored;
+  - `contracts/src/LedgerAnchor.sol`: its source is verified on Etherscan as deployed, and editing
+    its comments would make the repository's source differ from the verified one;
+  - the ACOLITE settings files, whose SHA-256 the run manifests record;
+  - the earlier entries of this log and the preregistration, as they were written;
+  - the lab environment's internal name (`terrachain-lab`), which its lockfile repeats.
+- **Consequences:** the anchors, the records and the contract stay valid as they are. A reader meets
+  the first name only in the chain label, the contract's comments and the history, each explained
+  here and in [anchoring](anchoring.md).

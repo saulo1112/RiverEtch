@@ -169,8 +169,8 @@ $script = "C:\Users\ASUS\Desktop\S\IEEE Hackathon\pipeline\scripts\reach-run.ps1
 $action = New-ScheduledTaskAction -Execute "powershell.exe" `
     -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$script`""
 $trigger = New-ScheduledTaskTrigger -Daily -At 6:30am
-Register-ScheduledTask -TaskName "TerraChain reach run" -Action $action -Trigger $trigger `
+Register-ScheduledTask -TaskName "RiverEtch reach run" -Action $action -Trigger $trigger `
     -Description "Observation records v2 of every reach (no commits)"
 ```
 
-`Unregister-ScheduledTask -TaskName "TerraChain reach run"` removes it.
+`Unregister-ScheduledTask -TaskName "RiverEtch reach run"` removes it.

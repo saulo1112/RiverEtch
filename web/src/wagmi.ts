@@ -2,6 +2,8 @@ import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { http } from "wagmi";
 import { sepolia } from "wagmi/chains";
 
+import { BRAND_NAME } from "./features/hero/ui/content.ts";
+
 /**
  * Reads an optional `VITE_*` variable, treating a blank value as unset.
  *
@@ -16,7 +18,7 @@ function optionalEnv(value: string | undefined): string | undefined {
 
 /** wagmi + RainbowKit configuration: Sepolia only, with MetaMask and RainbowKit's default wallets. */
 export const wagmiConfig = getDefaultConfig({
-  appName: "TerraChain",
+  appName: BRAND_NAME,
   // RainbowKit maps the "YOUR_PROJECT_ID" placeholder to a shared demo id: fine for local
   // development, but deployments need their own id from https://cloud.reown.com.
   projectId: optionalEnv(import.meta.env.VITE_WALLETCONNECT_PROJECT_ID) ?? "YOUR_PROJECT_ID",

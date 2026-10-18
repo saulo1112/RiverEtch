@@ -1,6 +1,6 @@
 # Anchoring the ledgers on Ethereum (Sepolia)
 
-Every TerraChain record is sealed (the SHA-256 of its canonical JSON) and listed in an append-only
+Every RiverEtch record is sealed (the SHA-256 of its canonical JSON) and listed in an append-only
 ledger whose lines each name the SHA-256 of the line before. The ledger can be checked by anyone,
 but it lives in this repository: whoever controls the repository could rewrite it. Anchoring the
 ledger's **head** (the SHA-256 of its last line) on a public chain adds a timestamp nobody controls.
@@ -9,6 +9,8 @@ ledger's **head** (the SHA-256 of its last line) on a public chain adds a timest
 
 - **One subject per ledger:** `keccak256("terrachain:<reach>:<ledger>")`, where the ledger is
   `observations` (Sentinel-2 records) or `water-temperature` (Landsat records).
+  The label keeps the project's first name, TerraChain: the anchors already on Sepolia were made
+  under it, so it stays as it is after the rename to RiverEtch.
 - **Its head and its line count,** with the block's time and number. Because each line names the
   one before, the head commits to every record above it.
 - **The contract** (`contracts/src/LedgerAnchor.sol`):

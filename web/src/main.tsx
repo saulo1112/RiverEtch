@@ -8,6 +8,7 @@ import { createRoot } from "react-dom/client";
 import { WagmiProvider } from "wagmi";
 
 import { App } from "./App.tsx";
+import { BRAND_NAME } from "./features/hero/ui/content.ts";
 import { wagmiConfig } from "./wagmi.ts";
 
 const queryClient = new QueryClient();
@@ -33,7 +34,7 @@ createRoot(rootElement).render(
   <StrictMode>
     <WagmiProvider config={wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider theme={walletTheme} appInfo={{ appName: "TerraChain" }}>
+        <RainbowKitProvider theme={walletTheme} appInfo={{ appName: BRAND_NAME }}>
           <App />
         </RainbowKitProvider>
       </QueryClientProvider>
