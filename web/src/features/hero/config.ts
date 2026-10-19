@@ -251,7 +251,7 @@ export const ORBIT = {
   // the Caribbean, near the middle of the disc.
   inclinationDeg: 24,
   radius: 134,
-  periodS: 50,
+  periodS: 35,
   // Where the ascending pass peaks (lat/lng with the Earth at its starting turn): a framing anchor
   // only, which the camera's viewpoint and look-at derive from. Nothing is singled out there.
   passLatLng: { lat: 12, lng: -110 },
