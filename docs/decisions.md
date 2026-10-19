@@ -438,11 +438,48 @@ last. Format: context → decision → consequences.
 - **What keeps the first name, and why:**
   - the anchoring label `terrachain:<reach>:<ledger>`: its keccak256 is the subject of the anchors
     already on Sepolia (block 11924112), so a new prefix would leave every record unanchored;
-  - `contracts/src/LedgerAnchor.sol`: its source is verified on Etherscan as deployed, and editing
-    its comments would make the repository's source differ from the verified one;
+  - `contracts/src/LedgerAnchor.sol`: its source must stay identical to the deployed one so that
+    Etherscan can verify it, and editing its comments would break that (correction, 2026-10-19:
+    this entry first said the source was already verified; it was not, see D23);
   - the ACOLITE settings files, whose SHA-256 the run manifests record;
   - the earlier entries of this log and the preregistration, as they were written;
   - the lab environment's internal name (`terrachain-lab`), which its lockfile repeats.
 - **Consequences:** the anchors, the records and the contract stay valid as they are. A reader meets
   the first name only in the chain label, the contract's comments and the history, each explained
   here and in [anchoring](anchoring.md).
+
+## D23. Prospective scoring, frozen artifacts and the anchoring log (2026-10-19)
+
+- **Context:**
+  - Every 2026 record was sealed in batch runs after its gauge value was public, so none of them
+    shows the chain's real use: a commitment made before the answer exists.
+  - The report called the 2026 comparison "the prospective check"; under that test it is
+    retrospective. And this log's D22 said the contract's source was verified on Etherscan; it was
+    not.
+- **Decision:**
+  - **Rule v1** ([prospective.md](water-quality/prospective.md)), in a new file so the
+    preregistration and the MANIFEST stay as committed. T0 is the block time of the first anchor of
+    a frozen-artifacts ledger listing the rule, the five model cards, the preregistration and the
+    MANIFEST (`ledger freeze`).
+  - **A claim is a sealed record whose ledger line is anchored.** `reach score` reads the gauge no
+    earlier than 12 hours after the pass, with the lock box's overpass settings and any approval
+    (normally provisional, labelled). An approved re-read is a new line, never a replacement.
+    Outcomes go to a hash-chained ledger per reach, anchored as `terrachain:<reach>:outcomes`.
+  - **Counts, not percentages, until 20 passes;** an abstained claim is listed, never scored.
+  - **Extreme days** (low flow, high flow, warm water) are defined in the rule and counted from the
+    gauge's record (`reach climate`), with how often a usable pass saw them. No error on them is
+    computed: the lock box holds fewer than 20 pairs on every kind.
+  - **The anchoring log** (`docs/ledgers/anchors.jsonl`) is rebuilt from the contract's state after
+    every anchor. Public RPCs prune old event logs, so it reads `count`/`anchorAt` and the block's
+    transactions instead.
+  - **The web app** gets a Scoreboard tab (prospective, then the retrospective counts, each
+    labelled) and an All rivers tab (the ten rivers, the median over the nine rated: 33.1 %).
+  - **Licences:** MIT for the code, CC BY 4.0 for the documentation and data. The repository is to
+    be public and the contract's source verified on Etherscan (the owner's steps).
+- **Consequences:**
+  - The prospective count may be 0 at submission (clouds hide about three passes in four). It is
+    shown as it is.
+  - Provisional gauge values can be revised; the first read stays the headline, the approved
+    re-read is listed beside it.
+  - An anchor proves a ledger's state from its block time on. Nothing here makes the 2026 backtest
+    prospective.

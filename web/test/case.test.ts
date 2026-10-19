@@ -41,6 +41,7 @@ const reach: ReachData = {
   thermal: null,
   context: [],
   climate: null,
+  outcomes: [],
 };
 
 void test("formatters keep the sign and one decimal under 100", () => {
@@ -51,9 +52,26 @@ void test("formatters keep the sign and one decimal under 100", () => {
   assert.equal(LEVEL_LABELS.validated, "Validated");
 });
 
+// Every string of the copy, including what its template functions return (JSON drops functions).
+function strings(value: unknown): string[] {
+  if (typeof value === "string") {
+    return [value];
+  }
+  if (typeof value === "function") {
+    const fn = value as (...args: unknown[]) => unknown;
+    return strings(fn(...Array.from({ length: fn.length }, () => "1")));
+  }
+  if (value !== null && typeof value === "object") {
+    return Object.values(value).flatMap(strings);
+  }
+  return [];
+}
+
 void test("no string of the case view claims a cause or an actor", () => {
-  const text = JSON.stringify(CASE_COPY);
+  const text = strings(CASE_COPY).join("\n");
+  assert.ok(text.includes("times smaller error"), "template strings are checked too");
   assert.doesNotMatch(text, /pressure|human|operator|pollut|caus/i);
+  assert.doesNotMatch(text, /predict|forecast|worth buying/i);
 });
 
 void test("a pass's key, map and gauge value join across the reach's files", () => {

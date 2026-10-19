@@ -1,0 +1,37 @@
+MIT License
+
+Copyright (c) 2026 Saulo Quiñones
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+Scope. This license covers the code: pipeline/, web/, contracts/ and the
+scripts. The documentation and the data RiverEtch produces (docs/) are under
+CC BY 4.0, see LICENSE-docs.
+
+- contracts/src/LedgerAnchor.sol and contracts/src/Placeholder.sol carry
+  "SPDX-License-Identifier: UNLICENSED". LedgerAnchor.sol must stay identical
+  to the source deployed on Sepolia, so its header is left as it is; both files
+  are released under the MIT License above.
+- The Solidity verifiers that `npm run zk:build` generates from snarkjs
+  templates (contracts/src/generated/, never committed) carry the GPL-3.0
+  header of those templates.
+- Third-party data keep their own terms: USGS data (public domain), Copernicus
+  Sentinel data (the Copernicus data policy), Landsat data (public domain).

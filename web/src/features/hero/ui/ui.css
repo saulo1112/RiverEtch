@@ -322,7 +322,7 @@
   border-radius: 999px;
   color: var(--text-2);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 450;
   line-height: 1;
   letter-spacing: 0.08em;
@@ -868,7 +868,7 @@
   border-radius: 10px;
   background: rgb(36 26 6 / 0.72);
   color: #f6d38f;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 500;
   line-height: 1.35;
   pointer-events: none;
@@ -1446,7 +1446,7 @@
   margin: 0;
   color: var(--text-2);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 450;
   letter-spacing: 0.14em;
   text-transform: uppercase;

@@ -169,9 +169,12 @@ The first gauged reach, validated under the same locked-test protocol before v5:
 - **Missouri reach** (`missouri-hermann`): the same indices, plus turbidity as a relative class (the
   tercile among the gauge window's own history), never a unit, from the locked-test card
   (`preregistered_lockbox_site`, _indicative_).
-- **The prospective check:** beside the sealed records, `reach run` notes each gauged reach's raw
-  estimate of every new scene, and `reach check` compares the scenes acquired after the card's
-  commit with the gauge's value at the overpass (provisional data, labelled). It is report-only.
+- **The 2026 check (retrospective):** beside the sealed records, `reach run` notes each gauged
+  reach's raw estimate of every new scene, and `reach check` compares the scenes with the gauge's
+  value at the overpass (provisional data, labelled). It is report-only. Its scenes were sealed
+  after their gauge values were public, so it is a backtest. Prospective scoring follows rule v1
+  ([prospective.md](prospective.md)): `reach score` scores only claims anchored before the gauge was
+  read, after T0.
 - Every record is sealed (SHA-256 of its canonical JSON) and chained in an append-only ledger ready
   for anchoring. Each record names one satellite pass (`sceneId`), so two passes on one day are two
   records.
@@ -184,13 +187,13 @@ The first gauged reach, validated under the same locked-test protocol before v5:
 | ------------------------ | ------- | ----------------------------------- | ----------------------------------------------------------------- | ------------------ |
 | mississippi-belle-chasse | 33      | 29 (validated)                      | 4: window too cloudy (3), contamination above 0.2 (1)             | 6                  |
 | platte-louisville        | 16      | 13 (12 validated, 1 estimated)      | 3 in the 100–300 FNU range, which earned no level in the lock box | 0                  |
-| missouri-hermann         | 19      | none (indicative: 7 classed "high") | 12 predicted under 100 FNU, ranges without a level                | 1                  |
+| missouri-hermann         | 19      | none (indicative: 7 classed "high") | 12 estimated under 100 FNU, ranges without a level                | 1                  |
 
 Clouds weigh on every reach: in 2026, 99 of 137 passes at Belle Chasse were not observable (72 %,
 and 5 more excluded), 50 of 66 on the Platte (76 %) and 49 of 68 at Hermann (72 %).
 
-**The prospective check** (report-only, `reach check --since 2026-01-01`): each record's estimate
-against the gauge's value at the overpass.
+**The 2026 check** (retrospective, report-only, `reach check --since 2026-01-01`): each record's
+estimate against the gauge's value at the overpass.
 
 | Reach                    | Pairs | Approved / provisional | MdSA       | Bias (SSPB) | Inside the 90 % interval |
 | ------------------------ | ----- | ---------------------- | ---------- | ----------- | ------------------------ |
@@ -209,8 +212,9 @@ against the gauge's value at the overpass.
   revisions of the provisional values. The bias appears on Sentinel-2B and 2C alike. Until those
   values are approved and more seasons arrive, this is a warning, not a result: the card stays as
   its lock box rated it.
-- No scene after the cards' commit (2026-10-12) has a gauge value yet. The scheduled task runs the
-  check daily from that date, so the strictly prospective count grows on its own.
+- No scene after the cards' commit (2026-10-12) had a gauge value when this table was made. Passes
+  after T0 are scored prospectively under rule v1 by `reach score`, and counted on the web app's
+  Scoreboard (counts, not percentages, until there are 20).
 
 ## What would improve the estimates (research and proposals)
 

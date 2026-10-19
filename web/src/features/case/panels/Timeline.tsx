@@ -1,19 +1,26 @@
 import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
 import { thermalValidatedAt } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
-import { ClimateView } from "./ClimateView.tsx";
+import { medianError, oneDecimal, riverResults } from "../rivers.ts";
+import { AllRiversView } from "./AllRiversView.tsx";
+import { ClimateView, type ClimateTabView } from "./ClimateView.tsx";
 import { PassStatsView } from "./PassStatsView.tsx";
 import { ProfileChart } from "./ProfileChart.tsx";
+import { ScoreboardView } from "./ScoreboardView.tsx";
 import { SeriesChart } from "./SeriesChart.tsx";
 import { ThermalChart } from "./ThermalChart.tsx";
 import { WaterQualityView } from "./WaterQualityView.tsx";
 
 /** The bottom panel's tabs. */
-export type BottomTab = "quality" | "series" | "thermal" | "climate" | "profile" | "pass";
+export type BottomTab =
+  "quality" | "series" | "thermal" | "climate" | "pass" | "scoreboard" | "rivers";
+
+/** What the "This pass" tab shows: its statistics, or its NDTI along the river. */
+type PassView = "stats" | "profile";
 
 /** Props of {@link Timeline}. */
 export interface TimelineProps {
@@ -42,7 +49,19 @@ export interface TimelineProps {
   readonly onProbe: (place: number | null) => void;
 }
 
-const TABS: readonly BottomTab[] = ["quality", "series", "thermal", "climate", "profile", "pass"];
+const TABS: readonly BottomTab[] = [
+  "quality",
+  "series",
+  "thermal",
+  "climate",
+  "pass",
+  "scoreboard",
+  "rivers",
+];
+
+// Every evaluated river, from the committed results (vite.config.ts).
+const RIVERS = riverResults(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
+const RATED = RIVERS.filter((r) => r.level !== null).length;
 
 function IconButton({
   label,
@@ -69,9 +88,56 @@ function IconButton({
   );
 }
 
-// The tab's caption: what its marks mean, or how to read it. Inside the tab panel, under the tab
-// strip, so a caption of any length never moves the strip.
-function Caption({ tab, reach }: { readonly tab: BottomTab; readonly reach: ReachData }) {
+// A tab's two views, as a segmented switch in its caption.
+function Switch<V extends string>({
+  label,
+  views,
+  value,
+  onChange,
+}: {
+  readonly label: string;
+  readonly views: readonly { readonly id: V; readonly label: string }[];
+  readonly value: V;
+  readonly onChange: (view: V) => void;
+}) {
+  return (
+    <div className="case-tools__segmented" role="radiogroup" aria-label={label}>
+      {views.map((view) => (
+        <button
+          key={view.id}
+          type="button"
+          role="radio"
+          aria-checked={value === view.id}
+          className="case-tools__segment"
+          onClick={() => {
+            onChange(view.id);
+          }}
+        >
+          {view.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// The tab's caption: what its marks mean, or how to read it (on "This pass" and, where the record
+// counts extreme days, on "Climate", the switch between the tab's two views). Inside the tab panel,
+// under the tab strip, so a caption of any length never moves the strip.
+function Caption({
+  tab,
+  reach,
+  passView,
+  onPassView,
+  climateView,
+  onClimateView,
+}: {
+  readonly tab: BottomTab;
+  readonly reach: ReachData;
+  readonly passView: PassView;
+  readonly onPassView: (view: PassView) => void;
+  readonly climateView: ClimateTabView;
+  readonly onClimateView: (view: ClimateTabView) => void;
+}) {
   const upstream = thermalValidatedAt(reach);
   if (tab === "series") {
     return (
@@ -110,18 +176,60 @@ function Caption({ tab, reach }: { readonly tab: BottomTab; readonly reach: Reac
     );
   }
   if (tab === "climate") {
-    return (
-      <p className="case-timeline__caption">
-        {CASE_COPY.climate.lead} (
-        <a href={CASE_COPY.climate.citeUrl} target="_blank" rel="noreferrer">
-          {CASE_COPY.climate.cite}
+    const { climate } = CASE_COPY;
+    const lead = (
+      <span>
+        {climate.lead} (
+        <a href={climate.citeUrl} target="_blank" rel="noreferrer">
+          {climate.cite}
         </a>
-        ). {CASE_COPY.climate.note}
-      </p>
+        ). {climate.note}
+      </span>
+    );
+    if (reach.climate?.extremes === undefined) {
+      return <p className="case-timeline__caption">{lead}</p>;
+    }
+    return (
+      <div className="case-timeline__caption case-timeline__switch">
+        <Switch
+          label={climate.views.label}
+          views={[
+            { id: "values", label: climate.views.values },
+            { id: "days", label: climate.views.days },
+          ]}
+          value={climateView}
+          onChange={onClimateView}
+        />
+        {lead}
+      </div>
     );
   }
-  if (tab === "profile") {
-    return <p className="case-timeline__caption">{CASE_COPY.profile.hint}</p>;
+  if (tab === "pass") {
+    const { pass } = CASE_COPY;
+    return (
+      <div className="case-timeline__caption case-timeline__switch">
+        <Switch
+          label={pass.views}
+          views={[
+            { id: "stats", label: pass.stats },
+            { id: "profile", label: pass.profile },
+          ]}
+          value={passView}
+          onChange={onPassView}
+        />
+        {passView === "profile" ? <span>{CASE_COPY.profile.hint}</span> : null}
+      </div>
+    );
+  }
+  if (tab === "scoreboard") {
+    return <p className="case-timeline__caption">{CASE_COPY.scoreboard.caption}</p>;
+  }
+  if (tab === "rivers") {
+    return (
+      <p className="case-timeline__caption">
+        {CASE_COPY.rivers.caption(RIVERS.length, RATED, oneDecimal(medianError(RIVERS)))}
+      </p>
+    );
   }
   return null;
 }
@@ -129,10 +237,10 @@ function Caption({ tab, reach }: { readonly tab: BottomTab; readonly reach: Reac
 /**
  * Bottom panel: the year's passes (turbidity in FNU beside the gauge), the water temperature from
  * Landsat where the reach has it, the gauge's whole record as climate context, the selected pass
- * along the river, and its statistics and the gauge's readings, on tabs; the time-lapse plays the
- * year pass by pass. The head is a fixed grid (transport, tabs centred, an empty column) and the
- * tab panel has a fixed height, so the tab strip never moves when the tab or the time-lapse
- * changes.
+ * (its statistics, or its NDTI along the river), the scoreboard and every evaluated river, on tabs;
+ * the time-lapse plays the year pass by pass. The head is a fixed grid (transport, tabs centred,
+ * an empty column) and the tab panel has a fixed height, so the tab strip never moves when the tab
+ * or the time-lapse changes.
  *
  * @param props - The reach, the selection, the tab, the time-lapse and the pass's analysis.
  * @returns The panel.
@@ -140,6 +248,8 @@ function Caption({ tab, reach }: { readonly tab: BottomTab; readonly reach: Reac
 export function Timeline(props: TimelineProps) {
   const { reach, selected, tab, playing } = props;
   const { play, tabs } = CASE_COPY;
+  const [passView, setPassView] = useState<PassView>("stats");
+  const [climateView, setClimateView] = useState<ClimateTabView>("values");
   const last = reach.series.length - 1;
   const row = reach.series[selected] ?? null;
   const shown = TABS.filter(
@@ -203,7 +313,17 @@ export function Timeline(props: TimelineProps) {
         </div>
       </header>
       <div className="case-timeline__body" role="tabpanel">
-        <Caption tab={tab} reach={reach} />
+        <Caption
+          tab={tab}
+          reach={reach}
+          passView={passView}
+          onPassView={(view) => {
+            setPassView(view);
+            props.onProbe(null);
+          }}
+          climateView={climateView}
+          onClimateView={setClimateView}
+        />
         <div className="case-timeline__view">
           {tab === "quality" ? (
             <WaterQualityView reach={reach} selected={selected} />
@@ -222,8 +342,12 @@ export function Timeline(props: TimelineProps) {
               onSelect={props.onThermalSelect}
             />
           ) : tab === "climate" && reach.climate !== null ? (
-            <ClimateView climate={reach.climate} />
-          ) : tab === "profile" ? (
+            <ClimateView climate={reach.climate} view={climateView} />
+          ) : tab === "scoreboard" ? (
+            <ScoreboardView reach={reach} t0={__PROSPECTIVE_T0__} />
+          ) : tab === "rivers" ? (
+            <AllRiversView rivers={RIVERS} station={reach.info.station.id} />
+          ) : passView === "profile" ? (
             <ProfileChart
               reach={reach}
               points={props.profile}

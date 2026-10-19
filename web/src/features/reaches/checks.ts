@@ -24,6 +24,7 @@ export function parseChecks(text: string): GaugeCheck[] {
     return {
       key: cells[at("key")] ?? "",
       date: cells[at("date")] ?? "",
+      datetimeUtc: cells[at("datetimeUtc")] ?? "",
       estimate: number(cells[at("estimate")]),
       value: number(cells[at("value")]),
       approval: cells[at("approval")] ?? "",
@@ -59,6 +60,7 @@ export function parseThermalChecks(text: string): ThermalCheck[] {
   return rows(text).map((r) => ({
     sceneId: r.sceneId ?? "",
     date: r.date ?? "",
+    datetimeUtc: r.datetimeUtc ?? "",
     value: number(r.value),
     approval: r.approval ?? "",
   }));

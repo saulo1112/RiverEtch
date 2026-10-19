@@ -15,13 +15,70 @@ export const CASE_COPY = {
   gaugeLink: "Gauge page (USGS)",
   noValue: "No value for this pass",
   rangeWithoutLevel:
-    "The prediction fell in a range the locked test did not rate, so no value is published.",
-  validation: {
-    lead: "Locked test",
-    error: "typical error",
-    on: "on",
-    overpasses: "overpasses it never saw",
-    baseline: "Median of past values",
+    "The estimate fell in a range the locked test did not rate, so no value is published.",
+  // How to read a value: its range, how far off it tends to be, and which way it leans.
+  reading: {
+    expectedRange: "Expected range",
+    rangeHelpLabel: "About the expected range",
+    rangeHelp: (k: number, n: number) =>
+      `We expect the measured value to fall inside this range about 9 times out of 10; in testing it did ${String(k)} of ${String(n)} times.`,
+    reliabilityTitle: "How far off it tends to be",
+    lessIsBetter: "less is better",
+    reliabilityHelpLabel: "About how far off it tends to be",
+    satellite: "Satellite estimate",
+    baseline: "Guess the river's usual value",
+    baselineHelp:
+      "The baseline is the error you would get by always guessing the median of the river's past values, with no satellite.",
+    unitsHelp:
+      "Turbidity runs from a few FNU to hundreds, so an error of 5 FNU is large at 10 FNU and small at 300: it is given as a share of the value. A degree means the same in any season, so temperature errors are in °C.",
+    median: (n: number, mdsa: string) =>
+      `In ${String(n)} test passes the model never saw, half of the errors were smaller than ${mdsa} %.`,
+    mean: (n: number, mae: string) =>
+      `In ${String(n)} test passes the model never saw, the errors averaged ${mae} °C.`,
+    times: (r: string) => `About ${r} times smaller error than guessing the usual value.`,
+    noGain: "No clear gain over guessing the usual value.",
+    worse: "Worse than guessing the usual value.",
+    tileMedian: (mdsa: string, n: number) =>
+      `Half of test errors under ${mdsa} % (${String(n)} passes)`,
+    tileMean: (mae: string, n: number) => `Test errors averaged ${mae} °C (${String(n)} passes)`,
+    leanWarm: (d: string) => `tends to read ${d} °C warm`,
+    leanCold: (d: string) => `tends to read ${d} °C cold`,
+    leanHigh: (p: string) => `tends to read about ${p} % high`,
+    leanLow: (p: string) => `tends to read about ${p} % low`,
+    leanNone: "no clear tendency to read high or low",
+  },
+  // What each level lets a reader do with the number (preregistration v5, levels).
+  levelHelpLabel: "About this level",
+  levelHelp: {
+    validated:
+      "Passed the locked test with a clear margin over guessing the usual value, on at least 20 passes in two years, with an honest range. You can cite the value with its range.",
+    estimated:
+      "Beat guessing the usual value under looser limits. Use the value with its range, and confirm it against the gauge when it matters.",
+    estimatedCapped:
+      "Met every validated threshold, but against a gauge whose values are still provisional, so it is capped at estimated.",
+    indicative:
+      "Follows the river's rises and falls, but not its level. Read it as low, medium or high, never as a number.",
+    none: "Did not pass the locked test. Only the relative index is shown.",
+  },
+  trust: {
+    label: "Record status",
+    sealed: "Sealed",
+    anchored: (date: string) => `Anchored ${date}`,
+    checking: "Checking the anchor…",
+    pending: "Recorded after the last anchor",
+    mismatch: "No longer matches its anchor",
+    unavailable: "Anchor not readable right now",
+  },
+  // Three kinds of number, each with its own mark and words, never colour alone.
+  kinds: {
+    gauge: "Gauge · measured",
+    satellite: "Satellite · estimated",
+    history: "History · computed",
+    provisional: "Provisional",
+    provisionalHelp:
+      "Published by the USGS within minutes of the reading. It may still be revised.",
+    approved: "Approved",
+    approvedHelp: "Reviewed and approved by the USGS.",
   },
   record: {
     title: "Record",
@@ -123,8 +180,81 @@ export const CASE_COPY = {
     series: "Turbidity, 2026",
     thermal: "Water temperature",
     climate: "Climate",
-    profile: "Along the river",
     pass: "This pass",
+    scoreboard: "Scoreboard",
+    rivers: "All rivers",
+  },
+  // Every river the validation evaluated, the ones that do not beat guessing the usual value too.
+  rivers: {
+    caption: (total: number, rated: number, median: string) =>
+      `The two demo reaches are the best two of ${String(total)}. The honest summary is the median error over the ${String(rated)} rivers evaluated: ${median} %.`,
+    tableCaption: "Every evaluated river's locked test, lowest error first",
+    columns: {
+      river: "River (USGS gauge)",
+      level: "Level",
+      satellite: "Satellite error",
+      baseline: "Guess the usual value",
+      passes: "Test passes",
+    },
+    errorHelpLabel: "About the errors",
+    errorHelp:
+      "Half of the locked-test errors were smaller than this share of the value. Guessing the usual value means always guessing the median of the river's past values, with no satellite.",
+    demo: "demo reach",
+    thisCase: "this case",
+    insufficient: "Too few test passes",
+    gain: (r: string) => `${r} times smaller`,
+    noGain: "no clear gain",
+    worse: "worse than guessing",
+    inside: (k: number) => `${String(k)} inside the range`,
+    // Display names of the gauges, as the report's table writes them.
+    names: {
+      "USGS-07374525": "Mississippi at Belle Chasse",
+      "USGS-06805500": "Platte at Louisville",
+      "USGS-07381600": "Atchafalaya at Morgan City",
+      "USGS-03216070": "Ohio at Ironton",
+      "USGS-07020850": "Mississippi at Cape Girardeau",
+      "USGS-11337190": "San Joaquin at Jersey Point",
+      "USGS-01193050": "Connecticut at Middle Haddam",
+      "USGS-14211720": "Willamette at Portland",
+      "USGS-14144700": "Columbia at Vancouver",
+      "USGS-14246900": "Columbia at Port Westward",
+    } as Readonly<Record<string, string>>,
+  },
+  // The scoreboard (docs/water-quality/prospective.md): counts, never percentages, until there are
+  // 20 passes; every count says whether it was committed before the gauge was read.
+  scoreboard: {
+    caption:
+      "How many gauge values fell inside the expected range. Counts, not percentages, until there are 20 passes.",
+    prospective: "Prospective",
+    prospectiveHelpLabel: "About prospective passes",
+    prospectiveHelp:
+      "The model and the scoring rule were anchored on Sepolia before the satellite took the image, and the estimate was sealed and anchored before RiverEtch read the gauge.",
+    since: (date: string) => `since ${date}`,
+    notStarted: "Starts when the scoring rule is anchored on Sepolia.",
+    empty:
+      "No prospective pass scored yet. Clouds hide about three passes in four; a clear pass is scored at the first daily run after its anchor, at least 12 hours after the pass.",
+    retrospective: "Retrospective (backtest)",
+    retrospectiveHelpLabel: "About retrospective passes",
+    retrospectiveHelp:
+      "Sealed after the gauge's value was public. It shows the model's behaviour, not a commitment made in advance.",
+    passes2026: "2026 passes",
+    passes2026Note: "gauge values mostly provisional",
+    lockbox: "Locked test",
+    lockboxNote: "passes the model never saw",
+    count: (k: number, n: number) => `${String(k)} of ${String(n)}`,
+    inside: "inside",
+    turbidity: "Turbidity",
+    temperature: "Water temperature",
+    results: {
+      inside: "Inside the range",
+      outside: "Outside the range",
+      pending: "No gauge value yet",
+      none: "No gauge value",
+      abstained: "No estimate (abstained)",
+      noRange: "No expected range",
+    },
+    approvedLater: (value: string) => `Approved later: ${value}`,
+    columns: { pass: "Pass", estimate: "Estimate", gauge: "Gauge", result: "Result" },
   },
   climate: {
     lead: "Continued warming is projected to make wet and dry extremes more severe",
@@ -147,6 +277,33 @@ export const CASE_COPY = {
     keyToDate: "This year so far",
     chart: (measure: string, station: string) => `${measure} per year at ${station}`,
     table: "Every year of the gauge's record",
+    // Extreme days (rule v1, docs/water-quality/prospective.md): counts and ranks from the gauge.
+    views: { label: "What the climate tab shows", values: "Yearly extremes", days: "Extreme days" },
+    kinds: { low: "Low-flow days", high: "High-flow days", warm: "Warm-water days" },
+    kindWords: { low: "low-flow days", high: "high-flow days", warm: "warm-water days" },
+    mostIn: (kind: string, years: number, what: "years" | "summers") =>
+      `Most ${kind} in ${String(years)} ${what}`,
+    days: (n: number) => `${String(n)} days`,
+    dayUnit: "days",
+    seen: (first: number, last: number, k: string, n: string, kind: string) =>
+      `The satellite saw ${k} of ${n} ${kind} in ${String(first)}–${String(last)}`,
+    seenOthers: (k: string, n: string) => ` (other days: ${k} of ${n})`,
+    seenYear: (k: number, n: number) => `seen by the satellite on ${String(k)} of ${String(n)}`,
+    notEnough: (k: number, n: number, min: number) =>
+      `Not enough extreme days to judge the error on them: ${String(k)} of ${String(n)} test passes; ${String(min)} are needed.`,
+    enough: (k: number, n: number) => `${String(k)} of ${String(n)} test passes fell on such days.`,
+    definitionLabel: "About extreme days",
+    definition: {
+      low: (value: string, unit: string, first: string) =>
+        `A day whose mean flow is at or below ${value} ${unit}: the lowest tenth of this gauge's approved days from ${first} to 2025.`,
+      high: (value: string, unit: string, first: string) =>
+        `A day whose mean flow is at or above ${value} ${unit}: the highest tenth of this gauge's approved days from ${first} to 2025.`,
+      warm: (value: string, unit: string, first: string) =>
+        `A June–September day whose mean water temperature is at or above ${value} ${unit}: the warmest tenth of this gauge's approved summer days from ${first} to 2025.`,
+    },
+    definitionNote:
+      "Counted from the gauge's own record, never from the satellite, as the scoring rule defines them; no error on such days had been computed when it was written.",
+    tableDays: "Extreme days in every year of the gauge's record",
   },
   thermal: {
     title: "Water temperature",
@@ -171,8 +328,6 @@ export const CASE_COPY = {
     temperature: "Water temperature",
     sentinel: "Sentinel-2",
     landsat: "Landsat 8/9",
-    error: "error",
-    without: "without the satellite",
     validatedAt: "validated at",
     noLandsat: "No clear Landsat pass within 16 days",
   },
@@ -198,6 +353,9 @@ export const CASE_COPY = {
     hint: "Hover the profile to find the place on the river.",
   },
   pass: {
+    views: "What to show for this pass",
+    stats: "Statistics",
+    profile: "Along the river",
     water: "Water pixels in the corridor",
     usable: "Usable on this pass",
     clouded: "Lost to cloud, glint or no data",

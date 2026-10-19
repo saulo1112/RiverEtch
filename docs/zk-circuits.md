@@ -1,7 +1,8 @@
 # ZK circuits: build pipeline, trusted setup and testing
 
-> **Status (2026-10-14):** a toolchain scaffold. The product does not use ZK proofs; the only
-> circuit is a demo. It stays until the on-chain layer is decided ([D19](decisions.md)).
+> **Status (2026-10-19): legacy, not part of RiverEtch.** The product does not use ZK proofs: its
+> on-chain layer is the ledger anchor ([D20](decisions.md), [anchoring](anchoring.md)). The only
+> circuit is a demo, kept with its CI steps so the build stays green.
 
 Circuits live in the contracts workspace, next to the Solidity verifiers generated from them.
 Tooling: [circom](https://docs.circom.io/) 2.2.3 (compiler), [snarkjs](https://github.com/iden3/snarkjs)

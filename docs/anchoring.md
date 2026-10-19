@@ -7,10 +7,19 @@ ledger's **head** (the SHA-256 of its last line) on a public chain adds a timest
 
 ## What is anchored
 
-- **One subject per ledger:** `keccak256("terrachain:<reach>:<ledger>")`, where the ledger is
-  `observations` (Sentinel-2 records) or `water-temperature` (Landsat records).
+- **One subject per ledger:** `keccak256("terrachain:<scope>:<ledger>")`:
+  - `terrachain:<reach>:observations` (Sentinel-2 records) and
+    `terrachain:<reach>:water-temperature` (Landsat records);
+  - `terrachain:<reach>:outcomes`: the prospective outcomes of the reach's anchored claims
+    (`reach score`, [rule v1](water-quality/prospective.md));
+  - `terrachain:riveretch:frozen-artifacts`: the scoring rule, the model cards, the preregistration
+    and the results' MANIFEST, with their hashes (`docs/ledgers/frozen-artifacts.jsonl`). Its first
+    anchor's block time is T0, the start of prospective scoring.
+
   The label keeps the project's first name, TerraChain: the anchors already on Sepolia were made
-  under it, so it stays as it is after the rename to RiverEtch.
+  under it, so it stays as it is after the rename to RiverEtch. A new subject needs no contract
+  change: the contract accepts any `bytes32`.
+
 - **Its head and its line count,** with the block's time and number. Because each line names the
   one before, the head commits to every record above it.
 - **The contract** (`contracts/src/LedgerAnchor.sol`):
@@ -65,8 +74,13 @@ npx hardhat run scripts/anchor.ts --network sepolia
 - The script computes each ledger's head from the published records, with the web app's own code.
 - It skips any ledger already anchored up to its last line.
 - It sends one `anchorBatch` transaction for the rest and prints its hash.
+- It then rebuilds the anchoring log, `docs/ledgers/anchors.jsonl`, from the contract's state
+  (`count`, `anchorAt`) and each anchor's transaction: one line per anchor with its label, lines,
+  head, block, time and transaction hash. Commit it with the ledgers.
+- `npx tsx scripts/anchor-log.ts` rebuilds the log alone, read-only, from any public RPC.
 
-The demo reaches' four ledgers were anchored this way at block 11924112.
+The demo reaches' four ledgers were first anchored this way at block 11924112
+(transaction `0x19b4ac2e7ee64cdd8ee3622a053c46820fcbe6fc1b94330901c67860b2029eb0`).
 
 The web app also offers **Anchor this reach's ledgers on Sepolia** in the record panel, shown only
 when the connected wallet is the contract's owner. It sends the same transaction. A MetaMask smart
@@ -80,3 +94,10 @@ terminal is the supported path.
   last anchor, or no longer matches the anchor.
 - **On Etherscan:** the contract's `anchorAt(subject, index)` returns each anchor. The subject is
   the keccak256 of the label above.
+- **The contract's source on Etherscan:** Ignition's build information is committed, so the
+  verification sends no transaction. From `contracts/`, with a free Etherscan API key:
+
+  ```bash
+  npx hardhat keystore set ETHERSCAN_API_KEY
+  npx hardhat ignition verify chain-11155111
+  ```

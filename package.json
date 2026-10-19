@@ -2,7 +2,7 @@
   "name": "climate-change-ieee",
   "version": "0.1.0",
   "private": true,
-  "description": "Satellite detection of river turbidity anomalies in Colombia, correlated with extreme rainfall, plus zero-knowledge proofs of discharge-permit compliance on Ethereum.",
+  "description": "RiverEtch: satellite water-quality estimates validated against river gauges, sealed in hash-chained ledgers anchored on Ethereum Sepolia.",
   "type": "module",
   "workspaces": [
     "contracts",

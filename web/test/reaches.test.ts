@@ -99,8 +99,15 @@ void test("parseChecks reads the gauge values and leaves empty cells null", () =
       "2026-03-10,s,k2,t,turbidity,40.0,,,none,0,h\n",
   );
   assert.deepEqual(rows, [
-    { key: "k1", date: "2026-03-09", estimate: 51, value: 49.2, approval: "Approved" },
-    { key: "k2", date: "2026-03-10", estimate: 40, value: null, approval: "" },
+    {
+      key: "k1",
+      date: "2026-03-09",
+      datetimeUtc: "t",
+      estimate: 51,
+      value: 49.2,
+      approval: "Approved",
+    },
+    { key: "k2", date: "2026-03-10", datetimeUtc: "t", estimate: 40, value: null, approval: "" },
   ]);
 });
 
@@ -112,8 +119,8 @@ void test("parseThermalChecks and parseContext read the v6 files", () => {
         "2026-01-06,r:l8,t,1.36,,\n",
     ),
     [
-      { sceneId: "r:l9", date: "2026-03-11", value: 8.05, approval: "Approved" },
-      { sceneId: "r:l8", date: "2026-01-06", value: null, approval: "" },
+      { sceneId: "r:l9", date: "2026-03-11", datetimeUtc: "t", value: 8.05, approval: "Approved" },
+      { sceneId: "r:l8", date: "2026-01-06", datetimeUtc: "t", value: null, approval: "" },
     ],
   );
   assert.deepEqual(

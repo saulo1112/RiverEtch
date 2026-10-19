@@ -127,12 +127,53 @@ function reachData(): Plugin {
   };
 }
 
+// The scoreboard's T0 (docs/water-quality/prospective.md): the block time of the first anchor of
+// the frozen-artifacts ledger that covers the scoring rule's line, read from the anchoring log as
+// `climate-pipeline reach score` reads it (null until the rule is anchored). Read when Vite starts.
+const LEDGERS = fileURLToPath(new URL("../docs/ledgers/", import.meta.url));
+function jsonLines<T>(path: string): T[] {
+  return existsSync(path)
+    ? readFileSync(path, "utf8")
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => JSON.parse(line) as T)
+    : [];
+}
+const ruleLine = jsonLines<{ path: string }>(join(LEDGERS, "frozen-artifacts.jsonl")).findIndex(
+  (line) => line.path === "docs/water-quality/prospective.md",
+);
+const prospectiveT0: string | null =
+  ruleLine < 0
+    ? null
+    : (jsonLines<{ label: string; lines: number; timestampUtc: string }>(
+        join(LEDGERS, "anchors.jsonl"),
+      )
+        .filter((a) => a.label === "terrachain:riveretch:frozen-artifacts" && a.lines > ruleLine)
+        .map((a) => a.timestampUtc)
+        .sort()[0] ?? null);
+
+// The reaches with an outcomes ledger (`reach score`), so the web requests only files that exist.
+const outcomes = readdirSync(REACHES).filter((site) =>
+  existsSync(join(REACHES, site, "examples", "outcomes", "ledger.jsonl")),
+);
+
+// The validation's results for the All rivers tab, as committed (parsed by
+// src/features/case/rivers.ts, which the tests run on the same files).
+const RESULTS = fileURLToPath(new URL("../docs/water-quality/results/", import.meta.url));
+const v5Results = {
+  levels: readFileSync(join(RESULTS, "v5_levels.csv"), "utf8"),
+  scores: readFileSync(join(RESULTS, "v5_scores.csv"), "utf8"),
+};
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), reachData()],
   define: {
     __CASE_THUMBNAILS__: JSON.stringify(thumbnails),
     __LEDGER_ANCHOR__: JSON.stringify(ledgerAnchor),
+    __PROSPECTIVE_T0__: JSON.stringify(prospectiveT0),
+    __OUTCOMES__: JSON.stringify(outcomes),
     __REACH_FACTS__: JSON.stringify(reachFacts),
+    __V5_RESULTS__: JSON.stringify(v5Results),
   },
 });

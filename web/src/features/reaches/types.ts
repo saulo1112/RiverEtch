@@ -121,6 +121,8 @@ export interface ModelCard {
 export interface GaugeCheck {
   readonly key: string;
   readonly date: string;
+  /** The overpass (ISO, UTC; "" in an older file). */
+  readonly datetimeUtc: string;
   readonly estimate: number | null;
   readonly value: number | null;
   readonly approval: string;
@@ -218,6 +220,8 @@ export interface ThermalRecord {
 export interface ThermalCheck {
   readonly sceneId: string;
   readonly date: string;
+  /** The overpass (ISO, UTC; "" in an older file). */
+  readonly datetimeUtc: string;
   readonly value: number | null;
   readonly approval: string;
 }
@@ -246,9 +250,49 @@ export interface TemperatureCard {
     readonly n: number;
   }[];
   readonly metrics: {
-    readonly lockbox: { readonly mae: number; readonly bias: number; readonly n: number };
+    readonly lockbox: {
+      readonly mae: number;
+      readonly bias: number;
+      readonly n: number;
+      readonly coverage90?: number;
+    };
     readonly null_lockbox: { readonly mae: number };
   };
+}
+
+/**
+ * One line of a demo reach's outcomes ledger (`outcomes/ledger.jsonl`, written by
+ * `climate-pipeline reach score` under docs/water-quality/prospective.md): an anchored claim, the
+ * gauge's reading at its overpass and whether it fell inside the sealed interval. A first read is
+ * never replaced: an approved re-read, or a final "no gauge value", is a new line.
+ */
+export interface Outcome {
+  readonly claimRecordSha256: string;
+  readonly claimLedger: string;
+  readonly claimLine: number;
+  readonly sceneId: string;
+  /** "turbidity" or "water_temperature". */
+  readonly target: string;
+  readonly unit: string;
+  /** The sealed estimate (null: the record abstained). */
+  readonly estimate: number | null;
+  readonly interval: { readonly low: number; readonly high: number } | null;
+  readonly overpassUtc: string;
+  readonly gauge: {
+    readonly station: string;
+    readonly parameter: string;
+    readonly value: number;
+    readonly unit: string;
+    readonly approval: string;
+    readonly rule: string;
+    readonly n: number;
+  } | null;
+  /** Null when there is nothing to compare (no gauge value, no interval, abstained). */
+  readonly inside: boolean | null;
+  readonly status: "scored" | "no gauge value" | "abstained";
+  readonly final: boolean;
+  readonly readUtc: string;
+  readonly ruleSha256: string;
 }
 
 /** What every year of `climate.json` holds (`reach climate`, docs/water-quality/reach/README.md). */
@@ -306,6 +350,80 @@ export interface ClimateRecord {
     readonly rankedYears: number;
     readonly years: readonly ClimateHeatYear[];
   } | null;
+  /** The demo reaches' extreme days (rule v1, docs/water-quality/prospective.md, section 5). */
+  readonly extremes?: ClimateExtremes;
+}
+
+/** One calendar year's extreme days (null: not measured that year, or no satellite record). */
+export interface ClimateExtremeYear {
+  readonly year: number;
+  /** The discharge year is ranked (low and high flow). */
+  readonly complete: boolean;
+  readonly toDate: boolean;
+  readonly low: number;
+  readonly high: number;
+  readonly warm: number | null;
+  /** The summer is ranked (warm water). */
+  readonly warmComplete: boolean;
+  /** Where "seen" comes from: the v5 inputs (2019-2025), the sealed records (2026), or none. */
+  readonly seenFrom: "v5 inputs" | "sealed records" | null;
+  /** Usable passes that year. */
+  readonly passes: number | null;
+  readonly lowSeen: number | null;
+  readonly highSeen: number | null;
+  readonly warmSeen: number | null;
+  /** 1 = the most such days of the ranked years. */
+  readonly lowRank: number | null;
+  readonly highRank: number | null;
+  readonly warmRank: number | null;
+}
+
+/** Days of a kind in the satellite era, and how many a usable pass saw. */
+export interface ClimateSeen {
+  readonly days: number;
+  readonly seen: number;
+}
+
+/** `climate.json`'s extreme days (`reach climate`, pipeline/src/climate_pipeline/reach/extremes.py). */
+export interface ClimateExtremes {
+  readonly rule: string;
+  readonly thresholds: {
+    /** At or below (m³/s). */
+    readonly low: number;
+    /** At or above (m³/s). */
+    readonly high: number;
+    /** At or above (°C; null: the gauge has no temperature). */
+    readonly warm: number | null;
+    readonly flowUnit: string;
+    readonly warmUnit: string;
+    readonly reference: {
+      readonly first: string;
+      readonly last: string;
+      readonly warmFirstYear: number;
+      readonly flowDays: number;
+      readonly warmDays: number;
+    };
+  };
+  readonly years: readonly ClimateExtremeYear[];
+  readonly rankedYears: { readonly flow: number; readonly warm: number };
+  readonly satelliteEra: {
+    readonly first: number;
+    readonly last: number;
+    readonly low: ClimateSeen;
+    readonly high: ClimateSeen;
+    readonly normal: ClimateSeen;
+    readonly warm: ClimateSeen | null;
+  };
+  /** The lock box's pairs on each kind of day, and the minimum an error comparison needs. */
+  readonly lockbox: {
+    readonly first: string;
+    readonly last: string;
+    readonly pairs: number;
+    readonly low: number;
+    readonly high: number;
+    readonly warm: number | null;
+    readonly minimum: number;
+  };
 }
 
 /** Everything the case view loads for one reach, up front. */
@@ -328,4 +446,6 @@ export interface ReachData {
   readonly context: readonly ContextReading[];
   /** The gauge's whole daily record, year by year: the climate context (null: none yet). */
   readonly climate: ClimateRecord | null;
+  /** The prospective outcomes of its anchored claims (demo reaches; empty: none yet). */
+  readonly outcomes: readonly Outcome[];
 }

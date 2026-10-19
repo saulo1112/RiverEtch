@@ -3,19 +3,31 @@ import { useState, type PointerEvent } from "react";
 import {
   climateMeasures,
   climatePoints,
+  extremeKinds,
+  extremePoints,
   ordinal,
   recordYear,
   type ClimateMeasure,
   type ClimatePoint,
+  type ExtremeKind,
 } from "../../reaches/climate.ts";
 import type { ClimateRecord } from "../../reaches/types.ts";
 import { CASE_COPY, formatCelsius, formatDate, formatReading } from "../content.ts";
+import { HelpTip } from "./HelpTip.tsx";
 import { useSize } from "./useSize.ts";
+
+/** What the climate tab shows: each year's extreme values, or its count of extreme days. */
+export type ClimateTabView = "values" | "days";
 
 /** Props of {@link ClimateView}. */
 export interface ClimateViewProps {
   readonly climate: ClimateRecord;
+  /** Extreme days where the record has them (default: the yearly values). */
+  readonly view?: ClimateTabView;
 }
+
+// A chart draws one measure's values, or one kind's count of extreme days.
+type ChartMeasure = ClimateMeasure | "days";
 
 // Chart geometry (CSS px), as the other charts'.
 const PAD = { left: 40, right: 8, top: 18, bottom: 20 };
@@ -26,7 +38,10 @@ function unitOf(climate: ClimateRecord, measure: ClimateMeasure): string {
   return measure === "warm" ? (climate.temperature?.unit ?? "°C") : climate.discharge.unit;
 }
 
-function formatMeasure(measure: ClimateMeasure, value: number): string {
+function formatMeasure(measure: ChartMeasure, value: number): string {
+  if (measure === "days") {
+    return String(value);
+  }
   return measure === "warm" ? formatCelsius(value) : formatReading(value);
 }
 
@@ -61,11 +76,14 @@ function Chart({
   points,
   unit,
   label,
+  note,
 }: {
-  readonly measure: ClimateMeasure;
+  readonly measure: ChartMeasure;
   readonly points: readonly ClimatePoint[];
   readonly unit: string;
   readonly label: string;
+  /** A year's extra line in the tip (extreme days: what the satellite saw). */
+  readonly note?: (point: ClimatePoint) => string | null;
 }) {
   const [plotRef, { width, height }] = useSize<HTMLDivElement>();
   const [hovered, setHovered] = useState<number | null>(null);
@@ -92,6 +110,7 @@ function Chart({
     setHovered(k >= 0 && k < points.length ? k : null);
   };
   const tip = hovered === null ? undefined : points[hovered];
+  const tipNote = tip === undefined || note === undefined ? null : note(tip);
   const tipX = hovered === null ? 0 : x(hovered) + band / 2;
   const tipY = tip?.value == null ? baseY : y(tip.value);
   const record = recordYear(points);
@@ -202,6 +221,7 @@ function Chart({
           <p className="case-series__tip-value">
             {tip.year} · {formatMeasure(measure, tip.value)} {unit}
           </p>
+          {tipNote === null ? null : <p className="case-series__tip-date">{tipNote}</p>}
           {tip.day === null ? null : (
             <p className="case-series__tip-date">
               {measure === "low" ? `${CASE_COPY.climate.weekTo} ` : ""}
@@ -226,15 +246,20 @@ function Chart({
  * The climate context of a reach: the gauge's own daily record, year by year (`climate.json`).
  * Each measure's record year sits on the left and selects the measure; the chart shows every year
  * of it, the three most extreme of the ranked years in the gauge's colour and the record labelled.
- * A hidden table gives every year to screen readers.
+ * A hidden table gives every year to screen readers. With `view` "days", the record's extreme days
+ * instead (see `ExtremeDays`).
  *
  * @param props - The view's props.
  * @param props.climate - The reach's climate context.
+ * @param props.view - The yearly values, or the extreme days.
  * @returns The view.
  */
-export function ClimateView({ climate }: ClimateViewProps) {
+export function ClimateView({ climate, view = "values" }: ClimateViewProps) {
   const copy = CASE_COPY.climate;
   const [measure, setMeasure] = useState<ClimateMeasure>(() => defaultMeasure(climate));
+  if (view === "days" && climate.extremes !== undefined) {
+    return <ExtremeDays climate={climate} />;
+  }
   const measures = climateMeasures(climate);
   const byYear = {
     peak: new Map(climatePoints(climate, "peak").map((p) => [p.year, p])),
@@ -312,6 +337,159 @@ export function ClimateView({ climate }: ClimateViewProps) {
                   <td key={m}>
                     {row?.value == null ? "" : formatMeasure(m, row.value)}
                     {row?.rank == null ? "" : ` (${ordinal(row.rank)})`}
+                  </td>
+                );
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// A count with a thousands separator ("1,655").
+const count = (n: number) => n.toLocaleString("en-US");
+
+// The kind whose record year is the most recent (low flow on a tie).
+function defaultKind(climate: ClimateRecord): ExtremeKind {
+  let best: ExtremeKind = "low";
+  let year = -Infinity;
+  for (const k of extremeKinds(climate)) {
+    const found = recordYear(extremePoints(climate, k))?.year ?? -Infinity;
+    if (found > year) {
+      best = k;
+      year = found;
+    }
+  }
+  return best;
+}
+
+/**
+ * The extreme days of the gauge's record (rule v1): each kind's count per year and its record
+ * year, ranked like the climate context; how often a usable pass saw such days; and whether the
+ * locked test holds enough of them to say how the error changes (it never says it with fewer
+ * than the minimum).
+ *
+ * @param props - The view's props.
+ * @param props.climate - The reach's climate context, with its extremes block.
+ * @returns The view.
+ */
+function ExtremeDays({ climate }: { readonly climate: ClimateRecord }) {
+  const copy = CASE_COPY.climate;
+  const [kind, setKind] = useState<ExtremeKind>(() => defaultKind(climate));
+  const e = climate.extremes;
+  if (e === undefined) {
+    return null;
+  }
+  const kinds = extremeKinds(climate);
+  const points = extremePoints(climate, kind);
+  const station = climate.station.id.replace(/^USGS-/, "USGS ");
+  const era = e.satelliteEra;
+  const seen = era[kind];
+  const pairs = e.lockbox[kind];
+  const words = copy.kindWords[kind];
+  const t = e.thresholds;
+  const threshold = kind === "warm" ? t.warm : t[kind];
+  const definition = copy.definition[kind](
+    threshold === null ? "–" : formatReading(threshold),
+    kind === "warm" ? t.warmUnit : t.flowUnit,
+    kind === "warm" ? String(t.reference.warmFirstYear) : t.reference.first.slice(0, 4),
+  );
+  const byYear = new Map(e.years.map((y) => [y.year, y]));
+  const note = (p: ClimatePoint) => {
+    const k = byYear.get(p.year)?.[`${kind}Seen`];
+    return k === null || k === undefined || p.value === null ? null : copy.seenYear(k, p.value);
+  };
+  return (
+    <div className="case-climate">
+      <div className="case-climate__facts" role="radiogroup" aria-label={copy.views.days}>
+        {kinds.map((k) => {
+          const found = recordYear(extremePoints(climate, k));
+          return (
+            <button
+              key={k}
+              type="button"
+              role="radio"
+              aria-checked={k === kind}
+              className="case-climate__fact"
+              onClick={() => {
+                setKind(k);
+              }}
+            >
+              <span className="case-climate__fact-what">
+                {copy.mostIn(
+                  copy.kindWords[k],
+                  found?.ranked ?? 0,
+                  k === "warm" ? "summers" : "years",
+                )}
+              </span>
+              <span className="case-climate__fact-value">
+                {copy.kinds[k]}
+                {found?.value == null ? null : (
+                  <span>
+                    {" "}
+                    · <strong>{found.year}</strong> · {copy.days(found.value)}
+                  </span>
+                )}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      <div className="case-climate__days">
+        <Chart
+          measure="days"
+          points={points}
+          unit={copy.dayUnit}
+          label={copy.chart(copy.kinds[kind], station)}
+          note={note}
+        />
+        <p className="case-climate__extreme-note">
+          {seen === null ? null : (
+            <>
+              {copy.seen(era.first, era.last, count(seen.seen), count(seen.days), words)}
+              {kind === "warm"
+                ? ""
+                : copy.seenOthers(count(era.normal.seen), count(era.normal.days))}
+              .{" "}
+            </>
+          )}
+          {pairs === null
+            ? null
+            : pairs < e.lockbox.minimum
+              ? copy.notEnough(pairs, e.lockbox.pairs, e.lockbox.minimum)
+              : copy.enough(pairs, e.lockbox.pairs)}
+          <HelpTip label={copy.definitionLabel}>
+            {definition} {copy.definitionNote}
+          </HelpTip>
+        </p>
+      </div>
+      <table className="case-visually-hidden">
+        <caption>{copy.tableDays}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Year</th>
+            {kinds.map((k) => (
+              <th key={k} scope="col">
+                {copy.kinds[k]}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {e.years.map((y) => (
+            <tr key={y.year}>
+              <th scope="row">{y.year}</th>
+              {kinds.map((k) => {
+                const n = y[k];
+                const rank = y[`${k}Rank`];
+                const saw = y[`${k}Seen`];
+                return (
+                  <td key={k}>
+                    {n === null ? "" : String(n)}
+                    {rank === null ? "" : ` (${ordinal(rank)})`}
+                    {n === null || saw === null ? "" : `, ${copy.seenYear(saw, n)}`}
                   </td>
                 );
               })}

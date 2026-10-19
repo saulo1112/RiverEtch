@@ -5,6 +5,7 @@ import type {
   ClimateRecord,
   MapsIndex,
   ModelCard,
+  Outcome,
   ReachData,
   ReachGeometry,
   ReachInfo,
@@ -43,12 +44,26 @@ async function fetchJson<T>(url: string): Promise<T | null> {
   }
 }
 
+// A JSON Lines file's records (a line that does not parse is left out).
+function jsonLines<T>(text: string | null): T[] {
+  return (text ?? "").split("\n").flatMap((line) => {
+    if (line.trim() === "") {
+      return [];
+    }
+    try {
+      return [JSON.parse(line) as T];
+    } catch {
+      return [];
+    }
+  });
+}
+
 const loads = new Map<string, Promise<ReachData>>();
 
 /**
  * Loads a reach's info, series, card, gauge check, map index, geometry, the gauge's readings, its
- * climate context and, where it has them, its water temperatures (cached; a failed load is
- * retried on the next call).
+ * climate context, its prospective outcomes and, where it has them, its water temperatures
+ * (cached; a failed load is retried on the next call).
  * The info and the series are required; any other file may be missing.
  *
  * @param id - The reach's site id.
@@ -61,7 +76,7 @@ export function loadReach(id: string): Promise<ReachData> {
   }
   const base = reachBase(id);
   const pending = (async (): Promise<ReachData> => {
-    const [info, series, maps, geometry, checks, context, climate] = await Promise.all([
+    const [info, series, maps, geometry, checks, context, climate, outcomes] = await Promise.all([
       fetchJson<ReachInfo>(`${base}reach.json`),
       fetchJson<SeriesRow[]>(`${base}series.json`),
       fetchJson<MapsIndex>(`${base}maps.json`),
@@ -69,6 +84,7 @@ export function loadReach(id: string): Promise<ReachData> {
       fetchText(`${base}checks/checks.csv`),
       fetchText(`${base}checks/context.csv`),
       fetchJson<ClimateRecord>(`${base}climate.json`),
+      __OUTCOMES__.includes(id) ? fetchText(`${base}outcomes/ledger.jsonl`) : null,
     ]);
     if (info === null || series === null) {
       throw new Error(`${id}: the reach's files could not be loaded`);
@@ -100,6 +116,7 @@ export function loadReach(id: string): Promise<ReachData> {
             },
       context: context === null ? [] : parseContext(context),
       climate,
+      outcomes: jsonLines<Outcome>(outcomes),
     };
   })();
   loads.set(id, pending);

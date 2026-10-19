@@ -26,7 +26,7 @@
   --case-r-bar: 12px;
   --case-r-inner: 8px;
   --case-bar-h: 40px;
-  --type-micro: 11px;
+  --type-micro: 12px; /* the smallest text anywhere in the case view */
   --type-small: 12px;
   --type-body: 13px;
   --type-title: 16px;
@@ -176,7 +176,7 @@
   border-radius: 6px;
   color: var(--text-2);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1;
 }
 
@@ -525,7 +525,10 @@
   outline-offset: 4px;
 }
 
-/* Folded: what the reading is, its value and level, and the error its locked test measured. */
+/*
+ * Folded, the case's card (level 1): one value, its expected range, a trust strip, and how far off
+ * it tends to be against guessing the river's usual value. Nothing else.
+ */
 .case-file__summary {
   margin-top: 12px;
 }
@@ -538,10 +541,6 @@
 }
 
 .case-file__value {
-  display: flex;
-  gap: 8px 12px;
-  align-items: center;
-  justify-content: space-between;
   margin: 8px 0 0;
   color: var(--text-1);
   font-size: var(--type-display);
@@ -564,17 +563,197 @@
   letter-spacing: -0.01em;
 }
 
-.case-file__error {
-  margin: 8px 0 0;
+.case-file__muted {
+  color: var(--text-3);
+  font-weight: 450;
+}
+
+/* A row with a help button: the explanation wraps onto its own line under it. */
+.case-file__range-line,
+.case-file__reliability-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 4px;
+  align-items: center;
+  margin: 6px 0 0;
   color: var(--text-2);
   font-size: var(--type-small);
+  font-variant-numeric: tabular-nums;
   line-height: 1.35;
 }
 
-.case-file__error strong {
+/* The row's words wrap inside their own box, so the "?" stays on their last line. */
+:is(.case-file__range-line, .case-file__reliability-head) > span:first-child {
+  min-width: 0;
+  max-width: calc(100% - 26px);
+}
+
+/* The trust strip: level, seal and anchor, each by a mark and its words. */
+.case-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+  color: var(--text-2);
+  font-size: var(--type-small);
+  line-height: 1.3;
+}
+
+.case-trust__level {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 2px;
+  align-items: center;
+}
+
+.case-trust__item {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.case-trust__item svg {
+  flex: none;
+  color: var(--text-3);
+}
+
+.case-trust__item[data-state="anchored"] svg {
+  color: var(--accent);
+}
+
+.case-trust__item[data-state="mismatch"] {
+  color: #ffc2bb;
+}
+
+.case-trust__item[data-state="mismatch"] svg {
+  color: #ff4f3f;
+}
+
+/* How far off it tends to be: two bars on one scale, then the same in words. */
+.case-file__reliability {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--hairline);
+}
+
+.case-file__reliability-head {
+  margin: 0;
   color: var(--text-1);
+  font-weight: 560;
+}
+
+.case-bars {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+
+.case-bars__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 8px;
+  align-items: baseline;
+}
+
+.case-bars__label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-width: 0;
+  color: var(--text-2);
+  font-size: var(--type-small);
+}
+
+.case-bars__label svg {
+  flex: none;
+  color: var(--text-3);
+}
+
+.case-bars__value {
+  margin: 0;
+  color: var(--text-1);
+  font-size: var(--type-small);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+.case-bars__track {
+  grid-column: 1 / -1;
+  height: 6px;
+  margin: 0;
+  border-radius: 3px;
+  background: rgb(240 246 255 / 0.06);
+}
+
+/* The bars reach 3:1 against the panel; the rows differ by icon and words too. */
+.case-bars__bar {
+  display: block;
+  min-inline-size: 3px;
+  height: 100%;
+  border-radius: 3px;
+  background: rgb(240 246 255 / 0.5);
+}
+
+.case-bars__row[data-kind="satellite"] .case-bars__bar {
+  background: var(--accent);
+}
+
+/*
+ * The "?" beside a number: a small mark with a 44 × 44 px hit area. Its explanation opens inline,
+ * on its own line under the row, never over the button.
+ */
+.case-help {
+  display: inline-flex;
+}
+
+.case-help__button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: -2px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+}
+
+.case-help__button::before {
+  position: absolute;
+  inset: -11px;
+  content: "";
+}
+
+.case-help__button:hover,
+.case-help__button[aria-expanded="true"] {
+  color: var(--text-1);
+}
+
+.case-help__text:not([hidden]) {
+  display: block;
+  flex-basis: 100%;
+  margin: 6px 0 2px;
+  padding: 8px 10px;
+  border-radius: var(--case-r-inner);
+  background: rgb(255 255 255 / 0.05);
+  color: var(--text-2);
+  font-size: var(--type-small);
+  font-weight: 450;
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .case-help__text:not([hidden]) {
+    animation: case-details-in 160ms var(--ease);
+  }
 }
 
 /* Unfolded: the details, one hairline-topped section each. */
@@ -1111,7 +1290,7 @@
 .case-timeline__unit {
   fill: var(--text-3);
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: 0.06em;
 }
 
@@ -1246,7 +1425,7 @@
 .case-gauge__caption {
   color: rgb(240 246 255 / 0.62);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.06em;
 }
 
@@ -1533,7 +1712,7 @@
 
 .case-inspector__value span {
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 450;
 }
 
@@ -1774,7 +1953,7 @@
 .case-series__unit {
   fill: var(--text-3);
   font-family: var(--font-mono);
-  font-size: 9.5px;
+  font-size: 12px;
   letter-spacing: 0.06em;
 }
 
@@ -1955,6 +2134,41 @@
   color: var(--text-3);
 }
 
+/* Extreme days: the chart, then one note (what the satellite saw, the locked test's count). */
+.case-climate__days {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 4px;
+  min-width: 0;
+  min-height: 0;
+}
+
+.case-climate__extreme-note {
+  position: relative;
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--type-micro);
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+
+.case-climate__extreme-note .case-help {
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
+/* The definitions open over the chart, above the note, so the chart keeps its height. */
+.case-climate__extreme-note .case-help__text:not([hidden]) {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  left: 0;
+  z-index: 2;
+  margin: 0 0 4px;
+  border: 1px solid var(--hairline);
+  background: rgb(8 14 32 / 0.97);
+}
+
 .case-climate__since {
   margin: auto 0 0;
   padding-inline: 9px;
@@ -2114,31 +2328,42 @@
 }
 
 /*
- * The water-quality tab: what the satellite estimates, then what the gauge measured, on one grid
- * across the panel (its columns are set inline from the tile counts). Each group spans its own
- * columns through subgrid, so its label sits over its tiles; past the columns' minimums the row
- * scrolls sideways instead of squeezing. One hairline tile style: a tile's tone is only its line.
+ * The water-quality tab: what the satellite estimates, then what the gauge measured. The two
+ * groups share the panel's width by their tile counts (a satellite tile counts double, and needs
+ * at least 220 px; a gauge tile 110 px). Where they do not fit side by side, the gauge's group goes
+ * under the satellite's and tiles wrap inside their group: nothing ever scrolls sideways. One
+ * hairline tile style: a tile's tone is only its line.
  */
 .case-quality {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: 6px 8px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: stretch;
+  gap: 10px 12px;
   height: 100%;
-  overflow: auto hidden;
-  scrollbar-color: rgb(240 246 255 / 0.24) transparent;
-  scrollbar-width: thin;
+  overflow: hidden;
 }
 
 .case-quality__group {
+  --weight: 1;
+  --min: 110px;
+
   display: grid;
-  grid-row: 1 / span 2;
-  grid-template-rows: subgrid;
-  grid-template-columns: subgrid;
+  flex: calc(var(--count) * var(--weight)) 1
+    min(100%, calc(var(--count) * var(--min) + (var(--count) - 1) * 8px));
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 6px;
   min-width: 0;
 }
 
+.case-quality__group[data-kind="sat"] {
+  --weight: 2;
+  --min: 220px;
+}
+
 .case-quality__label {
-  grid-column: 1 / -1;
+  display: flex;
+  gap: 6px;
+  align-items: center;
   margin: 0;
   overflow: hidden;
   color: var(--text-3);
@@ -2148,10 +2373,14 @@
   white-space: nowrap;
 }
 
+.case-quality__label svg {
+  flex: none;
+}
+
 .case-quality__tiles {
   display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--min)), 1fr));
+  gap: 8px;
   min-height: 0;
   margin: 0;
   padding: 0;
@@ -2195,11 +2424,10 @@
 }
 
 .case-quality__title {
-  overflow: hidden;
+  min-width: 0;
   color: var(--text-1);
   font-weight: 560;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .case-quality__source {
@@ -2249,10 +2477,28 @@
 
 .case-quality__detail {
   grid-area: detail;
-  overflow: hidden;
   color: var(--text-3);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  text-wrap: pretty;
+}
+
+/* A gauge value's approval: the chip says it; a provisional one also has a dashed edge. */
+:is(.case-quality__chip, .case-score__chip)[data-approval="Provisional"] {
+  border-style: dashed;
+}
+
+/* A gauge tile is narrow: its approval goes under the value, in the row that a missing value's
+   note takes (a gauge tile has one or the other). */
+.case-quality__tile[data-tone="gauge"] {
+  grid-template-rows: auto auto auto minmax(14px, 1fr);
+  grid-template-areas:
+    "head head head"
+    "value value value"
+    "detail detail detail"
+    "spark spark spark";
+}
+
+.case-quality__tile[data-tone="gauge"] .case-quality__chip {
+  grid-area: detail;
 }
 
 /* The locked test's error against the usual value: kept whole. */
@@ -2296,6 +2542,322 @@
   stroke-width: 5;
   stroke-linecap: round;
   vector-effect: non-scaling-stroke;
+}
+
+/* "This pass": the switch between its statistics and its NDTI along the river, in the caption. */
+.case-timeline__switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: center;
+}
+
+.case-timeline__switch .case-tools__segment {
+  height: 24px;
+  padding-inline: 10px;
+  font-size: var(--type-small);
+}
+
+/*
+ * The scoreboard: the prospective passes, then the retrospective counts, side by side where they
+ * fit, else one under the other; the tab scrolls down, never sideways. A result is a shape and its
+ * words; the colour only repeats them.
+ */
+.case-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: start;
+  gap: 10px 12px;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* A group is never taller than the panel: a long list scrolls inside its own box. */
+.case-score__group {
+  display: grid;
+  flex: 1 1 300px;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 6px;
+  min-width: 0;
+  max-height: 100%;
+}
+
+.case-score__group[data-kind="retrospective"] {
+  flex: 1.3 1 360px;
+}
+
+.case-score__label {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 6px;
+  align-items: center;
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--type-small);
+  font-weight: 560;
+  line-height: 1.3;
+}
+
+.case-score__label svg {
+  flex: none;
+}
+
+.case-score__label > span:first-of-type {
+  min-width: 0;
+  max-width: calc(100% - 46px);
+}
+
+.case-score__tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.case-score__tile,
+.case-score__empty,
+.case-score__prospective {
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: var(--case-r-inner);
+  background: rgb(255 255 255 / 0.03);
+}
+
+.case-score__empty,
+.case-score__prospective {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.case-score__empty {
+  color: var(--text-2);
+  font-size: var(--type-small);
+  line-height: 1.45;
+  text-wrap: pretty;
+}
+
+.case-score__title {
+  margin: 0 0 4px;
+  color: var(--text-1);
+  font-size: var(--type-small);
+  font-weight: 560;
+}
+
+.case-score__rows {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+}
+
+.case-score__rows > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 8px;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.case-score__rows--inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 20px;
+  margin-bottom: 6px;
+}
+
+.case-score__rows dt {
+  color: var(--text-2);
+  font-size: var(--type-small);
+}
+
+.case-score__rows dd {
+  margin: 0;
+}
+
+.case-score__count {
+  color: var(--text-2);
+  font-size: var(--type-small);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.case-score__count strong {
+  color: var(--text-1);
+  font-size: var(--type-body);
+  font-weight: 620;
+}
+
+.case-score__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.case-score__table :is(th, td) {
+  padding: 3px 10px 3px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--text-1);
+  font-weight: 450;
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.case-score__table thead th {
+  border-top: 0;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+  font-weight: 500;
+}
+
+.case-score__muted {
+  color: var(--text-3);
+  font-weight: 450;
+}
+
+.case-score__nowrap {
+  white-space: nowrap;
+}
+
+.case-score__chip {
+  vertical-align: middle;
+}
+
+.case-score__result {
+  display: inline-flex;
+  gap: 5px;
+  align-items: baseline;
+  color: var(--text-2);
+}
+
+.case-score__result svg {
+  flex: none;
+  align-self: center;
+}
+
+.case-score__result[data-result="inside"] {
+  color: #a5f0fc;
+}
+
+.case-score__result[data-result="outside"] {
+  color: #ffc2bb;
+}
+
+/* All rivers: one table, lowest error first; it scrolls down in the panel, its cells wrap. */
+.case-rivers {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.case-rivers__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-small);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.3;
+}
+
+.case-rivers__table :is(th, td) {
+  padding: 4px 12px 4px 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--text-1);
+  font-weight: 450;
+  text-align: left;
+  vertical-align: baseline;
+}
+
+.case-rivers__table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  border-top: 0;
+  background: rgb(8 14 32 / 0.92);
+  color: var(--text-3);
+  font-size: var(--type-micro);
+  font-weight: 500;
+  vertical-align: bottom;
+}
+
+.case-rivers__head {
+  display: inline-flex;
+  gap: 2px;
+  align-items: center;
+}
+
+/* The help's text opens under the table head, across the panel. */
+.case-rivers__head .case-help__text:not([hidden]) {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: min(420px, 80vw);
+  border: 1px solid var(--hairline);
+  background: rgb(8 14 32 / 0.97);
+  color: var(--text-2);
+}
+
+.case-rivers__table tr[data-demo] th {
+  font-weight: 560;
+}
+
+.case-rivers__table tr[data-here] :is(th, td) {
+  background: rgb(34 211 238 / 0.06);
+}
+
+.case-rivers__value {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.case-rivers__muted {
+  color: var(--text-3);
+  font-weight: 450;
+}
+
+.case-rivers__mark {
+  color: #a5f0fc;
+  font-weight: 450;
+}
+
+/* Phones: each river is a short block (name and level, then its labelled numbers); the table's
+   roles are explicit in the markup, so it stays a table to assistive technology. */
+@media (max-width: 760px) {
+  .case-rivers__table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .case-rivers__table tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px 8px;
+    padding: 6px 0;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .case-rivers__table tbody :is(th, td) {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .case-rivers__table tbody td[data-label] {
+    grid-column: 1 / -1;
+  }
+
+  .case-rivers__table tbody td[data-label]::before {
+    color: var(--text-3);
+    content: attr(data-label) " ";
+  }
 }
 
 .case-legend__photo {
@@ -2398,7 +2960,7 @@
   background: rgb(34 211 238 / 0.15);
   color: #a5f0fc;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .case-proof__note {
@@ -2416,7 +2978,7 @@
   background: rgb(0 0 0 / 0.35);
   color: var(--text-2);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-all;
@@ -2444,7 +3006,7 @@
 .case-proof__hash code {
   color: var(--text-1);
   font-family: var(--font-mono);
-  font-size: 11.5px;
+  font-size: 12px;
   word-break: break-all;
 }
 
@@ -2472,7 +3034,7 @@
   border: 1px solid var(--hairline);
   border-radius: 10px;
   background: rgb(255 255 255 / 0.03);
-  font-size: 11px;
+  font-size: 12px;
 }
 
 .case-proof__block:first-child {
@@ -2482,7 +3044,7 @@
 .case-proof__block code {
   color: var(--text-3);
   font-family: var(--font-mono);
-  font-size: 10.5px;
+  font-size: 12px;
 }
 
 .case-proof__block[data-mine="true"] {
@@ -2498,7 +3060,7 @@
 .case-proof__block-index {
   color: var(--text-3);
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .case-proof__block-date {
@@ -2593,9 +3155,9 @@
   }
 }
 
-/* Short tab panels (landscape up to 920 px tall, and phones): a satellite tile carries its line
-   beside its value, so the tile fits the panel's height. */
-@media (min-width: 761px) and (max-height: 920px), (max-width: 760px) {
+/* Short tab panels (landscape up to 920 px tall), tablets and phones: a satellite tile carries its
+   line beside its value, so the tile fits the panel's height. */
+@media (max-height: 920px), (max-width: 1199px) {
   .case-quality__tile:not([data-tone="gauge"]) {
     grid-template-rows: auto auto auto auto;
     grid-template-areas:
@@ -2620,6 +3182,30 @@
   .case-quality__foot,
   .case-quality__tile[data-tone="gauge"] .case-quality__spark {
     display: none;
+  }
+}
+
+/* Narrow landscape and tablets (761-1199 px): the gauge's group goes under the satellite's, so the
+   tab panel is taller here (the same height on every tab: the tab strip never moves) and the
+   water-quality tab scrolls down, never sideways, where its rows still do not fit. */
+@media (min-width: 761px) and (max-width: 1199px) {
+  .case-quality {
+    align-content: start;
+    overflow-y: auto;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1199px) and (min-height: 921px) {
+  .case-view {
+    --timeline-body: 296px;
+  }
+}
+
+/* Landscape tablets: the satellite's row and the top of the gauge's, so the case file above
+   keeps its height. */
+@media (min-width: 761px) and (max-width: 1199px) and (min-height: 681px) and (max-height: 920px) {
+  .case-view {
+    --timeline-body: 188px;
   }
 }
 
@@ -2735,11 +3321,17 @@
     margin-top: 10px;
   }
 
-  /* Climate: the record years become one row of compact choices above the chart. */
+  /* Climate: the record years become one row of compact choices above the chart; the extreme
+     days' chart keeps its height and its note scrolls into view with the panel. */
   .case-climate {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
     gap: 4px;
+    overflow-y: auto;
+  }
+
+  .case-climate__days {
+    grid-template-rows: 96px auto;
   }
 
   .case-climate__facts {
@@ -2764,6 +3356,12 @@
 
   .case-quality__foot {
     display: none;
+  }
+
+  /* The case view has no page scroll: the tab panel's own scroll is the only one on screen. */
+  .case-quality {
+    align-content: start;
+    overflow-y: auto;
   }
 
   .case-view__attribution {

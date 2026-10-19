@@ -1,9 +1,10 @@
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { Anchor, ArrowLeft, Clock, ExternalLink, ShieldCheck, TriangleAlert } from "lucide-react";
 import { useId, type Ref } from "react";
 
+import { useRecordAnchor } from "../../chain/useRecordAnchor.ts";
 import type { ReachCase } from "../../reaches/catalog.ts";
 import { gaugeAt, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
-import type { ReachData, SeriesRow, ThermalRow } from "../../reaches/types.ts";
+import type { CardMetrics, Level, ReachData, SeriesRow, ThermalRow } from "../../reaches/types.ts";
 import {
   CASE_COPY,
   formatCelsius,
@@ -12,8 +13,13 @@ import {
   landsatName,
   LEVEL_LABELS,
 } from "../content.ts";
+import { gainOver, insideCount } from "../reading.ts";
 import { DisclosureButton } from "./DisclosureButton.tsx";
+import { HelpTip } from "./HelpTip.tsx";
+import { ReliabilityBars } from "./ReliabilityBars.tsx";
 import { usePanelOpen } from "./usePanelOpen.ts";
+
+const { reading, trust } = CASE_COPY;
 
 /** Props of {@link CaseFile}. */
 export interface CaseFileProps {
@@ -94,12 +100,89 @@ function Temperature({
   );
 }
 
+// The record's trust strip: its level (with what a reader can do with it), its seal, and whether
+// its ledger line is anchored on Sepolia, by mark and words, never by colour alone.
+function Trust({
+  reach,
+  row,
+  level,
+}: {
+  readonly reach: ReachData;
+  readonly row: SeriesRow;
+  readonly level: Level;
+}) {
+  const anchor = useRecordAnchor(reach, "observations", row.recordSha256);
+  const anchorText =
+    anchor.state === "anchored"
+      ? trust.anchored(
+          formatDate(new Date(anchor.anchor.timestamp * 1000).toISOString().slice(0, 10), true),
+        )
+      : anchor.state === "pending"
+        ? trust.pending
+        : anchor.state === "mismatch"
+          ? trust.mismatch
+          : anchor.state === "checking"
+            ? trust.checking
+            : trust.unavailable;
+  const AnchorIcon =
+    anchor.state === "anchored" ? Anchor : anchor.state === "mismatch" ? TriangleAlert : Clock;
+  return (
+    <div className="case-trust" role="group" aria-label={trust.label}>
+      <span className="case-trust__level">
+        <span className="case-chip case-chip--level" data-level={level}>
+          {LEVEL_LABELS[level]}
+        </span>
+        <HelpTip label={`${CASE_COPY.levelHelpLabel}: ${LEVEL_LABELS[level]}`}>
+          {CASE_COPY.levelHelp[level]}
+        </HelpTip>
+      </span>
+      <span className="case-trust__item">
+        <ShieldCheck size={14} strokeWidth={1.9} aria-hidden="true" />
+        {trust.sealed}
+      </span>
+      <span className="case-trust__item" data-state={anchor.state} aria-live="polite">
+        <AnchorIcon size={14} strokeWidth={1.9} aria-hidden="true" />
+        {anchorText}
+      </span>
+    </div>
+  );
+}
+
+// How far off the turbidity tends to be: the satellite's locked-test error beside guessing the
+// river's usual value, two bars on one scale, then the same in words.
+function Reliability({ lockbox }: { readonly lockbox: CardMetrics }) {
+  const gain = gainOver(lockbox.mdsa, lockbox.null_mdsa);
+  return (
+    <section className="case-file__reliability" aria-label={reading.reliabilityTitle}>
+      <p className="case-file__reliability-head">
+        <span>
+          {reading.reliabilityTitle}{" "}
+          <span className="case-file__muted">· {reading.lessIsBetter}</span>
+        </span>
+        <HelpTip label={reading.reliabilityHelpLabel}>
+          {reading.baselineHelp} {reading.unitsHelp}
+        </HelpTip>
+      </p>
+      <ReliabilityBars satellite={lockbox.mdsa} baseline={lockbox.null_mdsa} unit="%" />
+      <p className="case-file__note">
+        {reading.median(lockbox.n, lockbox.mdsa.toFixed(1))}{" "}
+        {gain.kind === "times"
+          ? reading.times(gain.text)
+          : gain.kind === "worse"
+            ? reading.worse
+            : reading.noGain}
+      </p>
+    </section>
+  );
+}
+
 /**
- * Top-left panel: the way back and the case file. Folded (the default), it shows the reach, the
- * selected pass's turbidity in FNU with its level and the error the locked test measured. Its
- * details add the place, the pass, the 90 % interval (or why it has no value), the gauge's own
- * reading at the overpass, the locked test against the usual value, the water temperature where
- * Landsat measures it and the gauge's page. The toggle's state is remembered.
+ * Top-left panel: the way back and the case file. Folded (the default), it is the case's card: the
+ * selected pass's turbidity in FNU and its expected range, a trust strip (its level, its seal and
+ * its anchor on Sepolia) and how far off the estimate tends to be against guessing the river's
+ * usual value. Its details add the place, the pass, the interval's bar, the gauge's own reading at
+ * the overpass, the water temperature where Landsat measures it and the gauge's page. The
+ * toggle's state is remembered.
  *
  * @returns The case file panel.
  */
@@ -148,25 +231,41 @@ export function CaseFile({
 
         {row === null ? null : (
           <section className="case-file__summary" aria-label={CASE_COPY.turbidity}>
-            <p className="case-file__metric">{CASE_COPY.turbidity}</p>
-            <p className="case-file__value">
-              {value === null ? (
-                <span className="case-file__none">{CASE_COPY.noValue}</span>
-              ) : (
-                <span>
+            <p className="case-file__metric">
+              {CASE_COPY.turbidity} · {formatDate(row.date, true)}
+            </p>
+            {value === null ? (
+              <>
+                <p className="case-file__value">
+                  <span className="case-file__none">{CASE_COPY.noValue}</span>
+                </p>
+                <p className="case-file__note">
+                  {estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="case-file__value">
                   {formatValue(value)}
                   <span className="case-file__unit"> {unit}</span>
-                </span>
-              )}
-              <span className="case-chip case-chip--level" data-level={level}>
-                {LEVEL_LABELS[level]}
-              </span>
-            </p>
-            {lockbox === undefined ? null : (
-              <p className="case-file__error">
-                <strong>{lockbox.mdsa.toFixed(1)} %</strong> {CASE_COPY.validation.error}
-              </p>
+                </p>
+                {interval === null ? null : (
+                  <p className="case-file__range-line">
+                    <span>
+                      {reading.expectedRange} {formatValue(interval.low)}–
+                      {formatValue(interval.high)} {unit}
+                    </span>
+                    {lockbox === undefined ? null : (
+                      <HelpTip label={reading.rangeHelpLabel}>
+                        {reading.rangeHelp(insideCount(lockbox.coverage90, lockbox.n), lockbox.n)}
+                      </HelpTip>
+                    )}
+                  </p>
+                )}
+              </>
             )}
+            <Trust reach={reach} row={row} level={level} />
+            {lockbox === undefined ? null : <Reliability lockbox={lockbox} />}
           </section>
         )}
 
@@ -222,22 +321,6 @@ export function CaseFile({
                 </span>
               </p>
             </section>
-          )}
-
-          {lockbox === undefined ? null : (
-            <dl className="case-file__section case-file__validation">
-              <div>
-                <dt>{CASE_COPY.validation.lead}</dt>
-                <dd>
-                  <strong>{lockbox.mdsa.toFixed(1)} %</strong> {CASE_COPY.validation.error}{" "}
-                  {CASE_COPY.validation.on} {String(lockbox.n)} {CASE_COPY.validation.overpasses}
-                </dd>
-              </div>
-              <div>
-                <dt>{CASE_COPY.validation.baseline}</dt>
-                <dd>{lockbox.null_mdsa.toFixed(1)} %</dd>
-              </div>
-            </dl>
           )}
 
           {thermal === null ? null : <Temperature reach={reach} thermal={thermal} />}

@@ -1,3 +1,6 @@
+import { Gauge, Satellite } from "lucide-react";
+import type { CSSProperties } from "react";
+
 import { nearestThermal, sceneKey, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
 import type { ReachData, SeriesRow } from "../../reaches/types.ts";
 import {
@@ -9,6 +12,27 @@ import {
   landsatName,
   LEVEL_LABELS,
 } from "../content.ts";
+import { leanOfTemperature, leanOfTurbidity, type Lean } from "../reading.ts";
+
+const { reading, kinds } = CASE_COPY;
+
+// Which way an estimate leans, in words ("" when there is no clear lean).
+function leanText(lean: Lean): string {
+  switch (lean.kind) {
+    case "warm":
+      return reading.leanWarm(lean.text);
+    case "cold":
+      return reading.leanCold(lean.text);
+    case "high":
+      return reading.leanHigh(lean.text);
+    case "low":
+      return reading.leanLow(lean.text);
+    default:
+      return "";
+  }
+}
+
+const joined = (...parts: string[]) => parts.filter((p) => p !== "").join(" · ");
 
 /** Props of {@link WaterQualityView}. */
 export interface WaterQualityViewProps {
@@ -18,10 +42,6 @@ export interface WaterQualityViewProps {
 }
 
 const SPARK = { width: 120, height: 22, pad: 3 };
-// The grid's columns: a satellite tile takes 2 shares (at least 220 px, room for its value, its
-// level and the line beside them), a gauge tile 1 (at least 124 px, its line under the value); past
-// those minimums the row scrolls instead of squeezing.
-const COLUMNS = { sat: "minmax(220px, 2fr)", gauge: "minmax(124px, 1fr)" };
 
 // A small line of the year's values with the selected one lit. It stretches to its box, so the
 // lit point is a zero-length round-capped line with a non-scaling stroke: a dot at any width.
@@ -78,9 +98,10 @@ interface Tile {
   readonly value: string | null;
   readonly unit: string;
   readonly detail: string;
-  /** The level a locked test gave the value (satellite estimates only; gauge values have none). */
+  /** A satellite estimate's level, or a gauge value's approval (Provisional, Approved). */
   readonly chip: string | null;
   readonly level?: string;
+  readonly approval?: string;
   readonly foot: string;
   readonly spark: { values: readonly (number | null)[]; selected: number | null };
   readonly tone: "sat" | "thermal" | "gauge";
@@ -101,13 +122,16 @@ function turbidityTile(reach: ReachData, row: SeriesRow, selected: number): Tile
     detail:
       interval === null
         ? (estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel)
-        : `${formatValue(interval.low)}–${formatValue(interval.high)} · ${CASE_COPY.interval}`,
+        : `${reading.expectedRange} ${formatValue(interval.low)}–${formatValue(interval.high)}`,
     chip: LEVEL_LABELS[estimate?.level ?? "none"],
     level: estimate?.level ?? "none",
     foot:
       lock === undefined
         ? ""
-        : `${lock.mdsa.toFixed(1)} % ${copy.error} · ${lock.null_mdsa.toFixed(1)} % ${copy.without}`,
+        : joined(
+            reading.tileMedian(lock.mdsa.toFixed(1), lock.n),
+            leanText(leanOfTurbidity(lock.sspb)),
+          ),
     spark: {
       values: reach.series.map((r) => {
         const v = turbidity(r)?.value;
@@ -143,13 +167,17 @@ function temperatureTile(reach: ReachData, row: SeriesRow): Tile | null {
     detail:
       value === null || interval === null
         ? copy.noLandsat
-        : `± ${((interval.high - interval.low) / 2).toFixed(1)} °C · ${CASE_COPY.interval}`,
+        : `${reading.expectedRange} ± ${((interval.high - interval.low) / 2).toFixed(1)} °C`,
     chip: LEVEL_LABELS[pass?.estimate.level ?? "none"],
     level: pass?.estimate.level ?? "none",
     foot:
       card === null
         ? ""
-        : `${card.metrics.lockbox.mae.toFixed(1)} °C ${copy.error} · ${card.metrics.null_lockbox.mae.toFixed(1)} °C ${copy.without}${upstream === null ? "" : ` · ${copy.validatedAt} ${upstream}`}`,
+        : joined(
+            reading.tileMean(card.metrics.lockbox.mae.toFixed(2), card.metrics.lockbox.n),
+            leanText(leanOfTemperature(card.metrics.lockbox.bias)),
+            upstream === null ? "" : `${copy.validatedAt} ${upstream}`,
+          ),
     spark: {
       values: thermal.series.map((r) =>
         typeof r.estimate.value === "number" ? r.estimate.value : null,
@@ -180,8 +208,14 @@ function gaugeTiles(reach: ReachData, row: SeriesRow, selected: number): Tile[] 
       source: "",
       value: here === undefined ? null : formatReading(here.value),
       unit: sample?.unit ?? "",
-      detail: here === undefined ? copy.none : here.approval.toLowerCase(),
-      chip: null,
+      detail: here === undefined ? copy.none : "",
+      chip:
+        here === undefined
+          ? null
+          : here.approval === "Approved"
+            ? kinds.approved
+            : kinds.provisional,
+      approval: here?.approval,
       foot: "",
       spark: {
         values: keys.map((k) => readings.find((c) => c.key === k)?.value ?? null),
@@ -196,8 +230,9 @@ function gaugeTiles(reach: ReachData, row: SeriesRow, selected: number): Tile[] 
  * The selected pass's water quality at a glance: what the satellite estimates (turbidity from
  * Sentinel-2, water temperature from the nearest Landsat pass), each with its interval, its level
  * and its locked-test error beside the error without the satellite; then what the USGS gauge
- * measured at the overpass. Each tile carries the year's values as a small line beside its value.
- * The tiles share one grid across the panel's width; each group spans its own columns (subgrid).
+ * measured at the overpass. Each tile carries the year's values as a small line. The two groups
+ * share the panel's width by their tile counts (a satellite tile counts double); where they do not
+ * fit side by side, the gauge's group goes under the satellite's and tiles wrap, never sideways.
  *
  * @returns The view.
  */
@@ -211,10 +246,6 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
     (t): t is Tile => t !== null,
   );
   const gauge = gaugeTiles(reach, row, selected);
-  const columns = [
-    `repeat(${String(satellite.length)}, ${COLUMNS.sat})`,
-    gauge.length === 0 ? "" : `repeat(${String(gauge.length)}, ${COLUMNS.gauge})`,
-  ].join(" ");
   // The tile's parts are placed by CSS grid areas: the line gets its own row when the panel is
   // tall, or sits beside the value when it is short.
   const tile = (t: Tile) => (
@@ -235,35 +266,47 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
           </>
         )}
       </p>
-      {t.chip === null ? null : (
+      {t.chip === null ? null : t.tone === "gauge" ? (
+        <span
+          className="case-chip case-quality__chip"
+          data-approval={t.approval}
+          title={t.approval === "Approved" ? kinds.approvedHelp : kinds.provisionalHelp}
+        >
+          {t.chip}
+        </span>
+      ) : (
         <span className="case-chip case-chip--level case-quality__chip" data-level={t.level}>
           {t.chip}
         </span>
       )}
-      <p className="case-quality__detail" title={t.detail}>
-        {t.detail}
-      </p>
+      {t.detail === "" ? null : <p className="case-quality__detail">{t.detail}</p>}
       <Sparkline values={t.spark.values} selected={t.spark.selected} tone={t.tone} />
       {t.foot === "" ? null : <p className="case-quality__foot">{t.foot}</p>}
     </li>
   );
   return (
-    <div className="case-quality" style={{ gridTemplateColumns: columns }}>
+    <div className="case-quality">
       <section
         className="case-quality__group"
+        data-kind="sat"
         aria-label={copy.satellite}
-        style={{ gridColumn: `span ${String(satellite.length)}` }}
+        style={{ "--count": satellite.length } as CSSProperties}
       >
-        <p className="case-quality__label">{copy.satellite}</p>
+        <p className="case-quality__label">
+          <Satellite size={13} strokeWidth={1.9} aria-hidden="true" />
+          {copy.satellite}
+        </p>
         <ul className="case-quality__tiles">{satellite.map(tile)}</ul>
       </section>
       {gauge.length === 0 ? null : (
         <section
           className="case-quality__group"
+          data-kind="gauge"
           aria-label={copy.gauge}
-          style={{ gridColumn: `span ${String(gauge.length)}` }}
+          style={{ "--count": gauge.length } as CSSProperties}
         >
           <p className="case-quality__label">
+            <Gauge size={13} strokeWidth={1.9} aria-hidden="true" />
             {copy.gauge} · {formatDate(row.date, true)}
           </p>
           <ul className="case-quality__tiles">{gauge.map(tile)}</ul>

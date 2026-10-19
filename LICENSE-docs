@@ -1,0 +1,21 @@
+Documentation and data: Creative Commons Attribution 4.0 International (CC BY 4.0)
+
+Copyright (c) 2026 Saulo Quiñones
+
+The documentation and the data RiverEtch produces (everything under docs/:
+the reports, the preregistration, the model cards, the sealed records, the
+ledgers and the anchoring log) are licensed under the Creative Commons
+Attribution 4.0 International License.
+
+Legal code: https://creativecommons.org/licenses/by/4.0/legalcode
+Summary:    https://creativecommons.org/licenses/by/4.0/
+
+You may share and adapt them for any purpose, provided you give appropriate
+credit ("RiverEtch, Saulo Quiñones"), link to the license and indicate if
+changes were made. A changed record no longer matches its seal: say so.
+
+Third-party data inside docs/ keep their own terms: USGS data (public domain),
+Copernicus Sentinel data (the Copernicus data policy), Landsat data (public
+domain).
+
+The code is under the MIT License, see LICENSE.

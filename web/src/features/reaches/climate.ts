@@ -66,6 +66,56 @@ export function climatePoints(record: ClimateRecord, measure: ClimateMeasure): C
   }));
 }
 
+/** A kind of extreme day (rule v1): low flow, high flow, warm water. */
+export type ExtremeKind = "low" | "high" | "warm";
+
+/**
+ * The kinds of extreme day a reach's record counts.
+ *
+ * @param record - The reach's climate context.
+ * @returns Low and high flow, and warm water where the gauge measures temperature (none without
+ *   the extremes block).
+ */
+export function extremeKinds(record: ClimateRecord): ExtremeKind[] {
+  const e = record.extremes;
+  if (e === undefined) {
+    return [];
+  }
+  return e.thresholds.warm === null ? ["low", "high"] : ["low", "high", "warm"];
+}
+
+/**
+ * Every year's count of one kind of extreme day, oldest first, as chart points.
+ *
+ * @param record - The reach's climate context.
+ * @param kind - The kind.
+ * @returns The years (warm water: only the years with a summer temperature).
+ */
+export function extremePoints(record: ClimateRecord, kind: ExtremeKind): ClimatePoint[] {
+  const e = record.extremes;
+  if (e === undefined) {
+    return [];
+  }
+  return e.years.flatMap((y) => {
+    const value = y[kind];
+    if (value === null) {
+      return [];
+    }
+    return [
+      {
+        year: y.year,
+        value,
+        day: null,
+        rank: y[`${kind}Rank`],
+        ranked: kind === "warm" ? e.rankedYears.warm : e.rankedYears.flow,
+        complete: kind === "warm" ? y.warmComplete : y.complete,
+        toDate: y.toDate,
+        provisional: false,
+      },
+    ];
+  });
+}
+
 /**
  * A measure's record year: ranked first (the latest of a tie).
  *

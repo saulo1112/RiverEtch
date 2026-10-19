@@ -5,6 +5,8 @@ import { test } from "node:test";
 import {
   climateMeasures,
   climatePoints,
+  extremeKinds,
+  extremePoints,
   ordinal,
   recordYear,
 } from "../src/features/reaches/climate.ts";
@@ -57,4 +59,26 @@ void test("ordinals", () => {
     "72nd",
     "101st",
   ]);
+});
+
+void test("extreme days: counts per year, ranked over the ranked years, warm water at the Platte only", () => {
+  const belle = climate("mississippi-belle-chasse");
+  const platte = climate("platte-louisville");
+  assert.deepEqual(extremeKinds(belle), ["low", "high"]);
+  assert.deepEqual(extremeKinds(platte), ["low", "high", "warm"]);
+  const low = recordYear(extremePoints(belle, "low"));
+  assert.equal(low?.year, 2012);
+  assert.equal(low.value, 171);
+  assert.equal(low.ranked, belle.discharge.rankedYears);
+  assert.equal(recordYear(extremePoints(platte, "high"))?.year, 2019);
+  const warm = extremePoints(platte, "warm");
+  assert.ok(warm.every((p) => p.year >= 2002));
+  assert.equal(recordYear(warm)?.year, 2012);
+  // The year to date is shown, never ranked.
+  assert.equal(extremePoints(platte, "low").at(-1)?.rank, null);
+  // Fewer than 20 locked-test pairs on every kind of day: the view says "not enough".
+  const lock = platte.extremes?.lockbox;
+  assert.ok(
+    lock !== undefined && [lock.low, lock.high, lock.warm ?? 0].every((n) => n < lock.minimum),
+  );
 });
