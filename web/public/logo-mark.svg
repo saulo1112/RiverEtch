@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- RiverEtch mark, dark icon. Geometry: web/src/features/hero/ui/mark.ts. -->
+  <defs>
+    <path id="wave" d="M0 0C8 0 11.5 3 17 3S26-.6 30-.6"/>
+    <mask id="etch" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M12 31.1 16.6 29.4V31.6L12 33.5Z"/>
+    </mask>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0A1020"/>
+  <g fill="none" stroke="#22B8F0" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" mask="url(#etch)">
+    <path d="M17 15V47"/>
+    <use href="#wave" x="17" y="15"/>
+    <use href="#wave" x="17" y="31"/>
+    <use href="#wave" x="17" y="47"/>
+  </g>
+</svg>

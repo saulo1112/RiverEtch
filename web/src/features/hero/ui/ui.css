@@ -175,25 +175,41 @@
   height: var(--nav-h);
 }
 
+/* The wordmark, the header's only brand element: its size, weight and glow are tuned here (which
+   letters wear the accent is WORDMARK_ACCENT in content.ts). It stays well under the headline's
+   size, and the glow is faint enough to read as color, not as an effect. */
 .hero-header__brand {
+  --wordmark-size: 27px;
+  --wordmark-size-small: 22px; /* 480 px wide and below */
+  --wordmark-weight: 600;
+  --wordmark-glow-blur: 12px;
+  --wordmark-glow-strength: 20%;
+
   display: inline-flex;
   flex: none;
-  gap: 10px;
   align-items: center;
-  /* Padding for the hit area and focus ring, offset by margin so the mark stays on the edge. */
+  /* Padding for the hit area and focus ring, offset by margin so the text stays on the edge. */
   margin: -6px -8px;
   padding: 6px 8px;
   border-radius: 10px;
   color: var(--text-1);
-  font-size: 16px;
-  font-weight: 560;
+  font-size: var(--wordmark-size);
+  font-weight: var(--wordmark-weight);
+  line-height: 1;
   letter-spacing: -0.012em;
   text-decoration: none;
 }
 
-.hero-logo {
-  display: block;
-  flex: none;
+.hero-header__accent {
+  color: var(--accent);
+  text-shadow: 0 0 var(--wordmark-glow-blur)
+    color-mix(in srgb, var(--accent) var(--wordmark-glow-strength), transparent);
+}
+
+@media (max-width: 480px) {
+  .hero-header__brand {
+    font-size: var(--wordmark-size-small);
+  }
 }
 
 /* Profile button and its menu. */

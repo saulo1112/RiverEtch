@@ -2,10 +2,20 @@
 // validated it, with its error; NDTI stays relative; nothing claims causes or proof of compliance.
 
 /**
- * Product name: changing it here renames the product in the UI and in the wallets.
- * `web/index.html` repeats it in the page title.
+ * Product name, in the two parts the header's wordmark colors: changing them renames the product
+ * in the UI and in the wallets. `web/index.html` repeats it in the page title.
  */
-export const BRAND_NAME = "RiverEtch";
+export const BRAND_PARTS = ["River", "Etch"] as const;
+export const BRAND_NAME = BRAND_PARTS.join("");
+
+/** Which letters of the wordmark wear the accent. */
+export type WordmarkAccent = "etch" | "e";
+
+/**
+ * The header's wordmark: "etch" (A) colors "Etch", "e" (B) only its "E". Its size, weight and glow
+ * are the `--wordmark-*` values in ui.css.
+ */
+export const WORDMARK_ACCENT = "etch" as WordmarkAccent;
 
 /** Header: the brand link and the profile button. */
 export const HEADER = {
