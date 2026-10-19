@@ -1,5 +1,5 @@
 import { ArrowLeft, ExternalLink } from "lucide-react";
-import type { Ref } from "react";
+import { useId, type Ref } from "react";
 
 import type { ReachCase } from "../../reaches/catalog.ts";
 import { gaugeAt, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
@@ -12,6 +12,8 @@ import {
   landsatName,
   LEVEL_LABELS,
 } from "../content.ts";
+import { DisclosureButton } from "./DisclosureButton.tsx";
+import { usePanelOpen } from "./usePanelOpen.ts";
 
 /** Props of {@link CaseFile}. */
 export interface CaseFileProps {
@@ -63,7 +65,7 @@ function Temperature({
   const baseline = reach.thermal?.card?.metrics.null_lockbox;
   const upstream = thermalValidatedAt(reach);
   return (
-    <section className="case-file__thermal" aria-label={copy.title}>
+    <section className="case-file__section case-file__thermal" aria-label={copy.title}>
       <p className="case-file__metric">
         {copy.title} · {landsatName(thermal.platform)} · {formatDate(thermal.date)}
       </p>
@@ -81,7 +83,7 @@ function Temperature({
         </span>
       </p>
       {lockbox === undefined ? null : (
-        <p className="case-file__thermal-note">
+        <p className="case-file__note">
           {copy.lead}: <strong>{lockbox.mae.toFixed(1)} °C</strong> {copy.error} {copy.on}{" "}
           {String(lockbox.n)} {copy.overpasses}
           {baseline === undefined ? null : ` (${copy.baseline}: ${baseline.mae.toFixed(1)} °C)`}
@@ -93,10 +95,11 @@ function Temperature({
 }
 
 /**
- * Top-left panel: the way back and the case file: the reach, its card's level, the selected pass
- * with its turbidity in FNU and 90 % interval (or why it has none), the gauge's own reading at the
- * overpass, the error the locked test measured and, where Landsat measures it, the water
- * temperature.
+ * Top-left panel: the way back and the case file. Folded (the default), it shows the reach, the
+ * selected pass's turbidity in FNU with its level and the error the locked test measured. Its
+ * details add the place, the pass, the 90 % interval (or why it has no value), the gauge's own
+ * reading at the overpass, the locked test against the usual value, the water temperature where
+ * Landsat measures it and the gauge's page. The toggle's state is remembered.
  *
  * @returns The case file panel.
  */
@@ -108,6 +111,8 @@ export function CaseFile({
   headingRef,
   onBack,
 }: CaseFileProps) {
+  const detailsId = useId();
+  const [open, setOpen] = usePanelOpen("file");
   const card = reach.card;
   const overall = card?.levels.find((l) => l.predicted_range === "all");
   const lockbox = card?.metrics.lockbox;
@@ -116,40 +121,70 @@ export function CaseFile({
   const interval = estimate?.interval ?? null;
   const gauge = row === null ? null : gaugeAt(reach, row);
   const unit = estimate?.unit ?? card?.unit ?? "FNU";
+  const level = estimate?.level ?? overall?.level ?? "none";
   return (
     <div className="case-panel case-top" data-frame="">
       <button type="button" className="case-btn case-btn--ghost case-top__back" onClick={onBack}>
         <ArrowLeft size={16} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
         {CASE_COPY.back}
       </button>
-      <article className="case-file case-glass" aria-labelledby="case-site-title">
-        <p className="case-file__label">{CASE_COPY.caseFile}</p>
-        <h1 className="case-file__site" id="case-site-title" ref={headingRef} tabIndex={-1}>
-          {reachCase.title}
-        </h1>
-        <p className="case-file__place">{reachCase.place}</p>
-        <ul className="case-file__chips">
-          {overall === undefined ? null : (
-            <li className="case-chip case-chip--level" data-level={overall.level}>
-              {LEVEL_LABELS[overall.level]}
-            </li>
-          )}
-          <li className="case-chip case-chip--quiet">{CASE_COPY.pipelineChip}</li>
-        </ul>
+      <article className="case-file case-glass" aria-labelledby="case-site-title" data-open={open}>
+        <header className="case-head">
+          <h1
+            className="case-head__title case-file__site"
+            id="case-site-title"
+            ref={headingRef}
+            tabIndex={-1}
+          >
+            {reachCase.title}
+          </h1>
+          <DisclosureButton
+            label={CASE_COPY.caseDetails}
+            open={open}
+            controls={detailsId}
+            onToggle={setOpen}
+          />
+        </header>
 
         {row === null ? null : (
-          <section className="case-file__reading" aria-label={CASE_COPY.turbidity}>
-            <p className="case-file__scene">
-              {CASE_COPY.scenePrefix} · {formatDate(row.date, true)}
-              {platform(row) === "" ? "" : ` · ${platform(row)}`}
-            </p>
+          <section className="case-file__summary" aria-label={CASE_COPY.turbidity}>
             <p className="case-file__metric">{CASE_COPY.turbidity}</p>
-            {value !== null && interval !== null ? (
-              <>
-                <p className="case-file__value">
+            <p className="case-file__value">
+              {value === null ? (
+                <span className="case-file__none">{CASE_COPY.noValue}</span>
+              ) : (
+                <span>
                   {formatValue(value)}
                   <span className="case-file__unit"> {unit}</span>
-                </p>
+                </span>
+              )}
+              <span className="case-chip case-chip--level" data-level={level}>
+                {LEVEL_LABELS[level]}
+              </span>
+            </p>
+            {lockbox === undefined ? null : (
+              <p className="case-file__error">
+                <strong>{lockbox.mdsa.toFixed(1)} %</strong> {CASE_COPY.validation.error}
+              </p>
+            )}
+          </section>
+        )}
+
+        <div className="case-file__details" id={detailsId} hidden={!open}>
+          <div className="case-file__section">
+            <p className="case-file__place">{reachCase.place}</p>
+            <ul className="case-file__chips">
+              <li className="case-chip case-chip--quiet">{CASE_COPY.pipelineChip}</li>
+            </ul>
+          </div>
+
+          {row === null ? null : (
+            <section className="case-file__section" aria-label={CASE_COPY.scenePrefix}>
+              <p className="case-file__metric">
+                {CASE_COPY.scenePrefix} · {formatDate(row.date, true)}
+                {platform(row) === "" ? "" : ` · ${platform(row)}`}
+              </p>
+              {value !== null && interval !== null ? (
                 <div className="case-file__interval">
                   <div className="case-file__bar" aria-hidden="true">
                     <span
@@ -165,62 +200,61 @@ export function CaseFile({
                     <span>{formatValue(interval.high)}</span>
                   </p>
                 </div>
-              </>
-            ) : (
-              <>
-                <p className="case-file__none">{CASE_COPY.noValue}</p>
-                <p className="case-file__why">
+              ) : (
+                <p className="case-file__note">
                   {estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel}
                 </p>
-              </>
-            )}
-            <p className="case-file__gauge">
-              <span className="case-file__gauge-dot" aria-hidden="true" />
-              {gauge === null ? (
-                CASE_COPY.gaugeNone
-              ) : (
-                <>
-                  {CASE_COPY.gaugeAt}:{" "}
-                  <strong>
-                    {formatValue(gauge.value ?? 0)} {unit}
-                  </strong>{" "}
-                  ({gauge.approval.toLowerCase()})
-                </>
               )}
-            </p>
-          </section>
-        )}
+              <p className="case-file__gauge">
+                <span className="case-file__gauge-dot" aria-hidden="true" />
+                <span>
+                  {gauge === null ? (
+                    CASE_COPY.gaugeNone
+                  ) : (
+                    <>
+                      {CASE_COPY.gaugeAt}:{" "}
+                      <strong>
+                        {formatValue(gauge.value ?? 0)} {unit}
+                      </strong>{" "}
+                      ({gauge.approval.toLowerCase()})
+                    </>
+                  )}
+                </span>
+              </p>
+            </section>
+          )}
 
-        {lockbox === undefined ? null : (
-          <dl className="case-file__validation">
-            <div>
-              <dt>{CASE_COPY.validation.lead}</dt>
-              <dd>
-                <strong>{lockbox.mdsa.toFixed(1)} %</strong> {CASE_COPY.validation.error}{" "}
-                {CASE_COPY.validation.on} {String(lockbox.n)} {CASE_COPY.validation.overpasses}
-              </dd>
-            </div>
-            <div>
-              <dt>{CASE_COPY.validation.baseline}</dt>
-              <dd>{lockbox.null_mdsa.toFixed(1)} %</dd>
-            </div>
-          </dl>
-        )}
+          {lockbox === undefined ? null : (
+            <dl className="case-file__section case-file__validation">
+              <div>
+                <dt>{CASE_COPY.validation.lead}</dt>
+                <dd>
+                  <strong>{lockbox.mdsa.toFixed(1)} %</strong> {CASE_COPY.validation.error}{" "}
+                  {CASE_COPY.validation.on} {String(lockbox.n)} {CASE_COPY.validation.overpasses}
+                </dd>
+              </div>
+              <div>
+                <dt>{CASE_COPY.validation.baseline}</dt>
+                <dd>{lockbox.null_mdsa.toFixed(1)} %</dd>
+              </div>
+            </dl>
+          )}
 
-        {thermal === null ? null : <Temperature reach={reach} thermal={thermal} />}
+          {thermal === null ? null : <Temperature reach={reach} thermal={thermal} />}
 
-        {reach.info.station.url === undefined ? null : (
-          <a
-            className="case-file__link"
-            href={reach.info.station.url}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {CASE_COPY.gaugeLink} · {reach.info.station.id.replace("USGS-", "")}
-            <ExternalLink size={13} strokeWidth={1.75} aria-hidden="true" />
-            <span className="case-visually-hidden"> {CASE_COPY.externalHint}</span>
-          </a>
-        )}
+          {reach.info.station.url === undefined ? null : (
+            <a
+              className="case-file__link"
+              href={reach.info.station.url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {CASE_COPY.gaugeLink} · {reach.info.station.id.replace("USGS-", "")}
+              <ExternalLink size={13} strokeWidth={1.75} aria-hidden="true" />
+              <span className="case-visually-hidden"> {CASE_COPY.externalHint}</span>
+            </a>
+          )}
+        </div>
       </article>
     </div>
   );

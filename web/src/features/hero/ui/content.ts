@@ -45,19 +45,17 @@ export const COPY = {
     "Turbidity and water temperature read from Sentinel-2 and Landsat on rivers where a gauge validated them, each with a stated error. Every reading is sealed, so anyone can recompute it and see that it has not changed.",
   // A button: it opens the cases screen.
   primary: { label: "Explore your cases" },
-  primaryNote:
-    "Demo workspace: real records from two US rivers, viewed as a simulated analyst. No account needed.",
   // A button: it opens the "How it works" dialog.
   secondary: { label: "How it works" },
 } as const;
 
-/** A step of the pipeline, as the hero's strip shows it. */
+/** A step of the pipeline, as the entry screen lists it under the calls to action. */
 export interface Step {
-  /** Stable key; also picks the step's icon. */
+  /** Stable key. */
   readonly id: "observe" | "estimate" | "verify";
   /** Two-digit position, shown before the label (the list itself is ordered). */
   readonly number: string;
-  /** Short label, set in capitals by CSS. */
+  /** Short label, set in small capitals by CSS. */
   readonly label: string;
   /** One-line description. */
   readonly description: string;
@@ -70,8 +68,20 @@ export const STEPS: readonly Step[] = [
   { id: "verify", number: "03", label: "Verify", description: "Sealed record, recomputable" },
 ];
 
-/** Status chip: what this page is and the imagery it describes. Static; never claims to be live. */
-export const STATUS = ["Demo workspace", "Sentinel-2 L2A"] as const;
+/** Status chip: what this page is. Static; never claims to be live. */
+export const STATUS = "Demo workspace";
+
+/**
+ * The evidence strip under the copy column. The figures are counted from the reaches' committed
+ * files (see evidence.ts); only the words are written here.
+ */
+export const EVIDENCE = {
+  label: "The demo's records",
+  rivers: (n: number) => (n === 1 ? "river" : "rivers"),
+  sealed: (n: number) => (n === 1 ? "sealed pass" : "sealed passes"),
+  anchored: "Anchored on Ethereum Sepolia",
+  anchorHint: "(the anchor contract on Etherscan, opens in a new tab)",
+} as const;
 
 /** Credits for the scene's data, shown under the strip. */
 export const ATTRIBUTION = "Earth imagery: NASA Earth Observatory (Blue Marble).";
@@ -102,6 +112,7 @@ export const CASES = {
 export const HOW_IT_WORKS = {
   title: "How it works",
   close: "Close",
+  demo: "A demo workspace: real records from two US rivers, viewed as a simulated analyst. No account needed.",
   steps: [
     {
       number: "01",
@@ -116,7 +127,7 @@ export const HOW_IT_WORKS = {
     {
       number: "03",
       label: "Verify",
-      text: "Each pass is sealed as a record (the SHA-256 of its content) and chained in a ledger. Anyone can recompute it from public data and check that it has not changed. Anchoring the ledger on a public chain comes next.",
+      text: "Each pass is sealed as a record (the SHA-256 of its content) and chained in a ledger. Anyone can recompute it from public data and check that it has not changed. Each ledger's last line is anchored on Ethereum Sepolia as a public timestamp.",
     },
   ],
   limitsTitle: "What this can and cannot say",

@@ -220,7 +220,7 @@ export function CaseView({
   });
   const [mode, setMode] = useState<LayerMode>("ndti");
   const [opacity, setOpacity] = useState(1);
-  const [overlays, setOverlays] = useState<Overlays>({ outline: true, parts: true, window: true });
+  const [overlays, setOverlays] = useState<Overlays>({ outline: true, window: true });
   const [terrain3d, setTerrain3d] = useState(true);
   const [hover, setHover] = useState<HoverInfo | null>(null);
   const [camera, setCamera] = useState<CameraState>({

@@ -205,7 +205,6 @@ export function MapToolbar(props: MapToolbarProps) {
         {(
           [
             ["outline", tools.outline],
-            ["parts", tools.parts],
             ["window", tools.window],
           ] as const
         ).map(([key, label]) => (

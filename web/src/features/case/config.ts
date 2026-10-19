@@ -65,7 +65,7 @@ export const MAP_LOOK = {
   // Only visible if a tall viewport shows the horizon: keep it night-dark.
   sky: { sky: "#02040a", horizon: "#0b1a3d", fog: "#02040a" },
   // The reach's corridor: a dark water fill, a soft glow and a fine edge along its banks, the
-  // scene's NDTI over its water, the sub-reaches dashed and the gauge's window in amber.
+  // scene's NDTI over its water and the gauge's window in amber.
   corridor: {
     water: "#04101f",
     waterOpacity: 0.55,
@@ -75,8 +75,6 @@ export const MAP_LOOK = {
     glowOpacity: 0.32,
     edge: "#c8f0ff",
     edgeOpacity: 0.5,
-    parts: "#f4f8ff",
-    partsOpacity: 0.65,
     window: "#f5b942",
     ndtiOpacity: 0.92,
     // Length of the soft leading edge of the fill, as a share of the reach.

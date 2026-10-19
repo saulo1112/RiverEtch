@@ -18,6 +18,8 @@ import type {
 } from "../../reaches/types.ts";
 import { verifyRecord, type Verification } from "../../reaches/verify.ts";
 import { CASE_COPY, formatDate, landsatName } from "../content.ts";
+import { DisclosureButton } from "./DisclosureButton.tsx";
+import { usePanelOpen } from "./usePanelOpen.ts";
 import { VerifyDialog } from "./VerifyDialog.tsx";
 
 /** Props of {@link RecordPanel}. */
@@ -171,17 +173,21 @@ function AnchorAction({ run }: { readonly run: () => Promise<AnchorOutcome> }) {
 }
 
 /**
- * Right panel: the selected pass's record (its scene, satellite images, processing, code, model
- * card and seal) and "Verify this record", which recomputes its SHA-256 in the browser and checks
- * it against the ledger and the model card. On the temperature tab it shows the selected Landsat
- * pass's water-temperature record, checked against its own ledger and card. "Alter one value
- * first" changes a number in memory to show a tampered record failing.
+ * Right panel: the selected pass's record and "Verify this record", which recomputes its SHA-256 in
+ * the browser and checks it against the ledger, the model card and the anchor on Sepolia. "Alter
+ * one value first" changes a number in memory to show a tampered record failing. Folded (the
+ * default), it shows just those; its details add the record's provenance (scene, satellite images,
+ * processing, code, model card and seal), the download, the anchor contract and the owner's
+ * anchoring. On the temperature tab it shows the selected Landsat pass's water-temperature record,
+ * checked against its own ledger and card.
  *
  * @returns The record panel.
  */
 export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
   const { record: copy } = CASE_COPY;
   const alterId = useId();
+  const detailsId = useId();
+  const [open, setOpen] = usePanelOpen("record");
   const [record, setRecord] = useState<{
     file: string;
     data: ObservationRecord | ThermalRecord;
@@ -297,12 +303,23 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
     <section
       className="case-panel case-record case-glass"
       data-frame=""
+      data-open={open}
       aria-labelledby="case-record-title"
     >
-      <h2 className="case-record__title" id="case-record-title">
-        {copy.title}
-      </h2>
-      {source === null ? null : <p className="case-record__caption">{source.caption}</p>}
+      <header className="case-head">
+        <div className="case-head__text">
+          <h2 className="case-head__title" id="case-record-title">
+            {copy.title}
+          </h2>
+          {source === null ? null : <p className="case-head__caption">{source.caption}</p>}
+        </div>
+        <DisclosureButton
+          label={copy.details}
+          open={open}
+          controls={detailsId}
+          onToggle={setOpen}
+        />
+      </header>
       <label className="case-record__alter" htmlFor={alterId}>
         <input
           id={alterId}
@@ -351,36 +368,38 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
           </ul>
         ) : null}
       </div>
-      <dl className="case-record__rows">
-        {rows.map((r) => (
-          <div className="case-record__row" key={r.label}>
-            <dt>{r.label}</dt>
-            <dd>{r.value}</dd>
-          </div>
-        ))}
-      </dl>
-      {file === null ? null : (
-        <a className="case-record__download" href={`${reach.base}${file}`} download>
-          <Download size={13} strokeWidth={1.75} aria-hidden="true" />
-          {copy.download}
-        </a>
-      )}
-      {anchor.address === null ? (
-        <p className="case-record__hint">{copy.notAnchored}</p>
-      ) : (
-        <p className="case-record__hint">
-          {copy.anchoredHint}{" "}
-          <a
-            href={explorerUrl("address", anchor.address)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {copy.contract}
-            <ExternalLink size={11} strokeWidth={1.75} aria-hidden="true" />
+      <div className="case-record__details" id={detailsId} hidden={!open}>
+        <dl className="case-record__rows">
+          {rows.map((r) => (
+            <div className="case-record__row" key={r.label}>
+              <dt>{r.label}</dt>
+              <dd>{r.value}</dd>
+            </div>
+          ))}
+        </dl>
+        {file === null ? null : (
+          <a className="case-record__download" href={`${reach.base}${file}`} download>
+            <Download size={13} strokeWidth={1.75} aria-hidden="true" />
+            {copy.download}
           </a>
-        </p>
-      )}
-      {anchor.isOwner ? <AnchorAction run={anchor.anchorReach} /> : null}
+        )}
+        {anchor.address === null ? (
+          <p className="case-record__hint">{copy.notAnchored}</p>
+        ) : (
+          <p className="case-record__hint">
+            {copy.anchoredHint}{" "}
+            <a
+              href={explorerUrl("address", anchor.address)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {copy.contract}
+              <ExternalLink size={11} strokeWidth={1.75} aria-hidden="true" />
+            </a>
+          </p>
+        )}
+        {anchor.isOwner ? <AnchorAction run={anchor.anchorReach} /> : null}
+      </div>
       <VerifyDialog
         result={proof?.result ?? null}
         chain={proof?.chain ?? null}

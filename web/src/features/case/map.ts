@@ -34,8 +34,6 @@ export type LayerMode = "ndti" | "photo" | "none";
 export interface Overlays {
   /** The corridor's fill, glow and edge. */
   readonly outline: boolean;
-  /** The two sub-reaches a record measures. */
-  readonly parts: boolean;
   /** The gauge's window. */
   readonly window: boolean;
 }
@@ -265,7 +263,6 @@ const LAYER = {
   edge: "reach-edge",
   ndti: "reach-ndti",
   photo: "reach-photo",
-  parts: "reach-parts",
   window: "reach-window",
 };
 const HANDLERS = [
@@ -384,19 +381,6 @@ function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
         paint: { "line-color": corridor.edge, "line-width": 1, "line-opacity": 0 },
       },
       {
-        id: LAYER.parts,
-        type: "line",
-        source: SOURCE.reach,
-        filter: KIND("subreach"),
-        layout: { "line-join": "round" },
-        paint: {
-          "line-color": corridor.parts,
-          "line-width": 1.2,
-          "line-dasharray": [2, 2],
-          "line-opacity": 0,
-        },
-      },
-      {
         id: LAYER.window,
         type: "line",
         source: SOURCE.reach,
@@ -505,7 +489,7 @@ function gaugeElement(): { root: HTMLElement; value: HTMLElement; caption: HTMLE
 
 /**
  * One map's pass layers: the NDTI canvas (colored up to the reveal) and the true-color image,
- * inserted under the sub-reaches' outlines. Shared by the main map and its compared copy.
+ * inserted under the gauge window's outline. Shared by the main map and its compared copy.
  */
 class PassLayers {
   readonly canvas = document.createElement("canvas");
@@ -573,7 +557,7 @@ class PassLayers {
         source: SOURCE.ndti,
         paint: { "raster-fade-duration": 0, "raster-resampling": "linear" },
       },
-      LAYER.parts,
+      LAYER.window,
     );
     this.applyLayer();
     this.paint();
@@ -815,7 +799,7 @@ export async function createCaseMap(
   });
 
   const layers = new PassLayers(map, reach, domain, start === "final" ? 1 : 0);
-  let overlays: Overlays = { outline: true, parts: true, window: true };
+  let overlays: Overlays = { outline: true, window: true };
   let revealFrame = 0;
   let shownFile: string | null = null;
   const { corridor } = MAP_LOOK;
@@ -832,7 +816,6 @@ export async function createCaseMap(
     map.setPaintProperty(LAYER.water, "fill-opacity", water * on(overlays.outline));
     map.setPaintProperty(LAYER.glow, "line-opacity", corridor.glowOpacity * on(overlays.outline));
     map.setPaintProperty(LAYER.edge, "line-opacity", corridor.edgeOpacity * on(overlays.outline));
-    map.setPaintProperty(LAYER.parts, "line-opacity", corridor.partsOpacity * on(overlays.parts));
     map.setPaintProperty(LAYER.window, "line-opacity", on(overlays.window));
   }
 

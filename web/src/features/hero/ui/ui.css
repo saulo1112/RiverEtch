@@ -46,12 +46,13 @@
   --gap-title: 24px;
   --gap-sub: 24px;
   --gap-ctas: 32px;
-  /* Vertical room: the copy block is centred at --copy-y (on the globe, shifted up 3%) but kept
-     48 px clear of the nav and of the bottom row. --copy-half is its half-height (measured per
-     tier, rounded up); --foot-h the bottom row's height above the bottom pad. */
-  --copy-y: calc(var(--gy) - 3%);
-  --copy-half: 180px;
-  --foot-h: 98px;
+  --gap-steps: 40px;
+  /* Vertical room: the copy block (the steps included) is centred on the globe at --copy-y but
+     kept 48 px clear of the nav and of the bottom row. --copy-half is its half-height (measured
+     per tier, rounded up); --foot-h the bottom row's height above the bottom pad. */
+  --copy-y: var(--gy);
+  --copy-half: 228px;
+  --foot-h: 60px;
 
   z-index: 1;
   /* The overlay never blocks the scene; only controls take the pointer. */
@@ -368,7 +369,6 @@
 
 .hero-eyebrow {
   display: flex;
-  gap: 10px;
   align-items: center;
   color: var(--text-2);
   font-family: var(--font-mono);
@@ -382,14 +382,6 @@
 
 .hero-eyebrow__text {
   display: block;
-}
-
-.hero-eyebrow__dot {
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
 }
 
 .hero-title {
@@ -432,16 +424,6 @@
   gap: 12px;
   align-items: flex-start;
   margin-top: var(--gap-ctas);
-}
-
-/* Under the calls to action: the workspace's user is simulated. */
-.hero-note {
-  max-width: 46ch;
-  margin: 16px 0 0;
-  color: var(--text-3);
-  font-size: 13px;
-  line-height: 1.45;
-  text-wrap: pretty;
 }
 
 .hero-btn--solid {
@@ -977,11 +959,65 @@
 }
 
 /*
- * Bottom row. The strip (on the text column) and the chip (on the right edge) share one bottom
- * line, the strip's last baseline; the attribution sits under the strip, on the bottom pad.
- * The row spans the full width and its children take the edges as margins, so the strip's
- * width (--col, which holds the percentage --gx) resolves against the hero's width, as the
- * copy's does.
+ * The pipeline's three steps, under the calls to action: a hairline over each, the number in the
+ * accent (mono), the label in small capitals and a lighter description. Never narrower than the
+ * labels need: the descriptions wrap instead (contain below).
+ */
+.hero-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  min-width: max-content;
+  margin: var(--gap-steps) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-step {
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+}
+
+.hero-step__head {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin: 0;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.hero-step__number {
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 450;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+/* Small capitals: the copy is in sentence case, so screen readers read words. */
+.hero-step__label {
+  color: var(--text-1);
+  font-size: 12px;
+  font-weight: 560;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero-step__desc {
+  margin: 10px 0 0;
+  color: var(--text-3);
+  font-size: 13px;
+  line-height: 1.45;
+  text-wrap: balance;
+  contain: inline-size;
+}
+
+/*
+ * Bottom row: the evidence strip on the text column's edge and the status chip on the right edge,
+ * centred on one line; the attribution under the strip, on the bottom pad. The row spans the full
+ * width and its children take the edges as margins.
  */
 .hero-foot {
   position: absolute;
@@ -993,76 +1029,59 @@
 .hero-foot__row {
   display: flex;
   gap: 24px;
-  align-items: flex-end;
+  align-items: center;
 }
 
-.hero-steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
-  width: var(--col);
-  /* Never narrower than the labels need (descriptions wrap instead, see contain below). */
-  min-width: max-content;
+/* The demo's figures, counted from its records (evidence.ts), split by short hairlines. */
+.hero-evidence {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 8px;
   margin: 0 0 0 var(--edge-l);
   padding: 0;
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.2;
   list-style: none;
 }
 
-.hero-step {
-  padding-top: 12px;
-  border-top: 1px solid var(--hairline);
-}
-
-.hero-step__head {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin: 0;
-  color: var(--text-2);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 450;
-  line-height: 1;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+.hero-evidence__item {
   white-space: nowrap;
 }
 
-.hero-step__icon {
+.hero-evidence__item + .hero-evidence__item::before {
+  display: inline-block;
+  width: 1px;
+  height: 0.95em;
+  margin-inline: 14px;
+  vertical-align: -0.12em;
+  background: rgb(240 246 255 / 0.22);
+  content: "";
+}
+
+.hero-evidence strong {
+  color: var(--text-1);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.hero-evidence__link {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  border-radius: 4px;
+  color: inherit;
+  text-decoration: none;
+  transition: color 160ms var(--ease);
+}
+
+.hero-evidence__link svg {
   flex: none;
-  color: var(--ink-3);
+  color: var(--accent);
 }
 
-/* Lucide draws on a 24-unit grid with some padding; shift each icon so its ink, not its box,
-   starts on the hairline (left-most ink x at 18 px, less half the 1.5 px stroke). */
-.hero-step--observe .hero-step__icon {
-  margin-left: -1.5px;
-}
-
-.hero-step--explain .hero-step__icon {
-  margin-left: -0.75px;
-}
-
-.hero-step--verify .hero-step__icon {
-  margin-left: -2.25px;
-}
-
-.hero-step__label {
-  display: block;
-}
-
-.hero-step__number {
-  color: var(--text-3);
-}
-
-.hero-step__desc {
-  margin: 6px 0 0;
-  color: var(--text-2);
-  font-size: 13px;
-  line-height: 1.45;
-  text-wrap: balance;
-  /* Wraps to the column instead of widening the strip. */
-  contain: inline-size;
+.hero-evidence__link:hover {
+  color: var(--text-1);
 }
 
 .hero-chip {
@@ -1071,7 +1090,7 @@
   gap: 8px;
   align-items: center;
   height: 32px;
-  /* Auto: stays on the right edge even when it is the row's only item (strip hidden). */
+  /* Auto: stays on the right edge even when it is the row's only item. */
   margin: 0 var(--edge-r) 0 auto;
   /* The 1 px glass border is part of the inset: the dot is concentric with the end cap. */
   padding-inline: 12px 13px;
@@ -1096,7 +1115,7 @@
 }
 
 .hero-attribution {
-  margin: 24px var(--edge-r) 0 var(--edge-l);
+  margin: 20px var(--edge-r) 0 var(--edge-l);
   color: var(--text-3);
   font-size: 11px;
   line-height: 1.3;
@@ -1104,6 +1123,7 @@
 }
 
 .hero-step__label,
+.hero-step__number,
 .hero-step__desc,
 .hero-chip__text,
 .hero-attribution {
@@ -1124,7 +1144,7 @@
   .hero > .hero-ui {
     --col: min(var(--hero-w) * 0.3, var(--fit));
     --copy-y: min(
-      var(--gy) - 3%,
+      var(--gy),
       var(--gy) - var(--d) * 0.06 - var(--copy-half) + var(--ring-slack, 0px)
     );
   }
@@ -1158,8 +1178,8 @@
     --gap-title: 16px;
     --gap-sub: 20px;
     --gap-ctas: 24px;
-    --copy-half: 176px;
-    --foot-h: 58px;
+    --gap-steps: 28px;
+    --copy-half: 190px;
   }
 }
 
@@ -1170,9 +1190,10 @@
     --gap-title: 16px;
     --gap-sub: 20px;
     --gap-ctas: 24px;
-    --copy-half: 204px;
-    --foot-h: 58px;
-    /* The stacked buttons are narrower than the column and pass left of the orbit's arc. */
+    --gap-steps: 28px;
+    --copy-half: 214px;
+    /* The steps' labels and the stacked buttons are narrower than the column and pass left of the
+       orbit's arc. */
     --ring-slack: 132px;
   }
 
@@ -1182,9 +1203,8 @@
     width: max-content;
   }
 
-  /* As narrow as the stacked buttons, so it too passes left of the orbit's arc. */
-  .hero-note {
-    max-width: 30ch;
+  .hero-steps {
+    gap: 16px;
   }
 }
 
@@ -1192,19 +1212,12 @@
   .hero-step__desc {
     display: none;
   }
-
-  /* Without descriptions the label is the strip's last line: end the row on its baseline (the
-     label's cap height, 0.71em in Geist Mono, is centred on the 18 px icon), so the chip still
-     sits on it. */
-  .hero-step__head {
-    margin-bottom: calc((0.71em - 18px) / 2);
-  }
 }
 
-/* Very short landscape screens: the strip goes; the chip and the attribution stay. */
+/* Very short landscape screens: the steps go; the evidence, the chip and the attribution stay. */
 @container hero (aspect-ratio >= 1) and (height < 640px) {
   .hero > .hero-ui {
-    --foot-h: 32px;
+    --copy-half: 184px;
   }
 
   .hero-steps {
@@ -1226,7 +1239,7 @@
 /*
  * Portrait: the globe sits high (CAMERA.globeCenterPortrait) and the copy is stacked at the
  * bottom, in flow with the attribution, on a night scrim (short phones overlap the globe's lower
- * limb). Full-width stacked calls to action; no links, strip, chip or blur.
+ * limb). Full-width stacked calls to action; no steps, evidence, chip or blur.
  */
 @container hero (aspect-ratio < 1) {
   .hero > .hero-ui {
@@ -1241,7 +1254,8 @@
     backdrop-filter: none;
   }
 
-  .hero-foot__row {
+  .hero-foot__row,
+  .hero-steps {
     display: none;
   }
 
@@ -1287,8 +1301,7 @@
     aspect-ratio: 16 / 9;
   }
 
-  .hero-sub,
-  .hero-note {
+  .hero-sub {
     max-width: none;
   }
 
@@ -1369,10 +1382,20 @@
   color: var(--text-1);
 }
 
+/* What this workspace is: real records, a simulated analyst. */
+.hero-dialog__lead {
+  max-width: 60ch;
+  margin: 12px 0 0;
+  color: var(--text-2);
+  font-size: 14px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
 .hero-dialog__steps {
   display: grid;
   gap: 16px;
-  margin: 20px 0 0;
+  margin: 24px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -1507,20 +1530,21 @@
     margin-block: calc(var(--gap-sub) - 0.41em) -0.41em;
   }
 
-  .hero-step__label {
+  .hero-step__number {
     margin-block: -0.15em;
   }
 
+  .hero-step__label,
   .hero-chip__text {
     margin-block: -0.136em;
   }
 
   .hero-step__desc {
-    margin-block: calc(6px - 0.361em) -0.361em;
+    margin-block: calc(10px - 0.361em) -0.361em;
   }
 
   .hero-attribution {
-    margin-block: calc(24px - 0.286em) -0.286em;
+    margin-block: calc(20px - 0.286em) -0.286em;
   }
 }
 

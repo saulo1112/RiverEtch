@@ -69,11 +69,70 @@ function IconButton({
   );
 }
 
+// The tab's caption: what its marks mean, or how to read it. Inside the tab panel, under the tab
+// strip, so a caption of any length never moves the strip.
+function Caption({ tab, reach }: { readonly tab: BottomTab; readonly reach: ReachData }) {
+  const upstream = thermalValidatedAt(reach);
+  if (tab === "series") {
+    return (
+      <ul className="case-timeline__caption case-timeline__keys">
+        <li>
+          <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
+          {CASE_COPY.timelineSatellite}
+        </li>
+        <li>
+          <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
+          {CASE_COPY.timelineGauge}
+        </li>
+        <li>
+          <span className="case-timeline__key case-timeline__key--none" aria-hidden="true" />
+          {CASE_COPY.timelineNoValue}
+        </li>
+      </ul>
+    );
+  }
+  if (tab === "thermal") {
+    return (
+      <ul className="case-timeline__caption case-timeline__keys">
+        <li>
+          <span className="case-timeline__key case-timeline__key--thermal" aria-hidden="true" />
+          {CASE_COPY.thermal.satellite}
+        </li>
+        <li>
+          <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
+          {upstream === null ? CASE_COPY.thermal.gauge : CASE_COPY.thermal.upstreamGauge(upstream)}
+        </li>
+        <li>
+          <span className="case-timeline__key case-timeline__key--cursor" aria-hidden="true" />
+          {CASE_COPY.thermal.cursor}
+        </li>
+      </ul>
+    );
+  }
+  if (tab === "climate") {
+    return (
+      <p className="case-timeline__caption">
+        {CASE_COPY.climate.lead} (
+        <a href={CASE_COPY.climate.citeUrl} target="_blank" rel="noreferrer">
+          {CASE_COPY.climate.cite}
+        </a>
+        ). {CASE_COPY.climate.note}
+      </p>
+    );
+  }
+  if (tab === "profile") {
+    return <p className="case-timeline__caption">{CASE_COPY.profile.hint}</p>;
+  }
+  return null;
+}
+
 /**
  * Bottom panel: the year's passes (turbidity in FNU beside the gauge), the water temperature from
  * Landsat where the reach has it, the gauge's whole record as climate context, the selected pass
  * along the river, and its statistics and the gauge's readings, on tabs; the time-lapse plays the
- * year pass by pass.
+ * year pass by pass. The head is a fixed grid (transport, tabs centred, an empty column) and the
+ * tab panel has a fixed height, so the tab strip never moves when the tab or the time-lapse
+ * changes.
  *
  * @param props - The reach, the selection, the tab, the time-lapse and the pass's analysis.
  * @returns The panel.
@@ -82,7 +141,6 @@ export function Timeline(props: TimelineProps) {
   const { reach, selected, tab, playing } = props;
   const { play, tabs } = CASE_COPY;
   const last = reach.series.length - 1;
-  const upstream = thermalValidatedAt(reach);
   const row = reach.series[selected] ?? null;
   const shown = TABS.filter(
     (t) =>
@@ -108,12 +166,15 @@ export function Timeline(props: TimelineProps) {
               props.onPlaying(!playing);
             }}
           >
-            {playing ? (
-              <Pause size={15} strokeWidth={2} aria-hidden="true" />
-            ) : (
+            {/* Both labels share one cell, so the button keeps the longer one's width. */}
+            <span className="case-timeline__play-face" data-shown={!playing}>
               <Play size={15} strokeWidth={2} aria-hidden="true" />
-            )}
-            {playing ? play.pause : play.play}
+              {play.play}
+            </span>
+            <span className="case-timeline__play-face" data-shown={playing}>
+              <Pause size={15} strokeWidth={2} aria-hidden="true" />
+              {play.pause}
+            </span>
           </button>
           <IconButton
             label={play.next}
@@ -140,81 +201,39 @@ export function Timeline(props: TimelineProps) {
             </button>
           ))}
         </div>
-        {tab === "quality" ? (
-          <p className="case-timeline__note">{CASE_COPY.quality.hint}</p>
-        ) : tab === "series" ? (
-          <ul className="case-timeline__keys">
-            <li>
-              <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
-              {CASE_COPY.timelineSatellite}
-            </li>
-            <li>
-              <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
-              {CASE_COPY.timelineGauge}
-            </li>
-            <li>
-              <span className="case-timeline__key case-timeline__key--none" aria-hidden="true" />
-              {CASE_COPY.timelineNoValue}
-            </li>
-          </ul>
-        ) : tab === "thermal" ? (
-          <ul className="case-timeline__keys">
-            <li>
-              <span className="case-timeline__key case-timeline__key--thermal" aria-hidden="true" />
-              {CASE_COPY.thermal.satellite}
-            </li>
-            <li>
-              <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
-              {upstream === null
-                ? CASE_COPY.thermal.gauge
-                : CASE_COPY.thermal.upstreamGauge(upstream)}
-            </li>
-            <li>
-              <span className="case-timeline__key case-timeline__key--cursor" aria-hidden="true" />
-              {CASE_COPY.thermal.cursor}
-            </li>
-          </ul>
-        ) : tab === "climate" ? (
-          <p className="case-timeline__note">
-            {CASE_COPY.climate.lead} (
-            <a href={CASE_COPY.climate.citeUrl} target="_blank" rel="noreferrer">
-              {CASE_COPY.climate.cite}
-            </a>
-            ). {CASE_COPY.climate.note}
-          </p>
-        ) : tab === "profile" ? (
-          <p className="case-timeline__note">{CASE_COPY.profile.hint}</p>
-        ) : null}
       </header>
       <div className="case-timeline__body" role="tabpanel">
-        {tab === "quality" ? (
-          <WaterQualityView reach={reach} selected={selected} />
-        ) : tab === "series" ? (
-          <SeriesChart
-            reach={reach}
-            selected={selected}
-            compared={props.compared}
-            onSelect={props.onSelect}
-          />
-        ) : tab === "thermal" ? (
-          <ThermalChart
-            reach={reach}
-            selected={props.thermalSelected}
-            cursor={row?.date ?? null}
-            onSelect={props.onThermalSelect}
-          />
-        ) : tab === "climate" && reach.climate !== null ? (
-          <ClimateView climate={reach.climate} />
-        ) : tab === "profile" ? (
-          <ProfileChart
-            reach={reach}
-            points={props.profile}
-            domain={props.domain}
-            onProbe={props.onProbe}
-          />
-        ) : (
-          <PassStatsView stats={props.stats} row={row} />
-        )}
+        <Caption tab={tab} reach={reach} />
+        <div className="case-timeline__view">
+          {tab === "quality" ? (
+            <WaterQualityView reach={reach} selected={selected} />
+          ) : tab === "series" ? (
+            <SeriesChart
+              reach={reach}
+              selected={selected}
+              compared={props.compared}
+              onSelect={props.onSelect}
+            />
+          ) : tab === "thermal" ? (
+            <ThermalChart
+              reach={reach}
+              selected={props.thermalSelected}
+              cursor={row?.date ?? null}
+              onSelect={props.onThermalSelect}
+            />
+          ) : tab === "climate" && reach.climate !== null ? (
+            <ClimateView climate={reach.climate} />
+          ) : tab === "profile" ? (
+            <ProfileChart
+              reach={reach}
+              points={props.profile}
+              domain={props.domain}
+              onProbe={props.onProbe}
+            />
+          ) : (
+            <PassStatsView stats={props.stats} />
+          )}
+        </div>
       </div>
     </section>
   );

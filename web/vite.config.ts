@@ -41,6 +41,29 @@ const ledgerAnchor: string | null = existsSync(DEPLOYMENT)
     ] ?? null)
   : null;
 
+// Each reach's river and its sealed passes (the lines of its Sentinel-2 and Landsat ledgers), for
+// the hero's evidence strip (src/features/hero/ui/evidence.ts). Counted when Vite starts.
+function lineCount(path: string): number {
+  return existsSync(path)
+    ? readFileSync(path, "utf8")
+        .split("\n")
+        .filter((line) => line.trim() !== "").length
+    : 0;
+}
+const reachFacts = Object.fromEntries(
+  readdirSync(REACHES).flatMap((site) => {
+    const folder = join(REACHES, site, "examples");
+    const info = join(folder, "reach.json");
+    if (!existsSync(info)) {
+      return [];
+    }
+    const { river } = JSON.parse(readFileSync(info, "utf8")) as { river?: string };
+    const sealed =
+      lineCount(join(folder, "ledger.jsonl")) + lineCount(join(folder, "thermal", "ledger.jsonl"));
+    return [[site, { river: river ?? site, sealed }]];
+  }),
+);
+
 function examplesFile(path: string): string | null {
   const [site, ...rest] = path.split("/").filter(Boolean);
   if (site === undefined || rest.length === 0) {
@@ -110,5 +133,6 @@ export default defineConfig({
   define: {
     __CASE_THUMBNAILS__: JSON.stringify(thumbnails),
     __LEDGER_ANCHOR__: JSON.stringify(ledgerAnchor),
+    __REACH_FACTS__: JSON.stringify(reachFacts),
   },
 });

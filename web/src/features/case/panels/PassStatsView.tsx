@@ -1,5 +1,4 @@
 import type { PassStats } from "../../reaches/analysis.ts";
-import type { SeriesRow } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
 import { rampRgb } from "../ramp.ts";
 
@@ -7,8 +6,6 @@ import { rampRgb } from "../ramp.ts";
 export interface PassStatsViewProps {
   /** The selected pass's statistics (null while it loads). */
   readonly stats: PassStats | null;
-  /** The selected pass. */
-  readonly row: SeriesRow | null;
 }
 
 // One 10 m pixel is 100 m².
@@ -23,19 +20,18 @@ function signed(v: number | null | undefined): string {
 
 /**
  * The selected pass at a glance: how much of the corridor's water it saw, what it lost to cloud,
- * glint or missing data, the spread of its NDTI and the record's own medians (the gauge's readings
- * are on the water-quality tab).
+ * glint or missing data and the spread of its NDTI (the gauge's readings are on the water-quality
+ * tab).
  *
  * @returns The statistics.
  */
-export function PassStatsView({ stats, row }: PassStatsViewProps) {
+export function PassStatsView({ stats }: PassStatsViewProps) {
   const { pass } = CASE_COPY;
   if (stats === null) {
     return <div className="case-pass" />;
   }
   const usableShare = stats.water === 0 ? 0 : stats.usable / stats.water;
   const peak = Math.max(1, ...stats.histogram);
-  const ndti = row?.indices.ndti;
   return (
     <div className="case-pass">
       <dl className="case-pass__tiles">
@@ -57,16 +53,10 @@ export function PassStatsView({ stats, row }: PassStatsViewProps) {
             {((1 - usableShare) * 100).toFixed(0)} <span>%</span>
           </dd>
         </div>
-        <div>
+        <div className="case-pass__wide">
           <dt>{pass.percentiles}</dt>
           <dd className="case-pass__mono">
             {stats.percentiles === null ? "–" : stats.percentiles.map((v) => signed(v)).join(" · ")}
-          </dd>
-        </div>
-        <div>
-          <dt>{pass.medians}</dt>
-          <dd className="case-pass__mono">
-            {signed(ndti?.upstream)} · {signed(ndti?.downstream)}
           </dd>
         </div>
       </dl>

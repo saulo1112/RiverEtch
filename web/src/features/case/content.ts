@@ -5,7 +5,7 @@ import type { Level } from "../reaches/types.ts";
 /** Labels of the case view. */
 export const CASE_COPY = {
   back: "Back to your cases",
-  caseFile: "Case file",
+  caseDetails: "Case details",
   pipelineChip: "Pipeline records · 2026",
   scenePrefix: "Sentinel-2 pass",
   turbidity: "Turbidity at the gauge",
@@ -25,6 +25,7 @@ export const CASE_COPY = {
   },
   record: {
     title: "Record",
+    details: "Record details",
     ofPass: "Sentinel-2 pass",
     ofThermal: "water temperature",
     scene: "Scene",
@@ -75,7 +76,6 @@ export const CASE_COPY = {
   legendPhoto: "True color of this pass",
   legendPhotoNote: "Sentinel-2 bands 4, 3 and 2 (red, green, blue), brightened as viewers do.",
   noData: "Cloud, glint or no data on this pass",
-  parts: "Sub-reaches each record measures",
   window: "The gauge window (where turbidity is estimated)",
   timelineTitle: "Turbidity, 2026",
   timelineSatellite: "Satellite estimate (FNU) and its 90 % interval",
@@ -92,7 +92,6 @@ export const CASE_COPY = {
     layers: "Layers",
     overlays: "Overlays",
     outline: "River corridor",
-    parts: "Sub-reaches",
     window: "Gauge window",
     terrain: "3D terrain",
     compare: "Compare",
@@ -118,7 +117,6 @@ export const CASE_COPY = {
     unusable: "Unusable on this pass",
     km: "km",
     of: "of",
-    parts: { upstream: "upstream sub-reach", downstream: "downstream sub-reach", between: "" },
   },
   tabs: {
     quality: "Water quality",
@@ -169,7 +167,6 @@ export const CASE_COPY = {
   quality: {
     satellite: "Estimated from the satellite",
     gauge: "Measured by the USGS gauge at the pass",
-    hint: "Satellite values carry the level a locked test gave them; gauge values are measurements.",
     turbidity: "Turbidity",
     temperature: "Water temperature",
     sentinel: "Sentinel-2",
@@ -178,8 +175,6 @@ export const CASE_COPY = {
     without: "without the satellite",
     validatedAt: "validated at",
     noLandsat: "No clear Landsat pass within 16 days",
-    measured: "measured",
-    measuredChip: "Measured",
   },
   context: {
     title: "Measured by the USGS gauge at this pass",
@@ -208,7 +203,6 @@ export const CASE_COPY = {
     clouded: "Lost to cloud, glint or no data",
     percentiles: "NDTI (10th · median · 90th percentile)",
     histogram: "Distribution of the pass's NDTI",
-    medians: "Record's medians (upstream · downstream)",
   },
   compare: { left: "Selected", right: "Compared" },
   verify: {

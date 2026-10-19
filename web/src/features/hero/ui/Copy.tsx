@@ -1,7 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useCallback, type Ref, type RefCallback } from "react";
 
-import { COPY } from "./content.ts";
+import { COPY, STEPS } from "./content.ts";
 import { Dotted } from "./Dotted.tsx";
 import { useLift } from "./useLift.ts";
 
@@ -49,7 +49,7 @@ function composeRef<T extends HTMLElement>(
 /**
  * The entry screen's text column: eyebrow, two-line headline, subtitle, the two calls to action
  * ("Explore your cases" opens the demo workspace's cases; "How it works" opens the dialog) and the
- * note that the workspace's user is simulated.
+ * pipeline's three steps under them.
  *
  * @returns The headline block.
  */
@@ -74,7 +74,6 @@ export function Copy({
   return (
     <div className="hero-copy">
       <p className="hero-eyebrow">
-        <span className="hero-eyebrow__dot" aria-hidden="true" />
         <span className="hero-eyebrow__text">
           <Dotted items={COPY.eyebrow} />
         </span>
@@ -106,7 +105,19 @@ export function Copy({
           {COPY.secondary.label}
         </button>
       </div>
-      <p className="hero-note">{COPY.primaryNote}</p>
+      <ol className="hero-steps">
+        {STEPS.map((step) => (
+          <li key={step.id} className="hero-step">
+            <p className="hero-step__head">
+              <span className="hero-step__number" aria-hidden="true">
+                {step.number}
+              </span>
+              <span className="hero-step__label">{step.label}</span>
+            </p>
+            <p className="hero-step__desc">{step.description}</p>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

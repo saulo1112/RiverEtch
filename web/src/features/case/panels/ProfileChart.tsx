@@ -21,8 +21,8 @@ const PAD = { left: 40, right: 10, top: 20, bottom: 22 };
 
 /**
  * The selected pass's NDTI along the river, from the upstream anchor (left) to the downstream one,
- * colored on the ramp; stretches the pass could not see are hatched, and the two sub-reaches a
- * record measures are marked. Hovering marks the place on the map.
+ * colored on the ramp; stretches the pass could not see are shaded. Hovering marks the place on
+ * the map.
  *
  * @returns The chart.
  */
@@ -32,12 +32,6 @@ export function ProfileChart({ reach, points, domain, onProbe }: ProfileChartPro
   const features = reach.geometry?.features ?? [];
   const river = features.find((f) => f.properties.kind === "river");
   const lengthM = river?.properties.lengthM ?? 1;
-  const parts = features
-    .filter((f) => f.properties.kind === "subreach")
-    .map((f) => ({
-      name: f.properties.name ?? "",
-      span: (f.properties as { chainageM?: readonly number[] }).chainageM ?? [0, 0],
-    }));
   const plotWidth = Math.max(1, width - PAD.left - PAD.right);
   const plotHeight = Math.max(1, height - PAD.top - PAD.bottom);
   const x = (place: number) => PAD.left + place * plotWidth;
@@ -86,24 +80,6 @@ export function ProfileChart({ reach, points, domain, onProbe }: ProfileChartPro
           viewBox={`0 0 ${String(width)} ${String(height)}`}
           aria-hidden="true"
         >
-          {parts.map((p) => (
-            <g key={p.name}>
-              <rect
-                className="case-profile__part"
-                x={x((p.span[0] ?? 0) / lengthM)}
-                y={PAD.top}
-                width={x((p.span[1] ?? 0) / lengthM) - x((p.span[0] ?? 0) / lengthM)}
-                height={plotHeight}
-              />
-              <text
-                className="case-profile__part-label"
-                x={x((p.span[0] ?? 0) / lengthM) + 4}
-                y={PAD.top + 10}
-              >
-                {p.name}
-              </text>
-            </g>
-          ))}
           {[domain[0], (domain[0] + domain[1]) / 2, domain[1]].map((v) => (
             <g key={v}>
               <line

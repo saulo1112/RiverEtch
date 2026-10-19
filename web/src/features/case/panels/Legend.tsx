@@ -10,8 +10,8 @@ export interface LegendProps {
 
 /**
  * Right panel: the map's key. The water's color is each pixel's NDTI, a relative index (low to
- * high within this reach's passes); hatched pixels were unusable on the pass; the dashed outlines
- * are the sub-reaches a record measures and the amber one the gauge's window.
+ * high within this reach's passes); hatched pixels were unusable on the pass; the amber outline is
+ * the gauge's window.
  *
  * @returns The legend panel.
  */
@@ -48,10 +48,6 @@ export function Legend({ mode }: LegendProps) {
             {CASE_COPY.noData}
           </li>
         ) : null}
-        <li className="case-legend__nodata">
-          <span className="case-legend__swatch case-legend__swatch--parts" aria-hidden="true" />
-          {CASE_COPY.parts}
-        </li>
         <li className="case-legend__nodata">
           <span className="case-legend__swatch case-legend__swatch--window" aria-hidden="true" />
           {CASE_COPY.window}

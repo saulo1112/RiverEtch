@@ -60,6 +60,7 @@ export function HowItWorksDialog({ open, onClose }: HowItWorksDialogProps) {
             <X size={18} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
           </button>
         </div>
+        <p className="hero-dialog__lead">{HOW_IT_WORKS.demo}</p>
 
         <ol className="hero-dialog__steps">
           {HOW_IT_WORKS.steps.map((step) => (

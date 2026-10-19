@@ -76,8 +76,6 @@ export function MapControls({
   );
 }
 
-const PARTS = CASE_COPY.inspector.parts;
-
 /** Props of {@link Inspector}. */
 export interface InspectorProps {
   readonly hover: HoverInfo | null;
@@ -98,7 +96,6 @@ export function Inspector({ hover, reach }: InspectorProps) {
   const { inspector } = CASE_COPY;
   const river = reach.geometry?.features.find((f) => f.properties.kind === "river");
   const lengthKm = (river?.properties.lengthM ?? 0) / 1000;
-  const part = PARTS[reading.part as keyof typeof PARTS] as string | undefined;
   return (
     <div
       className="case-inspector"
@@ -116,7 +113,6 @@ export function Inspector({ hover, reach }: InspectorProps) {
       )}
       <p className="case-inspector__place">
         {inspector.km} {(reading.place * lengthKm).toFixed(1)} {inspector.of} {lengthKm.toFixed(1)}
-        {part === undefined || part === "" ? "" : ` · ${part}`}
       </p>
       <p className="case-inspector__coords">
         {hover.lat.toFixed(5)}, {hover.lng.toFixed(5)}

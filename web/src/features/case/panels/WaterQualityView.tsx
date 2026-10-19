@@ -17,9 +17,14 @@ export interface WaterQualityViewProps {
   readonly selected: number;
 }
 
-const SPARK = { width: 120, height: 26, pad: 3 };
+const SPARK = { width: 120, height: 22, pad: 3 };
+// The grid's columns: a satellite tile takes 2 shares (at least 220 px, room for its value, its
+// level and the line beside them), a gauge tile 1 (at least 124 px, its line under the value); past
+// those minimums the row scrolls instead of squeezing.
+const COLUMNS = { sat: "minmax(220px, 2fr)", gauge: "minmax(124px, 1fr)" };
 
-// A small line of the year's values with the selected one lit.
+// A small line of the year's values with the selected one lit. It stretches to its box, so the
+// lit point is a zero-length round-capped line with a non-scaling stroke: a dot at any width.
 function Sparkline({
   values,
   selected,
@@ -54,7 +59,13 @@ function Sparkline({
     >
       <polyline points={points} />
       {lit === null || lit === undefined || selected === null ? null : (
-        <circle cx={x(selected)} cy={y(lit)} r={2.6} />
+        <line
+          className="case-quality__spark-dot"
+          x1={x(selected)}
+          x2={x(selected)}
+          y1={y(lit)}
+          y2={y(lit)}
+        />
       )}
     </svg>
   );
@@ -67,7 +78,8 @@ interface Tile {
   readonly value: string | null;
   readonly unit: string;
   readonly detail: string;
-  readonly chip: string;
+  /** The level a locked test gave the value (satellite estimates only; gauge values have none). */
+  readonly chip: string | null;
   readonly level?: string;
   readonly foot: string;
   readonly spark: { values: readonly (number | null)[]; selected: number | null };
@@ -168,11 +180,8 @@ function gaugeTiles(reach: ReachData, row: SeriesRow, selected: number): Tile[] 
       source: "",
       value: here === undefined ? null : formatReading(here.value),
       unit: sample?.unit ?? "",
-      detail:
-        here === undefined
-          ? copy.none
-          : `${CASE_COPY.quality.measured} · ${here.approval.toLowerCase()}`,
-      chip: CASE_COPY.quality.measuredChip,
+      detail: here === undefined ? copy.none : here.approval.toLowerCase(),
+      chip: null,
       foot: "",
       spark: {
         values: keys.map((k) => readings.find((c) => c.key === k)?.value ?? null),
@@ -187,7 +196,8 @@ function gaugeTiles(reach: ReachData, row: SeriesRow, selected: number): Tile[] 
  * The selected pass's water quality at a glance: what the satellite estimates (turbidity from
  * Sentinel-2, water temperature from the nearest Landsat pass), each with its interval, its level
  * and its locked-test error beside the error without the satellite; then what the USGS gauge
- * measured at the overpass. Each tile carries the year's values as a small line.
+ * measured at the overpass. Each tile carries the year's values as a small line beside its value.
+ * The tiles share one grid across the panel's width; each group spans its own columns (subgrid).
  *
  * @returns The view.
  */
@@ -201,6 +211,12 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
     (t): t is Tile => t !== null,
   );
   const gauge = gaugeTiles(reach, row, selected);
+  const columns = [
+    `repeat(${String(satellite.length)}, ${COLUMNS.sat})`,
+    gauge.length === 0 ? "" : `repeat(${String(gauge.length)}, ${COLUMNS.gauge})`,
+  ].join(" ");
+  // The tile's parts are placed by CSS grid areas: the line gets its own row when the panel is
+  // tall, or sits beside the value when it is short.
   const tile = (t: Tile) => (
     <li key={t.id} className="case-quality__tile" data-tone={t.tone}>
       <p className="case-quality__head">
@@ -218,27 +234,35 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
             <span className="case-quality__unit"> {t.unit}</span>
           </>
         )}
-        <span
-          className="case-chip case-quality__chip"
-          data-level={t.level}
-          data-measured={t.tone === "gauge"}
-        >
+      </p>
+      {t.chip === null ? null : (
+        <span className="case-chip case-chip--level case-quality__chip" data-level={t.level}>
           {t.chip}
         </span>
+      )}
+      <p className="case-quality__detail" title={t.detail}>
+        {t.detail}
       </p>
-      <p className="case-quality__detail">{t.detail}</p>
       <Sparkline values={t.spark.values} selected={t.spark.selected} tone={t.tone} />
       {t.foot === "" ? null : <p className="case-quality__foot">{t.foot}</p>}
     </li>
   );
   return (
-    <div className="case-quality">
-      <section className="case-quality__group" aria-label={copy.satellite}>
+    <div className="case-quality" style={{ gridTemplateColumns: columns }}>
+      <section
+        className="case-quality__group"
+        aria-label={copy.satellite}
+        style={{ gridColumn: `span ${String(satellite.length)}` }}
+      >
         <p className="case-quality__label">{copy.satellite}</p>
         <ul className="case-quality__tiles">{satellite.map(tile)}</ul>
       </section>
       {gauge.length === 0 ? null : (
-        <section className="case-quality__group" aria-label={copy.gauge}>
+        <section
+          className="case-quality__group"
+          aria-label={copy.gauge}
+          style={{ gridColumn: `span ${String(gauge.length)}` }}
+        >
           <p className="case-quality__label">
             {copy.gauge} · {formatDate(row.date, true)}
           </p>

@@ -17,3 +17,8 @@ declare const __CASE_THUMBNAILS__: readonly string[];
 
 /** The ledger anchor's Sepolia address from contracts/ignition/deployments (null: not deployed). */
 declare const __LEDGER_ANCHOR__: string | null;
+
+/** Per reach: its river and its sealed passes, from the committed files (vite.config.ts). */
+declare const __REACH_FACTS__: Readonly<
+  Record<string, { readonly river: string; readonly sealed: number }>
+>;
