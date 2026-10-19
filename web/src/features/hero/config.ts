@@ -173,10 +173,14 @@ export const CAMERA = {
 } as const;
 
 /**
- * Mouse drag on the globe (touch and pen keep scrolling the page): horizontal turns the Earth,
- * vertical moves the camera's latitude. No zoom, no pan.
+ * Drag on the globe, with the mouse or with a finger or pen that moves sideways (a vertical swipe
+ * still scrolls the page): horizontal turns the Earth, vertical moves the camera's latitude. No
+ * zoom, no pan.
  */
 export const DRAG = {
+  // A finger or pen must move this far (CSS px) before the drag starts; the direction decides
+  // between turning the globe (sideways) and scrolling the page (vertical).
+  touchSlopPx: 8,
   // The camera's latitude stays within this (degrees, absolute), so a pole never faces it.
   latLimitDeg: 60,
   // Velocity smoothing while dragging (s), inertia decay rate (1/s) and the speeds under which

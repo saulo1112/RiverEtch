@@ -548,10 +548,13 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   let earthYaw = 0;
   const driftRate = MathUtils.degToRad(EARTH.driftDegPerS);
 
-  // Mouse drag. A horizontal drag turns the Earth; a vertical one offsets the camera's latitude from
-  // the framing (degrees, `userLat`).
+  // Drag (mouse, touch or pen). A horizontal drag turns the Earth; a vertical one offsets the
+  // camera's latitude from the framing (degrees, `userLat`). A finger or pen is pending until it
+  // moves DRAG.touchSlopPx: sideways it drags, vertically it lets the page scroll.
   let interactive = false;
   let dragId: number | null = null;
+  let dragPending = false;
+  const dragStart = { x: 0, y: 0 };
   const dragLast = { x: 0, y: 0, timeStamp: 0 };
   // Inertia after a release: the Earth's turn (rad/s) and the camera's latitude (degrees/s).
   const velocity = { yaw: 0, lat: 0 };
@@ -747,8 +750,32 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     }
   }
 
+  // Starts turning the globe: a press catches the Earth's inertia and pauses its drift.
+  function startDrag(): void {
+    dragPending = false;
+    velocity.yaw = 0;
+    velocity.lat = 0;
+    idleS = 0;
+    syncDragCursor();
+  }
+
+  // Lets go of a pointer that never dragged (a tap, or a swipe the page scrolls): the Earth's
+  // drift and inertia carry on untouched.
+  function abandonDrag(): void {
+    const id = dragId;
+    dragId = null;
+    dragPending = false;
+    if (id !== null && cssTarget.hasPointerCapture(id)) {
+      cssTarget.releasePointerCapture(id);
+    }
+  }
+
   // Ends a drag; with `coast`, the turn carries on and slows down (never under reduced motion).
   function finishDrag(coast: boolean): void {
+    if (dragPending) {
+      abandonDrag();
+      return;
+    }
     const id = dragId;
     dragId = null;
     if (id !== null && cssTarget.hasPointerCapture(id)) {
@@ -1098,8 +1125,8 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     window.addEventListener(
       "pointermove",
       (event) => {
-        // Touch and pen drags scroll the page; only a hovering mouse steers the parallax, and not
-        // while it drags the globe.
+        // Only a hovering mouse steers the parallax (a finger or pen drags the globe or scrolls the
+        // page), and not while it drags the globe.
         if (event.pointerType !== "mouse" || dragId !== null) {
           return;
         }
@@ -1129,8 +1156,10 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     );
   }
 
-  // Mouse drag on the scene, wherever the overlay leaves it (the overlay's controls, panels and text
-  // take their own presses). Reduced motion keeps the drag, without inertia or drift.
+  // Drag on the scene, wherever the overlay leaves it (the overlay's controls, panels and text take
+  // their own presses): a mouse at once; a finger or pen once it moves sideways, while a vertical
+  // swipe scrolls the page (`touch-action: pan-y` in drag.css). Reduced motion keeps the drag,
+  // without inertia or drift.
   const onOverlay = (target: EventTarget | null) =>
     target instanceof Element && target.closest(".hero-ui") !== null;
   cssTarget.addEventListener(
@@ -1140,27 +1169,32 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
         !interactive ||
         dive !== null ||
         dragId !== null ||
-        event.pointerType !== "mouse" ||
+        !event.isPrimary ||
         event.button !== 0 ||
         onOverlay(event.target)
       ) {
         return;
       }
-      // No text selection, no focus change.
-      event.preventDefault();
+      const mouse = event.pointerType === "mouse";
+      if (mouse) {
+        // No text selection, no focus change.
+        event.preventDefault();
+      }
       dragId = event.pointerId;
       try {
         cssTarget.setPointerCapture(event.pointerId);
       } catch {
         // The pointer is already gone (or synthetic): the drag still ends on its pointerup.
       }
+      dragStart.x = event.clientX;
+      dragStart.y = event.clientY;
       dragLast.x = event.clientX;
       dragLast.y = event.clientY;
       dragLast.timeStamp = event.timeStamp;
-      velocity.yaw = 0;
-      velocity.lat = 0;
-      idleS = 0;
-      syncDragCursor();
+      dragPending = !mouse;
+      if (mouse) {
+        startDrag();
+      }
     },
     { signal },
   );
@@ -1169,6 +1203,20 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
     (event) => {
       if (event.pointerId !== dragId) {
         return;
+      }
+      if (dragPending) {
+        const dx = event.clientX - dragStart.x;
+        const dy = event.clientY - dragStart.y;
+        if (Math.max(Math.abs(dx), Math.abs(dy)) < DRAG.touchSlopPx) {
+          return;
+        }
+        if (Math.abs(dy) > Math.abs(dx)) {
+          // A vertical swipe: the page scrolls and the globe keeps turning on its own.
+          abandonDrag();
+          return;
+        }
+        // Sideways: the drag starts, and this move turns the globe from where the finger landed.
+        startDrag();
       }
       const dt = Math.max(0.001, (event.timeStamp - dragLast.timeStamp) / 1000);
       // Moving the pointer by the globe's radius turns the surface by about a radian.
@@ -1491,7 +1539,7 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
           earthYawDeg: MathUtils.radToDeg(earthYaw),
           userLatDeg: userLat,
           interactive,
-          dragging: dragId !== null,
+          dragging: dragId !== null && !dragPending,
           inertia: [velocity.yaw, velocity.lat],
           cameraLatLng: vectorToLatLng(camera.position.x, camera.position.y, camera.position.z),
           earthRootFound: earthRoot !== null,

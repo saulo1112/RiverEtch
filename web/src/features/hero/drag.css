@@ -1,8 +1,13 @@
 /*
- * Mouse drag on the hero globe (globe.ts writes data-hero-drag while dragging is allowed): a grab
+ * Drag on the hero globe (globe.ts writes data-hero-drag while dragging is allowed): a grab
  * cursor over the scene, never over the overlay, whose text takes its own presses so a drag
- * never starts on it.
+ * never starts on it. A finger or pen dragging sideways turns the globe; the browser keeps
+ * vertical swipes (they scroll the page) and pinch-zoom.
  */
+.hero[data-hero-drag] {
+  touch-action: pan-y pinch-zoom;
+}
+
 .hero[data-hero-drag="idle"] {
   cursor: grab;
 }
