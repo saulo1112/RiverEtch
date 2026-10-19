@@ -12,8 +12,10 @@ keeps them as a snapshot (``docs/water-quality/reach/<site>/climate/daily.csv``)
 
 A year is ranked when at least 90 % of its days have a discharge (for the temperature, 90 % of the
 days from June to September). The year of the last value is shown to date and never ranked. A year
-with a provisional value is labelled. These are the gauge's own measurements: nothing here comes
-from a satellite, and nothing states a trend or a cause.
+with a provisional value is labelled. For the demo reaches it also counts each year's extreme days
+(low-flow, high-flow, warm-water) as rule v1 defines them (``reach/extremes.py``). These are the
+gauge's own measurements: nothing here comes from a satellite, and nothing states a trend or a
+cause.
 """
 
 from __future__ import annotations
@@ -240,7 +242,8 @@ def snapshot_path(root: Path, site_id: str) -> Path:
 
 
 def climate(cfg: ReachConfig, root: Path, site_id: str, until: date | None = None,
-            http: httpx.Client | None = None) -> dict[str, Any]:  # fmt: skip
+            http: httpx.Client | None = None, fetch_new: bool = True
+            ) -> dict[str, Any]:  # fmt: skip
     """Fetch a reach's gauge record and write its snapshot and ``climate.json``.
 
     Args:
@@ -249,6 +252,7 @@ def climate(cfg: ReachConfig, root: Path, site_id: str, until: date | None = Non
         site_id: The reach.
         until: Last day to fetch (default: yesterday).
         http: HTTP client (injectable).
+        fetch_new: False rebuilds ``climate.json`` from the committed snapshot, fetching nothing.
 
     Returns:
         The counts written.
@@ -259,17 +263,23 @@ def climate(cfg: ReachConfig, root: Path, site_id: str, until: date | None = Non
     reach = cfg.reach(site_id)
     if reach.station_source != "usgs":
         raise reach_run.ReachError(f"{site_id}: the climate context needs a USGS gauge")
-    api = load_quality_config(root / cfg.quality_config).usgs.api
-    client = http or httpx.Client(timeout=120, follow_redirects=True)
-    last = until or date.today() - timedelta(days=1)
-    rows = fetch(client, api, reach.estimate_station, last)
     path = snapshot_path(root, site_id)
-    write_snapshot(path, rows)
+    if fetch_new:
+        api = load_quality_config(root / cfg.quality_config).usgs.api
+        client = http or httpx.Client(timeout=120, follow_redirects=True)
+        last = until or date.today() - timedelta(days=1)
+        write_snapshot(path, fetch(client, api, reach.estimate_station, last))
     station = reach_run.reach_info(cfg, root, site_id)["station"]
-    doc = summarise(read_snapshot(path), station)
+    snapshot = read_snapshot(path)
+    doc = summarise(snapshot, station)
+    from climate_pipeline.reach import extremes
+    from climate_pipeline.reach.score import SCORED
+
+    if site_id in SCORED:  # rule v1 defines extreme days for the demo reaches
+        doc["extremes"] = extremes.document(root, site_id, reach.estimate_station, snapshot, doc)
     out = root / "docs" / "water-quality" / "reach" / site_id / "examples" / "climate.json"
     out.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",
                    newline="\n")  # fmt: skip
-    counts = {p: sum(1 for r in rows if r["parameter"] == p) for p in (DISCHARGE, TEMPERATURE)}
+    counts = {p: len(snapshot.get(p, [])) for p in (DISCHARGE, TEMPERATURE)}
     return {"days": counts, "through": doc["through"],
             "rankedYears": doc["discharge"]["rankedYears"]}  # fmt: skip

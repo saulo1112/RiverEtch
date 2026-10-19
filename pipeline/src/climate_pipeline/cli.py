@@ -8,7 +8,8 @@ docs/urra-validation/method.md); ``climate-pipeline contract`` writes the observ
 JSON Schema and sample records (see docs/schema/README.md); ``climate-pipeline quality``
 recomputes the water-quality validations from their snapshots (see docs/water-quality/report.md);
 ``climate-pipeline reach`` writes a reach's sealed records, its ledger and the check against its
-gauge (see docs/water-quality/reach/README.md).
+gauge (see docs/water-quality/reach/README.md); ``climate-pipeline ledger`` lists the frozen
+artifacts of the prospective scoring (see docs/water-quality/prospective.md).
 """
 
 from __future__ import annotations
@@ -158,7 +159,7 @@ def _parser() -> argparse.ArgumentParser:
     reach.add_argument(
         "action",
         choices=("baseline", "run", "check", "examples", "render", "thermal", "context", "climate",
-                 "verify"),
+                 "score", "verify"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); check: a "
         "gauged reach's estimates against its gauge after the card's commit (report-only); "
@@ -167,7 +168,9 @@ def _parser() -> argparse.ArgumentParser:
         "thermal: water-temperature records of the Landsat passes (a reach with a temperature "
         "card); context: the gauge's own readings at each recorded pass; climate: the gauge's "
         "whole daily record and each year's extremes, beside the examples (web; --until: last "
-        "day); verify: every record's seal, the ledger chain and the cards (exit 1 on any problem)",
+        "day); score: the prospective outcomes of the anchored claims (rule v1, "
+        "docs/water-quality/prospective.md); verify: every record's seal, the ledger chain and "
+        "the cards (exit 1 on any problem)",
     )  # fmt: skip
     reach.add_argument(
         "--site", default="all",
@@ -184,6 +187,10 @@ def _parser() -> argparse.ArgumentParser:
     reach.add_argument(
         "--until", type=date.fromisoformat, default=None, help="run, climate: last day"
     )
+    reach.add_argument(
+        "--snapshot", action="store_true",
+        help="climate: rebuild climate.json from the committed daily snapshot, fetching nothing",
+    )  # fmt: skip
     reach.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     reach.add_argument(
         "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
@@ -193,6 +200,17 @@ def _parser() -> argparse.ArgumentParser:
         "--config", type=Path, default=Path("pipeline/reach.yaml"),
         help="settings, relative to the root",
     )  # fmt: skip
+    ledger = commands.add_parser(
+        "ledger", help="the frozen-artifacts ledger of the prospective scoring (rule v1)"
+    )
+    ledger.add_argument(
+        "action", choices=("freeze", "verify"),
+        help="freeze PATH...: list files (their SHA-256, git blob and, for a card, its canonical "
+        "hash); verify: the chain, and that every listed file is unchanged (exit 1 otherwise)",
+    )  # fmt: skip
+    ledger.add_argument("paths", nargs="*", help="freeze: files, relative to the root")
+    ledger.add_argument("--purpose", default="", help="freeze: why the files are frozen")
+    ledger.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     return parser
 
 
@@ -622,7 +640,9 @@ def reach(args: argparse.Namespace) -> int:
 
         for site in sites:
             try:
-                print(f"{site}: {climate(cfg, root, site, args.until)}")
+                print(
+                    f"{site}: {climate(cfg, root, site, args.until, fetch_new=not args.snapshot)}"
+                )
             except reach_run.ReachError as error:
                 print(f"{site}: {error}")
         return 0
@@ -648,6 +668,14 @@ def reach(args: argparse.Namespace) -> int:
                 print(f"{site}: {render(cfg, root, site, root / args.cache, args.workers)}")
             except reach_run.ReachError as error:
                 print(f"{site}: {error}")
+        return 0
+    if args.action == "score":
+        from climate_pipeline.reach.score import SCORED, score
+
+        for site in sites:
+            if site not in SCORED:
+                continue  # rule v1 scores the demo reaches only
+            print(f"{site}: {score(root, cfg, site).__dict__}")
         return 0
     if args.action == "check":
         from datetime import UTC, datetime
@@ -692,6 +720,36 @@ def reach(args: argparse.Namespace) -> int:
     return max(codes)
 
 
+def ledger(args: argparse.Namespace) -> int:
+    """Run ``ledger freeze`` or ``ledger verify``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code (``verify``: 1 on any problem; ``freeze``: 2 without paths).
+    """
+    from climate_pipeline import ledgers
+
+    root = args.root.resolve()
+    if args.action == "verify":
+        problems = ledgers.verify(root)
+        for line in problems:
+            print(line)
+        print(f"{ledgers.FROZEN.as_posix()}: " + ("verified" if not problems
+                                                  else f"{len(problems)} problems"))  # fmt: skip
+        return 1 if problems else 0
+    if not args.paths or not args.purpose:
+        print("freeze needs one or more paths and --purpose")
+        return 2
+    done = ledgers.freeze(root, list(args.paths), args.purpose)
+    for path in done.added:
+        print(f"added     {path}")
+    for path in done.unchanged:
+        print(f"unchanged {path}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     """Run the pipeline command-line interface.
 
@@ -717,6 +775,8 @@ def main(argv: list[str] | None = None) -> int:
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
         )
         return quality(args)
+    if args.command == "ledger":
+        return ledger(args)
     if args.command == "reach":
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"

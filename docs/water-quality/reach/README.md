@@ -131,6 +131,18 @@ ledger. These rules were fixed before the first value was fetched:
 - **What it is not:** the gauge's measurements, never a satellite estimate. It states no trend and
   no cause.
 
+For the two demo reaches `climate.json` also holds `extremes`: each year's low-flow, high-flow and
+warm-water days as rule v1 defines them (`docs/water-quality/prospective.md`, section 5), ranked
+like the years above; the days a usable pass saw (2019–2025 from the v5 inputs, 2026 from the
+sealed records); and the locked test's pairs on each kind of day beside the 20 an error comparison
+needs. It counts days and computes no error (`pipeline/src/climate_pipeline/reach/extremes.py`; a
+day published twice counts once). `--snapshot` rebuilds `climate.json` from the committed snapshot
+without fetching:
+
+```powershell
+uv run climate-pipeline reach climate --site platte-louisville --snapshot --root ..
+```
+
 ## Files for the web (`docs/water-quality/reach/<site>/examples/`, committed)
 
 ```powershell
@@ -154,6 +166,7 @@ uv run climate-pipeline reach render --site mississippi-belle-chasse --root ..
 | `thermal/*`          | v6: the water-temperature records, their ledger, series and the gauge check                   |
 | `checks/context.csv` | v6: the gauge's own readings at each pass (measurements, labelled)                            |
 | `climate.json`       | `climate`: the gauge's whole record, each year's peak, 7-day low and warmest day, ranked      |
+| `outcomes/*`         | `score`: the prospective outcomes of the anchored claims, a hash-chained ledger (rule v1)     |
 
 A map is a picture of the record's own pixels: NDTI is relative, so the maps carry no unit. A test
 (`pipeline/tests/test_reach_examples.py`) fails if a committed record stops matching the schema, its
