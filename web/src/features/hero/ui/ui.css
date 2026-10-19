@@ -960,13 +960,15 @@
 
 /*
  * The pipeline's three steps, under the calls to action: a hairline over each, the number in the
- * accent (mono), the label in small capitals and a lighter description. Never narrower than the
- * labels need: the descriptions wrap instead (contain below).
+ * accent (mono), the label in small capitals and a lighter description. Capped well short of the
+ * column, so the last hairline stays clear of the orbit and the satellite; never narrower than
+ * the labels need: the descriptions wrap instead (contain below).
  */
 .hero-steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 24px;
+  width: min(100%, 420px);
   min-width: max-content;
   margin: var(--gap-steps) 0 0;
   padding: 0;
