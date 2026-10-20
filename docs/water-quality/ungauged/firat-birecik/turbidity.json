@@ -1,0 +1,150 @@
+{
+  "adjustment": null,
+  "basis": "outside_tested_region",
+  "candidate": "A4",
+  "chosen": {
+    "learning_rate": 0.05,
+    "min_data_in_leaf": 20,
+    "n_estimators": 500,
+    "num_leaves": 7
+  },
+  "classes": {
+    "edgesFnu": [
+      30.0,
+      100.0
+    ],
+    "labels": [
+      "under_30",
+      "30_to_100",
+      "100_and_over"
+    ]
+  },
+  "display": "class",
+  "featureRange": {
+    "B11": [
+      -0.0024,
+      0.0497
+    ],
+    "B8A-B11": [
+      -0.0212,
+      0.145
+    ],
+    "core_share": [
+      0.725,
+      1.0
+    ],
+    "log_B02": [
+      -9.21034,
+      -1.586698
+    ],
+    "log_B03": [
+      -9.21034,
+      -1.591107
+    ],
+    "log_B04": [
+      -9.21034,
+      -1.748125
+    ],
+    "log_B04/B02": [
+      -3.795489,
+      6.186209
+    ],
+    "log_B04/B03": [
+      -4.744932,
+      4.430817
+    ],
+    "log_B05": [
+      -9.21034,
+      -1.672378
+    ],
+    "log_B05/B04": [
+      -3.569533,
+      0.846351
+    ],
+    "log_B06": [
+      -9.21034,
+      -1.505979
+    ],
+    "log_B06/B04": [
+      -6.186209,
+      0.693147
+    ],
+    "log_B07": [
+      -9.21034,
+      -1.490322
+    ],
+    "log_B07/B04": [
+      -6.405228,
+      2.197225
+    ],
+    "log_B08": [
+      -9.21034,
+      -1.58621
+    ],
+    "log_B8A": [
+      -9.21034,
+      -1.678788
+    ],
+    "log_B8A/B04": [
+      -6.806829,
+      2.302585
+    ],
+    "log_width_m": [
+      5.718999,
+      6.649632
+    ],
+    "sun_zenith": [
+      16.79627,
+      71.274559
+    ]
+  },
+  "label": "Outside the tested region. No error estimate.",
+  "levels": [],
+  "modelId": "A4:turbidity:core:transfer-all",
+  "parameters": {
+    "features": [
+      "log_B02",
+      "log_B03",
+      "log_B04",
+      "log_B05",
+      "log_B06",
+      "log_B07",
+      "log_B08",
+      "log_B8A",
+      "log_B8A/B04",
+      "log_B05/B04",
+      "log_B06/B04",
+      "log_B07/B04",
+      "log_B04/B03",
+      "log_B04/B02",
+      "B8A-B11",
+      "B11",
+      "sun_zenith",
+      "log_width_m",
+      "core_share"
+    ],
+    "file": "transfer/all/gbm-turbidity-core.json",
+    "kind": "lightgbm",
+    "sha256": "238c28f23394c7a78df5533abae4c3af774e5ebff09253b91511399dcfe30bed"
+  },
+  "parametersHash": "b2d2239ac3824606503cdb8d7d1f2f51fa9035cc7991cd8297b5ae7ea101f7d7",
+  "preregistration": "docs/water-quality/preregistration-outside-us.md",
+  "preregistrationSha256": "cc5a41d17fd914ef95aa58127df57643bcf7fc18b92f898085b9afed1b93bbd5",
+  "site": "firat-birecik",
+  "target": "turbidity",
+  "targetRange": [
+    0.55,
+    580.0
+  ],
+  "training": [
+    "2018-12-01",
+    "2023-11-30"
+  ],
+  "trainingPairs": {
+    "groups": 9,
+    "usgs": 1881
+  },
+  "unit": "FNU",
+  "version": "1",
+  "window": "core"
+}

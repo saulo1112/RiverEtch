@@ -1,0 +1,79 @@
+# Fırat (Euphrates) River, below the Birecik Dam to the Birecik Bridge (Şanlıurfa, Türkiye): an
+# ungauged reach outside the tested region (docs/water-quality/preregistration-outside-us.md),
+# chosen on 2026-10-20 by that file's width rule. No public station of this river is used.
+# It lives outside pipeline/sites/ so the Colombian site screening never reads it.
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: firat-birecik
+name: Fırat (Euphrates) River, below the Birecik Dam to the Birecik Bridge (Şanlıurfa, Türkiye)
+river: Fırat (Euphrates) River
+category: D
+rationale:
+  "Ungauged reach outside the tested region. The Euphrates from about 2 km below the Birecik Dam
+  down to the Birecik Bridge. The turbidity class comes from a model trained and tested on US
+  rivers only, so the reach shows it with no error estimate ('Outside the tested region. No error
+  estimate.'). The Birecik Dam lies 8 km upstream of Birecik town and the Atatürk Dam 60 km
+  upstream of it (Wikipedia, 'Birecik Dam'), so the reach's flow is the dam's release. The reach is
+  chosen for its width, not for any pressure: no actor is the subject of any record."
+center:
+  lon: 37.94400
+  lat: 37.03578
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - 37.87
+  - 36.99
+  - 38.02
+  - 37.08
+upstream_anchor:
+  lon: 37.915
+  lat: 37.045
+  description: The Fırat about 2 km below the Birecik Dam (an approximate point)
+  basis:
+    "Approximate: placed on the river 2.4 km from the dam's OSM way (28048509); the pilot's width
+    rule snapped it 220 m to the main channel (320 m wide, 2022-2025). To be snapped to the water
+    mask."
+  source_url: https://www.openstreetmap.org/way/28048509
+downstream_anchor:
+  lon: 37.97299
+  lat: 37.02655
+  description: The Birecik Bridge (Birecik Köprüsü), the estimate window
+  basis:
+    "Stated by source: the bridge's OpenStreetMap way 13638374 (Nominatim, 2026-10-20). Its main
+    channel is 322.5 m wide by the pilot's width rule (SCL water frequency, 2022-2025)."
+  source_url: https://www.openstreetmap.org/way/13638374
+confluences: []
+regime_changes: [] # no dated change of operation inside the baseline (2019-2025) is known
+rain_points:
+  - lon: 37.94400
+    lat: 37.03578
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  None. No dam, licence or permitted works are the subject of this reach; it is used because its
+  width is inside the model's training range and no station is used.
+regulator: Not applicable (no permit parameter is compared).
+river_width_note:
+  "322.5 m at the Birecik Bridge and 320 m about 2 km below the dam (SCL water frequency, the
+  pilot's selection rule), inside the widths the model was trained on (305 to 773 m)"
+climate_note:
+  "Nearly all rain falls from November to April; July to September average under 3 mm a month
+  (WMO climate normals 1991-2020 for Birecik, via NOAA)."
+citations:
+  - url: https://www.openstreetmap.org/way/13638374
+    title: Birecik Köprüsü (OpenStreetMap)
+    supports: The downstream anchor and the estimate window's point
+    verification: Nominatim search "Birecik Köprüsü", 2026-10-20
+  - url: https://en.wikipedia.org/wiki/Birecik_Dam
+    title: Birecik Dam (Wikipedia)
+    supports: The dam 8 km upstream of Birecik town and 60 km downstream of the Atatürk Dam
+    verification: read 2026-10-20
+  - url: https://en.wikipedia.org/wiki/Birecik
+    title: Birecik (Wikipedia; climate table from NOAA, WMO climate normals 1991-2020)
+    supports: The rainy months, November to April
+    verification: read 2026-10-20
+unverified:
+  - "Where tributaries join between the anchors was not surveyed"
+  - "How much sediment the reservoirs upstream hold back was not measured"
+  - "The upstream anchor is an approximate point; the run snaps it"
