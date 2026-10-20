@@ -1,8 +1,8 @@
 {
-  "updatedUtc": "2026-10-20T04:46:35+00:00",
+  "updatedUtc": "2026-10-20T05:12:20+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39358435545",
-    "ok": false,
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39371651196",
+    "ok": true,
     "steps": [
       {
         "args": "ledger upgrade",
@@ -14,7 +14,7 @@
       },
       {
         "args": "reach run --site all",
-        "exit": 3
+        "exit": 0
       },
       {
         "args": "reach thermal --site mississippi-belle-chasse",
@@ -41,6 +41,10 @@
         "exit": 0
       },
       {
+        "args": "reach render --site mississippi-st-joseph",
+        "exit": 0
+      },
+      {
         "args": "reach check --site all",
         "exit": 0
       },
@@ -53,6 +57,10 @@
         "exit": 0
       },
       {
+        "args": "reach examples --site mississippi-st-joseph --all-records",
+        "exit": 0
+      },
+      {
         "args": "reach examples --site missouri-hermann",
         "exit": 0
       },
@@ -62,25 +70,82 @@
       }
     ]
   },
-  "lastSuccessUtc": null,
+  "lastSuccessUtc": "2026-10-20T05:12:20+00:00",
   "lastSealed": {
     "reach": "mississippi-belle-chasse",
-    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-11_R126",
-    "date": "2026-10-11"
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-10-16_R126",
+    "date": "2026-10-16"
   },
   "lastAnchor": {
     "label": "terrachain:riveretch:frozen-artifacts",
-    "lines": 11,
-    "block": 11952275,
-    "timestampUtc": "2026-10-20T02:19:48Z",
-    "tx": "0xa7514c8cb578757a47daa63660a6a79d732597aa95dc2f8a0e9d103eb580dc33"
+    "lines": 13,
+    "block": 11952769,
+    "timestampUtc": "2026-10-20T03:59:36Z",
+    "tx": "0x1214be536af3395bb0005a110c601788a771c586361dba6752eddac37be7b058"
   },
   "lastBitcoin": {
     "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.33.ots",
     "height": 972246,
     "blockTime": "2026-10-20T02:42:14+00:00"
   },
-  "pendingBitcoin": 0,
+  "pendingBitcoin": 4,
+  "proofs": [
+    {
+      "label": "terrachain:mississippi-belle-chasse:observations",
+      "lines": 33,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.33.ots",
+      "height": 972246
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:observations",
+      "lines": 36,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.36.ots",
+      "height": null
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:water-temperature",
+      "lines": 19,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_water-temperature.19.ots",
+      "height": 972246
+    },
+    {
+      "label": "terrachain:mississippi-st-joseph:observations",
+      "lines": 22,
+      "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_observations.22.ots",
+      "height": null
+    },
+    {
+      "label": "terrachain:platte-louisville:observations",
+      "lines": 16,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_observations.16.ots",
+      "height": 972246
+    },
+    {
+      "label": "terrachain:platte-louisville:observations",
+      "lines": 17,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_observations.17.ots",
+      "height": null
+    },
+    {
+      "label": "terrachain:platte-louisville:water-temperature",
+      "lines": 16,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_water-temperature.16.ots",
+      "height": 972246
+    },
+    {
+      "label": "terrachain:riveretch:frozen-artifacts",
+      "lines": 11,
+      "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.11.ots",
+      "height": 972246
+    },
+    {
+      "label": "terrachain:riveretch:frozen-artifacts",
+      "lines": 13,
+      "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.13.ots",
+      "height": null
+    }
+  ],
+  "outcomes": [],
   "failures": [
     {
       "utc": "2026-10-20T02:25:35+00:00",

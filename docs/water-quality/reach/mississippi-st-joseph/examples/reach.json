@@ -1,0 +1,28 @@
+{
+  "site": "mississippi-st-joseph",
+  "name": "Mississippi River, St. Joseph to river mile 378 (Louisiana and Mississippi, USA)",
+  "river": "Mississippi River",
+  "timezone": "America/Chicago",
+  "station": {
+    "id": "window-st-joseph",
+    "source": "ungauged",
+    "name": "",
+    "window": {
+      "lon": -91.250112,
+      "lat": 31.871827,
+      "basis": "USGS 315218091150000 (Mississippi R nr St. Joseph, LA; a listed location with no series). Chosen on 2026-10-20, before any estimate on the reach, because its main channel (522 m) is inside the widths the model was trained on (305 to 773 m); the Natchez gauge reads 848 m and mile 378 reads 1028 m, where every scene would abstain.",
+      "sourceUrl": "https://waterdata.usgs.gov/monitoring-location/USGS-315218091150000/"
+    }
+  },
+  "targets": [
+    "turbidity"
+  ],
+  "cards": {
+    "turbidity": "cards/turbidity.json"
+  },
+  "baseline": {
+    "first": "2019-01-01",
+    "last": "2025-12-30",
+    "usableScenes": 206
+  }
+}

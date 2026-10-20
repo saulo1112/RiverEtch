@@ -41,6 +41,7 @@
     "sentinel-2b_2026-09-19_R026": "not observable",
     "sentinel-2b_2026-09-29_R026": "recorded",
     "sentinel-2b_2026-10-09_R026": "recorded",
+    "sentinel-2b_2026-10-19_R026": "not observable",
     "sentinel-2c_2026-01-07_R026": "not observable",
     "sentinel-2c_2026-01-17_R026": "not observable",
     "sentinel-2c_2026-01-27_R026": "not observable",
@@ -67,6 +68,7 @@
     "sentinel-2c_2026-09-04_R026": "recorded",
     "sentinel-2c_2026-09-14_R026": "not observable",
     "sentinel-2c_2026-09-24_R026": "not observable",
-    "sentinel-2c_2026-10-04_R026": "recorded"
+    "sentinel-2c_2026-10-04_R026": "recorded",
+    "sentinel-2c_2026-10-14_R026": "not observable"
   }
 }

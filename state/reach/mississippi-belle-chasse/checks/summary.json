@@ -1,16 +1,16 @@
 {
   "since": "2026-10-12T20:55:48+00:00",
-  "rows": 0,
-  "paired": 0,
-  "mdsa": null,
-  "sspb": null,
+  "rows": 3,
+  "paired": 3,
+  "mdsa": 15.873781007823794,
+  "sspb": -15.873781007823794,
   "approvals": {
     "Approved": 0,
-    "Provisional": 0
+    "Provisional": 3
   },
   "site": "mississippi-belle-chasse",
   "station": "USGS-07374525",
   "unit": "FNU",
   "note": "report-only; never a level (values may be provisional)",
-  "checksSha256": "d98fb9154eb4cdf7183d664de73cee2e3dc04b4a3c107c8e3244b39f34cb9b9b"
+  "checksSha256": "99a16ba31eb6587e1899c507e323dd3d1ddb0ee8e1ff0a68de405203e0a28f2d"
 }

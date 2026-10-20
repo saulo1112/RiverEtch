@@ -79,3 +79,9 @@ sentinel-2c_2026-10-10_R112,2026-10-10,2026-10-10T17:22:27+00:00,00065,gage heig
 sentinel-2c_2026-10-10_R112,2026-10-10,2026-10-10T17:22:27+00:00,00095,specific conductance,595.0,µS/cm,Provisional
 sentinel-2c_2026-10-10_R112,2026-10-10,2026-10-10T17:22:27+00:00,00300,dissolved oxygen,12.1,mg/L,Provisional
 sentinel-2c_2026-10-10_R112,2026-10-10,2026-10-10T17:22:27+00:00,00630,nitrate plus nitrite (as N),0.5,mg/L,Provisional
+sentinel-2a_2026-10-12_R112,2026-10-12,2026-10-12T17:22:37+00:00,00010,water temperature,21.35,°C,Provisional
+sentinel-2a_2026-10-12_R112,2026-10-12,2026-10-12T17:22:37+00:00,00060,discharge,135.071,m³/s,Provisional
+sentinel-2a_2026-10-12_R112,2026-10-12,2026-10-12T17:22:37+00:00,00065,gage height,1.007,m,Provisional
+sentinel-2a_2026-10-12_R112,2026-10-12,2026-10-12T17:22:37+00:00,00095,specific conductance,658.0,µS/cm,Provisional
+sentinel-2a_2026-10-12_R112,2026-10-12,2026-10-12T17:22:37+00:00,00300,dissolved oxygen,12.2,mg/L,Provisional
+sentinel-2a_2026-10-12_R112,2026-10-12,2026-10-12T17:22:37+00:00,00630,nitrate plus nitrite (as N),0.504,mg/L,Provisional

@@ -1938,5 +1938,182 @@
         "abstainReason": null
       }
     ]
+  },
+  {
+    "date": "2026-10-13",
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-10-13_R126",
+    "file": "records/2026-10-13_sentinel-2a_2026-10-13_R126.json",
+    "recordSha256": "9037b36a6773a3af4acf30c81ec755035e31b61974be48fccdc8e68657f24150",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0154,
+        "downstream": -0.0237,
+        "reach": -0.0195,
+        "delta": -0.0084,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.49,
+          "downstream": -0.42,
+          "delta": 0.02
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2307,
+        "downstream": 0.2484,
+        "reach": 0.2395,
+        "delta": 0.0177,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.18,
+          "downstream": 0.27,
+          "delta": 2.15
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 32.36,
+        "interval": {
+          "low": 22.25,
+          "high": 47.08,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-13",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-10-13_R083",
+    "file": "records/2026-10-13_sentinel-2b_2026-10-13_R083.json",
+    "recordSha256": "df1c4073d5235051dac42fce9fd1c4109b8031beb074f8f8f0129b541afac8c1",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0215,
+        "downstream": -0.0442,
+        "reach": -0.0329,
+        "delta": -0.0227,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.57,
+          "downstream": -0.68,
+          "delta": -1.41
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1813,
+        "downstream": 0.1528,
+        "reach": 0.1671,
+        "delta": -0.0285,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.59,
+          "downstream": -0.53,
+          "delta": 0.35
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 29.92,
+        "interval": {
+          "low": 20.57,
+          "high": 43.52,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-16",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-10-16_R126",
+    "file": "records/2026-10-16_sentinel-2b_2026-10-16_R126.json",
+    "recordSha256": "892ac70dbd0f9dc1a89ae5657c4e03d39816a78931a7e4328322f1557ab49f42",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0171,
+        "downstream": -0.0462,
+        "reach": -0.0317,
+        "delta": -0.0291,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.52,
+          "downstream": -0.7,
+          "delta": -2.05
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2071,
+        "downstream": 0.1769,
+        "reach": 0.192,
+        "delta": -0.0302,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.38,
+          "downstream": -0.33,
+          "delta": 0.28
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 28.51,
+        "interval": {
+          "low": 19.6,
+          "high": 41.47,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
   }
 ]
