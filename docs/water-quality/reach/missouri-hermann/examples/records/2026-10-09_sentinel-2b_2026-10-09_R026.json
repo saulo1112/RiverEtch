@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 2,
+  "reachId": "missouri-hermann",
+  "date": "2026-10-09",
+  "sceneId": "missouri-hermann:sentinel-2b_2026-10-09_R026",
+  "stacItemIds": [
+    "S2B_15SXC_20261009_0_L2A"
+  ],
+  "indices": {
+    "ndti": {
+      "upstream": 0.1367,
+      "downstream": 0.129,
+      "reach": 0.1329,
+      "delta": -0.0077,
+      "zScore": {
+        "rule": "D0",
+        "upstream": 2.39,
+        "downstream": 2.5,
+        "delta": -0.7
+      }
+    },
+    "nirRed": {
+      "upstream": 0.9388,
+      "downstream": 0.94,
+      "reach": 0.9394,
+      "delta": 0.0012,
+      "zScore": {
+        "rule": "D0",
+        "upstream": 2.71,
+        "downstream": 2.89,
+        "delta": -0.43
+      }
+    }
+  },
+  "verdict": {
+    "rule": "D0",
+    "threshold": 3.0,
+    "anomalous": false,
+    "signals": []
+  },
+  "rain": {
+    "point": false,
+    "catchment": null,
+    "union": "unknown"
+  },
+  "estimates": [
+    {
+      "target": "turbidity",
+      "unit": "FNU",
+      "level": "indicative",
+      "value": null,
+      "interval": null,
+      "relativeClass": "high",
+      "modelId": "H3:turbidity:core:missouri-hermann",
+      "modelVersion": "1",
+      "modelCardSha256": "1f67edb6477c69a885c4f46e66b88554ab1918f625046969e6ebc4220c027df3",
+      "validRange": null,
+      "rangeMdsa": 33.3,
+      "abstainReason": null,
+      "basis": "preregistered_lockbox_site",
+      "atmosphericCorrection": {
+        "processor": "sen2cor",
+        "collection": "sentinel-2-l2a",
+        "processingBaseline": [
+          "05.13"
+        ]
+      }
+    }
+  ],
+  "climateContext": {
+    "status": "not_run",
+    "signal": null,
+    "modelId": null,
+    "expected": null,
+    "residual": null,
+    "residualZ": null,
+    "label": "not_evaluated",
+    "rule": "climate context not run",
+    "dischargePercentile": null,
+    "ensoPhase": null
+  },
+  "provenance": {
+    "collection": "sentinel-2-l2a",
+    "stacItems": [
+      {
+        "id": "S2B_15SXC_20261009_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/S/XC/2026/10/S2B_15SXC_20261009_0_L2A/S2B_15SXC_20261009_0_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      }
+    ],
+    "codeCommit": "ceeb8382f3da8b212da83a9965722bcebe14a12d",
+    "processingParamsSha256": "76f283cb7ddb8f25209dd8d49a302b6e2147604a7127e87a10199d833e0df8be",
+    "boaOffsetApplied": [
+      true
+    ],
+    "processingBaseline": [
+      "05.13"
+    ]
+  },
+  "recordSha256": "cd5b0560c1edd2a719ce7727af2f3c11d9499c60348c57b85b355370898830c6"
+}

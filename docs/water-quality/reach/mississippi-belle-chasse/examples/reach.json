@@ -1,0 +1,24 @@
+{
+  "site": "mississippi-belle-chasse",
+  "name": "Mississippi River, Chalmette to Belle Chasse (Louisiana, USA)",
+  "river": "Mississippi River",
+  "timezone": "America/Chicago",
+  "station": {
+    "id": "USGS-07374525",
+    "source": "usgs",
+    "name": "Mississippi River at Belle Chasse, LA",
+    "url": "https://waterdata.usgs.gov/monitoring-location/USGS-07374525/"
+  },
+  "targets": [
+    "turbidity"
+  ],
+  "cards": {
+    "turbidity": "cards/turbidity.json",
+    "water_temperature": "cards/water_temperature.json"
+  },
+  "baseline": {
+    "first": "2019-01-06",
+    "last": "2024-10-06",
+    "usableScenes": 191
+  }
+}

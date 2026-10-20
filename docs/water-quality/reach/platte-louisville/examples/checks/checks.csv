@@ -1,0 +1,14 @@
+date,sceneId,key,datetimeUtc,target,estimate,value,approval,rule,n,cardSha256
+2026-02-12,platte-louisville:sentinel-2c_2026-02-12_R112,sentinel-2c_2026-02-12_R112,2026-02-12T17:22:27+00:00,turbidity,69.52,,,none,0,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-02-22,platte-louisville:sentinel-2c_2026-02-22_R112,sentinel-2c_2026-02-22_R112,2026-02-22T17:22:28+00:00,turbidity,89.7701,,,none,0,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-02-27,platte-louisville:sentinel-2b_2026-02-27_R112,sentinel-2b_2026-02-27_R112,2026-02-27T17:22:24+00:00,turbidity,54.4703,,,none,0,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-03-09,platte-louisville:sentinel-2b_2026-03-09_R112,sentinel-2b_2026-03-09_R112,2026-03-09T17:22:24+00:00,turbidity,51.0047,49.25,Approved,median 30 min,4,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-04-18,platte-louisville:sentinel-2b_2026-04-18_R112,sentinel-2b_2026-04-18_R112,2026-04-18T17:22:23+00:00,turbidity,31.8158,,,none,0,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-05-13,platte-louisville:sentinel-2c_2026-05-13_R112,sentinel-2c_2026-05-13_R112,2026-05-13T17:22:26+00:00,turbidity,26.6393,,,none,0,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-06-17,platte-louisville:sentinel-2b_2026-06-17_R112,sentinel-2b_2026-06-17_R112,2026-06-17T17:22:24+00:00,turbidity,50.8248,60.95,Approved,median 30 min,4,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-07-12,platte-louisville:sentinel-2c_2026-07-12_R112,sentinel-2c_2026-07-12_R112,2026-07-12T17:22:26+00:00,turbidity,56.2365,37.65,Provisional,median 30 min,4,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-07-17,platte-louisville:sentinel-2b_2026-07-17_R112,sentinel-2b_2026-07-17_R112,2026-07-17T17:22:26+00:00,turbidity,61.8751,31.0,Provisional,median 30 min,2,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-07-27,platte-louisville:sentinel-2b_2026-07-27_R112,sentinel-2b_2026-07-27_R112,2026-07-27T17:22:26+00:00,turbidity,43.0964,26.9,Provisional,median 30 min,4,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-08-11,platte-louisville:sentinel-2c_2026-08-11_R112,sentinel-2c_2026-08-11_R112,2026-08-11T17:22:25+00:00,turbidity,49.8858,31.0,Provisional,median 30 min,4,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-09-05,platte-louisville:sentinel-2b_2026-09-05_R112,sentinel-2b_2026-09-05_R112,2026-09-05T17:22:23+00:00,turbidity,55.3744,32.5,Provisional,median 30 min,4,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06
+2026-10-10,platte-louisville:sentinel-2c_2026-10-10_R112,sentinel-2c_2026-10-10_R112,2026-10-10T17:22:27+00:00,turbidity,34.3667,48.4,Provisional,median 30 min,4,beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06

@@ -1,0 +1,84 @@
+key,date,datetimeUtc,parameter,name,value,unit,approval
+sentinel-2b_2026-01-12_R026,2026-01-12,2026-01-12T17:02:59+00:00,00060,discharge,918.882,m³/s,Approved
+sentinel-2b_2026-01-12_R026,2026-01-12,2026-01-12T17:02:59+00:00,00065,gage height,0.46,m,Approved
+sentinel-2b_2026-01-22_R026,2026-01-22,2026-01-22T17:02:58+00:00,00060,discharge,856.585,m³/s,Approved
+sentinel-2b_2026-01-22_R026,2026-01-22,2026-01-22T17:02:58+00:00,00065,gage height,0.297,m,Approved
+sentinel-2c_2026-02-26_R026,2026-02-26,2026-02-26T17:03:03+00:00,00010,water temperature,6.0,°C,Approved
+sentinel-2c_2026-02-26_R026,2026-02-26,2026-02-26T17:03:03+00:00,00060,discharge,1211.961,m³/s,Approved
+sentinel-2c_2026-02-26_R026,2026-02-26,2026-02-26T17:03:03+00:00,00065,gage height,1.154,m,Approved
+sentinel-2c_2026-02-26_R026,2026-02-26,2026-02-26T17:03:03+00:00,00095,specific conductance,597.0,µS/cm,Approved
+sentinel-2c_2026-02-26_R026,2026-02-26,2026-02-26T17:03:03+00:00,00300,dissolved oxygen,12.6,mg/L,Approved
+sentinel-2c_2026-03-08_R026,2026-03-08,2026-03-08T17:03:03+00:00,00010,water temperature,9.4,°C,Approved
+sentinel-2c_2026-03-08_R026,2026-03-08,2026-03-08T17:03:03+00:00,00060,discharge,2023.239,m³/s,Approved
+sentinel-2c_2026-03-08_R026,2026-03-08,2026-03-08T17:03:03+00:00,00065,gage height,2.49,m,Approved
+sentinel-2c_2026-03-08_R026,2026-03-08,2026-03-08T17:03:03+00:00,00095,specific conductance,507.5,µS/cm,Approved
+sentinel-2c_2026-03-08_R026,2026-03-08,2026-03-08T17:03:03+00:00,00300,dissolved oxygen,10.2,mg/L,Approved
+sentinel-2c_2026-03-18_R026,2026-03-18,2026-03-18T17:03:04+00:00,00010,water temperature,7.8,°C,Approved
+sentinel-2c_2026-03-18_R026,2026-03-18,2026-03-18T17:03:04+00:00,00060,discharge,1945.367,m³/s,Approved
+sentinel-2c_2026-03-18_R026,2026-03-18,2026-03-18T17:03:04+00:00,00065,gage height,2.38,m,Approved
+sentinel-2c_2026-03-18_R026,2026-03-18,2026-03-18T17:03:04+00:00,00095,specific conductance,488.0,µS/cm,Approved
+sentinel-2c_2026-03-18_R026,2026-03-18,2026-03-18T17:03:04+00:00,00300,dissolved oxygen,11.55,mg/L,Approved
+sentinel-2c_2026-03-28_R026,2026-03-28,2026-03-28T17:03:03+00:00,00010,water temperature,13.2,°C,Approved
+sentinel-2c_2026-03-28_R026,2026-03-28,2026-03-28T17:03:03+00:00,00060,discharge,1027.902,m³/s,Approved
+sentinel-2c_2026-03-28_R026,2026-03-28,2026-03-28T17:03:03+00:00,00065,gage height,0.797,m,Approved
+sentinel-2c_2026-03-28_R026,2026-03-28,2026-03-28T17:03:03+00:00,00300,dissolved oxygen,11.2,mg/L,Approved
+sentinel-2a_2026-03-30_R026,2026-03-30,2026-03-30T17:03:22+00:00,00010,water temperature,13.8,°C,Approved
+sentinel-2a_2026-03-30_R026,2026-03-30,2026-03-30T17:03:22+00:00,00095,specific conductance,647.0,µS/cm,Approved
+sentinel-2a_2026-03-30_R026,2026-03-30,2026-03-30T17:03:22+00:00,00300,dissolved oxygen,10.8,mg/L,Approved
+sentinel-2a_2026-04-19_R026,2026-04-19,2026-04-19T17:03:20+00:00,00010,water temperature,17.55,°C,Approved
+sentinel-2a_2026-04-19_R026,2026-04-19,2026-04-19T17:03:20+00:00,00060,discharge,4587.329,m³/s,Approved
+sentinel-2a_2026-04-19_R026,2026-04-19,2026-04-19T17:03:20+00:00,00065,gage height,5.265,m,Approved
+sentinel-2a_2026-04-19_R026,2026-04-19,2026-04-19T17:03:20+00:00,00095,specific conductance,336.5,µS/cm,Approved
+sentinel-2a_2026-04-19_R026,2026-04-19,2026-04-19T17:03:20+00:00,00300,dissolved oxygen,7.65,mg/L,Approved
+sentinel-2a_2026-05-09_R026,2026-05-09,2026-05-09T17:03:15+00:00,00010,water temperature,17.5,°C,Provisional
+sentinel-2a_2026-05-09_R026,2026-05-09,2026-05-09T17:03:15+00:00,00060,discharge,2973.269,m³/s,Approved
+sentinel-2a_2026-05-09_R026,2026-05-09,2026-05-09T17:03:15+00:00,00065,gage height,3.725,m,Approved
+sentinel-2a_2026-05-09_R026,2026-05-09,2026-05-09T17:03:15+00:00,00095,specific conductance,422.0,µS/cm,Provisional
+sentinel-2a_2026-05-09_R026,2026-05-09,2026-05-09T17:03:15+00:00,00300,dissolved oxygen,8.1,mg/L,Provisional
+sentinel-2b_2026-05-12_R026,2026-05-12,2026-05-12T17:02:58+00:00,00010,water temperature,18.85,°C,Provisional
+sentinel-2b_2026-05-12_R026,2026-05-12,2026-05-12T17:02:58+00:00,00060,discharge,2463.566,m³/s,Approved
+sentinel-2b_2026-05-12_R026,2026-05-12,2026-05-12T17:02:58+00:00,00065,gage height,3.152,m,Approved
+sentinel-2b_2026-05-12_R026,2026-05-12,2026-05-12T17:02:58+00:00,00095,specific conductance,450.0,µS/cm,Provisional
+sentinel-2b_2026-05-12_R026,2026-05-12,2026-05-12T17:02:58+00:00,00300,dissolved oxygen,8.6,mg/L,Provisional
+sentinel-2c_2026-05-27_R026,2026-05-27,2026-05-27T17:02:58+00:00,00010,water temperature,21.2,°C,Provisional
+sentinel-2c_2026-05-27_R026,2026-05-27,2026-05-27T17:02:58+00:00,00060,discharge,3511.289,m³/s,Approved
+sentinel-2c_2026-05-27_R026,2026-05-27,2026-05-27T17:02:58+00:00,00065,gage height,4.327,m,Approved
+sentinel-2c_2026-05-27_R026,2026-05-27,2026-05-27T17:02:58+00:00,00095,specific conductance,281.5,µS/cm,Provisional
+sentinel-2c_2026-05-27_R026,2026-05-27,2026-05-27T17:02:58+00:00,00300,dissolved oxygen,6.5,mg/L,Provisional
+sentinel-2c_2026-07-16_R026,2026-07-16,2026-07-16T17:03:03+00:00,00010,water temperature,29.9,°C,Provisional
+sentinel-2c_2026-07-16_R026,2026-07-16,2026-07-16T17:03:03+00:00,00060,discharge,2268.179,m³/s,Approved
+sentinel-2c_2026-07-16_R026,2026-07-16,2026-07-16T17:03:03+00:00,00065,gage height,3.033,m,Approved
+sentinel-2c_2026-07-16_R026,2026-07-16,2026-07-16T17:03:03+00:00,00095,specific conductance,344.5,µS/cm,Provisional
+sentinel-2c_2026-07-16_R026,2026-07-16,2026-07-16T17:03:03+00:00,00300,dissolved oxygen,6.2,mg/L,Provisional
+sentinel-2a_2026-07-18_R026,2026-07-18,2026-07-18T17:03:19+00:00,00010,water temperature,30.0,°C,Provisional
+sentinel-2a_2026-07-18_R026,2026-07-18,2026-07-18T17:03:19+00:00,00060,discharge,2089.783,m³/s,Approved
+sentinel-2a_2026-07-18_R026,2026-07-18,2026-07-18T17:03:19+00:00,00065,gage height,2.804,m,Approved
+sentinel-2a_2026-07-18_R026,2026-07-18,2026-07-18T17:03:19+00:00,00095,specific conductance,524.5,µS/cm,Provisional
+sentinel-2a_2026-07-18_R026,2026-07-18,2026-07-18T17:03:19+00:00,00300,dissolved oxygen,6.3,mg/L,Provisional
+sentinel-2c_2026-08-25_R026,2026-08-25,2026-08-25T17:02:59+00:00,00010,water temperature,27.0,°C,Provisional
+sentinel-2c_2026-08-25_R026,2026-08-25,2026-08-25T17:02:59+00:00,00065,gage height,1.878,m,Provisional
+sentinel-2c_2026-08-25_R026,2026-08-25,2026-08-25T17:02:59+00:00,00095,specific conductance,626.0,µS/cm,Provisional
+sentinel-2c_2026-08-25_R026,2026-08-25,2026-08-25T17:02:59+00:00,00300,dissolved oxygen,7.0,mg/L,Provisional
+sentinel-2c_2026-09-04_R026,2026-09-04,2026-09-04T17:02:59+00:00,00010,water temperature,29.6,°C,Provisional
+sentinel-2c_2026-09-04_R026,2026-09-04,2026-09-04T17:02:59+00:00,00060,discharge,1219.04,m³/s,Provisional
+sentinel-2c_2026-09-04_R026,2026-09-04,2026-09-04T17:02:59+00:00,00065,gage height,1.321,m,Provisional
+sentinel-2c_2026-09-04_R026,2026-09-04,2026-09-04T17:02:59+00:00,00095,specific conductance,655.0,µS/cm,Provisional
+sentinel-2c_2026-09-04_R026,2026-09-04,2026-09-04T17:02:59+00:00,00300,dissolved oxygen,7.8,mg/L,Provisional
+sentinel-2b_2026-09-29_R026,2026-09-29,2026-09-29T17:03:01+00:00,00010,water temperature,22.15,°C,Provisional
+sentinel-2b_2026-09-29_R026,2026-09-29,2026-09-29T17:03:01+00:00,00060,discharge,1446.991,m³/s,Provisional
+sentinel-2b_2026-09-29_R026,2026-09-29,2026-09-29T17:03:01+00:00,00065,gage height,1.743,m,Provisional
+sentinel-2b_2026-09-29_R026,2026-09-29,2026-09-29T17:03:01+00:00,00300,dissolved oxygen,7.8,mg/L,Provisional
+sentinel-2c_2026-10-04_R026,2026-10-04,2026-10-04T17:03:03+00:00,00010,water temperature,20.6,°C,Provisional
+sentinel-2c_2026-10-04_R026,2026-10-04,2026-10-04T17:03:03+00:00,00060,discharge,4870.498,m³/s,Provisional
+sentinel-2c_2026-10-04_R026,2026-10-04,2026-10-04T17:03:03+00:00,00065,gage height,5.654,m,Provisional
+sentinel-2c_2026-10-04_R026,2026-10-04,2026-10-04T17:03:03+00:00,00095,specific conductance,416.0,µS/cm,Provisional
+sentinel-2c_2026-10-04_R026,2026-10-04,2026-10-04T17:03:03+00:00,00300,dissolved oxygen,5.1,mg/L,Provisional
+sentinel-2a_2026-10-06_R026,2026-10-06,2026-10-06T17:03:14+00:00,00010,water temperature,19.8,°C,Provisional
+sentinel-2a_2026-10-06_R026,2026-10-06,2026-10-06T17:03:14+00:00,00060,discharge,4955.448,m³/s,Provisional
+sentinel-2a_2026-10-06_R026,2026-10-06,2026-10-06T17:03:14+00:00,00065,gage height,5.742,m,Provisional
+sentinel-2a_2026-10-06_R026,2026-10-06,2026-10-06T17:03:14+00:00,00300,dissolved oxygen,4.4,mg/L,Provisional
+sentinel-2b_2026-10-09_R026,2026-10-09,2026-10-09T17:03:01+00:00,00010,water temperature,19.9,°C,Provisional
+sentinel-2b_2026-10-09_R026,2026-10-09,2026-10-09T17:03:01+00:00,00060,discharge,2595.239,m³/s,Provisional
+sentinel-2b_2026-10-09_R026,2026-10-09,2026-10-09T17:03:01+00:00,00065,gage height,3.376,m,Provisional
+sentinel-2b_2026-10-09_R026,2026-10-09,2026-10-09T17:03:01+00:00,00095,specific conductance,372.5,µS/cm,Provisional
+sentinel-2b_2026-10-09_R026,2026-10-09,2026-10-09T17:03:01+00:00,00300,dissolved oxygen,6.9,mg/L,Provisional

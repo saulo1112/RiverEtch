@@ -1,0 +1,1942 @@
+[
+  {
+    "date": "2026-01-01",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-01-01_R083",
+    "file": "records/2026-01-01_sentinel-2c_2026-01-01_R083.json",
+    "recordSha256": "ef5f7e00448b004ace075ea54417d94c24075c8ac06027c11602fbf4c4e48d12",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2285,
+        "downstream": -0.2306,
+        "reach": -0.2295,
+        "delta": -0.0021,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -3.34,
+          "downstream": -3.01,
+          "delta": 0.65
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2616,
+        "downstream": 0.2259,
+        "reach": 0.2438,
+        "delta": -0.0357,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.08,
+          "downstream": 0.08,
+          "delta": 0.07
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "upstream",
+        "downstream"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 8.98,
+        "interval": {
+          "low": 3.64,
+          "high": 22.17,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-01-14",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-01-14_R126",
+    "file": "records/2026-01-14_sentinel-2c_2026-01-14_R126.json",
+    "recordSha256": "fc0c4174348c44cf735517c4ac34ea78a97b34e2a964318bcdcba71a33b614c6",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2186,
+        "downstream": -0.2254,
+        "reach": -0.222,
+        "delta": -0.0068,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -3.21,
+          "downstream": -2.94,
+          "delta": 0.18
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2529,
+        "downstream": 0.1866,
+        "reach": 0.2197,
+        "delta": -0.0663,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.0,
+          "downstream": -0.25,
+          "delta": -1.13
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "upstream"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 9.92,
+        "interval": {
+          "low": 4.02,
+          "high": 24.48,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-01-16",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-01-16_R083",
+    "file": "records/2026-01-16_sentinel-2b_2026-01-16_R083.json",
+    "recordSha256": "6f413e51e69c6f2600a3167607b172316b08885b5715e671f10c28a3099e46c0",
+    "indices": {
+      "ndti": {
+        "upstream": -0.169,
+        "downstream": -0.1851,
+        "reach": -0.1771,
+        "delta": -0.0161,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -2.55,
+          "downstream": -2.44,
+          "delta": -0.76
+        }
+      },
+      "nirRed": {
+        "upstream": 0.0956,
+        "downstream": 0.0752,
+        "reach": 0.0854,
+        "delta": -0.0204,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.31,
+          "downstream": -1.18,
+          "delta": 0.66
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 8.89,
+        "interval": {
+          "low": 3.6,
+          "high": 21.96,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-01-19",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-01-19_R126",
+    "file": "records/2026-01-19_sentinel-2b_2026-01-19_R126.json",
+    "recordSha256": "f09dc0010b5eab9b830fde652b828244c8f5090d4e482b5c085b3b9dd4a52804",
+    "indices": {
+      "ndti": {
+        "upstream": -0.218,
+        "downstream": -0.2115,
+        "reach": -0.2147,
+        "delta": 0.0065,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -3.2,
+          "downstream": -2.77,
+          "delta": 1.5
+        }
+      },
+      "nirRed": {
+        "upstream": 0.137,
+        "downstream": 0.1187,
+        "reach": 0.1279,
+        "delta": -0.0183,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.96,
+          "downstream": -0.82,
+          "delta": 0.75
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "upstream"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 10.18,
+        "interval": {
+          "low": 4.13,
+          "high": 25.14,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-02-03",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-02-03_R126",
+    "file": "records/2026-02-03_sentinel-2c_2026-02-03_R126.json",
+    "recordSha256": "1761ac97ecbe9a92963d49ac748bcb4ebed7fea35357ca373ac2381d43b951da",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1206,
+        "downstream": -0.1024,
+        "reach": -0.1115,
+        "delta": 0.0183,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.9,
+          "downstream": -1.41,
+          "delta": 2.68
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2713,
+        "downstream": 0.3461,
+        "reach": 0.3087,
+        "delta": 0.0748,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.16,
+          "downstream": 1.08,
+          "delta": 4.38
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 20.68,
+        "interval": {
+          "low": 14.22,
+          "high": 30.09,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-02-05",
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-02-05_R083",
+    "file": "records/2026-02-05_sentinel-2a_2026-02-05_R083.json",
+    "recordSha256": "2f359b9fb2ee52d307fd03c9fa93ab3b805b40a5bd27ac79c8d592296679d625",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0752,
+        "downstream": -0.0772,
+        "reach": -0.0762,
+        "delta": -0.0021,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.29,
+          "downstream": -1.09,
+          "delta": 0.65
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1849,
+        "downstream": 0.1745,
+        "reach": 0.1797,
+        "delta": -0.0104,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.56,
+          "downstream": -0.35,
+          "delta": 1.05
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 30.51,
+        "interval": {
+          "low": 20.98,
+          "high": 44.39,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-02-05",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-02-05_R083",
+    "file": "records/2026-02-05_sentinel-2b_2026-02-05_R083.json",
+    "recordSha256": "008a8e62d23ea63f4b7bb48951bdb0683116831dd62910d519eac0e0dd944385",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0749,
+        "downstream": -0.0765,
+        "reach": -0.0757,
+        "delta": -0.0016,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.29,
+          "downstream": -1.08,
+          "delta": 0.69
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1772,
+        "downstream": 0.166,
+        "reach": 0.1716,
+        "delta": -0.0112,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.63,
+          "downstream": -0.42,
+          "delta": 1.02
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 29.06,
+        "interval": {
+          "low": 19.98,
+          "high": 42.28,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-02-08",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-02-08_R126",
+    "file": "records/2026-02-08_sentinel-2b_2026-02-08_R126.json",
+    "recordSha256": "f2b8ffc51b55d72aa6b974efdfa8ead7209636cb306071766ae93cf685d0f8b0",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1084,
+        "downstream": -0.1144,
+        "reach": -0.1114,
+        "delta": -0.0061,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.74,
+          "downstream": -1.56,
+          "delta": 0.25
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1742,
+        "downstream": 0.138,
+        "reach": 0.1561,
+        "delta": -0.0362,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.65,
+          "downstream": -0.66,
+          "delta": 0.05
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 24.18,
+        "interval": {
+          "low": 16.62,
+          "high": 35.18,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-02-15",
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-02-15_R083",
+    "file": "records/2026-02-15_sentinel-2a_2026-02-15_R083.json",
+    "recordSha256": "a348098c4b73658b8bc553fd1022d13a1e8c692c47b7b4d079f52463927a0e01",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1417,
+        "downstream": -0.1626,
+        "reach": -0.1521,
+        "delta": -0.0209,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -2.18,
+          "downstream": -2.16,
+          "delta": -1.24
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1749,
+        "downstream": 0.1268,
+        "reach": 0.1508,
+        "delta": -0.0481,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.65,
+          "downstream": -0.75,
+          "delta": -0.42
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 21.22,
+        "interval": {
+          "low": 14.59,
+          "high": 30.87,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-02-15",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-02-15_R083",
+    "file": "records/2026-02-15_sentinel-2b_2026-02-15_R083.json",
+    "recordSha256": "eb5f5b3555fee4146dac89839c098e8f7b379b6cb574673bbca027a0d4d4fef5",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1436,
+        "downstream": -0.165,
+        "reach": -0.1543,
+        "delta": -0.0214,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -2.21,
+          "downstream": -2.19,
+          "delta": -1.28
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1623,
+        "downstream": 0.1198,
+        "reach": 0.141,
+        "delta": -0.0425,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.75,
+          "downstream": -0.81,
+          "delta": -0.2
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 19.95,
+        "interval": {
+          "low": 8.08,
+          "high": 49.24,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-02-23",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-02-23_R126",
+    "file": "records/2026-02-23_sentinel-2c_2026-02-23_R126.json",
+    "recordSha256": "e4f70015f5ba5aaf409d0378fd35f2d0d78fec63f9902cbd0c48e1bb74d6bddb",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1054,
+        "downstream": -0.1058,
+        "reach": -0.1056,
+        "delta": -0.0004,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.7,
+          "downstream": -1.45,
+          "delta": 0.82
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3929,
+        "downstream": 0.3937,
+        "reach": 0.3933,
+        "delta": 0.0008,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.17,
+          "downstream": 1.48,
+          "delta": 1.49
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 22.98,
+        "interval": {
+          "low": 15.8,
+          "high": 33.43,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-03-02",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-03-02_R083",
+    "file": "records/2026-03-02_sentinel-2c_2026-03-02_R083.json",
+    "recordSha256": "6a18a4ebd021bcd0a01f950de2d66f72a870028dfa5bc5db13092af34d8ba89f",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0455,
+        "downstream": -0.0549,
+        "reach": -0.0502,
+        "delta": -0.0095,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.89,
+          "downstream": -0.81,
+          "delta": -0.09
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1799,
+        "downstream": 0.1515,
+        "reach": 0.1657,
+        "delta": -0.0284,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.6,
+          "downstream": -0.54,
+          "delta": 0.35
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 30.77,
+        "interval": {
+          "low": 21.15,
+          "high": 44.76,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-03-17",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-03-17_R083",
+    "file": "records/2026-03-17_sentinel-2b_2026-03-17_R083.json",
+    "recordSha256": "0b0c45699a6ab99b5997fc5e551fa62fb106a0ac5bfbf412b795ca0fbe7bf98a",
+    "indices": {
+      "ndti": {
+        "upstream": 0.013,
+        "downstream": -0.0299,
+        "reach": -0.0085,
+        "delta": -0.0429,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.11,
+          "downstream": -0.5,
+          "delta": -3.43
+        }
+      },
+      "nirRed": {
+        "upstream": 0.219,
+        "downstream": 0.1595,
+        "reach": 0.1893,
+        "delta": -0.0595,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.28,
+          "downstream": -0.48,
+          "delta": -0.87
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "delta"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 42.17,
+        "interval": {
+          "low": 28.99,
+          "high": 61.34,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-03-20",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-03-20_R126",
+    "file": "records/2026-03-20_sentinel-2b_2026-03-20_R126.json",
+    "recordSha256": "5e7808289900ca902cd706ca10eefc44e100595d0fddd836a375816a7a4f19ef",
+    "indices": {
+      "ndti": {
+        "upstream": 0.068,
+        "downstream": 0.0447,
+        "reach": 0.0564,
+        "delta": -0.0233,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.62,
+          "downstream": 0.43,
+          "delta": -1.48
+        }
+      },
+      "nirRed": {
+        "upstream": 0.385,
+        "downstream": 0.3749,
+        "reach": 0.3799,
+        "delta": -0.0101,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.1,
+          "downstream": 1.33,
+          "delta": 1.07
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 73.12,
+        "interval": {
+          "low": 49.32,
+          "high": 108.39,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-03-22",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-03-22_R083",
+    "file": "records/2026-03-22_sentinel-2c_2026-03-22_R083.json",
+    "recordSha256": "db08a2993fdaffd4269305ef87347b7188ef38bb42acd60a9040bcf5036df029",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0785,
+        "downstream": 0.0477,
+        "reach": 0.0631,
+        "delta": -0.0307,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.76,
+          "downstream": 0.47,
+          "delta": -2.22
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3651,
+        "downstream": 0.2871,
+        "reach": 0.3261,
+        "delta": -0.078,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.94,
+          "downstream": 0.59,
+          "delta": -1.59
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": "contamination above 0.2"
+      }
+    ]
+  },
+  {
+    "date": "2026-03-25",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-03-25_R126",
+    "file": "records/2026-03-25_sentinel-2c_2026-03-25_R126.json",
+    "recordSha256": "ab2a02068ab19c74f7595937172132c459ed486325eed5d21903107db43043af",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0559,
+        "downstream": 0.0512,
+        "reach": 0.0536,
+        "delta": -0.0047,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.46,
+          "downstream": 0.52,
+          "delta": 0.39
+        }
+      },
+      "nirRed": {
+        "upstream": 0.4385,
+        "downstream": 0.4812,
+        "reach": 0.4599,
+        "delta": 0.0427,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.55,
+          "downstream": 2.22,
+          "delta": 3.13
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 69.14,
+        "interval": {
+          "low": 46.64,
+          "high": 102.5,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-11",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-04-11_R083",
+    "file": "records/2026-04-11_sentinel-2c_2026-04-11_R083.json",
+    "recordSha256": "24dbcef53c380c5485fd5856e2acd62335bc0b2b82f1b755c0203963f4ffa0d4",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0188,
+        "downstream": -0.0329,
+        "reach": -0.0258,
+        "delta": -0.0141,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.54,
+          "downstream": -0.54,
+          "delta": -0.55
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3744,
+        "downstream": 0.3029,
+        "reach": 0.3386,
+        "delta": -0.0715,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.01,
+          "downstream": 0.72,
+          "delta": -1.33
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 28.55,
+        "interval": {
+          "low": 19.63,
+          "high": 41.53,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-23",
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-04-23_R083",
+    "file": "records/2026-04-23_sentinel-2a_2026-04-23_R083.json",
+    "recordSha256": "a5dbb8b67361d51487af3430a49ad457abbd765c1a79f4621c57aa54abc37d7e",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0411,
+        "downstream": 0.016,
+        "reach": 0.0286,
+        "delta": -0.0251,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.26,
+          "downstream": 0.07,
+          "delta": -1.66
+        }
+      },
+      "nirRed": {
+        "upstream": 0.4376,
+        "downstream": 0.3797,
+        "reach": 0.4087,
+        "delta": -0.0579,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.54,
+          "downstream": 1.37,
+          "delta": -0.8
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": "window too cloudy to measure"
+      }
+    ]
+  },
+  {
+    "date": "2026-04-26",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-04-26_R083",
+    "file": "records/2026-04-26_sentinel-2b_2026-04-26_R083.json",
+    "recordSha256": "f1bbda49d16e8bdc0d85b7fd21fe1a12ef733a6ad20f492a292395db5ec33085",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0016,
+        "downstream": -0.0184,
+        "reach": -0.0084,
+        "delta": -0.02,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.27,
+          "downstream": -0.36,
+          "delta": -1.14
+        }
+      },
+      "nirRed": {
+        "upstream": 0.5875,
+        "downstream": 0.492,
+        "reach": 0.5397,
+        "delta": -0.0955,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 2.79,
+          "downstream": 2.31,
+          "delta": -2.27
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 50.87,
+        "interval": {
+          "low": 34.32,
+          "high": 75.41,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-22",
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-06-22_R083",
+    "file": "records/2026-06-22_sentinel-2a_2026-06-22_R083.json",
+    "recordSha256": "de284df264b71bbec48611350df80b016f14b3c132643f9a0c2b78bfe0b9d8f7",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0541,
+        "downstream": 0.0197,
+        "reach": 0.0369,
+        "delta": -0.0344,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.13,
+          "downstream": 0.89,
+          "delta": -1.38
+        }
+      },
+      "nirRed": {
+        "upstream": 0.307,
+        "downstream": 0.2343,
+        "reach": 0.2707,
+        "delta": -0.0727,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.3,
+          "downstream": -0.22,
+          "delta": -0.31
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": "window too cloudy to measure"
+      }
+    ]
+  },
+  {
+    "date": "2026-07-12",
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-07-12_R083",
+    "file": "records/2026-07-12_sentinel-2a_2026-07-12_R083.json",
+    "recordSha256": "2fab53cd63609a87102236d6ef0e60c9cc6e452a644a2128ceedc87e5953ff12",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0992,
+        "downstream": 0.0603,
+        "reach": 0.0797,
+        "delta": -0.0389,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.51,
+          "downstream": 1.22,
+          "delta": -1.65
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2474,
+        "downstream": 0.193,
+        "reach": 0.2202,
+        "delta": -0.0544,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.64,
+          "downstream": -0.4,
+          "delta": -0.01
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": true,
+      "catchment": null,
+      "union": "yes"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 61.09,
+        "interval": {
+          "low": 41.21,
+          "high": 90.57,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-20",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-07-20_R083",
+    "file": "records/2026-07-20_sentinel-2c_2026-07-20_R083.json",
+    "recordSha256": "a65c291ecfd4af3c6a30617e47040a42b14f3d4810ae30a5e028e65b9d0fc76b",
+    "indices": {
+      "ndti": {
+        "upstream": 0.057,
+        "downstream": 0.0337,
+        "reach": 0.0454,
+        "delta": -0.0233,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.15,
+          "downstream": 1.01,
+          "delta": -0.7
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3357,
+        "downstream": 0.2607,
+        "reach": 0.2982,
+        "delta": -0.075,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.14,
+          "downstream": -0.11,
+          "delta": -0.35
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 36.7,
+        "interval": {
+          "low": 25.23,
+          "high": 53.39,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-04",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-08-04_R083",
+    "file": "records/2026-08-04_sentinel-2b_2026-08-04_R083.json",
+    "recordSha256": "155627762b68933441645c70362b04513483a6dccb638b236990b84b2f82b698",
+    "indices": {
+      "ndti": {
+        "upstream": -0.162,
+        "downstream": -0.1976,
+        "reach": -0.1798,
+        "delta": -0.0356,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.7,
+          "downstream": -0.86,
+          "delta": -1.45
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3165,
+        "downstream": 0.2718,
+        "reach": 0.2942,
+        "delta": -0.0446,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.25,
+          "downstream": -0.06,
+          "delta": 0.16
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 21.03,
+        "interval": {
+          "low": 14.46,
+          "high": 30.6,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-14",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-08-14_R083",
+    "file": "records/2026-08-14_sentinel-2b_2026-08-14_R083.json",
+    "recordSha256": "279dcadd0a8a530fb9190bfc74eaf7740d0a060aefc46e0ca9ec06be04525b5a",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1824,
+        "downstream": -0.1963,
+        "reach": -0.1894,
+        "delta": -0.0138,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.87,
+          "downstream": -0.85,
+          "delta": -0.12
+        }
+      },
+      "nirRed": {
+        "upstream": 0.584,
+        "downstream": 0.5611,
+        "reach": 0.5726,
+        "delta": -0.0229,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.27,
+          "downstream": 1.18,
+          "delta": 0.52
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 12.87,
+        "interval": {
+          "low": 5.21,
+          "high": 31.78,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-21",
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-08-21_R083",
+    "file": "records/2026-08-21_sentinel-2a_2026-08-21_R083.json",
+    "recordSha256": "ab118493c5e6b7ac4246386c0ff8eb2383108159b9ae362c53f8a20f4b5592e6",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2082,
+        "downstream": -0.197,
+        "reach": -0.2026,
+        "delta": 0.0112,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.09,
+          "downstream": -0.85,
+          "delta": 1.42
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1681,
+        "downstream": 0.0262,
+        "reach": 0.0972,
+        "delta": -0.142,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.09,
+          "downstream": -1.11,
+          "delta": -1.47
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": "window too cloudy to measure"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-24",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-08-24_R083",
+    "file": "records/2026-08-24_sentinel-2b_2026-08-24_R083.json",
+    "recordSha256": "64f70ade39d65bfff92e1aba7accdbac17a10d72717d31437113d691fdfd5f0c",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2628,
+        "downstream": -0.259,
+        "reach": -0.2609,
+        "delta": 0.0038,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.55,
+          "downstream": -1.35,
+          "delta": 0.96
+        }
+      },
+      "nirRed": {
+        "upstream": 0.004,
+        "downstream": 0.0039,
+        "reach": 0.004,
+        "delta": -0.0001,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -2.02,
+          "downstream": -1.21,
+          "delta": 0.9
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 2.23,
+        "interval": {
+          "low": 0.91,
+          "high": 5.52,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-29",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-08-29_R083",
+    "file": "records/2026-08-29_sentinel-2c_2026-08-29_R083.json",
+    "recordSha256": "bad8588ebe5ad70943e3895c3df5cadd2ba46992ad412143df6ebff8d5b1ed24",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1326,
+        "downstream": -0.1831,
+        "reach": -0.1578,
+        "delta": -0.0505,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.45,
+          "downstream": -0.74,
+          "delta": -2.36
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2631,
+        "downstream": 0.1288,
+        "reach": 0.1959,
+        "delta": -0.1342,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.55,
+          "downstream": -0.67,
+          "delta": -1.34
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": true,
+      "catchment": null,
+      "union": "yes"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 14.87,
+        "interval": {
+          "low": 6.02,
+          "high": 36.7,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-08",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-09-08_R083",
+    "file": "records/2026-09-08_sentinel-2c_2026-09-08_R083.json",
+    "recordSha256": "00e68007ef8d3140199b582b6610a2e8b43c434517d3b829c02a50dab9942c68",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1085,
+        "downstream": -0.1124,
+        "reach": -0.1105,
+        "delta": -0.004,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.25,
+          "downstream": -0.17,
+          "delta": 0.49
+        }
+      },
+      "nirRed": {
+        "upstream": 0.0575,
+        "downstream": 0.0447,
+        "reach": 0.0511,
+        "delta": -0.0128,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.72,
+          "downstream": -1.03,
+          "delta": 0.69
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": true,
+      "catchment": null,
+      "union": "yes"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 18.34,
+        "interval": {
+          "low": 7.43,
+          "high": 45.27,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-23",
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-09-23_R126",
+    "file": "records/2026-09-23_sentinel-2a_2026-09-23_R126.json",
+    "recordSha256": "8feec68b1da49f416d7bc65341370d76ea561628a138987b2651a47655b129b9",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1476,
+        "downstream": -0.144,
+        "reach": -0.1458,
+        "delta": 0.0036,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.58,
+          "downstream": -0.43,
+          "delta": 0.95
+        }
+      },
+      "nirRed": {
+        "upstream": 0.5172,
+        "downstream": 0.4618,
+        "reach": 0.4895,
+        "delta": -0.0554,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.89,
+          "downstream": 0.75,
+          "delta": -0.02
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 19.24,
+        "interval": {
+          "low": 7.79,
+          "high": 47.49,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-23",
+    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-09-23_R083",
+    "file": "records/2026-09-23_sentinel-2b_2026-09-23_R083.json",
+    "recordSha256": "b53c973d57b65e3f25ef30a4d5b6c0c5569fb3495bf94f7c189f5df37e26ed21",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2198,
+        "downstream": -0.2122,
+        "reach": -0.216,
+        "delta": 0.0076,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.19,
+          "downstream": -0.98,
+          "delta": 1.2
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1671,
+        "downstream": 0.0538,
+        "reach": 0.1105,
+        "delta": -0.1133,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.09,
+          "downstream": -0.99,
+          "delta": -0.99
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 10.06,
+        "interval": {
+          "low": 4.07,
+          "high": 24.83,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-28",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-09-28_R083",
+    "file": "records/2026-09-28_sentinel-2c_2026-09-28_R083.json",
+    "recordSha256": "582d91e8b2106056858dd4c18e9c45e375e9429b454d45345f8fe65a80eab1d9",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2212,
+        "downstream": -0.219,
+        "reach": -0.2201,
+        "delta": 0.0022,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.2,
+          "downstream": -1.03,
+          "delta": 0.87
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2828,
+        "downstream": 0.1986,
+        "reach": 0.2407,
+        "delta": -0.0842,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.44,
+          "downstream": -0.37,
+          "delta": -0.5
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 8.42,
+        "interval": {
+          "low": 3.41,
+          "high": 20.79,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-01",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-01_R126",
+    "file": "records/2026-10-01_sentinel-2c_2026-10-01_R126.json",
+    "recordSha256": "4170c08afe5c375c44ed7e7076dd0018d3937098f2382a032c5816443a7354ca",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1452,
+        "downstream": -0.1218,
+        "reach": -0.1335,
+        "delta": 0.0234,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -2.23,
+          "downstream": -1.65,
+          "delta": 3.19
+        }
+      },
+      "nirRed": {
+        "upstream": 0.5982,
+        "downstream": 0.5635,
+        "reach": 0.5809,
+        "delta": -0.0346,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 2.88,
+          "downstream": 2.91,
+          "delta": 0.11
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "delta"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 13.98,
+        "interval": {
+          "low": 5.66,
+          "high": 34.52,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-11",
+    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-11_R126",
+    "file": "records/2026-10-11_sentinel-2c_2026-10-11_R126.json",
+    "recordSha256": "25c7566c3527ecb7e95b7beeeaf7f6b89dd0415ef5cb3d9673f228a76c6b4051",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0405,
+        "downstream": -0.0943,
+        "reach": -0.0674,
+        "delta": -0.0538,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.83,
+          "downstream": -1.31,
+          "delta": -4.52
+        }
+      },
+      "nirRed": {
+        "upstream": 0.1873,
+        "downstream": 0.1468,
+        "reach": 0.167,
+        "delta": -0.0405,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.54,
+          "downstream": -0.58,
+          "delta": -0.12
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "delta"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "validated",
+        "value": 30.49,
+        "interval": {
+          "low": 20.96,
+          "high": 44.35,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
+  }
+]

@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "reachId": "mississippi-belle-chasse",
+  "date": "2026-02-08",
+  "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-02-08_R126",
+  "stacItemIds": [
+    "S2B_15RYP_20260208_0_L2A",
+    "S2B_16RBU_20260208_0_L2A"
+  ],
+  "indices": {
+    "ndti": {
+      "upstream": -0.1084,
+      "downstream": -0.1144,
+      "reach": -0.1114,
+      "delta": -0.0061,
+      "zScore": {
+        "rule": "D0",
+        "upstream": -1.74,
+        "downstream": -1.56,
+        "delta": 0.25
+      }
+    },
+    "nirRed": {
+      "upstream": 0.1742,
+      "downstream": 0.138,
+      "reach": 0.1561,
+      "delta": -0.0362,
+      "zScore": {
+        "rule": "D0",
+        "upstream": -0.65,
+        "downstream": -0.66,
+        "delta": 0.05
+      }
+    }
+  },
+  "verdict": {
+    "rule": "D0",
+    "threshold": 3.0,
+    "anomalous": false,
+    "signals": []
+  },
+  "rain": {
+    "point": false,
+    "catchment": null,
+    "union": "unknown"
+  },
+  "estimates": [
+    {
+      "target": "turbidity",
+      "unit": "FNU",
+      "level": "validated",
+      "value": 24.18,
+      "interval": {
+        "low": 16.62,
+        "high": 35.18,
+        "coverage": 0.9,
+        "method": "mondrian_split_conformal_log"
+      },
+      "relativeClass": null,
+      "modelId": "H3:turbidity:core:mississippi-belle-chasse",
+      "modelVersion": "1",
+      "modelCardSha256": "b7eceb64239d283e0a2bf5c2e7a9a9d5d125c7bc6e5c30b2b9c668ee15881331",
+      "validRange": [
+        7.1,
+        204.5
+      ],
+      "rangeMdsa": 19.7,
+      "abstainReason": null,
+      "basis": "preregistered_lockbox_site",
+      "atmosphericCorrection": {
+        "processor": "sen2cor",
+        "collection": "sentinel-2-l2a",
+        "processingBaseline": [
+          "05.12",
+          "05.12"
+        ]
+      }
+    }
+  ],
+  "climateContext": {
+    "status": "not_run",
+    "signal": null,
+    "modelId": null,
+    "expected": null,
+    "residual": null,
+    "residualZ": null,
+    "label": "not_evaluated",
+    "rule": "climate context not run",
+    "dischargePercentile": null,
+    "ensoPhase": null
+  },
+  "provenance": {
+    "collection": "sentinel-2-l2a",
+    "stacItems": [
+      {
+        "id": "S2B_15RYP_20260208_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/R/YP/2026/2/S2B_15RYP_20260208_0_L2A/S2B_15RYP_20260208_0_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      },
+      {
+        "id": "S2B_16RBU_20260208_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/16/R/BU/2026/2/S2B_16RBU_20260208_0_L2A/S2B_16RBU_20260208_0_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      }
+    ],
+    "codeCommit": "ceeb8382f3da8b212da83a9965722bcebe14a12d",
+    "processingParamsSha256": "76f283cb7ddb8f25209dd8d49a302b6e2147604a7127e87a10199d833e0df8be",
+    "boaOffsetApplied": [
+      true,
+      true
+    ],
+    "processingBaseline": [
+      "05.12",
+      "05.12"
+    ]
+  },
+  "recordSha256": "f2b8ffc51b55d72aa6b974efdfa8ead7209636cb306071766ae93cf685d0f8b0"
+}

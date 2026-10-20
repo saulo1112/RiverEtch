@@ -1,0 +1,5 @@
+# Generated data: LF line ends on every platform; images and proofs are binary.
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.ots binary
