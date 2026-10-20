@@ -1,11 +1,97 @@
 # RiverEtch
 
-**Satellite water-quality estimates, validated against river gauges, with a record nobody can
-quietly rewrite.**
+**RiverEtch is a verifiable record of the state of rivers that have no gauge.** Gauged rivers are
+where we measure how wrong the satellite is; ungauged rivers are where it is used. On an ungauged
+river nobody can check the number later against a gauge, so the only protection is that the record
+cannot be edited.
+
+**[Open the live app](https://river-etch.vercel.app)** ·
+**[Verify a record in one minute](docs/judges.md#verify-a-record-in-one-minute)** · **Video (3–5
+min):** linked here when it is published
+
+![The Mississippi above Natchez in RiverEtch: no turbidity gauge, so each pass shows a class (here 30 to 100 FNU), labelled unvalidated, beside the error measured on rivers the model never saw](docs/img/st-joseph-case.jpg)
 
 Built for the IEEE ClimateChain Global Hackathon (October 5–25, 2026), Track 4: climate data and
-monitoring. Judges: start with [docs/judges.md](docs/judges.md) and the live app,
-[river-etch.vercel.app](https://river-etch.vercel.app).
+monitoring. Judges: [the short path](docs/judges.md).
+
+## Limits, before anything else
+
+- **Sealing proves a number was not changed; it does not prove it was right. The tests show how
+  often it was right.**
+- **On a river with no gauge, RiverEtch shows a class, never a value:** under 30, 30 to 100, or 100
+  FNU and over. Its expected error comes from a test on rivers the model never saw: there, the
+  class matched the gauge in 185 of 298 passes, and half of the estimates were off by less than
+  36.9 % of the gauge's value, reading low by about 23 %.
+- **A value with a unit appears only where a gauge validated the model.** Along the river, the map
+  is a relative index (NDTI).
+- **Clouds hide about three passes in four** (72–76 % in 2026).
+- **The 2026 records sealed before T0 are a backtest.** A pass counts as prospective only when its
+  claim was committed before the gauge was read. Even then, sealing first does not prove the gauge
+  value was unknown: the USGS publishes within minutes.
+- **Sepolia is a test network,** and a proposal would sunset it in 2027. The Bitcoin timestamps and
+  the signatures do not depend on it ([trust model](docs/trust-model.md)).
+
+## The judging criteria
+
+### Climate Impact
+
+Floods and droughts arrive through rivers. The gauges behind the two demo reaches recorded both:
+the Platte's highest peak in 72 years (March 2019), and the Mississippi's three lowest 7-day flows
+in 16 years (2022 to 2024), when saltwater moved up the river towards drinking-water intakes. A
+gauge measures one point; between gauges, and on rivers with none, an agency has nothing to read
+in those years. RiverEtch reads such reaches from free satellite imagery, says how far off the
+reading tends to be, and keeps a record of it that cannot be quietly changed afterwards. It
+attributes no event to climate change and claims no trend: the satellite record (since 2018) is
+far too short ([why it matters](#why-it-matters-for-climate)).
+
+### Innovation & Creativity
+
+- **Commitment before the answer.** Every test is written, frozen and anchored on a public chain
+  before it runs, and then run once. The test on rivers the model never saw was anchored at block
+  11952275 and ran 18 minutes later.
+- **An ungauged reach that shows only what that test earned:** the Mississippi above Natchez, with
+  no turbidity gauge on the river, shows a class beside its expected error, labelled "unvalidated".
+- **Three independent witnesses of the same ledger heads:** an anchor on Ethereum Sepolia (the
+  contract can only append), a Bitcoin timestamp (OpenTimestamps: hashes only, made by a daily job
+  that holds no key), and a post-quantum ML-DSA-65 signature.
+- **A scoreboard of claims committed before the gauge was read,** scored under a rule frozen before
+  the first pass it scores.
+
+### Technical Execution
+
+- **Every result is recomputed in CI** from committed inputs and compared with its MANIFEST, to the
+  last printed digit (`quality verify`, `quality transfer-verify`).
+- **Every record is checkable in the browser:** its SHA-256 over canonical JSON, the hash chain of
+  its ledger, its model card, its Sepolia anchor, its Bitcoin timestamp and its signature.
+- **Two independent ML-DSA-65 implementations** (pqcrypto in the pipeline, @noble/post-quantum in
+  the browser) pass NIST's ACVP vectors and verify each other's signatures.
+- **The contract's source reproduces its deployed bytecode** (`contracts/scripts/bytecode-check.ts`,
+  no key).
+- **The daily run is a GitHub Actions job with no secrets.** Anchoring and signing stay on the
+  owner's machine.
+
+### Practical Usefulness
+
+- **For a water-quality analyst at an environmental agency**, who decides; RiverEtch informs. On a
+  reach with no gauge: a class, its measured error and a record they can cite and show unchanged.
+  Where a gauge exists: a value with its 90 % interval, tested once against that gauge.
+- **It costs nothing to run or to check:** free imagery (Sentinel-2, Landsat), a free CI runner,
+  and no wallet or account to read or verify a record.
+- **Open data:** the Export menu (CSV, GeoJSON, JSONL, JSON); records, ledgers and cards under CC
+  BY 4.0.
+- **A new reach is a site file and a settings entry;** the ungauged reach was added that way.
+
+### Presentation & Storytelling
+
+- **The live app tells one case at a time:** the globe, the river, the pass, its record.
+  **Verify this record** walks the checks one by one, and **Alter one value first** shows a seal
+  breaking.
+- **All rivers** lists every river tested, the failures included, and its switch shows the same
+  rivers scored by a model that never saw them.
+- **A guided tour** on each case points at each control in eight steps, from the pass to what a
+  seal does and does not prove.
+- **For a quick read:** [the judges' page](docs/judges.md), the
+  [report](docs/water-quality/report.md) and the [trust model](docs/trust-model.md).
 
 ## Why it matters for climate
 
@@ -49,18 +135,19 @@ app says so instead of giving an error for them.
 
 RiverEtch reads rivers from free satellite imagery (Sentinel-2 and Landsat). It turns each clear
 pass into water-quality values with a stated error. Every value was tested once, on years its model
-never saw, against a USGS gauge. Each pass is sealed as a record (the SHA-256 of its content) and
-chained in an append-only ledger, so anyone can recompute it from public data and see that it has not
-changed.
+never saw, against a USGS gauge. On a reach with no gauge it gives a class instead, with the error
+measured on rivers the model never saw. Each pass is sealed as a record (the SHA-256 of its
+content) and chained in an append-only ledger, so anyone can recompute it from public data and see
+that it has not changed.
 
 ## Who decides
 
 A water-quality analyst at an environmental agency decides; RiverEtch informs. The analyst needs an
 independent estimate they can cite, and needs to show it was not adjusted after the fact. The gauge
-is the referee: RiverEtch publishes a value only where a gauge validated its model. Every record
-says which model card produced it.
+is the referee: RiverEtch publishes a value only where a gauge validated its model, and a class
+where there is none. Every record says which model card produced it.
 
-## Limits (read these before the numbers)
+## Limits in detail
 
 - **Clouds:** about three passes in four are lost to them (72–76 % in 2026).
 - **Validated only at the gauge:** a value with a unit is published only at a validated gauge's
@@ -154,9 +241,11 @@ committed files (`web/test/scoreboard.test.ts`).
 6. **Score (prospective).** Each anchored claim after T0 is scored against the gauge into the
    outcomes ledger, under the frozen rule (see the scoreboard above).
 
-`pipeline/scripts/daily.ps1` runs the cycle (score, new records, check, the web's files) and is
-meant to run as a scheduled task at 19:00 Bogotá time; it reads public data only and never commits.
-The ledgers and the anchoring log show when it actually ran.
+A GitHub Actions job ([daily.yml](.github/workflows/daily.yml)) runs the cycle twice a day (13:00
+and 00:00 UTC): score, new records, check, the web's files, and a Bitcoin timestamp of every new
+ledger head. It reads public data only, holds no key, and publishes to the repository's `data`
+branch, which the web app reads first ([release procedure](docs/release.md)). The ledgers and the
+anchoring log show when it actually ran.
 
 **Anchored on Ethereum (Sepolia).** `contracts/src/LedgerAnchor.sol` stores each ledger's head
 (the SHA-256 of its last line, which commits to every line above it) with the block's time. The
