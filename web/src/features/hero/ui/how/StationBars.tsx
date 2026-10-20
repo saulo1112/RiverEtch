@@ -1,7 +1,6 @@
-import { XCircle } from "lucide-react";
 import { useState } from "react";
 
-import { CASE_COPY } from "../../../case/content.ts";
+import { CASE_COPY, LEVEL_LABELS } from "../../../case/content.ts";
 import { gainOver } from "../../../case/reading.ts";
 import { oneDecimal } from "../../../case/rivers.ts";
 import { HOW_IT_WORKS } from "../content.ts";
@@ -24,9 +23,9 @@ function verdict(satellite: number, guess: number): string {
 /**
  * Each station's typical error (satellite) beside guessing the river's usual value, two thin bars
  * on one scale, lowest error first, for either locked test: a model that never saw the river (the
- * transfer test, first) or one trained on the river's own earlier years (v5). A station that fails
- * says so in words and with a mark, never by colour alone. Hovering, focusing or tapping a row
- * shows its numbers and what they mean; the table under the chart lists them all.
+ * transfer test, first) or one trained on the river's own earlier years (v5). A station that
+ * reached no level carries the app's own quiet "No level" tag, in words. Hovering, focusing or
+ * tapping a row shows its numbers and what they mean; the table under the chart lists them all.
  *
  * @returns The chart, its switch and its table.
  */
@@ -63,7 +62,7 @@ export function StationBars({
         ))}
       </div>
       <figcaption className="how-chart__title" aria-live="polite">
-        {copy.barsTitle(view, data.beat, data.rows.length, data.fail)}
+        {copy.barsTitle(view, data.beat, data.rows.length)}
       </figcaption>
       <ul className="how-chart__keys">
         <li>
@@ -77,16 +76,15 @@ export function StationBars({
       </ul>
       <ol className="how-bars" aria-label={copy.tableCaption}>
         {data.rows.map((r) => {
-          const fails = r.level === "none";
+          const noLevel = r.level === "none";
           const words = verdict(r.mdsa, r.nullMdsa);
           return (
             <li
               key={r.site}
               className="how-bars__row"
               data-on={on === r.site}
-              data-fails={fails}
               tabIndex={0}
-              aria-label={`${name(r.site)}: ${satellite} ${oneDecimal(r.mdsa)} %, ${copy.guess} ${oneDecimal(r.nullMdsa)} %. ${words}. ${copy.passes(r.n)}${fails ? `. ${copy.fails}` : ""}`}
+              aria-label={`${name(r.site)}: ${satellite} ${oneDecimal(r.mdsa)} %, ${copy.guess} ${oneDecimal(r.nullMdsa)} %. ${words}. ${copy.passes(r.n)}${noLevel ? `. ${LEVEL_LABELS.none}` : ""}`}
               onPointerEnter={() => {
                 setOn(r.site);
               }}
@@ -105,12 +103,7 @@ export function StationBars({
             >
               <span className="how-bars__name" aria-hidden="true">
                 {name(r.site)}
-                {fails ? (
-                  <span className="how-bars__fails">
-                    <XCircle size={12} strokeWidth={2} aria-hidden="true" />
-                    {copy.fails}
-                  </span>
-                ) : null}
+                {noLevel ? <span className="how-bars__level">{LEVEL_LABELS.none}</span> : null}
               </span>
               <span className="how-bars__track" aria-hidden="true">
                 <span className="how-bars__bar how-bars__bar--sat" style={{ width: pct(r.mdsa) }} />
@@ -163,7 +156,7 @@ export function StationBars({
               <tr key={r.site}>
                 <td>
                   {name(r.site)}
-                  {r.level === "none" ? ` (${copy.fails})` : ""}
+                  {r.level === "none" ? ` (${LEVEL_LABELS.none})` : ""}
                 </td>
                 <td>{oneDecimal(r.mdsa)} %</td>
                 <td>{oneDecimal(r.nullMdsa)} %</td>

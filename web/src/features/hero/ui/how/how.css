@@ -632,16 +632,14 @@
   font-size: 13px;
 }
 
-.how-bars__fails {
-  display: inline-flex;
-  gap: 4px;
-  align-items: center;
-  padding: 1px 7px;
-  border: 1px solid rgb(255 122 110 / 0.5);
+/* A station that reached no level: the app's own level word, quiet (a hairline, muted text). */
+.how-bars__level {
+  padding: 0 7px;
+  border: 1px solid rgb(240 246 255 / 0.16);
   border-radius: 999px;
-  background: rgb(255 122 110 / 0.12);
-  color: #ffc2bb;
+  color: var(--text-3);
   font-size: 12px;
+  line-height: 18px;
 }
 
 .how-bars__track {

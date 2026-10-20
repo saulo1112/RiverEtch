@@ -264,10 +264,10 @@ export const HOW_IT_WORKS = {
       `${String(good)} of ${String(n)} stations beat guessing by a clear margin.`,
     viewLabel: "Which test to show",
     views: { never: "Rivers it never saw", own: "Its own river" },
-    barsTitle: (view: "never" | "own", beat: number, n: number, fail: number) =>
+    barsTitle: (view: "never" | "own", beat: number, n: number) =>
       view === "never"
-        ? `On rivers the model never saw, ${String(beat)} of ${String(n)} stations still beat guessing. ${String(fail)} failed.`
-        : `Trained on its own river, the model beat guessing at ${String(beat)} of ${String(n)} stations. ${String(fail)} failed.`,
+        ? `On rivers the model never saw, ${String(beat)} of ${String(n)} stations still beat guessing.`
+        : `Trained on its own river, the model beat guessing at ${String(beat)} of ${String(n)} stations.`,
     satelliteNever: "Satellite, a model that never saw that river",
     satelliteOwn: "Satellite, a model trained on that river's earlier years",
     guess: "Guessing the river's usual value",
@@ -281,7 +281,6 @@ export const HOW_IT_WORKS = {
     unscored: (names: readonly string[]) =>
       `Not scored (too few test passes): ${names.join(", ")}.`,
     barsHint: "Move over a station, tap it or focus it to see its numbers.",
-    fails: "fails",
     axis: "Typical error, % of the station's value",
     classLine: (k: number, n: number) =>
       `Where there is no station, RiverEtch shows a class only. On similar rivers it never saw, the class matched the station in ${String(k)} of ${String(n)} passes.`,
