@@ -45,7 +45,12 @@ export function AllRiversView({ rivers, transfer = [], station }: AllRiversViewP
   return (
     <div className="case-rivers">
       {transfer.length === 0 ? null : (
-        <div className="case-rivers__views" role="group" aria-label={copy.viewsLabel}>
+        <div
+          className="case-rivers__views"
+          role="group"
+          aria-label={copy.viewsLabel}
+          data-tour="never"
+        >
           {(["own", "never"] as const).map((v) => (
             <button
               key={v}

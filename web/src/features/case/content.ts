@@ -87,6 +87,43 @@ export const CASE_COPY = {
     window: "Estimate window (no gauge)",
     noGauge: "No gauge on this reach: nothing here is ever scored against one.",
   },
+  // The guided tour: eight steps, each pointing at a control that exists on the case.
+  tour: {
+    open: "Tour",
+    openLabel: "Take the guided tour of this case",
+    bar: "Case navigation",
+    count: (k: number, n: number) => `${String(k)} of ${String(n)}`,
+    skip: "Skip tour",
+    back: "Back",
+    next: "Next",
+    finish: "Finish",
+    summaryTitle: "One pass of the satellite",
+    summary:
+      "One clear Sentinel-2 pass: the turbidity at the gauge's window, in FNU, with the range the measured value should fall in 9 times out of 10.",
+    summaryUngauged:
+      "One clear Sentinel-2 pass. No gauge measures this reach, so it shows a class (under 30, 30 to 100, 100 FNU and over), never a value, beside the error measured on rivers the model never saw.",
+    trustTitle: "What it is worth, and what protects it",
+    trust:
+      "The level says how far the model was tested; the (?) explains it. Sealed: the record's SHA-256 is fixed. Anchored: its ledger line is stored on a public chain.",
+    verifyTitle: "Check it yourself",
+    verify:
+      "Your browser recomputes the seal, walks the ledger and checks the model card, then reads the anchor on Sepolia, the Bitcoin timestamp and the post-quantum signature. No wallet needed.",
+    alterTitle: "Try to change it",
+    alter:
+      "Tick this, then verify again: one value changes in memory, and the seal no longer matches.",
+    layersTitle: "The map is relative",
+    layers:
+      "NDTI per pixel, compared with this reach's own passes. It has no unit and is not validated: only the estimate window carries a value or a class.",
+    tabsTitle: "The year, pass by pass",
+    tabs: "The tabs hold the year's passes beside the gauge, the gauge's own readings and climate record, and the scoreboard of claims made before the gauge was read.",
+    tabsUngauged:
+      "The tabs hold the year's passes by class and the selected pass in detail. With no gauge there is no scoreboard: nothing here is ever scored.",
+    neverTitle: "Rivers it never saw",
+    never:
+      "Every river tested, failures included. This switch shows each one scored by a model that never saw it: the error to expect where there is no gauge.",
+    endTitle: "That is the record",
+    end: "Sealing proves a number was not changed; it does not prove it was right. The tests show how often it was right.",
+  },
   trust: {
     label: "Record status",
     sealed: "Sealed",

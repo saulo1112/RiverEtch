@@ -68,7 +68,9 @@ export function WalletControl({ variant, onBeforeModal }: WalletControlProps) {
                   tabIndex={status === "loading" ? -1 : undefined}
                 >
                   <Wallet size={15} strokeWidth={1.5} nonScalingStroke aria-hidden="true" />
-                  {status === "wrongNetwork" ? WALLET_COPY.switchNetwork : WALLET_COPY.connect}
+                  <span className="wallet__corner-label">
+                    {status === "wrongNetwork" ? WALLET_COPY.switchNetwork : WALLET_COPY.connect}
+                  </span>
                 </button>
               )}
             </div>

@@ -369,7 +369,7 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
           onToggle={setOpen}
         />
       </header>
-      <label className="case-record__alter" htmlFor={alterId}>
+      <label className="case-record__alter" htmlFor={alterId} data-tour="alter">
         <input
           id={alterId}
           type="checkbox"
@@ -384,6 +384,7 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
       <button
         type="button"
         className="case-btn case-btn--solid case-record__verify"
+        data-tour="verify"
         onClick={() => void verify()}
         disabled={file === null || check.state === "running"}
       >

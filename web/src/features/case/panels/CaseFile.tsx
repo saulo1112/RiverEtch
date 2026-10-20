@@ -1,4 +1,12 @@
-import { Anchor, ArrowLeft, Clock, ExternalLink, ShieldCheck, TriangleAlert } from "lucide-react";
+import {
+  Anchor,
+  ArrowLeft,
+  Clock,
+  Compass,
+  ExternalLink,
+  ShieldCheck,
+  TriangleAlert,
+} from "lucide-react";
 import { useId, type Ref } from "react";
 
 import { useRecordAnchor } from "../../chain/useRecordAnchor.ts";
@@ -42,6 +50,8 @@ export interface CaseFileProps {
   readonly headingRef?: Ref<HTMLHeadingElement>;
   /** Called by "Back to your cases". */
   readonly onBack: () => void;
+  /** Opens the guided tour (no button without it). */
+  readonly onTour?: () => void;
 }
 
 const PLATFORMS: Record<string, string> = {
@@ -134,7 +144,7 @@ function Trust({
   const AnchorIcon =
     anchor.state === "anchored" ? Anchor : anchor.state === "mismatch" ? TriangleAlert : Clock;
   return (
-    <div className="case-trust" role="group" aria-label={trust.label}>
+    <div className="case-trust" role="group" aria-label={trust.label} data-tour="trust">
       <span className="case-trust__level">
         <span className="case-chip case-chip--level" data-level={level}>
           {LEVEL_LABELS[level]}
@@ -226,6 +236,7 @@ export function CaseFile({
   thermal = null,
   headingRef,
   onBack,
+  onTour,
 }: CaseFileProps) {
   const detailsId = useId();
   const [open, setOpen] = usePanelOpen("file");
@@ -242,10 +253,23 @@ export function CaseFile({
   const level = estimate?.level ?? overall?.level ?? (noGauge ? "unvalidated" : "none");
   return (
     <div className="case-panel case-top" data-frame="">
-      <button type="button" className="case-btn case-btn--ghost case-top__back" onClick={onBack}>
-        <ArrowLeft size={16} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
-        {CASE_COPY.back}
-      </button>
+      <div className="case-bar" role="group" aria-label={CASE_COPY.tour.bar}>
+        <button type="button" className="case-bar__btn case-bar__btn--back" onClick={onBack}>
+          <ArrowLeft size={16} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
+          {CASE_COPY.back}
+        </button>
+        {onTour === undefined ? null : (
+          <button
+            type="button"
+            className="case-bar__btn case-bar__btn--tour"
+            aria-label={CASE_COPY.tour.openLabel}
+            onClick={onTour}
+          >
+            <Compass size={16} strokeWidth={1.75} aria-hidden="true" />
+            {CASE_COPY.tour.open}
+          </button>
+        )}
+      </div>
       <article className="case-file case-glass" aria-labelledby="case-site-title" data-open={open}>
         <header className="case-head">
           <h1
@@ -267,6 +291,7 @@ export function CaseFile({
         {row === null ? null : (
           <section
             className="case-file__summary"
+            data-tour="summary"
             aria-label={noGauge ? ungauged.turbidity : CASE_COPY.turbidity}
           >
             <p className="case-file__metric">

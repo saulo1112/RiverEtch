@@ -165,7 +165,12 @@ export function MapToolbar(props: MapToolbarProps) {
   };
   return (
     <div className="case-panel case-tools case-glass" role="toolbar" aria-label={tools.label}>
-      <div className="case-tools__segmented" role="radiogroup" aria-label={tools.layer}>
+      <div
+        className="case-tools__segmented"
+        role="radiogroup"
+        aria-label={tools.layer}
+        data-tour="layers"
+      >
         {MODES.map((m) => (
           <button
             key={m.id}

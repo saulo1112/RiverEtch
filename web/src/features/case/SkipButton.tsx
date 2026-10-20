@@ -7,7 +7,7 @@ export interface SkipButtonProps {
 }
 
 /**
- * Glass "Skip" button shown during the flythrough (Esc does the same).
+ * The dark glass "Skip" pill shown during the flythrough (Esc does the same).
  *
  * @returns The button.
  */
@@ -15,7 +15,7 @@ export function SkipButton({ onSkip }: SkipButtonProps) {
   return (
     <button
       type="button"
-      className="case-btn case-glass case-skip"
+      className="case-btn case-skip"
       onClick={onSkip}
       aria-keyshortcuts="Escape"
     >

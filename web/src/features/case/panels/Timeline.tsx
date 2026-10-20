@@ -299,7 +299,7 @@ export function Timeline(props: TimelineProps) {
             <SkipForward size={15} strokeWidth={1.9} aria-hidden="true" />
           </IconButton>
         </div>
-        <div className="case-timeline__tabs" role="tablist">
+        <div className="case-timeline__tabs" role="tablist" data-tour="tabs">
           {shown.map((t) => (
             <button
               key={t}

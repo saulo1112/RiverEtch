@@ -20,6 +20,7 @@ import { ndtiDomain } from "../reaches/colorize.ts";
 import {
   defaultScene,
   defaultThermal,
+  isUngauged,
   mapFile,
   ndtiMedians,
   photoFile,
@@ -41,6 +42,7 @@ import type {
   Overlays,
 } from "./map.ts";
 import { CaseFile } from "./panels/CaseFile.tsx";
+import { GuidedTour } from "./panels/GuidedTour.tsx";
 import { Legend } from "./panels/Legend.tsx";
 import { Inspector, MapControls, ScaleBar } from "./panels/MapControls.tsx";
 import { MapToolbar } from "./panels/MapToolbar.tsx";
@@ -233,6 +235,8 @@ export function CaseView({
   const [compareWith, setCompareWith] = useState<number | null>(null);
   const [split, setSplit] = useState(0.5);
   const [tab, setTab] = useState<BottomTab>("quality");
+  const [touring, setTouring] = useState(false);
+  const tourTab = useRef<BottomTab>("quality"); // the tab to show again when the tour ends
   const [thermalSelected, setThermalSelected] = useState(() =>
     defaultThermal(reach.thermal?.series ?? []),
   );
@@ -637,7 +641,8 @@ export function CaseView({
         <p className="case-view__note">{CASE_COPY.mapUnavailable}</p>
       ) : null}
       <Inspector hover={hover} reach={reach} />
-      <div className="case-view__panels">
+      {/* Under the guided tour (a modal dialog) the panels are inert: seen, not reachable. */}
+      <div className="case-view__panels" inert={touring}>
         <CaseFile
           reachCase={reachCase}
           reach={reach}
@@ -645,6 +650,10 @@ export function CaseView({
           thermal={thermalRow}
           headingRef={headingRef}
           onBack={onBack}
+          onTour={() => {
+            tourTab.current = tab;
+            setTouring(true);
+          }}
         />
         <MapToolbar
           reach={reach}
@@ -698,6 +707,15 @@ export function CaseView({
           onProbe={setProbe}
         />
       </div>
+      <GuidedTour
+        open={touring && landed && exit === null}
+        ungauged={isUngauged(reach)}
+        onTab={setTab}
+        onClose={() => {
+          setTouring(false);
+          setTab(tourTab.current);
+        }}
+      />
       <p className="case-view__attribution">
         <a href={IMAGERY.homepage} target="_blank" rel="noopener noreferrer">
           {IMAGERY.attribution}
