@@ -181,9 +181,11 @@ def station_row(reach: Reach, quality: QualityConfig, root: Path) -> dict[str, s
         root: Repository root.
 
     Returns:
-        The row (None when the station is not listed).
+        The row (None when the station is not listed, and for an ungauged reach).
     """
     inputs = root / quality.outputs.inputs
+    if reach.ungauged:
+        return None
     if reach.station_source == "usgs":
         for name in USGS_LISTS:
             path = inputs / name
@@ -204,8 +206,11 @@ def station_candidate(reach: Reach, quality: QualityConfig, root: Path) -> Candi
         root: Repository root.
 
     Returns:
-        The candidate (None when the station is not listed).
+        The candidate (None when the station is not listed); an ungauged reach's window point.
     """
+    if reach.estimate_point is not None:
+        p = reach.estimate_point
+        return Candidate(reach.estimate_station, "estimate window (no gauge)", p.lon, p.lat, "usgs")
     row = station_row(reach, quality, root)
     if row is None:
         return None
@@ -439,9 +444,10 @@ def rain_flags(s: Setup, acquisition: Acquisition, http: httpx.Client | None,
 
 @dataclass
 class State:
-    """What earlier runs decided, by acquisition key."""
+    """What earlier runs decided, by acquisition key, and where a capped run stopped."""
 
     decided: dict[str, str] = field(default_factory=dict)  # key -> "recorded", "not observable"..
+    resume: str | None = None  # the day of the first pass a cap left undecided (ISO date)
 
     @classmethod
     def load(cls, path: Path) -> State:
@@ -455,7 +461,8 @@ class State:
         """
         if not path.exists():
             return cls()
-        return cls(dict(json.loads(path.read_text(encoding="utf-8"))["decided"]))
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        return cls(dict(doc["decided"]), doc.get("resume"))
 
     def save(self, path: Path) -> None:
         """Write the state.
@@ -463,8 +470,10 @@ class State:
         Args:
             path: ``state.json``.
         """
-        text = json.dumps({"decided": dict(sorted(self.decided.items()))}, indent=2)
-        path.write_text(text + "\n", encoding="utf-8", newline="\n")
+        doc: dict[str, Any] = {"decided": dict(sorted(self.decided.items()))}
+        if self.resume is not None:
+            doc["resume"] = self.resume
+        path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8", newline="\n")
 
 
 def append_ledger(path: Path, rec: v2.ObservationRecordV2, file: str, created: str) -> None:
@@ -562,7 +571,8 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
         cfg: Reach settings.
         root: Repository root.
         site_id: The reach.
-        since: First day (default: ``lookback_days`` before today, never before the baseline).
+        since: First day (default: ``lookback_days`` before today, or the day a capped run
+            stopped if earlier; a reach's first run starts after its baseline; never before it).
         until: Last day (default: today).
         cache: Cache folder.
         workers: Parallel reads for the geometry.
@@ -578,10 +588,14 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
     today = datetime.now(UTC).date()
     until = until or today
     first = s.reach.baseline_end + timedelta(days=1)
-    since = max(since or today - timedelta(days=cfg.lookback_days), first)
     folder = root / cfg.out / site_id
-    (folder / "records").mkdir(parents=True, exist_ok=True)
+    new_reach = not (folder / "state.json").exists()  # its first run publishes every later pass
     state = State.load(folder / "state.json")
+    default = first if new_reach else today - timedelta(days=cfg.lookback_days)
+    if state.resume is not None:
+        default = min(default, date.fromisoformat(state.resume))
+    since = max(since or default, first)
+    (folder / "records").mkdir(parents=True, exist_ok=True)
     baseline = load_baseline(s)
     lab = root / s.quality.outputs.inputs / "lab"
     hashes = {t: cards.card_hash(c) for t, c in s.cards.items()}
@@ -648,6 +662,10 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
         log.info("%s: recorded %s (anomalous: %s)", site_id, file, rec.verdict.anomalous)
         state.decided[acq.key] = "recorded"
         summary.recorded.append(file)
+    # A cap left passes undecided: the next run starts from the first of them, however old.
+    left = [a for a in acqs if a.key not in state.decided and a.key not in summary.failed]
+    capped = summary.exit_code == EXIT_CAP and left
+    state.resume = min(a.datetime.date() for a in left).isoformat() if capped else None
     state.save(folder / "state.json")
     write_views(folder)
     return summary
@@ -879,6 +897,10 @@ def reach_info(cfg: ReachConfig, root: Path, site_id: str) -> dict[str, Any]:
                                "name": row.get("name", "")}  # fmt: skip
     if reach.station_source == "usgs":
         station["url"] = f"https://waterdata.usgs.gov/monitoring-location/{reach.estimate_station}/"
+    if reach.estimate_point is not None:  # no gauge: the window's point and why it is there
+        p = reach.estimate_point
+        station["window"] = {"lon": p.lon, "lat": p.lat, "basis": p.basis,
+                             "sourceUrl": p.source_url}  # fmt: skip
     files = {t: f"cards/{t}.json" for t in reach.cards}
     if temperature_card(root, site_id).exists():
         files["water_temperature"] = "cards/water_temperature.json"

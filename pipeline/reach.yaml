@@ -58,6 +58,30 @@ reaches:
     nir_red_baseline: docs/water-quality/reach/platte-louisville/nir-red-baseline.csv
     baseline_end: 2025-12-31
     baseline_max_gb: 6.0 # v5
+  - site: mississippi-st-joseph # the ungauged reach (preregistration-transfer.md, section 5)
+    site_file: pipeline/reaches/mississippi-st-joseph.yaml
+    estimate_station: window-st-joseph # no gauge: the window's own id
+    station_source: ungauged # never checked or scored; a class only, from the transfer test
+    estimate_point:
+      lon: -91.250112
+      lat: 31.871827
+      basis:
+        "USGS 315218091150000 (Mississippi R nr St. Joseph, LA; a listed location with no series).
+        Chosen on 2026-10-20, before any estimate on the reach, because its main channel (522 m)
+        is inside the widths the model was trained on (305 to 773 m); the Natchez gauge reads 848
+        m and mile 378 reads 1028 m, where every scene would abstain."
+      source_url: https://waterdata.usgs.gov/monitoring-location/USGS-315218091150000/
+    timezone: America/Chicago
+    targets: [turbidity] # FNU class
+    cards:
+      turbidity: docs/water-quality/ungauged/mississippi-st-joseph/turbidity.json
+    rainy_months: [5, 6, 7, 8, 9] # summer convection (general climatology, not sourced)
+    geometry_start: 2022-01-01
+    geometry_end: 2025-12-31
+    baseline_start: 2019-01-01
+    nir_red_baseline: docs/water-quality/reach/mississippi-st-joseph/nir-red-baseline.csv
+    baseline_end: 2025-12-31
+    baseline_max_gb: 6.0 # as v5's reaches
 
 budgets:
   max_gb: 2.0 # per run (a month of scenes is ~0.3 GB)

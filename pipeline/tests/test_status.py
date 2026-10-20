@@ -43,6 +43,8 @@ def test_a_good_run_reports_the_newest_record_anchor_and_timestamp(tmp_path: Pat
     assert doc["lastBitcoin"] == {"file": "docs/ledgers/ots/hello-world.txt.ots", "height": 358391,
                                   "blockTime": "2015-05-28T15:41:18+00:00"}  # fmt: skip
     assert doc["pendingBitcoin"] == 1 and doc["failures"] == []
+    assert doc["outcomes"] == []  # no reach has an outcomes ledger yet
+    assert doc["proofs"] == []  # the fixtures are not named after a ledger
 
 
 def test_a_failed_step_is_recorded_and_the_last_success_carries_over(tmp_path: Path) -> None:
@@ -56,3 +58,18 @@ def test_a_failed_step_is_recorded_and_the_last_success_carries_over(tmp_path: P
     assert [f["reason"] for f in doc["failures"]] == ["old", "Earth Search timed out"]
     assert doc["lastBitcoin"]["blockTime"] is None  # the explorers did not answer
     assert status.build(root, [], None, "https://run/3", NOW, lambda h: None)["run"]["ok"] is False
+
+
+def test_proofs_list_each_ledger_head_with_its_block(tmp_path: Path) -> None:
+    root = repo(tmp_path)
+    named = root / timestamps.proof_path(root, "terrachain:platte-louisville:observations", 16)
+    named.write_bytes((FIXTURES / "hello-world.txt.ots").read_bytes())
+    pending = timestamps.proof_path(root, "terrachain:riveretch:frozen-artifacts", 11)
+    pending.write_bytes((FIXTURES / "incomplete.txt.ots").read_bytes())
+    assert status.proofs(root) == [
+        {"label": "terrachain:platte-louisville:observations", "lines": 16,
+         "file": "docs/ledgers/ots/terrachain_platte-louisville_observations.16.ots",
+         "height": 358391},
+        {"label": "terrachain:riveretch:frozen-artifacts", "lines": 11,
+         "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.11.ots", "height": None},
+    ]  # fmt: skip

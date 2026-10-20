@@ -1,4 +1,5 @@
 import json
+import math
 import shutil
 from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
@@ -142,6 +143,31 @@ def test_the_network_cap_stops_a_run(root: Path, offline: dict[str, list[Acquisi
     assert len(summary.recorded) < 2
 
 
+def test_a_new_reach_starts_after_its_baseline_and_a_capped_run_resumes(
+    root: Path, offline: dict[str, list[Acquisition]], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    asked: list[date] = []
+
+    def search(*args: Any) -> tuple[list[Acquisition], dict[str, Any]]:
+        asked.append(args[3])  # since
+        return offline["found"], {}
+
+    monkeypatch.setattr(imagery, "search", search)
+    s = prepared(root)
+    tight = s.cfg.model_copy(update={"budgets": s.cfg.budgets.model_copy(update={"max_gb": 0.01})})
+    capped = reach_run.run(tight, root, SITE, None, date(2026, 9, 30), root / "cache",
+                           prepared=reach_run.Setup(**{**s.__dict__, "cfg": tight}))  # fmt: skip
+    assert capped.exit_code == reach_run.EXIT_CAP
+    assert asked == [s.reach.baseline_end + timedelta(days=1)]  # a new reach: every later pass
+    path = root / "pipeline/out/reach" / SITE / "state.json"
+    state = json.loads(path.read_text(encoding="utf-8"))
+    left = [a.datetime.date() for a in offline["found"] if a.key not in state["decided"]]
+    assert left and state["resume"] == min(left).isoformat()
+    done = reach_run.run(s.cfg, root, SITE, None, date(2026, 9, 30), root / "cache", prepared=s)
+    assert asked[1] == min(left) and done.exit_code == reach_run.EXIT_OK  # older than lookback
+    assert "resume" not in json.loads(path.read_text(encoding="utf-8"))
+
+
 def test_a_tampered_ledger_breaks_the_chain(
     root: Path, offline: dict[str, list[Acquisition]]
 ) -> None:
@@ -268,3 +294,21 @@ def test_the_station_keeps_the_width_its_card_was_trained_with() -> None:
     quality = load_quality_config(PIPELINE / "water-quality.yaml")
     assert reach_run.frozen_width(cfg.reach("missouri-hermann"), quality, PIPELINE.parent) == 394.0
     assert reach_run.frozen_width(cfg.reach(SITE), quality, PIPELINE.parent) == 572.7
+
+
+def test_an_ungauged_reach_reads_its_window_at_a_point_and_never_a_gauge() -> None:
+    from climate_pipeline.reach.config import Reach
+
+    cfg = load_reach_config(PIPELINE / "reach.yaml")
+    quality = load_quality_config(PIPELINE / "water-quality.yaml")
+    reach = cfg.reach("mississippi-st-joseph")
+    assert reach.ungauged and reach_run.station_row(reach, quality, PIPELINE.parent) is None
+    window = reach_run.station_candidate(reach, quality, PIPELINE.parent)
+    assert window is not None and (window.lon, window.lat) == (-91.250112, 31.871827)
+    # No listed width: the window's measured one is used, inside the card's training range.
+    assert math.isnan(reach_run.frozen_width(reach, quality, PIPELINE.parent))
+    with pytest.raises(ValueError, match="estimate_point"):
+        Reach.model_validate({**reach.model_dump(), "estimate_point": None})
+    gauged = cfg.reach("missouri-hermann").model_dump()
+    with pytest.raises(ValueError, match="estimate_point"):
+        Reach.model_validate({**gauged, "estimate_point": reach.model_dump()["estimate_point"]})

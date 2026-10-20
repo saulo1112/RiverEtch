@@ -180,6 +180,8 @@ def estimate(
     value = math.nan if reason else cards.estimate(card, measure.window, lab_dir)
     if not reason and not (math.isfinite(value) and value > 0):
         reason = "no estimate from the window's features"
+    if card.get("basis") == v2.UNGAUGED:
+        return _ungauged(card, card_sha256, target, measure, value, reason)
     if reason:
         level, mdsa = cards.level_of(card, target, math.nan)
         overall = next((r for r in card.get("levels", []) if r["predicted_range"] == "all"), None)
@@ -211,6 +213,29 @@ def estimate(
             return v2.Estimate.model_validate({**model, "relativeClass": cls})
         reason = "the station's history is too short for a relative class"
     return v2.Estimate.model_validate({**model, "abstainReason": reason})
+
+
+def _ungauged(card: Mapping[str, Any], card_sha256: str, target: Target, measure: Measure,
+              value: float, reason: str | None) -> v2.Estimate:  # fmt: skip
+    """An ungauged reach's estimate: a class in FNU, never a value (preregistration-transfer.md).
+
+    The card's ``display`` is "class" only when the pooled similar-river result reached
+    _indicative_; otherwise the reach shows its relative indices alone.
+    """
+    unit = str(card["unit"])
+    if card.get("display") != "class":
+        return v2.Estimate(target=target.id, unit=unit, level="none")
+    cls = None if reason else v2.fnu_class(value)
+    model: dict[str, Any] = {
+        "target": target.id, "unit": unit, "level": "unvalidated", "modelId": card["modelId"],
+        "modelVersion": card["version"], "modelCardSha256": card_sha256, "basis": v2.UNGAUGED,
+        "atmosphericCorrection": v2.AtmosphericCorrection(
+            processor="sen2cor", collection="sentinel-2-l2a",
+            processing_baseline=[i.processing_baseline for i in measure.items]),
+    }  # fmt: skip
+    if cls is None:
+        return v2.Estimate.model_validate({**model, "abstainReason": reason or "no class"})
+    return v2.Estimate.model_validate({**model, "fnuClass": cls})
 
 
 def record(reach_id: str, measure: Measure, baseline: Baseline, estimates: Sequence[v2.Estimate],

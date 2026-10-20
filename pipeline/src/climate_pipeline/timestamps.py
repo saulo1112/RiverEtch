@@ -33,6 +33,8 @@ from opentimestamps.core.timestamp import DetachedTimestampFile, Timestamp
 
 from climate_pipeline.reach.score import SCORED
 
+UNGAUGED = ("mississippi-st-joseph",)  # preregistration-transfer.md, section 5
+
 OTS_DIR = Path("docs/ledgers/ots")
 FROZEN = Path("docs/ledgers/frozen-artifacts.jsonl")
 CALENDARS = (
@@ -82,15 +84,20 @@ def ledgers(root: Path) -> list[Ledger]:
         root: Repository root.
 
     Returns:
-        Frozen artifacts, then each demo reach's observations, water temperature and outcomes.
+        Frozen artifacts, then each demo reach's observations, water temperature and outcomes,
+        then each ungauged reach's observations (no gauge: no outcomes).
     """
     out = [Ledger("terrachain:riveretch:frozen-artifacts", root / FROZEN)]
+    reaches = root / "docs" / "water-quality" / "reach"
     for reach in SCORED:
-        folder = root / "docs" / "water-quality" / "reach" / reach / "examples"
+        folder = reaches / reach / "examples"
         for kind, file in (("observations", "ledger.jsonl"),
                            ("water-temperature", "thermal/ledger.jsonl"),
                            ("outcomes", "outcomes/ledger.jsonl")):  # fmt: skip
             out.append(Ledger(f"terrachain:{reach}:{kind}", folder / file))
+    for reach in UNGAUGED:
+        out.append(Ledger(f"terrachain:{reach}:observations",
+                          reaches / reach / "examples" / "ledger.jsonl"))  # fmt: skip
     return out
 
 

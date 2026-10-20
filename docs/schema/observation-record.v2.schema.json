@@ -230,6 +230,42 @@
               }
             }
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "level": {
+                "not": {
+                  "const": "unvalidated"
+                }
+              }
+            },
+            "required": ["level"]
+          },
+          "then": {
+            "properties": {
+              "fnuClass": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "level": {
+                "const": "unvalidated"
+              }
+            },
+            "required": ["level"]
+          },
+          "then": {
+            "properties": {
+              "basis": {
+                "const": "transfer_test_ungauged"
+              }
+            }
+          }
         }
       ],
       "description": "One target's estimate at a level, or why there is none.",
@@ -264,7 +300,8 @@
                 "preregistered_test",
                 "post_hoc_nested_loso_magdalena",
                 "post_hoc_temporal_magdalena",
-                "preregistered_lockbox_site"
+                "preregistered_lockbox_site",
+                "transfer_test_ungauged"
               ],
               "type": "string"
             },
@@ -275,6 +312,20 @@
           "default": null,
           "description": "where the level comes from",
           "title": "Basis"
+        },
+        "fnuClass": {
+          "anyOf": [
+            {
+              "enum": ["under_30", "30_to_100", "100_and_over"],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over); absent from the JSON when empty, so records sealed before it existed keep their hash",
+          "title": "Fnuclass"
         },
         "interval": {
           "anyOf": [
@@ -288,7 +339,7 @@
           "default": null
         },
         "level": {
-          "enum": ["validated", "estimated", "indicative", "none"],
+          "enum": ["validated", "estimated", "indicative", "unvalidated", "none"],
           "title": "Level",
           "type": "string"
         },

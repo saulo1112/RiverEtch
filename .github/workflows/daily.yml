@@ -73,6 +73,13 @@ jobs:
             cp "data/$log" "$log"
           fi
 
+      # `reach run` keeps 20 GB free (budgets.keep_free_gb in pipeline/water-quality.yaml, for the
+      # owner's disk); a runner has about 14 GB, so unused preinstalled toolchains are removed.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
       - name: Run the reaches
         id: run
         continue-on-error: true

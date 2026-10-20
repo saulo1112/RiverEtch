@@ -1,0 +1,75 @@
+# Mississippi River, St. Joseph to river mile 378 (Louisiana and Mississippi, USA): the ungauged
+# reach (preregistration-transfer.md, section 5), chosen by the owner on 2026-10-20 among three
+# candidates as "Lower Mississippi at Natchez". No USGS turbidity gauge (63680) is on the river here.
+# It lives outside pipeline/sites/ so the Colombian site screening never reads it.
+# Every position is approximate; the run snaps anchors to the SCL water mask and reports the shift.
+id: mississippi-st-joseph
+name: Mississippi River, St. Joseph to river mile 378 (Louisiana and Mississippi, USA)
+river: Mississippi River
+category: D
+rationale:
+  "Ungauged reach. The lower Mississippi River from the USGS location near St. Joseph, Louisiana,
+  down to river mile 378, about 25 km above Natchez, Mississippi. No USGS turbidity series (63680)
+  is on the river in the reach's box (USGS Water Data API, 2026-10-20); the only one in the box is
+  Fields Lake near Church Hill, a lake, for four days in October 2012. The turbidity class comes
+  from a model that never saw this reach, with the expected error of the transfer test. The reach
+  is chosen for having no gauge, not for any pressure: no actor is the subject of any record."
+center:
+  lon: -91.3037
+  lat: 31.8228
+  description: Midpoint of the two anchors (approximate reach center)
+  basis: computed from the anchors; corrected against the water mask by the run
+  source_url: ""
+aoi_bbox:
+  - -91.43
+  - 31.72
+  - -91.18
+  - 31.92
+upstream_anchor:
+  lon: -91.250112
+  lat: 31.871827
+  description: USGS 315218091150000, Mississippi R nr St. Joseph, LA (a listed location, no series)
+  basis: "Stated by source: the monitoring location's coordinates in the USGS Water Data API
+    (interpolated from a map; accuracy unspecified). To be snapped to the water mask."
+  source_url: https://waterdata.usgs.gov/monitoring-location/USGS-315218091150000/
+downstream_anchor:
+  lon: -91.357337
+  lat: 31.773774
+  description: USGS 314625091212600, Mississippi River at Mile 378 (a listed location, no series)
+  basis:
+    "Stated by source: the monitoring location's coordinates in the USGS Water Data API (accurate
+    to 5 seconds)."
+  source_url: https://waterdata.usgs.gov/monitoring-location/USGS-314625091212600/
+confluences: []
+regime_changes: []
+rain_points:
+  - lon: -91.3037
+    lat: 31.8228
+    description: reach center
+    basis: computed from the anchors; corrected against the water mask by the run
+    source_url: ""
+operator:
+  None. No dam, licence or permitted works are the subject of this reach; it is used because no
+  gauge measures its turbidity.
+regulator: Not applicable (no permit parameter is compared).
+river_width_note:
+  "About 522 m at the estimate window near St. Joseph (SCL water frequency, the pilot's selection
+  rule); 848 m at the Natchez gauge and 1028 m at mile 378, wider than any river the model was
+  trained on (305 to 773 m)"
+climate_note: Humid subtropical; frequent summer convection, so fewer clear scenes than inland sites.
+citations:
+  - url: https://waterdata.usgs.gov/monitoring-location/USGS-315218091150000/
+    title: USGS 315218091150000 Mississippi R nr St. Joseph, LA (USGS Water Data for the Nation)
+    supports: The upstream anchor and the estimate window's point; no time series at the location
+    verification: USGS Water Data API (monitoring-locations and time-series-metadata, 2026-10-20)
+  - url: https://waterdata.usgs.gov/monitoring-location/USGS-314625091212600/
+    title: USGS 314625091212600 Mississippi River at Mile 378 (USGS Water Data for the Nation)
+    supports: The downstream anchor; no time series at the location
+    verification: USGS Water Data API (monitoring-locations and time-series-metadata, 2026-10-20)
+  - url: https://waterdata.usgs.gov/monitoring-location/USGS-07290880/
+    title: USGS 07290880 Mississippi River at Natchez, MS (USGS Water Data for the Nation)
+    supports: The nearest main-stem water-quality gauge records nitrate (99133) but no turbidity
+    verification: USGS Water Data API (time-series-metadata, 2026-10-20)
+unverified:
+  - "Where tributaries join between the anchors was not surveyed"
+  - "The St. Joseph location's coordinates are interpolated from a map; the run snaps them"

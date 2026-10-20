@@ -106,7 +106,11 @@ def test_the_ledgers_are_the_ones_the_anchor_script_anchors() -> None:
     anchored = re.search(r"REACHES_ANCHORED = \[(.*?)\]", script)
     assert anchored is not None
     assert tuple(re.findall(r'"([a-z-]+)"', anchored.group(1))) == SCORED
+    ungauged = re.search(r"REACHES_UNGAUGED = \[(.*?)\]", script)
+    assert ungauged is not None
+    assert tuple(re.findall(r'"([a-z-]+)"', ungauged.group(1))) == timestamps.UNGAUGED
     labels = [ledger.label for ledger in timestamps.ledgers(REPO)]
     assert labels[0] == "terrachain:riveretch:frozen-artifacts"
-    assert labels[1:] == [f"terrachain:{r}:{k}" for r in SCORED
-                          for k in ("observations", "water-temperature", "outcomes")]  # fmt: skip
+    demo = [f"terrachain:{r}:{k}" for r in SCORED
+            for k in ("observations", "water-temperature", "outcomes")]  # fmt: skip
+    assert labels[1:] == [*demo, *(f"terrachain:{r}:observations" for r in timestamps.UNGAUGED)]

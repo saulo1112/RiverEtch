@@ -46,6 +46,9 @@ const REACHES = new URL("docs/water-quality/reach/", ROOT);
 /** The demo reaches whose ledgers are anchored. */
 export const REACHES_ANCHORED = ["mississippi-belle-chasse", "platte-louisville"] as const;
 
+/** The ungauged reaches: their observations only (no gauge, so no outcomes). */
+export const REACHES_UNGAUGED = ["mississippi-st-joseph"] as const;
+
 /** The anchoring log (a mirror of the chain's events). */
 export const LOG = new URL("docs/ledgers/anchors.jsonl", ROOT);
 
@@ -53,8 +56,8 @@ const ANCHOR = new Interface(LEDGER_ANCHOR_ABI);
 
 /**
  * Every ledger that can be anchored: each demo reach's observations, water temperatures and
- * outcomes, and the project's frozen artifacts. A ledger whose file does not exist yet is skipped
- * by the callers.
+ * outcomes, each ungauged reach's observations, and the project's frozen artifacts. A ledger
+ * whose file does not exist yet is skipped by the callers.
  *
  * @returns The ledgers, in a stable order.
  */
@@ -78,6 +81,12 @@ export function ledgers(): LedgerFile[] {
         path: new URL("outcomes/ledger.jsonl", folder),
       },
     );
+  }
+  for (const reach of REACHES_UNGAUGED) {
+    out.push({
+      label: `terrachain:${reach}:observations`,
+      path: new URL(`${reach}/examples/ledger.jsonl`, REACHES),
+    });
   }
   return out;
 }

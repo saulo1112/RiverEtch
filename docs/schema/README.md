@@ -119,6 +119,7 @@ v1 stays as it is. v2 carries what the water-quality validation v2 decides
 | `estimates[]`               | One per target (`turbidity`, `tss`): `level`, and for `validated` or `estimated` a `value` with its `interval` and `validRange` |
 | `estimates[].interval`      | `low`, `high`, nominal `coverage` and `method` (Mondrian split conformal in log space)                                          |
 | `estimates[].relativeClass` | `low`, `medium` or `high` from the station's own history, for the `indicative` level only                                       |
+| `estimates[].fnuClass`      | An ungauged reach's class: `under_30`, `30_to_100` or `100_and_over` FNU, for the `unvalidated` level only; absent when empty   |
 | `estimates[].model*`        | `modelId`, `modelVersion` and `modelCardSha256`: the model card a registry can anchor with the record                           |
 | `estimates[].rangeMdsa`     | The test MdSA of the predicted range                                                                                            |
 
@@ -129,6 +130,10 @@ v1 stays as it is. v2 carries what the water-quality validation v2 decides
 - `validated` or `estimated` without an `abstainReason` means the value, interval, `validRange` and
   model fields are all present, and the value lies inside its interval.
 - `relativeClass` belongs to the `indicative` level only.
+- `fnuClass` belongs to the `unvalidated` level only, and `unvalidated` to the basis
+  `transfer_test_ungauged` only: a reach with no gauge, whose expected error is the transfer test's
+  ([preregistration-transfer.md](../water-quality/preregistration-transfer.md)). Records sealed
+  before the field existed hash as before: an empty `fnuClass` is left out of the JSON.
 - One estimate per target. The verdict follows from the NDTI z-scores and its threshold.
 
 ## Display rules (v2)
@@ -136,8 +141,10 @@ v1 stays as it is. v2 carries what the water-quality validation v2 decides
 1. Show a value only for `validated` or `estimated`, always with its interval and range, worded
    "validated at this reach's gauge…" or "estimated (error ±…)".
 2. Show `indicative` as a relative class (low, medium, high), never with a unit.
-3. Show `none` as the relative index only.
-4. As v1: `unexplained` is never human pressure, and context is never an explanation.
+3. Show `unvalidated` (an ungauged reach) as its FNU class, never as a value, beside the expected
+   error of the transfer test and the label "unvalidated: expected error from the transfer test".
+4. Show `none` as the relative index only.
+5. As v1: `unexplained` is never human pressure, and context is never an explanation.
 
 # Water-temperature record (v1)
 

@@ -88,6 +88,42 @@ def test_without_a_model_or_with_level_none_the_estimate_is_bare() -> None:
     assert estimate(card("none"), measure()).level == "none"
 
 
+def ungauged_card(display: str = "class") -> dict[str, Any]:
+    return {**card(), "unit": "FNU", "basis": v2.UNGAUGED, "levels": [], "display": display}
+
+
+def test_an_ungauged_reach_shows_a_class_in_fnu_never_a_value() -> None:
+    # The card gives 300 r^2 for a ratio r: 12, 75 and 300 FNU.
+    found = [estimate(ungauged_card(), measure(ratio=r)) for r in (0.2, 0.5, 1.0)]
+    assert [e.fnu_class for e in found] == ["under_30", "30_to_100", "100_and_over"]
+    e = found[0]
+    assert e.level == "unvalidated" and e.basis == v2.UNGAUGED and e.unit == "FNU"
+    assert e.value is None and e.interval is None and e.relative_class is None
+    assert e.model_card_sha256 == "ab" * 32 and e.range_mdsa is None
+    far = estimate(ungauged_card(), measure(ratio=5.0))
+    assert far.fnu_class is None and "outside the training range" in str(far.abstain_reason)
+    # The pooled transfer result did not reach indicative: relative indices only.
+    assert estimate(ungauged_card("none"), measure()).level == "none"
+
+
+def test_the_fnu_class_is_left_out_of_the_json_when_empty() -> None:
+    bare = v2.Estimate(target="turbidity", unit="FNU", level="none")
+    assert "fnuClass" not in bare.model_dump(by_alias=True)
+    assert "fnuClass" not in json.loads(bare.model_dump_json(by_alias=True))
+    e = estimate(ungauged_card(), measure())
+    dump = e.model_dump(mode="json", by_alias=True)
+    assert dump["fnuClass"] == "100_and_over"
+    with pytest.raises(ValueError, match="unvalidated level only"):
+        v2.Estimate.model_validate({**dump, "level": "indicative"})
+    with pytest.raises(ValueError, match="ungauged reach's, and only its"):
+        v2.Estimate.model_validate({**dump, "basis": "preregistered_test"})
+    with pytest.raises(ValueError, match="ungauged reach's, and only its"):
+        v2.Estimate.model_validate({**estimate(card(), measure()).model_dump(by_alias=True),
+                                    "basis": v2.UNGAUGED})  # fmt: skip
+    jsonschema.Draft202012Validator(SCHEMA["$defs"]["Estimate"] | {"$defs": SCHEMA["$defs"]}
+                                    ).validate(dump)  # fmt: skip
+
+
 def test_a_record_compares_the_scene_with_the_frozen_baseline_only() -> None:
     days = tuple(date(2024, 1, 1) + timedelta(days=15 * k) for k in range(24))
     flat = [0.10 + 0.002 * (k % 3) for k in range(24)]

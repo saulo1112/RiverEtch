@@ -37,7 +37,7 @@ def _ok(step: dict[str, Any]) -> bool:
 
 
 def last_sealed(root: Path) -> dict[str, Any] | None:
-    """The newest sealed record of the scored reaches (Sentinel-2 or Landsat).
+    """The newest sealed record of the scored and ungauged reaches (Sentinel-2 or Landsat).
 
     Args:
         root: Repository root.
@@ -46,7 +46,7 @@ def last_sealed(root: Path) -> dict[str, Any] | None:
         ``{reach, sceneId, date}``, or None.
     """
     best: dict[str, Any] | None = None
-    for reach in SCORED:
+    for reach in (*SCORED, *timestamps.UNGAUGED):
         folder = root / "docs" / "water-quality" / "reach" / reach / "examples"
         for series in (folder / "series.json", folder / "thermal" / "series.json"):
             if not series.exists():
@@ -104,6 +104,31 @@ def bitcoin(root: Path, header: Callable[[int], timestamps.Block | None] | None 
             }, pending  # fmt: skip
 
 
+def proofs(root: Path) -> list[dict[str, Any]]:
+    """Every Bitcoin proof, so the web app fetches only proofs that exist.
+
+    Args:
+        root: Repository root.
+
+    Returns:
+        ``{label, lines, file, height}`` per proof (``height``: the earliest attesting block,
+        None while pending), sorted by label and line count.
+    """
+    out = []
+    for ledger in timestamps.ledgers(root):
+        prefix = ledger.label.replace(":", "_") + "."
+        for path in (root / timestamps.OTS_DIR).glob(f"{prefix}*.ots"):
+            lines = path.name[len(prefix) : -len(".ots")]
+            if not lines.isdigit():
+                continue
+            heights = [int(a.height) for _, a in timestamps.read(path).timestamp.all_attestations()
+                       if isinstance(a, BitcoinBlockHeaderAttestation)]  # fmt: skip
+            out.append({"label": ledger.label, "lines": int(lines),
+                        "file": path.relative_to(root).as_posix(),
+                        "height": min(heights) if heights else None})  # fmt: skip
+    return sorted(out, key=lambda r: (r["label"], r["lines"]))
+
+
 def build(root: Path, steps: Sequence[dict[str, Any]], previous: dict[str, Any] | None,
           run_url: str, now: datetime | None = None,
           header: Callable[[int], timestamps.Block | None] | None = None
@@ -140,6 +165,9 @@ def build(root: Path, steps: Sequence[dict[str, Any]], previous: dict[str, Any] 
         "lastAnchor": last_anchor(root),
         "lastBitcoin": newest,
         "pendingBitcoin": pending,
+        "proofs": proofs(root),
+        "outcomes": [r for r in SCORED if (root / "docs" / "water-quality" / "reach" / r
+                                           / "examples" / "outcomes" / "ledger.jsonl").exists()],
         "failures": failures[-KEEP_FAILURES:],
     }  # fmt: skip
 

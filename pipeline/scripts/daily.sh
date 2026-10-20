@@ -15,6 +15,7 @@ mkdir -p "$folder"
 steps="$folder/daily-steps.jsonl"
 : > "$steps"
 demo=(mississippi-belle-chasse platte-louisville)
+ungauged=(mississippi-st-joseph) # no gauge: no thermal, context or check
 
 # One step: `climate-pipeline <arguments>`; its output goes to the job log, its result to $steps.
 step() {
@@ -38,8 +39,11 @@ for site in "${demo[@]}"; do
   step reach context --site "$site"
   step reach render --site "$site"
 done
+for site in "${ungauged[@]}"; do
+  step reach render --site "$site"
+done
 step reach check --site all
-for site in "${demo[@]}"; do
+for site in "${demo[@]}" "${ungauged[@]}"; do
   step reach examples --site "$site" --all-records
 done
 step reach examples --site missouri-hermann

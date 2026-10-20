@@ -14,6 +14,15 @@ class _Frozen(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
+class WindowPoint(_Frozen):
+    """Where an ungauged reach's estimate window sits: a point on the main channel, no gauge."""
+
+    lon: float = Field(ge=-180, le=180)
+    lat: float = Field(ge=-90, le=90)
+    basis: str = Field(min_length=1, description="why this point, and where it comes from")
+    source_url: str = ""
+
+
 class Reach(_Frozen):
     """One published reach."""
 
@@ -23,10 +32,15 @@ class Reach(_Frozen):
         description="the site file, relative to the root (default: pipeline/sites/<site>.yaml); "
         "a reach outside the screening keeps its file elsewhere so the screening never reads it",
     )
-    estimate_station: str = Field(description="the station whose window the models read")
-    station_source: Literal["ideam", "usgs"] = Field(
-        default="ideam", description="the station list: IDEAM (stations.csv) or the USGS pilot"
+    estimate_station: str = Field(
+        description="the station whose window the models read (an ungauged reach: its window's id)"
     )
+    station_source: Literal["ideam", "usgs", "ungauged"] = Field(
+        default="ideam",
+        description="the station list: IDEAM (stations.csv), the USGS pilot, or none (ungauged: "
+        "the window sits at estimate_point and no gauge value is ever read)",
+    )
+    estimate_point: WindowPoint | None = Field(default=None, description="an ungauged window")
     timezone: str = Field(default="America/Bogota", description="local dates and rain")
     targets: tuple[str, ...] = Field(default=("turbidity", "tss"), min_length=1)
     cards: dict[str, str] = Field(
@@ -52,7 +66,14 @@ class Reach(_Frozen):
             raise ValueError(f"{self.site}: a reach without ndti_scenes needs baseline_start")
         if self.baseline_start is not None and self.baseline_start > self.baseline_end:
             raise ValueError(f"{self.site}: baseline_start is after baseline_end")
+        if (self.station_source == "ungauged") != (self.estimate_point is not None):
+            raise ValueError(f"{self.site}: an ungauged reach, and only one, has estimate_point")
         return self
+
+    @property
+    def ungauged(self) -> bool:
+        """No gauge on the reach: nothing is ever checked or scored against one."""
+        return self.station_source == "ungauged"
 
     def site_path(self, root: Path) -> Path:
         """The site file.

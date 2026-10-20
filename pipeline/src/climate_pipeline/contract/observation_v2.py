@@ -11,7 +11,11 @@ validation v2 (D16) decides:
 * the model, its version and the SHA-256 of its model card, the predicted range's MdSA and the
   atmospheric correction behind the reflectance;
 * the basis of the level: the preregistered Magdalena test, or the post-hoc calibration (v2.1,
-  nested leave-one-station-out on the Magdalena), which is never _validated_.
+  nested leave-one-station-out on the Magdalena), which is never _validated_;
+* on an ungauged reach (``preregistration-transfer.md``), the level ``unvalidated`` with a class
+  in FNU only (under 30, 30 to 100, 100 and over); its expected error is the transfer test's, as
+  its model card states. ``fnuClass`` is left out of the JSON when empty, so the records sealed
+  before it existed keep their hashes.
 
 Conditional rules keep the record honest; ``record_sha256`` hashes the canonical JSON so a
 registry can anchor the record later. The JSON Schema in
@@ -23,9 +27,17 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from typing import Any, Final, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from climate_pipeline.contract.observation import (
     ClimateContext,
@@ -39,16 +51,38 @@ from climate_pipeline.contract.observation import (
 SCHEMA_VERSION: Final = 2
 SCHEMA_ID: Final = "observation-record.v2"
 
-Level = Literal["validated", "estimated", "indicative", "none"]
+Level = Literal["validated", "estimated", "indicative", "unvalidated", "none"]
 Basis = Literal[
     "preregistered_test",  # v2: the Magdalena test, evaluated once
     "post_hoc_nested_loso_magdalena",  # v2.1 and v3: nested leave-one-station-out
     "post_hoc_temporal_magdalena",  # v4, round 3: leave-one-hydrological-year-out, exploratory
     "preregistered_lockbox_site",  # v4: one site's held-out years, evaluated once
+    # An ungauged reach (preregistration-transfer.md, section 5): its expected error is the
+    # pooled transfer test on similar rivers; with no gauge, it never earns a level of its own.
+    "transfer_test_ungauged",
 ]
 PREREGISTERED: Final = ("preregistered_test", "preregistered_lockbox_site")
+UNGAUGED: Final = "transfer_test_ungauged"
 Target = Literal["turbidity", "tss"]
 RelativeClass = Literal["low", "medium", "high"]
+FnuClass = Literal["under_30", "30_to_100", "100_and_over"]  # preregistration-transfer.md
+FNU_CLASSES: Final[tuple[FnuClass, ...]] = ("under_30", "30_to_100", "100_and_over")
+FNU_CLASS_EDGES: Final = (30.0, 100.0)
+
+
+def fnu_class(value: float) -> FnuClass | None:
+    """The preregistered class of a turbidity estimate (under 30, 30 to 100, 100 and over FNU).
+
+    Args:
+        value: The estimate in FNU.
+
+    Returns:
+        The class (None when the value is not finite and positive).
+    """
+    if not (math.isfinite(value) and value > 0):
+        return None
+    low, high = FNU_CLASS_EDGES
+    return FNU_CLASSES[0 if value < low else 1 if value < high else 2]
 
 
 class _Model(BaseModel):
@@ -104,6 +138,11 @@ class Estimate(_Model):
     value: float | None = None
     interval: Interval | None = None
     relative_class: RelativeClass | None = Field(default=None, alias="relativeClass")
+    fnu_class: FnuClass | None = Field(
+        default=None, alias="fnuClass",
+        description="an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over); "
+        "absent from the JSON when empty, so records sealed before it existed keep their hash",
+    )  # fmt: skip
     model_id: str | None = Field(default=None, alias="modelId")
     model_version: str | None = Field(default=None, alias="modelVersion")
     model_card_sha256: str | None = Field(default=None, alias="modelCardSha256")
@@ -125,6 +164,10 @@ class Estimate(_Model):
             raise ValueError("only a validated or estimated level, not abstaining, has a value")
         if self.relative_class is not None and self.level != "indicative":
             raise ValueError("a relative class belongs to the indicative level only")
+        if self.fnu_class is not None and self.level != "unvalidated":
+            raise ValueError("an FNU class belongs to the unvalidated level only")
+        if (self.level == "unvalidated") != (self.basis == UNGAUGED):
+            raise ValueError("the unvalidated level is an ungauged reach's, and only its")
         if self.level == "none":
             return self
         needed = (self.model_id, self.model_version, self.model_card_sha256, self.basis)
@@ -138,6 +181,14 @@ class Estimate(_Model):
             if not self.interval.low <= self.value <= self.interval.high:
                 raise ValueError("the value lies inside its interval")
         return self
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_class(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        data: dict[str, Any] = handler(self)
+        if self.fnu_class is None:
+            data.pop("fnuClass", None)
+            data.pop("fnu_class", None)
+        return data
 
 
 class ObservationRecordV2(_Model):
@@ -247,6 +298,15 @@ def json_schema() -> dict[str, Any]:
             "if": {"properties": {"level": {"not": {"const": "indicative"}}},
                    "required": ["level"]},
             "then": {"properties": {"relativeClass": {"const": None}}},
+        },
+        {
+            "if": {"properties": {"level": {"not": {"const": "unvalidated"}}},
+                   "required": ["level"]},
+            "then": {"properties": {"fnuClass": {"const": None}}},
+        },
+        {
+            "if": {"properties": {"level": {"const": "unvalidated"}}, "required": ["level"]},
+            "then": {"properties": {"basis": {"const": UNGAUGED}}},
         },
     ]  # fmt: skip
     defs["Verdict"]["allOf"] = [
