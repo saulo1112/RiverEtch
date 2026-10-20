@@ -14,6 +14,10 @@
     The commit runs without the repository's Git hooks, as the daily workflow's do: the data branch
     holds generated files only, and Prettier must never rewrite a sealed record.
 
+    If a step fails, the worktree is kept (its path is printed) and nothing is pushed. Running the
+    script again is safe: it signs only the heads without a signature, anchors only the ledgers that
+    grew past their last anchor, and rebuilds the anchoring log from the chain.
+
     Run from the repository root, whenever the data branch has new records:
       powershell -ExecutionPolicy Bypass -File pipeline\scripts\anchor-pending.ps1
 #>
@@ -26,9 +30,13 @@ $worktree = Join-Path ([IO.Path]::GetTempPath()) "riveretch-data-anchor"
 if (Test-Path $worktree) { git worktree remove --force $worktree }
 git worktree add -B data-anchor $worktree origin/data
 
+$done = $false
 try {
-    # Main's frozen artifacts are the source; the data branch carries a copy.
+    # Main's frozen artifacts are the source; the data branch carries a copy. The public key is
+    # main's too (frozen): `sign verify` reads it there; it is not committed to the data branch.
     Copy-Item "docs\ledgers\frozen-artifacts.jsonl" (Join-Path $worktree "docs\ledgers\frozen-artifacts.jsonl")
+    New-Item -ItemType Directory -Force -Path (Join-Path $worktree "docs\keys") | Out-Null
+    Copy-Item "docs\keys\ml-dsa-65.json" (Join-Path $worktree "docs\keys\ml-dsa-65.json")
 
     Push-Location "pipeline"
     uv run climate-pipeline sign heads --root $worktree
@@ -54,13 +62,20 @@ try {
     git -C $worktree diff --cached --quiet
     if ($LASTEXITCODE -ne 0) {
         git -C $worktree -c core.hooksPath=$noHooks commit -q -m "data: sign and anchor the new heads"
+        if ($LASTEXITCODE -ne 0) { throw "the commit failed ($LASTEXITCODE)" }
         git -C $worktree push origin data-anchor:data
+        if ($LASTEXITCODE -ne 0) { throw "the push failed ($LASTEXITCODE)" }
     } else {
         Write-Output "Nothing new to sign or anchor."
     }
+    $done = $true
 }
 finally {
     Set-Location $root
-    git worktree remove --force $worktree
-    git branch -D data-anchor 2>$null
+    if ($done) {
+        git worktree remove --force $worktree
+        git branch -D data-anchor 2>$null
+    } else {
+        Write-Warning "Stopped before pushing: the worktree is kept at $worktree. Nothing was pushed; running this script again is safe."
+    }
 }
