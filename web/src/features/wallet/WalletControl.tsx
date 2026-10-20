@@ -69,7 +69,16 @@ export function WalletControl({ variant, onBeforeModal }: WalletControlProps) {
                 >
                   <Wallet size={15} strokeWidth={1.5} nonScalingStroke aria-hidden="true" />
                   <span className="wallet__corner-label">
-                    {status === "wrongNetwork" ? WALLET_COPY.switchNetwork : WALLET_COPY.connect}
+                    {status === "wrongNetwork" ? (
+                      WALLET_COPY.switchNetwork
+                    ) : (
+                      <>
+                        {WALLET_COPY.connect}{" "}
+                        <span className="wallet__corner-optional">
+                          {WALLET_COPY.cornerOptional}
+                        </span>
+                      </>
+                    )}
                   </span>
                 </button>
               )}

@@ -84,7 +84,7 @@ far too short ([why it matters](#why-it-matters-for-climate)).
 ### Presentation & Storytelling
 
 - **The live app tells one case at a time:** the globe, the river, the pass, its record.
-  **Verify this record** walks the checks one by one, and **Alter one value first** shows a seal
+  **Verify this record** walks the checks one by one, and **Change one number first** shows a seal
   breaking.
 - **All rivers** lists every river tested, the failures included, and its switch shows the same
   rivers scored by a model that never saw them.
@@ -188,8 +188,8 @@ get without the satellite.
 | Suspended sediment, both reaches             | too few samples, or biased   | —                               | not shown |
 | Discharge, dissolved oxygen (Platte)         | 110.6 % and 1.02 mg/L        | 65.5 % and 1.34 mg/L            | not shown |
 
-- **The two reaches are the best two of ten rivers** validated with the same protocol. The honest
-  summary of the method is the median over the nine evaluated: **33.1 %**. Turbid rivers do best;
+- **The two reaches are the best two of ten stations** (on eight rivers) validated with the same
+  protocol. The honest summary of the method is the median over the nine evaluated: **33.1 %**. Turbid rivers do best;
   clear, tidal rivers do worst. Every river's result is in the
   [report](docs/water-quality/report.md).
 - **Water temperature at Belle Chasse** was validated at Baton Rouge, the only main-stem gauge on

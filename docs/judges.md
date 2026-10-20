@@ -18,8 +18,8 @@ it.
   were public. Only passes after T0 (the anchor of the scoring rule) can count as prospective.
 - **Gauge values are often provisional.** The USGS may still revise them; they are labelled.
 - **Sepolia is a test network,** not mainnet.
-- **The two gauged demo reaches are the best two of ten rivers.** The median error over the nine
-  rated is 33.1 % (the **All rivers** tab).
+- **The two gauged demo reaches are the best two of ten stations** (on eight rivers). The median
+  error over the nine rated is 33.1 % (the **All rivers** tab).
 
 ## The 3-minute path
 
@@ -34,7 +34,7 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
    river's usual value. On the ungauged reach, the class, the label "unvalidated: expected error
    from the transfer test" and that error.
 4. **Verify this record** (right), below.
-5. **Alter one value first**, then verify again: the seal breaks.
+5. **Change one number first**, then verify again: the seal breaks.
 6. **All rivers** (bottom tabs): every river tested, failures included. **A model that never saw
    it** shows the same rivers scored by a model trained only on the other river groups: the error to
    expect where there is no gauge.

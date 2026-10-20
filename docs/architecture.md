@@ -97,7 +97,7 @@ flowchart LR
   - charts per variable, the gauge's whole record (the Climate tab), the profile along the river
     and the pass's statistics with the gauge's own readings.
 - **Verification in the browser:** it recomputes a record's seal from its canonical JSON (number
-  lexemes kept), walks the whole ledger and checks the model card's hash. "Alter one value first"
+  lexemes kept), walks the whole ledger and checks the model card's hash. "Change one number first"
   shows a tampered record failing.
 - **Data:** the committed examples (`docs/water-quality/reach/*/examples/`), served as static files.
 

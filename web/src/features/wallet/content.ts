@@ -6,6 +6,8 @@ export const WALLET_COPY = {
   heading: "Wallet",
   optional: "Optional",
   connect: "Connect wallet",
+  // The case view's corner says it in the button too: reading never needs a wallet.
+  cornerOptional: "(optional)",
   switchNetwork: "Switch to Sepolia",
   network: "Sepolia",
   disconnect: "Disconnect",

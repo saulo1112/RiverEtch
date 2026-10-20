@@ -165,7 +165,7 @@ export const CASE_COPY = {
     seal: "Record SHA-256",
     verify: "Verify this record",
     verifying: "Verifying…",
-    alter: "Alter one value first",
+    alter: "Change one number first",
     download: "Download the record (JSON)",
     sealed: "Its content matches its seal (SHA-256)",
     broken: "Its content no longer matches its seal",
@@ -257,7 +257,7 @@ export const CASE_COPY = {
   // Every river the validation evaluated, the ones that do not beat guessing the usual value too.
   rivers: {
     caption: (total: number, rated: number, median: string) =>
-      `The two demo reaches are the best two of ${String(total)}. The honest summary is the median error over the ${String(rated)} rivers evaluated: ${median} %.`,
+      `The two demo reaches are the best two of ${String(total)} stations. The honest summary is the median error over the ${String(rated)} stations evaluated: ${median} %.`,
     tableCaption: "Every evaluated river's locked test, lowest error first",
     columns: {
       river: "River (USGS gauge)",
@@ -294,6 +294,7 @@ export const CASE_COPY = {
       "USGS-14211720": "Willamette at Portland",
       "USGS-14144700": "Columbia at Vancouver",
       "USGS-14246900": "Columbia at Port Westward",
+      "USGS-06934500": "Missouri at Hermann",
     } as Readonly<Record<string, string>>,
   },
   // The scoreboard (docs/water-quality/prospective.md): counts, never percentages, until there are

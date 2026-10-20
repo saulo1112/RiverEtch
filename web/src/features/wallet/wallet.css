@@ -162,6 +162,10 @@
   text-overflow: ellipsis;
 }
 
+.wallet__corner-optional {
+  color: var(--text-3);
+}
+
 .wallet--corner[data-status="loading"] .wallet__corner {
   visibility: hidden;
 }
