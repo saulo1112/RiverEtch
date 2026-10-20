@@ -162,3 +162,23 @@ def test_two_passes_on_one_day_are_two_scenes() -> None:
 
 def test_the_card_hash_names_the_whole_card() -> None:
     assert cards.card_hash(card()) != cards.card_hash(card("indicative"))
+
+
+def test_a_series_row_keeps_an_ungauged_class_and_nothing_new_otherwise() -> None:
+    from climate_pipeline.reach import run as reach_run
+
+    days = tuple(date(2024, 1, 1) + timedelta(days=15 * k) for k in range(24))
+    flat = [0.10 + 0.002 * (k % 3) for k in range(24)]
+    baseline = records.Baseline(
+        days, {"upstream": flat, "downstream": flat, "delta": [0.0] * 24},
+        {"upstream": [0.5] * 24, "downstream": [0.5] * 24, "delta": [0.0] * 24},
+    )  # fmt: skip
+    rain = RainFlags(point=False, catchment=None, union="unknown")
+    m = measure()
+    for c, has in ((ungauged_card(), True), (card(), False)):
+        rec = records.record("mississippi-st-joseph", m, baseline, [estimate(c, m)], rain, set(),
+                             SCREENING, 3.0, "abc", "def")  # fmt: skip
+        row = reach_run.summary_row(rec, "records/x.json")["estimates"][0]
+        assert ("fnuClass" in row) is has
+        if has:
+            assert row["fnuClass"] == "100_and_over" and row["value"] is None

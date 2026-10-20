@@ -522,12 +522,14 @@ def summary_row(rec: v2.ObservationRecordV2, file: str) -> dict[str, Any]:
         The row.
     """
     data = rec.model_dump(mode="json", by_alias=True)
+    keys = ("target", "unit", "level", "value", "interval", "relativeClass", "abstainReason")
+    # An ungauged reach's class, only where there is one (other views unchanged).
+    estimates = [{**{k: e.get(k) for k in keys},
+                  **({"fnuClass": e["fnuClass"]} if e.get("fnuClass") else {})}
+                 for e in data["estimates"]]  # fmt: skip
     return {"date": rec.date, "sceneId": rec.scene_id, "file": file,
             "recordSha256": rec.record_sha256, "indices": data["indices"],
-            "verdict": data["verdict"], "rain": data["rain"],
-            "estimates": [{k: e.get(k) for k in ("target", "unit", "level", "value", "interval",
-                                                 "relativeClass", "abstainReason")}
-                          for e in data["estimates"]]}  # fmt: skip
+            "verdict": data["verdict"], "rain": data["rain"], "estimates": estimates}  # fmt: skip
 
 
 def write_views(folder: Path) -> None:
