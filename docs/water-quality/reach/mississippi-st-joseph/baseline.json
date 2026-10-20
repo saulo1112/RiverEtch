@@ -1,0 +1,13 @@
+{
+  "site": "mississippi-st-joseph",
+  "frozen_scenes": null,
+  "found": 505,
+  "measured": 505,
+  "usable": 206,
+  "station": "window-st-joseph",
+  "network_gb_estimated": 5.793,
+  "stopped": "",
+  "ndti_max_abs_difference": null,
+  "code_commit": "7cd8dedb484db539c2e4551575db8c8376c4cf55",
+  "created_utc": "2026-10-20T04:35:52+00:00"
+}
