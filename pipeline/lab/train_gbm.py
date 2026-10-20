@@ -66,12 +66,14 @@ def fit(x: np.ndarray, y: np.ndarray, config: dict[str, Any], seed: int) -> lgb.
     return lgb.train(params, data, num_boost_round=config["n_estimators"])
 
 
-def train_one(table: Path, out: Path) -> dict[str, Any]:
+def train_one(table: Path, out: Path, keep_oof: bool = False) -> dict[str, Any]:
     """Choose, fit and export the model of one target and window.
 
     Args:
         table: ``<target>-<window>.csv`` (``group``, ``value`` and the features).
         out: Output folder.
+        keep_oof: Also export the chosen configuration's leave-one-river-out log estimates, one
+            per table row (null where the row was not estimated), for its intervals.
 
     Returns:
         A short summary.
@@ -92,6 +94,7 @@ def train_one(table: Path, out: Path) -> dict[str, Any]:
                                          sorted(grid["n_estimators"]))
     ]  # fmt: skip
     scores = []
+    oofs = []
     for config in configs:
         oof = np.full(len(y), np.nan)
         for g in sorted(set(groups)):
@@ -103,6 +106,7 @@ def train_one(table: Path, out: Path) -> dict[str, Any]:
         ok = np.isfinite(oof)
         score = mdsa(np.exp(oof[ok]), np.exp(y[ok])) if ok.any() else math.inf
         scores.append({**config, "loro_mdsa": round(score, 4), "n": int(ok.sum())})
+        oofs.append(oof)
     best = min(range(len(configs)), key=lambda k: (scores[k]["loro_mdsa"], k))
     booster = fit(x, y, configs[best], spec["seed"])
     dump = booster.dump_model()
@@ -117,11 +121,13 @@ def train_one(table: Path, out: Path) -> dict[str, Any]:
                   "raw": [float(v) for v in booster.predict(x[:CHECK_ROWS])]},
         "model": dump,
     }  # fmt: skip
+    if keep_oof:
+        result["oof"] = [float(v) if np.isfinite(v) else None for v in oofs[best]]
     out.mkdir(parents=True, exist_ok=True)
     path = out / f"gbm-{spec['target']}-{spec['window']}.json"
     # Compact: a model of 500 trees is several MB indented.
     path.write_text(json.dumps(result, sort_keys=True, separators=(",", ":")) + "\n",
-                    encoding="utf-8")  # fmt: skip
+                    encoding="utf-8", newline="\n")  # fmt: skip
     return {"file": path.name, "chosen": configs[best], "loro_mdsa": scores[best]["loro_mdsa"]}
 
 
@@ -134,6 +140,11 @@ def main() -> int:
     here = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("tables", type=Path, help="folder written by quality export-lab")
+    parser.add_argument(
+        "--oof",
+        action="store_true",
+        help="also export the chosen configuration's out-of-river log estimates",
+    )
     parser.add_argument("--out", type=Path,
                         default=here.parent.parent / "docs/water-quality/inputs/lab")  # fmt: skip
     args = parser.parse_args()
@@ -142,7 +153,7 @@ def main() -> int:
         print(f"no tables in {args.tables}")
         return 1
     for table in tables:
-        print(json.dumps(train_one(table, args.out)), flush=True)
+        print(json.dumps(train_one(table, args.out, args.oof)), flush=True)
     return 0
 
 

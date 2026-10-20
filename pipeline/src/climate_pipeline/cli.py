@@ -20,6 +20,7 @@ import hashlib
 import logging
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 from climate_pipeline import __version__
 
@@ -123,7 +124,9 @@ def _parser() -> argparse.ArgumentParser:
     quality.add_argument(
         "action",
         choices=("fetch", "fetch-usgs", "fetch-site", "fetch-v5", "fetch-v6", "fetch-v7",
-                 "fetch-landsat", "fetch-extended", "export-lab", "stage-b-list", "run", "verify"),
+                 "fetch-landsat", "fetch-extended", "export-lab", "stage-b-list", "run", "verify",
+                 "transfer-export", "transfer-train", "transfer-evaluate", "transfer-verify",
+                 "transfer-card"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
         "the USGS pilot; fetch-site --site ID: every clear scene of one pilot site (v4's second "
         "reach); fetch-v5: every clear scene, turbidity and SSC of v5's gauged rivers; "
@@ -133,7 +136,10 @@ def _parser() -> argparse.ArgumentParser:
         "fetch-landsat [--stations-only]: Landsat 8/9 at the wide stations "
         "(phase 3); fetch-extended: windows within 15 days of a sample (v3); export-lab: the "
         "lab's training tables (A4); stage-b-list: the Level-1C scenes of RAdCor Stage B (v4); "
-        "run: offline results; verify: recompute and compare with the MANIFEST",
+        "run: offline results; verify: recompute and compare with the MANIFEST; transfer-*: "
+        "the test on rivers the model never saw (preregistration-transfer.md): export the "
+        "folds' training tables, train them in the lab, evaluate once on the lock boxes, write "
+        "the ungauged reach's card (transfer-card), verify both",
     )  # fmt: skip
     quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     quality.add_argument("--stations-only", action="store_true",
@@ -478,6 +484,37 @@ SITE_CAP_GB = 4.0  # v4, section A: estimated network of the site's full fetch
 V5_CAP_GB = 40.0  # v5: estimated network of the whole fetch (30 GB raised by deviation 11)
 
 
+def _transfer(action: str, cfg: Any, root: Path) -> int:
+    from climate_pipeline.quality import transfer_test as t
+    from climate_pipeline.quality import ungauged
+
+    if action == "transfer-export":
+        for path in t.export(cfg, root):
+            print(f"table  {path.relative_to(root).as_posix()}")
+        return 0
+    if action == "transfer-train":
+        for path in t.train(root):
+            print(f"model  {path.relative_to(root).as_posix()}")
+        return 0
+    if action == "transfer-evaluate":
+        for path in t.write(t.evaluate(cfg, root), root, root / t.RESULTS):
+            print(f"wrote  {path.relative_to(root).as_posix()}")
+        return 0
+    if action == "transfer-card":
+        print(f"wrote  {ungauged.write(cfg, root).relative_to(root).as_posix()}")
+        return 0
+    problems, near = t.verify(cfg, root)
+    problems += ungauged.verify(cfg, root)
+    for line in problems:
+        print(f"MISMATCH  {line}")
+    for name in near:
+        print(f"agrees to the last printed digit: {name}")
+    print(
+        f"{t.RESULTS.as_posix()}: " + ("verified" if not problems else f"{len(problems)} problems")
+    )
+    return 1 if problems else 0
+
+
 def quality(args: argparse.Namespace) -> int:
     """Run ``quality run`` or ``verify``.
 
@@ -499,6 +536,8 @@ def quality(args: argparse.Namespace) -> int:
     root = args.root.resolve()
     config = root / args.config
     cfg = load_quality_config(config)
+    if args.action.startswith("transfer-"):
+        return _transfer(args.action, cfg, root)
     if args.action == "export-lab":
         from climate_pipeline.quality import lab, transfer
 

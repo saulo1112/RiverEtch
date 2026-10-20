@@ -1,0 +1,13 @@
+fold,held_out,report_only,training_pairs,training_groups,num_leaves,min_data_in_leaf,n_estimators,q90,interval_factor90
+atchafalaya,ATCHAFALAYA,false,1803,8,31,20,200,0.924437,2.52045
+columbia,COLUMBIA,false,1437,8,15,50,200,1.00985,2.74519
+connecticut,CONNECTICUT,false,1742,8,31,50,500,0.978207,2.659684
+mississippi,MISSISSIPPI,false,1579,8,7,20,500,0.88342,2.41916
+missouri,MISSOURI,false,1754,8,15,20,500,0.948983,2.583081
+ohio,OHIO,false,1663,8,7,50,500,0.961959,2.616819
+platte,PLATTE,false,1787,8,15,20,500,0.944423,2.571329
+san-joaquin,SAN JOAQUIN,false,1640,8,31,50,500,0.995081,2.704943
+willamette,WILLAMETTE,false,1643,8,15,20,200,1.120769,3.067212
+mississippi-atchafalaya,MISSISSIPPI + ATCHAFALAYA,true,1501,7,7,20,500,0.865287,2.375688
+columbia-willamette,COLUMBIA + WILLAMETTE,true,1199,7,15,20,500,1.249063,3.487074
+all,none,false,1881,9,7,20,500,0.884293,2.421271

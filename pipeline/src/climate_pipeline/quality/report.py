@@ -186,9 +186,29 @@ def render(results: Results, cfg: QualityConfig, names: Sequence[str]) -> str:
     return "\n".join(parts)
 
 
+def fresh(out: Path, keep: str = "transfer") -> None:
+    """Empty the results folder, keeping one subfolder that has its own MANIFEST.
+
+    Args:
+        out: The results folder (created when missing).
+        keep: The subfolder kept as it is.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        kept, aside = out / keep, Path(tmp) / keep
+        if kept.exists():
+            shutil.move(kept, aside)
+        shutil.rmtree(out, ignore_errors=True)
+        out.mkdir(parents=True)
+        if aside.exists():
+            shutil.move(aside, kept)
+
+
 def write_outputs(results: Results, cfg: QualityConfig, root: Path, config: Path,
                   out: Path) -> list[Path]:  # fmt: skip
     """Write every output and the MANIFEST (the folder starts empty).
+
+    The ``transfer/`` subfolder is the transfer test's (preregistration-transfer.md), with its own
+    MANIFEST: it is kept as it is.
 
     Args:
         results: Results.
@@ -200,8 +220,7 @@ def write_outputs(results: Results, cfg: QualityConfig, root: Path, config: Path
     Returns:
         The files written (MANIFEST last).
     """
-    shutil.rmtree(out, ignore_errors=True)
-    out.mkdir(parents=True)
+    fresh(out)
     written: list[Path] = []
     for name, rows in sorted(results.tables.items()):
         path = out / f"{name}.csv"

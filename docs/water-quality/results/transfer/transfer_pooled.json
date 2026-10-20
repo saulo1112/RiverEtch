@@ -1,0 +1,40 @@
+{
+  "class_agreement": 185,
+  "class_edges_fnu": [
+    30.0,
+    100.0
+  ],
+  "coverage90_inside": 248,
+  "indicative_rho_low_min": 0.3,
+  "mdsa": 36.8695,
+  "n": 298,
+  "rho": 0.7188,
+  "rho_high": 0.7809,
+  "rho_low": 0.6465,
+  "similar_rule": "training-year median at least 20 FNU",
+  "similar_sites": [
+    {
+      "site": "USGS-06805500",
+      "training_median_fnu": 55.8
+    },
+    {
+      "site": "USGS-06934500",
+      "training_median_fnu": 48.8
+    },
+    {
+      "site": "USGS-07020850",
+      "training_median_fnu": 51.2
+    },
+    {
+      "site": "USGS-07374525",
+      "training_median_fnu": 38.4
+    },
+    {
+      "site": "USGS-07381600",
+      "training_median_fnu": 45.0
+    }
+  ],
+  "sspb": -22.935,
+  "ungauged_display": "class (under 30, 30 to 100, 100 and over FNU)",
+  "ungauged_shows_class": true
+}

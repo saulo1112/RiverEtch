@@ -22,7 +22,7 @@ from climate_pipeline.calibration.report import git_blob
 from climate_pipeline.quality.cards import card_hash
 
 FROZEN = Path("docs/ledgers/frozen-artifacts.jsonl")
-CARDS = "docs/water-quality/results/models/"
+CARDS = ("docs/water-quality/results/models/", "docs/water-quality/ungauged/")  # model cards
 
 
 @dataclass(frozen=True)

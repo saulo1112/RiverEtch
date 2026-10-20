@@ -60,3 +60,8 @@ jobs:
 
       - name: Recompute and compare with the committed MANIFEST
         run: uv run climate-pipeline quality verify --root ..
+
+      # The test on rivers the model never saw (preregistration-transfer.md): recomputed from the
+      # committed fold models and compared with its own MANIFEST.
+      - name: Recompute the transfer test and compare with its MANIFEST
+        run: uv run climate-pipeline quality transfer-verify --root ..

@@ -216,6 +216,85 @@ estimate against the gauge's value at the overpass.
   after T0 are scored prospectively under rule v1 by `reach score`, and counted on the web app's
   Scoreboard (counts, not percentages, until there are 20).
 
+## Rivers the model never saw (transfer test, 2026-10-20)
+
+RiverEtch is meant for rivers without a gauge, so the error that matters is the error on a river the
+model was never trained on. The test was preregistered
+([preregistration-transfer.md](preregistration-transfer.md)), frozen and anchored on Sepolia at
+block 11952275 (2026-10-20 02:19:48 UTC) before it ran, and run **once** (02:38 UTC). Results:
+[results/transfer/](results/transfer/transfer.md), with their own MANIFEST, recomputed by CI.
+
+- **Design:** each of the nine river groups is held out in turn. A4 (LightGBM, v2's grid and seed,
+  no site adjustment) is trained on the training years (2018-12 to 2023-11) of the other eight
+  groups, and scored on the held-out group's lock box (2023-12 to 2026-09). No pair from any
+  lock-box year trains any model.
+- **Baselines:** (a) the held-out group's own median over its training years (a reference: an
+  ungauged river has no such median); (b) the other groups' median, with no local data at all.
+- **Disclosure:** v5 had scored these lock boxes with site models and, report-only, with models
+  pretrained on the four pilot rivers; this design, which adds the five non-pilot rivers to the
+  training, was chosen after seeing those results.
+
+| River (USGS gauge)                       | Error on a river it never saw | Usual value (a) | No local data (b) | Bias     | Inside the 90 % range | Class matched | Level      |
+| ---------------------------------------- | ----------------------------- | --------------- | ----------------- | -------- | --------------------- | ------------- | ---------- |
+| Mississippi at Belle Chasse (07374525)   | 15.4 %                        | 112.7 %         | 618 %             | −6.8 %   | 56 of 57              | 53 of 57      | validated  |
+| Willamette at Portland (14211720)        | 24.4 %                        | 64.9 %          | 337 %             | +9.8 %   | 131 of 136            | 135 of 136    | indicative |
+| Columbia at Vancouver (14144700)         | 32.2 %                        | 47.4 %          | 191 %             | +26.5 %  | 40 of 48              | 48 of 48      | estimated  |
+| San Joaquin at Jersey Point (11337190)   | 33.1 %                        | 46.2 %          | 86 %              | +26.1 %  | 52 of 53              | 53 of 53      | estimated  |
+| Mississippi at Cape Girardeau (07020850) | 33.8 %                        | 72.3 %          | 600 %             | −1.0 %   | 71 of 74              | 49 of 74      | validated  |
+| Atchafalaya at Morgan City (07381600)    | 40.5 %                        | 75.2 %          | 1004 %            | −40.5 %  | 40 of 43              | 32 of 43      | indicative |
+| Missouri at Hermann (06934500)           | 41.2 %                        | 87.7 %          | 732 %             | −34.3 %  | 55 of 70              | 36 of 70      | indicative |
+| Ohio at Ironton (03216070)               | 48.6 %                        | 149.4 %         | 110 %             | +45.9 %  | 116 of 122            | 114 of 122    | indicative |
+| Connecticut at Middle Haddam (01193050)  | 88.4 %                        | 31.8 %          | 179 %             | +88.4 %  | 39 of 56              | 55 of 56      | none       |
+| Platte at Louisville (06805500)          | 162.0 %                       | 66.9 %          | 729 %             | −162.0 % | 26 of 54              | 15 of 54      | none       |
+
+- **Where it holds:** on 8 of the 10 sites the model that never saw the river erred less than
+  guessing that river's usual value. Both Mississippi sites reach _validated_ under the v5 rules.
+- **Where it fails:** the Platte (162 %: it reads far too low; no cause was tested) and the
+  Connecticut (88 %: a clear river it reads too high). Both are listed, not dropped.
+- **Biases stay large** on several rivers (−40 % at the Atchafalaya, +46 % at the Ohio), which is
+  why an ungauged reach shows a class, not a value with a unit.
+- **"Class matched" is easy on clear rivers:** nearly every value there is under 30 FNU, so the
+  count says little; the pooled count below, on sediment-carrying rivers, is the one that matters.
+- **The usual value (a) is the group's median,** as preregistered: for the Mississippi it pools both
+  sites, so Belle Chasse reads 112.7 % here against 113.7 % in v5, which used the site's own median.
+
+**Similar rivers, pooled (the ungauged reach's expected error).** The five sites whose training
+median is at least 20 FNU (Atchafalaya, Mississippi at Cape Girardeau and Belle Chasse, Missouri,
+Platte), each estimated by the model that never saw it: 298 pairs, **MdSA 36.9 %**, bias −22.9 %,
+Spearman ρ 0.719 (95 % interval 0.647 to 0.781); 248 of 298 inside the 90 % range; the class (under
+30, 30 to 100, 100 and over FNU) matched the gauge on **185 of 298**. The lower bound of ρ is above
+0.3, so by the preregistered rule an ungauged reach shows the **class**, with this expected error.
+
+**Report-only.** The ridge A3 errs far more on almost every river (for example 103 % at Belle
+Chasse), so A4's gain is not a property of any model. Holding the Mississippi and the Atchafalaya
+out together (the Atchafalaya takes part of the Mississippi's flow) leaves the Mississippi sites
+near their scores (27.8 % and 24.7 %) but raises the Atchafalaya's to 78.7 %: part of its result
+came from the Mississippi's data.
+
+### The ungauged reach: the Mississippi above Natchez
+
+Chosen by the owner on 2026-10-20, after the test, among three candidates: the lower Mississippi
+from the USGS location near St. Joseph, Louisiana, down to river mile 378, about 25 km above
+Natchez, Mississippi ([site file](../../pipeline/reaches/mississippi-st-joseph.yaml)). No USGS
+turbidity series (63680) is on the river there; the only one in the reach's box is Fields Lake near
+Church Hill, a lake, for four days in October 2012 (USGS Water Data API, 2026-10-20). The nearest
+main-stem water-quality gauge, at Natchez (07290880), records nitrate but not turbidity.
+
+- **Its model:** the test's `all` fold, A4 trained on the training years of all nine groups, with
+  no site adjustment. Its card
+  ([`ungauged/mississippi-st-joseph/turbidity.json`](ungauged/mississippi-st-joseph/turbidity.json))
+  is frozen in the frozen-artifacts ledger and recomputed by CI (`quality transfer-verify`).
+- **What a record shows:** a class only (under 30, 30 to 100, 100 FNU and over), at the level
+  _unvalidated_, beside the pooled error above. With no gauge it is never scored. It is a reach the
+  model never saw, not a river: the model learned from two other Mississippi gauges, Cape
+  Girardeau upstream and Belle Chasse downstream.
+- **Where the window sits, and why (decided on 2026-10-20, before any estimate on the reach):** the
+  model abstains when the channel is wider than any river it was trained on (305 to 773 m). With
+  the pipeline's selection rule (SCL water frequency, 2022 to 2025), the channel measures 848 m at
+  the Natchez gauge and 1028 m at mile 378, so a window there would abstain on every pass. At the
+  USGS location near St. Joseph it measures 522 m, so the window is there. The choice used the
+  channel's geometry only: no estimate of the reach existed, and there is no gauge to compare with.
+
 ## What would improve the estimates (research and proposals)
 
 - **A continuous sensor at the estimate station beats a new model.** Every level above rests on
