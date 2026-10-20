@@ -6,8 +6,8 @@ import { oneDecimal } from "../../case/rivers.ts";
 import { HOW_IT_WORKS } from "./content.ts";
 import { Fingerprint } from "./how/Fingerprint.tsx";
 import { FlowChart } from "./how/FlowChart.tsx";
-import { flowYear } from "./how/flow.ts";
-import { headline, neverSaw } from "./how/numbers.ts";
+import { unpackStation } from "./how/flow.ts";
+import { headline, neverSaw, ownRiver } from "./how/numbers.ts";
 import { StationBars } from "./how/StationBars.tsx";
 import "./how/how.css";
 
@@ -23,21 +23,17 @@ export interface HowItWorksDialogProps {
 
 const copy = HOW_IT_WORKS;
 // Every number below comes from a committed file, cut or parsed at build time (vite.config.ts).
-const FLOW = flowYear(
-  __HOW_FLOW__.climate,
-  __HOW_FLOW__.daily,
-  __HOW_FLOW__.passes,
-  __HOW_FLOW__.year,
-);
+const FLOW = __HOW_FLOW__.map(unpackStation);
 const HEADLINE = headline(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
 const NEVER = neverSaw(__TRANSFER_SCORES__);
+const OWN = ownRiver(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
 
 function Problem() {
   return (
     <>
       <p className="how-lead">{copy.problem.lead}</p>
       <p className="how-text">{copy.problem.more}</p>
-      {FLOW === null ? null : <FlowChart data={FLOW} />}
+      {FLOW.length === 0 ? null : <FlowChart stations={FLOW} />}
     </>
   );
 }
@@ -111,7 +107,7 @@ function Works() {
           </div>
         </div>
       )}
-      <StationBars data={NEVER} />
+      <StationBars never={NEVER} own={OWN} />
       <p className="how-text how-works__class">
         {copy.works.classLine(__TRANSFER_POOLED__.class_agreement, __TRANSFER_POOLED__.n)}
       </p>
@@ -213,8 +209,13 @@ export function HowItWorksDialog({ open, onClose, onOpenCase }: HowItWorksDialog
     setIndex(Math.min(Math.max(0, to), chapters.length - 1));
   };
   const onKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
+    // A text field, or a chart that steps through its own marks, keeps its arrow keys.
     const target = event.target as HTMLElement;
-    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+    if (
+      target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA" ||
+      target.closest("[data-own-keys]") !== null
+    ) {
       return;
     }
     if (event.key === "ArrowRight") {

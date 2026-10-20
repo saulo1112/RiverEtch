@@ -111,10 +111,9 @@ export const RUN_STATUS = {
  */
 export const EVIDENCE = {
   label: "The demo's records",
-  rivers: (n: number) => (n === 1 ? "river" : "rivers"),
-  sealed: (n: number) => (n === 1 ? "sealed pass" : "sealed passes"),
-  anchored: "Anchored on Ethereum Sepolia",
-  anchorHint: "(the anchor contract on Etherscan, opens in a new tab)",
+  sealed: (n: number) => (n === 1 ? "sealed reading" : "sealed readings"),
+  anchored: "Their fingerprints on Ethereum",
+  anchorHint: "(the public board's page on Etherscan, a test network, opens in a new tab)",
 } as const;
 
 /** Credits for the scene's data, shown under the strip. */
@@ -165,21 +164,42 @@ export const HOW_IT_WORKS = {
   problem: {
     lead: "A measuring station sees one point of a river. Most of the river lies far from any station.",
     more: "RiverEtch reads the whole stretch from free satellite images, every few days, when there are no clouds.",
-    chartTitle: (low: number, seen: number, year: number) =>
-      `In ${String(year)} the river ran low on ${String(low)} days. The satellite saw it clearly on ${String(seen)} of them.`,
-    chartNote: "Each dot is a day with a clear satellite view.",
-    flowAxis: "River flow, m³/s",
+    chartTitle: (y: {
+      year: number;
+      low: number;
+      lowSeen: number;
+      high: number;
+      highSeen: number;
+    }) =>
+      y.low > 0 && y.high > 0
+        ? `In ${String(y.year)} the river ran low on ${String(y.low)} days and high on ${String(y.high)}. The satellite saw ${String(y.lowSeen)} of the low days and ${String(y.highSeen)} of the high ones clearly.`
+        : y.low > 0
+          ? `In ${String(y.year)} the river ran low on ${String(y.low)} days. The satellite saw it clearly on ${String(y.lowSeen)} of them.`
+          : y.high > 0
+            ? `In ${String(y.year)} the river ran high on ${String(y.high)} days. The satellite saw it clearly on ${String(y.highSeen)} of them.`
+            : `In ${String(y.year)} the river never ran very low or very high.`,
+    stationLabel: "Station",
+    yearLabel: "Year",
+    plotLabel: (station: string, year: number) => `${station}: daily flow in ${String(year)}`,
+    hint: "Move over the chart to read any day. On a keyboard, focus the chart and use the arrow keys to step through the clear-view days.",
+    flowAxis: "River flow, m³/s (log scale, so low flows stay visible)",
     lowLine: "Low-flow line",
-    seenLow: "Clear view on a low-flow day",
+    highLine: "High-flow line",
+    seenExtreme: "Clear view on a low-flow or high-flow day",
     seenOther: "Clear view on another day",
+    noValue: "No station value",
+    lowDay: "Low-flow day",
+    highDay: "High-flow day",
+    normal: "Neither",
+    seen: "Clear satellite view",
+    notSeen: "No clear satellite view",
     source: (station: string, source: string, missing: number) =>
-      `Flow: ${station}, ${source}${missing > 0 ? ` (no value on ${String(missing)} ${missing === 1 ? "day" : "days"}; the line breaks there)` : ""}. Satellite: Sentinel-2. Low-flow line: the station's lowest 10 % of days.`,
-    tableCaption: "Days with a clear satellite view, and the river's flow that day",
+      `Flow: ${station}, ${source}${missing > 0 ? ` (no value on ${String(missing)} ${missing === 1 ? "day" : "days"}; the line breaks there)` : ""}. Satellite: Sentinel-2. The two lines mark the station's lowest and highest 10 % of days on record.`,
+    tableCaption: (year: number) =>
+      `Days in ${String(year)} with a clear satellite view, and the river's flow`,
     day: "Day",
     flow: "Flow (m³/s)",
-    lowDay: "Low flow",
-    yes: "yes",
-    no: "no",
+    kind: "Low or high flow",
   },
   reads: {
     cards: [
@@ -211,7 +231,10 @@ export const HOW_IT_WORKS = {
     place: "Place",
     date: "Date",
     turbidity: "Turbidity",
-    edit: "Change this number",
+    edit: "Type a new value, or press − or +",
+    down: "Lower the turbidity by one step",
+    up: "Raise the turbidity by one step",
+    changed: (k: number, n: number) => `${String(k)} of ${String(n)} characters changed`,
     sealed: "Fingerprint when it was sealed",
     now: "Fingerprint now",
     matches: "Matches. This is the reading as it was sealed.",
@@ -246,10 +269,25 @@ export const HOW_IT_WORKS = {
       `At the middle station of the nine, half of the satellite's errors were under ${sat} %. Guessing the usual value gave ${guess} % (${station}).`,
     tally: (good: number, none: number, worse: number, n: number) =>
       `${String(good)} of ${String(n)} stations beat guessing. ${String(none)} showed no clear gain. ${String(worse)} did worse.`,
-    barsTitle: (beat: number, n: number, fail: number) =>
-      `On rivers the model never saw, ${String(beat)} of ${String(n)} stations still beat guessing. ${String(fail)} failed.`,
-    satellite: "Satellite, a model that never saw that river",
+    viewLabel: "Which test to show",
+    views: { never: "Rivers it never saw", own: "Its own river" },
+    barsTitle: (view: "never" | "own", beat: number, n: number, fail: number) =>
+      view === "never"
+        ? `On rivers the model never saw, ${String(beat)} of ${String(n)} stations still beat guessing. ${String(fail)} failed.`
+        : `Trained on its own river, the model beat guessing at ${String(beat)} of ${String(n)} stations. ${String(fail)} failed.`,
+    satelliteNever: "Satellite, a model that never saw that river",
+    satelliteOwn: "Satellite, a model trained on that river's earlier years",
     guess: "Guessing the river's usual value",
+    tipSatellite: "Satellite:",
+    tipGuess: "Guessing:",
+    timesSmaller: (times: string) => `About ${times} times smaller error than guessing`,
+    noGain: "No clear gain over guessing",
+    worse: "Worse than guessing",
+    passes: (n: number) => `${String(n)} test passes`,
+    passesHead: "Test passes",
+    unscored: (names: readonly string[]) =>
+      `Not scored (too few test passes): ${names.join(", ")}.`,
+    barsHint: "Move over a station, tap it or focus it to see its numbers.",
     fails: "fails",
     axis: "Typical error, % of the station's value",
     classLine: (k: number, n: number) =>

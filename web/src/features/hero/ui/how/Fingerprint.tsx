@@ -1,4 +1,4 @@
-import { Check, RotateCcw, X } from "lucide-react";
+import { Check, Minus, Plus, RotateCcw, X } from "lucide-react";
 import { useEffect, useId, useState } from "react";
 
 import {
@@ -59,11 +59,27 @@ async function load(): Promise<Loaded> {
   };
 }
 
-// A fingerprint, its characters that differ from the sealed one marked.
+// The value one step up or down, in the last decimal place the sealed value writes (30.49 steps
+// by 0.01), so a single press changes one digit.
+function stepped(text: string | null, sealed: string, by: number): string {
+  const places = sealed.split(".")[1]?.length ?? 0;
+  const base = Number(text);
+  const from = Number.isFinite(base) ? base : Number(sealed);
+  return (from + by * 10 ** -places).toFixed(places);
+}
+
+// A fingerprint, its characters that differ from the sealed one marked and counted.
 function Hash({ label, hash, against }: { label: string; hash: string; against?: string }) {
+  const changed =
+    against === undefined ? 0 : Array.from(hash).filter((c, k) => against[k] !== c).length;
   return (
     <p className="how-print__hash">
-      <span className="how-print__hash-label">{label}</span>
+      <span className="how-print__hash-label">
+        {label}
+        {changed > 0 ? (
+          <span className="how-print__changed">{copy.changed(changed, hash.length)}</span>
+        ) : null}
+      </span>
       <code>
         {Array.from(hash, (c, k) => (
           <span key={k} data-diff={against !== undefined && against[k] !== c}>
@@ -143,6 +159,16 @@ export function Fingerprint() {
               <label htmlFor={inputId}>{copy.turbidity}</label>
             </dt>
             <dd className="how-print__edit">
+              <button
+                type="button"
+                className="how-print__step"
+                aria-label={copy.down}
+                onClick={() => {
+                  setText(stepped(text, loaded.value ?? "0", -1));
+                }}
+              >
+                <Minus size={15} strokeWidth={2} aria-hidden="true" />
+              </button>
               <input
                 id={inputId}
                 className="how-print__input"
@@ -154,6 +180,16 @@ export function Fingerprint() {
                   setText(event.target.value.trim() === "" ? "0" : event.target.value.trim());
                 }}
               />
+              <button
+                type="button"
+                className="how-print__step"
+                aria-label={copy.up}
+                onClick={() => {
+                  setText(stepped(text, loaded.value ?? "0", 1));
+                }}
+              >
+                <Plus size={15} strokeWidth={2} aria-hidden="true" />
+              </button>
               <span>FNU</span>
               <span className="how-print__hint" id={`${inputId}-hint`}>
                 {copy.edit}

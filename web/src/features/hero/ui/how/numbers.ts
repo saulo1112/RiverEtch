@@ -1,6 +1,7 @@
 // The "Does it work?" chapter's numbers, computed from the committed results (never typed): the
-// middle station of the v5 locked test, how many stations beat guessing the usual value, and the
-// test on rivers the model never saw. Pure, so the tests run it on the same files.
+// middle station of the v5 locked test, how many stations beat guessing the usual value (one rule
+// throughout: reading.ts gainOver), and the test on rivers the model never saw. Pure, so the
+// tests run it on the same files.
 import { gainOver } from "../../../case/reading.ts";
 import { riverResults, transferResults, type RiverResult } from "../../../case/rivers.ts";
 
@@ -50,32 +51,51 @@ export function headline(levels: string, scores: string): Headline | null {
   };
 }
 
-/** The test on rivers the model never saw, as the chapter draws it. */
-export interface NeverSaw {
-  /** Every station, lowest error first. */
+/** A locked test's stations, as the chapter draws them. */
+export interface StationSet {
+  /** Every scored station, lowest error first. */
   readonly rows: readonly (RiverResult & { mdsa: number; nullMdsa: number })[];
-  /** Stations whose error was below guessing the usual value. */
+  /** Stations with too few test passes to be scored. */
+  readonly unscored: readonly RiverResult[];
+  /** Stations that clearly beat guessing the usual value (the app's rule, reading.ts gainOver). */
   readonly beat: number;
   /** Stations that reached no level (they fail). */
   readonly fail: number;
 }
 
-/**
- * The transfer test's stations (results/transfer/transfer_scores.csv).
- *
- * @param scores - The CSV's text.
- * @returns The rows and the two counts.
- */
-export function neverSaw(scores: string): NeverSaw {
-  const rows = transferResults(scores).filter(
+function stationSet(results: readonly RiverResult[]): StationSet {
+  const rows = results.filter(
     (r): r is RiverResult & { mdsa: number; nullMdsa: number } =>
       r.mdsa !== null && r.nullMdsa !== null,
   );
   return {
     rows,
-    beat: rows.filter((r) => r.mdsa < r.nullMdsa).length,
+    unscored: results.filter((r) => r.mdsa === null || r.nullMdsa === null),
+    beat: rows.filter((r) => gainOver(r.mdsa, r.nullMdsa).kind === "times").length,
     fail: rows.filter((r) => r.level === "none").length,
   };
+}
+
+/**
+ * The test on rivers the model never saw (results/transfer/transfer_scores.csv).
+ *
+ * @param scores - The CSV's text.
+ * @returns Its stations and the two counts.
+ */
+export function neverSaw(scores: string): StationSet {
+  return stationSet(transferResults(scores));
+}
+
+/**
+ * The v5 locked test, each station scored by a model trained on its own river's earlier years
+ * (results/v5_levels.csv and v5_scores.csv).
+ *
+ * @param levels - v5_levels.csv.
+ * @param scores - v5_scores.csv.
+ * @returns Its stations and the two counts.
+ */
+export function ownRiver(levels: string, scores: string): StationSet {
+  return stationSet(riverResults(levels, scores));
 }
 
 /**

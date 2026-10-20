@@ -1233,7 +1233,7 @@
   }
 }
 
-@container hero (width < 1280px) or (height < 760px) {
+@container hero (width < 1100px) or (height < 660px) {
   .hero-indicator__desc {
     display: none;
   }

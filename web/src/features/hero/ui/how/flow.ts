@@ -1,21 +1,27 @@
-// The "How it works" flow chart's data: one station's daily flow through one year, its low-flow
-// line, and the days the satellite had a usable pass. Read from the committed files the pipeline
-// uses for the same counts (pipeline/src/climate_pipeline/reach/extremes.py): the station's daily
-// means (climate/daily.csv, USGS parameter 00060 in ft³/s), the low-flow line of rule v1
-// (climate.json, extremes.thresholds.low, in m³/s) and the satellite's usable passes of the v5
-// inputs (inputs/usgs-v5/turbidity.csv). Pure, so the tests run it on the full files.
+// The "How it works" flow chart's data: a station's daily flow through each satellite year, its
+// low-flow and high-flow lines, and the days the satellite had a usable pass. Read from the
+// committed files the pipeline counts the same days from (pipeline/src/climate_pipeline/reach/
+// extremes.py, rule v1): the station's daily means (climate/daily.csv, USGS parameter 00060 in
+// ft³/s), the two lines (climate.json, extremes.thresholds, in m³/s) and the usable passes of the
+// v5 inputs (inputs/usgs-v5/turbidity.csv). `packStation` runs at build time (vite.config.ts), so
+// the page carries a compact year, not the files; the tests run it on the full files and recount
+// every year against climate.json.
 
 /** Cubic feet to cubic metres, exactly as the pipeline converts them. */
 export const FT3_TO_M3 = 0.028316846592;
+/** The satellite years of the v5 inputs (extremes.py, V5_YEARS): the chart offers these. */
+export const SATELLITE_YEARS: readonly number[] = [2019, 2020, 2021, 2022, 2023, 2024, 2025];
+
+/** A day's kind, as rule v1 names it ("normal": neither). */
+export type DayKind = "low" | "high" | "normal";
 
 /** One day of the station's record. */
 export interface FlowDay {
   /** ISO date. */
   readonly day: string;
-  /** Daily mean discharge, m³/s. */
-  readonly flow: number;
-  /** The day is at or below the low-flow line. */
-  readonly low: boolean;
+  /** Daily mean discharge, m³/s (rounded to 0.1); null when the station has no value. */
+  readonly flow: number | null;
+  readonly kind: DayKind;
   /** The satellite had a usable pass that day. */
   readonly seen: boolean;
 }
@@ -23,15 +29,47 @@ export interface FlowDay {
 /** One year of one station, as the chart draws it. */
 export interface FlowYear {
   readonly year: number;
-  readonly station: { readonly id: string; readonly name: string };
+  /** Every calendar day, 1 January first. */
+  readonly days: readonly FlowDay[];
+  /** Low-flow and high-flow days and the ones the satellite saw, as climate.json counts them. */
+  readonly low: number;
+  readonly lowSeen: number;
+  readonly high: number;
+  readonly highSeen: number;
+}
+
+/** A station across the satellite years. */
+export interface FlowStation {
+  readonly id: string;
+  readonly name: string;
   /** Where the daily values come from, as climate.json names it. */
   readonly source: string;
-  /** The low-flow line (m³/s): the station's 10th percentile of daily means (rule v1). */
+  /** The low-flow and high-flow lines (m³/s): the 10th and 90th percentiles (rule v1). */
   readonly lowLine: number;
-  readonly days: readonly FlowDay[];
-  /** Low-flow days and the ones the satellite saw, as climate.json counts them. */
-  readonly lowDays: number;
-  readonly lowSeen: number;
+  readonly highLine: number;
+  readonly years: readonly FlowYear[];
+}
+
+/** The same, packed for the page: a year is three strings and an array, not 365 objects. */
+export interface PackedStation {
+  readonly id: string;
+  readonly name: string;
+  readonly source: string;
+  readonly lowLine: number;
+  readonly highLine: number;
+  readonly years: readonly {
+    readonly year: number;
+    readonly low: number;
+    readonly lowSeen: number;
+    readonly high: number;
+    readonly highSeen: number;
+    /** One flow per calendar day (m³/s, 0.1), null where the station has none. */
+    readonly flows: readonly (number | null)[];
+    /** One letter per day: l(ow), h(igh), n(ormal). */
+    readonly kinds: string;
+    /** One letter per day: 1 the satellite saw it, 0 not. */
+    readonly seen: string;
+  }[];
 }
 
 // A CSV's rows as records (no quoted commas in these files).
@@ -51,56 +89,113 @@ interface Climate {
   readonly station: { readonly id: string; readonly name: string };
   readonly source: string;
   readonly extremes?: {
-    readonly thresholds: { readonly low: number };
+    readonly thresholds: { readonly low: number; readonly high: number };
     readonly years: readonly {
       readonly year: number;
       readonly low: number;
-      readonly lowSeen: number;
+      readonly lowSeen: number | null;
+      readonly high: number;
+      readonly highSeen: number | null;
     }[];
   };
 }
 
+const DAY_MS = 86_400_000;
+const isoDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+
 /**
- * One year of a station's flow, its low-flow line and the satellite's usable passes.
+ * A station's satellite years, packed: each day's flow and kind, and the satellite's usable passes.
+ * A day the gauge publishes twice takes the mean of its values (extremes.py, one_per_day).
  *
  * @param climateJson - The reach's climate.json.
  * @param dailyCsv - The station's daily.csv (day, parameter, value, approval).
  * @param passesCsv - The v5 inputs' turbidity.csv (site_id, key, datetime_utc, …).
- * @param year - The year.
- * @returns The year, or null when the files lack it.
+ * @returns The station, or null when climate.json has no extremes.
  */
-export function flowYear(
+export function packStation(
   climateJson: string,
   dailyCsv: string,
   passesCsv: string,
-  year: number,
-): FlowYear | null {
+): PackedStation | null {
   const climate = JSON.parse(climateJson) as Climate;
-  const counts = climate.extremes?.years.find((y) => y.year === year);
-  if (climate.extremes === undefined || counts === undefined) {
+  const extremes = climate.extremes;
+  if (extremes === undefined) {
     return null;
   }
-  const lowLine = climate.extremes.thresholds.low;
-  const prefix = `${String(year)}-`;
+  const { low: lowLine, high: highLine } = extremes.thresholds;
   const seen = new Set(
     rows(passesCsv)
-      .filter((r) => r.site_id === climate.station.id && (r.datetime_utc ?? "").startsWith(prefix))
+      .filter((r) => r.site_id === climate.station.id)
       .map((r) => (r.datetime_utc ?? "").slice(0, 10)),
   );
-  const days = rows(dailyCsv)
-    .filter((r) => r.parameter === "00060" && (r.day ?? "").startsWith(prefix) && r.value !== "")
-    .map((r): FlowDay => {
-      const flow = Number(r.value) * FT3_TO_M3;
-      const day = r.day ?? "";
-      return { day, flow, low: flow <= lowLine, seen: seen.has(day) };
-    });
+  const values = new Map<string, number[]>();
+  for (const r of rows(dailyCsv)) {
+    if (r.parameter === "00060" && r.value !== "" && r.day !== undefined) {
+      values.set(r.day, [...(values.get(r.day) ?? []), Number(r.value) * FT3_TO_M3]);
+    }
+  }
+  const years = SATELLITE_YEARS.flatMap((year) => {
+    const counts = extremes.years.find((y) => y.year === year);
+    if (counts === undefined) {
+      return [];
+    }
+    const flows: (number | null)[] = [];
+    let kinds = "";
+    let saw = "";
+    for (let ms = Date.UTC(year, 0, 1); ms < Date.UTC(year + 1, 0, 1); ms += DAY_MS) {
+      const day = isoDay(ms);
+      const v = values.get(day);
+      const flow = v === undefined ? null : v.reduce((a, b) => a + b, 0) / v.length;
+      flows.push(flow === null ? null : Math.round(flow * 10) / 10);
+      kinds += flow === null ? "n" : flow <= lowLine ? "l" : flow >= highLine ? "h" : "n";
+      saw += seen.has(day) ? "1" : "0";
+    }
+    return [
+      {
+        year,
+        low: counts.low,
+        lowSeen: counts.lowSeen ?? 0,
+        high: counts.high,
+        highSeen: counts.highSeen ?? 0,
+        flows,
+        kinds,
+        seen: saw,
+      },
+    ];
+  });
   return {
-    year,
-    station: climate.station,
+    id: climate.station.id,
+    name: climate.station.name,
     source: climate.source,
     lowLine,
-    days,
-    lowDays: counts.low,
-    lowSeen: counts.lowSeen,
+    highLine,
+    years,
+  };
+}
+
+const KIND: Readonly<Record<string, DayKind>> = { l: "low", h: "high", n: "normal" };
+
+/**
+ * A packed station, back as days.
+ *
+ * @param packed - From {@link packStation}.
+ * @returns The station.
+ */
+export function unpackStation(packed: PackedStation): FlowStation {
+  return {
+    ...packed,
+    years: packed.years.map((y) => ({
+      year: y.year,
+      low: y.low,
+      lowSeen: y.lowSeen,
+      high: y.high,
+      highSeen: y.highSeen,
+      days: y.flows.map((flow, k): FlowDay => ({
+        day: isoDay(Date.UTC(y.year, 0, 1) + k * DAY_MS),
+        flow,
+        kind: KIND[y.kinds[k] ?? "n"] ?? "normal",
+        seen: y.seen[k] === "1",
+      })),
+    })),
   };
 }

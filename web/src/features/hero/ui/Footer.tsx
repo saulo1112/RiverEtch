@@ -15,9 +15,10 @@ const EVIDENCE_FIGURES = evidenceOf(
 );
 
 /**
- * The hero's bottom row: the evidence strip (the demo's rivers, its sealed passes and, once the
- * anchor contract is deployed, a link to it) on the text column, the status chip on the right and
- * the data attribution under the strip. The chip reads the daily run's status and opens it.
+ * The hero's bottom row: the evidence strip (the demo's sealed readings and, once the anchor
+ * contract is deployed, a link to their fingerprints on it) on the text column, the status chip on
+ * the right and the data attribution under the strip. The chip reads the daily run's status and
+ * opens it.
  *
  * @returns The bottom row.
  */
@@ -43,10 +44,6 @@ export function Footer() {
       <div className="hero-foot__row">
         {EVIDENCE_FIGURES === null ? null : (
           <ul className="hero-evidence" aria-label={EVIDENCE.label}>
-            <li className="hero-evidence__item">
-              <strong>{String(EVIDENCE_FIGURES.rivers)}</strong>{" "}
-              {EVIDENCE.rivers(EVIDENCE_FIGURES.rivers)}
-            </li>
             <li className="hero-evidence__item">
               <strong>{String(EVIDENCE_FIGURES.sealedPasses)}</strong>{" "}
               {EVIDENCE.sealed(EVIDENCE_FIGURES.sealedPasses)}

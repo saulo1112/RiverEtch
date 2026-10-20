@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type Plugin } from "vite";
 
+import { packStation } from "./src/features/hero/ui/how/flow.ts";
+
 // The pipeline's committed files for the web (docs/water-quality/reach/README.md): each reach's
 // examples folder, served as /data/reaches/<id>/ in development and copied there by the build, so
 // the repository keeps one copy.
@@ -176,32 +178,22 @@ const transferScores = readFileSync(join(RESULTS, "transfer", "transfer_scores.c
 const transferPooled = JSON.parse(
   readFileSync(join(RESULTS, "transfer", "transfer_pooled.json"), "utf8"),
 ) as { class_agreement: number; n: number };
-// "How it works": the Belle Chasse station's 2023 flow, its low-flow line and the satellite's
-// usable passes, cut to that year from the committed files (parsed by
-// src/features/hero/ui/how/flow.ts; the tests run the parser on the full files).
-const HOW_SITE = "mississippi-belle-chasse";
-const HOW_YEAR = 2023;
-const howClimate = readFileSync(join(REACHES, HOW_SITE, "examples", "climate.json"), "utf8");
-const howStation = (JSON.parse(howClimate) as { station: { id: string } }).station.id;
-const keep = (text: string, test: (line: string) => boolean) =>
-  text
-    .split(/\r?\n/)
-    .filter((line, k) => k === 0 || test(line))
-    .join("\n");
-const howFlow = {
-  year: HOW_YEAR,
-  climate: howClimate,
-  daily: keep(readFileSync(join(REACHES, HOW_SITE, "climate", "daily.csv"), "utf8"), (line) =>
-    line.startsWith(`${String(HOW_YEAR)}-`),
+// "How it works": the two gauged demo stations' daily flow through the satellite years, their
+// low-flow and high-flow lines and the satellite's usable passes, packed at build time by
+// src/features/hero/ui/how/flow.ts (the tests run it on the full files and recount every year
+// against climate.json).
+const HOW_SITES = ["mississippi-belle-chasse", "platte-louisville"];
+const v5Passes = readFileSync(
+  fileURLToPath(new URL("../docs/water-quality/inputs/usgs-v5/turbidity.csv", import.meta.url)),
+  "utf8",
+);
+const howFlow = HOW_SITES.map((site) =>
+  packStation(
+    readFileSync(join(REACHES, site, "examples", "climate.json"), "utf8"),
+    readFileSync(join(REACHES, site, "climate", "daily.csv"), "utf8"),
+    v5Passes,
   ),
-  passes: keep(
-    readFileSync(
-      fileURLToPath(new URL("../docs/water-quality/inputs/usgs-v5/turbidity.csv", import.meta.url)),
-      "utf8",
-    ),
-    (line) => line.startsWith(`${howStation},`) && line.includes(`,${String(HOW_YEAR)}-`),
-  ),
-};
+).filter((station) => station !== null);
 
 // https://vite.dev/config/
 export default defineConfig({
