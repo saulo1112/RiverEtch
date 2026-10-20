@@ -180,6 +180,20 @@ function wantsThumbnailCapture(): boolean {
   );
 }
 
+// The imagery's and the terrain's credits, as their licences ask.
+function MapSources() {
+  return (
+    <>
+      <a href={IMAGERY.homepage} target="_blank" rel="noopener noreferrer">
+        {IMAGERY.attribution}
+        <span className="case-visually-hidden"> {CASE_COPY.externalHint}</span>
+      </a>
+      {" · "}
+      {TERRAIN.attribution}
+    </>
+  );
+}
+
 /**
  * Full-viewport case view: the map of the reach, the case file, legend, record and timeline
  * panels, the map's tools, the wallet corner and the map attribution. It stays inert until it has
@@ -716,14 +730,17 @@ export function CaseView({
           setTab(tourTab.current);
         }}
       />
+      {/* The map's sources: one line on a wide screen; a "Map sources" pill that opens them on a
+          phone, where the whole line would take five rows. Only one of the two is ever shown. */}
       <p className="case-view__attribution">
-        <a href={IMAGERY.homepage} target="_blank" rel="noopener noreferrer">
-          {IMAGERY.attribution}
-          <span className="case-visually-hidden"> {CASE_COPY.externalHint}</span>
-        </a>
-        {" · "}
-        {TERRAIN.attribution}
+        <MapSources />
       </p>
+      <details className="case-view__sources">
+        <summary>{CASE_COPY.mapSources}</summary>
+        <p className="case-view__sources-text case-glass">
+          <MapSources />
+        </p>
+      </details>
     </section>
   );
 }

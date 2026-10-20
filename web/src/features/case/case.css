@@ -158,7 +158,7 @@
 .case-btn.case-skip {
   position: fixed;
   right: clamp(16px, 2.4vw, 40px);
-  bottom: clamp(16px, 2.6vh, 32px);
+  bottom: 44px; /* 16 px above the one line of map sources */
   z-index: 3;
   gap: 10px;
   height: 44px;
@@ -181,6 +181,19 @@
     background-color 160ms var(--ease),
     border-color 160ms var(--ease),
     translate 160ms var(--ease);
+}
+
+/* Two lines of sources below 1300 px, the "Map sources" pill on a phone. */
+@media (max-width: 1299px) {
+  .case-btn.case-skip {
+    bottom: 60px;
+  }
+}
+
+@media (max-width: 760px) {
+  .case-btn.case-skip {
+    bottom: 52px;
+  }
 }
 
 .case-btn.case-skip:hover {
@@ -224,7 +237,7 @@
   }
 }
 
-/* Compact attribution (MapLibre's own control is off). */
+/* The map's sources (MapLibre's own control is off): one line, or two below 1300 px. */
 .case-view__attribution {
   position: absolute;
   right: var(--pad-x);
@@ -232,7 +245,7 @@
   left: var(--pad-x);
   margin: 0;
   color: var(--text-3);
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.35;
   text-align: right;
   text-wrap: pretty;
@@ -247,6 +260,54 @@
 
 .case-view__attribution a:hover {
   color: var(--text-2);
+}
+
+/* On a phone: a "Map sources" pill, bottom right, that opens the credits above it. */
+.case-view__sources {
+  display: none;
+}
+
+.case-view__sources summary {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding-inline: 12px;
+  border: 1px solid rgb(240 246 255 / 0.16);
+  border-radius: 999px;
+  background: rgb(2 4 10 / 0.5);
+  color: var(--text-2);
+  font-size: 12px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.case-view__sources summary::-webkit-details-marker {
+  display: none;
+}
+
+.case-view__sources summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.case-view__sources-text {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  width: min(320px, calc(100vw - 2 * var(--pad-x)));
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--case-r-bar);
+  color: var(--text-2);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.case-view__sources-text a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgb(240 246 255 / 0.3);
+  text-underline-offset: 2px;
 }
 
 .case-visually-hidden {
@@ -377,7 +438,7 @@
   grid-template-rows: minmax(0, auto) minmax(0, 1fr) auto;
   grid-template-columns: minmax(0, var(--case-col)) minmax(0, 1fr) auto;
   gap: var(--case-gap);
-  padding: var(--pad-y) var(--pad-x) calc(var(--pad-y) + 14px);
+  padding: var(--pad-y) var(--pad-x) calc(var(--pad-y) + 18px);
   pointer-events: none;
 }
 
@@ -3466,6 +3527,13 @@
 }
 
 /* Tablets: narrower side columns. */
+/* Below 1300 px the sources take two lines: the panels leave room for both. */
+@media (min-width: 761px) and (max-width: 1299px) {
+  .case-view__panels {
+    padding-bottom: calc(var(--pad-y) + 34px);
+  }
+}
+
 @media (min-width: 761px) and (max-width: 1099px) {
   .case-view {
     --case-col: 256px;
@@ -3720,7 +3788,15 @@
   }
 
   .case-view__attribution {
-    font-size: 9.5px;
+    display: none;
+  }
+
+  .case-view__sources {
+    position: absolute;
+    right: var(--pad-x);
+    bottom: 6px;
+    z-index: 3;
+    display: block;
   }
 }
 

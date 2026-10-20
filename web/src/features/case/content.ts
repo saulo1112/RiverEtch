@@ -473,6 +473,7 @@ export const CASE_COPY = {
   },
   externalHint: "(opens in a new tab)",
   mapUnavailable: "The map could not load in this browser.",
+  mapSources: "Map sources",
   loading: "Loading the reach…",
   loadFailed: "The reach's records could not be loaded.",
   announceCase: "Case file:",
