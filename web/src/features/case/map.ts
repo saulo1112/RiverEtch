@@ -20,9 +20,23 @@ import {
 
 import { pixelAt, readPixel, type PixelReading } from "../reaches/analysis.ts";
 import type { ReachCase } from "../reaches/catalog.ts";
-import { colorize } from "../reaches/colorize.ts";
+import { Colorizer } from "../reaches/colorize.ts";
 import type { LngLat, ReachData } from "../reaches/types.ts";
 import { IMAGERY, MAP_LOOK, TERRAIN } from "./config.ts";
+
+/**
+ * A marker that asks whether terrain hides it only once the camera settles (`moveend`, and
+ * `setOpacity`). MapLibre's own check reads the depth buffer back from the GPU every 100 ms while
+ * the camera moves, which stalls the frame (about 0.7 s over the flight onto a reach). At rest the
+ * marker fades behind a hill exactly as before.
+ */
+class SettledMarker extends Marker {
+  override _updateOpacity(force = false): void {
+    if (force) {
+      super._updateOpacity(true);
+    }
+  }
+}
 
 /** Where the camera starts: the top-down handoff pose, or directly on the final view. */
 export type CaseMapStart = "handoff" | "final";
@@ -502,6 +516,8 @@ class PassLayers {
   private readonly reach: ReachData;
   private readonly domain: readonly [number, number];
   private colored: ImageData | null = null;
+  /** Recolors only what a new reveal changes (the bytes `colorize` would write). */
+  private colorizer: Colorizer | null = null;
   private readonly context: CanvasRenderingContext2D | null;
   private opacity = 1;
   private photo: string | null = null;
@@ -573,14 +589,24 @@ class PassLayers {
       context.clearRect(0, 0, this.canvas.width, this.canvas.height);
     } else {
       this.colored ??= context.createImageData(packed.width, packed.height);
-      colorize(packed.data, packed.width, this.colored.data, {
+      this.colorizer ??= new Colorizer(packed.data, packed.width, this.colored.data, {
         domain: this.domain,
         packed: reach.maps.encoding.r.ndti,
-        reveal: this.reveal,
         feather: MAP_LOOK.corridor.revealFeather,
         opacity: MAP_LOOK.corridor.ndtiOpacity,
       });
-      context.putImageData(this.colored, 0, 0);
+      const changed = this.colorizer.render(this.reveal);
+      if (changed !== null) {
+        context.putImageData(
+          this.colored,
+          0,
+          0,
+          changed.x,
+          changed.y,
+          changed.width,
+          changed.height,
+        );
+      }
     }
     const source = this.map.getSource<CanvasSource>(SOURCE.ndti);
     if (source !== undefined) {
@@ -611,6 +637,7 @@ class PassLayers {
       const request = this.request;
       if (file === null) {
         this.packed = null;
+        this.colorizer = null;
         this.paint();
       } else {
         decodeMap(`${this.reach.base}${file}`)
@@ -618,6 +645,7 @@ class PassLayers {
             if (!this.disposed && request === this.request) {
               this.packed = data;
               this.colored = null;
+              this.colorizer = null;
               this.paint();
               onData?.(data);
             }
@@ -837,14 +865,17 @@ export async function createCaseMap(
   const marker =
     point === null
       ? null
-      : new Marker({ element: gauge.root, anchor: "center" }).setLngLat([point[0], point[1]]);
+      : new SettledMarker({ element: gauge.root, anchor: "center" }).setLngLat([
+          point[0],
+          point[1],
+        ]);
   marker?.addTo(map);
   gauge.root.dataset.shown = "false";
 
   // The profile's cursor on the river.
   const probe = document.createElement("div");
   probe.className = "case-probe";
-  const probeMarker = new Marker({ element: probe, anchor: "center" });
+  const probeMarker = new SettledMarker({ element: probe, anchor: "center" });
 
   // The pixel under the cursor, at most once a frame.
   let hoverFrame = 0;

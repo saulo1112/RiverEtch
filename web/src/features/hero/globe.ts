@@ -948,10 +948,12 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
   function renderFrame(timestamp: number | undefined): void {
     timer.update(timestamp);
     // Clamp both ends: the first frame after a reset can report a slightly negative delta. The
-    // dive runs on wall-clock time (bounded), so a slow GPU does not stretch it; the scene's own
-    // motion keeps the 1/30 s cap.
+    // dive runs on wall-clock time (bounded), so a slow GPU does not stretch it. The scene's own
+    // motion keeps wall-clock time too, up to 0.1 s a frame, so one slow frame does not slow the
+    // satellite down (the springs stay stable: their largest omega × dt is 0.4); a longer gap, a
+    // hidden tab, is cut there.
     const frameS = MathUtils.clamp(timer.getDelta(), 0, 0.25);
-    const dt = Math.min(frameS, 1 / 30);
+    const dt = Math.min(frameS, 0.1);
     if (animate) {
       sceneTime += dt;
     } else {
@@ -1299,11 +1301,36 @@ export function mountHero(container: HTMLElement, options: MountHeroOptions): He
       earthUniforms.uWaterMask.value = adopt(water.value);
     }
 
-    // Compile every program up front, so the first pass does not hitch.
+    // Compile every program up front (in parallel where the browser can), so the first pass does
+    // not block: the variants a frame really draws (with bloom the scene renders into the
+    // composer's target, where three.js picks no tone mapping and linear output, not the canvas's
+    // ACES and sRGB), and the objects that show only later (the satellite and the atmosphere
+    // fade back in after a rise). Nothing is drawn here.
+    const hidden: Object3D[] = [];
+    scene.traverse((object) => {
+      if (!object.visible) {
+        hidden.push(object);
+        object.visible = true;
+      }
+    });
+    const target = renderer.getRenderTarget();
     try {
-      await renderer.compileAsync(scene, camera);
+      if (preset.bloom) {
+        renderer.setRenderTarget(composer.readBuffer);
+      }
+      // compile() runs synchronously inside; the promise only waits for the programs to link.
+      const compiled = renderer.compileAsync(scene, camera);
+      renderer.setRenderTarget(target);
+      for (const object of hidden) {
+        object.visible = false;
+      }
+      await compiled;
     } catch {
       // Compilation errors surface again on the first render; nothing to do here.
+      renderer.setRenderTarget(target);
+      for (const object of hidden) {
+        object.visible = false;
+      }
     }
     if (disposed) {
       return;

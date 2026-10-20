@@ -79,6 +79,137 @@ export function colorize(
   }
 }
 
+/** The pixels a {@link Colorizer} frame changed: their bounding box, in pixels (null: none). */
+export interface DirtyRect {
+  readonly x: number;
+  readonly y: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * The pixels of {@link colorize}, for one packed map drawn at many reveals (the river filling in).
+ * A pixel's place along the reach is one byte, so the map has only 256 places: the inside pixels
+ * are grouped by place once, and a frame recolors only the places whose fade changed since the
+ * last frame (the moving front, about a twentieth of the map), each pixel by the same expressions
+ * as `colorize`, so the bytes are the same.
+ */
+export class Colorizer {
+  private readonly packed: Uint8ClampedArray;
+  private readonly width: number;
+  private readonly out: Uint8ClampedArray;
+  private readonly options: Omit<ColorizeOptions, "reveal">;
+  /** Inside pixels' indices, grouped by place byte; place g owns order[start[g]..start[g+1]). */
+  private readonly order: Uint32Array;
+  private readonly start = new Uint32Array(257);
+  /** The fade each place was last drawn with (-1: hidden; NaN: never drawn). */
+  private readonly drawn = new Float64Array(256).fill(Number.NaN);
+
+  /**
+   * Groups the map's inside pixels by place and clears the rest.
+   *
+   * @param packed - The PNG's RGBA bytes, as for `colorize`.
+   * @param width - Its width in pixels.
+   * @param out - Where to write (same length); its pixels outside the reach end transparent.
+   * @param options - Domain and look (the reveal is each frame's).
+   */
+  constructor(
+    packed: Uint8ClampedArray,
+    width: number,
+    out: Uint8ClampedArray,
+    options: Omit<ColorizeOptions, "reveal">,
+  ) {
+    this.packed = packed;
+    this.width = width;
+    this.out = out;
+    this.options = options;
+    const counts = new Uint32Array(256);
+    for (let p = 0; p < packed.length; p += 4) {
+      if ((packed[p + 3] ?? 0) === 0) {
+        out[p + 3] = 0;
+      } else {
+        counts[packed[p + 1] ?? 0] = (counts[packed[p + 1] ?? 0] ?? 0) + 1;
+      }
+    }
+    for (let g = 0; g < 256; g += 1) {
+      this.start[g + 1] = (this.start[g] ?? 0) + (counts[g] ?? 0);
+    }
+    this.order = new Uint32Array(this.start[256] ?? 0);
+    const next = this.start.slice(0, 256);
+    for (let i = 0, p = 0; p < packed.length; i += 1, p += 4) {
+      if ((packed[p + 3] ?? 0) !== 0) {
+        const g = packed[p + 1] ?? 0;
+        this.order[next[g] ?? 0] = i;
+        next[g] = (next[g] ?? 0) + 1;
+      }
+    }
+  }
+
+  /**
+   * Colors the map at a reveal, touching only the places whose fade changed.
+   *
+   * @param reveal - Share of the reach shown, from the upstream anchor (0..1).
+   * @returns The bounding box of the pixels written (null when none changed).
+   */
+  render(reveal: number): DirtyRect | null {
+    const { packed, width, out, options } = this;
+    const [lo, hi] = options.packed;
+    const [dmin, dmax] = options.domain;
+    const span = dmax - dmin || 1;
+    const front = reveal + options.feather;
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -1;
+    let maxY = -1;
+    for (let g = 0; g < 256; g += 1) {
+      const place = g / 255;
+      const hidden = reveal <= 0 || place > front;
+      const edge = hidden
+        ? -1
+        : options.feather > 0
+          ? Math.min(1, (front - place) / options.feather)
+          : 1;
+      if (edge === this.drawn[g] || (this.start[g] ?? 0) === (this.start[g + 1] ?? 0)) {
+        this.drawn[g] = edge;
+        continue;
+      }
+      this.drawn[g] = edge;
+      for (let k = this.start[g] ?? 0; k < (this.start[g + 1] ?? 0); k += 1) {
+        const i = this.order[k] ?? 0;
+        const p = i * 4;
+        const x = i % width;
+        const y = (i - x) / width;
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+        if (hidden) {
+          out[p + 3] = 0;
+          continue;
+        }
+        const code = packed[p + 2] ?? 0;
+        const byte = packed[p] ?? 0;
+        if ((code & UNUSABLE_BIT) !== 0 || byte === 0) {
+          const stroke = (x + y) % HATCH < 2;
+          out[p] = HATCH_RGB[0];
+          out[p + 1] = HATCH_RGB[1];
+          out[p + 2] = HATCH_RGB[2];
+          out[p + 3] = Math.round((stroke ? 150 : 40) * edge);
+          continue;
+        }
+        const ndti = lo + ((byte - 1) / 254) * (hi - lo);
+        const t = Math.min(1, Math.max(0, (ndti - dmin) / span));
+        const lut = Math.round(t * (LUT_SIZE - 1)) * 3;
+        out[p] = LUT[lut] ?? 0;
+        out[p + 1] = LUT[lut + 1] ?? 0;
+        out[p + 2] = LUT[lut + 2] ?? 0;
+        out[p + 3] = Math.round(255 * options.opacity * edge);
+      }
+    }
+    return maxX < 0 ? null : { x: minX, y: minY, width: maxX - minX + 1, height: maxY - minY + 1 };
+  }
+}
+
 /**
  * The reach's own NDTI range: the medians of its records, widened by a quarter on each side.
  *
