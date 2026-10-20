@@ -2,7 +2,7 @@
   "name": "climate-change-ieee",
   "version": "0.1.0",
   "private": true,
-  "description": "RiverEtch: satellite water-quality estimates validated against river gauges, sealed in hash-chained ledgers anchored on Ethereum Sepolia.",
+  "description": "RiverEtch: river turbidity read from free satellite images, with how far off each reading can be, sealed so any later change would show.",
   "type": "module",
   "workspaces": [
     "contracts",

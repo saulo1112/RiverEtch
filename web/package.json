@@ -2,7 +2,7 @@
   "name": "@climate-change-ieee/web",
   "version": "0.1.0",
   "private": true,
-  "description": "dApp frontend: public satellite-anomaly layer and private ZK-compliance layer.",
+  "description": "RiverEtch web app: the globe, the river cases and the in-browser checks of every sealed reading.",
   "type": "module",
   "scripts": {
     "dev": "vite",

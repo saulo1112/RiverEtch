@@ -78,5 +78,6 @@ Thumbs.db
 *.swp
 
 # Planning notes and submission drafts stay out of the repository.
+/plans/
 docs/plans/
 docs/submission/
