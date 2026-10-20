@@ -5,8 +5,14 @@
 /** A `[longitude, latitude]` pair in decimal degrees (GeoJSON order). */
 export type LngLat = readonly [number, number];
 
-/** How far a model's error was established (the v5 levels). */
-export type Level = "validated" | "estimated" | "indicative" | "none";
+/**
+ * How far a model's error was established: the v5 levels, and "unvalidated" for a reach with no
+ * gauge (its expected error is the transfer test's; preregistration-transfer.md).
+ */
+export type Level = "validated" | "estimated" | "indicative" | "unvalidated" | "none";
+
+/** An ungauged reach's turbidity class (preregistration-transfer.md, section 5). */
+export type FnuClass = "under_30" | "30_to_100" | "100_and_over";
 
 /** A 90 % (or other) interval around an estimate. */
 export interface Interval {
@@ -24,6 +30,8 @@ export interface Estimate {
   readonly value?: number | null;
   readonly interval?: Interval | null;
   readonly relativeClass?: "low" | "medium" | "high" | null;
+  /** An ungauged reach's class (never a value). */
+  readonly fnuClass?: FnuClass | null;
   readonly abstainReason?: string | null;
   readonly modelId?: string | null;
   readonly modelCardSha256?: string | null;
@@ -81,6 +89,13 @@ export interface ReachInfo {
     readonly source: string;
     readonly name: string;
     readonly url?: string;
+    /** An ungauged reach's estimate window: where it is and why (no gauge there). */
+    readonly window?: {
+      readonly lon: number;
+      readonly lat: number;
+      readonly basis: string;
+      readonly sourceUrl: string;
+    };
   };
   readonly targets: readonly string[];
   readonly cards: Readonly<Record<string, string>>;
@@ -100,13 +115,33 @@ export interface CardMetrics {
   readonly coverage90: number;
 }
 
+/** An ungauged reach's expected error: the pooled transfer test on similar rivers it never saw. */
+export interface ExpectedError {
+  readonly rule: string;
+  readonly sites: readonly string[];
+  readonly n: number;
+  readonly mdsa: number;
+  readonly sspb: number;
+  readonly rho: number;
+  readonly rhoLow: number;
+  readonly classAgreement: number;
+  readonly coverage90Inside: number;
+  readonly source: string;
+  readonly sourceSha256: string;
+}
+
 /** The parts of a model card the case view shows. */
 export interface ModelCard {
   readonly modelId: string;
   readonly unit: string;
   readonly candidate: string;
   readonly basis: string;
-  readonly metrics: { readonly lockbox: CardMetrics; readonly inner?: CardMetrics };
+  /** A gauged reach's locked test (an ungauged reach's card has none: no gauge to test on). */
+  readonly metrics?: { readonly lockbox: CardMetrics; readonly inner?: CardMetrics };
+  /** An ungauged reach's card: what it shows, and its expected error. */
+  readonly display?: "class" | "none";
+  readonly expectedError?: ExpectedError;
+  readonly label?: string;
   readonly levels: readonly {
     readonly predicted_range: string;
     readonly level: Level;
@@ -114,7 +149,11 @@ export interface ModelCard {
     readonly n: number;
     readonly interval_factor90?: number;
   }[];
-  readonly trainingPairs: { readonly site: number; readonly usgs: number };
+  readonly trainingPairs: {
+    readonly site?: number;
+    readonly usgs: number;
+    readonly groups?: number;
+  };
 }
 
 /** One scene of the prospective check (`checks/checks.csv`): the gauge at the overpass. */
@@ -430,6 +469,8 @@ export interface ClimateExtremes {
 export interface ReachData {
   /** Where the files live (ends with a slash). */
   readonly base: string;
+  /** The daily run's published copy, or this build's snapshot (tests leave it out). */
+  readonly source?: "live" | "snapshot";
   readonly info: ReachInfo;
   readonly series: readonly SeriesRow[];
   readonly card: ModelCard | null;

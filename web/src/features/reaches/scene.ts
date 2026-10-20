@@ -28,6 +28,19 @@ export function turbidity(row: SeriesRow): Estimate | null {
 }
 
 /**
+ * Whether the reach has no gauge: its passes carry a class only, and nothing is ever scored.
+ *
+ * @param reach - The reach.
+ * @returns True for an ungauged reach (preregistration-transfer.md, section 5).
+ */
+export function isUngauged(reach: ReachData): boolean {
+  return reach.info.station.source === "ungauged";
+}
+
+/** The order of the turbidity classes, lowest first. */
+export const FNU_CLASSES = ["under_30", "30_to_100", "100_and_over"] as const;
+
+/**
  * Whether the pass published a turbidity value.
  *
  * @param row - The series row.

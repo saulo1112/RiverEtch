@@ -3,8 +3,15 @@ import { useId, type Ref } from "react";
 
 import { useRecordAnchor } from "../../chain/useRecordAnchor.ts";
 import type { ReachCase } from "../../reaches/catalog.ts";
-import { gaugeAt, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
-import type { CardMetrics, Level, ReachData, SeriesRow, ThermalRow } from "../../reaches/types.ts";
+import { gaugeAt, isUngauged, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
+import type {
+  CardMetrics,
+  ExpectedError,
+  Level,
+  ReachData,
+  SeriesRow,
+  ThermalRow,
+} from "../../reaches/types.ts";
 import {
   CASE_COPY,
   formatCelsius,
@@ -13,13 +20,13 @@ import {
   landsatName,
   LEVEL_LABELS,
 } from "../content.ts";
-import { gainOver, insideCount } from "../reading.ts";
+import { gainOver, insideCount, leanOfTurbidity } from "../reading.ts";
 import { DisclosureButton } from "./DisclosureButton.tsx";
 import { HelpTip } from "./HelpTip.tsx";
 import { ReliabilityBars } from "./ReliabilityBars.tsx";
 import { usePanelOpen } from "./usePanelOpen.ts";
 
-const { reading, trust } = CASE_COPY;
+const { reading, trust, ungauged } = CASE_COPY;
 
 /** Props of {@link CaseFile}. */
 export interface CaseFileProps {
@@ -176,6 +183,32 @@ function Reliability({ lockbox }: { readonly lockbox: CardMetrics }) {
   );
 }
 
+// An ungauged reach's expected error (preregistration-transfer.md, section 5): the class agreement
+// as a count, the pooled median error with what it is a share of, and which way it leans.
+function ExpectedErrorNote({ error }: { readonly error: ExpectedError }) {
+  const lean = leanOfTurbidity(error.sspb);
+  return (
+    <section className="case-file__reliability" aria-label={ungauged.errorTitle}>
+      <p className="case-file__reliability-head">
+        <span>{ungauged.errorTitle}</span>
+        <HelpTip label={reading.reliabilityHelpLabel}>
+          {ungauged.baselineNote} {reading.unitsHelp}
+        </HelpTip>
+      </p>
+      <p className="case-file__note">
+        <strong>{ungauged.agreement(error.classAgreement, error.n)}</strong>{" "}
+        {ungauged.median(error.mdsa.toFixed(1), error.sites.length)}
+        {lean.kind === "low"
+          ? ` It ${reading.leanLow(lean.text)}.`
+          : lean.kind === "high"
+            ? ` It ${reading.leanHigh(lean.text)}.`
+            : ""}
+      </p>
+      <p className="case-file__note">{ungauged.trainedOn}</p>
+    </section>
+  );
+}
+
 /**
  * Top-left panel: the way back and the case file. Folded (the default), it is the case's card: the
  * selected pass's turbidity in FNU and its expected range, a trust strip (its level, its seal and
@@ -198,13 +231,15 @@ export function CaseFile({
   const [open, setOpen] = usePanelOpen("file");
   const card = reach.card;
   const overall = card?.levels.find((l) => l.predicted_range === "all");
-  const lockbox = card?.metrics.lockbox;
+  const lockbox = card?.metrics?.lockbox;
   const estimate = row === null ? null : turbidity(row);
   const value = typeof estimate?.value === "number" ? estimate.value : null;
   const interval = estimate?.interval ?? null;
   const gauge = row === null ? null : gaugeAt(reach, row);
   const unit = estimate?.unit ?? card?.unit ?? "FNU";
-  const level = estimate?.level ?? overall?.level ?? "none";
+  const noGauge = isUngauged(reach);
+  const fnuClass = estimate?.fnuClass ?? null;
+  const level = estimate?.level ?? overall?.level ?? (noGauge ? "unvalidated" : "none");
   return (
     <div className="case-panel case-top" data-frame="">
       <button type="button" className="case-btn case-btn--ghost case-top__back" onClick={onBack}>
@@ -230,11 +265,29 @@ export function CaseFile({
         </header>
 
         {row === null ? null : (
-          <section className="case-file__summary" aria-label={CASE_COPY.turbidity}>
+          <section
+            className="case-file__summary"
+            aria-label={noGauge ? ungauged.turbidity : CASE_COPY.turbidity}
+          >
             <p className="case-file__metric">
-              {CASE_COPY.turbidity} · {formatDate(row.date, true)}
+              {noGauge ? ungauged.turbidity : CASE_COPY.turbidity} · {formatDate(row.date, true)}
             </p>
-            {value === null ? (
+            {noGauge ? (
+              <>
+                <p className="case-file__value">
+                  {fnuClass === null ? (
+                    <span className="case-file__none">{ungauged.noClass}</span>
+                  ) : (
+                    ungauged.classes[fnuClass]
+                  )}
+                </p>
+                <p className="case-file__note">
+                  {fnuClass === null
+                    ? (estimate?.abstainReason ?? ungauged.label)
+                    : (card?.label ?? ungauged.label)}
+                </p>
+              </>
+            ) : value === null ? (
               <>
                 <p className="case-file__value">
                   <span className="case-file__none">{CASE_COPY.noValue}</span>
@@ -266,6 +319,9 @@ export function CaseFile({
             )}
             <Trust reach={reach} row={row} level={level} />
             {lockbox === undefined ? null : <Reliability lockbox={lockbox} />}
+            {card?.expectedError === undefined ? null : (
+              <ExpectedErrorNote error={card.expectedError} />
+            )}
           </section>
         )}
 
@@ -274,6 +330,11 @@ export function CaseFile({
             <p className="case-file__place">{reachCase.place}</p>
             <ul className="case-file__chips">
               <li className="case-chip case-chip--quiet">{CASE_COPY.pipelineChip}</li>
+              {reach.source === undefined ? null : (
+                <li className="case-chip case-chip--quiet" data-source={reach.source}>
+                  {reach.source === "live" ? CASE_COPY.liveChip : CASE_COPY.snapshotChip}
+                </li>
+              )}
             </ul>
           </div>
 
@@ -301,13 +362,17 @@ export function CaseFile({
                 </div>
               ) : (
                 <p className="case-file__note">
-                  {estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel}
+                  {noGauge
+                    ? (estimate?.abstainReason ?? ungauged.label)
+                    : (estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel)}
                 </p>
               )}
               <p className="case-file__gauge">
                 <span className="case-file__gauge-dot" aria-hidden="true" />
                 <span>
-                  {gauge === null ? (
+                  {noGauge ? (
+                    ungauged.noGauge
+                  ) : gauge === null ? (
                     CASE_COPY.gaugeNone
                   ) : (
                     <>
@@ -324,6 +389,13 @@ export function CaseFile({
           )}
 
           {thermal === null ? null : <Temperature reach={reach} thermal={thermal} />}
+
+          {reach.info.station.window === undefined ? null : (
+            <section className="case-file__section" aria-label={ungauged.window}>
+              <p className="case-file__metric">{ungauged.window}</p>
+              <p className="case-file__note">{reach.info.station.window.basis}</p>
+            </section>
+          )}
 
           {reach.info.station.url === undefined ? null : (
             <a

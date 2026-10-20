@@ -3,6 +3,7 @@ import { useEffect, useId, useRef, useState } from "react";
 
 import { explorerUrl } from "../../chain/config.ts";
 import type { ChainCheck } from "../../chain/useLedgerAnchor.ts";
+import type { BitcoinWitness, SignatureWitness } from "../../chain/witness.ts";
 import type { Verification } from "../../reaches/verify.ts";
 import { CASE_COPY, formatDate } from "../content.ts";
 
@@ -12,6 +13,10 @@ export interface VerifyDialogProps {
   readonly result: Verification | null;
   /** The record's anchor on Sepolia (null: no anchor contract configured). */
   readonly chain?: ChainCheck | null;
+  /** A Bitcoin timestamp of a head covering it (null: not checked). */
+  readonly bitcoin?: BitcoinWitness | null;
+  /** The ML-DSA-65 signature of a head covering it (null: not checked). */
+  readonly signature?: SignatureWitness | null;
   /** The dialog closed. */
   readonly onClose: () => void;
 }
@@ -58,33 +63,108 @@ function HashLine({ label, hash, against }: { label: string; hash: string; again
 // The anchor's line: anchored (with its block), pending, changed since, or unreadable.
 function ChainLine({ chain }: { readonly chain: ChainCheck }) {
   const copy = CASE_COPY.record;
+  const via =
+    chain.state === "unavailable" ? null : (
+      <p className="case-proof__note">{chain.via === "wallet" ? copy.viaWallet : copy.viaPublic}</p>
+    );
   if (chain.state === "anchored") {
     const day = new Date(chain.anchor.timestamp * 1000).toISOString().slice(0, 10);
     return (
-      <p className="case-proof__line" data-ok="true">
-        <Check size={14} strokeWidth={2.25} aria-hidden="true" />
-        <a
-          href={explorerUrl("block", chain.anchor.blockNumber)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {copy.chainAnchored(formatDate(day, true), chain.anchor.blockNumber)}
-        </a>
-      </p>
+      <>
+        <p className="case-proof__line" data-ok="true">
+          <Check size={14} strokeWidth={2.25} aria-hidden="true" />
+          <a
+            href={explorerUrl("block", chain.anchor.blockNumber)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {copy.chainAnchored(formatDate(day, true), chain.anchor.blockNumber)}
+          </a>
+        </p>
+        {via}
+      </>
     );
   }
   if (chain.state === "mismatch") {
     return (
-      <p className="case-proof__line" data-ok="false">
-        <X size={14} strokeWidth={2.25} aria-hidden="true" />
-        {copy.chainMismatch}
-      </p>
+      <>
+        <p className="case-proof__line" data-ok="false">
+          <X size={14} strokeWidth={2.25} aria-hidden="true" />
+          {copy.chainMismatch}
+        </p>
+        {via}
+      </>
     );
   }
   return (
     <p className="case-proof__line" data-ok="pending">
       <Clock size={14} strokeWidth={2.25} aria-hidden="true" />
       {chain.state === "pending" ? copy.chainPending : copy.chainUnavailable}
+    </p>
+  );
+}
+
+// The Bitcoin witness's line: confirmed (with its block), pending, none yet, or a failure.
+function BitcoinLine({ witness }: { readonly witness: BitcoinWitness }) {
+  const { verify } = CASE_COPY;
+  if (witness.state === "confirmed") {
+    const day = new Date(witness.time * 1000).toISOString().slice(0, 10);
+    return (
+      <p className="case-proof__line" data-ok="true">
+        <Check size={14} strokeWidth={2.25} aria-hidden="true" />
+        <a
+          href={`https://mempool.space/block/${String(witness.height)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {verify.bitcoinConfirmed(formatDate(day, true), witness.height, witness.lines)}
+        </a>
+      </p>
+    );
+  }
+  if (witness.state === "mismatch") {
+    return (
+      <p className="case-proof__line" data-ok="false">
+        <X size={14} strokeWidth={2.25} aria-hidden="true" />
+        {verify.bitcoinMismatch}
+      </p>
+    );
+  }
+  return (
+    <p className="case-proof__line" data-ok="pending">
+      <Clock size={14} strokeWidth={2.25} aria-hidden="true" />
+      {witness.state === "pending"
+        ? verify.bitcoinPending(witness.lines)
+        : witness.state === "none"
+          ? verify.bitcoinNone
+          : verify.bitcoinUnavailable}
+    </p>
+  );
+}
+
+// The signature's line: verified (with its date), none yet, invalid, or unreadable.
+function SignatureLine({ witness }: { readonly witness: SignatureWitness }) {
+  const { verify } = CASE_COPY;
+  if (witness.state === "verified") {
+    return (
+      <p className="case-proof__line" data-ok="true">
+        <Check size={14} strokeWidth={2.25} aria-hidden="true" />
+        {verify.signatureVerified(formatDate(witness.signedAt.slice(0, 10), true), witness.lines)}
+      </p>
+    );
+  }
+  if (witness.state === "invalid") {
+    return (
+      <p className="case-proof__line" data-ok="false">
+        <X size={14} strokeWidth={2.25} aria-hidden="true" />
+        {verify.signatureInvalid}
+      </p>
+    );
+  }
+  return (
+    <p className="case-proof__line" data-ok="pending">
+      <Clock size={14} strokeWidth={2.25} aria-hidden="true" />
+      {witness.state === "none" ? verify.signatureNone : verify.signatureUnavailable}
     </p>
   );
 }
@@ -96,7 +176,13 @@ function ChainLine({ chain }: { readonly chain: ChainCheck }) {
  *
  * @returns The dialog element (closed while `result` is null).
  */
-export function VerifyDialog({ result, chain = null, onClose }: VerifyDialogProps) {
+export function VerifyDialog({
+  result,
+  chain = null,
+  bitcoin = null,
+  signature = null,
+  onClose,
+}: VerifyDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const [shown, setShown] = useState(0);
@@ -120,7 +206,7 @@ export function VerifyDialog({ result, chain = null, onClose }: VerifyDialogProp
     const timer = window.setInterval(() => {
       step += 1;
       setShown(step);
-      if (step >= 6) {
+      if (step >= 8) {
         window.clearInterval(timer);
       }
     }, 650);
@@ -237,10 +323,29 @@ export function VerifyDialog({ result, chain = null, onClose }: VerifyDialogProp
                 <ChainLine chain={chain} />
               </li>
             )}
+            {bitcoin === null ? null : (
+              <li className="case-proof__step" data-shown={shown >= 6}>
+                <p className="case-proof__step-title">
+                  <span>{chain === null ? 5 : 6}</span> {verify.step6}
+                </p>
+                <p className="case-proof__note">{verify.step6Note}</p>
+                <BitcoinLine witness={bitcoin} />
+              </li>
+            )}
+            {signature === null ? null : (
+              <li className="case-proof__step" data-shown={shown >= 7}>
+                <p className="case-proof__step-title">
+                  <span>{4 + [chain, bitcoin, signature].filter((w) => w !== null).length}</span>{" "}
+                  {verify.step7}
+                </p>
+                <p className="case-proof__note">{verify.step7Note}</p>
+                <SignatureLine witness={signature} />
+              </li>
+            )}
           </ol>
           <p
             className="case-proof__verdict"
-            data-shown={shown >= (chain === null ? 5 : 6)}
+            data-shown={shown >= 5 + [chain, bitcoin, signature].filter((w) => w !== null).length}
             data-ok={result.sealed}
           >
             {result.sealed ? verify.verified : verify.tampered}

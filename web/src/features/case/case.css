@@ -792,6 +792,14 @@
   color: #a5f0fc;
 }
 
+/* Unvalidated (a reach with no gauge): a dashed outline beside its word, never colour alone. */
+.case-chip--level[data-level="unvalidated"] {
+  border-style: dashed;
+  border-color: rgb(251 191 36 / 0.55);
+  background: rgb(251 191 36 / 0.08);
+  color: #fde68a;
+}
+
 .case-file__interval {
   margin-top: 12px;
 }
@@ -2753,6 +2761,32 @@
   height: 100%;
   overflow-y: auto;
   overscroll-behavior: contain;
+}
+
+/* Which test the table shows: its own model, or one that never saw the river. */
+.case-rivers__views {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 6px;
+}
+
+.case-rivers__view {
+  min-height: 32px;
+  font-size: var(--type-small);
+}
+
+.case-rivers__view[aria-pressed="true"] {
+  border-color: rgb(34 211 238 / 0.55);
+  background: rgb(34 211 238 / 0.14);
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.case-rivers__note {
+  margin: 0 0 6px;
+  color: var(--text-2);
+  font-size: var(--type-small);
 }
 
 .case-rivers__table {

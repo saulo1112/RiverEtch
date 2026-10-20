@@ -1,7 +1,14 @@
 import { Gauge, Satellite } from "lucide-react";
 import type { CSSProperties } from "react";
 
-import { nearestThermal, sceneKey, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
+import {
+  FNU_CLASSES,
+  isUngauged,
+  nearestThermal,
+  sceneKey,
+  thermalValidatedAt,
+  turbidity,
+} from "../../reaches/scene.ts";
 import type { ReachData, SeriesRow } from "../../reaches/types.ts";
 import {
   CASE_COPY,
@@ -107,12 +114,43 @@ interface Tile {
   readonly tone: "sat" | "thermal" | "gauge";
 }
 
+// An ungauged reach's tile: the pass's class, never a value; the sparkline steps between classes.
+function classTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
+  const copy = CASE_COPY.quality;
+  const { ungauged } = CASE_COPY;
+  const estimate = turbidity(row);
+  const cls = estimate?.fnuClass ?? null;
+  const error = reach.card?.expectedError;
+  return {
+    id: "turbidity",
+    title: ungauged.turbidity,
+    source: `${copy.sentinel} · ${formatDate(row.date)}`,
+    value: cls === null ? null : ungauged.classes[cls],
+    unit: "",
+    detail: cls === null ? (estimate?.abstainReason ?? ungauged.label) : ungauged.label,
+    chip: LEVEL_LABELS[estimate?.level ?? "unvalidated"],
+    level: estimate?.level ?? "unvalidated",
+    foot: error === undefined ? "" : ungauged.agreement(error.classAgreement, error.n),
+    spark: {
+      values: reach.series.map((r) => {
+        const c = turbidity(r)?.fnuClass;
+        return c == null ? null : FNU_CLASSES.indexOf(c);
+      }),
+      selected,
+    },
+    tone: "sat",
+  };
+}
+
 function turbidityTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
+  if (isUngauged(reach)) {
+    return classTile(reach, row, selected);
+  }
   const copy = CASE_COPY.quality;
   const estimate = turbidity(row);
   const value = typeof estimate?.value === "number" ? estimate.value : null;
   const interval = estimate?.interval ?? null;
-  const lock = reach.card?.metrics.lockbox;
+  const lock = reach.card?.metrics?.lockbox;
   return {
     id: "turbidity",
     title: copy.turbidity,

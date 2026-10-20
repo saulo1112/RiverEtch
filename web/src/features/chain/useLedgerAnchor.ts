@@ -6,7 +6,7 @@ import { useAccount } from "wagmi";
 import { loadText } from "../reaches/data.ts";
 import type { ReachData } from "../reaches/types.ts";
 import { anchorLedgers, readAnchors, readOwner, type LedgerState } from "./client.ts";
-import { LEDGER_ANCHOR_ADDRESS } from "./config.ts";
+import { LEDGER_ANCHOR_ADDRESS, SEPOLIA_CHAIN_ID } from "./config.ts";
 import { useEthersProvider, useEthersSigner } from "./ethers.ts";
 import {
   anchorStatus,
@@ -16,8 +16,13 @@ import {
   type LedgerKind,
 } from "./ledger.ts";
 
-/** What a record's anchor check found (`unavailable`: no contract yet, or the RPC failed). */
-export type ChainCheck = AnchorStatus | { readonly state: "unavailable" };
+/**
+ * What a record's anchor check found (`unavailable`: no contract yet, or the RPC failed), and
+ * through what it was read: the visitor's own wallet (its EIP-1193 provider, on Sepolia), or the
+ * app's public Sepolia node.
+ */
+export type ChainCheck =
+  (AnchorStatus & { readonly via: "wallet" | "public" }) | { readonly state: "unavailable" };
 
 /** What anchoring the reach's ledgers did. */
 export type AnchorOutcome =
@@ -44,6 +49,8 @@ function ledgerFiles(reach: ReachData): { kind: LedgerKind; path: string }[] {
 export function useLedgerAnchor(reach: ReachData) {
   const provider = useEthersProvider();
   const signer = useEthersSigner();
+  // A connected wallet's own provider on Sepolia: the anchors read through the visitor's node.
+  const wallet = useEthersSigner({ chainId: SEPOLIA_CHAIN_ID })?.provider;
   const { address: account } = useAccount();
   const [owner, setOwner] = useState<string | null>(null);
   const address = LEDGER_ANCHOR_ADDRESS;
@@ -70,21 +77,33 @@ export function useLedgerAnchor(reach: ReachData) {
 
   const check = useCallback(
     async (kind: LedgerKind, position: number, lineHashes: readonly string[]) => {
-      if (address === null || provider === undefined) {
+      if (address === null || (provider === undefined && wallet === undefined)) {
+        return { state: "unavailable" } as const;
+      }
+      const hashes = lineHashes.map((h) => (h.startsWith("0x") ? h : `0x${h}`));
+      const label = subjectLabel(site, kind);
+      if (wallet !== undefined) {
+        try {
+          const network = await wallet.getNetwork();
+          if (network.chainId === BigInt(SEPOLIA_CHAIN_ID)) {
+            const anchors = await readAnchors(wallet, address, label);
+            return { ...anchorStatus(anchors, position, hashes), via: "wallet" } as const;
+          }
+        } catch {
+          // The wallet could not answer: fall back to the public node.
+        }
+      }
+      if (provider === undefined) {
         return { state: "unavailable" } as const;
       }
       try {
-        const anchors = await readAnchors(provider, address, subjectLabel(site, kind));
-        return anchorStatus(
-          anchors,
-          position,
-          lineHashes.map((h) => (h.startsWith("0x") ? h : `0x${h}`)),
-        );
+        const anchors = await readAnchors(provider, address, label);
+        return { ...anchorStatus(anchors, position, hashes), via: "public" } as const;
       } catch {
         return { state: "unavailable" } as const;
       }
     },
-    [address, provider, site],
+    [address, provider, wallet, site],
   );
 
   const anchorReach = useCallback(async (): Promise<AnchorOutcome> => {

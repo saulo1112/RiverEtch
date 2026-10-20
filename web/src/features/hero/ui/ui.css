@@ -1119,7 +1119,7 @@
 .hero-attribution {
   margin: 20px var(--edge-r) 0 var(--edge-l);
   color: var(--text-3);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.3;
   text-wrap: pretty;
 }
@@ -1241,7 +1241,8 @@
 /*
  * Portrait: the globe sits high (CAMERA.globeCenterPortrait) and the copy is stacked at the
  * bottom, in flow with the attribution, on a night scrim (short phones overlap the globe's lower
- * limb). Full-width stacked calls to action; no steps, evidence, chip or blur.
+ * limb). Full-width stacked calls to action; no steps, evidence or blur. The status chip stays,
+ * so the daily run's status opens on a phone too.
  */
 @container hero (aspect-ratio < 1) {
   .hero > .hero-ui {
@@ -1256,9 +1257,13 @@
     backdrop-filter: none;
   }
 
-  .hero-foot__row,
+  .hero-evidence,
   .hero-steps {
     display: none;
+  }
+
+  .hero-foot__row {
+    margin-top: 16px;
   }
 
   .hero-ui__main {
@@ -1556,5 +1561,146 @@
   .hero-ui *::after {
     transition: none !important;
     animation: none !important;
+  }
+}
+
+/* The status chip is a button: it opens the daily run's status. */
+button.hero-chip {
+  border: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+button.hero-chip:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Its dot: a ring while the status is unknown, filled once read; red with "failed" in words. */
+.hero-chip[data-state="unknown"] .hero-chip__dot {
+  background: none;
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.hero-chip[data-state="failed"] .hero-chip__dot {
+  background: #ff6b5e;
+}
+
+/* The daily run's status: a native modal dialog. */
+.hero-status {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  padding: 0;
+  border: 1px solid rgb(240 246 255 / 0.16);
+  border-radius: 20px;
+  background: rgb(6 12 26 / 0.97);
+  color: var(--text-1);
+  box-shadow: 0 30px 80px rgb(0 0 0 / 0.6);
+}
+
+.hero-status::backdrop {
+  background: rgb(2 4 10 / 0.6);
+}
+
+.hero-status__body {
+  padding: 20px 22px 22px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.hero-status__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hero-status__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.hero-status__close {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.hero-status__close:hover {
+  background: rgb(255 255 255 / 0.08);
+}
+
+.hero-status__note {
+  margin: 8px 0 14px;
+  color: var(--text-2);
+}
+
+.hero-status__list {
+  display: grid;
+  grid-template-columns: minmax(0, 11em) minmax(0, 1fr);
+  gap: 8px 14px;
+  margin: 0;
+}
+
+.hero-status__list dt {
+  color: var(--text-3);
+}
+
+.hero-status__list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.hero-status__line {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.hero-status__line[data-ok="true"] svg {
+  color: #34d399;
+}
+
+.hero-status__line[data-ok="false"] svg {
+  color: #ff6b5e;
+}
+
+.hero-status__line[data-ok="pending"] svg {
+  color: #f5b942;
+}
+
+.hero-status__link {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+  color: var(--accent);
+}
+
+.hero-status__failures {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hero-status__failures code {
+  font-size: 12px;
+}
+
+@media (width < 480px) {
+  .hero-status__list {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2px;
+  }
+
+  .hero-status__list dd {
+    margin-bottom: 8px;
   }
 }

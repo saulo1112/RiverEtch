@@ -2,10 +2,10 @@ import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
-import { thermalValidatedAt } from "../../reaches/scene.ts";
+import { isUngauged, thermalValidatedAt } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
-import { medianError, oneDecimal, riverResults } from "../rivers.ts";
+import { medianError, oneDecimal, riverResults, transferResults } from "../rivers.ts";
 import { AllRiversView } from "./AllRiversView.tsx";
 import { ClimateView, type ClimateTabView } from "./ClimateView.tsx";
 import { PassStatsView } from "./PassStatsView.tsx";
@@ -61,6 +61,7 @@ const TABS: readonly BottomTab[] = [
 
 // Every evaluated river, from the committed results (vite.config.ts).
 const RIVERS = riverResults(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
+const TRANSFER = transferResults(__TRANSFER_SCORES__);
 const RATED = RIVERS.filter((r) => r.level !== null).length;
 
 function IconButton({
@@ -252,9 +253,12 @@ export function Timeline(props: TimelineProps) {
   const [climateView, setClimateView] = useState<ClimateTabView>("values");
   const last = reach.series.length - 1;
   const row = reach.series[selected] ?? null;
+  // A reach with no gauge is never scored: no scoreboard.
   const shown = TABS.filter(
     (t) =>
-      (t !== "thermal" || reach.thermal !== null) && (t !== "climate" || reach.climate !== null),
+      (t !== "thermal" || reach.thermal !== null) &&
+      (t !== "climate" || reach.climate !== null) &&
+      (t !== "scoreboard" || !isUngauged(reach)),
   );
   return (
     <section className="case-panel case-timeline case-glass" data-frame="" aria-label={tabs[tab]}>
@@ -346,7 +350,7 @@ export function Timeline(props: TimelineProps) {
           ) : tab === "scoreboard" ? (
             <ScoreboardView reach={reach} t0={__PROSPECTIVE_T0__} />
           ) : tab === "rivers" ? (
-            <AllRiversView rivers={RIVERS} station={reach.info.station.id} />
+            <AllRiversView rivers={RIVERS} transfer={TRANSFER} station={reach.info.station.id} />
           ) : passView === "profile" ? (
             <ProfileChart
               reach={reach}

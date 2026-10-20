@@ -2,13 +2,21 @@ import { Anchor, Check, Clock, Download, ExternalLink, ShieldCheck, X } from "lu
 import { useEffect, useId, useState, type ReactNode } from "react";
 
 import { explorerUrl } from "../../chain/config.ts";
-import type { LedgerKind } from "../../chain/ledger.ts";
+import { subjectLabel, type LedgerKind } from "../../chain/ledger.ts";
+import {
+  checkBitcoin,
+  checkSignature,
+  coveringProof,
+  explorerHeader,
+  type BitcoinWitness,
+  type SignatureWitness,
+} from "../../chain/witness.ts";
 import {
   useLedgerAnchor,
   type AnchorOutcome,
   type ChainCheck,
 } from "../../chain/useLedgerAnchor.ts";
-import { loadText } from "../../reaches/data.ts";
+import { loadProof, loadSignatures, loadStatus, loadText } from "../../reaches/data.ts";
 import type {
   ObservationRecord,
   ReachData,
@@ -172,6 +180,38 @@ function AnchorAction({ run }: { readonly run: () => Promise<AnchorOutcome> }) {
   );
 }
 
+// The two witnesses beside the anchor, from the daily run's published files: a Bitcoin timestamp
+// and an ML-DSA-65 signature of a head covering the record's ledger line. Both are "unavailable"
+// when the published files cannot be read (for instance before the repository is public).
+async function witnesses(
+  label: string,
+  position: number,
+  hashes: readonly string[],
+): Promise<{ bitcoin: BitcoinWitness; signature: SignatureWitness }> {
+  const status = await loadStatus();
+  if (status === null || position < 0) {
+    return { bitcoin: { state: "unavailable" }, signature: { state: "unavailable" } };
+  }
+  const entry = coveringProof(status.proofs ?? [], label, position);
+  const bytes = entry === null ? null : await loadProof(entry.file);
+  const bitcoin: BitcoinWitness =
+    entry === null
+      ? { state: "none" }
+      : bytes === null
+        ? { state: "unavailable" }
+        : await checkBitcoin(entry, bytes, hashes, (h) => explorerHeader(h)).catch(
+            (): BitcoinWitness => ({ state: "mismatch" }),
+          );
+  const signature = checkSignature(
+    await loadSignatures(),
+    __ML_DSA_PUBLIC_KEY__,
+    label,
+    position,
+    hashes,
+  );
+  return { bitcoin, signature };
+}
+
 /**
  * Right panel: the selected pass's record and "Verify this record", which recomputes its SHA-256 in
  * the browser and checks it against the ledger, the model card and the anchor on Sepolia. "Alter
@@ -194,9 +234,12 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
   } | null>(null);
   const [alter, setAlter] = useState(false);
   const [stored, setCheck] = useState<CheckState>({ state: "idle" });
-  const [proof, setProof] = useState<{ result: Verification; chain: ChainCheck | null } | null>(
-    null,
-  );
+  const [proof, setProof] = useState<{
+    result: Verification;
+    chain: ChainCheck | null;
+    bitcoin: BitcoinWitness | null;
+    signature: SignatureWitness | null;
+  } | null>(null);
   const anchor = useLedgerAnchor(reach);
   const source = sourceOf(reach, row, thermal);
   const file = source?.file ?? null;
@@ -244,8 +287,14 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
             result.ledger.map((l) => l.lineSha256),
           )
         : null;
+      const hashes = result.ledger.map((l) => l.lineSha256);
+      const { bitcoin, signature } = await witnesses(
+        subjectLabel(reach.info.site, kind),
+        result.position,
+        hashes,
+      );
       setCheck({ state: "done", file: path, result, chain });
-      setProof({ result, chain });
+      setProof({ result, chain, bitcoin, signature });
     } catch {
       setCheck({ state: "failed", file: path });
     }
@@ -403,6 +452,8 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
       <VerifyDialog
         result={proof?.result ?? null}
         chain={proof?.chain ?? null}
+        bitcoin={proof?.bitcoin ?? null}
+        signature={proof?.signature ?? null}
         onClose={() => {
           setProof(null);
         }}

@@ -164,6 +164,14 @@ const v5Results = {
   levels: readFileSync(join(RESULTS, "v5_levels.csv"), "utf8"),
   scores: readFileSync(join(RESULTS, "v5_scores.csv"), "utf8"),
 };
+// The key that signs ledger heads (frozen in docs/ledgers/frozen-artifacts.jsonl).
+const mlDsaKey = (
+  JSON.parse(
+    readFileSync(fileURLToPath(new URL("../docs/keys/ml-dsa-65.json", import.meta.url)), "utf8"),
+  ) as { publicKey: string }
+).publicKey;
+// The test on rivers the model never saw (preregistration-transfer.md), run once.
+const transferScores = readFileSync(join(RESULTS, "transfer", "transfer_scores.csv"), "utf8");
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -175,5 +183,7 @@ export default defineConfig({
     __OUTCOMES__: JSON.stringify(outcomes),
     __REACH_FACTS__: JSON.stringify(reachFacts),
     __V5_RESULTS__: JSON.stringify(v5Results),
+    __TRANSFER_SCORES__: JSON.stringify(transferScores),
+    __ML_DSA_PUBLIC_KEY__: JSON.stringify(mlDsaKey),
   },
 });

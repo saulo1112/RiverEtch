@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { CASE_COPY, LEVEL_LABELS } from "../content.ts";
 import { gainOver, insideCount } from "../reading.ts";
 import { DEMO_GAUGES, oneDecimal, type RiverResult } from "../rivers.ts";
@@ -9,6 +11,8 @@ const copy = CASE_COPY.rivers;
 export interface AllRiversViewProps {
   /** Every evaluated river, lowest error first ({@link riverResults}). */
   readonly rivers: readonly RiverResult[];
+  /** The same rivers, each scored by a model that never saw it ({@link transferResults}). */
+  readonly transfer?: readonly RiverResult[];
   /** The case's own gauge, e.g. "USGS-06805500". */
   readonly station: string;
 }
@@ -30,14 +34,34 @@ function gainText(r: RiverResult): string {
  * Every river the validation evaluated, lowest locked-test error first: its level, the satellite's
  * error beside guessing the river's usual value, and its test passes, the rivers that do not beat
  * the guess included. The demo reaches are marked; the summary over all of them is the tab's
- * caption.
+ * caption. A switch shows the same rivers scored by a model that never saw each one.
  *
  * @returns The table.
  */
-export function AllRiversView({ rivers, station }: AllRiversViewProps) {
+export function AllRiversView({ rivers, transfer = [], station }: AllRiversViewProps) {
   const { columns } = copy;
+  const [view, setView] = useState<"own" | "never">("own");
+  const shown = view === "never" && transfer.length > 0 ? transfer : rivers;
   return (
     <div className="case-rivers">
+      {transfer.length === 0 ? null : (
+        <div className="case-rivers__views" role="group" aria-label={copy.viewsLabel}>
+          {(["own", "never"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              className="case-btn case-btn--ghost case-rivers__view"
+              aria-pressed={view === v}
+              onClick={() => {
+                setView(v);
+              }}
+            >
+              {copy.views[v]}
+            </button>
+          ))}
+        </div>
+      )}
+      {view === "never" ? <p className="case-rivers__note">{copy.neverNote}</p> : null}
       <table className="case-rivers__table" role="table">
         <caption className="case-visually-hidden">{copy.tableCaption}</caption>
         <thead role="rowgroup">
@@ -63,7 +87,7 @@ export function AllRiversView({ rivers, station }: AllRiversViewProps) {
           </tr>
         </thead>
         <tbody role="rowgroup">
-          {rivers.map((r) => {
+          {shown.map((r) => {
             const demo = DEMO_GAUGES.includes(r.site);
             const mark = r.site === station ? copy.thisCase : demo ? copy.demo : null;
             return (
@@ -99,6 +123,12 @@ export function AllRiversView({ rivers, station }: AllRiversViewProps) {
                 </td>
                 <td role="cell" data-label={columns.baseline}>
                   {r.nullMdsa === null ? "–" : `${oneDecimal(r.nullMdsa)} %`}
+                  {r.noLocalMdsa == null ? null : (
+                    <span className="case-rivers__muted">
+                      {" "}
+                      · {copy.otherMedian(oneDecimal(r.noLocalMdsa))}
+                    </span>
+                  )}
                 </td>
                 <td role="cell" data-label={columns.passes}>
                   {r.n}

@@ -66,8 +66,9 @@ export function CaseCard({ reachCase, openCaseRef, onOpenCase, onWarmUp }: CaseC
         const overall = reach.card?.levels.find((l) => l.predicted_range === "all");
         const line = reach.geometry?.features.find((f) => f.properties.kind === "centreline");
         setSummary({
-          level: overall?.level ?? null,
-          mdsa: reach.card?.metrics.lockbox.mdsa ?? null,
+          // A reach with no gauge has no level of its own: "unvalidated".
+          level: overall?.level ?? (reach.card?.expectedError === undefined ? null : "unvalidated"),
+          mdsa: reach.card?.metrics?.lockbox.mdsa ?? null,
           lastPass: reach.series.at(-1)?.date ?? null,
           passes: reach.series.length,
           centreline: line?.geometry.type === "LineString" ? line.geometry.coordinates : [],

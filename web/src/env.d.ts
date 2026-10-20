@@ -6,6 +6,8 @@ interface ImportMetaEnv {
   readonly VITE_SEPOLIA_RPC_URL?: string;
   /** The ledger anchor's address on Sepolia; overrides the committed Ignition deployment. */
   readonly VITE_LEDGER_ANCHOR_ADDRESS?: string;
+  /** "off": show this build's snapshot only, never the daily run's published data. */
+  readonly VITE_RIVERETCH_LIVE?: string;
 }
 
 interface ImportMeta {
@@ -29,6 +31,10 @@ declare const __PROSPECTIVE_T0__: string | null;
  * v5_scores.csv, as text), for the All rivers tab (vite.config.ts, at startup).
  */
 declare const __V5_RESULTS__: { readonly levels: string; readonly scores: string };
+/** results/transfer/transfer_scores.csv: each river scored by a model that never saw it. */
+declare const __TRANSFER_SCORES__: string;
+/** The ML-DSA-65 public key that signs ledger heads (docs/keys/ml-dsa-65.json), hex. */
+declare const __ML_DSA_PUBLIC_KEY__: string;
 
 /** The reaches with an outcomes ledger (vite.config.ts, at startup). */
 declare const __OUTCOMES__: readonly string[];

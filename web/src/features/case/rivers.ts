@@ -17,6 +17,8 @@ export interface RiverResult {
   readonly coverage90: number | null;
   /** Null: too few pairs to be rated. */
   readonly level: Level | null;
+  /** The transfer test's second baseline: guessing the other rivers' median (no local data). */
+  readonly noLocalMdsa?: number | null;
 }
 
 /** The demo reaches' gauges (the two the preregistered rule chose). */
@@ -91,6 +93,29 @@ export function riverResults(levels: string, scores: string): RiverResult[] {
       level: null,
     }));
   return [...rated, ...thin];
+}
+
+/**
+ * Every river scored by a model that never saw its river group (results/transfer/
+ * transfer_scores.csv: A4, the preregistered folds, not the report-only joined ones), lowest
+ * error first.
+ *
+ * @param scores - The text of transfer_scores.csv.
+ * @returns One row per river.
+ */
+export function transferResults(scores: string): RiverResult[] {
+  return rows(scores)
+    .filter((r) => r.candidate === "A4" && r.report_only === "false")
+    .map((r): RiverResult => ({
+      site: r.site ?? "",
+      n: number(r.n) ?? 0,
+      mdsa: number(r.mdsa),
+      nullMdsa: number(r.null_mdsa),
+      coverage90: number(r.coverage90),
+      level: (r.level ?? "none") as Level,
+      noLocalMdsa: number(r.no_local_data_mdsa),
+    }))
+    .sort((a, b) => (a.mdsa ?? Infinity) - (b.mdsa ?? Infinity));
 }
 
 /**

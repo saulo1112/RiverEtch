@@ -87,3 +87,36 @@ def test_heads_are_signed_once_and_every_signature_is_checked(tmp_path: Path) ->
     problems = signing.verify_signatures(root)
     assert any("does not verify" in p for p in problems)
     assert any("chain is broken" in p for p in problems)
+
+
+ML_DSA = Path(__file__).parent / "fixtures" / "ml-dsa"
+
+
+def test_pqcrypto_agrees_with_nists_acvp_vectors() -> None:
+    # NIST ACVP-Server, ML-DSA-sigVer-FIPS204, group 3: ML-DSA-65, external interface, pure.
+    from pqcrypto.sign import ml_dsa_65
+
+    doc = json.loads((ML_DSA / "acvp-ml-dsa-65-sigver.json").read_text(encoding="utf-8"))
+    assert (doc["parameterSet"], doc["signatureInterface"], doc["preHash"]) == (
+        "ML-DSA-65", "external", "pure")  # fmt: skip
+    for t in doc["tests"]:
+        pk, message = bytes.fromhex(t["pk"]), bytes.fromhex(t["message"])
+        sig, context = bytes.fromhex(t["signature"]), bytes.fromhex(t["context"])
+        try:
+            ml_dsa_65.verify(pk, message, sig, context)
+            ok = True
+        except Exception:  # pqcrypto's InvalidSignatureError
+            ok = False
+        assert ok == t["testPassed"], t["tcId"]
+
+
+def test_a_head_signed_in_the_browsers_implementation_verifies_here() -> None:
+    doc = json.loads((ML_DSA / "noble-head.json").read_text(encoding="utf-8"))
+    assert doc["context"] == signing.CONTEXT.decode()
+    fields = json.loads(doc["statement"])
+    message = signing.statement(
+        fields["label"], fields["lines"], fields["head"], fields["signedAt"]
+    )
+    assert message == doc["statement"].encode()  # the same bytes on both sides
+    assert signing.verify(doc["publicKey"], message, bytes.fromhex(doc["signature"]))
+    assert not signing.verify(doc["publicKey"], message + b" ", bytes.fromhex(doc["signature"]))

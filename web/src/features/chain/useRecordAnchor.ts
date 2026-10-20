@@ -82,7 +82,10 @@ export function useRecordAnchor(
       .then(([ledger, found]) => {
         if (live) {
           const position = ledger.records.indexOf(recordSha256);
-          setState({ key, value: anchorStatus(found, position, ledger.hashes) });
+          setState({
+            key,
+            value: { ...anchorStatus(found, position, ledger.hashes), via: "public" },
+          });
         }
       })
       .catch(() => {

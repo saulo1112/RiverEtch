@@ -161,7 +161,7 @@ export function lockboxHits(reach: ReachData): {
   turbidity: Hits | null;
   temperature: Hits | null;
 } {
-  const lock = reach.card?.metrics.lockbox;
+  const lock = reach.card?.metrics?.lockbox;
   const thermal = reach.thermal?.card?.metrics.lockbox;
   return {
     turbidity:

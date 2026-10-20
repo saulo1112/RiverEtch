@@ -7,6 +7,8 @@ export const CASE_COPY = {
   back: "Back to your cases",
   caseDetails: "Case details",
   pipelineChip: "Pipeline records · 2026",
+  liveChip: "Live data · the daily run's published copy",
+  snapshotChip: "Snapshot bundled with this build",
   scenePrefix: "Sentinel-2 pass",
   turbidity: "Turbidity at the gauge",
   interval: "90 % interval",
@@ -58,7 +60,32 @@ export const CASE_COPY = {
       "Met every validated threshold, but against a gauge whose values are still provisional, so it is capped at estimated.",
     indicative:
       "Follows the river's rises and falls, but not its level. Read it as low, medium or high, never as a number.",
+    unvalidated:
+      "No gauge measures this reach, so its error cannot be checked here. The class comes from a model that never saw this reach, and its expected error is the one measured on similar rivers it never saw. Read it as under 30, 30 to 100, or 100 FNU and over, never as a number.",
     none: "Did not pass the locked test. Only the relative index is shown.",
+  },
+  // A reach with no gauge (preregistration-transfer.md, section 5): a class only, beside the
+  // expected error that the test on rivers the model never saw measured; never a value.
+  ungauged: {
+    turbidity: "Turbidity class",
+    classes: {
+      under_30: "Under 30 FNU",
+      "30_to_100": "30 to 100 FNU",
+      "100_and_over": "100 FNU and over",
+    },
+    label: "Unvalidated: expected error from the transfer test",
+    noClass: "No class for this pass",
+    errorTitle: "How far off it tends to be, on rivers it never saw",
+    agreement: (k: number, n: number) =>
+      `In ${String(k)} of ${String(n)} test passes on rivers it never saw, the class matched the gauge.`,
+    median: (mdsa: string, sites: number) =>
+      `Half of those estimates were off by less than ${mdsa} % of the gauge's value (${String(sites)} sediment-carrying rivers like this one).`,
+    baselineNote:
+      "With no gauge here there is no usual value to compare with; each river's comparison is under All rivers.",
+    trainedOn:
+      "The model never saw this reach. It did learn from two other Mississippi gauges, at Cape Girardeau (upstream) and Belle Chasse (downstream).",
+    window: "Estimate window (no gauge)",
+    noGauge: "No gauge on this reach: nothing here is ever scored against one.",
   },
   trust: {
     label: "Record status",
@@ -118,6 +145,8 @@ export const CASE_COPY = {
     chainPending: "Recorded after the last anchor on Sepolia: not anchored yet",
     chainMismatch: "The ledger no longer matches its anchor on Sepolia",
     chainUnavailable: "The anchor on Sepolia could not be read",
+    viaWallet: "Read through your own wallet's connection to Sepolia",
+    viaPublic: "Read through a public Sepolia node (connect a wallet to read it through your own)",
     anchorAction: "Anchor this reach's ledgers on Sepolia",
     anchoring: "Waiting for the wallet and the block…",
     anchoredTx: (ledgers: number) =>
@@ -206,6 +235,12 @@ export const CASE_COPY = {
     noGain: "no clear gain",
     worse: "worse than guessing",
     inside: (k: number) => `${String(k)} inside the range`,
+    // The same rivers, each scored by a model that never saw its river (the transfer test).
+    views: { own: "Its own model", never: "A model that never saw it" },
+    viewsLabel: "Which test to show",
+    neverNote:
+      "Each river scored by a model trained only on the other river groups, as fixed before the test ran (preregistration-transfer.md, run once on 20 Oct 2026). This is the error to expect on a river with no gauge.",
+    otherMedian: (v: string) => `other rivers' median: ${v} %`,
     // Display names of the gauges, as the report's table writes them.
     names: {
       "USGS-07374525": "Mississippi at Belle Chasse",
@@ -377,6 +412,24 @@ export const CASE_COPY = {
     step5: "Anchored on a public chain",
     step5Note:
       "The SHA-256 of a ledger line, stored on Ethereum at a block's time, commits to every line above it.",
+    step6: "Timestamped on Bitcoin",
+    step6Note:
+      "An OpenTimestamps proof that a ledger head covering this record existed by a Bitcoin block, checked against two public block explorers. It needs no key: only hashes.",
+    bitcoinConfirmed: (date: string, height: number, lines: number) =>
+      `In Bitcoin block ${String(height)} (${date}), with the ledger's first ${String(lines)} lines`,
+    bitcoinPending: (lines: number) =>
+      `A proof of the first ${String(lines)} lines is waiting for its Bitcoin block (a few hours)`,
+    bitcoinNone: "Recorded after the last timestamp: not timestamped yet",
+    bitcoinMismatch: "The proof does not match this ledger or its block",
+    bitcoinUnavailable: "The timestamp could not be read right now",
+    step7: "Signed with ML-DSA-65",
+    step7Note:
+      "A post-quantum signature (FIPS 204) of a ledger head covering this record, checked in your browser with the published key.",
+    signatureVerified: (date: string, lines: number) =>
+      `Signed on ${date}, with the ledger's first ${String(lines)} lines`,
+    signatureNone: "Recorded after the last signed head: not signed yet",
+    signatureInvalid: "The signature does not verify for this ledger",
+    signatureUnavailable: "The signatures could not be read right now",
     verified: "Verified: the record is exactly as it was sealed.",
     tampered: "Tampered: the content no longer matches its seal.",
     close: "Close",
@@ -394,6 +447,7 @@ export const LEVEL_LABELS = {
   validated: "Validated",
   estimated: "Estimated",
   indicative: "Indicative",
+  unvalidated: "Unvalidated",
   none: "No level",
 } as const satisfies Record<Level, string>;
 

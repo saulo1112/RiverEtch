@@ -4,7 +4,13 @@ import { test } from "node:test";
 
 import { CASE_COPY } from "../src/features/case/content.ts";
 import { insideCount } from "../src/features/case/reading.ts";
-import { DEMO_GAUGES, medianError, oneDecimal, riverResults } from "../src/features/case/rivers.ts";
+import {
+  DEMO_GAUGES,
+  medianError,
+  oneDecimal,
+  riverResults,
+  transferResults,
+} from "../src/features/case/rivers.ts";
 import { REACH_CASES } from "../src/features/reaches/catalog.ts";
 
 const DOCS = new URL("../../docs/water-quality/", import.meta.url);
@@ -58,4 +64,20 @@ void test("the demo reaches' inside counts match their cards", () => {
   const [belle, platte] = rivers;
   assert.equal(insideCount(belle?.coverage90 ?? 0, belle?.n ?? 0), 54);
   assert.equal(insideCount(platte?.coverage90 ?? 0, platte?.n ?? 0), 50);
+});
+
+void test("the transfer view lists each river once, scored by a model that never saw it", () => {
+  const never = transferResults(read("results/transfer/transfer_scores.csv"));
+  assert.equal(never.length, 10); // the nine groups: Mississippi has two gauges
+  assert.equal(new Set(never.map((r) => r.site)).size, 10);
+  const belle = never.find((r) => r.site === "USGS-07374525");
+  assert.equal(belle?.level, "validated");
+  assert.equal(oneDecimal(belle.mdsa ?? Number.NaN), "15.4"); // transfer.md
+  assert.equal(oneDecimal(belle.nullMdsa ?? Number.NaN), "112.7");
+  const platte = never.find((r) => r.site === "USGS-06805500");
+  assert.equal(platte?.level, "none"); // its failure is listed too
+  assert.deepEqual(
+    never.map((r) => r.mdsa),
+    [...never.map((r) => r.mdsa)].sort((a, b) => (a ?? Infinity) - (b ?? Infinity)),
+  );
 });

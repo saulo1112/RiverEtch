@@ -68,8 +68,39 @@ export const STEPS: readonly Step[] = [
   { id: "verify", number: "03", label: "Verify", description: "Sealed record, recomputable" },
 ];
 
-/** Status chip: what this page is. Static; never claims to be live. */
+/** Status chip: what this page is, until the daily run's status has been read. */
 export const STATUS = "Demo workspace";
+
+/** The daily run's status: the chip's words once it is read, and its dialog. */
+export const RUN_STATUS = {
+  chipOk: "Daily run: OK",
+  chipFailed: "Daily run: last run failed",
+  open: "Show the daily run's status",
+  title: "The daily run",
+  lead: "Twice a day a GitHub Actions job seals the new passes, timestamps every ledger head on Bitcoin and publishes the result on the repository's data branch. It holds no key: anchoring on Sepolia and signing stay with the owner, on their own machine.",
+  unavailable:
+    "Its status could not be read from this browser (the repository's data branch may not be public yet). The app shows the snapshot bundled with this build.",
+  lastRun: "Last run",
+  ok: "Succeeded",
+  failed: "Failed",
+  log: "Run log",
+  lastSuccess: "Last success",
+  lastSealed: "Newest sealed record",
+  sealed: (reach: string, date: string) => `${reach}, pass of ${date}`,
+  lastAnchor: "Last anchor on Sepolia",
+  anchor: (label: string, lines: number, when: string) =>
+    `${label}, first ${String(lines)} lines, ${when}`,
+  block: (block: number) => `block ${String(block)}`,
+  bitcoin: "Bitcoin timestamps",
+  noBitcoin: "none confirmed yet",
+  bitcoinBlock: (height: number, when: string | null) =>
+    when === null ? `newest: block ${String(height)}` : `newest: block ${String(height)} (${when})`,
+  pending: (n: number) => `${String(n)} waiting for a block`,
+  failures: "Recent failures",
+  none: "none",
+  close: "Close",
+  externalHint: "(opens in a new tab)",
+} as const;
 
 /**
  * The evidence strip under the copy column. The figures are counted from the reaches' committed

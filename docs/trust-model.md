@@ -16,6 +16,12 @@ What RiverEtch asks you to trust, what you can check yourself, and what nothing 
 - **An anchor** stores a ledger's head and line count on Ethereum Sepolia, with the block's time.
   The anchoring log (`docs/ledgers/anchors.jsonl`) lists every anchor and its transaction; it is
   rebuilt from the chain, not typed.
+- **A Bitcoin timestamp** is an [OpenTimestamps](https://opentimestamps.org) proof that a ledger
+  head existed by a Bitcoin block's time (`docs/ledgers/ots/<label>.<lines>.ots`). The daily run
+  makes one for every new head, with no key.
+- **A head signature** is an ML-DSA-65 signature (FIPS 204, post-quantum) of a ledger head, its
+  line count, its label and the signing time (`docs/ledgers/signatures.jsonl`). The public key is
+  [`docs/keys/ml-dsa-65.json`](keys/ml-dsa-65.json), frozen in the frozen-artifacts ledger.
 
 ## Who can do what
 
@@ -73,6 +79,69 @@ any prospective pass. A pass is **prospective** only when:
 The scoreboard gives counts ("k of n inside the expected range"), never percentages, until there
 are 20 passes. A count of 0 is shown as 0.
 
+Rule v2 ([prospective-v2.md](water-quality/prospective-v2.md)), frozen and anchored at block
+11952275 (2026-10-20 02:19:48 UTC), applies to passes acquired after that anchor. It accepts a
+second kind of commitment besides a Sepolia anchor: a Bitcoin timestamp of a head covering the
+claim, confirmed in a block. Bitcoin block times can run up to 2 hours ahead of the network's
+clock, so the gauge is read no earlier than 2 hours after that block's time, and only once the
+block has been seen. Each outcome line names its rule and its commitment.
+
+**The honest limit stays:** sealing a claim before scoring it does not prove that the gauge value
+was unknown when the claim was made. The USGS publishes readings within minutes; what the
+commitment proves is that the claim did not change after it.
+
+## Attacks, what stops them, and how to check
+
+| Attack                                     | What stops it                                                                                                                             | How to check                                                                                       |
+| ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Change a value in a sealed record          | Its seal (SHA-256 of the canonical JSON) no longer matches                                                                                | **Verify this record** ("Alter one value first" shows it failing); `reach verify`                  |
+| Edit, remove or reorder a ledger line      | Each line names the SHA-256 of the line before: every later link breaks                                                                   | Step 3 of **Verify this record**; `reach verify`                                                   |
+| Rewrite a whole ledger, consistently       | Its head no longer matches the anchored head on Sepolia, the Bitcoin timestamp or the signed head                                         | Steps 5 to 7 of **Verify this record**                                                             |
+| Swap a model card after seeing results     | Each record names its card's hash; the cards are in the frozen-artifacts ledger, anchored before the passes they score                    | `ledger verify`; step 4 of **Verify this record**                                                  |
+| Retune a test after seeing its result      | Each test is preregistered, frozen and anchored before it runs, and run once; results are recomputed from committed inputs                | The anchor's block time against the results' run time; `quality verify`, `quality transfer-verify` |
+| Backdate a prospective claim               | It counts only if committed (Sepolia anchor, or a Bitcoin block plus 2 hours) before the gauge read                                       | Each outcome line names its commitment; compare the block time with `gaugeReadUtc`                 |
+| Delete or edit an anchor                   | The contract has no such function; a ledger's anchors must grow                                                                           | `anchorAt(subject, index)` on Etherscan                                                            |
+| Steal the owner's Ethereum key             | The thief can only append anchors with more lines. A false head matches no published ledger and has no signature by the frozen ML-DSA key | Compare each anchor with the ledger and with `signatures.jsonl`                                    |
+| Take over the daily run (GitHub)           | It holds no key: it can publish a record but not anchor or sign it. Anything published after the last anchor shows as "not anchored yet"  | The anchor and signature steps of **Verify this record**                                           |
+| Leave out an awkward pass                  | Each record names its scene, and skipped passes have their reason in the run's state                                                      | List the scenes over the reach on Earth Search and compare with the ledger's `sceneId`s            |
+| Lie about Bitcoin through a block explorer | The web app asks two independent explorers (mempool.space, blockstream.info), which must agree                                            | Any Bitcoin node, or `ots verify` on the proof file                                                |
+| Lie about Sepolia through an RPC node      | With a wallet connected on Sepolia, the app reads the anchors through the wallet's own connection and says so                             | Connect a wallet; or read the contract on Etherscan                                                |
+
+## Post-quantum: what a quantum computer would and would not break
+
+- **The seals, the ledgers and the Bitcoin timestamps are hash-based.** SHA-256 (records, ledger
+  lines, heads, the OpenTimestamps path) and keccak256 (anchor subjects) have no known quantum
+  break. Grover's algorithm at best halves the exponent of a preimage search, leaving about 2^128
+  work for SHA-256. A Bitcoin timestamp depends on SHA-256 and the block's place in the
+  proof-of-work chain, which is SHA-256 too; it involves no signature. These carry the "not edited
+  since" guarantee.
+- **The Sepolia anchors depend on ECDSA (secp256k1).** Every anchoring transaction exposes the
+  owner's public key on chain. Shor's algorithm on a large enough quantum computer would recover
+  the private key, and the attacker could then append false anchors (with more lines). It could not
+  edit or delete the existing ones, and its heads would match no published ledger.
+- **What ML-DSA-65 adds:** post-quantum authorship of a head. A signature by the frozen key says the
+  key's holder published that head, and a quantum attacker who recovers the Ethereum key still
+  cannot make one. It is a signature, not a timestamp: `signedAt` is the signer's own claim. The
+  time comes from Bitcoin and Sepolia.
+- **What stays classical:** Ethereum's transactions and consensus, and Bitcoin's coin signatures
+  (not its block headers). A break there is outside RiverEtch's control.
+- **Implementations:** the pipeline signs with [pqcrypto](https://pypi.org/project/pqcrypto/) 1.0.0
+  (bindings to Backbone's Rust crates, which by its own description have had no formal security audit); the browser
+  verifies with [@noble/post-quantum](https://github.com/paulmillr/noble-post-quantum) 0.7.1
+  (self-audited; it makes no constant-time claim). Both pass NIST's ACVP sigVer vectors for
+  ML-DSA-65 (external interface, pure: `pipeline/tests/fixtures/ml-dsa/`), and each verifies the
+  other's signatures. Only the owner's machine signs, so a side channel in signing matters there
+  only.
+- **Limits:** one key, held by one person, with no revocation beyond freezing a new key file with
+  its own anchor. Ledgers of 16 to 33 lines are replayed in full, so there is no Merkle tree (one
+  would matter for proofs of single lines in long ledgers: future work).
+
+**If Sepolia goes away.** A proposal of 27 May 2026 (Ethereum Magicians,
+[Sepolia testnet replacement and sunsetting](https://ethereum-magicians.org/t/sepolia-testnet-replacement-sunsetting/28647))
+would deprecate Sepolia and sunset it fully in Q2 or Q3 2027. It is a proposal, not a decision. If
+it happens, the anchors can no longer be read from a live node; the Bitcoin timestamps and the
+signatures stay checkable.
+
 ## Why the labels read `terrachain:`
 
 The project was first called TerraChain. The subjects of the first anchors are the keccak256 of
@@ -85,6 +154,8 @@ keeps it ([D22](decisions.md)).
 | ------------------------------------ | --------------------------------------------------------------------------------------- |
 | A record's seal, its chain, its card | **Verify this record** in the web app, or `uv run climate-pipeline reach verify`        |
 | A record's anchor                    | **Verify this record** (no wallet), or `anchorAt(subject, index)` on Etherscan          |
+| A head's Bitcoin timestamp           | **Verify this record**; `uv run climate-pipeline ledger proofs`; or `ots verify`        |
+| A head's signature                   | **Verify this record**; `uv run climate-pipeline sign verify`                           |
 | The anchoring log                    | `npx tsx scripts/anchor-log.ts` (from `contracts/`) rebuilds it from the contract state |
 | The frozen artifacts                 | `uv run climate-pipeline ledger verify`                                                 |
 | Every result, to the last digit      | `uv run climate-pipeline quality verify` (CI runs it on every change)                   |
