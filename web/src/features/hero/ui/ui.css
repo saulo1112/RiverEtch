@@ -162,6 +162,37 @@
   background-color: rgb(255 255 255 / 0.04);
 }
 
+/*
+ * "How it works" calls for a first look: three soft cyan rings a moment after the page settles,
+ * then still. With reduced motion there is no ring; its hairline carries a faint cyan instead.
+ */
+.hero-btn--how {
+  border-color: rgb(34 211 238 / 0.42);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-btn--how {
+    border-color: rgb(240 246 255 / 0.22);
+    animation: hero-how-call 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 2.2s 3 both;
+  }
+}
+
+@keyframes hero-how-call {
+  0% {
+    border-color: rgb(34 211 238 / 0.6);
+    box-shadow: 0 0 0 0 rgb(34 211 238 / 0.36);
+  }
+
+  70% {
+    box-shadow: 0 0 0 9px rgb(34 211 238 / 0);
+  }
+
+  100% {
+    border-color: rgb(240 246 255 / 0.22);
+    box-shadow: 0 0 0 9px rgb(34 211 238 / 0);
+  }
+}
+
 /* Header: a transparent bar, no links. The brand sits on the copy's left edge and the profile
    button on the chip's right edge. Above the screens, so the profile menu covers them. */
 .hero-header {
@@ -959,61 +990,53 @@
 }
 
 /*
- * The pipeline's three steps, under the calls to action: a hairline over each, the number in the
- * accent (mono), the label in small capitals and a lighter description. Capped well short of the
- * column, so the last hairline stays clear of the orbit and the satellite; never narrower than
- * the labels need: the descriptions wrap instead (contain below).
+ * Three indicators under the calls to action: a hairline over each, the figure in the sans (it is
+ * a count, not a step number), what it counts beside it and a lighter line under. Capped well
+ * short of the column, so the last hairline stays clear of the orbit and the satellite.
  */
-.hero-steps {
+.hero-indicators {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(3, auto);
+  justify-content: start;
   gap: 24px;
-  width: min(100%, 420px);
-  min-width: max-content;
+  width: min(100%, 440px);
   margin: var(--gap-steps) 0 0;
   padding: 0;
   list-style: none;
 }
 
-.hero-step {
+.hero-indicator {
   padding-top: 14px;
   border-top: 1px solid var(--hairline);
 }
 
-.hero-step__head {
+.hero-indicator__head {
   display: flex;
-  gap: 10px;
+  gap: 7px;
   align-items: baseline;
   margin: 0;
   line-height: 1;
-  white-space: nowrap;
 }
 
-.hero-step__number {
+.hero-indicator__figure {
   color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 450;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.02em;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
-/* Small capitals: the copy is in sentence case, so screen readers read words. */
-.hero-step__label {
+.hero-indicator__label {
   color: var(--text-1);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 560;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
-.hero-step__desc {
-  margin: 10px 0 0;
+.hero-indicator__desc {
+  margin: 9px 0 0;
   color: var(--text-3);
   font-size: 13px;
-  line-height: 1.45;
+  line-height: 1.4;
   text-wrap: balance;
-  contain: inline-size;
 }
 
 /*
@@ -1124,9 +1147,9 @@
   text-wrap: pretty;
 }
 
-.hero-step__label,
-.hero-step__number,
-.hero-step__desc,
+.hero-indicator__label,
+.hero-indicator__figure,
+.hero-indicator__desc,
 .hero-chip__text,
 .hero-attribution {
   text-box: trim-both cap alphabetic;
@@ -1205,24 +1228,24 @@
     width: max-content;
   }
 
-  .hero-steps {
+  .hero-indicators {
     gap: 16px;
   }
 }
 
 @container hero (width < 1280px) or (height < 760px) {
-  .hero-step__desc {
+  .hero-indicator__desc {
     display: none;
   }
 }
 
-/* Very short landscape screens: the steps go; the evidence, the chip and the attribution stay. */
+/* Very short landscape screens: the indicators go; the evidence, the chip and the attribution stay. */
 @container hero (aspect-ratio >= 1) and (height < 640px) {
   .hero > .hero-ui {
     --copy-half: 184px;
   }
 
-  .hero-steps {
+  .hero-indicators {
     display: none;
   }
 }
@@ -1241,7 +1264,7 @@
 /*
  * Portrait: the globe sits high (CAMERA.globeCenterPortrait) and the copy is stacked at the
  * bottom, in flow with the attribution, on a night scrim (short phones overlap the globe's lower
- * limb). Full-width stacked calls to action; no steps, evidence or blur. The status chip stays,
+ * limb). Full-width stacked calls to action; no indicators, evidence or blur. The status chip stays,
  * so the daily run's status opens on a phone too.
  */
 @container hero (aspect-ratio < 1) {
@@ -1258,7 +1281,7 @@
   }
 
   .hero-evidence,
-  .hero-steps {
+  .hero-indicators {
     display: none;
   }
 
@@ -1537,16 +1560,16 @@
     margin-block: calc(var(--gap-sub) - 0.41em) -0.41em;
   }
 
-  .hero-step__number {
+  .hero-indicator__figure {
     margin-block: -0.15em;
   }
 
-  .hero-step__label,
+  .hero-indicator__label,
   .hero-chip__text {
     margin-block: -0.136em;
   }
 
-  .hero-step__desc {
+  .hero-indicator__desc {
     margin-block: calc(10px - 0.361em) -0.361em;
   }
 

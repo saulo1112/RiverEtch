@@ -143,6 +143,10 @@ export function HeroUi({
           setDialogOpen(false);
           howItWorksRef.current?.focus({ preventScroll: true });
         }}
+        onOpenCase={(caseId) => {
+          setDialogOpen(false);
+          onExplore?.(caseId);
+        }}
       />
       <p className="hero-ui__visually-hidden" aria-live="polite">
         {announcement}

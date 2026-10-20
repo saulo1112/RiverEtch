@@ -33,6 +33,15 @@ declare const __PROSPECTIVE_T0__: string | null;
 declare const __V5_RESULTS__: { readonly levels: string; readonly scores: string };
 /** results/transfer/transfer_scores.csv: each river scored by a model that never saw it. */
 declare const __TRANSFER_SCORES__: string;
+/** results/transfer/transfer_pooled.json: the class agreement on rivers the model never saw. */
+declare const __TRANSFER_POOLED__: { readonly class_agreement: number; readonly n: number };
+/** "How it works": one station's year of flow and passes, cut from the committed files. */
+declare const __HOW_FLOW__: {
+  readonly year: number;
+  readonly climate: string;
+  readonly daily: string;
+  readonly passes: string;
+};
 /** The ML-DSA-65 public key that signs ledger heads (docs/keys/ml-dsa-65.json), hex. */
 declare const __ML_DSA_PUBLIC_KEY__: string;
 

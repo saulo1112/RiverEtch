@@ -20,6 +20,6 @@
   cursor: auto;
 }
 
-.hero-ui :is(.hero-copy, .hero-steps, .hero-chip, .hero-attribution) {
+.hero-ui :is(.hero-copy, .hero-indicators, .hero-chip, .hero-attribution) {
   pointer-events: auto;
 }

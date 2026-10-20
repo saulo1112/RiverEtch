@@ -172,6 +172,36 @@ const mlDsaKey = (
 ).publicKey;
 // The test on rivers the model never saw (preregistration-transfer.md), run once.
 const transferScores = readFileSync(join(RESULTS, "transfer", "transfer_scores.csv"), "utf8");
+// Its pooled result on the sediment-carrying rivers: the class agreement an ungauged reach states.
+const transferPooled = JSON.parse(
+  readFileSync(join(RESULTS, "transfer", "transfer_pooled.json"), "utf8"),
+) as { class_agreement: number; n: number };
+// "How it works": the Belle Chasse station's 2023 flow, its low-flow line and the satellite's
+// usable passes, cut to that year from the committed files (parsed by
+// src/features/hero/ui/how/flow.ts; the tests run the parser on the full files).
+const HOW_SITE = "mississippi-belle-chasse";
+const HOW_YEAR = 2023;
+const howClimate = readFileSync(join(REACHES, HOW_SITE, "examples", "climate.json"), "utf8");
+const howStation = (JSON.parse(howClimate) as { station: { id: string } }).station.id;
+const keep = (text: string, test: (line: string) => boolean) =>
+  text
+    .split(/\r?\n/)
+    .filter((line, k) => k === 0 || test(line))
+    .join("\n");
+const howFlow = {
+  year: HOW_YEAR,
+  climate: howClimate,
+  daily: keep(readFileSync(join(REACHES, HOW_SITE, "climate", "daily.csv"), "utf8"), (line) =>
+    line.startsWith(`${String(HOW_YEAR)}-`),
+  ),
+  passes: keep(
+    readFileSync(
+      fileURLToPath(new URL("../docs/water-quality/inputs/usgs-v5/turbidity.csv", import.meta.url)),
+      "utf8",
+    ),
+    (line) => line.startsWith(`${howStation},`) && line.includes(`,${String(HOW_YEAR)}-`),
+  ),
+};
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -184,6 +214,8 @@ export default defineConfig({
     __REACH_FACTS__: JSON.stringify(reachFacts),
     __V5_RESULTS__: JSON.stringify(v5Results),
     __TRANSFER_SCORES__: JSON.stringify(transferScores),
+    __HOW_FLOW__: JSON.stringify(howFlow),
+    __TRANSFER_POOLED__: JSON.stringify(transferPooled),
     __ML_DSA_PUBLIC_KEY__: JSON.stringify(mlDsaKey),
   },
 });

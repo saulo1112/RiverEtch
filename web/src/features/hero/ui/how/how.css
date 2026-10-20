@@ -1,0 +1,1030 @@
+/*
+ * "How it works": a full-height native dialog over the globe. A rail lists the six chapters; the
+ * stage holds one idea at a time, set for reading (a 62-character measure). One bold element: the
+ * live fingerprint. Charts follow the dataviz rules: thin marks, hairline grid, legend plus words,
+ * colour never alone. Series colours were validated on the dialog's surface (#08101f): satellite
+ * #1d9fbb, guessing #9a72e8 (CVD dE 8.1, normal 18.8, both >= 3:1).
+ */
+.how {
+  --how-surface: #08101f;
+  --how-sat: #1d9fbb;
+  --how-guess: #9a72e8;
+  --how-fail: #ff7a6e;
+
+  width: min(1040px, 100vw - 32px);
+  max-width: none;
+  height: min(720px, 100dvh - 32px);
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  background: var(--how-surface);
+  box-shadow: 0 30px 90px rgb(0 0 0 / 0.6);
+  color: var(--text-1);
+  font-family: var(--font-text);
+}
+
+.how::backdrop {
+  background: rgb(2 4 10 / 0.74);
+}
+
+.how__frame {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  height: 100%;
+}
+
+/* The rail: the dialog's name, then the chapters as a sequence. */
+.how__rail {
+  padding: 28px 18px 24px 22px;
+  border-right: 1px solid var(--hairline);
+  background: rgb(255 255 255 / 0.015);
+}
+
+.how__name {
+  margin: 0 0 20px 10px;
+  color: var(--text-3);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.how__chapters {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.how__chapter {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--text-3);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--ease),
+    color 160ms var(--ease);
+}
+
+.how__chapter:hover {
+  background: rgb(255 255 255 / 0.04);
+  color: var(--text-2);
+}
+
+.how__chapter[data-done="true"] {
+  color: var(--text-2);
+}
+
+.how__chapter[aria-current="step"] {
+  background: rgb(34 211 238 / 0.09);
+  box-shadow: inset 2px 0 0 var(--accent);
+  color: var(--text-1);
+  font-weight: 560;
+}
+
+.how__chapter:focus-visible,
+.how__nav:focus-visible,
+.how__close:focus-visible,
+.how-try__card:focus-visible,
+.how-bars__row:focus-visible,
+.how-print__reset:focus-visible,
+.how-table summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.how__chapter-number {
+  flex: none;
+  width: 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: right;
+}
+
+/* The stage: one chapter, read top to bottom; it scrolls inside when tall. */
+.how__stage {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+.how__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  padding: 26px 32px 14px;
+}
+
+.how__count {
+  grid-column: 1;
+  margin: 0;
+  color: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.how__title {
+  grid-column: 1;
+  max-width: 24em;
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.how__title:focus {
+  outline: none;
+}
+
+.how__close {
+  display: grid;
+  grid-row: 1 / span 2;
+  grid-column: 2;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: none;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.how__close:hover {
+  border-color: var(--hairline);
+  color: var(--text-1);
+}
+
+.how__body {
+  min-height: 0;
+  padding: 4px 32px 28px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  mask-image: linear-gradient(#000 calc(100% - 28px), transparent);
+}
+
+.how__body > * {
+  max-width: 62ch;
+}
+
+.how__body > .how-chart,
+.how__body > .how-reads,
+.how__body > .how-print,
+.how__body > .how-boards,
+.how__body > .how-big,
+.how__body > .how-try,
+.how__body > .how-steps,
+.how__body > .how-limits {
+  max-width: 720px;
+}
+
+.how__foot {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 14px 32px 22px;
+  border-top: 1px solid var(--hairline);
+}
+
+.how__nav {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid rgb(240 246 255 / 0.2);
+  border-radius: 12px;
+  background: none;
+  color: var(--text-1);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.how__nav:disabled {
+  visibility: hidden;
+}
+
+.how__nav--next {
+  border-color: transparent;
+  background: var(--cta-bg);
+  color: var(--cta-ink);
+  font-weight: 560;
+}
+
+/* Type, set for reading. */
+.how-lead {
+  margin: 0 0 10px;
+  color: var(--text-1);
+  font-size: 18px;
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.how-text {
+  margin: 0 0 10px;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.how-small {
+  margin: 0;
+  color: var(--text-3);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.how-source {
+  margin: 8px 0 0;
+  color: var(--text-3);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.how-source a {
+  color: var(--text-2);
+  text-decoration: underline;
+  text-decoration-color: rgb(240 246 255 / 0.3);
+  text-underline-offset: 2px;
+}
+
+.how-sub {
+  margin: 22px 0 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+/* Charts. */
+.how-chart {
+  margin: 18px 0 0;
+}
+
+.how-chart__title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+
+.how-chart__keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0 0 8px;
+  padding: 0;
+  color: var(--text-2);
+  font-size: 12.5px;
+  list-style: none;
+}
+
+.how-chart__keys li {
+  display: inline-flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.how-key {
+  flex: none;
+  display: inline-block;
+}
+
+.how-key--low,
+.how-key--seen {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.how-key--low {
+  background: var(--accent);
+}
+
+.how-key--seen {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.how-key--line {
+  width: 16px;
+  height: 0;
+  border-top: 1.5px solid rgb(240 246 255 / 0.5);
+}
+
+.how-key--sat,
+.how-key--guess {
+  width: 12px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.how-key--sat {
+  background: var(--how-sat);
+}
+
+.how-key--guess {
+  background: var(--how-guess);
+}
+
+.how-chart__plot {
+  position: relative;
+}
+
+.how-chart__plot svg {
+  display: block;
+  overflow: visible;
+}
+
+.how-chart__grid {
+  stroke: rgb(240 246 255 / 0.08);
+  stroke-width: 1;
+}
+
+.how-chart__tick {
+  fill: var(--text-3);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.how-chart__low-zone {
+  fill: rgb(34 211 238 / 0.06);
+}
+
+.how-chart__low-line {
+  stroke: rgb(240 246 255 / 0.5);
+  stroke-width: 1.5;
+}
+
+.how-chart__line {
+  fill: none;
+  stroke: rgb(240 246 255 / 0.7);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.how-chart__dot {
+  fill: var(--how-surface);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.how-chart__dot[data-low="true"] {
+  fill: var(--accent);
+  stroke: var(--how-surface);
+}
+
+.how-chart__dot[data-on="true"] {
+  stroke-width: 2.5;
+}
+
+.how-chart__hit {
+  fill: transparent;
+  cursor: default;
+}
+
+.how-chart__tip {
+  position: absolute;
+  z-index: 1;
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 7px 10px;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  background: #0d1830;
+  font-size: 12.5px;
+  white-space: nowrap;
+  pointer-events: none;
+  translate: 12px -50%;
+}
+
+.how-chart__tip[data-side="left"] {
+  translate: calc(-100% - 12px) -50%;
+}
+
+.how-chart__tip span {
+  color: var(--text-2);
+}
+
+/* The rivers it never saw: two thin bars per station on one scale. */
+.how-bars {
+  display: grid;
+  gap: 4px;
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.how-bars__row {
+  display: grid;
+  grid-template-columns: minmax(0, 12.5em) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  column-gap: 14px;
+  row-gap: 3px;
+  align-items: center;
+  padding: 5px 8px;
+  border-radius: 8px;
+  outline: none;
+}
+
+.how-bars__row[data-on="true"] {
+  background: rgb(255 255 255 / 0.04);
+}
+
+.how-bars__name {
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  align-items: center;
+  color: var(--text-2);
+  font-size: 13px;
+}
+
+.how-bars__fails {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 1px 7px;
+  border: 1px solid rgb(255 122 110 / 0.5);
+  border-radius: 999px;
+  background: rgb(255 122 110 / 0.12);
+  color: #ffc2bb;
+  font-size: 12px;
+}
+
+.how-bars__track {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.how-bars__bar {
+  flex: none;
+  height: 8px;
+  border-radius: 0 4px 4px 0;
+}
+
+.how-bars__bar--sat {
+  background: var(--how-sat);
+}
+
+.how-bars__bar--guess {
+  background: var(--how-guess);
+}
+
+.how-bars__value {
+  color: var(--text-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Table views (every chart has one). */
+.how-table {
+  margin-top: 10px;
+  color: var(--text-2);
+  font-size: 12.5px;
+}
+
+.how-table summary {
+  width: fit-content;
+  border-radius: 6px;
+  color: var(--text-2);
+  cursor: pointer;
+}
+
+.how-table table {
+  width: 100%;
+  margin-top: 8px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.how-table th,
+.how-table td {
+  padding: 4px 8px 4px 0;
+  border-bottom: 1px solid rgb(240 246 255 / 0.08);
+  text-align: left;
+}
+
+.how-table th {
+  color: var(--text-3);
+  font-weight: 500;
+}
+
+/* What it reads. */
+.how-reads {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.how-read {
+  padding: 16px 18px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+}
+
+.how-read__title {
+  margin: 0 0 2px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.how-read .how-text {
+  margin-top: 10px;
+}
+
+.how-station {
+  margin-top: 18px;
+  padding-left: 14px;
+  border-left: 2px solid rgb(240 246 255 / 0.18);
+}
+
+/* The fingerprint: the one bold element. */
+.how-print {
+  margin: 16px 0 6px;
+  padding: 18px 20px;
+  border: 1px solid rgb(34 211 238 / 0.28);
+  border-radius: 16px;
+  background: radial-gradient(120% 140% at 0% 0%, rgb(34 211 238 / 0.08), transparent 60%), #0a1426;
+}
+
+.how-print__title {
+  margin: 0 0 10px;
+  color: var(--text-3);
+  font-size: 12.5px;
+}
+
+.how-print__fields {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 16px;
+  align-items: center;
+  margin: 0 0 14px;
+  font-size: 14px;
+}
+
+.how-print__fields dt {
+  color: var(--text-3);
+}
+
+.how-print__fields dd {
+  margin: 0;
+}
+
+.how-print__edit {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+}
+
+.how-print__input {
+  width: 6.5em;
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid rgb(34 211 238 / 0.55);
+  border-radius: 10px;
+  background: rgb(2 4 10 / 0.6);
+  color: var(--text-1);
+  font: inherit;
+  font-family: var(--font-mono);
+  font-size: 16px;
+}
+
+.how-print__input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.how-print__hint {
+  color: var(--text-3);
+  font-size: 12.5px;
+}
+
+.how-print__hash {
+  display: grid;
+  gap: 3px;
+  margin: 0 0 8px;
+}
+
+.how-print__hash-label {
+  color: var(--text-3);
+  font-size: 12px;
+}
+
+.how-print__hash code {
+  overflow-wrap: anywhere;
+  color: var(--text-2);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.how-print__hash [data-diff="true"] {
+  border-radius: 2px;
+  background: rgb(255 122 110 / 0.22);
+  color: #ffd2cc;
+}
+
+.how-print__verdict {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 8px 10px;
+  align-items: start;
+  margin: 12px 0 10px;
+  font-size: 15px;
+  font-weight: 560;
+}
+
+.how-print__verdict[data-same="true"] > svg {
+  color: #34d399;
+}
+
+.how-print__verdict[data-same="false"] > svg {
+  color: var(--how-fail);
+}
+
+.how-print__verdict > svg {
+  margin-top: 0.2em;
+}
+
+.how-print__reset {
+  grid-column: 2;
+  justify-self: start;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid rgb(240 246 255 / 0.2);
+  border-radius: 10px;
+  background: none;
+  color: var(--text-1);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.how-print__note {
+  margin: 14px 0;
+  color: var(--text-2);
+  font-size: 14px;
+}
+
+.how-boards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.how-board {
+  padding: 14px 16px;
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+}
+
+.how-board__title {
+  margin: 0 0 6px;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.how-board .how-text {
+  font-size: 14px;
+}
+
+/* Does it work: the one big number. */
+.how-big {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  margin: 6px 0 4px;
+}
+
+.how-big__figure {
+  display: flex;
+  align-items: baseline;
+  margin: 0;
+  line-height: 1;
+}
+
+.how-big__about {
+  margin-right: 8px;
+  color: var(--text-2);
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.how-big__value {
+  font-size: 88px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.how-big__unit {
+  margin-left: 2px;
+  color: var(--accent);
+  font-size: 48px;
+  font-weight: 500;
+}
+
+.how-big__label {
+  margin: 0 0 6px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.how-works__class {
+  margin-top: 16px;
+}
+
+/* Try it: the four steps in order, joined by a hairline, then the two rivers to open. */
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 18px 0 22px;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.how-step {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.how-step:not(:last-child)::after {
+  position: absolute;
+  top: 14px;
+  right: -6px;
+  left: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, rgb(34 211 238 / 0.45), rgb(240 246 255 / 0.12));
+  content: "";
+}
+
+.how-step__number {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgb(34 211 238 / 0.55);
+  border-radius: 50%;
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.how-step:last-child .how-step__number {
+  border-color: rgb(255 122 110 / 0.6);
+  color: var(--how-fail);
+}
+
+.how-step__text {
+  color: var(--text-1);
+  font-size: 14.5px;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+
+.how-try {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 12px 0 14px;
+}
+
+.how-try__card {
+  position: relative;
+  display: grid;
+  gap: 4px;
+  min-height: 96px;
+  padding: 18px 46px 18px 18px;
+  border: 1px solid rgb(240 246 255 / 0.18);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.03);
+  color: var(--text-1);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease),
+    background-color 160ms var(--ease);
+}
+
+.how-try__card:hover {
+  border-color: rgb(34 211 238 / 0.55);
+  background: rgb(34 211 238 / 0.06);
+}
+
+.how-try__title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.how-try__arrow {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  color: var(--accent);
+  translate: 0 -50%;
+}
+
+/* Limits: six short items, a heading and a line or two each, in two columns. */
+.how-limits {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 22px 28px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.how-limit {
+  padding-top: 14px;
+  border-top: 1px solid var(--hairline);
+}
+
+.how-limit__title {
+  margin: 0 0 6px;
+  color: var(--text-1);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.how-limit .how-text {
+  margin: 0;
+}
+
+/* A new chapter fades in; with reduced motion it appears. */
+@media (prefers-reduced-motion: no-preference) {
+  .how__body {
+    animation: how-in 220ms var(--ease);
+  }
+
+  .how[open] {
+    animation: how-open 220ms var(--ease);
+  }
+}
+
+@keyframes how-in {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+}
+
+@keyframes how-open {
+  from {
+    opacity: 0;
+    scale: 0.985;
+  }
+}
+
+/* A phone: the rail becomes six numbered steps across the top; the stage takes the rest. */
+@media (max-width: 760px) {
+  .how {
+    width: calc(100vw - 16px);
+    height: calc(100dvh - 16px);
+    border-radius: 16px;
+  }
+
+  .how__frame {
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .how__rail {
+    padding: 14px 16px 10px;
+    border-right: 0;
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  .how__name {
+    margin: 0 0 8px;
+  }
+
+  .how__chapters {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .how__chapter {
+    justify-content: center;
+    min-height: 36px;
+    padding: 0;
+  }
+
+  .how__chapter[aria-current="step"] {
+    box-shadow: inset 0 -2px 0 var(--accent);
+  }
+
+  .how__chapter-number {
+    width: auto;
+    text-align: center;
+  }
+
+  .how__chapter-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .how__head {
+    padding: 16px 16px 10px;
+  }
+
+  .how__title {
+    font-size: 22px;
+  }
+
+  .how__body {
+    padding: 2px 16px 18px;
+  }
+
+  .how__foot {
+    padding: 10px 16px 14px;
+  }
+
+  .how-reads,
+  .how-boards,
+  .how-try,
+  .how-limits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .how-bars__row {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+  }
+
+  .how-bars__name {
+    grid-row: auto;
+  }
+
+  .how-big {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+  }
+
+  .how-big__value {
+    font-size: 64px;
+  }
+
+  .how-steps {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .how-step {
+    grid-template-columns: 28px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+  }
+
+  .how-step:not(:last-child)::after {
+    top: 32px;
+    right: auto;
+    bottom: -12px;
+    left: 14px;
+    width: 1px;
+    height: auto;
+    background: linear-gradient(180deg, rgb(34 211 238 / 0.45), rgb(240 246 255 / 0.12));
+  }
+}

@@ -40,33 +40,35 @@ export const PROFILE = {
  * screen readers read words, not letters.
  */
 export const COPY = {
-  eyebrow: ["Sentinel-2", "USGS gauges", "Sealed records"],
+  eyebrow: ["Free satellite images", "Stated error", "Sealed readings"],
   title: ["See the river.", "Verify the reading."],
   subtitle:
-    "River turbidity from Sentinel-2: a value where a gauge validated the model, a class where there is no gauge, each with the error its test measured. Every reading is sealed, so anyone can recompute it and see that it has not changed.",
+    "A measuring station sees one point of a river. Most of the river lies far from any station. RiverEtch reads the water from free satellite images, tells you how far off each reading can be, and seals it, so any later change would show.",
   // A button: it opens the cases screen.
   primary: { label: "Explore your cases" },
   // A button: it opens the "How it works" dialog.
   secondary: { label: "How it works" },
 } as const;
 
-/** A step of the pipeline, as the entry screen lists it under the calls to action. */
-export interface Step {
+/** One of the three indicators under the calls to action: a figure, what it counts, a detail. */
+export interface Indicator {
   /** Stable key. */
-  readonly id: "observe" | "estimate" | "verify";
-  /** Two-digit position, shown before the label (the list itself is ordered). */
-  readonly number: string;
-  /** Short label, set in small capitals by CSS. */
+  readonly id: "rivers" | "check" | "proofs";
+  /** What the figure counts (the figure itself comes from the data where it is a count). */
   readonly label: string;
-  /** One-line description. */
+  /** One short line under it. */
   readonly description: string;
 }
 
-/** The three steps, in order. */
-export const STEPS: readonly Step[] = [
-  { id: "observe", number: "01", label: "Observe", description: "Sentinel-2 NDTI, pixel by pixel" },
-  { id: "estimate", number: "02", label: "Estimate", description: "Tested once against gauges" },
-  { id: "verify", number: "03", label: "Verify", description: "Sealed record, recomputable" },
+/** The three indicators, in reading order. "rivers" is counted from the transfer test. */
+export const INDICATORS: readonly Indicator[] = [
+  { id: "rivers", label: "rivers tested", description: "failures shown" },
+  { id: "check", label: "click to check", description: "no wallet, no account" },
+  {
+    id: "proofs",
+    label: "separate checks",
+    description: "Ethereum, Bitcoin and a quantum-safe signature",
+  },
 ];
 
 /** Status chip: what this page is, until the daily run's status has been read. */
@@ -140,50 +142,158 @@ export const CASES = {
   },
 } as const;
 
-/** The "How it works" dialog. */
+/**
+ * "How it works": six short chapters in plain English (one idea each). Every number shown is
+ * computed from a committed file at build time (see how/); only the words live here. Technical
+ * terms sit in `term` lines, set small, never in the main sentence.
+ */
 export const HOW_IT_WORKS = {
   title: "How it works",
   close: "Close",
-  demo: "A demo workspace: real records from two US rivers, viewed as a simulated analyst. No account needed.",
-  steps: [
+  chaptersLabel: "Chapters",
+  count: (k: number, n: number) => `${String(k)} of ${String(n)}`,
+  back: "Back",
+  next: "Next",
+  chapters: [
+    { id: "problem", short: "The problem", title: "A station measures one point of a river" },
+    { id: "reads", short: "What it reads", title: "What the satellite reads" },
+    { id: "fingerprint", short: "The fingerprint", title: "Every reading gets a fingerprint" },
+    { id: "works", short: "Does it work?", title: "Does it work?" },
+    { id: "try", short: "Try it", title: "Try it yourself" },
+    { id: "limits", short: "Limits", title: "What it cannot do" },
+  ],
+  problem: {
+    lead: "A measuring station sees one point of a river. Most of the river lies far from any station.",
+    more: "RiverEtch reads the whole stretch from free satellite images, every few days, when there are no clouds.",
+    chartTitle: (low: number, seen: number, year: number) =>
+      `In ${String(year)} the river ran low on ${String(low)} days. The satellite saw it clearly on ${String(seen)} of them.`,
+    chartNote: "Each dot is a day with a clear satellite view.",
+    flowAxis: "River flow, m³/s",
+    lowLine: "Low-flow line",
+    seenLow: "Clear view on a low-flow day",
+    seenOther: "Clear view on another day",
+    source: (station: string, source: string, missing: number) =>
+      `Flow: ${station}, ${source}${missing > 0 ? ` (no value on ${String(missing)} ${missing === 1 ? "day" : "days"}; the line breaks there)` : ""}. Satellite: Sentinel-2. Low-flow line: the station's lowest 10 % of days.`,
+    tableCaption: "Days with a clear satellite view, and the river's flow that day",
+    day: "Day",
+    flow: "Flow (m³/s)",
+    lowDay: "Low flow",
+    yes: "yes",
+    no: "no",
+  },
+  reads: {
+    cards: [
+      {
+        title: "How muddy the water is",
+        term: "Turbidity, in FNU",
+        text: "It rises when rain washes soil into the river. Cloudy water can shelter germs from the disinfectants that make drinking water safe.",
+        source: "USGS Water Science School, “Turbidity and Water”",
+        url: "https://www.usgs.gov/special-topics/water-science-school/science/turbidity-and-water",
+      },
+      {
+        title: "How warm the water is",
+        term: "Water temperature, in °C",
+        text: "Warm water holds less oxygen than cool water, and it can harm the life in the river.",
+        source: "USGS Water Science School, “Temperature and Water”",
+        url: "https://www.usgs.gov/special-topics/water-science-school/science/temperature-and-water",
+      },
+    ],
+    stationTitle: "From the station, for context",
+    stationText:
+      "Flow and water level come from the river's measuring station. They are shown beside the satellite's reading. The satellite does not measure flow.",
+  },
+  fingerprint: {
+    lead: "A fingerprint is a short code made from every number in a reading. Change one number, and the whole code changes.",
+    demoTitle: "A real reading",
+    loading: "Loading a real reading…",
+    unavailable:
+      "The reading could not be loaded here. Open a river and press “Verify this record” instead.",
+    place: "Place",
+    date: "Date",
+    turbidity: "Turbidity",
+    edit: "Change this number",
+    sealed: "Fingerprint when it was sealed",
+    now: "Fingerprint now",
+    matches: "Matches. This is the reading as it was sealed.",
+    differs: "Does not match. The reading was changed.",
+    reset: "Put the number back",
+    technical:
+      "The fingerprint is the SHA-256 of the reading's canonical JSON, recomputed in your browser.",
+    boardsTitle: "Then it is posted where nobody can change it",
+    boards: [
+      {
+        title: "On a public board",
+        text: "The latest fingerprint of each list of readings goes on Ethereum. Nobody can edit or delete it.",
+        term: "Ethereum Sepolia, a public test network",
+      },
+      {
+        title: "On a second public board",
+        text: "The same fingerprint is dated on Bitcoin. That needs no key at all.",
+        term: "OpenTimestamps",
+      },
+      {
+        title: "Signed with a quantum-safe lock",
+        text: "RiverEtch also signs it with a lock that future quantum computers cannot break.",
+        term: "ML-DSA-65 (FIPS 204)",
+      },
+    ],
+  },
+  works: {
+    bigAbout: "about",
+    bigUnit: "×",
+    bigLabel: "smaller error than guessing the river's usual value",
+    bigNote: (station: string, sat: string, guess: string) =>
+      `At the middle station of the nine, half of the satellite's errors were under ${sat} %. Guessing the usual value gave ${guess} % (${station}).`,
+    tally: (good: number, none: number, worse: number, n: number) =>
+      `${String(good)} of ${String(n)} stations beat guessing. ${String(none)} showed no clear gain. ${String(worse)} did worse.`,
+    barsTitle: (beat: number, n: number, fail: number) =>
+      `On rivers the model never saw, ${String(beat)} of ${String(n)} stations still beat guessing. ${String(fail)} failed.`,
+    satellite: "Satellite, a model that never saw that river",
+    guess: "Guessing the river's usual value",
+    fails: "fails",
+    axis: "Typical error, % of the station's value",
+    classLine: (k: number, n: number) =>
+      `Where there is no station, RiverEtch shows a class only. On similar rivers it never saw, the class matched the station in ${String(k)} of ${String(n)} passes.`,
+    source:
+      "Each model was tested once, on years it had never seen (Dec 2023 to Sep 2026). Errors are medians.",
+    tableCaption: "Each station: the satellite's typical error and guessing the usual value",
+    station: "Station",
+  },
+  try: {
+    lead: "Check a sealed reading yourself, then break it on purpose.",
+    steps: [
+      "Open a river",
+      "Press “Verify this record”",
+      "Tick “Change one number first”",
+      "Press it again: the check fails",
+    ],
+    gauged: "Open a river with a station",
+    gaugedNote: "Mississippi at Belle Chasse",
+    ungauged: "Open a river with no station",
+    ungaugedNote: "Mississippi at St. Joseph",
+    tour: "Each river has a short tour, top left.",
+  },
+  limits: [
+    { title: "Clouds", text: "Clouds hide about three passes in four." },
     {
-      number: "01",
-      label: "Observe",
-      text: "At every clear Sentinel-2 pass, each water pixel of the reach gets its NDTI, a relative turbidity index. Clouds, glint and the banks are masked out.",
+      title: "No station, no number",
+      text: "Where there is no station, it shows a class, never a number.",
     },
     {
-      number: "02",
-      label: "Estimate",
-      text: "At the USGS gauge's window, a model turns the pass into a value with a 90 % interval: turbidity in FNU from Sentinel-2, water temperature in °C from Landsat. Each model was tested once, on years it had never seen.",
+      title: "Sealed is not the same as right",
+      text: "A fingerprint shows that a reading was not changed. It does not show that the reading is right. The tests show how often it was right.",
     },
     {
-      number: "03",
-      label: "Verify",
-      text: "Each pass is sealed as a record (the SHA-256 of its content) and chained in a ledger. Anyone can recompute it from public data and check that it has not changed. Each ledger's last line is anchored on Ethereum Sepolia as a public timestamp.",
+      title: "Muddy is not polluted",
+      text: "Muddy water is not the same as polluted water. It cannot see oxygen, metals or germs.",
     },
-  ],
-  limitsTitle: "What this can and cannot say",
-  canTitle: "It can",
-  can: [
-    "Estimate turbidity in FNU where a gauge validated it, with a stated error and interval.",
-    "Be reproduced from public data (Sentinel-2, USGS) and a recorded recipe.",
-    "Show tampering: a changed record no longer matches its seal.",
-  ],
-  cannotTitle: "It cannot",
-  cannot: [
-    "See through clouds: about three passes in four are lost to them.",
-    "Measure what light does not show (dissolved oxygen, metals, pathogens): turbidity is an indicator, not pollution.",
-    "Give a value on a river no gauge has validated, or on clear rivers, where it does no better than the usual value.",
-    "Prove a value true: a seal shows that a record has not changed, not that the estimate is right.",
-  ],
-  maturityTitle: "Maturity",
-  maturity: [
-    { label: "Observable", text: "Relative NDTI against the reach's own baseline only." },
-    { label: "Indicative", text: "Turbidity as a class (low, medium, high), never a unit." },
     {
-      label: "Validated",
-      text: "Turbidity in FNU, tested once against a gauge on years the model never saw.",
+      title: "Clear rivers",
+      text: "On clear rivers, like the Connecticut, it did no better than guessing, so it shows no number there.",
+    },
+    {
+      title: "A test network",
+      text: "The first public board (Ethereum Sepolia) is a test network.",
     },
   ],
-  maturityNote: "Both demo reaches are Validated.",
 } as const;

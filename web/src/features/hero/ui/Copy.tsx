@@ -1,7 +1,8 @@
 import { ArrowRight } from "lucide-react";
 import { useCallback, type Ref, type RefCallback } from "react";
 
-import { COPY, STEPS } from "./content.ts";
+import { COPY, INDICATORS, type Indicator } from "./content.ts";
+import { riversTested } from "./how/numbers.ts";
 import { Dotted } from "./Dotted.tsx";
 import { useLift } from "./useLift.ts";
 
@@ -46,10 +47,18 @@ function composeRef<T extends HTMLElement>(
   };
 }
 
+// The indicators' figures: the rivers are counted from the transfer test's committed results;
+// the check is one button, and the record has three separate checks (Ethereum, Bitcoin, ML-DSA).
+const FIGURES: Readonly<Record<Indicator["id"], string>> = {
+  rivers: String(riversTested(__TRANSFER_SCORES__)),
+  check: "1",
+  proofs: "3",
+};
+
 /**
  * The entry screen's text column: eyebrow, two-line headline, subtitle, the two calls to action
- * ("Explore your cases" opens the demo workspace's cases; "How it works" opens the dialog) and the
- * pipeline's three steps under them.
+ * ("Explore your cases" opens the demo workspace's cases; "How it works" opens the dialog) and three
+ * indicators under them.
  *
  * @returns The headline block.
  */
@@ -98,26 +107,24 @@ export function Copy({
         <button
           ref={secondaryRef}
           type="button"
-          className="hero-btn hero-btn--ghost hero-btn--lift"
+          className="hero-btn hero-btn--ghost hero-btn--how hero-btn--lift"
           onClick={onHowItWorks}
           aria-haspopup="dialog"
         >
           {COPY.secondary.label}
         </button>
       </div>
-      <ol className="hero-steps">
-        {STEPS.map((step) => (
-          <li key={step.id} className="hero-step">
-            <p className="hero-step__head">
-              <span className="hero-step__number" aria-hidden="true">
-                {step.number}
-              </span>
-              <span className="hero-step__label">{step.label}</span>
+      <ul className="hero-indicators">
+        {INDICATORS.map((item) => (
+          <li key={item.id} className="hero-indicator">
+            <p className="hero-indicator__head">
+              <span className="hero-indicator__figure">{FIGURES[item.id]}</span>
+              <span className="hero-indicator__label">{item.label}</span>
             </p>
-            <p className="hero-step__desc">{step.description}</p>
+            <p className="hero-indicator__desc">{item.description}</p>
           </li>
         ))}
-      </ol>
+      </ul>
     </div>
   );
 }

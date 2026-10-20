@@ -1,7 +1,15 @@
-import { X } from "lucide-react";
-import { useEffect, useId, useRef } from "react";
+import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
+import { CASE_COPY } from "../../case/content.ts";
+import { oneDecimal } from "../../case/rivers.ts";
 import { HOW_IT_WORKS } from "./content.ts";
+import { Fingerprint } from "./how/Fingerprint.tsx";
+import { FlowChart } from "./how/FlowChart.tsx";
+import { flowYear } from "./how/flow.ts";
+import { headline, neverSaw } from "./how/numbers.ts";
+import { StationBars } from "./how/StationBars.tsx";
+import "./how/how.css";
 
 /** Props of {@link HowItWorksDialog}. */
 export interface HowItWorksDialogProps {
@@ -9,17 +17,176 @@ export interface HowItWorksDialogProps {
   readonly open: boolean;
   /** The dialog closed: Esc, the close button, a press on the backdrop, or `open` turning false. */
   readonly onClose: () => void;
+  /** Opens a case (the "Try it" chapter). */
+  readonly onOpenCase?: (caseId: string) => void;
+}
+
+const copy = HOW_IT_WORKS;
+// Every number below comes from a committed file, cut or parsed at build time (vite.config.ts).
+const FLOW = flowYear(
+  __HOW_FLOW__.climate,
+  __HOW_FLOW__.daily,
+  __HOW_FLOW__.passes,
+  __HOW_FLOW__.year,
+);
+const HEADLINE = headline(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
+const NEVER = neverSaw(__TRANSFER_SCORES__);
+
+function Problem() {
+  return (
+    <>
+      <p className="how-lead">{copy.problem.lead}</p>
+      <p className="how-text">{copy.problem.more}</p>
+      {FLOW === null ? null : <FlowChart data={FLOW} />}
+    </>
+  );
+}
+
+function Reads() {
+  return (
+    <>
+      <div className="how-reads">
+        {copy.reads.cards.map((c) => (
+          <article key={c.title} className="how-read">
+            <h3 className="how-read__title">{c.title}</h3>
+            <p className="how-small">{c.term}</p>
+            <p className="how-text">{c.text}</p>
+            <p className="how-source">
+              <a href={c.url} target="_blank" rel="noopener noreferrer">
+                {c.source}
+              </a>
+            </p>
+          </article>
+        ))}
+      </div>
+      <div className="how-station">
+        <h3 className="how-read__title">{copy.reads.stationTitle}</h3>
+        <p className="how-text">{copy.reads.stationText}</p>
+      </div>
+    </>
+  );
+}
+
+function Print() {
+  return (
+    <>
+      <p className="how-lead">{copy.fingerprint.lead}</p>
+      <Fingerprint />
+      <h3 className="how-sub">{copy.fingerprint.boardsTitle}</h3>
+      <ol className="how-boards">
+        {copy.fingerprint.boards.map((b) => (
+          <li key={b.title} className="how-board">
+            <p className="how-board__title">{b.title}</p>
+            <p className="how-text">{b.text}</p>
+            <p className="how-small">{b.term}</p>
+          </li>
+        ))}
+      </ol>
+    </>
+  );
+}
+
+function Works() {
+  return (
+    <>
+      {HEADLINE === null ? null : (
+        <div className="how-big">
+          <p className="how-big__figure">
+            <span className="how-big__about">{copy.works.bigAbout}</span>
+            <span className="how-big__value">{HEADLINE.times}</span>
+            <span className="how-big__unit">{copy.works.bigUnit}</span>
+          </p>
+          <div>
+            <p className="how-big__label">{copy.works.bigLabel}</p>
+            <p className="how-text">
+              {copy.works.bigNote(
+                CASE_COPY.rivers.names[HEADLINE.site] ?? HEADLINE.site,
+                oneDecimal(HEADLINE.satellite),
+                oneDecimal(HEADLINE.guess),
+              )}
+            </p>
+            <p className="how-small">
+              {copy.works.tally(HEADLINE.good, HEADLINE.none, HEADLINE.worse, HEADLINE.n)}
+            </p>
+          </div>
+        </div>
+      )}
+      <StationBars data={NEVER} />
+      <p className="how-text how-works__class">
+        {copy.works.classLine(__TRANSFER_POOLED__.class_agreement, __TRANSFER_POOLED__.n)}
+      </p>
+    </>
+  );
+}
+
+function Try({ onOpenCase }: { readonly onOpenCase?: (caseId: string) => void }) {
+  return (
+    <>
+      <p className="how-lead">{copy.try.lead}</p>
+      <ol className="how-steps">
+        {copy.try.steps.map((s, k) => (
+          <li key={s} className="how-step">
+            <span className="how-step__number" aria-hidden="true">
+              {k + 1}
+            </span>
+            <span className="how-step__text">{s}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="how-try">
+        <button
+          type="button"
+          className="how-try__card"
+          onClick={() => onOpenCase?.("mississippi-belle-chasse")}
+        >
+          <span className="how-try__title">{copy.try.gauged}</span>
+          <span className="how-small">{copy.try.gaugedNote}</span>
+          <ArrowRight className="how-try__arrow" size={18} strokeWidth={1.75} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="how-try__card"
+          onClick={() => onOpenCase?.("mississippi-st-joseph")}
+        >
+          <span className="how-try__title">{copy.try.ungauged}</span>
+          <span className="how-small">{copy.try.ungaugedNote}</span>
+          <ArrowRight className="how-try__arrow" size={18} strokeWidth={1.75} aria-hidden="true" />
+        </button>
+      </div>
+      <p className="how-small">{copy.try.tour}</p>
+    </>
+  );
+}
+
+function Limits() {
+  return (
+    <ul className="how-limits">
+      {copy.limits.map((l) => (
+        <li key={l.title} className="how-limit">
+          <h3 className="how-limit__title">{l.title}</h3>
+          <p className="how-text">{l.text}</p>
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 /**
- * "How it works": the three steps, what the record can and cannot say, and the maturity levels of
- * a reach. A native modal dialog, so the page behind it is inert and Esc closes it.
+ * "How it works", in six short chapters, one idea each: the problem (one station, one point; a
+ * real low-flow year), what the satellite reads, the fingerprint (a live check on a real reading),
+ * whether it works (the middle station and the rivers it never saw, failures included), a way to
+ * try it, and its limits. A rail lists the chapters (a progress strip on a phone); the arrow keys
+ * step through them; a native modal dialog, so Esc closes it.
  *
  * @returns The dialog element (closed until `open`).
  */
-export function HowItWorksDialog({ open, onClose }: HowItWorksDialogProps) {
+export function HowItWorksDialog({ open, onClose, onOpenCase }: HowItWorksDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
   const titleId = useId();
+  const [index, setIndex] = useState(0);
+  const chapters = copy.chapters;
+  const chapter = chapters[index] ?? chapters[0];
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -33,79 +200,143 @@ export function HowItWorksDialog({ open, onClose }: HowItWorksDialogProps) {
     }
   }, [open]);
 
+  // A new chapter takes the focus at its heading, so it is read out.
+  const moved = useRef(false);
+  useEffect(() => {
+    if (moved.current) {
+      headingRef.current?.focus({ preventScroll: true });
+    }
+  }, [index]);
+
+  const go = (to: number) => {
+    moved.current = true;
+    setIndex(Math.min(Math.max(0, to), chapters.length - 1));
+  };
+  const onKeyDown = (event: KeyboardEvent<HTMLDialogElement>) => {
+    const target = event.target as HTMLElement;
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA") {
+      return;
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      go(index + 1);
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      go(index - 1);
+    }
+  };
+  const body = useMemo(() => {
+    switch (chapter.id) {
+      case "problem":
+        return <Problem />;
+      case "reads":
+        return <Reads />;
+      case "fingerprint":
+        return <Print />;
+      case "works":
+        return <Works />;
+      case "try":
+        return <Try onOpenCase={onOpenCase} />;
+      default:
+        return <Limits />;
+    }
+  }, [chapter.id, onOpenCase]);
+
   return (
     <dialog
       ref={dialogRef}
-      className="hero-dialog"
+      className="how"
       aria-labelledby={titleId}
-      onClose={onClose}
+      onClose={() => {
+        moved.current = false;
+        setIndex(0);
+        onClose();
+      }}
+      onKeyDown={onKeyDown}
       onClick={(event) => {
-        // The body fills the dialog, so a press on the dialog itself is on the backdrop.
         if (event.target === event.currentTarget) {
           event.currentTarget.close();
         }
       }}
     >
-      <div className="hero-dialog__body">
-        <div className="hero-dialog__head">
-          <h2 className="hero-dialog__title" id={titleId}>
-            {HOW_IT_WORKS.title}
-          </h2>
-          <button
-            type="button"
-            className="hero-dialog__close"
-            aria-label={HOW_IT_WORKS.close}
-            onClick={() => dialogRef.current?.close()}
-          >
-            <X size={18} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
-          </button>
-        </div>
-        <p className="hero-dialog__lead">{HOW_IT_WORKS.demo}</p>
-
-        <ol className="hero-dialog__steps">
-          {HOW_IT_WORKS.steps.map((step) => (
-            <li key={step.number} className="hero-dialog__step">
-              <p className="hero-dialog__step-label">
-                <span className="hero-dialog__number" aria-hidden="true">
-                  {step.number}
-                </span>{" "}
-                {step.label}
-              </p>
-              <p className="hero-dialog__text">{step.text}</p>
-            </li>
-          ))}
-        </ol>
-
-        <h3 className="hero-dialog__subtitle">{HOW_IT_WORKS.limitsTitle}</h3>
-        <div className="hero-dialog__limits">
-          <div>
-            <h4 className="hero-dialog__list-title">{HOW_IT_WORKS.canTitle}</h4>
-            <ul className="hero-dialog__list">
-              {HOW_IT_WORKS.can.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
+      <div className="how__frame">
+        <nav className="how__rail" aria-label={copy.chaptersLabel}>
+          <p className="how__name" id={titleId}>
+            {copy.title}
+          </p>
+          <ol className="how__chapters">
+            {chapters.map((c, k) => (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  className="how__chapter"
+                  aria-current={k === index ? "step" : undefined}
+                  data-done={k < index}
+                  onClick={() => {
+                    go(k);
+                  }}
+                >
+                  <span className="how__chapter-number" aria-hidden="true">
+                    {k + 1}
+                  </span>
+                  <span className="how__chapter-text">{c.short}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
+        <section className="how__stage" aria-labelledby={`${titleId}-chapter`}>
+          <header className="how__head">
+            <p className="how__count">{copy.count(index + 1, chapters.length)}</p>
+            <h2 className="how__title" id={`${titleId}-chapter`} ref={headingRef} tabIndex={-1}>
+              {chapter.title}
+            </h2>
+            <button
+              type="button"
+              className="how__close"
+              aria-label={copy.close}
+              onClick={() => dialogRef.current?.close()}
+            >
+              <X size={18} strokeWidth={1.75} aria-hidden="true" />
+            </button>
+          </header>
+          <div className="how__body" key={chapter.id}>
+            {body}
           </div>
-          <div>
-            <h4 className="hero-dialog__list-title">{HOW_IT_WORKS.cannotTitle}</h4>
-            <ul className="hero-dialog__list hero-dialog__list--cannot">
-              {HOW_IT_WORKS.cannot.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        <h3 className="hero-dialog__subtitle">{HOW_IT_WORKS.maturityTitle}</h3>
-        <ol className="hero-dialog__maturity">
-          {HOW_IT_WORKS.maturity.map((level) => (
-            <li key={level.label}>
-              <span className="hero-dialog__level">{level.label}</span>
-              <span className="hero-dialog__text">{level.text}</span>
-            </li>
-          ))}
-        </ol>
-        <p className="hero-dialog__note">{HOW_IT_WORKS.maturityNote}</p>
+          <footer className="how__foot">
+            <button
+              type="button"
+              className="how__nav"
+              disabled={index === 0}
+              onClick={() => {
+                go(index - 1);
+              }}
+            >
+              <ArrowLeft size={16} strokeWidth={1.75} aria-hidden="true" />
+              {copy.back}
+            </button>
+            {index < chapters.length - 1 ? (
+              <button
+                type="button"
+                className="how__nav how__nav--next"
+                onClick={() => {
+                  go(index + 1);
+                }}
+              >
+                {chapters[index + 1]?.short ?? copy.next}
+                <ArrowRight size={16} strokeWidth={1.75} aria-hidden="true" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="how__nav how__nav--next"
+                onClick={() => dialogRef.current?.close()}
+              >
+                {copy.close}
+              </button>
+            )}
+          </footer>
+        </section>
       </div>
     </dialog>
   );
