@@ -92,7 +92,11 @@ keeps it ([D22](decisions.md)).
 
 ## Open items (2026-10-19)
 
-- The contract's source is not yet verified on Etherscan: the page shows its bytecode only.
+- The contract's source is not yet verified on Etherscan or Sourcify: the page shows its bytecode
+  only. The committed source does reproduce that bytecode: `contracts/scripts/bytecode-check.ts`
+  checks it with no key ([anchoring](anchoring.md#verifying)).
 - The repository is private, so the code commits the records cite cannot be opened from outside.
-- The frozen-artifacts ledger is not anchored yet, so T0 is not set and the scoreboard's
-  prospective count has not started.
+
+T0 is set: the frozen-artifacts ledger (8 lines) was anchored at block 11951391,
+2026-10-19 23:21:00 UTC (transaction
+`0xfc954ab0d9abe6a417c7a5b388faac4e8c4489700921125e34cbb1f506539517`).

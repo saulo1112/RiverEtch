@@ -228,7 +228,7 @@ export const CASE_COPY = {
     prospective: "Prospective",
     prospectiveHelpLabel: "About prospective passes",
     prospectiveHelp:
-      "The model and the scoring rule were anchored on Sepolia before the satellite took the image, and the estimate was sealed and anchored before RiverEtch read the gauge.",
+      "The model and the scoring rule were anchored on Sepolia before the satellite took the image, and the estimate was sealed and anchored before RiverEtch read the gauge. That proves the estimate was not changed after the reading, not that the reading was unknown: the USGS publishes provisional values within minutes.",
     since: (date: string) => `since ${date}`,
     notStarted: "Starts when the scoring rule is anchored on Sepolia.",
     empty:

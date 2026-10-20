@@ -80,7 +80,9 @@ npx hardhat run scripts/anchor.ts --network sepolia
 - `npx tsx scripts/anchor-log.ts` rebuilds the log alone, read-only, from any public RPC.
 
 The demo reaches' four ledgers were first anchored this way at block 11924112
-(transaction `0x19b4ac2e7ee64cdd8ee3622a053c46820fcbe6fc1b94330901c67860b2029eb0`).
+(transaction `0x19b4ac2e7ee64cdd8ee3622a053c46820fcbe6fc1b94330901c67860b2029eb0`). The
+frozen-artifacts ledger followed at block 11951391, 2026-10-19 23:21:00 UTC (transaction
+`0xfc954ab0d9abe6a417c7a5b388faac4e8c4489700921125e34cbb1f506539517`): that is T0.
 
 The web app also offers **Anchor this reach's ledgers on Sepolia** in the record panel, shown only
 when the connected wallet is the contract's owner. It sends the same transaction. A MetaMask smart
@@ -94,10 +96,25 @@ terminal is the supported path.
   last anchor, or no longer matches the anchor.
 - **On Etherscan:** the contract's `anchorAt(subject, index)` returns each anchor. The subject is
   the keccak256 of the label above.
-- **The contract's source on Etherscan:** Ignition's build information is committed, so the
-  verification sends no transaction. From `contracts/`, with a free Etherscan API key:
+- **The contract's source, checked locally:** the deployment was compiled with solc
+  `0.8.34+commit.80d5c536`, EVM target `osaka`, the optimizer on with 200 runs (the `production`
+  build profile), and no constructor arguments: the owner is the deployer. From `contracts/`, with
+  no key and no transaction:
+
+  ```bash
+  npx hardhat build --build-profile production --force --no-tests
+  npx tsx scripts/bytecode-check.ts
+  ```
+
+  It checks that `src/LedgerAnchor.sol` is the source in Ignition's build info, that the bytecode
+  on chain equals the artifact outside the immutable `owner`, that the immutable holds the
+  deployer, and that a fresh compile reproduces the artifact.
+
+- **The contract's source on Etherscan and Sourcify:** the verification sends no transaction. From
+  `contracts/`, with a free Etherscan API key for Etherscan (Sourcify needs none):
 
   ```bash
   npx hardhat keystore set ETHERSCAN_API_KEY
   npx hardhat ignition verify chain-11155111
+  npx hardhat verify sourcify --network sepolia --build-profile production --creation-tx-hash 0x38374864407b9ebe542c3fd6521279bdf7990eaa084f3eb7ef70173baec32b31 0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762
   ```

@@ -71,18 +71,20 @@ says which model card produced it.
   - The Platte overestimated six provisional summer values by 1.5–2×.
   - Both are reported, not hidden: see [The reaches in operation](docs/water-quality/report.md).
 - **Timing:** every 2026 record so far was sealed in batch runs (2026-10-12 to 2026-10-15), after
-  its gauge value was public. Those passes are a backtest: they show that the model cards were
-  frozen and committed first, and that the pipeline reads no gauge value to make an estimate. Only
-  passes after T0, the anchor of the scoring rule, are scored as prospective (see the scoreboard
-  below).
+  its gauge value was public, so those passes are a backtest; they show only that the model cards
+  were frozen and committed first. Only passes after T0, the anchor of the scoring rule, are scored
+  as prospective (see the scoreboard below).
+- **The estimate never reads the gauge, but that does not make the gauge unknown.** An estimate
+  comes from the model card and the image alone: `estimate` in
+  [quality/cards.py](pipeline/src/climate_pipeline/quality/cards.py#L180) (turbidity) and in
+  [reach/thermal.py](pipeline/src/climate_pipeline/reach/thermal.py#L73) (water temperature) takes
+  no gauge value, and the gauge is read only after the record is sealed (`reach check`, `context`,
+  `score`). The USGS publishes provisional values within minutes, so sealing first proves the
+  estimate was not changed after the reading, not that the reading was unknown.
 - **Gauge values are often provisional.** The USGS can still revise them; every one is labelled.
 - **Sepolia is a test network,** not mainnet: an anchor there is a public, checkable timestamp.
 - **A seal shows a record has not changed, not that it is right.** Correctness comes from the locked
   tests and the scoreboard.
-- **Our own process rejected our first pitch.** RiverEtch started on Colombian rivers. IDEAM's
-  point samples met too few clear scenes to validate any model, so no Colombian value is published.
-  Those rounds stay in the [preregistration](docs/water-quality/preregistration.md) with every
-  attempt counted.
 
 ## What it measures today
 

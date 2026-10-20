@@ -76,3 +76,7 @@ Thumbs.db
 .idea/
 .vscode/
 *.swp
+
+# Planning notes and submission drafts stay out of the repository.
+docs/plans/
+docs/submission/
