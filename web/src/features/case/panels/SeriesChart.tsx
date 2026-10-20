@@ -1,6 +1,6 @@
 import { useState, type KeyboardEvent } from "react";
 
-import { FNU_CLASSES, gaugeAt, isUngauged, turbidity } from "../../reaches/scene.ts";
+import { FNU_CLASSES, gaugeAt, isOutside, isUngauged, turbidity } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY, daysBetween, formatDate, formatValue } from "../content.ts";
 import { useSize } from "./useSize.ts";
@@ -212,7 +212,9 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
           ) : (
             <p className="case-series__tip-value">{ungauged.classes[tip.cls]}</p>
           )}
-          <p className="case-series__tip-gauge">{ungauged.label}</p>
+          <p className="case-series__tip-gauge">
+            {isOutside(reach) ? ungauged.outsideLabel : ungauged.label}
+          </p>
         </div>
       )}
     </div>

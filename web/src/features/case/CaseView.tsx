@@ -20,6 +20,7 @@ import { ndtiDomain } from "../reaches/colorize.ts";
 import {
   defaultScene,
   defaultThermal,
+  isOutside,
   isUngauged,
   mapFile,
   ndtiMedians,
@@ -730,6 +731,7 @@ export function CaseView({
       <GuidedTour
         open={touring && landed && exit === null}
         ungauged={isUngauged(reach)}
+        outside={isOutside(reach)}
         onTab={setTab}
         onClose={() => {
           setTouring(false);

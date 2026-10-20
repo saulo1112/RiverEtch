@@ -37,6 +37,20 @@ export function isUngauged(reach: ReachData): boolean {
   return reach.info.station.source === "ungauged";
 }
 
+/** The basis of a reach with no gauge outside the region the model was tested in. */
+export const OUTSIDE_BASIS = "outside_tested_region";
+
+/**
+ * Whether a reach with no gauge lies outside the region the model was tested in
+ * (docs/water-quality/preregistration-outside-us.md): a class, with no error estimate at all.
+ *
+ * @param reach - The reach (its card is enough).
+ * @returns True for a card with the basis `outside_tested_region`.
+ */
+export function isOutside(reach: Pick<ReachData, "card">): boolean {
+  return reach.card?.basis === OUTSIDE_BASIS;
+}
+
 /** The order of the turbidity classes, lowest first. */
 export const FNU_CLASSES = ["under_30", "30_to_100", "100_and_over"] as const;
 

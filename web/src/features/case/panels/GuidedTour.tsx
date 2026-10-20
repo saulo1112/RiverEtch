@@ -18,6 +18,8 @@ export interface GuidedTourProps {
   readonly open: boolean;
   /** The reach has no gauge (its steps say so). */
   readonly ungauged: boolean;
+  /** A reach with no gauge outside the tested region: no error estimate applies to it. */
+  readonly outside?: boolean;
   /** Shows a bottom tab (a step that points into one). */
   readonly onTab: (tab: BottomTab) => void;
   /** The tour closed (finished or skipped): the caller shows the tab it started on again. */
@@ -55,16 +57,25 @@ function visibleBox(element: Element): Box {
 }
 
 // The steps, from the case's copy: each points at a control that exists on this reach.
-function steps(ungauged: boolean): Step[] {
+function steps(ungauged: boolean, outside: boolean): Step[] {
   const t = CASE_COPY.tour;
   return [
-    { target: "summary", title: t.summaryTitle, body: ungauged ? t.summaryUngauged : t.summary },
+    {
+      target: "summary",
+      title: t.summaryTitle,
+      body: ungauged ? (outside ? t.summaryOutside : t.summaryUngauged) : t.summary,
+    },
     { target: "trust", title: t.trustTitle, body: t.trust },
     { target: "verify", title: t.verifyTitle, body: t.verify },
     { target: "alter", title: t.alterTitle, body: t.alter },
     { target: "layers", title: t.layersTitle, body: t.layers },
     { target: "tabs", title: t.tabsTitle, body: ungauged ? t.tabsUngauged : t.tabs },
-    { target: "never", tab: "rivers", title: t.neverTitle, body: t.never },
+    {
+      target: "never",
+      tab: "rivers",
+      title: t.neverTitle,
+      body: outside ? t.neverOutside : t.never,
+    },
     { target: null, title: t.endTitle, body: t.end },
   ];
 }
@@ -77,7 +88,7 @@ function steps(ungauged: boolean): Step[] {
  *
  * @returns The tour (nothing while closed).
  */
-export function GuidedTour({ open, ungauged, onTab, onClose }: GuidedTourProps) {
+export function GuidedTour({ open, ungauged, outside = false, onTab, onClose }: GuidedTourProps) {
   const copy = CASE_COPY.tour;
   const titleId = useId();
   const bodyId = useId();
@@ -87,7 +98,7 @@ export function GuidedTour({ open, ungauged, onTab, onClose }: GuidedTourProps) 
   const [rect, setRect] = useState<Box | null>(null);
   const [cardSize, setCardSize] = useState({ width: 340, height: 220 });
   const [view, setView] = useState({ width: 0, height: 0 });
-  const all = steps(ungauged);
+  const all = steps(ungauged, outside);
   const step = all[Math.min(index, all.length - 1)];
   const last = index >= all.length - 1;
 

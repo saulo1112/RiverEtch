@@ -5,6 +5,7 @@ import { IMAGERY } from "../../case/config.ts";
 import { formatDate, LEVEL_LABELS } from "../../case/content.ts";
 import type { ReachCase } from "../../reaches/catalog.ts";
 import { loadReach } from "../../reaches/data.ts";
+import { isUngauged } from "../../reaches/scene.ts";
 import type { LngLat, Level } from "../../reaches/types.ts";
 import { CASES } from "./content.ts";
 import { caseThumbnail, previewLayers, thumbnailSrcSet, type PreviewStatus } from "./preview.ts";
@@ -67,7 +68,7 @@ export function CaseCard({ reachCase, openCaseRef, onOpenCase, onWarmUp }: CaseC
         const line = reach.geometry?.features.find((f) => f.properties.kind === "centreline");
         setSummary({
           // A reach with no gauge has no level of its own: "unvalidated".
-          level: overall?.level ?? (reach.card?.expectedError === undefined ? null : "unvalidated"),
+          level: overall?.level ?? (isUngauged(reach) ? "unvalidated" : null),
           mdsa: reach.card?.metrics?.lockbox.mdsa ?? null,
           lastPass: reach.series.at(-1)?.date ?? null,
           passes: reach.series.length,

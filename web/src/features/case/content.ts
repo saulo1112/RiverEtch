@@ -64,6 +64,10 @@ export const CASE_COPY = {
       "No gauge measures this reach, so its error cannot be checked here. The class comes from a model that never saw this reach, and its expected error is the one measured on similar rivers it never saw. Read it as under 30, 30 to 100, or 100 FNU and over, never as a number.",
     none: "Did not pass the locked test. Only the relative index is shown.",
   },
+  // A reach with no gauge outside the region the model was tested in
+  // (preregistration-outside-us.md): the same class, and no error figure of any kind.
+  levelHelpOutside:
+    "No gauge measures this reach, and the model was only ever tested on US rivers, so no error estimate exists here. Read the class as under 30, 30 to 100, or 100 FNU and over, never as a number, and not as checked.",
   // A reach with no gauge (preregistration-transfer.md, section 5): a class only, beside the
   // expected error that the test on rivers the model never saw measured; never a value.
   ungauged: {
@@ -74,6 +78,8 @@ export const CASE_COPY = {
       "100_and_over": "100 FNU and over",
     },
     label: "Unvalidated: expected error from the transfer test",
+    // The card's own label, as preregistration-outside-us.md fixes it (a test compares the two).
+    outsideLabel: "Outside the tested region. No error estimate.",
     noClass: "No class for this pass",
     errorTitle: "How far off it tends to be, on rivers it never saw",
     agreement: (k: number, n: number) =>
@@ -106,6 +112,8 @@ export const CASE_COPY = {
       "One clear Sentinel-2 pass: the turbidity at the gauge's window, in FNU, with the range the measured value should fall in 9 times out of 10.",
     summaryUngauged:
       "One clear Sentinel-2 pass. No gauge measures this reach, so it shows a class (under 30, 30 to 100, 100 FNU and over), never a value, beside the error measured on rivers the model never saw.",
+    summaryOutside:
+      "One clear Sentinel-2 pass. No gauge measures this reach, and the model was only tested on US rivers, so it shows a class (under 30, 30 to 100, 100 FNU and over) with no error estimate.",
     trustTitle: "What it is worth, and what protects it",
     trust:
       "The level says how far the model was tested; the (?) explains it. Sealed: the record's SHA-256 is fixed. Anchored: its ledger line is stored on a public chain.",
@@ -125,6 +133,8 @@ export const CASE_COPY = {
     neverTitle: "Rivers it never saw",
     never:
       "Every river tested, failures included. This switch shows each one scored by a model that never saw it: the error to expect where there is no gauge.",
+    neverOutside:
+      "Every river tested, failures included, all of them in the US. This reach lies outside that region, so none of these errors applies to it.",
     endTitle: "That is the record",
     end: "Sealing proves a number was not changed; it does not prove it was right. The tests show how often it was right.",
   },

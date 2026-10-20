@@ -11,7 +11,13 @@ import { useId, type Ref } from "react";
 
 import { useRecordAnchor } from "../../chain/useRecordAnchor.ts";
 import type { ReachCase } from "../../reaches/catalog.ts";
-import { gaugeAt, isUngauged, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
+import {
+  gaugeAt,
+  isOutside,
+  isUngauged,
+  thermalValidatedAt,
+  turbidity,
+} from "../../reaches/scene.ts";
 import type {
   CardMetrics,
   ExpectedError,
@@ -150,7 +156,9 @@ function Trust({
           {LEVEL_LABELS[level]}
         </span>
         <HelpTip label={`${CASE_COPY.levelHelpLabel}: ${LEVEL_LABELS[level]}`}>
-          {CASE_COPY.levelHelp[level]}
+          {level === "unvalidated" && isOutside(reach)
+            ? CASE_COPY.levelHelpOutside
+            : CASE_COPY.levelHelp[level]}
         </HelpTip>
       </span>
       <span className="case-trust__item">
@@ -249,6 +257,7 @@ export function CaseFile({
   const gauge = row === null ? null : gaugeAt(reach, row);
   const unit = estimate?.unit ?? card?.unit ?? "FNU";
   const noGauge = isUngauged(reach);
+  const noGaugeLabel = isOutside(reach) ? ungauged.outsideLabel : ungauged.label;
   const fnuClass = estimate?.fnuClass ?? null;
   const level = estimate?.level ?? overall?.level ?? (noGauge ? "unvalidated" : "none");
   return (
@@ -307,7 +316,7 @@ export function CaseFile({
                   )}
                 </p>
                 <p className="case-file__note">
-                  {fnuClass === null ? (estimate?.abstainReason ?? ungauged.label) : ungauged.label}
+                  {fnuClass === null ? (estimate?.abstainReason ?? noGaugeLabel) : noGaugeLabel}
                 </p>
               </>
             ) : value === null ? (
@@ -386,7 +395,7 @@ export function CaseFile({
               ) : (
                 <p className="case-file__note">
                   {noGauge
-                    ? (estimate?.abstainReason ?? ungauged.label)
+                    ? (estimate?.abstainReason ?? noGaugeLabel)
                     : (estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel)}
                 </p>
               )}

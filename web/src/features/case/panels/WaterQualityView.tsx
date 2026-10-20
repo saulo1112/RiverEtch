@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 
 import {
   FNU_CLASSES,
+  isOutside,
   isUngauged,
   nearestThermal,
   sceneKey,
@@ -121,13 +122,14 @@ function classTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
   const estimate = turbidity(row);
   const cls = estimate?.fnuClass ?? null;
   const error = reach.card?.expectedError;
+  const label = isOutside(reach) ? ungauged.outsideLabel : ungauged.label;
   return {
     id: "turbidity",
     title: ungauged.turbidity,
     source: `${copy.sentinel} · ${formatDate(row.date)}`,
     value: cls === null ? null : ungauged.classes[cls],
     unit: "",
-    detail: cls === null ? (estimate?.abstainReason ?? ungauged.label) : ungauged.label,
+    detail: cls === null ? (estimate?.abstainReason ?? label) : label,
     chip: LEVEL_LABELS[estimate?.level ?? "unvalidated"],
     level: estimate?.level ?? "unvalidated",
     foot: error === undefined ? "" : ungauged.agreement(error.classAgreement, error.n),

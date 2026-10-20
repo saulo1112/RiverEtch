@@ -3,12 +3,15 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 
+import { CASE_COPY } from "../src/features/case/content.ts";
 import { REACH_CASES } from "../src/features/reaches/catalog.ts";
 import { canonical, NumberText, parseJson, sha256Hex } from "../src/features/reaches/canonical.ts";
 import { parseChecks, parseContext, parseThermalChecks } from "../src/features/reaches/checks.ts";
 import {
   defaultThermal,
+  isOutside,
   nearestThermal,
+  OUTSIDE_BASIS,
   thermalValidatedAt,
 } from "../src/features/reaches/scene.ts";
 import type { ReachInfo, ThermalRow } from "../src/features/reaches/types.ts";
@@ -201,4 +204,18 @@ void test("thermalValidatedAt names the upstream gauge's place, or null", () => 
     }) as unknown as Parameters<typeof thermalValidatedAt>[0];
   assert.equal(thermalValidatedAt(reach("Mississippi River at Baton Rouge, LA")), "Baton Rouge");
   assert.equal(thermalValidatedAt(reach()), null);
+});
+
+void test("outside the tested region the web says the frozen card's label, word for word", () => {
+  const card = JSON.parse(
+    readFileSync(
+      new URL("../../docs/water-quality/ungauged/firat-birecik/turbidity.json", import.meta.url),
+      "utf8",
+    ),
+  ) as { basis: string; label: string; expectedError?: unknown };
+  assert.equal(card.basis, OUTSIDE_BASIS);
+  assert.equal(card.label, CASE_COPY.ungauged.outsideLabel);
+  assert.equal(card.expectedError, undefined, "no error estimate outside the tested region");
+  assert.ok(isOutside({ card: card as never }));
+  assert.ok(!isOutside({ card: null }));
 });
