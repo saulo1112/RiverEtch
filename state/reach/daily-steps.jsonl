@@ -1,6 +1,6 @@
-{"args":"ledger upgrade","exit":0,"last":""}
+{"args":"ledger upgrade","exit":0,"last":"attested  docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.11.ots"}
 {"args":"reach score --site all","exit":0,"last":"platte-louisville: {'t0': '2026-10-19T23:21:00+00:00', 'claims': 32, 'added': {}, 'skipped': {'retrospective: acquired before T0': 32}}"}
-{"args":"reach run --site all","exit":3,"last":"platte-louisville stopped: 12.6 GB free, 20 GB must stay free"}
+{"args":"reach run --site all","exit":3,"last":"platte-louisville stopped: 13.3 GB free, 20 GB must stay free"}
 {"args":"reach thermal --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'passes': 3, 'recorded': 0, 'checked': 19}"}
 {"args":"reach context --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'context_rows': 46}"}
 {"args":"reach render --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'maps': 33, 'drawn': 0, 'missing': []}"}
@@ -11,4 +11,4 @@
 {"args":"reach examples --site mississippi-belle-chasse --all-records","exit":0,"last":"mississippi-belle-chasse: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/mississippi-belle-chasse/examples"}
 {"args":"reach examples --site platte-louisville --all-records","exit":0,"last":"platte-louisville: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/platte-louisville/examples"}
 {"args":"reach examples --site missouri-hermann","exit":0,"last":"missouri-hermann: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/missouri-hermann/examples"}
-{"args":"ledger stamp","exit":0,"last":"stamped   docs/ledgers/ots/terrachain_platte-louisville_water-temperature.16.ots"}
+{"args":"ledger stamp","exit":0,"last":""}

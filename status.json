@@ -1,5 +1,5 @@
 {
-  "updatedUtc": "2026-10-20T02:25:35+00:00",
+  "updatedUtc": "2026-10-20T04:46:35+00:00",
   "run": {
     "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39358435545",
     "ok": false,
@@ -75,8 +75,12 @@
     "timestampUtc": "2026-10-20T02:19:48Z",
     "tx": "0xa7514c8cb578757a47daa63660a6a79d732597aa95dc2f8a0e9d103eb580dc33"
   },
-  "lastBitcoin": null,
-  "pendingBitcoin": 5,
+  "lastBitcoin": {
+    "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.33.ots",
+    "height": 972246,
+    "blockTime": "2026-10-20T02:42:14+00:00"
+  },
+  "pendingBitcoin": 0,
   "failures": [
     {
       "utc": "2026-10-20T02:25:35+00:00",
@@ -84,6 +88,13 @@
       "step": "reach run --site all",
       "exit": 3,
       "reason": "platte-louisville stopped: 12.6 GB free, 20 GB must stay free"
+    },
+    {
+      "utc": "2026-10-20T04:46:35+00:00",
+      "run": "https://github.com/saulo1112/RiverEtch/actions/runs/39358435545",
+      "step": "reach run --site all",
+      "exit": 3,
+      "reason": "platte-louisville stopped: 13.3 GB free, 20 GB must stay free"
     }
   ]
 }
