@@ -16,6 +16,7 @@ sign`` makes and uses the post-quantum key that signs ledger heads (see docs/tru
 from __future__ import annotations
 
 import argparse
+import hashlib
 import logging
 from datetime import date
 from pathlib import Path
@@ -205,22 +206,33 @@ def _parser() -> argparse.ArgumentParser:
         "ledger", help="the frozen-artifacts ledger of the prospective scoring (rule v1)"
     )
     ledger.add_argument(
-        "action", choices=("freeze", "verify"),
+        "action", choices=("freeze", "verify", "stamp", "upgrade", "proofs"),
         help="freeze PATH...: list files (their SHA-256, git blob and, for a card, its canonical "
-        "hash); verify: the chain, and that every listed file is unchanged (exit 1 otherwise)",
+        "hash); verify: the chain, and that every listed file is unchanged (exit 1 otherwise); "
+        "stamp: an OpenTimestamps proof of every ledger head that has none (Bitcoin, no key); "
+        "upgrade: the Bitcoin attestation of every pending proof; proofs: each proof's Bitcoin "
+        "block, checked against two public block explorers",
     )  # fmt: skip
     ledger.add_argument("paths", nargs="*", help="freeze: files, relative to the root")
     ledger.add_argument("--purpose", default="", help="freeze: why the files are frozen")
     ledger.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     sign = commands.add_parser("sign", help="ML-DSA-65 signatures of ledger heads (FIPS 204)")
     sign.add_argument(
-        "action", choices=("keygen",),
+        "action", choices=("keygen", "heads", "verify"),
         help="keygen: the key pair, once (the private key outside the repository, the public key "
-        "in docs/keys/)",
+        "in docs/keys/); heads: sign every ledger head not yet signed "
+        "(docs/ledgers/signatures.jsonl); verify: every signature, its chain and its head",
     )  # fmt: skip
     sign.add_argument("--key-dir", type=Path, default=None,
                       help="where the private key lives (default: ~/.riveretch)")  # fmt: skip
     sign.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+    status = commands.add_parser("status", help="the daily run's status.json (the web app's panel)")
+    status.add_argument("--steps", type=Path, required=True, help="the run's step log (JSON lines)")
+    status.add_argument("--previous", type=Path, required=True,
+                        help="the previous status.json (may not exist)")  # fmt: skip
+    status.add_argument("--out", type=Path, required=True, help="where to write status.json")
+    status.add_argument("--run-url", default="", help="the workflow run's URL")
+    status.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     return parser
 
 
@@ -731,20 +743,38 @@ def reach(args: argparse.Namespace) -> int:
 
 
 def sign(args: argparse.Namespace) -> int:
-    """Run ``sign keygen``.
+    """Run ``sign keygen``, ``sign heads`` or ``sign verify``.
 
     Args:
         args: Parsed arguments of the subcommand.
 
     Returns:
-        The process exit code (2 when a key exists or the key folder is inside the repository).
+        The process exit code (2 when a key exists, is missing or the key folder is inside the
+        repository; ``verify``: 1 on any problem).
     """
     from climate_pipeline import signing
 
-    try:
-        secret, public = signing.keygen(
-            args.root.resolve(), args.key_dir or signing.DEFAULT_KEY_DIR
+    root = args.root.resolve()
+    key_dir = args.key_dir or signing.DEFAULT_KEY_DIR
+    if args.action == "verify":
+        problems = signing.verify_signatures(root)
+        for line in problems:
+            print(line)
+        print(
+            f"{signing.SIGNATURES.as_posix()}: "
+            + ("verified" if not problems else f"{len(problems)} problems")
         )
+        return 1 if problems else 0
+    if args.action == "heads":
+        secret_file = key_dir / signing.KEY_FILE
+        if not secret_file.exists():
+            print(f"{secret_file}: no private key (run `sign keygen` once)")
+            return 2
+        for done in signing.sign_heads(root, secret_file.read_text(encoding="utf-8")):
+            print(f"signed    {done}")
+        return 0
+    try:
+        secret, public = signing.keygen(root, key_dir)
     except (ValueError, FileExistsError) as error:
         print(error)
         return 2
@@ -754,17 +784,28 @@ def sign(args: argparse.Namespace) -> int:
 
 
 def ledger(args: argparse.Namespace) -> int:
-    """Run ``ledger freeze`` or ``ledger verify``.
+    """Run ``ledger freeze``, ``verify``, ``stamp``, ``upgrade`` or ``proofs``.
 
     Args:
         args: Parsed arguments of the subcommand.
 
     Returns:
-        The process exit code (``verify``: 1 on any problem; ``freeze``: 2 without paths).
+        The process exit code (``verify``: 1 on any problem; ``freeze``: 2 without paths;
+        ``proofs``: 1 when a proof timestamps another head).
     """
-    from climate_pipeline import ledgers
+    from climate_pipeline import ledgers, timestamps
 
     root = args.root.resolve()
+    if args.action == "stamp":
+        for proof in timestamps.stamp(root):
+            print(f"stamped   {proof.relative_to(root).as_posix()}")
+        return 0
+    if args.action == "upgrade":
+        for proof in timestamps.upgrade(root):
+            print(f"attested  {proof.relative_to(root).as_posix()}")
+        return 0
+    if args.action == "proofs":
+        return _proofs(root)
     if args.action == "verify":
         problems = ledgers.verify(root)
         for line in problems:
@@ -781,6 +822,34 @@ def ledger(args: argparse.Namespace) -> int:
     for path in done.unchanged:
         print(f"unchanged {path}")
     return 0
+
+
+def _proofs(root: Path) -> int:
+    from climate_pipeline import timestamps
+
+    bad = 0
+    for ledger in timestamps.ledgers(root):
+        if not ledger.path.exists():
+            continue
+        lines = [t for t in ledger.path.read_text(encoding="utf-8").splitlines() if t.strip()]
+        for k in range(1, len(lines) + 1):
+            path = timestamps.proof_path(root, ledger.label, k)
+            if not path.exists():
+                continue
+            digest = hashlib.sha256(lines[k - 1].encode()).digest()
+            try:
+                proof = timestamps.verify(path, digest)
+            except ValueError as error:
+                print(f"MISMATCH  {error}")
+                bad += 1
+                continue
+            state = (
+                f"Bitcoin block {proof.block.height} ({proof.block.time.isoformat()})"
+                if proof.block
+                else f"pending at {', '.join(proof.pending) or 'no calendar'}"
+            )
+            print(f"{ledger.label} line {k}: {state}")  # fmt: skip
+    return 1 if bad else 0
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -812,6 +881,13 @@ def main(argv: list[str] | None = None) -> int:
         return ledger(args)
     if args.command == "sign":
         return sign(args)
+    if args.command == "status":
+        from climate_pipeline import status as run_status
+
+        ok = run_status.write(args.root.resolve(), args.steps, args.previous, args.out,
+                              args.run_url)  # fmt: skip
+        print(f"{args.out}: {'ok' if ok else 'failed'}")
+        return 0
     if args.command == "reach":
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"

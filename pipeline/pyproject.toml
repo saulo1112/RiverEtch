@@ -7,6 +7,7 @@ dependencies = [
     "httpx>=0.28,<0.29",
     "matplotlib>=3.11,<4",
     "numpy>=2.5,<3",
+    "opentimestamps>=0.4.5,<0.5",
     "pandas>=3.0,<4",
     "pqcrypto>=1.0,<1.1",
     "pydantic>=2.13,<3",
@@ -67,9 +68,10 @@ plugins = ["pydantic.mypy"]
 module = ["rasterio", "rasterio.*"]
 ignore_missing_imports = true
 
-# pqcrypto ships no type information; only climate_pipeline.signing imports it and returns bytes.
+# pqcrypto and opentimestamps ship no type information; only climate_pipeline.signing and
+# climate_pipeline.timestamps import them, and return typed values.
 [[tool.mypy.overrides]]
-module = ["pqcrypto", "pqcrypto.*"]
+module = ["pqcrypto", "pqcrypto.*", "opentimestamps", "opentimestamps.*"]
 ignore_missing_imports = true
 
 [tool.pydantic-mypy]

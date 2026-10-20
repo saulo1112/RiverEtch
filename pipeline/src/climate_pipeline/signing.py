@@ -131,3 +131,86 @@ def verify(public_hex: str, message: bytes, signature: bytes) -> bool:
     except Exception:  # pqcrypto raises InvalidSignatureError (or ValueError on a bad length)
         return False
     return True
+
+
+SIGNATURES = Path("docs/ledgers/signatures.jsonl")
+
+
+def _lines(path: Path) -> list[str]:
+    if not path.exists():
+        return []
+    return [t for t in path.read_text(encoding="utf-8").splitlines() if t.strip()]
+
+
+def sign_heads(root: Path, secret_hex: str, now: datetime | None = None) -> list[str]:
+    """Sign every ledger head that has no signature yet (``docs/ledgers/signatures.jsonl``).
+
+    Each signature is a line of an append-only ledger chained by hash like the others:
+    ``{label, lines, head, signedAt, algorithm, context, signature}``.
+
+    Args:
+        root: Repository root.
+        secret_hex: The private key, hex (read from the owner's key folder, never the repo).
+        now: Signing time (default: now, UTC).
+
+    Returns:
+        The ``label:lines`` signed.
+    """
+    from climate_pipeline.timestamps import head, ledgers
+
+    path = root / SIGNATURES
+    texts = _lines(path)
+    signed = {(json.loads(t)["label"], int(json.loads(t)["lines"])) for t in texts}
+    at = (now or datetime.now(UTC)).astimezone(UTC).isoformat(timespec="seconds")
+    added = []
+    for ledger in ledgers(root):
+        current = head(ledger.path)
+        if current is None or (ledger.label, current[1]) in signed:
+            continue
+        digest, lines = current
+        hex_head = "0x" + digest.hex()
+        signature = sign(secret_hex, statement(ledger.label, lines, hex_head, at))
+        line = {"label": ledger.label, "lines": lines, "head": hex_head, "signedAt": at,
+                "algorithm": ALGORITHM, "context": CONTEXT.decode(),
+                "signature": signature.hex(),
+                "previousLineSha256": hashlib.sha256(texts[-1].encode()).hexdigest()
+                if texts else None}  # fmt: skip
+        text = json.dumps(line, sort_keys=True, separators=(",", ":"))
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8", newline="\n") as handle:
+            handle.write(text + "\n")
+        texts.append(text)
+        added.append(f"{ledger.label}:{lines}")
+    return added
+
+
+def verify_signatures(root: Path) -> list[str]:
+    """Check every signature: the chain, the public key, and that each head is its ledger's line.
+
+    Args:
+        root: Repository root.
+
+    Returns:
+        Problems (empty when everything verifies).
+    """
+    from climate_pipeline.timestamps import ledgers
+
+    public = json.loads((root / PUBLIC_KEY).read_text(encoding="utf-8"))["publicKey"]
+    files = {ledger.label: ledger.path for ledger in ledgers(root)}
+    problems = []
+    previous = None
+    for k, text in enumerate(_lines(root / SIGNATURES), start=1):
+        line = json.loads(text)
+        where = f"signatures line {k} ({line['label']}:{line['lines']})"
+        if line["previousLineSha256"] != previous:
+            problems.append(f"{where}: the chain is broken")
+        previous = hashlib.sha256(text.encode()).hexdigest()
+        message = statement(line["label"], int(line["lines"]), line["head"], line["signedAt"])
+        if not verify(public, message, bytes.fromhex(line["signature"])):
+            problems.append(f"{where}: the signature does not verify")
+        ledger = _lines(files[line["label"]]) if line["label"] in files else []
+        lines = int(line["lines"])
+        if len(ledger) < lines or "0x" + hashlib.sha256(
+                ledger[lines - 1].encode()).hexdigest() != line["head"]:  # fmt: skip
+            problems.append(f"{where}: the head is not that ledger's line")
+    return problems

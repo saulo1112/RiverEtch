@@ -8,6 +8,7 @@ from typing import Any
 
 import pytest
 
+from climate_pipeline import timestamps
 from climate_pipeline.cli import main
 from climate_pipeline.reach import score as s
 from climate_pipeline.reach.config import load_reach_config
@@ -169,3 +170,90 @@ def test_only_the_demo_reaches_are_scored(root: Root) -> None:
     args = ["reach", "score", "--site", "missouri-hermann", "--root", str(root.path),
             "--config", "reach.yaml"]  # fmt: skip
     assert main(args) == 0  # skipped, not an error
+
+
+# Rule v2 (docs/water-quality/prospective-v2.md): a confirmed Bitcoin timestamp of a covering head
+# commits a claim acquired after T0v2; the gauge waits 2 h after the attesting block.
+T0V2 = T0 + timedelta(days=1)
+BLOCK_TIME = T0V2 + timedelta(hours=13)  # after the claim's 12-hour lag
+
+
+def freeze_v2(root: Root) -> None:
+    (root.path / s.RULE_V2).write_bytes(b"# Rule v2\n")
+    jsonl(root.path / s.FROZEN, [{"path": "docs/water-quality/results/MANIFEST"},
+                                 {"path": s.RULE.as_posix()},
+                                 {"path": s.RULE_V2.as_posix()}])  # fmt: skip
+    root.anchors.append(anchor(s.FROZEN_LABEL, 3, T0V2))
+
+
+def bitcoin_proof(root: Root, lines: int, attested: bool = True) -> timestamps.Block:
+    # A proof of the observations ledger's head at `lines`, attested directly on the head.
+    from opentimestamps.core.notary import BitcoinBlockHeaderAttestation, PendingAttestation
+    from opentimestamps.core.op import OpSHA256
+    from opentimestamps.core.serialize import StreamSerializationContext
+    from opentimestamps.core.timestamp import DetachedTimestampFile, Timestamp
+
+    texts = (root.folder / "ledger.jsonl").read_text(encoding="utf-8").splitlines()
+    digest = hashlib.sha256(texts[lines - 1].encode()).digest()
+    proof = DetachedTimestampFile(OpSHA256(), Timestamp(digest))
+    proof.timestamp.attestations.add(BitcoinBlockHeaderAttestation(900000) if attested
+                                     else PendingAttestation("https://calendar.test"))  # fmt: skip
+    path = timestamps.proof_path(root.path, f"terrachain:{SITE}:observations", lines)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("wb") as handle:
+        proof.serialize(StreamSerializationContext(handle))
+    return timestamps.Block(900000, digest[::-1].hex(), BLOCK_TIME)
+
+
+def run_v2(root: Root, now: datetime, block: timestamps.Block | None) -> s.ScoreSummary:
+    cfg = load_reach_config(root.path / "reach.yaml")
+
+    def header(height: int) -> timestamps.Block | None:
+        return block if block is not None and height == block.height else None
+
+    return s.score(root.path, cfg, SITE, read=gauge(30.0), now=now, header=header)
+
+
+def test_a_bitcoin_timestamp_commits_a_v2_claim_after_the_margin(root: Root) -> None:
+    freeze_v2(root)
+    claim = root.claim(T0V2 + timedelta(hours=2), 20.0)
+    root.write(anchored=0)  # no Sepolia anchor of its line
+    block = bitcoin_proof(root, 1)
+    early = run_v2(root, BLOCK_TIME + timedelta(hours=1), block)  # 12 h passed, not 2 h after
+    assert early.added == {} and early.skipped == {"less than 2 h since the Bitcoin block": 1}
+    late = run_v2(root, BLOCK_TIME + timedelta(hours=2), block)
+    assert late.added == {"scored": 1}
+    line = root.outcomes()[0]
+    assert line["claimRecordSha256"] == claim and line["rule"] == "v2"
+    assert line["ruleSha256"] == hashlib.sha256(b"# Rule v2\n").hexdigest()
+    ots = "docs/ledgers/ots/terrachain_platte-louisville_observations.1.ots"
+    assert line["commitment"] == {"kind": "bitcoin", "height": 900000,
+                                  "blockTime": BLOCK_TIME.isoformat(timespec="seconds"),
+                                  "ots": ots}  # fmt: skip
+
+
+def test_a_pending_or_mismatched_timestamp_commits_nothing(root: Root) -> None:
+    freeze_v2(root)
+    root.claim(T0V2 + timedelta(hours=2), 20.0)
+    root.write(anchored=0)
+    bitcoin_proof(root, 1, attested=False)
+    later = BLOCK_TIME + timedelta(days=1)
+    reason = "not committed yet (no anchor, no confirmed Bitcoin timestamp)"
+    assert run_v2(root, later, None).skipped == {reason: 1}
+    block = bitcoin_proof(root, 1)
+    wrong = timestamps.Block(block.height, "00" * 32, block.time)  # another block's Merkle root
+    assert run_v2(root, later, wrong).skipped == {reason: 1}
+
+
+def test_a_v1_claim_needs_its_sepolia_anchor_and_records_it(root: Root) -> None:
+    freeze_v2(root)
+    root.claim(T0 + timedelta(hours=2), 20.0)  # after T0, before T0v2: rule v1
+    root.write(anchored=0)
+    block = bitcoin_proof(root, 1)
+    later = BLOCK_TIME + timedelta(days=1)
+    assert run_v2(root, later, block).skipped == {"not anchored yet": 1}
+    root.write(anchored=1)
+    assert run_v2(root, later, block).added == {"scored": 1}
+    line = root.outcomes()[0]
+    assert line["rule"] == "v1" and line["commitment"]["kind"] == "sepolia"
+    assert line["commitment"]["timestampUtc"] == T0.strftime("%Y-%m-%dT%H:%M:%SZ")

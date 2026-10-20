@@ -1,0 +1,120 @@
+# The daily run of the reaches, without the owner's machine (docs/release.md): restore the working
+# state from the `data` branch, run pipeline/scripts/daily.sh (score, seal, publish, Bitcoin
+# timestamps), write status.json, and commit everything back to `data`. It needs no secret: it
+# never signs, anchors or touches `main`, so the submitted commit stays as it was tagged.
+name: Daily run
+
+on:
+  schedule:
+    - cron: "0 13 * * *" # 08:00 Bogotá: score the claims committed overnight
+    - cron: "0 0 * * *" # 19:00 Bogotá: seal the day's passes
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: daily-run
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # `reach check` reads the cards' commit times
+
+      - name: Check out the data branch
+        run: |
+          if ! git ls-remote --exit-code --heads origin data > /dev/null; then
+            echo "::error::No data branch yet: run pipeline/scripts/bootstrap-data.ps1 once."
+            exit 1
+          fi
+          git fetch --no-tags origin data
+          git worktree add data origin/data
+          git -C data switch -C data
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          # Same uv version that wrote uv.lock, so `--locked` cannot fail on a format change.
+          version: "0.12.23"
+          working-directory: pipeline
+
+      - name: Install dependencies (locked)
+        working-directory: pipeline
+        run: uv sync --locked
+
+      # Band, Landsat and rain reads are cached between runs; saved even when a run fails.
+      - name: Restore the cache
+        uses: actions/cache/restore@v6
+        with:
+          path: pipeline/out/cache
+          key: daily-${{ github.run_id }}
+          restore-keys: daily-
+
+      - name: Restore the working state from the data branch
+        run: |
+          mkdir -p pipeline/out/reach
+          if [ -d data/state/reach ]; then cp -a data/state/reach/. pipeline/out/reach/; fi
+          # The data branch's examples, proofs and signatures are newer than main's snapshot; the
+          # frozen artifacts stay main's; the anchoring log is rebuilt from the chain, so the
+          # longer copy is the newer one.
+          if [ -d data/docs ]; then
+            rsync -a --exclude 'ledgers/frozen-artifacts.jsonl' --exclude 'ledgers/anchors.jsonl' \
+              data/docs/ docs/
+          fi
+          log=docs/ledgers/anchors.jsonl
+          if [ -f "data/$log" ] && [ "$(wc -l < "data/$log")" -gt "$(wc -l < "$log")" ]; then
+            cp "data/$log" "$log"
+          fi
+
+      - name: Run the reaches
+        id: run
+        continue-on-error: true
+        run: bash pipeline/scripts/daily.sh
+
+      - name: Save the cache
+        if: always()
+        uses: actions/cache/save@v6
+        with:
+          path: pipeline/out/cache
+          key: daily-${{ github.run_id }}
+
+      - name: Publish to the data branch
+        if: always()
+        env:
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          mkdir -p data/state/reach data/docs/ledgers data/docs/water-quality/reach
+          rsync -a --exclude 'daily*.log' --exclude '_superseded' pipeline/out/reach/ data/state/reach/
+          for examples in docs/water-quality/reach/*/examples; do
+            mkdir -p "data/$examples"
+            rsync -a "$examples/" "data/$examples/"
+          done
+          if [ -d docs/ledgers/ots ]; then rsync -a docs/ledgers/ots/ data/docs/ledgers/ots/; fi
+          for file in anchors.jsonl signatures.jsonl frozen-artifacts.jsonl; do
+            if [ -f "docs/ledgers/$file" ]; then cp "docs/ledgers/$file" "data/docs/ledgers/$file"; fi
+          done
+          (cd pipeline && uv run climate-pipeline status --root .. \
+            --steps out/reach/daily-steps.jsonl --previous ../data/status.json \
+            --out ../data/status.json --run-url "$RUN_URL")
+          git -C data config user.name "github-actions[bot]"
+          git -C data config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C data add -A
+          if git -C data diff --cached --quiet; then
+            echo "Nothing new to publish."
+          else
+            git -C data commit -q -m "data: daily run $(date -u +%Y-%m-%dT%H:%MZ)"
+            git -C data push origin data
+          fi
+
+      - name: Fail the job when the run failed
+        if: steps.run.outcome == 'failure'
+        run: |
+          echo "::error::The daily run failed; see status.json on the data branch."
+          exit 1

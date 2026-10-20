@@ -7,6 +7,8 @@
 // one in its block that called the contract with its subject, so anyone can rebuild the log from a
 // public RPC and compare. (Public RPCs prune their event index, so events are not used.)
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 import { id, Interface, type Provider } from "ethers";
 
@@ -34,7 +36,11 @@ export interface LoggedAnchor {
   readonly tx: string;
 }
 
-const ROOT = new URL("../../", import.meta.url);
+// RIVERETCH_ROOT points the scripts at another checkout, e.g. a worktree of the data branch
+// (pipeline/scripts/anchor-pending.ps1), so the heads anchored are the ones the daily run grew.
+const ROOT = process.env.RIVERETCH_ROOT
+  ? pathToFileURL(`${resolve(process.env.RIVERETCH_ROOT)}/`)
+  : new URL("../../", import.meta.url);
 const REACHES = new URL("docs/water-quality/reach/", ROOT);
 
 /** The demo reaches whose ledgers are anchored. */
