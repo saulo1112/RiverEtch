@@ -106,6 +106,20 @@ def test_an_ungauged_reach_shows_a_class_in_fnu_never_a_value() -> None:
     assert estimate(ungauged_card("none"), measure()).level == "none"
 
 
+def test_outside_the_tested_region_the_class_carries_the_cards_basis_and_no_error() -> None:
+    outside = {**ungauged_card(), "basis": v2.OUTSIDE}
+    e = estimate(outside, measure(ratio=0.2))
+    assert e.level == "unvalidated" and e.basis == v2.OUTSIDE and e.fnu_class == "under_30"
+    assert e.value is None and e.interval is None and e.range_mdsa is None
+    dump = e.model_dump(mode="json", by_alias=True)
+    jsonschema.Draft202012Validator(SCHEMA["$defs"]["Estimate"] | {"$defs": SCHEMA["$defs"]}
+                                    ).validate(dump)  # fmt: skip
+    # The basis is an ungauged reach's only: a gauged level never carries it.
+    with pytest.raises(ValueError, match="ungauged reach's, and only its"):
+        v2.Estimate.model_validate({**estimate(card(), measure()).model_dump(by_alias=True),
+                                    "basis": v2.OUTSIDE})  # fmt: skip
+
+
 def test_the_fnu_class_is_left_out_of_the_json_when_empty() -> None:
     bare = v2.Estimate(target="turbidity", unit="FNU", level="none")
     assert "fnuClass" not in bare.model_dump(by_alias=True)

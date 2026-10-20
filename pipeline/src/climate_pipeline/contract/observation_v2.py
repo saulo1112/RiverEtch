@@ -60,9 +60,14 @@ Basis = Literal[
     # An ungauged reach (preregistration-transfer.md, section 5): its expected error is the
     # pooled transfer test on similar rivers; with no gauge, it never earns a level of its own.
     "transfer_test_ungauged",
+    # An ungauged reach outside the region the transfer test covered
+    # (preregistration-outside-us.md): the same model and class, and no error estimate at all.
+    "outside_tested_region",
 ]
 PREREGISTERED: Final = ("preregistered_test", "preregistered_lockbox_site")
 UNGAUGED: Final = "transfer_test_ungauged"
+OUTSIDE: Final = "outside_tested_region"
+UNGAUGED_BASES: Final = (UNGAUGED, OUTSIDE)  # the unvalidated level's, and only theirs
 Target = Literal["turbidity", "tss"]
 RelativeClass = Literal["low", "medium", "high"]
 FnuClass = Literal["under_30", "30_to_100", "100_and_over"]  # preregistration-transfer.md
@@ -166,7 +171,7 @@ class Estimate(_Model):
             raise ValueError("a relative class belongs to the indicative level only")
         if self.fnu_class is not None and self.level != "unvalidated":
             raise ValueError("an FNU class belongs to the unvalidated level only")
-        if (self.level == "unvalidated") != (self.basis == UNGAUGED):
+        if (self.level == "unvalidated") != (self.basis in UNGAUGED_BASES):
             raise ValueError("the unvalidated level is an ungauged reach's, and only its")
         if self.level == "none":
             return self
@@ -306,7 +311,7 @@ def json_schema() -> dict[str, Any]:
         },
         {
             "if": {"properties": {"level": {"const": "unvalidated"}}, "required": ["level"]},
-            "then": {"properties": {"basis": {"const": UNGAUGED}}},
+            "then": {"properties": {"basis": {"enum": list(UNGAUGED_BASES)}}},
         },
     ]  # fmt: skip
     defs["Verdict"]["allOf"] = [

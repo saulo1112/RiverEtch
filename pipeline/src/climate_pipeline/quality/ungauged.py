@@ -12,7 +12,11 @@ preregistration fixes for an ungauged reach:
   the SHA-256 of the file it comes from;
 - **no level:** with no gauge, the reach is never scored and never earns a level of its own.
 
-The card is recomputed from committed files only, so ``quality transfer-verify`` checks it.
+A reach **outside the tested region** (``docs/water-quality/preregistration-outside-us.md``) uses
+the same model, ranges and class, with the basis ``outside_tested_region``, no expected error and
+the label "Outside the tested region. No error estimate."
+
+The cards are recomputed from committed files only, so ``quality transfer-verify`` checks them.
 """
 
 from __future__ import annotations
@@ -20,7 +24,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Final
 
 from climate_pipeline.contract import observation_v2 as v2
 from climate_pipeline.quality import cards
@@ -31,6 +35,10 @@ CARDS = Path("docs/water-quality/ungauged")
 REACH = "mississippi-st-joseph"
 POOLED = t.RESULTS / "transfer_pooled.json"
 LAB = Path("docs/water-quality/inputs/lab")  # a card's forest file is relative to it (reach run)
+# Ungauged reaches outside the region the transfer test covered, and the file that fixed each.
+OUTSIDE_REACHES: Final = {"firat-birecik": Path("docs/water-quality/preregistration-outside-us.md")}
+REACHES: Final = (REACH, *OUTSIDE_REACHES)
+OUTSIDE_LABEL: Final = "Outside the tested region. No error estimate."
 
 
 def card(cfg: QualityConfig, root: Path, reach: str = REACH) -> dict[str, Any]:
@@ -62,6 +70,21 @@ def card(cfg: QualityConfig, root: Path, reach: str = REACH) -> dict[str, Any]:
         "classes": {"edgesFnu": list(v2.FNU_CLASS_EDGES), "labels": list(v2.FNU_CLASSES)},
     }  # fmt: skip
     digest = hashlib.sha256(json.dumps(decisive, sort_keys=True).encode()).hexdigest()
+    outside = OUTSIDE_REACHES.get(reach)
+    if outside is not None:
+        return {
+            "modelId": "A4:turbidity:core:transfer-all",
+            "version": cards.VERSION, "target": "turbidity", "unit": "FNU", "window": "core",
+            "candidate": "A4", "site": reach, "basis": v2.OUTSIDE, **decisive,
+            "levels": [],  # no gauge: never scored, never a level of its own
+            "label": OUTSIDE_LABEL,  # and no expected error: none was measured in this region
+            "preregistration": outside.as_posix(),
+            "preregistrationSha256": cards.file_sha256(root / outside),
+            "training": ["2018-12-01", "2023-11-30"],
+            "trainingPairs": {"usgs": len(rows), "groups": len({data.group(p) for p in rows})},
+            "chosen": dict(fit.chosen),
+            "parametersHash": digest,
+        }  # fmt: skip
     return {
         "modelId": "A4:turbidity:core:transfer-all",
         "version": cards.VERSION, "target": "turbidity", "unit": "FNU", "window": "core",

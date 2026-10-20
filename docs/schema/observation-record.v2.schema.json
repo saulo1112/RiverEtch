@@ -262,7 +262,7 @@
           "then": {
             "properties": {
               "basis": {
-                "const": "transfer_test_ungauged"
+                "enum": ["transfer_test_ungauged", "outside_tested_region"]
               }
             }
           }
@@ -301,7 +301,8 @@
                 "post_hoc_nested_loso_magdalena",
                 "post_hoc_temporal_magdalena",
                 "preregistered_lockbox_site",
-                "transfer_test_ungauged"
+                "transfer_test_ungauged",
+                "outside_tested_region"
               ],
               "type": "string"
             },

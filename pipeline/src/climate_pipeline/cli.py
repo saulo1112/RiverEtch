@@ -501,10 +501,12 @@ def _transfer(action: str, cfg: Any, root: Path) -> int:
             print(f"wrote  {path.relative_to(root).as_posix()}")
         return 0
     if action == "transfer-card":
-        print(f"wrote  {ungauged.write(cfg, root).relative_to(root).as_posix()}")
+        for reach in ungauged.REACHES:
+            print(f"wrote  {ungauged.write(cfg, root, reach).relative_to(root).as_posix()}")
         return 0
     problems, near = t.verify(cfg, root)
-    problems += ungauged.verify(cfg, root)
+    for reach in ungauged.REACHES:
+        problems += ungauged.verify(cfg, root, reach)
     for line in problems:
         print(f"MISMATCH  {line}")
     for name in near:

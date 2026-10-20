@@ -180,7 +180,7 @@ def estimate(
     value = math.nan if reason else cards.estimate(card, measure.window, lab_dir)
     if not reason and not (math.isfinite(value) and value > 0):
         reason = "no estimate from the window's features"
-    if card.get("basis") == v2.UNGAUGED:
+    if card.get("basis") in v2.UNGAUGED_BASES:
         return _ungauged(card, card_sha256, target, measure, value, reason)
     if reason:
         level, mdsa = cards.level_of(card, target, math.nan)
@@ -220,7 +220,9 @@ def _ungauged(card: Mapping[str, Any], card_sha256: str, target: Target, measure
     """An ungauged reach's estimate: a class in FNU, never a value (preregistration-transfer.md).
 
     The card's ``display`` is "class" only when the pooled similar-river result reached
-    _indicative_; otherwise the reach shows its relative indices alone.
+    _indicative_; otherwise the reach shows its relative indices alone. The basis is the card's:
+    ``transfer_test_ungauged``, or ``outside_tested_region`` outside the tested region
+    (preregistration-outside-us.md), where the record carries no error estimate.
     """
     unit = str(card["unit"])
     if card.get("display") != "class":
@@ -228,7 +230,7 @@ def _ungauged(card: Mapping[str, Any], card_sha256: str, target: Target, measure
     cls = None if reason else v2.fnu_class(value)
     model: dict[str, Any] = {
         "target": target.id, "unit": unit, "level": "unvalidated", "modelId": card["modelId"],
-        "modelVersion": card["version"], "modelCardSha256": card_sha256, "basis": v2.UNGAUGED,
+        "modelVersion": card["version"], "modelCardSha256": card_sha256, "basis": card["basis"],
         "atmosphericCorrection": v2.AtmosphericCorrection(
             processor="sen2cor", collection="sentinel-2-l2a",
             processing_baseline=[i.processing_baseline for i in measure.items]),
