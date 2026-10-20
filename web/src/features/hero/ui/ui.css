@@ -1127,12 +1127,33 @@
   white-space: nowrap;
 }
 
+/* The live dot: filled, with a soft glow that breathes slowly (still with reduced motion). */
 .hero-chip__dot {
   flex: none;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: var(--accent);
+  box-shadow: 0 0 6px 1px rgb(34 211 238 / 0.55);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-chip__dot {
+    animation: hero-chip-breathe 3.2s ease-in-out infinite;
+  }
+}
+
+@keyframes hero-chip-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 6px 1px rgb(34 211 238 / 0.55);
+    opacity: 1;
+  }
+
+  50% {
+    box-shadow: 0 0 2px 0 rgb(34 211 238 / 0.2);
+    opacity: 0.6;
+  }
 }
 
 .hero-chip__text {
@@ -1600,14 +1621,6 @@ button.hero-chip:focus-visible {
 }
 
 /* Its dot: a ring while the status is unknown, filled once read; red with "failed" in words. */
-.hero-chip[data-state="unknown"] .hero-chip__dot {
-  background: none;
-  box-shadow: inset 0 0 0 1.5px var(--accent);
-}
-
-.hero-chip[data-state="failed"] .hero-chip__dot {
-  background: #ff6b5e;
-}
 
 /* The daily run's status: a native modal dialog. */
 .hero-status {
@@ -1680,41 +1693,11 @@ button.hero-chip:focus-visible {
   overflow-wrap: anywhere;
 }
 
-.hero-status__line {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.hero-status__line[data-ok="true"] svg {
-  color: #34d399;
-}
-
-.hero-status__line[data-ok="false"] svg {
-  color: #ff6b5e;
-}
-
-.hero-status__line[data-ok="pending"] svg {
-  color: #f5b942;
-}
-
 .hero-status__link {
   display: inline-flex;
   gap: 3px;
   align-items: center;
   color: var(--accent);
-}
-
-.hero-status__failures {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.hero-status__failures code {
-  font-size: 12px;
 }
 
 @media (width < 480px) {

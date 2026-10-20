@@ -8,6 +8,12 @@ import { ATTRIBUTION, EVIDENCE, RUN_STATUS, STATUS } from "./content.ts";
 import { evidenceOf } from "./evidence.ts";
 import { StatusDialog } from "./StatusDialog.tsx";
 
+// "20 Oct" from an ISO time (UTC).
+const dayMonth = (iso: string) =>
+  new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short", timeZone: "UTC" }).format(
+    new Date(iso),
+  );
+
 // Counted once: the build's facts over the catalog's cases.
 const EVIDENCE_FIGURES = evidenceOf(
   REACH_CASES.map((c) => c.id),
@@ -38,7 +44,10 @@ export function Footer() {
       live = false;
     };
   }, []);
-  const state = status === null ? "unknown" : status.run.ok ? "ok" : "failed";
+  // Live once the record has updated at least once; until the status can be read, the bundled
+  // snapshot ("Demo workspace").
+  const updated = status?.lastSuccessUtc ?? null;
+  const state = updated === null ? "unknown" : "live";
   return (
     <div className="hero-foot">
       <div className="hero-foot__row">
@@ -76,11 +85,7 @@ export function Footer() {
         >
           <span className="hero-chip__dot" aria-hidden="true" />
           <span className="hero-chip__text">
-            {state === "ok"
-              ? RUN_STATUS.chipOk
-              : state === "failed"
-                ? RUN_STATUS.chipFailed
-                : STATUS}
+            {updated === null ? STATUS : RUN_STATUS.chipLive(dayMonth(updated))}
           </span>
           <span className="hero-ui__visually-hidden"> · {RUN_STATUS.open}</span>
         </button>

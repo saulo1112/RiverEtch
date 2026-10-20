@@ -74,33 +74,26 @@ export const INDICATORS: readonly Indicator[] = [
 /** Status chip: what this page is, until the daily run's status has been read. */
 export const STATUS = "Demo workspace";
 
-/** The daily run's status: the chip's words once it is read, and its dialog. */
+/**
+ * The live record: the chip's words once the daily run's status is read, and its dialog. In the
+ * product's words: what updates, when it last did, and where the proofs are; the run's own log
+ * stays on GitHub.
+ */
 export const RUN_STATUS = {
-  chipOk: "Daily run: OK",
-  chipFailed: "Daily run: last run failed",
-  open: "Show the daily run's status",
-  title: "The daily run",
-  lead: "Twice a day a GitHub Actions job seals the new passes, timestamps every ledger head on Bitcoin and publishes the result on the repository's data branch. It holds no key: anchoring on Sepolia and signing stay with the owner, on their own machine.",
-  unavailable:
-    "Its status could not be read from this browser (the repository's data branch may not be public yet). The app shows the snapshot bundled with this build.",
-  lastRun: "Last run",
-  ok: "Succeeded",
-  failed: "Failed",
-  log: "Run log",
-  lastSuccess: "Last success",
-  lastSealed: "Newest sealed record",
-  sealed: (reach: string, date: string) => `${reach}, pass of ${date}`,
-  lastAnchor: "Last anchor on Sepolia",
-  anchor: (label: string, lines: number, when: string) =>
-    `${label}, first ${String(lines)} lines, ${when}`,
+  chipLive: (date: string) => `Live · updated ${date}`,
+  open: "About this record",
+  title: "A live record",
+  lead: "Twice a day, RiverEtch reads the new satellite passes and seals every reading. The record's fingerprints are posted on Ethereum and timestamped on Bitcoin, so anyone can check them.",
+  snapshot: "This version of the site shows the readings included when it was built.",
+  lastUpdate: "Last update",
+  newest: "Newest reading",
+  newestValue: (place: string, date: string) => `${place}, pass of ${date}`,
+  ethereum: "Posted on Ethereum (Sepolia)",
   block: (block: number) => `block ${String(block)}`,
-  bitcoin: "Bitcoin timestamps",
-  noBitcoin: "none confirmed yet",
+  bitcoin: "Timestamped on Bitcoin",
   bitcoinBlock: (height: number, when: string | null) =>
-    when === null ? `newest: block ${String(height)}` : `newest: block ${String(height)} (${when})`,
-  pending: (n: number) => `${String(n)} waiting for a block`,
-  failures: "Recent failures",
-  none: "none",
+    when === null ? `block ${String(height)}` : `block ${String(height)} (${when})`,
+  notYet: "not yet",
   close: "Close",
   externalHint: "(opens in a new tab)",
 } as const;

@@ -1,7 +1,8 @@
-import { ArrowUpRight, Check, Clock, X } from "lucide-react";
+import { ArrowUpRight, X } from "lucide-react";
 import { useEffect, useId, useRef } from "react";
 
 import { explorerUrl } from "../../chain/config.ts";
+import { REACH_CASES } from "../../reaches/catalog.ts";
 import type { RunStatus } from "../../reaches/data.ts";
 import { RUN_STATUS as copy } from "./content.ts";
 
@@ -40,11 +41,14 @@ function External({ href, children }: { readonly href: string; readonly children
   );
 }
 
+// A reach's title as the cases name it ("Mississippi · Belle Chasse"), else its id.
+const placeOf = (reach: string) => REACH_CASES.find((c) => c.id === reach)?.title ?? reach;
+
 /**
- * The daily run's status, as it publishes it (`status.json` on the data branch): its last run and
- * last success, the newest sealed record, the last anchor on Sepolia, the Bitcoin timestamps and
- * the recent failures with their reasons. Each state has a mark and words, never colour alone; a
- * native modal dialog.
+ * The live record, from the daily run's `status.json` (data branch): when it last updated, its
+ * newest sealed reading, and the latest proofs on Ethereum and Bitcoin, each a link. When the
+ * status cannot be read, it says the page shows the readings bundled with this build. A native
+ * modal dialog.
  *
  * @returns The dialog element.
  */
@@ -62,7 +66,6 @@ export function StatusDialog({ open, status, onClose }: StatusDialogProps) {
       dialog.close();
     }
   }, [open]);
-  const Mark = status === null ? Clock : status.run.ok ? Check : X;
   return (
     <dialog
       ref={ref}
@@ -91,39 +94,24 @@ export function StatusDialog({ open, status, onClose }: StatusDialogProps) {
         </div>
         <p className="hero-status__note">{copy.lead}</p>
         {status === null ? (
-          <p className="hero-status__line" data-ok="pending">
-            <Clock size={14} strokeWidth={2.25} aria-hidden="true" />
-            {copy.unavailable}
-          </p>
+          <p className="hero-status__note">{copy.snapshot}</p>
         ) : (
           <dl className="hero-status__list">
-            <dt>{copy.lastRun}</dt>
-            <dd>
-              <span className="hero-status__line" data-ok={status.run.ok ? "true" : "false"}>
-                <Mark size={14} strokeWidth={2.25} aria-hidden="true" />
-                {status.run.ok ? copy.ok : copy.failed} · {utc(status.updatedUtc)}
-              </span>{" "}
-              {status.run.url === "" ? null : <External href={status.run.url}>{copy.log}</External>}
-            </dd>
-            <dt>{copy.lastSuccess}</dt>
-            <dd>{status.lastSuccessUtc === null ? copy.none : utc(status.lastSuccessUtc)}</dd>
-            <dt>{copy.lastSealed}</dt>
+            <dt>{copy.lastUpdate}</dt>
+            <dd>{status.lastSuccessUtc === null ? copy.notYet : utc(status.lastSuccessUtc)}</dd>
+            <dt>{copy.newest}</dt>
             <dd>
               {status.lastSealed === null
-                ? copy.none
-                : copy.sealed(status.lastSealed.reach, status.lastSealed.date)}
+                ? copy.notYet
+                : copy.newestValue(placeOf(status.lastSealed.reach), status.lastSealed.date)}
             </dd>
-            <dt>{copy.lastAnchor}</dt>
+            <dt>{copy.ethereum}</dt>
             <dd>
               {status.lastAnchor === null ? (
-                copy.none
+                copy.notYet
               ) : (
                 <>
-                  {copy.anchor(
-                    status.lastAnchor.label,
-                    status.lastAnchor.lines,
-                    utc(status.lastAnchor.timestampUtc),
-                  )}{" "}
+                  {utc(status.lastAnchor.timestampUtc)}{" "}
                   <External href={explorerUrl("tx", status.lastAnchor.tx)}>
                     {copy.block(status.lastAnchor.block)}
                   </External>
@@ -133,7 +121,7 @@ export function StatusDialog({ open, status, onClose }: StatusDialogProps) {
             <dt>{copy.bitcoin}</dt>
             <dd>
               {status.lastBitcoin === null ? (
-                copy.noBitcoin
+                copy.notYet
               ) : (
                 <External href={`https://mempool.space/block/${String(status.lastBitcoin.height)}`}>
                   {copy.bitcoinBlock(
@@ -143,24 +131,6 @@ export function StatusDialog({ open, status, onClose }: StatusDialogProps) {
                       : utc(status.lastBitcoin.blockTime),
                   )}
                 </External>
-              )}{" "}
-              · {copy.pending(status.pendingBitcoin)}
-            </dd>
-            <dt>{copy.failures}</dt>
-            <dd>
-              {status.failures.length === 0 ? (
-                copy.none
-              ) : (
-                <ul className="hero-status__failures">
-                  {status.failures
-                    .slice(-5)
-                    .reverse()
-                    .map((f) => (
-                      <li key={`${f.utc}|${f.step}`}>
-                        <strong>{utc(f.utc)}</strong> · <code>{f.step}</code> · {f.reason}
-                      </li>
-                    ))}
-                </ul>
               )}
             </dd>
           </dl>
