@@ -390,12 +390,18 @@ export function CaseView({
     }
     handle.showScene(file, photo);
     const estimate = turbidity(row);
+    // A reach with no gauge labels its window with the pass's class, never a value.
+    const cls = estimate?.fnuClass ?? null;
     handle.setGauge({
       value:
         typeof estimate?.value === "number"
           ? `${formatValue(estimate.value)} ${estimate.unit}`
-          : "",
-      caption: reach.info.station.id.replace("USGS-", "USGS "),
+          : cls === null
+            ? ""
+            : CASE_COPY.ungauged.classes[cls],
+      caption: isUngauged(reach)
+        ? CASE_COPY.ungauged.mapCaption
+        : reach.info.station.id.replace("USGS-", "USGS "),
     });
   }, [reach, row, file, photo, mapStatus]);
 
@@ -689,7 +695,7 @@ export function CaseView({
           <div className="case-corner">
             <WalletControl variant="corner" />
           </div>
-          <Legend mode={mode} />
+          <Legend mode={mode} ungauged={isUngauged(reach)} />
           <RecordPanel reach={reach} row={row} thermal={tab === "thermal" ? thermalRow : null} />
         </div>
         <MapControls

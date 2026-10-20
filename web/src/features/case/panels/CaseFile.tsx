@@ -307,9 +307,7 @@ export function CaseFile({
                   )}
                 </p>
                 <p className="case-file__note">
-                  {fnuClass === null
-                    ? (estimate?.abstainReason ?? ungauged.label)
-                    : (card?.label ?? ungauged.label)}
+                  {fnuClass === null ? (estimate?.abstainReason ?? ungauged.label) : ungauged.label}
                 </p>
               </>
             ) : value === null ? (

@@ -41,14 +41,16 @@ export function isUngauged(reach: ReachData): boolean {
 export const FNU_CLASSES = ["under_30", "30_to_100", "100_and_over"] as const;
 
 /**
- * Whether the pass published a turbidity value.
+ * Whether the pass published a turbidity value, or, on a reach with no gauge, a class.
  *
  * @param row - The series row.
- * @returns True for a value with its interval.
+ * @returns True for a value with its interval, or a class.
  */
 export function hasValue(row: SeriesRow): boolean {
   const estimate = turbidity(row);
-  return typeof estimate?.value === "number" && estimate.interval != null;
+  return (
+    (typeof estimate?.value === "number" && estimate.interval != null) || estimate?.fnuClass != null
+  );
 }
 
 /**

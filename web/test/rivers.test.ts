@@ -26,18 +26,25 @@ void test("the honest summary is the median over the nine rated rivers: 33.1 %",
   assert.equal(oneDecimal(113.671875), "113.7");
 });
 
-void test("the demo reaches are the best two, and their gauges are the cases' own", () => {
+void test("the demo reaches are the best two, their gauges are the cases' own, and one has none", () => {
   assert.deepEqual(
     rivers.slice(0, 2).map((r) => r.site),
     DEMO_GAUGES,
   );
   const stations = REACH_CASES.map((c) => {
     const info = JSON.parse(read(`reach/${c.id}/examples/reach.json`)) as {
-      station: { id: string };
+      station: { id: string; source: string };
     };
-    return info.station.id;
+    return info.station;
   });
-  assert.deepEqual(stations, DEMO_GAUGES);
+  assert.deepEqual(
+    stations.filter((s) => s.source === "usgs").map((s) => s.id),
+    DEMO_GAUGES,
+  );
+  assert.deepEqual(
+    stations.filter((s) => s.source === "ungauged").map((s) => s.id),
+    ["window-st-joseph"],
+  );
 });
 
 void test("each row matches the report's table: name, error, pairs, baseline and level", () => {

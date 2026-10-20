@@ -85,6 +85,10 @@ export const CASE_COPY = {
     trainedOn:
       "The model never saw this reach. It did learn from two other Mississippi gauges, at Cape Girardeau (upstream) and Belle Chasse (downstream).",
     window: "Estimate window (no gauge)",
+    legendWindow: "The estimate window (no gauge here: a class only)",
+    mapCaption: "No gauge here",
+    chartKey:
+      "Each pass's class: under 30, 30 to 100, 100 FNU and over (the height means the class only)",
     noGauge: "No gauge on this reach: nothing here is ever scored against one.",
   },
   // The guided tour: eight steps, each pointing at a control that exists on the case.

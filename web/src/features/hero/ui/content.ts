@@ -1,5 +1,6 @@
 // Every string in the hero's UI layer, in one place. A value in FNU is claimed only where a gauge
-// validated it, with its error; NDTI stays relative; nothing claims causes or proof of compliance.
+// validated it, with its error, and a class where there is none; NDTI stays relative; nothing
+// claims causes or proof of compliance.
 
 /**
  * Product name, in the two parts the header's wordmark colors: changing them renames the product
@@ -42,7 +43,7 @@ export const COPY = {
   eyebrow: ["Sentinel-2", "USGS gauges", "Sealed records"],
   title: ["See the river.", "Verify the reading."],
   subtitle:
-    "Turbidity and water temperature read from Sentinel-2 and Landsat on rivers where a gauge validated them, each with a stated error. Every reading is sealed, so anyone can recompute it and see that it has not changed.",
+    "River turbidity from Sentinel-2: a value where a gauge validated the model, a class where there is no gauge, each with the error its test measured. Every reading is sealed, so anyone can recompute it and see that it has not changed.",
   // A button: it opens the cases screen.
   primary: { label: "Explore your cases" },
   // A button: it opens the "How it works" dialog.
@@ -64,7 +65,7 @@ export interface Step {
 /** The three steps, in order. */
 export const STEPS: readonly Step[] = [
   { id: "observe", number: "01", label: "Observe", description: "Sentinel-2 NDTI, pixel by pixel" },
-  { id: "estimate", number: "02", label: "Estimate", description: "Values validated by a gauge" },
+  { id: "estimate", number: "02", label: "Estimate", description: "Tested once against gauges" },
   { id: "verify", number: "03", label: "Verify", description: "Sealed record, recomputable" },
 ];
 

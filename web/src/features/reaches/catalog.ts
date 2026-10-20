@@ -1,5 +1,5 @@
 // The demo's cases: the two gauged reaches the water-quality validation v5 chose by its
-// preregistered rule (docs/water-quality/report.md). Everything a case shows comes from the
+// preregistered rule, and the ungauged reach of the transfer test (docs/water-quality/report.md). Everything a case shows comes from the
 // pipeline's committed files (docs/water-quality/reach/<id>/examples/, served under /data/reaches);
 // this catalog only holds what the globe needs before those files load: where to dive and how the
 // map frames the reach.
@@ -45,6 +45,16 @@ export const REACH_CASES: readonly ReachCase[] = [
     handoffZoom: 5.2,
     pitch: 52,
     bearing: 10,
+    thumbnail: null,
+  },
+  {
+    id: "mississippi-st-joseph",
+    title: "Mississippi · St. Joseph",
+    place: "Mississippi River above Natchez, from St. Joseph, Louisiana (USA): no turbidity gauge",
+    center: [-91.303384, 31.822055],
+    handoffZoom: 5.2,
+    pitch: 52,
+    bearing: -45,
     thumbnail: null,
   },
 ];

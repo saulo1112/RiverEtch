@@ -6,16 +6,18 @@ import { rampGradientCss } from "../ramp.ts";
 export interface LegendProps {
   /** What the river shows. */
   readonly mode: LayerMode;
+  /** The reach has no gauge: the outline is its estimate window. */
+  readonly ungauged?: boolean;
 }
 
 /**
  * Right panel: the map's key. The water's color is each pixel's NDTI, a relative index (low to
  * high within this reach's passes); hatched pixels were unusable on the pass; the amber outline is
- * the gauge's window.
+ * the gauge's window, or the estimate window of a reach with no gauge.
  *
  * @returns The legend panel.
  */
-export function Legend({ mode }: LegendProps) {
+export function Legend({ mode, ungauged = false }: LegendProps) {
   return (
     <aside
       className="case-panel case-legend case-glass"
@@ -50,7 +52,7 @@ export function Legend({ mode }: LegendProps) {
         ) : null}
         <li className="case-legend__nodata">
           <span className="case-legend__swatch case-legend__swatch--window" aria-hidden="true" />
-          {CASE_COPY.window}
+          {ungauged ? CASE_COPY.ungauged.legendWindow : CASE_COPY.window}
         </li>
       </ul>
     </aside>

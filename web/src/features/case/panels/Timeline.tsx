@@ -140,6 +140,20 @@ function Caption({
   readonly onClimateView: (view: ClimateTabView) => void;
 }) {
   const upstream = thermalValidatedAt(reach);
+  if (tab === "series" && isUngauged(reach)) {
+    return (
+      <ul className="case-timeline__caption case-timeline__keys">
+        <li>
+          <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
+          {CASE_COPY.ungauged.chartKey}
+        </li>
+        <li>
+          <span className="case-timeline__key case-timeline__key--none" aria-hidden="true" />
+          {CASE_COPY.ungauged.noClass}
+        </li>
+      </ul>
+    );
+  }
   if (tab === "series") {
     return (
       <ul className="case-timeline__caption case-timeline__keys">
