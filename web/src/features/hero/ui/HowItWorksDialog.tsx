@@ -101,9 +101,7 @@ function Works() {
                 oneDecimal(HEADLINE.guess),
               )}
             </p>
-            <p className="how-small">
-              {copy.works.tally(HEADLINE.good, HEADLINE.none, HEADLINE.worse, HEADLINE.n)}
-            </p>
+            <p className="how-small">{copy.works.tally(HEADLINE.good, HEADLINE.n)}</p>
           </div>
         </div>
       )}

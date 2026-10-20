@@ -260,8 +260,8 @@ export const HOW_IT_WORKS = {
     bigLabel: "smaller error than guessing the river's usual value",
     bigNote: (station: string, sat: string, guess: string) =>
       `At the middle station of the nine, half of the satellite's errors were under ${sat} %. Guessing the usual value gave ${guess} % (${station}).`,
-    tally: (good: number, none: number, worse: number, n: number) =>
-      `${String(good)} of ${String(n)} stations beat guessing. ${String(none)} showed no clear gain. ${String(worse)} did worse.`,
+    tally: (good: number, n: number) =>
+      `${String(good)} of ${String(n)} stations beat guessing by a clear margin.`,
     viewLabel: "Which test to show",
     views: { never: "Rivers it never saw", own: "Its own river" },
     barsTitle: (view: "never" | "own", beat: number, n: number, fail: number) =>
@@ -275,7 +275,7 @@ export const HOW_IT_WORKS = {
     tipGuess: "Guessing:",
     timesSmaller: (times: string) => `About ${times} times smaller error than guessing`,
     noGain: "No clear gain over guessing",
-    worse: "Worse than guessing",
+    worse: "Not better than guessing",
     passes: (n: number) => `${String(n)} test passes`,
     passesHead: "Test passes",
     unscored: (names: readonly string[]) =>

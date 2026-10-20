@@ -39,7 +39,7 @@ export const CASE_COPY = {
       `In ${String(n)} test passes the model never saw, the errors averaged ${mae} °C.`,
     times: (r: string) => `About ${r} times smaller error than guessing the usual value.`,
     noGain: "No clear gain over guessing the usual value.",
-    worse: "Worse than guessing the usual value.",
+    worse: "Not better than guessing the usual value.",
     tileMedian: (mdsa: string, n: number) =>
       `Half of test errors under ${mdsa} % (${String(n)} passes)`,
     tileMean: (mae: string, n: number) => `Test errors averaged ${mae} °C (${String(n)} passes)`,
@@ -284,7 +284,7 @@ export const CASE_COPY = {
     insufficient: "Too few test passes",
     gain: (r: string) => `${r} times smaller`,
     noGain: "no clear gain",
-    worse: "worse than guessing",
+    worse: "not better than guessing",
     inside: (k: number) => `${String(k)} inside the range`,
     // The same rivers, each scored by a model that never saw its river (the transfer test).
     views: { own: "Its own model", never: "A model that never saw it" },

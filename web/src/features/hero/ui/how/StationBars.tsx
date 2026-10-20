@@ -134,9 +134,7 @@ export function StationBars({
                     <span className="how-key how-key--guess" />
                     {copy.tipGuess} <b>{oneDecimal(r.nullMdsa)} %</b>
                   </span>
-                  <span className="how-bars__tip-verdict" data-fails={fails}>
-                    {words}
-                  </span>
+                  <span className="how-bars__tip-verdict">{words}</span>
                   <span>{copy.passes(r.n)}</span>
                 </span>
               ) : null}

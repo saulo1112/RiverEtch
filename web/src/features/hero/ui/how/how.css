@@ -622,10 +622,6 @@
   font-weight: 560;
 }
 
-.how-bars__tip-verdict[data-fails="true"] {
-  color: #ffb4ab;
-}
-
 .how-bars__name {
   grid-row: 1 / span 2;
   display: flex;
