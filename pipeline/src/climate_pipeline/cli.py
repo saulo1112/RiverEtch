@@ -9,7 +9,8 @@ JSON Schema and sample records (see docs/schema/README.md); ``climate-pipeline q
 recomputes the water-quality validations from their snapshots (see docs/water-quality/report.md);
 ``climate-pipeline reach`` writes a reach's sealed records, its ledger and the check against its
 gauge (see docs/water-quality/reach/README.md); ``climate-pipeline ledger`` lists the frozen
-artifacts of the prospective scoring (see docs/water-quality/prospective.md).
+artifacts of the prospective scoring (see docs/water-quality/prospective.md); ``climate-pipeline
+sign`` makes and uses the post-quantum key that signs ledger heads (see docs/trust-model.md).
 """
 
 from __future__ import annotations
@@ -211,6 +212,15 @@ def _parser() -> argparse.ArgumentParser:
     ledger.add_argument("paths", nargs="*", help="freeze: files, relative to the root")
     ledger.add_argument("--purpose", default="", help="freeze: why the files are frozen")
     ledger.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
+    sign = commands.add_parser("sign", help="ML-DSA-65 signatures of ledger heads (FIPS 204)")
+    sign.add_argument(
+        "action", choices=("keygen",),
+        help="keygen: the key pair, once (the private key outside the repository, the public key "
+        "in docs/keys/)",
+    )  # fmt: skip
+    sign.add_argument("--key-dir", type=Path, default=None,
+                      help="where the private key lives (default: ~/.riveretch)")  # fmt: skip
+    sign.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     return parser
 
 
@@ -720,6 +730,29 @@ def reach(args: argparse.Namespace) -> int:
     return max(codes)
 
 
+def sign(args: argparse.Namespace) -> int:
+    """Run ``sign keygen``.
+
+    Args:
+        args: Parsed arguments of the subcommand.
+
+    Returns:
+        The process exit code (2 when a key exists or the key folder is inside the repository).
+    """
+    from climate_pipeline import signing
+
+    try:
+        secret, public = signing.keygen(
+            args.root.resolve(), args.key_dir or signing.DEFAULT_KEY_DIR
+        )
+    except (ValueError, FileExistsError) as error:
+        print(error)
+        return 2
+    print(f"private key: {secret} (keep it; never commit it)")
+    print(f"public key:  {public}")
+    return 0
+
+
 def ledger(args: argparse.Namespace) -> int:
     """Run ``ledger freeze`` or ``ledger verify``.
 
@@ -777,6 +810,8 @@ def main(argv: list[str] | None = None) -> int:
         return quality(args)
     if args.command == "ledger":
         return ledger(args)
+    if args.command == "sign":
+        return sign(args)
     if args.command == "reach":
         logging.basicConfig(
             level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s"
