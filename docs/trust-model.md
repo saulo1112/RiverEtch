@@ -204,7 +204,8 @@ The project was first called TerraChain. The subjects of the first anchors are t
 `terrachain:<reach>:<ledger>`; a new prefix would leave those records unanchored, so every label
 keeps it ([D22](decisions.md)). The contract's comments say TerraChain too, and its licence line
 reads `UNLICENSED`: both are as deployed, since changing any character of its source would break
-its verified match (see the open items).
+its verified match (see the open items). The repository's [LICENSE](../LICENSE) releases the file
+under MIT.
 
 ## Check it without trusting us
 

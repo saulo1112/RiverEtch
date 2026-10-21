@@ -16,13 +16,12 @@ permissions:
   contents: read
 
 env:
-  CIRCOM_VERSION: v2.2.3
   # Git hooks are for local commits only.
   HUSKY: "0"
 
 jobs:
   contracts-web:
-    name: Contracts, circuits & web
+    name: Contracts & web
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -35,15 +34,6 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
-      - name: Install circom ${{ env.CIRCOM_VERSION }}
-        run: |
-          curl --fail --silent --show-error --location --retry 3 \
-            --output "$RUNNER_TEMP/circom" \
-            "https://github.com/iden3/circom/releases/download/${CIRCOM_VERSION}/circom-linux-amd64"
-          chmod +x "$RUNNER_TEMP/circom"
-          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
-          "$RUNNER_TEMP/circom" --version
-
       - name: Install dependencies
         run: npm ci
 
@@ -52,9 +42,6 @@ jobs:
 
       - name: Lint Solidity (Solhint + NatSpec)
         run: npm run lint:sol
-
-      - name: Build circuits (compile, witness, trusted setup, Solidity verifier)
-        run: npm run zk:build
 
       - name: Compile contracts
         run: npm run compile
@@ -66,11 +53,8 @@ jobs:
       - name: Type-check
         run: npm run typecheck
 
-      - name: Circuit tests
-        run: npm run test:circuits
-
       - name: Contract tests (Solidity + TypeScript)
-        run: npm run test:contracts
+        run: npm test
 
       - name: Build frontend
         run: npm run build

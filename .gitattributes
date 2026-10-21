@@ -6,7 +6,5 @@
 *.jpg binary
 *.ico binary
 *.wasm binary
-*.ptau binary
-*.zkey binary
 *.tif binary
 *.tiff binary

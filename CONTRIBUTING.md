@@ -64,7 +64,6 @@ Every public API is documented, and the linters fail when documentation is missi
 | Solidity   | NatSpec                 | Contracts, interfaces and libraries: `@title`, `@notice`. Public/external functions: `@notice`, one `@param` per parameter, one `@return` per return value. Events: `@notice`, `@param`. Public state variables: `@notice` | Solhint `use-natspec` (error) |
 | TypeScript | TSDoc                   | Exported functions, React components, classes and methods: a description, `@param name - description`, `@returns`                                                                                                          | ESLint `eslint-plugin-jsdoc`  |
 | Python     | Google-style docstrings | Public modules, classes, functions and methods                                                                                                                                                                             | ruff `D` (pydocstyle) rules   |
-| circom     | Comments                | Each template: what it proves, which inputs are private or public                                                                                                                                                          | Review only                   |
 
 Details:
 
@@ -93,22 +92,17 @@ runs the same checks anyway.
 ## Before you push
 
 ```bash
-npm run check            # what CI runs for contracts, circuits and web
+npm run check            # what CI runs for the contracts and the web app
 npm run pipeline:check   # what CI runs for the Python pipeline
 ```
 
 Typed lint rules for the contracts tests rely on generated TypeChain bindings. After a fresh
-clone, run `npm run zk:build && npm run compile` once.
+clone, run `npm run compile` once.
 
 ## Generated files and secrets
 
-- Never edit generated files. `contracts/src/generated/` (Solidity verifiers),
-  `contracts/types/` (TypeChain), `contracts/build/` (circuit artifacts) and `web/dist/` are
-  rebuilt by the scripts and are not committed.
+- Never edit generated files. `contracts/types/` (TypeChain) and `web/dist/` are rebuilt by the
+  scripts and are not committed.
 - Never commit secrets. `.env*` files are ignored except the `.env.example` templates. For
   deployment keys, prefer `npx hardhat keystore set <NAME>` (encrypted) over environment
   variables.
-
-## Adding a circuit
-
-See [docs/zk-circuits.md](docs/zk-circuits.md#adding-a-circuit).

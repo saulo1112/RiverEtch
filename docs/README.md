@@ -38,5 +38,5 @@ before its test ran; a change is a new file, never an edit.
 The project began as a screening of Colombian reaches (Urrá, the Magdalena), which reached no
 level; those folders stay because the pipeline still reads their settings and frozen
 scenes: [site-screening/](site-screening/), [urra-validation/](urra-validation/) and
-[magdalena-validation/](magdalena-validation/). [zk-circuits.md](zk-circuits.md) describes a
-zero-knowledge scaffold the product does not use.
+[magdalena-validation/](magdalena-validation/). A zero-knowledge scaffold from the first draft,
+which the product never used, was removed ([D24](decisions.md)); it stays in the git history.

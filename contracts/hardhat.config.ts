@@ -7,7 +7,6 @@ const SOLC_VERSION = "0.8.34";
 export default defineConfig({
   plugins: [hardhatToolboxMochaEthersPlugin],
   paths: {
-    // Solidity sources live in src/ (circuits live next to them in circuits/).
     sources: "src",
     tests: {
       mocha: "test/contracts",
@@ -28,12 +27,6 @@ export default defineConfig({
           },
         },
       },
-    },
-  },
-  test: {
-    mocha: {
-      // Proof generation in the verifier tests can take a few seconds.
-      timeout: 60_000,
     },
   },
   networks: {

@@ -379,6 +379,7 @@ a human decision; this report does not make it.
     manifest differ.
   - Earlier, with the same code, the pre-registered stage-1 rows of the dam reaches were identical
     in runs 2, 6 and 7.
-- **Re-running.** Use the `Site screening` workflow (Actions, "Run workflow", optionally with a
-  subset of sites or dates). Locally, run `uv run climate-pipeline screening --root ..` from
-  `pipeline/`; it needs network access to the services above.
+- **Re-running.** From `pipeline/`, run `uv run climate-pipeline screening --root ..`
+  (`--sites`, `--start` and `--end` pick a subset); it needs network access to the services above.
+  The `Site screening` workflow that made the committed runs was removed afterwards
+  ([D24](../decisions.md)); it stays in the git history.

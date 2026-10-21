@@ -128,10 +128,11 @@ Each answer is short; the [trust model](trust-model.md) has the detail.
 - **Do I have to trust your block explorers or RPC node?** No. Connect a wallet to read Sepolia
   through your own connection; check a Bitcoin proof with `ots verify` or your own node.
 - **Why does the contract say TerraChain and `UNLICENSED`?** They are as deployed: changing any
-  character of the source would break its verified match.
+  character of the source would break its verified match. The repository's
+  [LICENSE](../LICENSE) releases the file under MIT.
 - **Why no Merkle tree?** The ledgers are short (93 lines at most) and are replayed in full.
-- **Is zero-knowledge used?** No. The circuits in `contracts/` are an unused scaffold from an
-  earlier plan ([zk-circuits.md](zk-circuits.md)).
+- **Is zero-knowledge used?** No. An unused scaffold from the first draft was removed
+  ([D24](decisions.md)); it stays in the git history.
 - **What if this repository goes away?** The records are kept only here for now. The anchors and
   timestamps would stay, with nothing to check them against.
 

@@ -34,20 +34,6 @@ contracts/snapshots/
 contracts/ignition/deployments/chain-31337/
 
 # ---------------------------------------------------------------------------
-# circom / snarkjs artifacts: large and reproducible with `npm run zk:build`
-# ---------------------------------------------------------------------------
-contracts/build/
-# Solidity verifiers exported by snarkjs (tied to a specific, uncommitted zkey)
-contracts/src/generated/
-*.ptau
-*.zkey
-*.wtns
-*.r1cs
-*.sym
-*_js/
-*_cpp/
-
-# ---------------------------------------------------------------------------
 # Python (pipeline)
 # ---------------------------------------------------------------------------
 __pycache__/

@@ -125,7 +125,7 @@ flowchart LR
 - **ZK proofs of permit compliance** (the first draft): an operator would prove its own readings
   meet a permit without revealing them. A proof shows the data meets the permit, not that the data
   is true. An anchored, independent satellite record is the kind of check that gap needs. The
-  circuit toolchain stays in `contracts/` as a scaffold ([zk-circuits.md](zk-circuits.md)).
+  circuit scaffold was removed ([D24](decisions.md)); it stays in the git history.
 - **Attribution:** no output states that any actor caused anything.
 
 ## Open questions

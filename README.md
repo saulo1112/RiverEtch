@@ -286,7 +286,7 @@ never before. See [docs/anchoring.md](docs/anchoring.md) and the
 .
 ├── pipeline/   Python 3.12 (uv): screening, water-quality validation (`quality`), reach records (`reach`)
 ├── web/        Vite + React: the globe, the cases and the case view (map, charts, record verification)
-├── contracts/  Hardhat 3: the ledger anchor (LedgerAnchor, Sepolia); a legacy ZK scaffold, unused
+├── contracts/  Hardhat 3: the ledger anchor (LedgerAnchor, Sepolia)
 ├── docs/       the water-quality report and preregistration, the record schema, the decision log
 └── .github/    CI: every result is recomputed and checked against its MANIFEST
 ```
@@ -305,12 +305,11 @@ never before. See [docs/anchoring.md](docs/anchoring.md) and the
 
 ### Prerequisites
 
-| Tool                                                           | Version                                | Needed for                                       |
-| -------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ |
-| [Git](https://git-scm.com/)                                    | any recent                             | everything                                       |
-| [Node.js](https://nodejs.org/)                                 | 24 LTS (see `.nvmrc`; npm 11 included) | web, contracts, hooks                            |
-| [uv](https://docs.astral.sh/uv/getting-started/installation/)  | 0.12 or newer                          | Python pipeline (uv installs Python 3.12 itself) |
-| [circom](https://docs.circom.io/getting-started/installation/) | 2.2.3                                  | the legacy ZK scaffold only (unused)             |
+| Tool                                                          | Version                                | Needed for                                       |
+| ------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ |
+| [Git](https://git-scm.com/)                                   | any recent                             | everything                                       |
+| [Node.js](https://nodejs.org/)                                | 24 LTS (see `.nvmrc`; npm 11 included) | web, contracts, hooks                            |
+| [uv](https://docs.astral.sh/uv/getting-started/installation/) | 0.12 or newer                          | Python pipeline (uv installs Python 3.12 itself) |
 
 ### Run the web app
 
@@ -344,16 +343,15 @@ fetches each gauge's whole daily record for the Climate tab. See
 ### Run every check
 
 ```bash
-npm run check            # format, lint, circuits, compile, types, all tests, frontend build
+npm run check            # format, lint, compile, types, all tests, frontend build
 npm run pipeline:check   # ruff format + lint, mypy --strict, pytest
 ```
 
 ### The contracts
 
 ```bash
-npm run zk:build         # legacy demo circuit, unused by RiverEtch (see docs/zk-circuits.md)
 npm run compile          # contracts and TypeChain bindings
-npm test                 # circuit tests, then contract tests (LedgerAnchor included)
+npm test                 # contract tests (LedgerAnchor, in Solidity and TypeScript)
 ```
 
 Deploying the ledger anchor to Sepolia and anchoring the ledgers is described in
@@ -364,17 +362,16 @@ from committed files.
 
 Run from the repository root.
 
-| Script                          | What it does                                                                           |
-| ------------------------------- | -------------------------------------------------------------------------------------- |
-| `npm run dev` / `npm run build` | Frontend dev server / production build                                                 |
-| `npm run pipeline:check`        | Everything CI runs for the Python side                                                 |
-| `npm run check`                 | Everything CI runs for the JavaScript side                                             |
-| `npm run lint`                  | ESLint (TypeScript + TSDoc) and Solhint (Solidity + NatSpec)                           |
-| `npm run format`                | Format everything with Prettier                                                        |
-| `npm run typecheck`             | `tsc` in every workspace                                                               |
-| `npm run zk:build`              | Circuit pipeline: compile → witness → Groth16 setup → Solidity verifier → sanity proof |
-| `npm run compile`               | Compile Solidity with Hardhat (also generates TypeChain bindings)                      |
-| `npm test`                      | Circuit tests, then contract tests                                                     |
+| Script                          | What it does                                                      |
+| ------------------------------- | ----------------------------------------------------------------- |
+| `npm run dev` / `npm run build` | Frontend dev server / production build                            |
+| `npm run pipeline:check`        | Everything CI runs for the Python side                            |
+| `npm run check`                 | Everything CI runs for the JavaScript side                        |
+| `npm run lint`                  | ESLint (TypeScript + TSDoc) and Solhint (Solidity + NatSpec)      |
+| `npm run format`                | Format everything with Prettier                                   |
+| `npm run typecheck`             | `tsc` in every workspace                                          |
+| `npm run compile`               | Compile Solidity with Hardhat (also generates TypeChain bindings) |
+| `npm test`                      | Contract tests                                                    |
 
 ## Contributing
 
@@ -384,5 +381,4 @@ Conventions (commit messages, branches, documentation standards, the English-onl
 ## License
 
 The code is under the [MIT License](LICENSE); the documentation and the data RiverEtch produces
-(`docs/`) are under [CC BY 4.0](LICENSE-docs). Third-party data keep their own terms. The Solidity
-verifiers that snarkjs generates (never committed) carry a GPL-3.0 header.
+(`docs/`) are under [CC BY 4.0](LICENSE-docs). Third-party data keep their own terms.

@@ -26,12 +26,8 @@ Scope. This license covers the code: pipeline/, web/, contracts/ and the
 scripts. The documentation and the data RiverEtch produces (docs/) are under
 CC BY 4.0, see LICENSE-docs.
 
-- contracts/src/LedgerAnchor.sol and contracts/src/Placeholder.sol carry
-  "SPDX-License-Identifier: UNLICENSED". LedgerAnchor.sol must stay identical
-  to the source deployed on Sepolia, so its header is left as it is; both files
-  are released under the MIT License above.
-- The Solidity verifiers that `npm run zk:build` generates from snarkjs
-  templates (contracts/src/generated/, never committed) carry the GPL-3.0
-  header of those templates.
+- contracts/src/LedgerAnchor.sol carries "SPDX-License-Identifier: UNLICENSED".
+  It must stay identical to the source deployed on Sepolia, so its header is
+  left as it is; it is released under the MIT License above.
 - Third-party data keep their own terms: USGS data (public domain), Copernicus
   Sentinel data (the Copernicus data policy), Landsat data (public domain).

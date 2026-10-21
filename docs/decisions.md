@@ -483,3 +483,22 @@ last. Format: context → decision → consequences.
     re-read is listed beside it.
   - An anchor proves a ledger's state from its block time on. Nothing here makes the 2026 backtest
     prospective.
+
+## D24. Removing what the product never used (2026-10-21)
+
+- **Context:** the repository still carried the first draft's zero-knowledge scaffold (a demo
+  circom circuit, its build script, its tests, four npm packages, a circom install in CI and
+  `docs/zk-circuits.md`), the toolchain's `Placeholder` contract, and two manual workflows
+  (`Site screening`, `Urrá validation`) that made the Colombian runs. None of it is part of
+  RiverEtch, and a reviewer reading the CI or the contracts would wonder what it is for.
+- **Decision:** remove them. Nothing frozen, anchored or read by the pipeline is touched: the
+  screening, Urrá and Magdalena code and folders stay, because the reach records and the
+  calibration still read their settings, frozen scenes and helpers. Their runs can still be made
+  locally with `climate-pipeline screening` and `climate-pipeline validation`.
+- **Consequences:**
+  - CI no longer installs circom or builds circuits; `npm test` runs the contract tests only.
+  - `LedgerAnchor.sol` is unchanged, so the deployed contract keeps its verified match.
+  - The removed files stay in the git history: `git log --diff-filter=D --name-only` lists the
+    commit that removed them, and its parent holds them as they were.
+  - The earlier entries of this log (D5, D7 and others) still describe the scaffold as it was; their
+    links to `zk-circuits.md` point to the history now.
