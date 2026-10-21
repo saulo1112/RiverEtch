@@ -1,0 +1,64 @@
+{
+  "reach": "firat-birecik",
+  "label": "decided after seeing the result",
+  "note": "Published measurements of the Euphrates at Birecik, looked up after the reach's 2026 classes were known. They are from other years and in another unit (NTU), so they check plausibility; they do not test or validate the reach's readings, and no record names them.",
+  "estimatePoint": {
+    "lat": 37.02655,
+    "lon": 37.97299,
+    "source": "pipeline/reach.yaml"
+  },
+  "measurements": [
+    {
+      "id": "alp2010-euphrates",
+      "short": "Turbidity, the Euphrates below the dams",
+      "periodShort": "2002–2003",
+      "cite": "Alp et al. 2010",
+      "what": "Turbidity of the Euphrates River at the outlets of the Atatürk and Birecik dams",
+      "unit": "NTU",
+      "median": 5.0,
+      "min": 5.0,
+      "max": 5.0,
+      "period": "eight months of 2002 and 2003",
+      "where": "two points; the Birecik dam's outlet at 37°02′01″N 37°58′12″E",
+      "whereLat": 37.03361,
+      "whereLon": 37.97,
+      "distanceKm": 0.829,
+      "distanceMethod": "great-circle (haversine, R = 6371.0088 km) from whereLat/whereLon to estimatePoint",
+      "direction": "upstream (north of the estimate point, below the dam)",
+      "tableNote": "5.0 NTU is also the lowest turbidity anywhere in the table.",
+      "source": "Alp, M. T., Koçer, M. A. T., Sen, B. and Ozbay, O. (2010). Water Quality of Surface Waters in Lower Euphrates Basin (Southeastern Anatolia, Turkey). Journal of Animal and Veterinary Advances 9(18): 2412–2421. Table 2, row EPH; Table 1 for the points. Analysed in the laboratory of the XV Regional Directorate of State Hydraulic Works (DSİ).",
+      "doi": "10.36478/javaa.2010.2412.2421",
+      "url": "https://makhillpublications.co/view-article/1680-5593/javaa.2010.2412.2421"
+    },
+    {
+      "id": "alp2010-birecik-lake",
+      "short": "Turbidity, the Birecik Dam Lake",
+      "periodShort": "2002–2003",
+      "cite": "Alp et al. 2010",
+      "what": "Turbidity of the Birecik Dam Lake, upstream of the dam",
+      "unit": "NTU",
+      "median": 7.5,
+      "min": 5.0,
+      "max": 20.0,
+      "period": "eight months of 2002 and 2003",
+      "where": "two points in the lake",
+      "source": "Alp, Koçer, Sen and Ozbay (2010), Table 2, row BDL.",
+      "doi": "10.36478/javaa.2010.2412.2421",
+      "url": "https://makhillpublications.co/view-article/1680-5593/javaa.2010.2412.2421"
+    },
+    {
+      "id": "kutlu2015-secchi",
+      "short": "Secchi depth, the Birecik reservoir",
+      "periodShort": "2013",
+      "cite": "Kutlu et al. 2015",
+      "what": "Secchi disk depth in the Birecik reservoir: how deep a white disk stays visible",
+      "unit": "m",
+      "values": [2.9, 3.0, 4.35],
+      "period": "seasonal measurements in 2013",
+      "where": "stations 2, 3 and 4 of the reservoir",
+      "source": "Kutlu, B., Sesli, A., Tepe, R. and Mutlu, E. (2015). Assessment of Physico-chemical Water Quality of Birecik Dam, Şanlıurfa, West East Region, Turkey. Turkish Journal of Agriculture - Food Science and Technology 3(7): 623–628. Results, page 625.",
+      "doi": "10.24925/turjaf.v3i7.623-628.423",
+      "url": "https://doi.org/10.24925/turjaf.v3i7.623-628.423"
+    }
+  ]
+}

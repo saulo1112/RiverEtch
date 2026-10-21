@@ -87,10 +87,13 @@ far too short ([why it matters](#why-it-matters-for-climate)).
 ### Presentation & Storytelling
 
 - **The live app tells one case at a time:** the globe, the river, the pass, its record.
-  **Verify this record** walks the checks one by one, and **Change one number first** shows a seal
-  breaking.
-- **All rivers** lists every river tested, the failures included, and its switch shows the same
-  rivers scored by a model that never saw them.
+  **Verify this record** walks the checks one by one, and **Change one number first** lets you
+  type another number and watch the seal break (and match again when you put it back).
+- **Check a file you were sent** compares a RiverEtch record (JSON) or series (CSV) with the
+  sealed records in the browser, and names any value that changed.
+- **Accuracy** lists every station tested, where the satellite works and where it is not
+  recommended; on a reach with no station, the same stations scored by a model that never saw
+  them.
 - **A guided tour** on each case points at each control in eight steps, from the pass to what a
   seal does and does not prove.
 - **For a quick read:** [the judges' page](docs/judges.md), the
@@ -215,7 +218,7 @@ and anchored before RiverEtch read the gauge, at least 12 hours after the pass. 
 appends the outcome (inside or outside the sealed range, with the gauge value's approval) to an
 outcomes ledger, which is anchored too.
 
-The **Scoreboard** tab shows counts, never percentages, until there are 20 passes. The
+The **Track record** tab shows counts, never percentages, until there are 20 passes. The
 retrospective counts, labelled as such:
 
 | Inside the expected range  | Turbidity, Belle Chasse | Turbidity, Platte | Water temperature, Belle Chasse | Water temperature, Platte |

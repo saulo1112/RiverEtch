@@ -214,7 +214,7 @@ estimate against the gauge's value at the overpass.
   its lock box rated it.
 - No scene after the cards' commit (2026-10-12) had a gauge value when this table was made. Passes
   after T0 are scored prospectively under rule v1 by `reach score`, and counted on the web app's
-  Scoreboard (counts, not percentages, until there are 20).
+  Track record tab (counts, not percentages, until there are 20).
 
 ## Rivers the model never saw (transfer test, 2026-10-20)
 
@@ -313,6 +313,17 @@ Birecik Dam to the bridge ([site file](../../pipeline/reaches/firat-birecik.yaml
 - **Its baseline stopped at the preregistered 6 GB network cap,** as Belle Chasse's and Hermann's
   did: 359 of 1069 acquisitions measured (2019-01 to 2021-06), 213 usable. Its scenes are larger
   than the Mississippi's, so the cap came sooner. Each pass's z-scores compare it with those 213.
+- **What 2026 showed** (the 70 passes to 12 Aug 2026 in the committed examples): 55 read under 30
+  FNU and 15 abstained (10 with the red-to-blue ratio log B04/B02 outside the training range, 2 for
+  glint, 3 on other features); against its own 2019–2021 passes, 63 were usual.
+- **Published measurements, looked up after seeing the result**
+  ([file](published/firat-birecik.json)): the Euphrates at the Atatürk and Birecik dams' outlets,
+  one point 0.8 km above the reading spot, read 5.0 NTU as median, minimum and maximum over eight
+  months of 2002–2003, and the Birecik Dam Lake 7.5 NTU (5.0 to 20.0) (Alp, Koçer, Sen and Ozbay
+  2010, _J. Anim. Vet. Adv._ 9(18): 2412–2421, Table 2). In 2013 a Secchi disk stayed visible 2.9
+  to 4.35 m down in the reservoir (Kutlu et al. 2015, _Turk. J. Agric. Food Sci. Technol._ 3(7):
+  623–628). Under 30 FNU is in line with them. Other years and another unit (NTU): a check of
+  plausibility, not a test, and no record names them.
 
 ### The class tests (2026-10-20, each run once after its anchor)
 

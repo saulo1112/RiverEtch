@@ -18,34 +18,42 @@ it.
 - **Clouds** hide about three passes in four (72–76 % in 2026).
 - **The 2026 records sealed before T0 are retrospective:** they were sealed after their gauge values
   were public. Only passes after T0 (the anchor of the scoring rule) can count as prospective.
-- **Gauge values are often provisional.** The USGS may still revise them; they are labelled.
+- **Station values are often provisional.** The USGS may still revise them; the app says so.
 - **Sepolia is a test network,** not mainnet.
 - **The two gauged demo reaches are the best two of ten stations** (on eight rivers). The median
-  error over the nine rated is 33.1 % (the **All rivers** tab).
+  error over the nine rated is 33.1 % (the **Accuracy** tab).
 
 ## The 3-minute path
 
 Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wallet.
 
 1. **Hero:** choose a case. The Mississippi at Belle Chasse and the Platte at Louisville have a
-   gauge; the Mississippi above Natchez (St. Joseph) has none.
+   station; the Mississippi above Natchez (St. Joseph) and the Fırat at Birecik (Türkiye) have
+   none.
 2. **Tour** (top left, beside Back): eight steps, each pointing at the control it explains; Esc
    ends it.
 3. **The case file** (top left): on a gauged reach, the value, its expected range (?), its level
    (?), "Sealed" and the anchor date, and how far off the model tends to be beside guessing the
-   river's usual value. On the ungauged reach, the class, the label "unvalidated: expected error
-   from the transfer test" and that error.
+   river's usual value. On a reach with no station, the class with the tag "Satellite only", the
+   label "unvalidated: expected error from the transfer test" (at the Fırat, "Outside the tested
+   region. No error estimate.") and that error, and how the pass compares with the river's own
+   past. At the Fırat, published measurements of the river at Birecik, labelled as looked up after
+   seeing the result.
 4. **Verify this record** (right), below.
-5. **Change one number first**, then verify again: the seal breaks.
-6. **All rivers** (bottom tabs): every river tested, failures included. **A model that never saw
-   it** shows the same rivers scored by a model trained only on the other river groups: the error to
-   expect where there is no gauge.
-7. **Scoreboard** (gauged reaches): the prospective count (0 until a pass after T0 is scored), then
-   the retrospective counts, each labelled.
-8. **Climate → Extreme days:** the gauge's own record of low-flow, high-flow and warm-water days,
-   and how often the satellite saw them.
-9. **The status chip** (bottom right of the first screen): the daily run's last run, last anchor
-   and Bitcoin timestamps.
+5. **Change one number first**, type another number (or pick another class), then verify again:
+   the seal breaks; put the sealed value back and it matches again.
+6. **Check a file you were sent** (under the record): the record's JSON from its details, or the
+   series from Export, edited or not; the browser names any value that differs from the sealed
+   record.
+7. **Accuracy** (bottom tabs): every station tested, where it works and where it is not
+   recommended. On a reach with no station, the same stations scored by a model trained only on
+   the other river groups: the error to expect where there is no station.
+8. **Track record** (reaches with a station): the counts checked after the station's value was
+   public, then the passes sealed before it was read (0 until a pass after T0 is scored).
+9. **Climate → Extreme days:** the station's own record of low-flow, high-flow and warm-water
+   days, and how often the satellite saw them.
+10. **The status chip** (bottom right of the first screen): the daily run's last run, last anchor
+    and Bitcoin timestamps.
 
 ## Verify a record in one minute
 
