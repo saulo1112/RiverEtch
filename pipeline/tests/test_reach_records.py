@@ -196,3 +196,38 @@ def test_a_series_row_keeps_an_ungauged_class_and_nothing_new_otherwise() -> Non
         assert ("fnuClass" in row) is has
         if has:
             assert row["fnuClass"] == "100_and_over" and row["value"] is None
+
+
+def test_a_four_class_card_gives_four_classes_and_unknown_edges_are_refused() -> None:
+    four = {**ungauged_card(), "classes": {"edgesFnu": [30.0, 50.0, 100.0],
+                                           "labels": list(v2.FNU_CLASSES_FOUR)}}  # fmt: skip
+    # The card gives 300 r^2 for a ratio r: 12, 43.2, 75 and 300 FNU.
+    found = [estimate(four, measure(ratio=r)).fnu_class for r in (0.2, 0.38, 0.5, 1.0)]
+    assert found == ["under_30", "30_to_50", "50_to_100", "100_and_over"]
+    assert [v2.fnu_class(v, (30.0, 50.0, 100.0)) for v in (49.9, 50.0)] == [
+        "30_to_50", "50_to_100"]  # fmt: skip
+    with pytest.raises(ValueError, match="no preregistered classes"):
+        v2.fnu_class(40.0, (30.0, 60.0, 100.0))
+
+
+def test_supersedes_is_left_out_of_the_json_when_empty_so_old_seals_hold() -> None:
+    days = tuple(date(2024, 1, 1) + timedelta(days=15 * k) for k in range(24))
+    flat = [0.10 + 0.002 * (k % 3) for k in range(24)]
+    base = records.Baseline(
+        days, {"upstream": flat, "downstream": flat, "delta": [0.0] * 24},
+        {"upstream": [0.5] * 24, "downstream": [0.5] * 24, "delta": [0.0] * 24},
+    )  # fmt: skip
+    rec = records.record("r", measure(), base, [estimate(card(), measure())],
+                         RainFlags(point=None, catchment=None, union="unknown"), set(),
+                         SCREENING, 3.0, "c" * 40, "d" * 64)  # fmt: skip
+    assert "supersedes" not in rec.model_dump(by_alias=True)
+    assert "supersedes" not in v2.canonical_json(rec)
+    newer = records.record("r", measure(), base, [estimate(card(), measure())],
+                           RainFlags(point=None, catchment=None, union="unknown"), set(),
+                           SCREENING, 3.0, "c" * 40, "d" * 64,
+                           supersedes=rec.record_sha256)  # fmt: skip
+    assert newer.supersedes == rec.record_sha256 and v2.is_sealed(newer)
+    assert newer.record_sha256 != rec.record_sha256
+    with pytest.raises(ValueError):
+        v2.ObservationRecordV2.model_validate({**newer.model_dump(by_alias=True),
+                                               "supersedes": "not a hash"})  # fmt: skip

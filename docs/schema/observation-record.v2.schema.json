@@ -317,7 +317,7 @@
         "fnuClass": {
           "anyOf": [
             {
-              "enum": ["under_30", "30_to_100", "100_and_over"],
+              "enum": ["under_30", "30_to_100", "100_and_over", "30_to_50", "50_to_100"],
               "type": "string"
             },
             {
@@ -325,7 +325,7 @@
             }
           ],
           "default": null,
-          "description": "an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over); absent from the JSON when empty, so records sealed before it existed keep their hash",
+          "description": "an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over; or, with four classes, under 30, 30 to 50, 50 to 100, 100 and over); absent from the JSON when empty, so records sealed before it existed keep their hash",
           "title": "Fnuclass"
         },
         "interval": {
@@ -864,6 +864,20 @@
       },
       "title": "Stacitemids",
       "type": "array"
+    },
+    "supersedes": {
+      "anyOf": [
+        {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "the recordSha256 of the earlier record of the same pass this one replaces (the pass read again with a newer card, preregistration-four-classes.md); absent from the JSON when empty, so records sealed before it existed keep their hash",
+      "title": "Supersedes"
     },
     "verdict": {
       "$ref": "#/$defs/Verdict"

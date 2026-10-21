@@ -74,7 +74,9 @@ reaches:
     timezone: America/Chicago
     targets: [turbidity] # FNU class
     cards:
-      turbidity: docs/water-quality/ungauged/mississippi-st-joseph/turbidity.json
+      # Four classes since preregistration-four-classes.md passed (frozen-artifacts line 19);
+      # the three-class card (line 13) stays named by the records sealed with it.
+      turbidity: docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json
     rainy_months: [5, 6, 7, 8, 9] # summer convection (general climatology, not sourced)
     geometry_start: 2022-01-01
     geometry_end: 2025-12-31
@@ -82,6 +84,34 @@ reaches:
     nir_red_baseline: docs/water-quality/reach/mississippi-st-joseph/nir-red-baseline.csv
     baseline_end: 2025-12-31
     baseline_max_gb: 6.0 # as v5's reaches
+  # The ungauged reach outside the tested region (preregistration-outside-us.md), added after its
+  # anchor (frozen-artifacts, 17 lines, Sepolia block 11957144), as section 5 fixes it.
+  - site: firat-birecik
+    site_file: pipeline/reaches/firat-birecik.yaml
+    estimate_station: window-birecik # no gauge: the window's own id
+    station_source: ungauged # never checked or scored; a class only, with no error estimate
+    estimate_point:
+      lon: 37.97299
+      lat: 37.02655
+      basis:
+        "The Birecik Bridge (OpenStreetMap way 13638374). Chosen by preregistration-outside-us.md,
+        section 2, before any reading of the reach: its main channel (322.5 m) lies inside the
+        widths the model was trained on (305 to 773 m) by the largest margin of the points
+        measured."
+      source_url: https://www.openstreetmap.org/way/13638374
+    timezone: Europe/Istanbul
+    targets: [turbidity] # FNU class
+    cards:
+      # Four classes (preregistration-four-classes.md passed; frozen-artifacts line 20), from
+      # its first record: the three-class card (line 17) names none.
+      turbidity: docs/water-quality/ungauged/firat-birecik/turbidity-4.json
+    rainy_months: [11, 12, 1, 2, 3, 4] # at least 30 mm a month (WMO normals 1991-2020, Birecik)
+    geometry_start: 2022-01-01
+    geometry_end: 2025-12-31
+    baseline_start: 2019-01-01
+    nir_red_baseline: docs/water-quality/reach/firat-birecik/nir-red-baseline.csv
+    baseline_end: 2025-12-31
+    baseline_max_gb: 6.0 # as the other reaches
 
 budgets:
   max_gb: 2.0 # per run (a month of scenes is ~0.3 GB)

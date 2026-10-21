@@ -227,7 +227,9 @@ def _ungauged(card: Mapping[str, Any], card_sha256: str, target: Target, measure
     unit = str(card["unit"])
     if card.get("display") != "class":
         return v2.Estimate(target=target.id, unit=unit, level="none")
-    cls = None if reason else v2.fnu_class(value)
+    # The card's own classes: three, or four once preregistration-four-classes.md passed.
+    edges = tuple(float(e) for e in card.get("classes", {}).get("edgesFnu", v2.FNU_CLASS_EDGES))
+    cls = None if reason else v2.fnu_class(value, edges)
     model: dict[str, Any] = {
         "target": target.id, "unit": unit, "level": "unvalidated", "modelId": card["modelId"],
         "modelVersion": card["version"], "modelCardSha256": card_sha256, "basis": card["basis"],
@@ -242,7 +244,8 @@ def _ungauged(card: Mapping[str, Any], card_sha256: str, target: Target, measure
 
 def record(reach_id: str, measure: Measure, baseline: Baseline, estimates: Sequence[v2.Estimate],
            rain: RainFlags, rainy: set[int], screening: ScreeningConfig, threshold: float,
-           code_commit: str, params_sha256: str) -> v2.ObservationRecordV2:  # fmt: skip
+           code_commit: str, params_sha256: str, supersedes: str | None = None
+           ) -> v2.ObservationRecordV2:  # fmt: skip
     """The sealed record of one usable scene.
 
     Args:
@@ -256,6 +259,8 @@ def record(reach_id: str, measure: Measure, baseline: Baseline, estimates: Seque
         threshold: D0 threshold.
         code_commit: The code's commit.
         params_sha256: SHA-256 of the settings that shaped the record.
+        supersedes: The earlier record of the same pass this one replaces (its recordSha256),
+            when the pass is read again with a newer card.
 
     Returns:
         The sealed record.
@@ -280,5 +285,6 @@ def record(reach_id: str, measure: Measure, baseline: Baseline, estimates: Seque
             code_commit=code_commit, processing_params_sha256=params_sha256,
             boa_offset_applied=[i.boa_offset_applied for i in measure.items],
             processing_baseline=[i.processing_baseline for i in measure.items]),
+        supersedes=supersedes,
     )  # fmt: skip
     return v2.seal(rec)

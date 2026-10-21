@@ -16,6 +16,11 @@ A reach **outside the tested region** (``docs/water-quality/preregistration-outs
 the same model, ranges and class, with the basis ``outside_tested_region``, no expected error and
 the label "Outside the tested region. No error estimate."
 
+Once ``docs/water-quality/preregistration-four-classes.md`` passed, each ungauged reach also has
+a **four-class card** (``turbidity-4.json``): the same model and ranges, the class edges 30, 50
+and 100 FNU, and at St. Joseph the four-class agreement as its class agreement. The three-class
+cards stay frozen, named by the records sealed with them.
+
 The cards are recomputed from committed files only, so ``quality transfer-verify`` checks them.
 """
 
@@ -39,6 +44,9 @@ LAB = Path("docs/water-quality/inputs/lab")  # a card's forest file is relative 
 OUTSIDE_REACHES: Final = {"firat-birecik": Path("docs/water-quality/preregistration-outside-us.md")}
 REACHES: Final = (REACH, *OUTSIDE_REACHES)
 OUTSIDE_LABEL: Final = "Outside the tested region. No error estimate."
+FOUR_PREREGISTRATION: Final = Path("docs/water-quality/preregistration-four-classes.md")
+FOUR_RESULTS: Final = Path("docs/water-quality/results/four-classes/four_classes.json")
+DECISIVE: Final = ("parameters", "adjustment", "featureRange", "targetRange", "display", "classes")
 
 
 def card(cfg: QualityConfig, root: Path, reach: str = REACH) -> dict[str, Any]:
@@ -109,23 +117,65 @@ def card(cfg: QualityConfig, root: Path, reach: str = REACH) -> dict[str, Any]:
     }  # fmt: skip
 
 
+def four_class_card(cfg: QualityConfig, root: Path, reach: str = REACH) -> dict[str, Any]:
+    """An ungauged reach's four-class card (preregistration-four-classes.md, section 4).
+
+    Args:
+        cfg: Settings.
+        root: Repository root.
+        reach: The reach's site id.
+
+    Returns:
+        The card (JSON-ready).
+
+    Raises:
+        ValueError: When the four-class test has not run or did not pass.
+    """
+    path = root / FOUR_RESULTS
+    if not path.exists():
+        raise ValueError("the four-class test has not run")
+    four = json.loads(path.read_text(encoding="utf-8"))
+    if not four["passes"]:
+        raise ValueError("the four-class test did not pass: the reaches keep three classes")
+    c = card(cfg, root, reach)
+    c["classes"] = {"edgesFnu": list(v2.FNU_CLASS_EDGES_FOUR),
+                    "labels": list(v2.FNU_CLASSES_FOUR)}  # fmt: skip
+    c["parametersHash"] = hashlib.sha256(
+        json.dumps({k: c[k] for k in DECISIVE}, sort_keys=True).encode()).hexdigest()  # fmt: skip
+    c["classTest"] = {
+        "preregistration": FOUR_PREREGISTRATION.as_posix(),
+        "preregistrationSha256": cards.file_sha256(root / FOUR_PREREGISTRATION),
+        "source": FOUR_RESULTS.as_posix(), "sourceSha256": cards.file_sha256(path),
+        "n": four["n"], "matched": four["model_matched"],
+        "baselineMatched": four["baseline_matched"], "label": four["label"],
+    }  # fmt: skip
+    if "expectedError" in c:  # St. Joseph: its class agreement, on four classes
+        c["expectedError"] = {**c["expectedError"], "classAgreement": four["model_matched"]}
+    return c
+
+
 def card_text(c: dict[str, Any]) -> str:
     """A card as committed: indented JSON with sorted keys and a final newline."""
     return json.dumps(c, indent=2, sort_keys=True) + "\n"
 
 
-def card_path(root: Path, reach: str = REACH) -> Path:
-    """Where the card is committed."""
-    return root / CARDS / reach / "turbidity.json"
+def card_path(root: Path, reach: str = REACH, classes: int = 3) -> Path:
+    """Where a card is committed: ``turbidity.json`` (three classes), ``turbidity-4.json``."""
+    return root / CARDS / reach / ("turbidity.json" if classes == 3 else "turbidity-4.json")
 
 
-def write(cfg: QualityConfig, root: Path, reach: str = REACH) -> Path:
+def _built(cfg: QualityConfig, root: Path, reach: str, classes: int) -> dict[str, Any]:
+    return card(cfg, root, reach) if classes == 3 else four_class_card(cfg, root, reach)
+
+
+def write(cfg: QualityConfig, root: Path, reach: str = REACH, classes: int = 3) -> Path:
     """Write the card (it is new; an existing one is never replaced by a different one).
 
     Args:
         cfg: Settings.
         root: Repository root.
         reach: The reach's site id.
+        classes: Three, or four (preregistration-four-classes.md).
 
     Returns:
         The card's path.
@@ -133,8 +183,8 @@ def write(cfg: QualityConfig, root: Path, reach: str = REACH) -> Path:
     Raises:
         FileExistsError: When a different card is already committed (cards are frozen).
     """
-    path = card_path(root, reach)
-    text = card_text(card(cfg, root, reach))
+    path = card_path(root, reach, classes)
+    text = card_text(_built(cfg, root, reach, classes))
     if path.exists() and path.read_text(encoding="utf-8").replace("\r\n", "\n") != text:
         raise FileExistsError(f"{path} exists and differs: a card is never replaced")
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -142,20 +192,22 @@ def write(cfg: QualityConfig, root: Path, reach: str = REACH) -> Path:
     return path
 
 
-def verify(cfg: QualityConfig, root: Path, reach: str = REACH) -> list[str]:
+def verify(cfg: QualityConfig, root: Path, reach: str = REACH, classes: int = 3) -> list[str]:
     """Recompute the card from the committed files and compare.
 
     Args:
         cfg: Settings.
         root: Repository root.
         reach: The reach's site id.
+        classes: Three, or four (preregistration-four-classes.md).
 
     Returns:
         The problems (empty when the committed card is the recomputed one).
     """
-    path = card_path(root, reach)
+    path = card_path(root, reach, classes)
     if not path.exists():
         return [f"{path.relative_to(root).as_posix()}: missing"]
-    if path.read_text(encoding="utf-8").replace("\r\n", "\n") != card_text(card(cfg, root, reach)):
+    text = card_text(_built(cfg, root, reach, classes))
+    if path.read_text(encoding="utf-8").replace("\r\n", "\n") != text:
         return [f"{path.relative_to(root).as_posix()}: differs from its recomputation"]
     return []

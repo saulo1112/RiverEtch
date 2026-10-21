@@ -47,7 +47,7 @@ const REACHES = new URL("docs/water-quality/reach/", ROOT);
 export const REACHES_ANCHORED = ["mississippi-belle-chasse", "platte-louisville"] as const;
 
 /** The ungauged reaches: their observations only (no gauge, so no outcomes). */
-export const REACHES_UNGAUGED = ["mississippi-st-joseph"] as const;
+export const REACHES_UNGAUGED = ["mississippi-st-joseph", "firat-birecik"] as const;
 
 /** The anchoring log (a mirror of the chain's events). */
 export const LOG = new URL("docs/ledgers/anchors.jsonl", ROOT);

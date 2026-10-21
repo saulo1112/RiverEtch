@@ -1,0 +1,7 @@
+site,n,model_matched,baseline_matched,model_only,baseline_only,two_or_more_away,baseline_class
+USGS-06805500,54,13,7,7,1,20,0
+USGS-06934500,70,35,16,30,11,13,2
+USGS-07020850,74,40,11,35,6,1,2
+USGS-07374525,57,49,20,33,4,0,2
+USGS-07381600,43,23,7,16,0,3,0
+pooled,298,160,61,121,22,37,

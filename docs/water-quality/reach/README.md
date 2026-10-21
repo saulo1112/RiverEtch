@@ -5,11 +5,13 @@ Sentinel-2 scene of a reach. The settings live in `pipeline/reach.yaml`; the cod
 `pipeline/src/climate_pipeline/reach/`. Only public data are read (Earth Search L2A, Open-Meteo),
 so no credentials are needed and a run can be unattended.
 
-| Reach                      | Site file                  | Estimate station                        | Targets         | Level of the card   | Baseline                                    |
-| -------------------------- | -------------------------- | --------------------------------------- | --------------- | ------------------- | ------------------------------------------- |
-| `mississippi-belle-chasse` | `pipeline/reaches/` (demo) | USGS 07374525 (the gauge), downstream   | turbidity (FNU) | validated (17.8 %)  | its own scenes, 2019-01..2024-10 (6 GB cap) |
-| `platte-louisville`        | `pipeline/reaches/` (demo) | USGS 06805500 (the gauge), upstream end | turbidity (FNU) | validated (20.3 %)  | its own scenes, 2019-01..2025-12            |
-| `missouri-hermann`         | `pipeline/reaches/`        | USGS 06934500 (the gauge), upstream end | turbidity (FNU) | indicative (34.9 %) | its own scenes, 2019-01..2024-12 (6 GB cap) |
+| Reach                      | Site file                               | Estimate station                        | Targets               | Level of the card                      | Baseline                                    |
+| -------------------------- | --------------------------------------- | --------------------------------------- | --------------------- | -------------------------------------- | ------------------------------------------- |
+| `mississippi-belle-chasse` | `pipeline/reaches/` (demo)              | USGS 07374525 (the gauge), downstream   | turbidity (FNU)       | validated (17.8 %)                     | its own scenes, 2019-01..2024-10 (6 GB cap) |
+| `platte-louisville`        | `pipeline/reaches/` (demo)              | USGS 06805500 (the gauge), upstream end | turbidity (FNU)       | validated (20.3 %)                     | its own scenes, 2019-01..2025-12            |
+| `missouri-hermann`         | `pipeline/reaches/`                     | USGS 06934500 (the gauge), upstream end | turbidity (FNU)       | indicative (34.9 %)                    | its own scenes, 2019-01..2024-12 (6 GB cap) |
+| `mississippi-st-joseph`    | `pipeline/reaches/` (no gauge)          | a window near St. Joseph                | turbidity class (FNU) | unvalidated (transfer test)            | its own scenes, 2019-01..2025-12            |
+| `firat-birecik`            | `pipeline/reaches/` (no gauge, Türkiye) | a window at the Birecik Bridge          | turbidity class (FNU) | unvalidated, outside the tested region | its own scenes, 2019-01..2021-06 (6 GB cap) |
 
 ## What a record says
 

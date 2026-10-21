@@ -65,3 +65,8 @@ jobs:
       # committed fold models and compared with its own MANIFEST.
       - name: Recompute the transfer test and compare with its MANIFEST
         run: uv run climate-pipeline quality transfer-verify --root ..
+
+      # The class tests beside it (preregistration-class-baseline.md, preregistration-four-classes.md),
+      # each run once after its anchor: recomputed from the same models, compared with their MANIFESTs.
+      - name: Recompute the class tests and compare with their MANIFESTs
+        run: uv run climate-pipeline quality class-verify --root ..

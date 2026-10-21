@@ -15,7 +15,7 @@ mkdir -p "$folder"
 steps="$folder/daily-steps.jsonl"
 : > "$steps"
 demo=(mississippi-belle-chasse platte-louisville)
-ungauged=(mississippi-st-joseph) # no gauge: no thermal, context or check
+ungauged=(mississippi-st-joseph firat-birecik) # no gauge: no thermal, context or check
 
 # One step: `climate-pipeline <arguments>`; its output goes to the job log, its result to $steps.
 step() {
@@ -40,6 +40,9 @@ for site in "${demo[@]}"; do
   step reach render --site "$site"
 done
 for site in "${ungauged[@]}"; do
+  # Passes sealed with an earlier card, read again with the current one (each once; a no-op when
+  # none is left): preregistration-four-classes.md, section 4.
+  step reach reread --site "$site"
   step reach render --site "$site"
 done
 step reach check --site all

@@ -45,7 +45,7 @@ $log = Join-Path $folder "daily.log"
 $out = Join-Path $folder "daily.out.log"
 $err = Join-Path $folder "daily.err.log"
 $demo = @("mississippi-belle-chasse", "platte-louisville")
-$ungauged = @("mississippi-st-joseph") # no gauge: no thermal, context or check
+$ungauged = @("mississippi-st-joseph", "firat-birecik") # no gauge: no thermal, context or check
 
 # One step: `climate-pipeline <arguments>`, its output appended to the log; returns its exit code.
 function Step([string]$arguments) {
@@ -67,6 +67,8 @@ foreach ($site in $demo) {
     Step "reach render --site $site" | Out-Null
 }
 foreach ($site in $ungauged) {
+    # Passes sealed with an earlier card, read again with the current one (preregistration-four-classes.md).
+    Step "reach reread --site $site" | Out-Null
     Step "reach render --site $site" | Out-Null
 }
 Step "reach check --site all" | Out-Null

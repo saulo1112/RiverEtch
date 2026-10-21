@@ -529,11 +529,15 @@ def summary_row(rec: v2.ObservationRecordV2, file: str) -> dict[str, Any]:
                  for e in data["estimates"]]  # fmt: skip
     return {"date": rec.date, "sceneId": rec.scene_id, "file": file,
             "recordSha256": rec.record_sha256, "indices": data["indices"],
-            "verdict": data["verdict"], "rain": data["rain"], "estimates": estimates}  # fmt: skip
+            "verdict": data["verdict"], "rain": data["rain"], "estimates": estimates,
+            **({"supersedes": rec.supersedes} if rec.supersedes else {})}  # fmt: skip
 
 
 def write_views(folder: Path) -> None:
-    """``series.json`` (every record, by date) and ``latest.json`` (the newest record).
+    """``series.json`` (every pass's current record, by date) and ``latest.json`` (the newest).
+
+    A record another one supersedes (the pass read again with a newer card) stays in the ledger
+    and in ``records/``, but the views show the record that replaced it.
 
     Args:
         folder: The reach's output folder.
@@ -542,6 +546,8 @@ def write_views(folder: Path) -> None:
     for path in sorted((folder / "records").glob("*.json")):
         rec = v2.ObservationRecordV2.model_validate_json(path.read_text(encoding="utf-8"))
         rows.append((rec, path.relative_to(folder).as_posix()))
+    replaced = {rec.supersedes for rec, _ in rows if rec.supersedes is not None}
+    rows = [(rec, file) for rec, file in rows if rec.record_sha256 not in replaced]
     rows.sort(key=lambda r: (r[0].date, r[0].scene_id))
     series = [summary_row(rec, file) for rec, file in rows]
     (folder / "series.json").write_text(json.dumps(series, indent=2) + "\n", encoding="utf-8",
@@ -915,6 +921,117 @@ def reach_info(cfg: ReachConfig, root: Path, site_id: str) -> dict[str, Any]:
     }  # fmt: skip
 
 
+def frozen_cards(root: Path, reach: Reach) -> set[str]:
+    """The canonical hashes of the cards frozen in the folder of a reach's declared cards.
+
+    A reach whose card changed (preregistration-four-classes.md) keeps the records sealed with
+    the earlier one; that card is frozen (``docs/ledgers/frozen-artifacts.jsonl``), so a record
+    may name it.
+
+    Args:
+        root: Repository root.
+        reach: The reach.
+
+    Returns:
+        The hashes (empty for a reach that declares no card).
+    """
+    folders = {Path(p).parent.as_posix() for p in reach.cards.values()}
+    path = root / "docs" / "ledgers" / "frozen-artifacts.jsonl"
+    if not folders or not path.exists():
+        return set()
+    lines = [json.loads(t) for t in path.read_text(encoding="utf-8").splitlines() if t.strip()]
+    return {x["canonicalSha256"] for x in lines
+            if "canonicalSha256" in x and Path(x["path"]).parent.as_posix() in folders}  # fmt: skip
+
+
+def reread(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 8,
+           prepared: Setup | None = None, config_path: Path | None = None
+           ) -> RunSummary:  # fmt: skip
+    """Read again, with the reach's current card, every pass whose record names another card.
+
+    Preregistration-four-classes.md, section 4: each pass is measured again and sealed as a new
+    record that names the one it replaces (``supersedes``), appended to the same ledger. The
+    earlier record stays, unchanged. The rain flags are the earlier record's (the same pass). A
+    pass the catalogue no longer lists, or that its exclusion rule now drops, keeps its record.
+    Running it again finds nothing left to read.
+
+    Args:
+        cfg: Reach settings.
+        root: Repository root.
+        site_id: The reach.
+        cache: Cache folder.
+        workers: Parallel reads.
+        prepared: A setup already loaded (tests).
+        config_path: The settings file (its hash is the records' parameters hash).
+
+    Returns:
+        The summary (``recorded``: the new records).
+    """
+    check_disk(root, cfg.budgets.keep_free_gb)
+    summary = RunSummary(EXIT_OK)
+    folder = root / cfg.out / site_id
+    ledger = folder / "ledger.jsonl"
+    if not ledger.exists():
+        return summary
+    s = prepared or setup(cfg, root, site_id, cache, workers)
+    hashes = {t: cards.card_hash(c) for t, c in s.cards.items()}
+    lines = [json.loads(t) for t in ledger.read_text(encoding="utf-8").splitlines() if t.strip()]
+    sealed = [v2.ObservationRecordV2.model_validate_json(
+        (folder / x["file"]).read_text(encoding="utf-8")) for x in lines]  # fmt: skip
+    replaced = {r.supersedes for r in sealed if r.supersedes is not None}
+    stale = [r for r in sealed if r.record_sha256 not in replaced and any(
+        e.model_card_sha256 and e.target in hashes and e.model_card_sha256 != hashes[e.target]
+        for e in r.estimates)]  # fmt: skip
+    if not stale:
+        return summary
+    days = sorted(date.fromisoformat(r.date) for r in stale)
+    acqs, sun = imagery.search(s.quality, "earth-search", _bbox(s.site), days[0],
+                               days[-1] + timedelta(days=1))  # fmt: skip
+    by_key = {a.key: a for a in acqs}
+    baseline = load_baseline(s)
+    lab = root / s.quality.outputs.inputs / "lab"
+    guards = s.quality.window.as_calibration()
+    settings = config_path or root / "pipeline" / "reach.yaml"
+    params = hashlib.sha256(b"".join(p.read_bytes() for p in (
+        settings, root / cfg.screening_config, root / cfg.quality_config))).hexdigest()  # fmt: skip
+    commit = head()
+    created = datetime.now(UTC).isoformat(timespec="seconds")
+    for old in sorted(stale, key=lambda r: (r.date, r.scene_id)):
+        key = old.scene_id.split(":", 1)[1]
+        acq = by_key.get(key)
+        if acq is None:
+            summary.failed[key] = "the pass is no longer in the catalogue"
+            continue
+        try:
+            measure = m.measure(acq, s.reader, s.corridor, s.station, s.window, sun, s.quality,
+                                s.d15, s.screening)  # fmt: skip
+            if measure.exclusion:
+                summary.skipped[key] = f"excluded now: {measure.exclusion}; the record stays"
+                continue
+            estimates = [
+                records.estimate(s.cards.get(t.id), hashes.get(t.id, ""), t, measure,
+                                 baseline.estimates.get(t.id, []), guards, lab)
+                for t in s.quality.targets if t.id in s.reach.targets
+            ]  # fmt: skip
+            rec = records.record(site_id, measure, baseline, estimates, old.rain,
+                                 set(s.reach.rainy_months), s.screening, cfg.threshold, commit,
+                                 params, supersedes=old.record_sha256)  # fmt: skip
+        except (httpx.HTTPError, OSError, RuntimeError) as error:  # transient: next run retries
+            log.warning("%s failed: %s", key, error)
+            summary.failed[key] = str(error)
+            summary.exit_code = EXIT_PARTIAL
+            continue
+        assert rec.record_sha256 is not None  # sealed
+        file = f"records/{rec.date}_{key}.{rec.record_sha256[:12]}.json"
+        (folder / file).write_text(rec.model_dump_json(indent=2, by_alias=True) + "\n",
+                                   encoding="utf-8", newline="\n")  # fmt: skip
+        append_ledger(ledger, rec, file, created)
+        log.info("%s: %s read again as %s", site_id, old.scene_id, file)
+        summary.recorded.append(file)
+    write_views(folder)
+    return summary
+
+
 def verify_outputs(cfg: ReachConfig, root: Path, site_id: str) -> list[str]:
     """Check a reach's published outputs: every record's seal, the ledger and the cards.
 
@@ -940,6 +1057,7 @@ def verify_outputs(cfg: ReachConfig, root: Path, site_id: str) -> list[str]:
              .splitlines() if t.strip()]  # fmt: skip
     published = reach_cards(cfg, cfg.reach(site_id), root, strict=False)
     cards_now = {t: cards.card_hash(c) for t, c in published.items()}
+    earlier = frozen_cards(root, cfg.reach(site_id))
     for line in lines:
         path = folder / line["file"]
         if not path.exists():
@@ -956,6 +1074,7 @@ def verify_outputs(cfg: ReachConfig, root: Path, site_id: str) -> list[str]:
             problems.append(f"{line['file']}: the ledger names another record hash")
         for e in rec.estimates:
             named = e.model_card_sha256
-            if named and e.target in cards_now and named != cards_now[e.target]:
+            if (named and e.target in cards_now and named != cards_now[e.target]
+                    and named not in earlier):  # fmt: skip
                 problems.append(f"{line['file']}: its {e.target} card is not the published one")
     return problems

@@ -1,0 +1,20 @@
+{
+  "alpha": 0.05,
+  "baseline_matched": 61,
+  "baseline_only": 22,
+  "class_edges_fnu": [
+    30.0,
+    50.0,
+    100.0
+  ],
+  "label": "decided after seeing the result",
+  "model_matched": 160,
+  "model_only": 121,
+  "n": 298,
+  "p_value": 0.0,
+  "passes": true,
+  "preregistration": "docs/water-quality/preregistration-four-classes.md",
+  "preregistration_sha256": "004c13213af19dacf26da1d4cdb779a61168f3eca4e947709eaa5a63befb90ec",
+  "three_class_matched": 185,
+  "two_or_more_away": 37
+}

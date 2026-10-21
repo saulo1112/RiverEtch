@@ -1,0 +1,181 @@
+{
+  "adjustment": null,
+  "basis": "transfer_test_ungauged",
+  "candidate": "A4",
+  "chosen": {
+    "learning_rate": 0.05,
+    "min_data_in_leaf": 20,
+    "n_estimators": 500,
+    "num_leaves": 7
+  },
+  "classTest": {
+    "baselineMatched": 61,
+    "label": "decided after seeing the result",
+    "matched": 160,
+    "n": 298,
+    "preregistration": "docs/water-quality/preregistration-four-classes.md",
+    "preregistrationSha256": "004c13213af19dacf26da1d4cdb779a61168f3eca4e947709eaa5a63befb90ec",
+    "source": "docs/water-quality/results/four-classes/four_classes.json",
+    "sourceSha256": "9bf274448f66523d976d2e55fe09ff88c46ee6a4faa04b7fe3e0ef61530ddd38"
+  },
+  "classes": {
+    "edgesFnu": [
+      30.0,
+      50.0,
+      100.0
+    ],
+    "labels": [
+      "under_30",
+      "30_to_50",
+      "50_to_100",
+      "100_and_over"
+    ]
+  },
+  "display": "class",
+  "expectedError": {
+    "classAgreement": 160,
+    "coverage90Inside": 248,
+    "mdsa": 36.8695,
+    "n": 298,
+    "rho": 0.7188,
+    "rhoLow": 0.6465,
+    "rule": "training-year median at least 20 FNU",
+    "sites": [
+      "USGS-06805500",
+      "USGS-06934500",
+      "USGS-07020850",
+      "USGS-07374525",
+      "USGS-07381600"
+    ],
+    "source": "docs/water-quality/results/transfer/transfer_pooled.json",
+    "sourceSha256": "a4bf3395d49a94c47541c788b57ecd824c3f3d83b2120432c9c38555f7880bf2",
+    "sspb": -22.935
+  },
+  "featureRange": {
+    "B11": [
+      -0.0024,
+      0.0497
+    ],
+    "B8A-B11": [
+      -0.0212,
+      0.145
+    ],
+    "core_share": [
+      0.725,
+      1.0
+    ],
+    "log_B02": [
+      -9.21034,
+      -1.586698
+    ],
+    "log_B03": [
+      -9.21034,
+      -1.591107
+    ],
+    "log_B04": [
+      -9.21034,
+      -1.748125
+    ],
+    "log_B04/B02": [
+      -3.795489,
+      6.186209
+    ],
+    "log_B04/B03": [
+      -4.744932,
+      4.430817
+    ],
+    "log_B05": [
+      -9.21034,
+      -1.672378
+    ],
+    "log_B05/B04": [
+      -3.569533,
+      0.846351
+    ],
+    "log_B06": [
+      -9.21034,
+      -1.505979
+    ],
+    "log_B06/B04": [
+      -6.186209,
+      0.693147
+    ],
+    "log_B07": [
+      -9.21034,
+      -1.490322
+    ],
+    "log_B07/B04": [
+      -6.405228,
+      2.197225
+    ],
+    "log_B08": [
+      -9.21034,
+      -1.58621
+    ],
+    "log_B8A": [
+      -9.21034,
+      -1.678788
+    ],
+    "log_B8A/B04": [
+      -6.806829,
+      2.302585
+    ],
+    "log_width_m": [
+      5.718999,
+      6.649632
+    ],
+    "sun_zenith": [
+      16.79627,
+      71.274559
+    ]
+  },
+  "label": "unvalidated: expected error from the transfer test",
+  "levels": [],
+  "modelId": "A4:turbidity:core:transfer-all",
+  "parameters": {
+    "features": [
+      "log_B02",
+      "log_B03",
+      "log_B04",
+      "log_B05",
+      "log_B06",
+      "log_B07",
+      "log_B08",
+      "log_B8A",
+      "log_B8A/B04",
+      "log_B05/B04",
+      "log_B06/B04",
+      "log_B07/B04",
+      "log_B04/B03",
+      "log_B04/B02",
+      "B8A-B11",
+      "B11",
+      "sun_zenith",
+      "log_width_m",
+      "core_share"
+    ],
+    "file": "transfer/all/gbm-turbidity-core.json",
+    "kind": "lightgbm",
+    "sha256": "238c28f23394c7a78df5533abae4c3af774e5ebff09253b91511399dcfe30bed"
+  },
+  "parametersHash": "2da68cf54252a53b0a806535a92f34a3db75872d73d36eb6f85c9243e407b07c",
+  "preregistration": "docs/water-quality/preregistration-transfer.md",
+  "preregistrationSha256": "b81edc9af84ac57f7869cc38ffd2d6a06bb2409582a69383b5a3bd5bc9046fe4",
+  "site": "mississippi-st-joseph",
+  "target": "turbidity",
+  "targetRange": [
+    0.55,
+    580.0
+  ],
+  "training": [
+    "2018-12-01",
+    "2023-11-30"
+  ],
+  "trainingPairs": {
+    "groups": 9,
+    "usgs": 1881
+  },
+  "unit": "FNU",
+  "version": "1",
+  "window": "core"
+}

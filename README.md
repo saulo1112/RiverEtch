@@ -18,10 +18,13 @@ monitoring. Judges: [the short path](docs/judges.md).
 
 - **Sealing proves a number was not changed; it does not prove it was right. The tests show how
   often it was right.**
-- **On a river with no gauge, RiverEtch shows a class, never a value:** under 30, 30 to 100, or 100
-  FNU and over. Its expected error comes from a test on rivers the model never saw: there, the
-  class matched the gauge in 185 of 298 passes, and half of the estimates were off by less than
-  36.9 % of the gauge's value, reading low by about 23 %.
+- **On a river with no gauge, RiverEtch shows a class, never a value:** under 30, 30 to 50, 50 to
+  100, or 100 FNU and over. Its expected error comes from a test on rivers the model never saw:
+  there, the class matched the gauge in 160 of 298 passes, against 61 for always guessing the most
+  common class, and half of the estimates were off by less than 36.9 % of the gauge's value,
+  reading low by about 23 %. The four classes replaced three (185 of 298) after a preregistered
+  test, decided after seeing the three-class result
+  ([report](docs/water-quality/report.md#the-class-tests-2026-10-20-each-run-once-after-its-anchor)).
 - **A value with a unit appears only where a gauge validated the model.** Along the river, the map
   is a relative index (NDTI).
 - **Clouds hide about three passes in four** (72–76 % in 2026).

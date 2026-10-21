@@ -1,0 +1,13 @@
+{
+  "site": "firat-birecik",
+  "frozen_scenes": null,
+  "found": 1069,
+  "measured": 359,
+  "usable": 213,
+  "station": "window-birecik",
+  "network_gb_estimated": 6.001,
+  "stopped": "network cap of 6 GB reached",
+  "ndti_max_abs_difference": null,
+  "code_commit": "73877ee6e44315cac9e572797b9832e4151e9554",
+  "created_utc": "2026-10-20T22:45:25+00:00"
+}

@@ -33,7 +33,8 @@ from opentimestamps.core.timestamp import DetachedTimestampFile, Timestamp
 
 from climate_pipeline.reach.score import SCORED
 
-UNGAUGED = ("mississippi-st-joseph",)  # preregistration-transfer.md, section 5
+# preregistration-transfer.md, section 5; preregistration-outside-us.md (outside the tested region)
+UNGAUGED = ("mississippi-st-joseph", "firat-birecik")
 
 OTS_DIR = Path("docs/ledgers/ots")
 FROZEN = Path("docs/ledgers/frozen-artifacts.jsonl")

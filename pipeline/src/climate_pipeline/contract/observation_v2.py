@@ -70,24 +70,38 @@ OUTSIDE: Final = "outside_tested_region"
 UNGAUGED_BASES: Final = (UNGAUGED, OUTSIDE)  # the unvalidated level's, and only theirs
 Target = Literal["turbidity", "tss"]
 RelativeClass = Literal["low", "medium", "high"]
-FnuClass = Literal["under_30", "30_to_100", "100_and_over"]  # preregistration-transfer.md
+# The ungauged reaches' classes: three (preregistration-transfer.md), and four from
+# preregistration-four-classes.md, which split 30 to 100 at 50 once its test passed.
+FnuClass = Literal["under_30", "30_to_100", "100_and_over", "30_to_50", "50_to_100"]
 FNU_CLASSES: Final[tuple[FnuClass, ...]] = ("under_30", "30_to_100", "100_and_over")
 FNU_CLASS_EDGES: Final = (30.0, 100.0)
+FNU_CLASSES_FOUR: Final[tuple[FnuClass, ...]] = ("under_30", "30_to_50", "50_to_100",
+                                                  "100_and_over")  # fmt: skip
+FNU_CLASS_EDGES_FOUR: Final = (30.0, 50.0, 100.0)
+CLASS_LABELS: Final[dict[tuple[float, ...], tuple[FnuClass, ...]]] = {
+    FNU_CLASS_EDGES: FNU_CLASSES, FNU_CLASS_EDGES_FOUR: FNU_CLASSES_FOUR}  # fmt: skip
+SHA256_HEX: Final = r"^[0-9a-f]{64}$"
 
 
-def fnu_class(value: float) -> FnuClass | None:
-    """The preregistered class of a turbidity estimate (under 30, 30 to 100, 100 and over FNU).
+def fnu_class(value: float, edges: tuple[float, ...] = FNU_CLASS_EDGES) -> FnuClass | None:
+    """The preregistered class of a turbidity estimate, on three or four classes.
 
     Args:
         value: The estimate in FNU.
+        edges: The class edges in FNU: (30, 100) or (30, 50, 100). A value on an edge is in the
+            upper class.
 
     Returns:
         The class (None when the value is not finite and positive).
+
+    Raises:
+        ValueError: For edges no preregistration fixed.
     """
+    if edges not in CLASS_LABELS:
+        raise ValueError(f"no preregistered classes have the edges {edges}")
     if not (math.isfinite(value) and value > 0):
         return None
-    low, high = FNU_CLASS_EDGES
-    return FNU_CLASSES[0 if value < low else 1 if value < high else 2]
+    return CLASS_LABELS[edges][sum(value >= e for e in edges)]
 
 
 class _Model(BaseModel):
@@ -145,8 +159,9 @@ class Estimate(_Model):
     relative_class: RelativeClass | None = Field(default=None, alias="relativeClass")
     fnu_class: FnuClass | None = Field(
         default=None, alias="fnuClass",
-        description="an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over); "
-        "absent from the JSON when empty, so records sealed before it existed keep their hash",
+        description="an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over; or, "
+        "with four classes, under 30, 30 to 50, 50 to 100, 100 and over); absent from the JSON "
+        "when empty, so records sealed before it existed keep their hash",
     )  # fmt: skip
     model_id: str | None = Field(default=None, alias="modelId")
     model_version: str | None = Field(default=None, alias="modelVersion")
@@ -211,6 +226,12 @@ class ObservationRecordV2(_Model):
     climate_context: ClimateContext = Field(alias="climateContext")
     provenance: Provenance
     record_sha256: str | None = Field(default=None, alias="recordSha256")
+    supersedes: str | None = Field(
+        default=None, pattern=SHA256_HEX,
+        description="the recordSha256 of the earlier record of the same pass this one replaces "
+        "(the pass read again with a newer card, preregistration-four-classes.md); absent from "
+        "the JSON when empty, so records sealed before it existed keep their hash",
+    )  # fmt: skip
 
     @model_validator(mode="after")
     def _check(self) -> ObservationRecordV2:
@@ -221,7 +242,16 @@ class ObservationRecordV2(_Model):
         targets = [e.target for e in self.estimates]
         if len(targets) != len(set(targets)):
             raise ValueError("one estimate per target")
+        if self.supersedes is not None and self.supersedes == self.record_sha256:
+            raise ValueError("a record cannot supersede itself")
         return self
+
+    @model_serializer(mode="wrap")
+    def _omit_empty_supersedes(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        data: dict[str, Any] = handler(self)
+        if self.supersedes is None:
+            data.pop("supersedes", None)
+        return data
 
 
 def canonical_json(record: ObservationRecordV2) -> str:

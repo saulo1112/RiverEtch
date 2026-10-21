@@ -1,0 +1,18 @@
+{
+  "b1_matched": 160,
+  "b1_split": {
+    "b1_only": 70,
+    "model_only": 95
+  },
+  "b2_matched": 79,
+  "b3_matched": 160,
+  "class_edges_fnu": [
+    30.0,
+    100.0
+  ],
+  "label": "decided after seeing the result",
+  "model_matched": 185,
+  "n": 298,
+  "preregistration": "docs/water-quality/preregistration-class-baseline.md",
+  "preregistration_sha256": "957e2d07dcf22b3394939922c8607d3154df0511f4d5510843e8b1b5aa299178"
+}

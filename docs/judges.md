@@ -10,8 +10,10 @@ it.
 
 - **Sealing proves a number was not changed; it does not prove it was right.** The tests show how
   often it was right.
-- **On a river with no gauge, a class only** (under 30, 30 to 100, 100 FNU and over), with the error
-  measured on rivers the model never saw: the class matched the gauge in 185 of 298 test passes.
+- **On a river with no gauge, a class only** (under 30, 30 to 50, 50 to 100, 100 FNU and over),
+  with the error measured on rivers the model never saw: the class matched the gauge in 160 of 298
+  test passes, against 61 for always guessing the most common class (a comparison decided after
+  seeing the result).
 - **Values with a unit only at a validated gauge.** Along the river the map is relative (NDTI).
 - **Clouds** hide about three passes in four (72–76 % in 2026).
 - **The 2026 records sealed before T0 are retrospective:** they were sealed after their gauge values
@@ -72,7 +74,8 @@ Without the app:
   ```bash
   cd pipeline
   uv run climate-pipeline quality verify --root ..            # every result against its MANIFEST
-  uv run climate-pipeline quality transfer-verify --root ..   # the transfer test and the ungauged card
+  uv run climate-pipeline quality transfer-verify --root ..   # the transfer test and the ungauged cards
+  uv run climate-pipeline quality class-verify --root ..      # the class baseline and the four classes
   uv run climate-pipeline ledger verify --root ..             # the frozen rules, cards and tests
   uv run climate-pipeline ledger proofs --root ..             # each Bitcoin timestamp, block by block
   uv run climate-pipeline sign verify --root ..               # each head's ML-DSA-65 signature

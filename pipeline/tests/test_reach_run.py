@@ -312,3 +312,44 @@ def test_an_ungauged_reach_reads_its_window_at_a_point_and_never_a_gauge() -> No
     gauged = cfg.reach("missouri-hermann").model_dump()
     with pytest.raises(ValueError, match="estimate_point"):
         Reach.model_validate({**gauged, "estimate_point": reach.model_dump()["estimate_point"]})
+
+
+def test_reread_supersedes_each_pass_once_and_keeps_the_earlier_records(
+    root: Path, offline: dict[str, list[Acquisition]]
+) -> None:
+    s = prepared(root)
+    go(root, s)
+    folder = root / "pipeline/out/reach" / SITE
+    first = [json.loads(t) for t in (folder / "ledger.jsonl").read_text(encoding="utf-8")
+             .splitlines()]  # fmt: skip
+    newer = reach_run.Setup(**{**s.__dict__, "cards": {"turbidity": {**card(), "version": "9"}}})
+    summary = reach_run.reread(s.cfg, root, SITE, root / "cache", prepared=newer)
+    assert len(summary.recorded) == 2 and summary.failed == {}
+    lines = [json.loads(t) for t in (folder / "ledger.jsonl").read_text(encoding="utf-8")
+             .splitlines()]  # fmt: skip
+    assert lines[:2] == first and len(lines) == 4 and reach_run.ledger_ok(folder / "ledger.jsonl")
+    again = [json.loads((folder / x["file"]).read_text(encoding="utf-8")) for x in lines[2:]]
+    assert [r["supersedes"] for r in again] == [x["recordSha256"] for x in first]
+    # The earlier records are untouched; the views show the records that replaced them.
+    for x in first:
+        old = json.loads((folder / x["file"]).read_text(encoding="utf-8"))
+        assert old["recordSha256"] == x["recordSha256"] and "supersedes" not in old
+    series = json.loads((folder / "series.json").read_text(encoding="utf-8"))
+    assert [r["recordSha256"] for r in series] == [x["recordSha256"] for x in lines[2:]]
+    assert [r["supersedes"] for r in series] == [x["recordSha256"] for x in first]
+    # Nothing is left to read with the same card.
+    assert reach_run.reread(s.cfg, root, SITE, root / "cache", prepared=newer).recorded == []
+
+
+def test_verify_accepts_a_reachs_frozen_earlier_card(tmp_path: Path) -> None:
+    folder = "docs/water-quality/ungauged/some-reach"
+    reach = cast(Any, SimpleNamespace(cards={"turbidity": f"{folder}/turbidity-4.json"}))
+    ledger = tmp_path / "docs/ledgers/frozen-artifacts.jsonl"
+    ledger.parent.mkdir(parents=True)
+    rows = [{"path": f"{folder}/turbidity.json", "canonicalSha256": "a" * 64},
+            {"path": "docs/water-quality/ungauged/other/turbidity.json",
+             "canonicalSha256": "b" * 64},
+            {"path": f"{folder}/notes.md", "sha256": "c" * 64}]  # fmt: skip
+    ledger.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
+    assert reach_run.frozen_cards(tmp_path, reach) == {"a" * 64}
+    assert reach_run.frozen_cards(tmp_path, cast(Any, SimpleNamespace(cards={}))) == set()

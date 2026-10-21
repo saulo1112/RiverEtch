@@ -284,8 +284,9 @@ main-stem water-quality gauge, at Natchez (07290880), records nitrate but not tu
   no site adjustment. Its card
   ([`ungauged/mississippi-st-joseph/turbidity.json`](ungauged/mississippi-st-joseph/turbidity.json))
   is frozen in the frozen-artifacts ledger and recomputed by CI (`quality transfer-verify`).
-- **What a record shows:** a class only (under 30, 30 to 100, 100 FNU and over), at the level
-  _unvalidated_, beside the pooled error above. With no gauge it is never scored. It is a reach the
+- **What a record shows:** a class only, at the level _unvalidated_, beside the pooled error
+  above: under 30, 30 to 100, 100 FNU and over at first, and four classes (under 30, 30 to 50, 50 to
+  100, 100 FNU and over) since the class test below passed. With no gauge it is never scored. It is a reach the
   model never saw, not a river: the model learned from two other Mississippi gauges, Cape
   Girardeau upstream and Belle Chasse downstream.
 - **Where the window sits, and why (decided on 2026-10-20, before any estimate on the reach):** the
@@ -294,6 +295,69 @@ main-stem water-quality gauge, at Natchez (07290880), records nitrate but not tu
   the Natchez gauge and 1028 m at mile 378, so a window there would abstain on every pass. At the
   USGS location near St. Joseph it measures 522 m, so the window is there. The choice used the
   channel's geometry only: no estimate of the reach existed, and there is no gauge to compare with.
+
+### Outside the tested region: the Fırat (Euphrates) at Birecik, Türkiye
+
+Preregistered before any reading of it ([preregistration](preregistration-outside-us.md),
+frozen-artifacts lines 15 to 17, Sepolia block 11957144), after measuring channel widths only: of
+eleven points on Turkish rivers, the Fırat at the Birecik Bridge (322.5 m) lies inside the model's
+training widths (305 to 773 m) by the largest margin. The reach runs from about 2 km below the
+Birecik Dam to the bridge ([site file](../../pipeline/reaches/firat-birecik.yaml)).
+
+- **What a record shows:** a class only, with the label "Outside the tested region. No error
+  estimate." Every river the model was trained and tested on is in the United States, so no error
+  figure of any kind is shown.
+- **Dams upstream** (the Birecik Dam 8 km above the town, the Atatürk Dam 60 km above that) may
+  hold back much of the sediment; the water may be clearer than the training rivers, and the model
+  may then abstain or read "under 30" on most passes. Either outcome is shown as it comes.
+- **Its baseline stopped at the preregistered 6 GB network cap,** as Belle Chasse's and Hermann's
+  did: 359 of 1069 acquisitions measured (2019-01 to 2021-06), 213 usable. Its scenes are larger
+  than the Mississippi's, so the cap came sooner. Each pass's z-scores compare it with those 213.
+
+### The class tests (2026-10-20, each run once after its anchor)
+
+Both read exactly the transfer test's 298 pooled pairs (the similar rivers, each estimated by the
+model that never saw its river group), rebuilt from the committed models; the rebuild first
+reproduces 185 of 298. Both were **decided after seeing that result**. Results:
+[`results/transfer-baseline/`](results/transfer-baseline/) and
+[`results/four-classes/`](results/four-classes/), recomputed by CI (`quality class-verify`).
+
+**A baseline for three classes**
+([preregistration](preregistration-class-baseline.md), frozen-artifacts line 14, Sepolia block
+11957144):
+
+| Always guessing the most common class of…                    | Matched the gauge |
+| ------------------------------------------------------------ | ----------------- |
+| (the model, which never saw the river)                       | 185 of 298        |
+| B1: the other similar rivers' training years                 | 160 of 298        |
+| B2: every other river's training years (report-only)         | 79 of 298         |
+| B3: the river's own training years (local data; report-only) | 160 of 298        |
+
+On the pairs only one of the two got right, the model was right on 95 and B1 on 70. The model's
+edge over always guessing is real but modest on three classes: the middle class, 30 to 100 FNU,
+holds most of these rivers' values.
+
+**Four classes** ([preregistration](preregistration-four-classes.md), frozen-artifacts line 18,
+Sepolia block 11957929): 30 to 100 split at 50 FNU.
+
+| Site                          | Model matched  | Guessing matched | Two or more classes away |
+| ----------------------------- | -------------- | ---------------- | ------------------------ |
+| Mississippi at Belle Chasse   | 49 of 57       | 20               | 0                        |
+| Mississippi at Cape Girardeau | 40 of 74       | 11               | 1                        |
+| Missouri at Hermann           | 35 of 70       | 16               | 13                       |
+| Atchafalaya at Morgan City    | 23 of 43       | 7                | 3                        |
+| Platte at Louisville          | 13 of 54       | 7                | 20                       |
+| **Pooled**                    | **160 of 298** | **61**           | **37**                   |
+
+- **It passes the preregistered rule.** On the pairs only one of the two got right, the model was
+  right on 121 and the four-class guess on 22: an exact one-sided McNemar test gives
+  p = 4.6 × 10⁻¹⁸ (the committed file rounds it to 0 at six decimals), below 0.05.
+- **The Platte is the weak site:** 13 of 54, with 20 passes two or more classes away, where the
+  transfer test also failed.
+- **What changed:** each ungauged reach got a four-class card (the same model; frozen-artifacts
+  lines 19 and 20). St. Joseph's passes sealed with three classes are read again with it, each new
+  record naming the one it replaces (`supersedes`); the earlier records stay in the ledger. The
+  Fırat at Birecik starts with four classes.
 
 ## What would improve the estimates (research and proposals)
 

@@ -126,7 +126,7 @@ def _parser() -> argparse.ArgumentParser:
         choices=("fetch", "fetch-usgs", "fetch-site", "fetch-v5", "fetch-v6", "fetch-v7",
                  "fetch-landsat", "fetch-extended", "export-lab", "stage-b-list", "run", "verify",
                  "transfer-export", "transfer-train", "transfer-evaluate", "transfer-verify",
-                 "transfer-card"),
+                 "transfer-card", "class-baseline", "four-classes", "class-verify"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
         "the USGS pilot; fetch-site --site ID: every clear scene of one pilot site (v4's second "
         "reach); fetch-v5: every clear scene, turbidity and SSC of v5's gauged rivers; "
@@ -139,7 +139,9 @@ def _parser() -> argparse.ArgumentParser:
         "run: offline results; verify: recompute and compare with the MANIFEST; transfer-*: "
         "the test on rivers the model never saw (preregistration-transfer.md): export the "
         "folds' training tables, train them in the lab, evaluate once on the lock boxes, write "
-        "the ungauged reach's card (transfer-card), verify both",
+        "the ungauged reach's card (transfer-card), verify both; class-baseline, four-classes: "
+        "the class tests (preregistration-class-baseline.md, preregistration-four-classes.md), "
+        "each once after its anchor; class-verify: recompute both",
     )  # fmt: skip
     quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     quality.add_argument("--stations-only", action="store_true",
@@ -166,10 +168,12 @@ def _parser() -> argparse.ArgumentParser:
     reach = commands.add_parser("reach", help="observation records v2 of a reach (P3, D16)")
     reach.add_argument(
         "action",
-        choices=("baseline", "run", "check", "examples", "render", "thermal", "context", "climate",
-                 "score", "verify"),
+        choices=("baseline", "run", "reread", "check", "examples", "render", "thermal",
+                 "context", "climate", "score", "verify"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
-        "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); check: a "
+        "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); reread: "
+        "the passes whose record names an earlier card, read again with the current one "
+        "(preregistration-four-classes.md); check: a "
         "gauged reach's estimates against its gauge after the card's commit (report-only); "
         "examples: copy the newest outputs to docs/water-quality/reach/<site>/examples/; render: "
         "the reach's geometry and each recorded scene's NDTI map, beside the examples (web); "
@@ -484,7 +488,23 @@ SITE_CAP_GB = 4.0  # v4, section A: estimated network of the site's full fetch
 V5_CAP_GB = 40.0  # v5: estimated network of the whole fetch (30 GB raised by deviation 11)
 
 
+def _class_tests(action: str, cfg: Any, root: Path) -> int:
+    from climate_pipeline.quality import class_tests
+
+    if action == "class-verify":
+        problems = class_tests.verify(cfg, root)
+        for line in problems:
+            print(f"MISMATCH  {line}")
+        print("class tests: " + ("verified" if not problems else f"{len(problems)} problems"))
+        return 1 if problems else 0
+    for path in class_tests.run(cfg, root, action):
+        print(f"wrote  {path.relative_to(root).as_posix()}")
+    return 0
+
+
 def _transfer(action: str, cfg: Any, root: Path) -> int:
+    import json
+
     from climate_pipeline.quality import transfer_test as t
     from climate_pipeline.quality import ungauged
 
@@ -500,13 +520,21 @@ def _transfer(action: str, cfg: Any, root: Path) -> int:
         for path in t.write(t.evaluate(cfg, root), root, root / t.RESULTS):
             print(f"wrote  {path.relative_to(root).as_posix()}")
         return 0
+    # Four-class cards once preregistration-four-classes.md passed (its result is committed).
+    four = root / ungauged.FOUR_RESULTS
+    classes = (
+        [3, 4] if four.exists() and json.loads(four.read_text(encoding="utf-8"))["passes"] else [3]
+    )
     if action == "transfer-card":
         for reach in ungauged.REACHES:
-            print(f"wrote  {ungauged.write(cfg, root, reach).relative_to(root).as_posix()}")
+            for n in classes:
+                path = ungauged.write(cfg, root, reach, n)
+                print(f"wrote  {path.relative_to(root).as_posix()}")
         return 0
     problems, near = t.verify(cfg, root)
     for reach in ungauged.REACHES:
-        problems += ungauged.verify(cfg, root, reach)
+        for n in classes:
+            problems += ungauged.verify(cfg, root, reach, n)
     for line in problems:
         print(f"MISMATCH  {line}")
     for name in near:
@@ -540,6 +568,8 @@ def quality(args: argparse.Namespace) -> int:
     cfg = load_quality_config(config)
     if args.action.startswith("transfer-"):
         return _transfer(args.action, cfg, root)
+    if args.action in ("class-baseline", "four-classes", "class-verify"):
+        return _class_tests(args.action, cfg, root)
     if args.action == "export-lab":
         from climate_pipeline.quality import lab, transfer
 
@@ -766,8 +796,13 @@ def reach(args: argparse.Namespace) -> int:
                 print(f"{site} baseline: {info}")
                 codes.append(reach_run.EXIT_CAP if info["stopped"] else reach_run.EXIT_OK)
                 continue
-            summary = reach_run.run(cfg, root, site, args.since, args.until, root / args.cache,
-                                    args.workers, config_path=config)  # fmt: skip
+            if args.action == "reread":
+                summary = reach_run.reread(cfg, root, site, root / args.cache, args.workers,
+                                           config_path=config)  # fmt: skip
+            else:
+                summary = reach_run.run(cfg, root, site, args.since, args.until,
+                                        root / args.cache, args.workers,
+                                        config_path=config)  # fmt: skip
         except DiskBudgetError as error:
             print(f"{site} stopped: {error}")
             codes.append(reach_run.EXIT_CAP)
