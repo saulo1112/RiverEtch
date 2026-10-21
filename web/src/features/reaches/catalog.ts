@@ -1,6 +1,7 @@
 // The demo's cases: the two gauged reaches the water-quality validation v5 chose by its
-// preregistered rule, and the ungauged reach of the transfer test (docs/water-quality/report.md). Everything a case shows comes from the
-// pipeline's committed files (docs/water-quality/reach/<id>/examples/, served under /data/reaches);
+// preregistered rule, the ungauged reach of the transfer test, and the reach outside the tested
+// region (docs/water-quality/report.md). Everything a case shows comes from the pipeline's
+// committed files (docs/water-quality/reach/<id>/examples/, served under /data/reaches);
 // this catalog only holds what the globe needs before those files load: where to dive and how the
 // map frames the reach.
 import type { LngLat } from "./types.ts";
@@ -59,6 +60,17 @@ export const REACH_CASES: readonly ReachCase[] = [
     handoffZoom: 5.2,
     pitch: 52,
     bearing: -45,
+    thumbnail: null,
+    gauged: false,
+  },
+  {
+    id: "firat-birecik",
+    title: "Fırat · Birecik",
+    place: "Fırat (Euphrates) River below the Birecik Dam, Şanlıurfa (Türkiye): no turbidity gauge",
+    center: [37.945756, 37.039699],
+    handoffZoom: 5.2,
+    pitch: 52,
+    bearing: 0,
     thumbnail: null,
     gauged: false,
   },

@@ -12,11 +12,15 @@ function factsOf(id: string): ReachFacts {
   const folder = new URL(`${id}/examples/`, REACHES);
   const lines = (path: string) => {
     const url = new URL(path, folder);
-    return existsSync(url)
-      ? readFileSync(url, "utf8")
-          .split("\n")
-          .filter((line) => line.trim() !== "").length
-      : 0;
+    // Distinct passes: a pass read again with a newer card adds a ledger line, not a pass.
+    if (!existsSync(url)) {
+      return 0;
+    }
+    const entries = readFileSync(url, "utf8")
+      .split("\n")
+      .filter((line) => line.trim() !== "")
+      .map((line) => JSON.parse(line) as { sceneId?: string; file?: string });
+    return new Set(entries.map((l, k) => l.sceneId ?? l.file ?? String(k))).size;
   };
   const info = JSON.parse(readFileSync(new URL("reach.json", folder), "utf8")) as {
     river: string;
@@ -41,7 +45,12 @@ void test("the demo's figures match its committed records", () => {
     const records = JSON.parse(
       readFileSync(new URL(`${id}/examples/series.json`, REACHES), "utf8"),
     ) as unknown[];
-    // Every Sentinel-2 pass of the series is a line of the reach's ledger.
+    // Every Sentinel-2 pass of the series is a pass of the reach's ledger, counted once.
     assert.ok((facts[id]?.sealed ?? 0) >= records.length, id);
   }
+  assert.equal(
+    factsOf("mississippi-st-joseph").sealed,
+    22,
+    "St. Joseph's 22 passes, each sealed twice (three, then four classes), count once",
+  );
 });

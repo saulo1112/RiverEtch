@@ -45,12 +45,17 @@ const ledgerAnchor: string | null = existsSync(DEPLOYMENT)
 
 // Each reach's river and its sealed passes (the lines of its Sentinel-2 and Landsat ledgers), for
 // the hero's evidence strip (src/features/hero/ui/evidence.ts). Counted when Vite starts.
-function lineCount(path: string): number {
-  return existsSync(path)
-    ? readFileSync(path, "utf8")
-        .split("\n")
-        .filter((line) => line.trim() !== "").length
-    : 0;
+// The passes a ledger seals: its distinct scenes (a pass read again with a newer card adds a
+// line, not a pass), else its lines (a ledger whose lines name no scene).
+function passCount(path: string): number {
+  if (!existsSync(path)) {
+    return 0;
+  }
+  const lines = readFileSync(path, "utf8")
+    .split("\n")
+    .filter((line) => line.trim() !== "")
+    .map((line) => JSON.parse(line) as { sceneId?: string; file?: string });
+  return new Set(lines.map((l, k) => l.sceneId ?? l.file ?? String(k))).size;
 }
 const reachFacts = Object.fromEntries(
   readdirSync(REACHES).flatMap((site) => {
@@ -61,7 +66,7 @@ const reachFacts = Object.fromEntries(
     }
     const { river } = JSON.parse(readFileSync(info, "utf8")) as { river?: string };
     const sealed =
-      lineCount(join(folder, "ledger.jsonl")) + lineCount(join(folder, "thermal", "ledger.jsonl"));
+      passCount(join(folder, "ledger.jsonl")) + passCount(join(folder, "thermal", "ledger.jsonl"));
     return [[site, { river: river ?? site, sealed }]];
   }),
 );

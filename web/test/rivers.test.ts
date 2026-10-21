@@ -26,7 +26,7 @@ void test("the honest summary is the median over the nine rated rivers: 33.1 %",
   assert.equal(oneDecimal(113.671875), "113.7");
 });
 
-void test("the demo reaches are the best two, their gauges are the cases' own, and one has none", () => {
+void test("the demo reaches are the best two, their gauges are the cases' own, and two have none", () => {
   assert.deepEqual(
     rivers.slice(0, 2).map((r) => r.site),
     DEMO_GAUGES,
@@ -43,7 +43,7 @@ void test("the demo reaches are the best two, their gauges are the cases' own, a
   );
   assert.deepEqual(
     stations.filter((s) => s.source === "ungauged").map((s) => s.id),
-    ["window-st-joseph"],
+    ["window-st-joseph", "window-birecik"],
   );
 });
 

@@ -12,7 +12,8 @@
 // Usage (from the repository root or web/): npm run capture:thumbnail -w web
 // Playwright is not a dependency of the app: a local or global `playwright` (with its Chromium) is
 // used, else `playwright-core` driving an installed browser: set CAPTURE_PLAYWRIGHT to the
-// package's folder and CAPTURE_CHANNEL to the browser (e.g. `msedge`).
+// package's folder and CAPTURE_CHANNEL to the browser (e.g. `msedge`). CAPTURE_ONLY=<id>,<id>
+// captures only those cases.
 /* global document, window, Image, HTMLElement */
 import { execSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
@@ -208,8 +209,12 @@ async function main() {
       args: ["--ignore-gpu-blocklist", "--enable-unsafe-swiftshader", "--use-angle=swiftshader"],
     });
     const context = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
+    // CAPTURE_ONLY: a comma-separated list of case ids to capture (default: every case).
+    const only = process.env.CAPTURE_ONLY?.split(",").map((id) => id.trim());
     for (const reachCase of REACH_CASES) {
-      await capture(context, base, reachCase);
+      if (only === undefined || only.includes(reachCase.id)) {
+        await capture(context, base, reachCase);
+      }
     }
   } finally {
     await browser?.close();

@@ -3,18 +3,14 @@
 import type { Estimate, FnuClass, GaugeCheck, ReachData, SeriesRow, ThermalRow } from "./types.ts";
 
 /**
- * A pass's acquisition key, from its record file (`records/<date>_<key>.json`).
+ * A pass's acquisition key, from its scene id (`<site>:<key>`). Not from its record file: a pass
+ * read again with a newer card is a second file of the same pass (`<date>_<key>.<hash>.json`).
  *
  * @param row - The series row.
  * @returns The key, e.g. `sentinel-2c_2026-10-11_R126`.
  */
-export function sceneKey(row: SeriesRow): string {
-  const name = row.file.split("/").at(-1) ?? "";
-  return name
-    .replace(/\.json$/, "")
-    .split("_")
-    .slice(1)
-    .join("_");
+export function sceneKey(row: Pick<SeriesRow, "sceneId">): string {
+  return row.sceneId.split(":").at(-1) ?? row.sceneId;
 }
 
 /**
