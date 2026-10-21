@@ -10,7 +10,7 @@
       3. reach thermal  new Landsat passes of the demo reaches (water temperature)
       4. reach context  the gauges' own readings at each pass
       5. reach render   the maps of the new passes (web)
-      6. reach check    the post-commit check (report-only)
+      6. reach check    the year's check from 2026-01-01 (report-only)
       7. reach examples the published copies under docs/water-quality/reach/<site>/examples/
 
     It reads public data only, needs no credentials, and never commits, pushes or anchors.
@@ -71,7 +71,9 @@ foreach ($site in $ungauged) {
     Step "reach reread --site $site" | Out-Null
     Step "reach render --site $site" | Out-Null
 }
-Step "reach check --site all" | Out-Null
+# The year's check, from 2026-01-01, as the committed one was made: without --since it would keep
+# only the passes after the cards' commit.
+Step "reach check --site all --since 2026-01-01" | Out-Null
 foreach ($site in $demo + $ungauged) {
     Step "reach examples --site $site --all-records" | Out-Null
 }
