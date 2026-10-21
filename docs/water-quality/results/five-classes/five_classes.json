@@ -1,0 +1,27 @@
+{
+  "alpha": 0.016667,
+  "baseline_matched": 84,
+  "baseline_only": 46,
+  "class_edges_fnu": [
+    15.0,
+    30.0,
+    50.0,
+    100.0
+  ],
+  "four_class_matched": 160,
+  "label": "decided after seeing the result",
+  "model_matched": 145,
+  "model_only": 107,
+  "n": 298,
+  "p_value": 0.0,
+  "passes": false,
+  "preregistration": "docs/water-quality/preregistration-five-classes.md",
+  "preregistration_sha256": "04293715764f62f1602ab6e7d3104547c1f952ccc133fdf786619e50d108b529",
+  "split_baseline_matched": 40,
+  "split_baseline_only": 10,
+  "split_model_matched": 48,
+  "split_model_only": 18,
+  "split_n": 63,
+  "split_p_value": 0.092467,
+  "two_or_more_away": 45
+}

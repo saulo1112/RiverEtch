@@ -1,0 +1,7 @@
+site,n,model_matched,baseline_matched,model_only,baseline_only,p_value,two_or_more_away,split_n,split_model_matched,split_baseline_matched,split_model_only,split_baseline_only,split_p_value,baseline_class
+USGS-06805500,54,12,13,12,13,0.654981,22,6,5,6,0,1,1.0,3
+USGS-06934500,70,31,16,26,11,0.010037,16,10,6,10,0,4,1.0,3
+USGS-07020850,74,37,11,32,6,1.2e-05,4,14,11,8,3,0,0.125,3
+USGS-07374525,57,45,20,29,4,5e-06,0,26,22,10,14,2,0.00209,3
+USGS-07381600,43,20,24,8,12,0.868412,3,7,4,6,1,3,0.9375,3
+pooled,298,145,84,107,46,0.0,45,63,48,40,18,10,0.092467,

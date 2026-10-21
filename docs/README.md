@@ -31,6 +31,7 @@ before its test ran; a change is a new file, never an edit.
 | [water-quality/preregistration-class-baseline.md](water-quality/preregistration-class-baseline.md) | Always guessing the most common class, beside the model             |
 | [water-quality/preregistration-outside-us.md](water-quality/preregistration-outside-us.md)         | The reach outside the tested region (the Fırat at Birecik)          |
 | [water-quality/preregistration-four-classes.md](water-quality/preregistration-four-classes.md)     | Four classes for the reaches with no gauge                          |
+| [water-quality/preregistration-five-classes.md](water-quality/preregistration-five-classes.md)     | Five classes (under 30 split at 15): did not pass; four stay        |
 
 ## History
 

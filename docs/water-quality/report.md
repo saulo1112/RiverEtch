@@ -325,13 +325,14 @@ Birecik Dam to the bridge ([site file](../../pipeline/reaches/firat-birecik.yaml
   623–628). Under 30 FNU is in line with them. Other years and another unit (NTU): a check of
   plausibility, not a test, and no record names them.
 
-### The class tests (2026-10-20, each run once after its anchor)
+### The class tests (2026-10-20 and 21, each run once after its anchor)
 
-Both read exactly the transfer test's 298 pooled pairs (the similar rivers, each estimated by the
-model that never saw its river group), rebuilt from the committed models; the rebuild first
-reproduces 185 of 298. Both were **decided after seeing that result**. Results:
-[`results/transfer-baseline/`](results/transfer-baseline/) and
-[`results/four-classes/`](results/four-classes/), recomputed by CI (`quality class-verify`).
+All three read exactly the transfer test's 298 pooled pairs (the similar rivers, each estimated by
+the model that never saw its river group), rebuilt from the committed models; the rebuild first
+reproduces 185 of 298. All were **decided after seeing that result**. Results:
+[`results/transfer-baseline/`](results/transfer-baseline/),
+[`results/four-classes/`](results/four-classes/) and
+[`results/five-classes/`](results/five-classes/), recomputed by CI (`quality class-verify`).
 
 **A baseline for three classes**
 ([preregistration](preregistration-class-baseline.md), frozen-artifacts line 14, Sepolia block
@@ -369,6 +370,32 @@ Sepolia block 11957929): 30 to 100 split at 50 FNU.
   lines 19 and 20). St. Joseph's passes sealed with three classes are read again with it, each new
   record naming the one it replaces (`supersedes`); the earlier records stay in the ledger. The
   Fırat at Birecik starts with four classes.
+
+**Five classes** ([preregistration](preregistration-five-classes.md), frozen-artifacts line 21,
+Sepolia block 11960616): under 30 split at 15 FNU. As the third test on the same pairs, its level
+is a third of 0.05 (0.0167), and it passes only if the split itself also beats guessing, on the
+pairs whose estimate and gauge value are both under 30 FNU.
+
+| Site                          | Model matched  | Guessing matched | Two or more away | Split: model / guessing (pairs) |
+| ----------------------------- | -------------- | ---------------- | ---------------- | ------------------------------- |
+| Mississippi at Belle Chasse   | 45 of 57       | 20               | 0                | 22 / 10 (26)                    |
+| Mississippi at Cape Girardeau | 37 of 74       | 11               | 4                | 11 / 8 (14)                     |
+| Missouri at Hermann           | 31 of 70       | 16               | 16               | 6 / 10 (10)                     |
+| Atchafalaya at Morgan City    | 20 of 43       | 24               | 3                | 4 / 6 (7)                       |
+| Platte at Louisville          | 12 of 54       | 13               | 22               | 5 / 6 (6)                       |
+| **Pooled**                    | **145 of 298** | **84**           | **45**           | **48 / 40 (63)**                |
+
+- **It does not pass.** Five classes beat the five-class guess (b = 107, c = 46, p = 4.5 × 10⁻⁷),
+  but the split on its own does not: on the 63 pairs under 30 FNU, b = 18 and c = 10, p = 0.092,
+  above 0.0167. The pass of five classes came from the classes above 30.
+- **Only Belle Chasse made the split** (22 of 26 against 10, p = 0.002). Cape Girardeau leaned the
+  model's way without making it (11 of 14 against 8, p = 0.125); at the other three sites guessing
+  did as well or better on it.
+- **Each class's counts** (gauge values / estimates / both): under 15, 26 / 37 / 18; 15 to 30,
+  53 / 99 / 30; 30 to 50, 76 / 73 / 27; 50 to 100, 84 / 56 / 38; 100 and over, 59 / 33 / 32
+  ([`five_classes_bins.csv`](results/five-classes/five_classes_bins.csv)).
+- **What changed:** nothing shown. The four classes stay everywhere, and no five-class card was
+  written (the card builder refuses a test that did not pass).
 
 ## What would improve the estimates (research and proposals)
 
