@@ -6,6 +6,7 @@
 // river, the pass's statistics, a time-lapse of the year and two passes compared side by side. The
 // map module is loaded on demand (loadMap.ts) and created once per mount, StrictMode double mounts
 // included.
+import { focusForVisitor } from "../ui/modality.ts";
 import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/geist-mono";
 import "../../styles/tokens.css";
@@ -309,7 +310,7 @@ export function CaseView({
   });
   const notifyLanded = useEffectEvent(() => {
     markFlight("landed");
-    headingRef.current?.focus({ preventScroll: true });
+    focusForVisitor(headingRef.current);
     onLanded?.();
   });
 

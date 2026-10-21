@@ -1,3 +1,4 @@
+import { focusForVisitor } from "../../ui/modality.ts";
 import {
   useCallback,
   useEffect,
@@ -109,7 +110,9 @@ export function GuidedTour({ open, ungauged, outside = false, onTab, onClose }: 
     onClose();
     // After the panels stop being inert (the next frame), the focus goes back where it was.
     const to = returnTo.current;
-    window.requestAnimationFrame(() => to?.focus());
+    window.requestAnimationFrame(() => {
+      focusForVisitor(to, false);
+    });
   }, [onClose]);
 
   // Opening: remember where the focus was.
@@ -162,7 +165,7 @@ export function GuidedTour({ open, ungauged, outside = false, onTab, onClose }: 
   // The card takes the focus at each step, so a screen reader reads it.
   useEffect(() => {
     if (shown) {
-      cardRef.current?.focus();
+      focusForVisitor(cardRef.current, false);
     }
   }, [shown, index]);
 

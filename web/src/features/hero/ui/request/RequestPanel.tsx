@@ -1,5 +1,6 @@
 // "Request a study reach": a form that sends and stores nothing. Submitting only shows a summary of
 // what was entered, held in React state; there is no network call and no storage of any kind.
+import { focusForVisitor } from "../../../ui/modality.ts";
 import "./request.css";
 
 import { ArrowLeft } from "lucide-react";
@@ -74,9 +75,9 @@ export function RequestPanel({ titleId, headingRef, onBack, onAnnounce }: Reques
     const target = pendingFocus.current;
     pendingFocus.current = null;
     if (target === "errors") {
-      summaryRef.current?.focus({ preventScroll: false });
+      focusForVisitor(summaryRef.current, false);
     } else if (target === "done") {
-      doneRef.current?.focus({ preventScroll: false });
+      focusForVisitor(doneRef.current, false);
     } else if (target === "first") {
       document.getElementById(fieldId("reachName"))?.focus();
     }

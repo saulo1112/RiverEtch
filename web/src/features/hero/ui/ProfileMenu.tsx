@@ -1,3 +1,4 @@
+import { focusForVisitor } from "../../ui/modality.ts";
 import { UserRound } from "lucide-react";
 import { useCallback, useEffect, useId, useRef, useState, type FocusEvent } from "react";
 import { useAccount } from "wagmi";
@@ -34,7 +35,7 @@ export function ProfileMenu({ leaving }: ProfileMenuProps) {
   const close = useCallback((returnFocus: boolean) => {
     setOpen(false);
     if (returnFocus) {
-      buttonRef.current?.focus({ preventScroll: true });
+      focusForVisitor(buttonRef.current);
     }
   }, []);
 
@@ -42,7 +43,7 @@ export function ProfileMenu({ leaving }: ProfileMenuProps) {
     if (!shown) {
       return undefined;
     }
-    menuRef.current?.focus({ preventScroll: true });
+    focusForVisitor(menuRef.current);
     const onKey = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();

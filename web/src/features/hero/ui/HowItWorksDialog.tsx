@@ -1,3 +1,4 @@
+import { focusForVisitor } from "../../ui/modality.ts";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 
@@ -220,7 +221,7 @@ export function HowItWorksDialog({ open, onClose, onOpenCase }: HowItWorksDialog
   const moved = useRef(false);
   useEffect(() => {
     if (moved.current) {
-      headingRef.current?.focus({ preventScroll: true });
+      focusForVisitor(headingRef.current);
     }
   }, [index]);
 

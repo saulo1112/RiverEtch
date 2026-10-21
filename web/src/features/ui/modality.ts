@@ -5,6 +5,24 @@
 // pointer press hides the rings and the next key brings them back.
 
 /**
+ * Moves the focus for the visitor (a screen that opens, a dialog or a tour handing it back): with a
+ * ring only when they last used the keyboard, whatever the browser's own guess, which rings such a
+ * focus after any earlier key press.
+ *
+ * @param element - Where the focus goes (nothing happens without one).
+ * @param preventScroll - Keep the page where it is.
+ */
+export function focusForVisitor(
+  element: HTMLElement | null | undefined,
+  preventScroll = true,
+): void {
+  element?.focus({
+    preventScroll,
+    focusVisible: document.documentElement.dataset.modality === "keyboard",
+  });
+}
+
+/**
  * Starts tracking the input modality on the document's root element.
  *
  * @param root - The element that carries `data-modality` (the document's root).

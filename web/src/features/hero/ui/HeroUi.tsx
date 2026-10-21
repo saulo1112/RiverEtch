@@ -1,5 +1,6 @@
 // The hero's UI layer over the scene: the header with the profile menu, and one screen at a time
 // (the entry copy, or the demo analyst's cases), the bottom row and the "How it works" dialog.
+import { focusForVisitor } from "../../ui/modality.ts";
 import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/geist-mono";
 import "../../../styles/tokens.css";
@@ -75,7 +76,7 @@ export function HeroUi({
       "request-card": requestCardRef,
     }[target ?? "explore"];
     if (target !== null) {
-      element.current?.focus({ preventScroll: true });
+      focusForVisitor(element.current);
     }
   }, [screen]);
 
@@ -83,7 +84,7 @@ export function HeroUi({
   // autoFocus on mount would land on an inert button).
   useEffect(() => {
     if (focusExplore) {
-      openCaseRef.current?.focus({ preventScroll: true });
+      focusForVisitor(openCaseRef.current);
     }
   }, [focusExplore]);
 
@@ -141,7 +142,7 @@ export function HeroUi({
         open={dialogOpen && !leaving}
         onClose={() => {
           setDialogOpen(false);
-          howItWorksRef.current?.focus({ preventScroll: true });
+          focusForVisitor(howItWorksRef.current);
         }}
         onOpenCase={(caseId) => {
           setDialogOpen(false);
