@@ -102,6 +102,9 @@ export const CASE_COPY = {
     window: "Reading spot (no station)",
     legendWindow: "The reading spot (no station here: a class only)",
     mapCaption: "No station here",
+    // Why a reach with no station may have no Climate tab.
+    noClimate:
+      "No open daily flow record of this river was found, so this case has no Climate tab. A modelled flow was not used in its place: the tab shows measurements only.",
     chartKey: "Each pass's turbidity class in FNU (the height means the class only)",
     noGauge: "No station on this reach, so nothing here is scored against one.",
     // The pass's turbidity index against the river's own past passes (rule D0), on the card.
@@ -160,7 +163,7 @@ export const CASE_COPY = {
     tabsTitle: "The year, pass by pass",
     tabs: "The tabs hold the year's passes beside the station, the station's own readings and climate record, and the track record of readings sealed before the station's value was read.",
     tabsUngauged:
-      "The tabs hold the year's passes by class, the turbidity index against the river's own past, and the image in detail. With no station there is no track record: nothing here is scored.",
+      "The tabs hold the year's passes by class, the turbidity index against the river's own past, the image in detail and, where a station upstream measures it, the river's flow. With no station there is no track record: nothing here is scored.",
     accuracyTitle: "Where it works",
     accuracy:
       "Every station it was tested on: where the satellite beats guessing the river's usual value, and the few where it does not.",
@@ -428,6 +431,10 @@ export const CASE_COPY = {
     lockboxNote: `passes the model never saw, ${LOCKED_TEST}`,
     count: (k: number, n: number) => `${String(k)} of ${String(n)}`,
     inside: "inside",
+    noneYet: "none yet",
+    // A scored station value's approval, in a word (its help says what it means).
+    approvedWord: "approved",
+    provisionalWord: "may be revised",
     turbidity: "Turbidity",
     temperature: "Water temperature",
     results: {
@@ -446,6 +453,11 @@ export const CASE_COPY = {
     cite: "IPCC AR6, SPM B.3.1",
     citeUrl: "https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/",
     note: "Below, the station's own daily record: measurements, not a trend or an attribution.",
+    // A reach with no station: the flow measured at a station on the same river (reach.yaml,
+    // climate_station), said where it is.
+    noteContext: (name: string) =>
+      `Below, the river's daily flow measured upstream (${name}): this reach has no station of its own. Measurements, not a trend or an attribution.`,
+    contextHelpLabel: "About this station",
     measures: { peak: "Annual peak", low: "7-day low", warm: "Warmest day" },
     facts: {
       peak: "Highest annual peak",

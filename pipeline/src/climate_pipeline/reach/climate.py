@@ -258,18 +258,27 @@ def climate(cfg: ReachConfig, root: Path, site_id: str, until: date | None = Non
         The counts written.
 
     Raises:
-        ReachError: For a reach whose estimate station is not a USGS gauge.
+        ReachError: For a reach with neither a USGS gauge nor a climate station.
     """
     reach = cfg.reach(site_id)
-    if reach.station_source != "usgs":
+    context = reach.climate_station
+    if reach.station_source != "usgs" and context is None:
         raise reach_run.ReachError(f"{site_id}: the climate context needs a USGS gauge")
+    # A reach with no station of its own reads a station on the same river, named as such.
+    gauge = reach.estimate_station if context is None else context.id
     path = snapshot_path(root, site_id)
     if fetch_new:
         api = load_quality_config(root / cfg.quality_config).usgs.api
         client = http or httpx.Client(timeout=120, follow_redirects=True)
         last = until or date.today() - timedelta(days=1)
-        write_snapshot(path, fetch(client, api, reach.estimate_station, last))
-    station = reach_run.reach_info(cfg, root, site_id)["station"]
+        write_snapshot(path, fetch(client, api, gauge, last))
+    station = (
+        reach_run.reach_info(cfg, root, site_id)["station"]
+        if context is None
+        else {"id": context.id, "name": context.name, "basis": context.basis,
+              "url": f"https://waterdata.usgs.gov/monitoring-location/{context.id}/",
+              "context": True}
+    )  # fmt: skip
     snapshot = read_snapshot(path)
     doc = summarise(snapshot, station)
     from climate_pipeline.reach import extremes

@@ -23,6 +23,17 @@ class WindowPoint(_Frozen):
     source_url: str = ""
 
 
+class ClimateStation(_Frozen):
+    """A station on the same river whose daily flow is a station-less reach's climate context.
+
+    Measured, never read as the reach's own and never scored.
+    """
+
+    id: str = Field(pattern=r"^USGS-\d+$", description="the USGS station, e.g. USGS-07289000")
+    name: str = Field(min_length=1)
+    basis: str = Field(min_length=1, description="where it is from the reach, and why this one")
+
+
 class Reach(_Frozen):
     """One published reach."""
 
@@ -41,6 +52,10 @@ class Reach(_Frozen):
         "the window sits at estimate_point and no gauge value is ever read)",
     )
     estimate_point: WindowPoint | None = Field(default=None, description="an ungauged window")
+    climate_station: ClimateStation | None = Field(
+        default=None,
+        description="an ungauged reach's climate context: a USGS station on the same river",
+    )
     timezone: str = Field(default="America/Bogota", description="local dates and rain")
     targets: tuple[str, ...] = Field(default=("turbidity", "tss"), min_length=1)
     cards: dict[str, str] = Field(

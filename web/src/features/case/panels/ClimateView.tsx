@@ -255,6 +255,13 @@ function Chart({
   );
 }
 
+// The station as the tab names it: its USGS number, and its place when it is a station on the
+// same river standing in for a reach with none of its own.
+function stationLabel(climate: ClimateRecord): string {
+  const id = climate.station.id.replace(/^USGS-/, "USGS ");
+  return climate.station.context === true ? `${climate.station.name} (${id})` : id;
+}
+
 /**
  * The climate context of a reach: the gauge's own daily record, year by year (`climate.json`).
  * Each measure's record year sits on the left and selects the measure; the chart shows every year
@@ -281,7 +288,7 @@ export function ClimateView({ climate, view = "values" }: ClimateViewProps) {
   };
   const points = climatePoints(climate, measure);
   const unit = unitOf(climate, measure);
-  const station = climate.station.id.replace(/^USGS-/, "USGS ");
+  const station = stationLabel(climate);
   return (
     <div className="case-climate">
       <div className="case-climate__facts" role="radiogroup" aria-label={copy.note}>
@@ -397,7 +404,7 @@ function ExtremeDays({ climate }: { readonly climate: ClimateRecord }) {
   }
   const kinds = extremeKinds(climate);
   const points = extremePoints(climate, kind);
-  const station = climate.station.id.replace(/^USGS-/, "USGS ");
+  const station = stationLabel(climate);
   const era = e.satelliteEra;
   const seen = era[kind];
   const pairs = e.lockbox[kind];

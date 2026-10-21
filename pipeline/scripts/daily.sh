@@ -53,6 +53,11 @@ for site in "${demo[@]}" "${ungauged[@]}"; do
   step reach examples --site "$site" --all-records
 done
 step reach examples --site missouri-hermann
+# Each climate.json from its committed daily snapshot (fetching nothing), so its count of the year's
+# passes follows the published series: the demo reaches, and St. Joseph's station upstream.
+for site in "${demo[@]}" mississippi-st-joseph; do
+  step reach climate --site "$site" --snapshot
+done
 step ledger stamp # the new heads
 if [ "$run_code" -eq 2 ]; then run_code=0; fi
 exit "$run_code"

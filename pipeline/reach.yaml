@@ -71,6 +71,16 @@ reaches:
         is inside the widths the model was trained on (305 to 773 m); the Natchez gauge reads 848
         m and mile 378 reads 1028 m, where every scene would abstain."
       source_url: https://waterdata.usgs.gov/monitoring-location/USGS-315218091150000/
+    # Its climate context only (never its own reading, never scored): the daily flow measured at
+    # Vicksburg, on the same river upstream; Natchez and Tarbert Landing, downstream, publish no
+    # daily discharge (USGS site service, 2026-10-21).
+    climate_station:
+      id: USGS-07289000
+      name: Mississippi River at Vicksburg, MS
+      basis:
+        "Measured at Vicksburg, on the same river 59.0 km upstream of the reading spot in a straight
+        line (great-circle distance), a station that publishes daily discharge; Natchez and Tarbert
+        Landing, downstream, publish none. This reach has no station of its own."
     timezone: America/Chicago
     targets: [turbidity] # FNU class
     cards:

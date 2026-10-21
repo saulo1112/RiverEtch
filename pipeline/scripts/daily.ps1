@@ -78,4 +78,9 @@ foreach ($site in $demo + $ungauged) {
     Step "reach examples --site $site --all-records" | Out-Null
 }
 Step "reach examples --site missouri-hermann" | Out-Null
+# Each climate.json from its committed daily snapshot (fetching nothing), so its count of the year's
+# passes follows the published series: the demo reaches, and St. Joseph's station upstream.
+foreach ($site in $demo + @("mississippi-st-joseph")) {
+    Step "reach climate --site $site --snapshot" | Out-Null
+}
 exit $code

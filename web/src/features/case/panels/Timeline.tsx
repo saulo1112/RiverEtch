@@ -8,6 +8,7 @@ import { CASE_COPY } from "../content.ts";
 import { riverResults, transferResults } from "../rivers.ts";
 import { AllRiversView } from "./AllRiversView.tsx";
 import { ClimateView, type ClimateTabView } from "./ClimateView.tsx";
+import { HelpTip } from "./HelpTip.tsx";
 import { PassStatsView } from "./PassStatsView.tsx";
 import { ProfileChart } from "./ProfileChart.tsx";
 import { ScoreboardView } from "./ScoreboardView.tsx";
@@ -195,13 +196,24 @@ function Caption({
   }
   if (tab === "climate") {
     const { climate } = CASE_COPY;
+    const station = reach.climate?.station;
     const lead = (
       <span>
         {climate.lead} (
         <a href={climate.citeUrl} target="_blank" rel="noreferrer">
           {climate.cite}
         </a>
-        ). {climate.note}
+        ).{" "}
+        {station?.context === true ? (
+          <>
+            {climate.noteContext(station.name)}
+            {station.basis === undefined ? null : (
+              <HelpTip label={climate.contextHelpLabel}>{station.basis}</HelpTip>
+            )}
+          </>
+        ) : (
+          climate.note
+        )}
       </span>
     );
     if (reach.climate?.extremes === undefined) {

@@ -41,8 +41,11 @@ const TARGETS = [
 const format = (value: number, unit: string) =>
   unit === "°C" ? `${formatCelsius(value)} °C` : `${formatValue(value)} ${unit}`;
 
-// "13 of 18 inside".
+// "13 of 18 inside", or "none yet" before the first pass.
 function Count({ hits }: { readonly hits: Hits }) {
+  if (hits.n === 0) {
+    return <span className="case-score__count case-score__muted">{copy.noneYet}</span>;
+  }
   return (
     <span className="case-score__count">
       <strong>{copy.count(hits.inside, hits.n)}</strong> {copy.inside}
@@ -129,17 +132,14 @@ function ClaimTable({ rows }: { readonly rows: readonly ClaimRow[] }) {
                       {format(r.gauge.value, r.gauge.unit)}
                     </span>{" "}
                     <span
-                      className="case-chip case-score__chip"
-                      data-approval={r.gauge.approval}
+                      className="case-score__muted"
                       title={
                         r.gauge.approval === "Approved"
                           ? CASE_COPY.kinds.approvedHelp
                           : CASE_COPY.kinds.provisionalHelp
                       }
                     >
-                      {r.gauge.approval === "Approved"
-                        ? CASE_COPY.kinds.approved
-                        : CASE_COPY.kinds.provisional}
+                      · {r.gauge.approval === "Approved" ? copy.approvedWord : copy.provisionalWord}
                     </span>
                   </>
                 )}

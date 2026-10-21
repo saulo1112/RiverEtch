@@ -536,6 +536,9 @@ export function CaseFile({
             <section className="case-file__section" aria-label={ungauged.window}>
               <p className="case-file__metric">{ungauged.window}</p>
               <p className="case-file__note">{reach.info.station.window.basis}</p>
+              {reach.climate === null ? (
+                <p className="case-file__note">{ungauged.noClimate}</p>
+              ) : null}
             </section>
           )}
 

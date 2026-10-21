@@ -423,7 +423,14 @@ export interface ClimateHeatYear extends ClimateYearBase {
 
 /** `climate.json`: the gauge's own daily record, year by year (never an estimate). */
 export interface ClimateRecord {
-  readonly station: { readonly id: string; readonly name: string; readonly url?: string };
+  readonly station: {
+    readonly id: string;
+    readonly name: string;
+    readonly url?: string;
+    /** A station on the same river, for a reach with no station of its own; why it, from where. */
+    readonly context?: boolean;
+    readonly basis?: string;
+  };
   readonly source: string;
   /** The last day with a value. */
   readonly through: string;
