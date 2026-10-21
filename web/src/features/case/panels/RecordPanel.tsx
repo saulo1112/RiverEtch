@@ -346,6 +346,14 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
             value: `${estimate?.modelId?.split(":")[0] ?? "–"} · ${short(estimate?.modelCardSha256 ?? "–")}`,
           },
           { label: copy.seal, value: short(data.recordSha256, 16) },
+          ...(row?.supersedes === undefined || isThermal(data)
+            ? []
+            : [
+                {
+                  label: copy.replaces,
+                  value: `${short(row.supersedes, 16)} · ${copy.replacesNote}`,
+                },
+              ]),
         ];
 
   return (

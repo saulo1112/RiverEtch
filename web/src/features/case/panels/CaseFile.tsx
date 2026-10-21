@@ -203,7 +203,13 @@ function Reliability({ lockbox }: { readonly lockbox: CardMetrics }) {
 
 // An ungauged reach's expected error (preregistration-transfer.md, section 5): the class agreement
 // as a count, the pooled median error with what it is a share of, and which way it leans.
-function ExpectedErrorNote({ error }: { readonly error: ExpectedError }) {
+function ExpectedErrorNote({
+  error,
+  baseline,
+}: {
+  readonly error: ExpectedError;
+  readonly baseline?: { readonly matched: number; readonly n: number };
+}) {
   const lean = leanOfTurbidity(error.sspb);
   return (
     <section className="case-file__reliability" aria-label={ungauged.errorTitle}>
@@ -222,6 +228,9 @@ function ExpectedErrorNote({ error }: { readonly error: ExpectedError }) {
             ? ` It ${reading.leanHigh(lean.text)}.`
             : ""}
       </p>
+      {baseline === undefined ? null : (
+        <p className="case-file__note">{ungauged.baseline(baseline.matched, baseline.n)}</p>
+      )}
       <p className="case-file__note">{ungauged.trainedOn}</p>
     </section>
   );
@@ -352,7 +361,14 @@ export function CaseFile({
             <Trust reach={reach} row={row} level={level} />
             {lockbox === undefined ? null : <Reliability lockbox={lockbox} />}
             {card?.expectedError === undefined ? null : (
-              <ExpectedErrorNote error={card.expectedError} />
+              <ExpectedErrorNote
+                error={card.expectedError}
+                baseline={
+                  card.classTest === undefined
+                    ? undefined
+                    : { matched: card.classTest.baselineMatched, n: card.classTest.n }
+                }
+              />
             )}
           </section>
         )}

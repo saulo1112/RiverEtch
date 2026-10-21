@@ -23,6 +23,8 @@ export interface ReachCase {
   readonly bearing: number;
   /** The capture of the landed case view, under `public/cases/` (null until it exists). */
   readonly thumbnail: string | null;
+  /** A station measures its turbidity (the cases screen groups the two kinds). */
+  readonly gauged: boolean;
 }
 
 /** The cases, the featured one first. Centres are the middle of each corridor's bounds. */
@@ -36,6 +38,7 @@ export const REACH_CASES: readonly ReachCase[] = [
     pitch: 52,
     bearing: -20,
     thumbnail: null,
+    gauged: true,
   },
   {
     id: "platte-louisville",
@@ -46,6 +49,7 @@ export const REACH_CASES: readonly ReachCase[] = [
     pitch: 52,
     bearing: 10,
     thumbnail: null,
+    gauged: true,
   },
   {
     id: "mississippi-st-joseph",
@@ -56,6 +60,7 @@ export const REACH_CASES: readonly ReachCase[] = [
     pitch: 52,
     bearing: -45,
     thumbnail: null,
+    gauged: false,
   },
 ];
 

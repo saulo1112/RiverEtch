@@ -697,7 +697,13 @@
   gap: 6px 12px;
   align-items: center;
   padding: 20px 20px 16px;
-  background: linear-gradient(rgb(8 14 32 / 0.92) 70%, rgb(8 14 32 / 0));
+  /* Near solid down to the text, fading only across the empty bottom padding; what scrolls under
+     it is blurred too, so a card's text or button never reads through the title. */
+  background: linear-gradient(rgb(8 14 32) calc(100% - 16px), rgb(8 14 32 / 0));
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
+  mask-image: linear-gradient(#000 calc(100% - 16px), transparent);
 }
 
 .hero-panel__title {
@@ -754,6 +760,25 @@
   margin: 0;
   padding: 0 20px 20px;
   list-style: none;
+}
+
+/* The two kinds of case: a quiet title and one line over each group. */
+.hero-cases__group-title {
+  margin: 6px 20px 2px;
+  color: var(--text-1);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.hero-cases__group-note {
+  margin: 0 20px 12px;
+  color: var(--text-3);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.hero-cases__request {
+  padding: 0 20px 20px;
 }
 
 .hero-case {

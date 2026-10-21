@@ -2,7 +2,8 @@ import { Gauge, Satellite } from "lucide-react";
 import type { CSSProperties } from "react";
 
 import {
-  FNU_CLASSES,
+  classEdges,
+  classSpan,
   isOutside,
   isUngauged,
   nearestThermal,
@@ -136,8 +137,53 @@ function classTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
     spark: {
       values: reach.series.map((r) => {
         const c = turbidity(r)?.fnuClass;
-        return c == null ? null : FNU_CLASSES.indexOf(c);
+        if (c == null) {
+          return null;
+        }
+        const [low, high] = classSpan(c, classEdges(reach));
+        return (low + high) / 2;
       }),
+      selected,
+    },
+    tone: "sat",
+  };
+}
+
+// A z-score as the tile writes it: one decimal, a true minus sign.
+const zText = (z: number | null | undefined) =>
+  z == null ? "–" : `${z < 0 ? "\u2212" : z > 0 ? "+" : ""}${Math.abs(z).toFixed(1)}`;
+
+// A no-station reach's second satellite tile: the pass's NDTI against the reach's own earlier
+// passes, as rule D0 judged it in the sealed record (unusual at 3 or more robust spreads), with
+// the year's downstream z-scores as its line. Relative: no unit, no level.
+function ownPastTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
+  const copy = CASE_COPY.quality;
+  const z = row.indices.ndti.zScore;
+  const signals = row.verdict?.signals ?? [];
+  const strongest = signals
+    .map((s) => (z === undefined ? null : (z[s as keyof typeof z] ?? null)))
+    .filter((v): v is number => v !== null)
+    .sort((a, b) => Math.abs(b) - Math.abs(a))[0];
+  const value =
+    z === undefined || row.verdict === undefined
+      ? null
+      : !row.verdict.anomalous
+        ? copy.usual
+        : (strongest ?? 0) < 0
+          ? copy.low
+          : copy.high;
+  return {
+    id: "own-past",
+    title: copy.own,
+    source: copy.ownSource,
+    value,
+    unit: "",
+    detail: z === undefined ? copy.ownNone : copy.ownDetail(zText(z.upstream), zText(z.downstream)),
+    chip: null,
+    level: "none",
+    foot: "",
+    spark: {
+      values: reach.series.map((r) => r.indices.ndti.zScore?.downstream ?? null),
       selected,
     },
     tone: "sat",
@@ -282,9 +328,11 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
     return <div className="case-quality" />;
   }
   const copy = CASE_COPY.quality;
-  const satellite = [turbidityTile(reach, row, selected), temperatureTile(reach, row)].filter(
-    (t): t is Tile => t !== null,
-  );
+  const satellite = [
+    turbidityTile(reach, row, selected),
+    isUngauged(reach) ? ownPastTile(reach, row, selected) : null,
+    temperatureTile(reach, row),
+  ].filter((t): t is Tile => t !== null);
   const gauge = gaugeTiles(reach, row, selected);
   // The tile's parts are placed by CSS grid areas: the line gets its own row when the panel is
   // tall, or sits beside the value when it is short.

@@ -119,6 +119,16 @@ export const CASES = {
   back: "Back",
   backLabel: "Back to the start",
   listLabel: "Cases",
+  // Two kinds of case: the station ones show how far off the satellite is; the others are what
+  // RiverEtch is for.
+  groups: {
+    station: "Checked against a station",
+    stationNote:
+      "The satellite's reading beside the station's own, so you can see how far off it is.",
+    none: "No station: what RiverEtch is for",
+    noneNote:
+      "Most rivers have no measuring station. Here the satellite's reading is the only one.",
+  },
   announceOpen: "Your cases.",
   announceBack: "Start screen.",
   externalHint: "(opens in a new tab)",
@@ -284,6 +294,9 @@ export const HOW_IT_WORKS = {
     axis: "Typical error, % of the station's value",
     classLine: (k: number, n: number) =>
       `Where there is no station, RiverEtch shows a class only. On similar rivers it never saw, the class matched the station in ${String(k)} of ${String(n)} passes.`,
+    classBaseline: (k: number) => `Always guessing the most common class matched ${String(k)}.`,
+    classesNote:
+      "Classes: under 30, 30 to 50, 50 to 100, and 100 FNU and over. The comparison with guessing was decided after seeing the result.",
     source:
       "Each model was tested once, on years it had never seen (Dec 2023 to Sep 2026). Errors are medians.",
     tableCaption: "Each station: the satellite's typical error and guessing the usual value",

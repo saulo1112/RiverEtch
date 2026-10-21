@@ -1,6 +1,13 @@
 import { useState, type KeyboardEvent } from "react";
 
-import { FNU_CLASSES, gaugeAt, isOutside, isUngauged, turbidity } from "../../reaches/scene.ts";
+import {
+  classEdges,
+  classSpan,
+  gaugeAt,
+  isOutside,
+  isUngauged,
+  turbidity,
+} from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY, daysBetween, formatDate, formatValue } from "../content.ts";
 import { useSize } from "./useSize.ts";
@@ -52,8 +59,9 @@ function timeAxis(reach: ReachData, width: number) {
 
 /**
  * An ungauged reach's passes by class (preregistration-transfer.md, section 5): three bands,
- * under 30, 30 to 100 and 100 FNU and over, with each pass a dot in its band. Height means only
- * the class, never a value; a pass without a class is a mark on the axis.
+ * one per class of the reach's card (four since preregistration-four-classes.md passed), each
+ * pass a dot in its band; a pass sealed with three classes spans the bands its class covers.
+ * Height means only the class, never a value; a pass without a class is a mark on the axis.
  *
  * @returns The chart.
  */
@@ -68,11 +76,17 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
   });
   const { months, x } = timeAxis(reach, width);
   const plotHeight = Math.max(1, height - PAD.top - PAD.bottom);
-  const band = plotHeight / FNU_CLASSES.length;
+  const edges = classEdges(reach);
+  const band = plotHeight / (edges.length + 1);
   const baseY = PAD.top + plotHeight;
-  // A dot sits in the middle of its class's band; the lowest class is at the bottom.
-  const at = (p: (typeof points)[number]) =>
-    p.cls === null ? baseY : baseY - (FNU_CLASSES.indexOf(p.cls) + 0.5) * band;
+  // A dot sits in the middle of its class's span; the lowest class is at the bottom.
+  const at = (p: (typeof points)[number]) => {
+    if (p.cls === null) {
+      return baseY;
+    }
+    const [low, high] = classSpan(p.cls, edges);
+    return baseY - ((low + high) / 2) * band;
+  };
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
     const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
     if (step !== 0) {
@@ -100,7 +114,7 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
           viewBox={`0 0 ${String(width)} ${String(height)}`}
           aria-hidden="true"
         >
-          {[30, 100].map((edge, k) => (
+          {edges.map((edge, k) => (
             <g key={edge}>
               <line
                 className="case-series__grid"

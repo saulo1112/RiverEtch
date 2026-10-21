@@ -61,13 +61,13 @@ export const CASE_COPY = {
     indicative:
       "Follows the river's rises and falls, but not its level. Read it as low, medium or high, never as a number.",
     unvalidated:
-      "No gauge measures this reach, so its error cannot be checked here. The class comes from a model that never saw this reach, and its expected error is the one measured on similar rivers it never saw. Read it as under 30, 30 to 100, or 100 FNU and over, never as a number.",
+      "No gauge measures this reach, so its error cannot be checked here. The class comes from a model that never saw this reach, and its expected error is the one measured on similar rivers it never saw. Read it as a turbidity range in FNU, never as a number.",
     none: "Did not pass the locked test. Only the relative index is shown.",
   },
   // A reach with no gauge outside the region the model was tested in
   // (preregistration-outside-us.md): the same class, and no error figure of any kind.
   levelHelpOutside:
-    "No gauge measures this reach, and the model was only ever tested on US rivers, so no error estimate exists here. Read the class as under 30, 30 to 100, or 100 FNU and over, never as a number, and not as checked.",
+    "No gauge measures this reach, and the model was only ever tested on US rivers, so no error estimate exists here. Read the class as a turbidity range in FNU, never as a number, and not as checked.",
   // A reach with no gauge (preregistration-transfer.md, section 5): a class only, beside the
   // expected error that the test on rivers the model never saw measured; never a value.
   ungauged: {
@@ -75,6 +75,8 @@ export const CASE_COPY = {
     classes: {
       under_30: "Under 30 FNU",
       "30_to_100": "30 to 100 FNU",
+      "30_to_50": "30 to 50 FNU",
+      "50_to_100": "50 to 100 FNU",
       "100_and_over": "100 FNU and over",
     },
     label: "Unvalidated: expected error from the transfer test",
@@ -93,9 +95,11 @@ export const CASE_COPY = {
     window: "Estimate window (no gauge)",
     legendWindow: "The estimate window (no gauge here: a class only)",
     mapCaption: "No gauge here",
-    chartKey:
-      "Each pass's class: under 30, 30 to 100, 100 FNU and over (the height means the class only)",
+    chartKey: "Each pass's turbidity class in FNU (the height means the class only)",
     noGauge: "No gauge on this reach: nothing here is ever scored against one.",
+    // Beside the class agreement once the reach has four classes (preregistration-four-classes.md).
+    baseline: (k: number, n: number) =>
+      `Always guessing the most common class matched ${String(k)} of ${String(n)}, a comparison decided after seeing the result.`,
   },
   // The guided tour: eight steps, each pointing at a control that exists on the case.
   tour: {
@@ -111,9 +115,9 @@ export const CASE_COPY = {
     summary:
       "One clear Sentinel-2 pass: the turbidity at the gauge's window, in FNU, with the range the measured value should fall in 9 times out of 10.",
     summaryUngauged:
-      "One clear Sentinel-2 pass. No gauge measures this reach, so it shows a class (under 30, 30 to 100, 100 FNU and over), never a value, beside the error measured on rivers the model never saw.",
+      "One clear Sentinel-2 pass. No gauge measures this reach, so it shows a turbidity range in FNU, never a value, beside the error measured on rivers the model never saw.",
     summaryOutside:
-      "One clear Sentinel-2 pass. No gauge measures this reach, and the model was only tested on US rivers, so it shows a class (under 30, 30 to 100, 100 FNU and over) with no error estimate.",
+      "One clear Sentinel-2 pass. No gauge measures this reach, and the model was only tested on US rivers, so it shows a turbidity range in FNU with no error estimate.",
     trustTitle: "What it is worth, and what protects it",
     trust:
       "The level says how far the model was tested; the (?) explains it. Sealed: the record's SHA-256 is fixed. Anchored: its ledger line is stored on a public chain.",
@@ -173,6 +177,8 @@ export const CASE_COPY = {
     code: "Code",
     card: "Model card",
     seal: "Record SHA-256",
+    replaces: "Replaces",
+    replacesNote: "read again with four classes; still in the ledger",
     verify: "Verify this record",
     verifying: "Verifying…",
     alter: "Change one number first",
@@ -417,6 +423,16 @@ export const CASE_COPY = {
     landsat: "Landsat 8/9",
     validatedAt: "validated at",
     noLandsat: "No clear Landsat pass within 16 days",
+    // A reach with no station: the pass's turbidity index against the reach's own past passes
+    // (rule D0, sealed in every record).
+    own: "Turbidity index vs its own past",
+    ownSource: "Sentinel-2 · NDTI",
+    usual: "Usual",
+    high: "Unusually high",
+    low: "Unusually low",
+    ownDetail: (up: string, down: string) =>
+      `z ${up} upstream, ${down} downstream, against this reach's earlier passes; unusual at 3 or more.`,
+    ownNone: "No index for this pass",
   },
   context: {
     title: "Measured by the USGS gauge at this pass",

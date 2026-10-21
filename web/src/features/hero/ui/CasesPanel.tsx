@@ -26,9 +26,29 @@ export interface CasesPanelProps {
   readonly requestRef?: Ref<HTMLButtonElement>;
 }
 
+// The two kinds of case, in the catalog's order within each; a kind with no case is left out.
+const GROUPS = [
+  {
+    id: "station",
+    title: CASES.groups.station,
+    note: CASES.groups.stationNote,
+    cases: REACH_CASES.filter((c) => c.gauged),
+  },
+  {
+    id: "none",
+    title: CASES.groups.none,
+    note: CASES.groups.noneNote,
+    cases: REACH_CASES.filter((c) => !c.gauged),
+  },
+].filter((g) => g.cases.length > 0);
+// The case focus returns to from the case view: the first one shown.
+const FIRST = GROUPS[0]?.cases[0]?.id;
+
 /**
- * The cases screen: the demo's two gauged reaches, each with a large preview that opens its case
- * view, and a compact card that offers to request a study reach.
+ * The cases screen in two groups: the rivers checked against a station (the satellite's reading
+ * beside the station's own) and the rivers with none (what RiverEtch is for), each case with a
+ * large preview that opens its case view; then a compact card that offers to request a study
+ * reach.
  *
  * @returns The cases panel.
  */
@@ -59,23 +79,35 @@ export function CasesPanel({
         </button>
         <p className="hero-panel__note">{CASES.note}</p>
       </div>
-      <ul className="hero-cases__list" aria-label={CASES.listLabel}>
-        {REACH_CASES.map((reachCase, index) => (
-          <li key={reachCase.id}>
-            <CaseCard
-              reachCase={reachCase}
-              openCaseRef={index === 0 ? openCaseRef : undefined}
-              onOpenCase={onOpenCase}
-              onWarmUp={onWarmUp}
-            />
-          </li>
-        ))}
-        {onRequest === undefined ? null : (
-          <li>
-            <RequestCard onRequest={onRequest} buttonRef={requestRef} />
-          </li>
-        )}
-      </ul>
+      {GROUPS.map((group) => (
+        <section
+          key={group.id}
+          className="hero-cases__group"
+          aria-labelledby={`${titleId}-${group.id}`}
+        >
+          <h2 className="hero-cases__group-title" id={`${titleId}-${group.id}`}>
+            {group.title}
+          </h2>
+          <p className="hero-cases__group-note">{group.note}</p>
+          <ul className="hero-cases__list">
+            {group.cases.map((reachCase) => (
+              <li key={reachCase.id}>
+                <CaseCard
+                  reachCase={reachCase}
+                  openCaseRef={reachCase.id === FIRST ? openCaseRef : undefined}
+                  onOpenCase={onOpenCase}
+                  onWarmUp={onWarmUp}
+                />
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+      {onRequest === undefined ? null : (
+        <div className="hero-cases__request">
+          <RequestCard onRequest={onRequest} buttonRef={requestRef} />
+        </div>
+      )}
     </section>
   );
 }

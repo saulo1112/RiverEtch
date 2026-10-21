@@ -178,6 +178,17 @@ const transferScores = readFileSync(join(RESULTS, "transfer", "transfer_scores.c
 const transferPooled = JSON.parse(
   readFileSync(join(RESULTS, "transfer", "transfer_pooled.json"), "utf8"),
 ) as { class_agreement: number; n: number };
+// The four-class test (preregistration-four-classes.md), run once: whether the ungauged reaches
+// show four classes, and the counts the chapter states (null before it ran).
+const fourPath = join(RESULTS, "four-classes", "four_classes.json");
+const fourClasses = existsSync(fourPath)
+  ? (JSON.parse(readFileSync(fourPath, "utf8")) as {
+      passes: boolean;
+      model_matched: number;
+      baseline_matched: number;
+      n: number;
+    })
+  : null;
 // "How it works": the two gauged demo stations' daily flow through the satellite years, their
 // low-flow and high-flow lines and the satellite's usable passes, packed at build time by
 // src/features/hero/ui/how/flow.ts (the tests run it on the full files and recount every year
@@ -208,6 +219,7 @@ export default defineConfig({
     __TRANSFER_SCORES__: JSON.stringify(transferScores),
     __HOW_FLOW__: JSON.stringify(howFlow),
     __TRANSFER_POOLED__: JSON.stringify(transferPooled),
+    __FOUR_CLASSES__: JSON.stringify(fourClasses),
     __ML_DSA_PUBLIC_KEY__: JSON.stringify(mlDsaKey),
   },
 });

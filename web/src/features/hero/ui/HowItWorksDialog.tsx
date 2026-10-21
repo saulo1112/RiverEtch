@@ -26,6 +26,8 @@ const copy = HOW_IT_WORKS;
 const FLOW = __HOW_FLOW__.map(unpackStation);
 const HEADLINE = headline(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
 const NEVER = neverSaw(__TRANSFER_SCORES__);
+// The ungauged reaches' classes: four once preregistration-four-classes.md passed.
+const FOUR = __FOUR_CLASSES__?.passes === true ? __FOUR_CLASSES__ : null;
 const OWN = ownRiver(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
 
 function Problem() {
@@ -106,9 +108,19 @@ function Works() {
         </div>
       )}
       <StationBars never={NEVER} own={OWN} />
-      <p className="how-text how-works__class">
-        {copy.works.classLine(__TRANSFER_POOLED__.class_agreement, __TRANSFER_POOLED__.n)}
-      </p>
+      {FOUR === null ? (
+        <p className="how-text how-works__class">
+          {copy.works.classLine(__TRANSFER_POOLED__.class_agreement, __TRANSFER_POOLED__.n)}
+        </p>
+      ) : (
+        <>
+          <p className="how-text how-works__class">
+            {copy.works.classLine(FOUR.model_matched, FOUR.n)}{" "}
+            {copy.works.classBaseline(FOUR.baseline_matched)}
+          </p>
+          <p className="how-small">{copy.works.classesNote}</p>
+        </>
+      )}
     </>
   );
 }

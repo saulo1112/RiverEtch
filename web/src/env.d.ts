@@ -35,6 +35,13 @@ declare const __V5_RESULTS__: { readonly levels: string; readonly scores: string
 declare const __TRANSFER_SCORES__: string;
 /** results/transfer/transfer_pooled.json: the class agreement on rivers the model never saw. */
 declare const __TRANSFER_POOLED__: { readonly class_agreement: number; readonly n: number };
+/** results/four-classes/four_classes.json: the four-class test, run once (null before it ran). */
+declare const __FOUR_CLASSES__: {
+  readonly passes: boolean;
+  readonly model_matched: number;
+  readonly baseline_matched: number;
+  readonly n: number;
+} | null;
 /** "How it works": the demo stations' flow and passes per satellite year, packed at build time. */
 declare const __HOW_FLOW__: readonly import("./features/hero/ui/how/flow.ts").PackedStation[];
 /** The ML-DSA-65 public key that signs ledger heads (docs/keys/ml-dsa-65.json), hex. */

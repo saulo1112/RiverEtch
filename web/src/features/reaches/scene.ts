@@ -1,6 +1,6 @@
 // Joins one pass of a reach across its files: the series row, its NDTI map, the gauge's value at
 // the overpass and its turbidity estimate.
-import type { Estimate, GaugeCheck, ReachData, SeriesRow, ThermalRow } from "./types.ts";
+import type { Estimate, FnuClass, GaugeCheck, ReachData, SeriesRow, ThermalRow } from "./types.ts";
 
 /**
  * A pass's acquisition key, from its record file (`records/<date>_<key>.json`).
@@ -51,8 +51,43 @@ export function isOutside(reach: Pick<ReachData, "card">): boolean {
   return reach.card?.basis === OUTSIDE_BASIS;
 }
 
-/** The order of the turbidity classes, lowest first. */
+/** The three classes of preregistration-transfer.md, lowest first (a card without classes). */
 export const FNU_CLASSES = ["under_30", "30_to_100", "100_and_over"] as const;
+
+// Each class's range in FNU (the upper end excluded; null: none).
+const CLASS_RANGE: Readonly<Record<FnuClass, readonly [number, number | null]>> = {
+  under_30: [0, 30],
+  "30_to_50": [30, 50],
+  "50_to_100": [50, 100],
+  "30_to_100": [30, 100],
+  "100_and_over": [100, null],
+};
+
+/**
+ * A reach's class edges in FNU: its card's (four classes since preregistration-four-classes.md
+ * passed), else the three classes' 30 and 100.
+ *
+ * @param reach - The reach (its card is enough).
+ * @returns The edges, lowest first.
+ */
+export function classEdges(reach: Pick<ReachData, "card">): readonly number[] {
+  return reach.card?.classes?.edgesFnu ?? [30, 100];
+}
+
+/**
+ * Where a class sits on a reach's class scale, from 0 (the bottom of the lowest band) to the
+ * number of bands. A class wider than one band (a record sealed with three classes, on a reach
+ * that now has four) spans the bands it covers.
+ *
+ * @param cls - The class.
+ * @param edges - The reach's class edges.
+ * @returns Its lower and upper ends on the scale.
+ */
+export function classSpan(cls: FnuClass, edges: readonly number[]): readonly [number, number] {
+  const [low, high] = CLASS_RANGE[cls];
+  const index = (v: number) => edges.filter((e) => v >= e).length;
+  return [index(low), high === null ? edges.length + 1 : index(high)];
+}
 
 /**
  * Whether the pass published a turbidity value, or, on a reach with no gauge, a class.

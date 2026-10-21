@@ -8,6 +8,8 @@ import { REACH_CASES } from "../src/features/reaches/catalog.ts";
 import { canonical, NumberText, parseJson, sha256Hex } from "../src/features/reaches/canonical.ts";
 import { parseChecks, parseContext, parseThermalChecks } from "../src/features/reaches/checks.ts";
 import {
+  classEdges,
+  classSpan,
   defaultThermal,
   isOutside,
   nearestThermal,
@@ -218,4 +220,30 @@ void test("outside the tested region the web says the frozen card's label, word 
   assert.equal(card.expectedError, undefined, "no error estimate outside the tested region");
   assert.ok(isOutside({ card: card as never }));
   assert.ok(!isOutside({ card: null }));
+});
+
+void test("four classes place each pass in its band, and a three-class pass spans the bands it covers", () => {
+  const four = [30, 50, 100];
+  assert.deepEqual(classSpan("under_30", four), [0, 1]);
+  assert.deepEqual(classSpan("30_to_50", four), [1, 2]);
+  assert.deepEqual(classSpan("50_to_100", four), [2, 3]);
+  assert.deepEqual(classSpan("100_and_over", four), [3, 4]);
+  assert.deepEqual(classSpan("30_to_100", four), [1, 3]);
+  assert.deepEqual(classSpan("30_to_100", [30, 100]), [1, 2]);
+  assert.deepEqual(classEdges({ card: null }), [30, 100]);
+  // Every class the pipeline can seal has words in the case view.
+  for (const cls of ["under_30", "30_to_100", "100_and_over", "30_to_50", "50_to_100"] as const) {
+    assert.ok(CASE_COPY.ungauged.classes[cls].endsWith("FNU") || cls === "100_and_over");
+  }
+  const card = JSON.parse(
+    readFileSync(
+      new URL(
+        "../../docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  ) as { classes: { edgesFnu: number[]; labels: string[] } };
+  assert.deepEqual(card.classes.edgesFnu, four);
+  assert.deepEqual(card.classes.labels, ["under_30", "30_to_50", "50_to_100", "100_and_over"]);
 });

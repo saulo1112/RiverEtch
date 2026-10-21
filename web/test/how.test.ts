@@ -73,3 +73,22 @@ void test("its own river, by the same rule as the big number: 6 of 9 beat guessi
   assert.equal(own.beat, 6);
   assert.equal(own.fail, 2);
 });
+
+void test("the class line states the four-class test as it ran: 160 of 298, guessing 61", () => {
+  const four = JSON.parse(read("results/four-classes/four_classes.json")) as {
+    passes: boolean;
+    model_matched: number;
+    baseline_matched: number;
+    n: number;
+    label: string;
+  };
+  assert.equal(four.passes, true);
+  assert.deepEqual([four.model_matched, four.baseline_matched, four.n], [160, 61, 298]);
+  assert.equal(four.label, "decided after seeing the result");
+  const three = JSON.parse(read("results/transfer-baseline/class_baseline.json")) as {
+    model_matched: number;
+    b1_matched: number;
+  };
+  // The three-class pair the report keeps beside it.
+  assert.deepEqual([three.model_matched, three.b1_matched], [185, 160]);
+});

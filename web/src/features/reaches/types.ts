@@ -12,7 +12,11 @@ export type LngLat = readonly [number, number];
 export type Level = "validated" | "estimated" | "indicative" | "unvalidated" | "none";
 
 /** An ungauged reach's turbidity class (preregistration-transfer.md, section 5). */
-export type FnuClass = "under_30" | "30_to_100" | "100_and_over";
+/**
+ * An ungauged reach's class: three (preregistration-transfer.md), or four since
+ * preregistration-four-classes.md passed (30 to 100 split at 50).
+ */
+export type FnuClass = "under_30" | "30_to_100" | "100_and_over" | "30_to_50" | "50_to_100";
 
 /** A 90 % (or other) interval around an estimate. */
 export interface Interval {
@@ -45,6 +49,12 @@ export interface IndexValues {
   readonly downstream: number | null;
   readonly reach: number | null;
   readonly delta: number | null;
+  /** The pass against the reach's frozen baseline (rule D0): robust z-scores per signal. */
+  readonly zScore?: {
+    readonly upstream: number | null;
+    readonly downstream: number | null;
+    readonly delta: number | null;
+  };
 }
 
 /** One sealed observation record (v2). */
@@ -76,6 +86,10 @@ export interface SeriesRow {
   readonly recordSha256: string;
   readonly indices: { readonly ndti: IndexValues; readonly nirRed: IndexValues | null };
   readonly estimates: readonly Estimate[];
+  /** Rule D0's verdict: unusual when a signal is 3 or more robust spreads from the baseline. */
+  readonly verdict?: { readonly anomalous: boolean; readonly signals: readonly string[] };
+  /** The earlier record of this pass this one replaces (read again with a newer card). */
+  readonly supersedes?: string;
 }
 
 /** `reach.json`: the site, its estimate station and the baseline's period. */
@@ -142,6 +156,15 @@ export interface ModelCard {
   readonly display?: "class" | "none";
   readonly expectedError?: ExpectedError;
   readonly label?: string;
+  /** The card's classes: their edges in FNU and labels (three, or four). */
+  readonly classes?: { readonly edgesFnu: readonly number[]; readonly labels: readonly FnuClass[] };
+  /** The four-class test the card's classes passed (preregistration-four-classes.md). */
+  readonly classTest?: {
+    readonly n: number;
+    readonly matched: number;
+    readonly baselineMatched: number;
+    readonly label: string;
+  };
   readonly levels: readonly {
     readonly predicted_range: string;
     readonly level: Level;
