@@ -162,11 +162,16 @@ keeps it ([D22](decisions.md)).
 | Every result, to the last digit      | `uv run climate-pipeline quality verify` (CI runs it on every change)                   |
 | That the passes are all there        | List the scenes on Earth Search and compare with the ledger's `sceneId`s                |
 
-## Open items (2026-10-19)
+## Open items (2026-10-21)
 
-- The contract's source is not yet verified on Etherscan or Sourcify: the page shows its bytecode
-  only. The committed source does reproduce that bytecode: `contracts/scripts/bytecode-check.ts`
-  checks it with no key ([anchoring](anchoring.md#verifying)).
+- The contract's source is verified: an exact match on
+  [Sourcify](https://sourcify.dev/server/repo-ui/11155111/0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762)
+  (creation and runtime bytecode, 2026-10-21 22:28:09 UTC) and on
+  [Etherscan](https://sepolia.etherscan.io/address/0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762#code)
+  ("Source Code Verified", exact match). It still reads TerraChain and
+  `SPDX-License-Identifier: UNLICENSED`, as deployed: changing even a comment would change the
+  compiled metadata and break the match. `contracts/scripts/bytecode-check.ts` checks the same
+  with no key ([anchoring](anchoring.md#verifying)).
 - The repository is private, so the code commits the records cite cannot be opened from outside.
 
 T0 is set: the frozen-artifacts ledger (8 lines) was anchored at block 11951391,

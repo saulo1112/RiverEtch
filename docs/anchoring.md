@@ -115,6 +115,6 @@ terminal is the supported path.
 
   ```bash
   npx hardhat keystore set ETHERSCAN_API_KEY
-  npx hardhat ignition verify chain-11155111
+  npx hardhat ignition verify chain-11155111 --network sepolia --build-profile production
   npx hardhat verify sourcify --network sepolia --build-profile production --creation-tx-hash 0x38374864407b9ebe542c3fd6521279bdf7990eaa084f3eb7ef70173baec32b31 0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762
   ```
