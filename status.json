@@ -1,8 +1,8 @@
 {
-  "updatedUtc": "2026-10-21T02:42:50+00:00",
+  "updatedUtc": "2026-10-21T03:17:29+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39529181263",
-    "ok": false,
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39535363002",
+    "ok": true,
     "steps": [
       {
         "args": "ledger upgrade",
@@ -14,7 +14,7 @@
       },
       {
         "args": "reach run --site all",
-        "exit": 3
+        "exit": 0
       },
       {
         "args": "reach thermal --site mississippi-belle-chasse",
@@ -86,7 +86,7 @@
       }
     ]
   },
-  "lastSuccessUtc": "2026-10-20T17:44:57+00:00",
+  "lastSuccessUtc": "2026-10-21T03:17:29+00:00",
   "lastSealed": {
     "reach": "mississippi-belle-chasse",
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-10-20_R083",
@@ -104,12 +104,18 @@
     "height": 972266,
     "blockTime": "2026-10-20T05:18:10+00:00"
   },
-  "pendingBitcoin": 5,
+  "pendingBitcoin": 6,
   "proofs": [
     {
       "label": "terrachain:firat-birecik:observations",
       "lines": 70,
       "file": "docs/ledgers/ots/terrachain_firat-birecik_observations.70.ots",
+      "height": null
+    },
+    {
+      "label": "terrachain:firat-birecik:observations",
+      "lines": 93,
+      "file": "docs/ledgers/ots/terrachain_firat-birecik_observations.93.ots",
       "height": null
     },
     {
