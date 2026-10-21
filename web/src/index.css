@@ -20,14 +20,10 @@ body {
   margin: 0;
 }
 
-/*
- * After a pointer press, no focus ring (features/ui/modality.ts): an element the app focuses
- * itself, such as the button a closed dialog hands focus back to, would otherwise keep its ring
- * under a mouse user's clicks. The next key brings the rings back. A text field keeps its ring, so
- * it always shows where typing goes.
- */
-:root[data-modality="pointer"] :focus-visible:not(input, textarea, select),
-:root[data-modality="pointer"] :focus-visible::after,
-:root[data-modality="pointer"] :has(> input[type="file"]:focus-visible) > * {
+/* No focus ring anywhere, for the mouse or the keyboard (the owner's choice): neither the
+   browser's nor the app's. A text field still shows its caret. */
+*:focus,
+*:focus-visible,
+*:focus-visible::after {
   outline: none !important;
 }

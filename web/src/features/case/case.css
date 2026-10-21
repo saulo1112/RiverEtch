@@ -1478,11 +1478,6 @@ select.case-record__input {
   cursor: pointer;
 }
 
-.case-record__file:has(input:focus-visible) .case-record__file-btn {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 .case-verify__lines {
   display: grid;
   gap: 6px;

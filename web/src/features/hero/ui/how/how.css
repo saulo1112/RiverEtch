@@ -577,10 +577,6 @@
   background: rgb(255 255 255 / 0.05);
 }
 
-.how-bars__row:focus-visible {
-  box-shadow: inset 0 0 0 2px var(--accent);
-}
-
 /* The row's tooltip opens above it, at the bars' start, over the row before. */
 .how-bars__tip {
   position: absolute;
