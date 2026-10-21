@@ -1,4 +1,4 @@
-// Every string of the "Request a study reach" form. A demo: nothing entered leaves the page.
+// Every string of the "Request a study reach" form. A preview: nothing entered leaves the page.
 
 /** Purposes a request can name, in display order. */
 export const PURPOSES = [
@@ -20,7 +20,7 @@ export const REQUEST = {
   heading: "Request a study reach",
   back: "Back",
   backLabel: "Back to your cases",
-  demoOnly: "Demo only: nothing you enter leaves this page.",
+  demoOnly: "In this preview, requests stay on this page.",
   required: "Required",
   optional: "Optional",
   fields: {
@@ -50,14 +50,14 @@ export const REQUEST = {
     inSitu: "Choose whether in-situ water data is available.",
   },
   confirmation: {
-    heading: "Request summary (not sent)",
+    heading: "Your request",
     summaryLabel: "Your request",
     coordinates: "Coordinates",
     none: "Not given",
-    body: "This demo does not send or store requests. In a real deployment, a new reach would start as Observable; moving to Baselined and Validated in situ requires observation history and in-situ measurements.",
+    body: "The full version of RiverEtch will let you request and order study reaches, depending on availability and the RiverEtch team's earlier research on each river.",
     again: "Request another",
     back: "Back to your cases",
   },
-  announceOpen: "Request a study reach. Demo only: nothing you enter leaves this page.",
-  announceDone: "Request summary shown. Nothing was sent or stored.",
+  announceOpen: "Request a study reach. In this preview, requests stay on this page.",
+  announceDone: "Your request is shown. In this preview it is not sent.",
 } as const;

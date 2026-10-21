@@ -1,5 +1,5 @@
-import { ArrowLeft } from "lucide-react";
-import type { Ref } from "react";
+import { ArrowLeft, CircleHelp } from "lucide-react";
+import { useId, useState, type Ref } from "react";
 
 import { REACH_CASES } from "../../reaches/catalog.ts";
 import { CaseCard } from "./CaseCard.tsx";
@@ -62,6 +62,8 @@ export function CasesPanel({
   onRequest,
   requestRef,
 }: CasesPanelProps) {
+  const whyId = useId();
+  const [whyOpen, setWhyOpen] = useState(false);
   return (
     <section className="hero-panel hero-cases hero-ui__glass" aria-labelledby={titleId}>
       <div className="hero-panel__head">
@@ -77,7 +79,24 @@ export function CasesPanel({
           <ArrowLeft size={15} strokeWidth={1.75} nonScalingStroke aria-hidden="true" />
           {CASES.back}
         </button>
-        <p className="hero-panel__note">{CASES.note}</p>
+        <p className="hero-panel__note hero-cases__note">
+          {CASES.note}
+          <button
+            type="button"
+            className="hero-cases__why"
+            aria-label={CASES.kindsLabel}
+            aria-expanded={whyOpen}
+            aria-controls={whyId}
+            onClick={() => {
+              setWhyOpen(!whyOpen);
+            }}
+          >
+            <CircleHelp size={15} strokeWidth={1.9} aria-hidden="true" />
+          </button>
+        </p>
+        <p className="hero-cases__why-text" id={whyId} hidden={!whyOpen}>
+          {CASES.kinds}
+        </p>
       </div>
       {GROUPS.map((group) => (
         <section

@@ -72,6 +72,7 @@ void test("validateRequest wants both coordinates or neither, each in range", ()
 void test("the request form asks for no personal data and says nothing is sent", () => {
   const text = JSON.stringify(REQUEST).toLowerCase();
   assert.doesNotMatch(text, /e-?mail|phone|your name|address/);
-  assert.match(REQUEST.demoOnly, /nothing you enter leaves this page/);
-  assert.match(REQUEST.confirmation.body, /does not send or store requests/);
+  // The preview says plainly that nothing is sent, before and after.
+  assert.match(REQUEST.demoOnly, /requests stay on this page/);
+  assert.match(REQUEST.announceDone, /not sent/);
 });

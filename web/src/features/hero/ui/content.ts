@@ -40,7 +40,7 @@ export const PROFILE = {
  * screen readers read words, not letters.
  */
 export const COPY = {
-  eyebrow: ["Free satellite images", "Stated error", "Sealed readings"],
+  eyebrow: ["Satellite images", "Stated error", "Sealed readings"],
   title: ["See the river.", "Verify the reading."],
   subtitle:
     "A measuring station sees one point of a river. Most of the river lies far from any station. RiverEtch reads the water from free satellite images, tells you how far off each reading can be, and seals it, so any later change would show.",
@@ -122,13 +122,17 @@ export const CASES = {
   // Two kinds of case: the station ones show how far off the satellite is; on the others the
   // satellite's reading is the only one.
   groups: {
-    station: "Checked against a station",
+    station: "Where a station checks the satellite",
     stationNote:
-      "The satellite's reading beside the station's own, so you can see how far off it is.",
-    none: "No station on these reaches",
+      "The satellite's reading beside the station's own: this is how RiverEtch's accuracy is measured.",
+    none: "Where the satellite is the only reading",
     noneNote:
-      "No station measures turbidity on these reaches. Here the satellite's reading is the only one.",
+      "No station measures turbidity on these reaches, so RiverEtch's reading is the only one there is.",
   },
+  // Beside the screen's note: why the cases come in two kinds.
+  kindsLabel: "Why two kinds of case?",
+  kinds:
+    "RiverEtch reads rivers in two situations. Where a station measures the water, the satellite's reading sits beside the station's, so you can see how close it comes: that is how its accuracy is measured. Where no station does, the satellite's reading is the only one there is, so it is shown as a turbidity range, with the accuracy measured on similar rivers where that applies. Every reading, of both kinds, is a real pass, sealed and checked the same way.",
   announceOpen: "Your cases.",
   announceBack: "Start screen.",
   externalHint: "(opens in a new tab)",

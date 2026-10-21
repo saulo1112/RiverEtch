@@ -9,6 +9,7 @@ import { WagmiProvider } from "wagmi";
 
 import { App } from "./App.tsx";
 import { BRAND_NAME } from "./features/hero/ui/content.ts";
+import { trackInputModality } from "./features/ui/modality.ts";
 import { wagmiConfig } from "./wagmi.ts";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,9 @@ const walletTheme: Theme = {
   ...darkWallet,
   fonts: { body: '"Inter Tight Variable", system-ui, -apple-system, "Segoe UI", sans-serif' },
 };
+
+// Focus rings for keyboard users only (index.css).
+trackInputModality();
 
 const rootElement = document.getElementById("root");
 if (rootElement === null) {

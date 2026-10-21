@@ -107,6 +107,14 @@ export function MapToolbar(props: MapToolbarProps) {
   const { tools } = CASE_COPY;
   const opacityId = useId();
   const compareId = useId();
+  const noteId = useId();
+  // Each overlay: its key, its name and what it is.
+  const overlayItems: readonly (readonly [keyof Overlays, string, string])[] = [
+    ["outline", tools.outline, tools.outlineNote],
+    isUngauged(reach)
+      ? ["window", tools.windowUngauged, tools.windowUngaugedNote]
+      : ["window", tools.window, tools.windowNote],
+  ];
   const download = () => {
     const blob = new Blob([csvOfSeries(reach)], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
@@ -163,32 +171,39 @@ export function MapToolbar(props: MapToolbarProps) {
         icon={<Layers size={15} strokeWidth={1.8} aria-hidden="true" />}
       >
         <p className="case-tools__heading">{tools.overlays}</p>
-        {(
-          [
-            ["outline", tools.outline],
-            ["window", isUngauged(reach) ? tools.windowUngauged : tools.window],
-          ] as const
-        ).map(([key, label]) => (
+        {overlayItems.map(([key, label, note]) => (
           <label key={key} className="case-tools__check">
             <input
               type="checkbox"
               checked={overlays[key]}
+              aria-describedby={`${noteId}-${key}`}
               onChange={() => {
                 toggle(key);
               }}
             />
-            {label}
+            <span className="case-tools__check-text">
+              {label}
+              <span className="case-tools__check-note" id={`${noteId}-${key}`}>
+                {note}
+              </span>
+            </span>
           </label>
         ))}
         <label className="case-tools__check">
           <input
             type="checkbox"
             checked={props.terrain3d}
+            aria-describedby={`${noteId}-terrain`}
             onChange={(event) => {
               props.onTerrain3d(event.target.checked);
             }}
           />
-          {tools.terrain}
+          <span className="case-tools__check-text">
+            {tools.terrain}
+            <span className="case-tools__check-note" id={`${noteId}-terrain`}>
+              {tools.terrainNote}
+            </span>
+          </span>
         </label>
       </Popover>
       <Popover

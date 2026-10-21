@@ -771,6 +771,45 @@
   font-weight: 600;
 }
 
+/* "Why two kinds of case?": a (?) at the end of the screen's note, its answer under it. */
+.hero-cases__note {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.hero-cases__why {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -6px 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--text-3);
+  cursor: pointer;
+}
+
+.hero-cases__why:hover,
+.hero-cases__why[aria-expanded="true"] {
+  color: var(--text-1);
+}
+
+.hero-cases__why-text:not([hidden]) {
+  grid-column: 1 / -1;
+  margin: 8px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgb(240 246 255 / 0.12);
+  border-radius: 10px;
+  background: rgb(240 246 255 / 0.04);
+  color: var(--text-2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .hero-cases__group-note {
   margin: 0 20px 12px;
   color: var(--text-3);

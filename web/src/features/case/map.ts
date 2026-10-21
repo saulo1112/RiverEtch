@@ -44,6 +44,11 @@ export type CaseMapStart = "handoff" | "final";
 /** What the river shows: the pass's NDTI, the pass in true color, or nothing over the basemap. */
 export type LayerMode = "ndti" | "photo" | "none";
 
+// The overlays' opacities change at once (the reveal animates them itself, frame by frame). With
+// MapLibre's default 300 ms transition, 3D terrain caches the layers drawn on the transition's first
+// frame, nearly unchanged, so a switched-off outline stayed on the map until the next zoom.
+const NOW = { duration: 0, delay: 0 };
+
 /** The vector overlays that can be switched off. */
 export interface Overlays {
   /** The corridor's fill, glow and edge. */
@@ -371,7 +376,7 @@ function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
         type: "fill",
         source: SOURCE.reach,
         filter: KIND("river"),
-        paint: { "fill-color": corridor.water, "fill-opacity": 0 },
+        paint: { "fill-color": corridor.water, "fill-opacity": 0, "fill-opacity-transition": NOW },
       },
       {
         id: LAYER.glow,
@@ -384,6 +389,7 @@ function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
           "line-width": byZoom(corridor.glowWidth),
           "line-blur": byZoom(corridor.glowBlur),
           "line-opacity": 0,
+          "line-opacity-transition": NOW,
         },
       },
       {
@@ -392,7 +398,12 @@ function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
         source: SOURCE.reach,
         filter: KIND("river"),
         layout: { "line-join": "round" },
-        paint: { "line-color": corridor.edge, "line-width": 1, "line-opacity": 0 },
+        paint: {
+          "line-color": corridor.edge,
+          "line-width": 1,
+          "line-opacity": 0,
+          "line-opacity-transition": NOW,
+        },
       },
       {
         id: LAYER.window,
@@ -400,7 +411,12 @@ function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
         source: SOURCE.reach,
         filter: KIND("window"),
         layout: { "line-join": "round" },
-        paint: { "line-color": corridor.window, "line-width": 1.6, "line-opacity": 0 },
+        paint: {
+          "line-color": corridor.window,
+          "line-width": 1.6,
+          "line-opacity": 0,
+          "line-opacity-transition": NOW,
+        },
       },
     ],
     terrain: { source: SOURCE.terrain, exaggeration: TERRAIN.exaggeration },
