@@ -17,6 +17,7 @@ import {
   isOutside,
   isUngauged,
   ownPast,
+  platformName,
   thermalValidatedAt,
   turbidity,
 } from "../../reaches/scene.ts";
@@ -39,6 +40,7 @@ import {
   LEVEL_LABELS,
 } from "../content.ts";
 import { gainOver, insideCount, leanOfTurbidity } from "../reading.ts";
+import { DayChooser } from "./DayChooser.tsx";
 import { DisclosureButton } from "./DisclosureButton.tsx";
 import { HelpTip } from "./HelpTip.tsx";
 import { ReliabilityBars } from "./ReliabilityBars.tsx";
@@ -62,17 +64,9 @@ export interface CaseFileProps {
   readonly onBack: () => void;
   /** Opens the guided tour (no button without it). */
   readonly onTour?: () => void;
-}
-
-const PLATFORMS: Record<string, string> = {
-  "sentinel-2a": "Sentinel-2A",
-  "sentinel-2b": "Sentinel-2B",
-  "sentinel-2c": "Sentinel-2C",
-};
-
-function platform(row: SeriesRow): string {
-  const key = row.sceneId.split(":").at(-1) ?? "";
-  return PLATFORMS[key.split("_")[0] ?? ""] ?? "";
+  /** Index of the selected pass, and the day chooser's pick (no chooser without it). */
+  readonly selected?: number;
+  readonly onSelect?: (index: number) => void;
 }
 
 // Where the value sits in its interval, on a log scale (0..1).
@@ -346,6 +340,8 @@ export function CaseFile({
   headingRef,
   onBack,
   onTour,
+  selected,
+  onSelect,
 }: CaseFileProps) {
   const detailsId = useId();
   const [open, setOpen] = usePanelOpen("file");
@@ -405,7 +401,12 @@ export function CaseFile({
             aria-label={noGauge ? ungauged.turbidity : CASE_COPY.turbidity}
           >
             <p className="case-file__metric">
-              {noGauge ? ungauged.turbidity : CASE_COPY.turbidity} · {formatDate(row.date, true)}
+              {noGauge ? ungauged.turbidity : CASE_COPY.turbidity} ·{" "}
+              {selected === undefined || onSelect === undefined ? (
+                formatDate(row.date, true)
+              ) : (
+                <DayChooser reach={reach} selected={selected} onSelect={onSelect} />
+              )}
             </p>
             {noGauge ? (
               <>
@@ -484,7 +485,7 @@ export function CaseFile({
             <section className="case-file__section" aria-label={CASE_COPY.scenePrefix}>
               <p className="case-file__metric">
                 {CASE_COPY.scenePrefix} · {formatDate(row.date, true)}
-                {platform(row) === "" ? "" : ` · ${platform(row)}`}
+                {platformName(row) === "" ? "" : ` · ${platformName(row)}`}
               </p>
               {value !== null && interval !== null ? (
                 <div className="case-file__interval">

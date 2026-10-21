@@ -332,9 +332,10 @@ export const CASE_COPY = {
     terrain: "3D terrain",
     terrainNote: "The land in relief",
     compare: "Compare",
-    compareWith: "Compare the selected pass with",
-    compareOff: "No comparison",
-    compareHint: "Drag the split on the map to sweep between the two passes.",
+    compareWith: "Compare the selected pass with the one on…",
+    compareStop: "Stop comparing",
+    compareHint:
+      "Drag the split on the map to sweep between the two passes. Click Compare again to stop.",
     export: "Export",
     exportCsv: "Turbidity series (CSV)",
     exportGeometry: "Reach geometry (GeoJSON)",
@@ -597,6 +598,29 @@ export const CASE_COPY = {
     histogram: "Distribution of the pass's NDTI",
   },
   compare: { left: "Selected", right: "Compared" },
+  // The day chooser (beside the case file's date, and in Compare): the year's passes by month.
+  calendar: {
+    choose: (date: string) => `Shown: ${date}. Choose another day`,
+    label: "Choose a day the satellite passed",
+    previous: "Previous month",
+    next: "Next month",
+    weekdays: [
+      ["Mo", "Monday"],
+      ["Tu", "Tuesday"],
+      ["We", "Wednesday"],
+      ["Th", "Thursday"],
+      ["Fr", "Friday"],
+      ["Sa", "Saturday"],
+      ["Su", "Sunday"],
+    ] as const,
+    noReading: "no reading",
+    passes: (n: number) => `${String(n)} passes`,
+    passesOn: (n: number, date: string) =>
+      `${n === 2 ? "Two" : String(n)} satellites passed on ${date}`,
+    keyRead: "A reading",
+    keyNone: "No reading (cloud, glare or out of range)",
+    keyEmpty: "Grey: no pass",
+  },
   verify: {
     title: "Verifying the record",
     step1: "Canonical content",

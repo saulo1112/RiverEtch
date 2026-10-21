@@ -675,6 +675,8 @@ export function CaseView({
             tourTab.current = tab;
             setTouring(true);
           }}
+          selected={selected}
+          onSelect={select}
         />
         <MapToolbar
           reach={reach}

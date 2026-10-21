@@ -13,6 +13,22 @@ export function sceneKey(row: Pick<SeriesRow, "sceneId">): string {
   return row.sceneId.split(":").at(-1) ?? row.sceneId;
 }
 
+const PLATFORMS: Record<string, string> = {
+  "sentinel-2a": "Sentinel-2A",
+  "sentinel-2b": "Sentinel-2B",
+  "sentinel-2c": "Sentinel-2C",
+};
+
+/**
+ * The satellite of a pass, as people write it.
+ *
+ * @param row - The series row.
+ * @returns E.g. "Sentinel-2B" (empty for an unknown platform).
+ */
+export function platformName(row: Pick<SeriesRow, "sceneId">): string {
+  return PLATFORMS[sceneKey(row).split("_")[0] ?? ""] ?? "";
+}
+
 /**
  * The pass's turbidity estimate.
  *

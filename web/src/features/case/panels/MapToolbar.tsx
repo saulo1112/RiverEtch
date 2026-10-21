@@ -1,11 +1,12 @@
-import { Columns2, Download, Layers } from "lucide-react";
+import { Columns2, Download, Layers, X } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 import { csvOfSeries } from "../../reaches/export.ts";
 import { isUngauged } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
-import { CASE_COPY, formatDate } from "../content.ts";
+import { CASE_COPY } from "../content.ts";
 import type { LayerMode, Overlays } from "../map.ts";
+import { PassPicker } from "./PassPicker.tsx";
 
 /** Props of {@link MapToolbar}. */
 export interface MapToolbarProps {
@@ -34,17 +35,22 @@ const MODES: readonly { readonly id: LayerMode; readonly label: string }[] = [
   { id: "none", label: CASE_COPY.tools.none },
 ];
 
-// A popover anchored under its button, closed by a click outside or Escape.
+// A popover anchored under its button, closed by a click outside or Escape. With `onOff`, the
+// button of an active tool turns it off instead of opening the popover again.
 function Popover({
   label,
   icon,
   active = false,
+  onOff,
+  offLabel,
   children,
 }: {
   readonly label: string;
   readonly icon: ReactNode;
   readonly active?: boolean;
-  readonly children: ReactNode;
+  readonly onOff?: () => void;
+  readonly offLabel?: string;
+  readonly children: ReactNode | ((close: () => void) => ReactNode);
 }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -70,6 +76,7 @@ function Popover({
       window.removeEventListener("keydown", onKey);
     };
   }, [open]);
+  const turnsOff = active && onOff !== undefined;
   return (
     <div className="case-tools__group" ref={rootRef}>
       <button
@@ -78,16 +85,27 @@ function Popover({
         data-active={active || open}
         aria-expanded={open}
         aria-controls={id}
+        aria-label={turnsOff ? offLabel : undefined}
         onClick={() => {
+          if (turnsOff) {
+            setOpen(false);
+            onOff();
+            return;
+          }
           setOpen(!open);
         }}
       >
         {icon}
         <span>{label}</span>
+        {turnsOff ? <X size={13} strokeWidth={2} aria-hidden="true" /> : null}
       </button>
       {open ? (
         <div className="case-tools__popover case-glass" id={id}>
-          {children}
+          {typeof children === "function"
+            ? children(() => {
+                setOpen(false);
+              })
+            : children}
         </div>
       ) : null}
     </div>
@@ -106,7 +124,6 @@ export function MapToolbar(props: MapToolbarProps) {
   const { reach, mode, overlays, compareWith, selected } = props;
   const { tools } = CASE_COPY;
   const opacityId = useId();
-  const compareId = useId();
   const noteId = useId();
   // Each overlay: its key, its name and what it is.
   const overlayItems: readonly (readonly [keyof Overlays, string, string])[] = [
@@ -209,32 +226,31 @@ export function MapToolbar(props: MapToolbarProps) {
       <Popover
         label={tools.compare}
         active={compareWith !== null}
+        onOff={() => {
+          props.onCompare(null);
+        }}
+        offLabel={tools.compareStop}
         icon={<Columns2 size={15} strokeWidth={1.8} aria-hidden="true" />}
       >
-        <label className="case-tools__heading" htmlFor={compareId}>
-          {tools.compareWith}
-        </label>
-        <select
-          id={compareId}
-          className="case-tools__select"
-          value={compareWith === null ? "" : String(compareWith)}
-          onChange={(event) => {
-            props.onCompare(event.target.value === "" ? null : Number(event.target.value));
-          }}
-        >
-          <option value="">{tools.compareOff}</option>
-          {reach.series.map((row, index) =>
-            index === selected ? null : (
-              <option key={row.sceneId} value={String(index)}>
-                {formatDate(row.date, true)}
-                {typeof row.estimates[0]?.value === "number"
-                  ? ` · ${row.estimates[0].value.toFixed(1)} FNU`
-                  : ""}
-              </option>
-            ),
-          )}
-        </select>
-        <p className="case-tools__note">{tools.compareHint}</p>
+        {(close) => (
+          <>
+            <p className="case-tools__heading">{tools.compareWith}</p>
+            <PassPicker
+              reach={reach}
+              selected={compareWith}
+              disabled={selected}
+              label={tools.compareWith}
+              autoFocus
+              onPick={(index, done) => {
+                props.onCompare(index);
+                if (done) {
+                  close();
+                }
+              }}
+            />
+            <p className="case-tools__note">{tools.compareHint}</p>
+          </>
+        )}
       </Popover>
       <Popover
         label={tools.export}
