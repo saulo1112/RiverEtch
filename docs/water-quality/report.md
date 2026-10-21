@@ -197,24 +197,32 @@ estimate against the gauge's value at the overpass.
 
 | Reach                    | Pairs | Approved / provisional | MdSA       | Bias (SSPB) | Inside the 90 % interval |
 | ------------------------ | ----- | ---------------------- | ---------- | ----------- | ------------------------ |
-| mississippi-belle-chasse | 18    | 0 / 18                 | **18.9 %** | −13.9 %     | 13 of 18                 |
-| platte-louisville        | 8     | 2 / 6                  | 54.7 %     | +54.7 %     | 7 of 8                   |
+| mississippi-belle-chasse | 22    | 0 / 22                 | **18.0 %** | −13.9 %     | 17 of 22                 |
+| platte-louisville        | 10    | 2 / 8                  | 44.9 %     | +24.4 %     | 9 of 10                  |
+
+(The daily run's check of 2026-10-21, `checks/summary.json` of each reach. Each reach's last pair,
+of 20 Oct 2026, was sealed and anchored before the station was read: it is also scored
+prospectively, below.)
 
 - **The provisional values are the first data the cards never saw:** the lock box took approved
   values only. The USGS can still revise them, so the check never changes a level (preregistration
   v4, A). The two approved Platte values (March and June) were already in the lock box.
-- **Belle Chasse holds its error** on new data (18.9 %, against 17.8 % in the lock box), but its
-  intervals covered 13 of 18 values: under the nominal 90 %, and a 2.8 % chance if they truly
-  covered 90 % and the pairs were independent. That is a warning to watch.
-- **The Platte overestimated all six provisional summer values** (July–September 2026) by a factor
-  of 1.5–2.0; its approved values and October's were close. Untested explanations: low summer flow
+- **Belle Chasse holds its error** on new data (18.0 %, against 17.8 % in the lock box), but its
+  intervals covered 17 of 22 values: under the nominal 90 %, a 6.2 % chance if they truly covered
+  90 % and the pairs were independent. Four of the five misses are from February and March 2026.
+  That is a warning to watch.
+- **The Platte overestimated all five provisional values of July–September 2026** by a factor of
+  1.5–2.0; its two approved values (March and June) were within 17 %, and October's three read 12
+  to 29 % low. Untested explanations: low summer flow
   in a shallow, braided channel (sandbars or the bed inside the window), a summer bloom, or
   revisions of the provisional values. The bias appears on Sentinel-2B and 2C alike. Until those
   values are approved and more seasons arrive, this is a warning, not a result: the card stays as
   its lock box rated it.
-- No scene after the cards' commit (2026-10-12) had a gauge value when this table was made. Passes
-  after T0 are scored prospectively under rule v1 by `reach score`, and counted on the web app's
-  Track record tab (counts, not percentages, until there are 20).
+- **The first passes scored in advance** (rule v2, `reach score`; each reach's outcomes ledger):
+  the 20 Oct 2026 pass at each demo reach, anchored on Sepolia at 17:01:36 UTC on 21 Oct (block 11963767) and read against the station at 17:04:50. Belle Chasse: 32.92 FNU (22.63–47.89), the
+  station 31.35, inside. The Platte: 29.17 FNU (19.44–43.76), the station 33.2, inside. Both
+  station values are provisional. Two passes say little; they are counted on the web app's Track
+  record tab (counts, not percentages, until there are 20).
 
 ## Rivers the model never saw (transfer test, 2026-10-20)
 
@@ -289,6 +297,12 @@ main-stem water-quality gauge, at Natchez (07290880), records nitrate but not tu
   100, 100 FNU and over) since the class test below passed. With no gauge it is never scored. It is a reach the
   model never saw, not a river: the model learned from two other Mississippi gauges, Cape
   Girardeau upstream and Belle Chasse downstream.
+- **Its climate context** (the app's Climate tab, added 2026-10-21): the daily discharge measured
+  at Vicksburg (USGS 07289000, 2008 to 2026), on the same river 59.0 km upstream of the reading
+  spot in a straight line; Natchez and Tarbert Landing, downstream, publish no daily discharge.
+  It is named as the station upstream, never read as the reach's own and never scored
+  (`climate_station` in [`reach.yaml`](../../pipeline/reach.yaml)). The Fırat has no such record
+  in the open, so it has no Climate tab.
 - **Where the window sits, and why (decided on 2026-10-20, before any estimate on the reach):** the
   model abstains when the channel is wider than any river it was trained on (305 to 773 m). With
   the pipeline's selection rule (SCL water frequency, 2022 to 2025), the channel measures 848 m at

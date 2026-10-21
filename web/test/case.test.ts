@@ -82,8 +82,9 @@ void test("a pass's key, map and gauge value join across the reach's files", () 
   assert.equal(row.sceneId, `mississippi-belle-chasse:${sceneKey(row)}`);
   assert.equal(mapFile(reach, row), `maps/${sceneKey(row)}.png`);
   assert.equal(turbidity(row)?.unit, "FNU");
+  // Every pass the year's check paired with a station value (its summary counts them).
   const withGauge = series.filter((r) => gaugeAt(reach, r) !== null);
-  assert.equal(withGauge.length, 18);
+  assert.equal(withGauge.length, (json("checks/summary.json") as { paired: number }).paired);
 });
 
 void test("the ramp's domain is the reach's own range, widened", () => {

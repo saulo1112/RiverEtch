@@ -47,8 +47,8 @@ function reach(site: string): ReachData {
 void test("the 2026 passes' counts match the report's check, from the sealed intervals", () => {
   const belle = retrospectiveHits(reach("mississippi-belle-chasse"), null);
   const platte = retrospectiveHits(reach("platte-louisville"), null);
-  assert.deepEqual(belle.turbidity, { inside: 13, n: 18 }); // report.md: 13 of 18
-  assert.deepEqual(platte.turbidity, { inside: 7, n: 8 }); // report.md: 7 of 8
+  assert.deepEqual(belle.turbidity, { inside: 17, n: 22 }); // report.md: 17 of 22
+  assert.deepEqual(platte.turbidity, { inside: 9, n: 10 }); // report.md: 9 of 10
   assert.deepEqual(belle.temperature, { inside: 11, n: 13 });
   assert.deepEqual(platte.temperature, { inside: 11, n: 13 });
 });

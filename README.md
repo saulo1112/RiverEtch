@@ -159,9 +159,9 @@ where there is none. Every record says which model card produced it.
 - **Validated only at the gauge:** a value with a unit is published only at a validated gauge's
   window. The per-pixel map along the reach is relative (NDTI) and not validated.
 - **The 2026 check (retrospective) raises two warnings:**
-  - At Belle Chasse the error holds on new data (18.9 %), but the 90 % intervals covered 13 of 18
+  - At Belle Chasse the error holds on new data (18.0 %), but the 90 % intervals covered 17 of 22
     values.
-  - The Platte overestimated six provisional summer values by 1.5–2×.
+  - The Platte overestimated five provisional summer values by 1.5–2×.
   - Both are reported, not hidden: see [The reaches in operation](docs/water-quality/report.md).
 - **Timing:** every 2026 record so far was sealed in batch runs (2026-10-12 to 2026-10-15), after
   its gauge value was public, so those passes are a backtest; they show only that the model cards
@@ -221,13 +221,15 @@ outcomes ledger, which is anchored too.
 The **Track record** tab shows counts, never percentages, until there are 20 passes. The
 retrospective counts, labelled as such:
 
-| Inside the expected range  | Turbidity, Belle Chasse | Turbidity, Platte | Water temperature, Belle Chasse | Water temperature, Platte |
-| -------------------------- | ----------------------- | ----------------- | ------------------------------- | ------------------------- |
-| 2026 passes, retrospective | 13 of 18                | 7 of 8            | 11 of 13                        | 11 of 13                  |
-| Locked test, retrospective | 54 of 57                | 50 of 54          | 33 of 37                        | 23 of 24                  |
+| Inside the expected range                     | Turbidity, Belle Chasse | Turbidity, Platte | Water temperature, Belle Chasse | Water temperature, Platte |
+| --------------------------------------------- | ----------------------- | ----------------- | ------------------------------- | ------------------------- |
+| 2026 passes, retrospective                    | 16 of 21                | 8 of 9            | 11 of 13                        | 11 of 13                  |
+| Sealed before the station was read (since T0) | 1 of 1                  | 1 of 1            | none yet                        | none yet                  |
+| Locked test, retrospective                    | 54 of 57                | 50 of 54          | 33 of 37                        | 23 of 24                  |
 
-The prospective count is in the app, and is stated here at the submission freeze, 0 included.
-Clouds hide about three passes in four, so it grows slowly. Every count is computed from the
+The prospective count is as of the 21 Oct 2026 daily run: the first pass after T0 at each reach,
+both inside. Two passes say little, and clouds hide about three passes in four, so it grows
+slowly. Every count is computed from the
 committed files (`web/test/scoreboard.test.ts`).
 
 ## How it works
