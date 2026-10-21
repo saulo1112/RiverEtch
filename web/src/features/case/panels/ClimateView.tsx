@@ -115,6 +115,8 @@ function Chart({
   const tipY = tip?.value == null ? baseY : y(tip.value);
   const record = recordYear(points);
   const recordAt = record === null ? -1 : points.indexOf(record);
+  const nowAt = points.findIndex((p) => p.toDate);
+  const now = nowAt < 0 ? undefined : points[nowAt];
 
   return (
     <div
@@ -200,6 +202,17 @@ function Chart({
               />
             );
           })}
+          {/* This year: still running, so not ranked; said over its bar. */}
+          {now?.value == null ? null : (
+            <text
+              className="case-climate__label case-climate__label--now"
+              x={Math.min(width - PAD.right - 14, Math.max(PAD.left + 14, x(nowAt) + band / 2))}
+              y={y(now.value) - 6}
+              textAnchor="middle"
+            >
+              {CASE_COPY.climate.soFar}
+            </text>
+          )}
           {record?.value == null ? null : (
             <text
               className="case-climate__label"

@@ -1,4 +1,13 @@
-import { Anchor, Check, Clock, Download, ExternalLink, ShieldCheck, X } from "lucide-react";
+import {
+  Anchor,
+  Check,
+  Clock,
+  Download,
+  ExternalLink,
+  FileSearch,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import { useEffect, useId, useState, type ReactNode } from "react";
 
 import { explorerUrl } from "../../chain/config.ts";
@@ -16,17 +25,27 @@ import {
   type AnchorOutcome,
   type ChainCheck,
 } from "../../chain/useLedgerAnchor.ts";
+import { checkFile, type FileCheck } from "../../reaches/checkfile.ts";
 import { loadProof, loadSignatures, loadStatus, loadText } from "../../reaches/data.ts";
+import { FNU_CLASSES } from "../../reaches/scene.ts";
 import type {
+  FnuClass,
   ObservationRecord,
   ReachData,
   SeriesRow,
   ThermalRecord,
   ThermalRow,
 } from "../../reaches/types.ts";
-import { verifyRecord, type Verification } from "../../reaches/verify.ts";
+import {
+  editable,
+  isNumberText,
+  verifyRecord,
+  type Editable,
+  type Verification,
+} from "../../reaches/verify.ts";
 import { CASE_COPY, formatDate, landsatName } from "../content.ts";
 import { DisclosureButton } from "./DisclosureButton.tsx";
+import { HelpTip } from "./HelpTip.tsx";
 import { usePanelOpen } from "./usePanelOpen.ts";
 import { VerifyDialog } from "./VerifyDialog.tsx";
 
@@ -94,6 +113,90 @@ function sourceOf(
 
 function isThermal(record: ObservationRecord | ThermalRecord): record is ThermalRecord {
   return "kind" in record;
+}
+
+// A file someone was sent, checked against this reach: a water-temperature record against the
+// temperature ledger, anything else (a turbidity record, a series) against the observations'.
+async function checkSentFile(reach: ReachData, text: string): Promise<FileCheck> {
+  let thermal = false;
+  try {
+    const parsed = JSON.parse(text) as unknown;
+    thermal = typeof parsed === "object" && parsed !== null && "kind" in parsed;
+  } catch {
+    // A series (CSV), or not a RiverEtch file at all.
+  }
+  if (thermal && reach.thermal !== null) {
+    return checkFile(text, {
+      site: reach.info.site,
+      series: reach.thermal.series,
+      ledger: await loadText(reach.base, "thermal/ledger.jsonl"),
+      load: (path) => loadText(reach.base, `thermal/${path}`),
+    });
+  }
+  return checkFile(text, {
+    site: reach.info.site,
+    series: reach.series,
+    ledger: await loadText(reach.base, "ledger.jsonl"),
+    load: (path) => loadText(reach.base, path),
+  });
+}
+
+// A changed value in a line: what, the sealed value and the file's.
+function changeText(path: string, sealed: string, given: string): string {
+  const { record: copy } = CASE_COPY;
+  return copy.file.change(copy.fields[path] ?? path, sealed, given);
+}
+
+// What "Check a file" found, in marks and words.
+function FileResult({ check }: { readonly check: FileCheck }) {
+  const { file } = CASE_COPY.record;
+  if (check.kind === "unreadable") {
+    return <p className="case-verify__note">{file.unreadable}</p>;
+  }
+  if (check.kind === "other-reach") {
+    return <p className="case-verify__note">{file.otherReach(check.site)}</p>;
+  }
+  if (check.kind === "record") {
+    const date = formatDate(check.date, true);
+    return (
+      <ul className="case-verify__lines" data-sealed={check.identical}>
+        <Line ok={check.identical}>
+          {check.identical ? file.identical(date) : file.notIdentical(date)}
+        </Line>
+        <Line ok={check.inLedger}>{check.inLedger ? file.inLedger : file.notInLedger}</Line>
+        {check.selfSealed ? null : <Line ok={false}>{file.selfBroken}</Line>}
+        {check.changes.map((c) => (
+          <li key={c.path} className="case-verify__altered">
+            {changeText(c.path, c.sealed, c.given)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+  const off = check.rows.filter((r) => r.status === "changed" || r.status === "unsealed");
+  const unknown = check.rows.filter((r) => r.status === "unknown").length;
+  const known = check.rows.length - unknown;
+  const shown = off.slice(0, 4);
+  return (
+    <ul className="case-verify__lines" data-sealed={off.length === 0 && unknown === 0}>
+      <Line ok={off.length === 0}>
+        {off.length === 0 ? file.seriesSame(known) : file.seriesChanged(off.length, known)}
+      </Line>
+      {unknown === 0 ? null : <Line ok={false}>{file.unknown(unknown)}</Line>}
+      {shown.map((r) => (
+        <li key={`${r.sceneId}-${r.status}`} className="case-verify__altered">
+          {formatDate(r.date, true)}:{" "}
+          {r.status === "unsealed" && r.changes.length === 0
+            ? file.unsealed
+            : r.changes.map((c) => changeText(c.path, c.sealed, c.given)).join("; ")}
+          {r.status === "unsealed" && r.changes.length > 0 ? ` (${file.unsealed})` : ""}
+        </li>
+      ))}
+      {off.length > shown.length ? (
+        <li className="case-verify__altered">{file.more(off.length - shown.length)}</li>
+      ) : null}
+    </ul>
+  );
 }
 
 function short(hash: string, size = 12): string {
@@ -214,8 +317,10 @@ async function witnesses(
 
 /**
  * Right panel: the selected pass's record and "Verify this record", which recomputes its SHA-256 in
- * the browser and checks it against the ledger, the model card and the anchor on Sepolia. "Alter
- * one value first" changes a number in memory to show a tampered record failing. Folded (the
+ * the browser and checks it against the ledger, the model card and the anchor on Sepolia. "Change
+ * one number first" opens a field with the record's estimate (its value, or its class on a reach
+ * with no gauge), which the reader changes in memory to see a tampered record fail, and puts back
+ * to see it match again. Folded (the
  * default), it shows just those; its details add the record's provenance (scene, satellite images,
  * processing, code, model card and seal), the download, the anchor contract and the owner's
  * anchoring. On the temperature tab it shows the selected Landsat pass's water-temperature record,
@@ -226,13 +331,26 @@ async function witnesses(
 export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
   const { record: copy } = CASE_COPY;
   const alterId = useId();
+  const fieldId = useId();
+  const hintId = useId();
   const detailsId = useId();
   const [open, setOpen] = usePanelOpen("record");
   const [record, setRecord] = useState<{
     file: string;
     data: ObservationRecord | ThermalRecord;
+    field: Editable | null;
   } | null>(null);
   const [alter, setAlter] = useState(false);
+  const fileId = useId();
+  const fileHintId = useId();
+  const [sent, setSent] = useState<
+    | { state: "idle" }
+    | { state: "running" }
+    | { state: "done"; check: FileCheck }
+    | { state: "failed" }
+  >({ state: "idle" });
+  // The reader's value for the record's field; another pass starts again from its sealed value.
+  const [draft, setDraft] = useState<{ file: string; text: string } | null>(null);
   const [stored, setCheck] = useState<CheckState>({ state: "idle" });
   const [proof, setProof] = useState<{
     result: Verification;
@@ -254,7 +372,11 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
     loadText(reach.base, file)
       .then((text) => {
         if (live) {
-          setRecord({ file, data: JSON.parse(text) as ObservationRecord | ThermalRecord });
+          setRecord({
+            file,
+            data: JSON.parse(text) as ObservationRecord | ThermalRecord,
+            field: editable(text),
+          });
         }
       })
       .catch(() => {
@@ -266,6 +388,38 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
       live = false;
     };
   }, [reach.base, file]);
+
+  const data = record !== null && record.file === file ? record.data : null;
+  const estimate = data === null ? undefined : isThermal(data) ? data.estimate : data.estimates[0];
+  const field = record !== null && record.file === file ? record.field : null;
+  const value = field === null ? "" : draft?.file === file ? draft.text : field.sealed;
+  const valid = field === null || field.kind === "class" || isNumberText(value);
+  // A class reads as its range; a number as the record writes it.
+  const shown = (text: string) =>
+    field?.kind === "class" && text in CASE_COPY.ungauged.classes
+      ? CASE_COPY.ungauged.classes[text as FnuClass]
+      : text;
+  const unit = estimate?.unit ?? "";
+  const fieldLabel =
+    field === null
+      ? ""
+      : field.kind === "class"
+        ? copy.fieldClass
+        : field.path === "indices.ndti.downstream"
+          ? copy.fieldIndex
+          : data !== null && isThermal(data)
+            ? copy.fieldTemperature(unit)
+            : copy.fieldValue(unit);
+  // The reach's classes, and the sealed one when it is not among them.
+  const classes: readonly FnuClass[] = reach.card?.classes?.labels ?? FNU_CLASSES;
+  const options =
+    field?.kind === "class" && !classes.includes(field.sealed as FnuClass)
+      ? [...classes, field.sealed as FnuClass]
+      : classes;
+  const typed = (text: string) => {
+    setDraft({ file: file ?? "", text });
+    setCheck({ state: "idle" });
+  };
 
   const verify = async () => {
     if (source === null) {
@@ -279,7 +433,12 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
         loadText(reach.base, ledgerPath),
         cardPath === undefined ? Promise.resolve(null) : loadText(reach.base, cardPath),
       ]);
-      const result = await verifyRecord(recordText, ledger, card, alter);
+      const result = await verifyRecord(
+        recordText,
+        ledger,
+        card,
+        alter && field !== null ? value.trim() : undefined,
+      );
       const chain = anchor.configured
         ? await anchor.check(
             kind,
@@ -300,8 +459,6 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
     }
   };
 
-  const data = record !== null && record.file === file ? record.data : null;
-  const estimate = data === null ? undefined : isThermal(data) ? data.estimate : data.estimates[0];
   const rows =
     data === null
       ? []
@@ -365,9 +522,12 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
     >
       <header className="case-head">
         <div className="case-head__text">
-          <h2 className="case-head__title" id="case-record-title">
-            {copy.title}
-          </h2>
+          <div className="case-record__title">
+            <h2 className="case-head__title" id="case-record-title">
+              {copy.title}
+            </h2>
+            <HelpTip label={copy.whyLabel}>{copy.why}</HelpTip>
+          </div>
           {source === null ? null : <p className="case-head__caption">{source.caption}</p>}
         </div>
         <DisclosureButton
@@ -377,24 +537,70 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
           onToggle={setOpen}
         />
       </header>
-      <label className="case-record__alter" htmlFor={alterId} data-tour="alter">
-        <input
-          id={alterId}
-          type="checkbox"
-          checked={alter}
-          onChange={(event) => {
-            setAlter(event.target.checked);
-            setCheck({ state: "idle" });
-          }}
-        />
-        {copy.alter}
-      </label>
+      {data !== null && field === null ? null : (
+        <label className="case-record__alter" htmlFor={alterId} data-tour="alter">
+          <input
+            id={alterId}
+            type="checkbox"
+            checked={alter}
+            aria-controls={fieldId}
+            onChange={(event) => {
+              setAlter(event.target.checked);
+              setDraft(null);
+              setCheck({ state: "idle" });
+            }}
+          />
+          {copy.alter}
+        </label>
+      )}
+      {alter && field !== null ? (
+        <div className="case-record__field">
+          <label className="case-record__field-label" htmlFor={fieldId}>
+            {fieldLabel}
+          </label>
+          {field.kind === "class" ? (
+            <select
+              id={fieldId}
+              className="case-record__input"
+              value={value}
+              aria-describedby={hintId}
+              onChange={(event) => {
+                typed(event.target.value);
+              }}
+            >
+              {options.map((c) => (
+                <option key={c} value={c}>
+                  {CASE_COPY.ungauged.classes[c]}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id={fieldId}
+              className="case-record__input"
+              type="text"
+              inputMode="decimal"
+              autoComplete="off"
+              spellCheck={false}
+              value={value}
+              aria-invalid={!valid}
+              aria-describedby={hintId}
+              onChange={(event) => {
+                typed(event.target.value);
+              }}
+            />
+          )}
+          <p className="case-record__field-hint" id={hintId} data-invalid={!valid}>
+            {valid ? copy.sealedAs(shown(field.sealed)) : copy.notNumber}
+          </p>
+        </div>
+      ) : null}
       <button
         type="button"
         className="case-btn case-btn--solid case-record__verify"
         data-tour="verify"
         onClick={() => void verify()}
-        disabled={file === null || check.state === "running"}
+        disabled={file === null || check.state === "running" || (alter && !valid)}
       >
         <ShieldCheck size={15} strokeWidth={1.9} aria-hidden="true" />
         {check.state === "running" ? copy.verifying : copy.verify}
@@ -403,10 +609,14 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
         {check.state === "failed" ? <p className="case-verify__note">{copy.failed}</p> : null}
         {check.state === "done" ? (
           <ul className="case-verify__lines" data-sealed={check.result.sealed}>
-            {check.result.altered === null ? null : (
+            {check.result.altered === null ? (
+              alter && field !== null ? (
+                <li className="case-verify__same">{copy.unchanged}</li>
+              ) : null
+            ) : (
               <li className="case-verify__altered">
-                {copy.altered}: <code>{check.result.altered.path}</code> {check.result.altered.from}{" "}
-                → {check.result.altered.to}
+                {copy.altered}: {fieldLabel}, {shown(check.result.altered.from)} →{" "}
+                {shown(check.result.altered.to)}
               </li>
             )}
             <Line ok={check.result.sealed}>{check.result.sealed ? copy.sealed : copy.broken}</Line>
@@ -425,6 +635,43 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
             {check.chain === null ? null : <ChainItem chain={check.chain} />}
           </ul>
         ) : null}
+      </div>
+      <div className="case-record__file">
+        <label className="case-btn case-btn--ghost case-record__file-btn" htmlFor={fileId}>
+          <FileSearch size={14} strokeWidth={1.9} aria-hidden="true" />
+          {sent.state === "running" ? copy.checkingFile : copy.checkFile}
+        </label>
+        <input
+          id={fileId}
+          className="case-visually-hidden"
+          type="file"
+          accept=".json,.csv,application/json,text/csv"
+          aria-describedby={fileHintId}
+          onChange={(event) => {
+            const picked = event.target.files?.[0];
+            event.target.value = "";
+            if (picked === undefined) {
+              return;
+            }
+            setSent({ state: "running" });
+            picked
+              .text()
+              .then((text) => checkSentFile(reach, text))
+              .then((check) => {
+                setSent({ state: "done", check });
+              })
+              .catch(() => {
+                setSent({ state: "failed" });
+              });
+          }}
+        />
+        <p className="case-record__field-hint" id={fileHintId}>
+          {copy.checkFileHint}
+        </p>
+        <div className="case-verify" aria-live="polite">
+          {sent.state === "failed" ? <p className="case-verify__note">{copy.file.failed}</p> : null}
+          {sent.state === "done" ? <FileResult check={sent.check} /> : null}
+        </div>
       </div>
       <div className="case-record__details" id={detailsId} hidden={!open}>
         <dl className="case-record__rows">

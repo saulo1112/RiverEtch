@@ -170,7 +170,7 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
               <path
                 key={`n${String(p.index)}`}
                 className="case-series__none"
-                d={`M${String(x(p.row.date) - 3)},${String(baseY - 3)}l6,6m0,-6l-6,6`}
+                d={`M${String(x(p.row.date) - 2)},${String(baseY - 2)}l4,4m0,-4l-4,4`}
               />
             ) : (
               <circle
@@ -385,7 +385,7 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
               <path
                 key={`n${String(p.index)}`}
                 className="case-series__none"
-                d={`M${String(x(p.row.date) - 3)},${String(baseY - 3)}l6,6m0,-6l-6,6`}
+                d={`M${String(x(p.row.date) - 2)},${String(baseY - 2)}l4,4m0,-4l-4,4`}
               />
             ) : (
               <circle

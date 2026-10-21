@@ -2,6 +2,10 @@
 // with its level, its interval and the error its locked test measured; NDTI stays relative.
 import type { Level } from "../reaches/types.ts";
 
+// The locked tests' years (preregistration.md, "Splits": 2023-12-01..2026-09-30, for turbidity
+// and water temperature alike).
+export const LOCKED_TEST = "Dec 2023–Sep 2026";
+
 /** Labels of the case view. */
 export const CASE_COPY = {
   back: "Back to your cases",
@@ -10,11 +14,11 @@ export const CASE_COPY = {
   liveChip: "Live data · the daily run's published copy",
   snapshotChip: "Snapshot bundled with this build",
   scenePrefix: "Sentinel-2 pass",
-  turbidity: "Turbidity at the gauge",
+  turbidity: "Turbidity at the station",
   interval: "90 % interval",
-  gaugeAt: "USGS gauge at the overpass",
-  gaugeNone: "no gauge value at the overpass",
-  gaugeLink: "Gauge page (USGS)",
+  gaugeAt: "USGS station when the satellite passed",
+  gaugeNone: "no station value when the satellite passed",
+  gaugeLink: "Station page (USGS)",
   noValue: "No value for this pass",
   rangeWithoutLevel:
     "The estimate fell in a range the locked test did not rate, so no value is published.",
@@ -41,8 +45,9 @@ export const CASE_COPY = {
     noGain: "No clear gain over guessing the usual value.",
     worse: "Not better than guessing the usual value.",
     tileMedian: (mdsa: string, n: number) =>
-      `Half of test errors under ${mdsa} % (${String(n)} passes)`,
-    tileMean: (mae: string, n: number) => `Test errors averaged ${mae} °C (${String(n)} passes)`,
+      `Half of test errors under ${mdsa} % (${String(n)} passes, ${LOCKED_TEST})`,
+    tileMean: (mae: string, n: number) =>
+      `Test errors averaged ${mae} °C (${String(n)} passes, ${LOCKED_TEST})`,
     leanWarm: (d: string) => `tends to read ${d} °C warm`,
     leanCold: (d: string) => `tends to read ${d} °C cold`,
     leanHigh: (p: string) => `tends to read about ${p} % high`,
@@ -55,24 +60,26 @@ export const CASE_COPY = {
     validated:
       "Passed the locked test with a clear margin over guessing the usual value, on at least 20 passes in two years, with an honest range. You can cite the value with its range.",
     estimated:
-      "Beat guessing the usual value under looser limits. Use the value with its range, and confirm it against the gauge when it matters.",
+      "Beat guessing the usual value under looser limits. Use the value with its range, and confirm it against the station when it matters.",
     estimatedCapped:
-      "Met every validated threshold, but against a gauge whose values are still provisional, so it is capped at estimated.",
+      "Met every validated threshold, but against a station whose values are still provisional, so it is capped at estimated.",
     indicative:
       "Follows the river's rises and falls, but not its level. Read it as low, medium or high, never as a number.",
     unvalidated:
-      "No gauge measures this reach, so its error cannot be checked here. The class comes from a model that never saw this reach, and its expected error is the one measured on similar rivers it never saw. Read it as a turbidity range in FNU, never as a number.",
+      "No station measures this reach, so the satellite's reading is the only one here. The class comes from a model that never saw this reach; how far off it tends to be was measured on similar rivers it never saw either. Read it as a turbidity range in FNU, never as a number.",
     none: "Did not pass the locked test. Only the relative index is shown.",
   },
   // A reach with no gauge outside the region the model was tested in
   // (preregistration-outside-us.md): the same class, and no error figure of any kind.
   levelHelpOutside:
-    "No gauge measures this reach, and the model was only ever tested on US rivers, so no error estimate exists here. Read the class as a turbidity range in FNU, never as a number, and not as checked.",
+    "No station measures this reach, and the model was only ever tested on US rivers, so no error estimate exists here. Read the class as a turbidity range in FNU, never as a number, and not as checked.",
   // A reach with no gauge (preregistration-transfer.md, section 5): a class only, beside the
   // expected error that the test on rivers the model never saw measured; never a value.
   ungauged: {
     turbidity: "Turbidity class",
     classes: {
+      under_15: "Under 15 FNU",
+      "15_to_30": "15 to 30 FNU",
       under_30: "Under 30 FNU",
       "30_to_100": "30 to 100 FNU",
       "30_to_50": "30 to 50 FNU",
@@ -85,18 +92,38 @@ export const CASE_COPY = {
     noClass: "No class for this pass",
     errorTitle: "How far off it tends to be, on rivers it never saw",
     agreement: (k: number, n: number) =>
-      `In ${String(k)} of ${String(n)} test passes on rivers it never saw, the class matched the gauge.`,
+      `In ${String(k)} of ${String(n)} test passes on rivers it never saw, the class matched the station.`,
     median: (mdsa: string, sites: number) =>
-      `Half of those estimates were off by less than ${mdsa} % of the gauge's value (${String(sites)} sediment-carrying rivers like this one).`,
+      `Half of those estimates were off by less than ${mdsa} % of the station's value (${String(sites)} sediment-carrying rivers like this one).`,
     baselineNote:
-      "With no gauge here there is no usual value to compare with; each river's comparison is under All rivers.",
+      "With no station here there is no usual value to compare with; each river's comparison is under Accuracy.",
     trainedOn:
-      "The model never saw this reach. It did learn from two other Mississippi gauges, at Cape Girardeau (upstream) and Belle Chasse (downstream).",
-    window: "Estimate window (no gauge)",
-    legendWindow: "The estimate window (no gauge here: a class only)",
-    mapCaption: "No gauge here",
+      "The model never saw this reach. It did learn from two other Mississippi stations, at Cape Girardeau (upstream) and Belle Chasse (downstream).",
+    window: "Reading spot (no station)",
+    legendWindow: "The reading spot (no station here: a class only)",
+    mapCaption: "No station here",
     chartKey: "Each pass's turbidity class in FNU (the height means the class only)",
-    noGauge: "No gauge on this reach: nothing here is ever scored against one.",
+    noGauge: "No station on this reach, so nothing here is scored against one.",
+    // The pass's turbidity index against the river's own past passes (rule D0), on the card.
+    ownPast: "Against this river's own past",
+    ownPastHelpLabel: "About the river's own past",
+    ownPastHelp: (n: number, from: string, to: string) =>
+      `RiverEtch compares each pass's turbidity index (NDTI) with ${String(n)} earlier clear passes of this reach, from ${from} to ${to}. It needs no station: it says whether the water looks as usual for this river, muddier or clearer.`,
+    ownPastWords: { usual: "Usual", high: "Muddier than usual", low: "Clearer than usual" },
+    // Published measurements beside a reach (docs/water-quality/published/<reach>.json).
+    published: {
+      title: "Measured by others",
+      helpLabel: "About these measurements",
+      every: (v: string, unit: string) => `${v} ${unit} in every sample`,
+      median: (v: string, unit: string, lo: string, hi: string) =>
+        `median ${v} ${unit}, from ${lo} to ${hi}`,
+      span: (lo: string, hi: string, unit: string) => `${lo} to ${hi} ${unit}`,
+      away: (km: string, direction: string) => ` (${km} km ${direction})`,
+      inLine: (cls: string) =>
+        `Its class here, ${cls.charAt(0).toLowerCase()}${cls.slice(1)}, is in line with them.`,
+      caveat:
+        "Other years and another unit (NTU): a plausibility check, looked up after seeing the result, not a test.",
+    },
     // Beside the class agreement once the reach has four classes (preregistration-four-classes.md).
     baseline: (k: number, n: number) =>
       `Always guessing the most common class matched ${String(k)} of ${String(n)}, a comparison decided after seeing the result.`,
@@ -113,11 +140,11 @@ export const CASE_COPY = {
     finish: "Finish",
     summaryTitle: "One pass of the satellite",
     summary:
-      "One clear Sentinel-2 pass: the turbidity at the gauge's window, in FNU, with the range the measured value should fall in 9 times out of 10.",
+      "One clear Sentinel-2 pass: the turbidity at the station spot, in FNU, with the range the station's value should fall in 9 times out of 10.",
     summaryUngauged:
-      "One clear Sentinel-2 pass. No gauge measures this reach, so it shows a turbidity range in FNU, never a value, beside the error measured on rivers the model never saw.",
+      "One clear Sentinel-2 pass. No station measures this reach, so it shows a turbidity range in FNU, never a value, beside the error measured on rivers the model never saw.",
     summaryOutside:
-      "One clear Sentinel-2 pass. No gauge measures this reach, and the model was only tested on US rivers, so it shows a turbidity range in FNU with no error estimate.",
+      "One clear Sentinel-2 pass. No station measures this reach, and the model was only tested on US rivers, so it shows a turbidity range in FNU with no error estimate.",
     trustTitle: "What it is worth, and what protects it",
     trust:
       "The level says how far the model was tested; the (?) explains it. Sealed: the record's SHA-256 is fixed. Anchored: its ledger line is stored on a public chain.",
@@ -126,17 +153,20 @@ export const CASE_COPY = {
       "Your browser recomputes the seal, walks the ledger and checks the model card, then reads the anchor on Sepolia, the Bitcoin timestamp and the post-quantum signature. No wallet needed.",
     alterTitle: "Try to change it",
     alter:
-      "Tick this, then verify again: one value changes in memory, and the seal no longer matches.",
+      "Tick this and type another number (or pick another class), then verify again: the seal no longer matches. Put the sealed value back and it matches again. Nothing leaves your browser.",
     layersTitle: "The map is relative",
     layers:
-      "NDTI per pixel, compared with this reach's own passes. It has no unit and is not validated: only the estimate window carries a value or a class.",
+      "NDTI per pixel, compared with this reach's own passes. It has no unit and is not validated: only the amber spot carries a value or a class.",
     tabsTitle: "The year, pass by pass",
-    tabs: "The tabs hold the year's passes beside the gauge, the gauge's own readings and climate record, and the scoreboard of claims made before the gauge was read.",
+    tabs: "The tabs hold the year's passes beside the station, the station's own readings and climate record, and the track record of readings sealed before the station's value was read.",
     tabsUngauged:
-      "The tabs hold the year's passes by class and the selected pass in detail. With no gauge there is no scoreboard: nothing here is ever scored.",
+      "The tabs hold the year's passes by class, the turbidity index against the river's own past, and the image in detail. With no station there is no track record: nothing here is scored.",
+    accuracyTitle: "Where it works",
+    accuracy:
+      "Every station it was tested on: where the satellite beats guessing the river's usual value, and the few where it does not.",
     neverTitle: "Rivers it never saw",
     never:
-      "Every river tested, failures included. This switch shows each one scored by a model that never saw it: the error to expect where there is no gauge.",
+      "Every river tested, scored by a model that never saw it: the error to expect where there is no station.",
     neverOutside:
       "Every river tested, failures included, all of them in the US. This reach lies outside that region, so none of these errors applies to it.",
     endTitle: "That is the record",
@@ -153,7 +183,7 @@ export const CASE_COPY = {
   },
   // Three kinds of number, each with its own mark and words, never colour alone.
   kinds: {
-    gauge: "Gauge · measured",
+    gauge: "Station · measured",
     satellite: "Satellite · estimated",
     history: "History · computed",
     provisional: "Provisional",
@@ -164,6 +194,9 @@ export const CASE_COPY = {
   },
   record: {
     title: "Record",
+    // Why a reader would verify a record the site already calls sealed.
+    whyLabel: "Why verify a record?",
+    why: "The site says each record is sealed; this lets you check that without trusting RiverEtch. Your browser recomputes the record's fingerprint, finds it in the reach's ledger and reads the ledger's fingerprint on Ethereum, posted when it was sealed. If anyone had changed a past reading since, RiverEtch included, the fingerprints would no longer match.",
     details: "Record details",
     ofPass: "Sentinel-2 pass",
     ofThermal: "water temperature",
@@ -172,7 +205,7 @@ export const CASE_COPY = {
     landsatImages: "Landsat images",
     processing: "Processing",
     thermalProcessing: "Collection 2 Level-2 · band 10 surface temperature",
-    window: "Gauge window",
+    window: "Station spot",
     waterPixels: "water pixels",
     code: "Code",
     card: "Model card",
@@ -182,6 +215,14 @@ export const CASE_COPY = {
     verify: "Verify this record",
     verifying: "Verifying…",
     alter: "Change one number first",
+    // The field "Change one number first" opens: the record's estimate, or its class.
+    fieldValue: (unit: string) => `Turbidity estimate (${unit})`,
+    fieldTemperature: (unit: string) => `Water temperature (${unit})`,
+    fieldClass: "Turbidity class",
+    fieldIndex: "Turbidity index downstream (NDTI)",
+    sealedAs: (value: string) => `Sealed as ${value}. Change it, then verify.`,
+    notNumber: "Type a number, such as 12.5.",
+    unchanged: "Same as the sealed value: nothing changed, so the seal still matches.",
     download: "Download the record (JSON)",
     sealed: "Its content matches its seal (SHA-256)",
     broken: "Its content no longer matches its seal",
@@ -193,6 +234,51 @@ export const CASE_COPY = {
     cardOk: "Model card matches the hash the record names",
     cardBad: "Model card does not match the hash the record names",
     altered: "Changed in memory",
+    // "Check a file you were sent": a record (JSON) or series (CSV) against the sealed records.
+    checkFile: "Check a file you were sent",
+    checkFileHint: "A record (JSON) or series (CSV). Checked in your browser; nothing is uploaded.",
+    checkingFile: "Checking the file…",
+    file: {
+      identical: (date: string) => `Identical to the record sealed for the pass of ${date}`,
+      notIdentical: (date: string) => `Not the record sealed for the pass of ${date}`,
+      inLedger: "Its fingerprint is a line of this reach's ledger",
+      notInLedger:
+        "Its fingerprint is in no line of this reach's ledger: RiverEtch never sealed it",
+      selfBroken: "Its content no longer matches the fingerprint it states",
+      change: (what: string, sealed: string, given: string) =>
+        `${what}: sealed ${sealed}, in the file ${given}`,
+      seriesSame: (n: number) => `All ${String(n)} rows match the sealed records`,
+      seriesChanged: (k: number, n: number) =>
+        `${String(k)} of ${String(n)} rows differ from the sealed records`,
+      unsealed: "its fingerprint is in no ledger line",
+      unknown: (k: number) =>
+        `${String(k)} ${k === 1 ? "row names" : "rows name"} no pass of this reach`,
+      more: (k: number) => `and ${String(k)} more`,
+      otherReach: (site: string) =>
+        `This is a record of another reach (${site}): open its case to check it.`,
+      unreadable: "This is not a RiverEtch record or series file.",
+      failed: "The file could not be read.",
+    },
+    // A changed value, as a reader names it.
+    fields: {
+      "estimates[0].value": "turbidity estimate",
+      "estimates[0].fnuClass": "turbidity class",
+      "estimates[0].level": "level",
+      "estimates[0].interval.low": "range, low end",
+      "estimates[0].interval.high": "range, high end",
+      "estimate.value": "water temperature",
+      "indices.ndti.upstream": "turbidity index upstream",
+      "indices.ndti.downstream": "turbidity index downstream",
+      date: "date",
+      level: "level",
+      turbidity_fnu: "turbidity",
+      turbidity_class: "turbidity class",
+      interval90_low: "range, low end",
+      interval90_high: "range, high end",
+      abstain_reason: "why there is no reading",
+      ndti_upstream: "turbidity index upstream",
+      ndti_downstream: "turbidity index downstream",
+    } as Readonly<Record<string, string>>,
     notAnchored: "Not anchored on a public chain yet: the seal and the ledger are checked here.",
     anchoredHint:
       "Each ledger's last line is anchored on Ethereum (Sepolia) as a public timestamp.",
@@ -219,11 +305,11 @@ export const CASE_COPY = {
   legendPhoto: "True color of this pass",
   legendPhotoNote: "Sentinel-2 bands 4, 3 and 2 (red, green, blue), brightened as viewers do.",
   noData: "Cloud, glint or no data on this pass",
-  window: "The gauge window (where turbidity is estimated)",
+  window: "The station spot (where turbidity is estimated)",
   timelineTitle: "Turbidity, 2026",
   timelineSatellite: "Satellite estimate (FNU) and its 90 % interval",
-  timelineGauge: "USGS gauge at the overpass (provisional)",
-  timelineNoValue: "Pass without a value",
+  timelineGauge: "USGS station when the satellite passed",
+  timelineNoValue: "No reading (cloud, glare or out of range)",
   timelineHint: "Select a pass to see its map and record.",
   tools: {
     label: "Map tools",
@@ -235,7 +321,8 @@ export const CASE_COPY = {
     layers: "Layers",
     overlays: "Overlays",
     outline: "River corridor",
-    window: "Gauge window",
+    window: "Station spot",
+    windowUngauged: "Reading spot",
     terrain: "3D terrain",
     compare: "Compare",
     compareWith: "Compare the selected pass with",
@@ -266,17 +353,27 @@ export const CASE_COPY = {
     series: "Turbidity, 2026",
     thermal: "Water temperature",
     climate: "Climate",
-    pass: "This pass",
-    scoreboard: "Scoreboard",
-    rivers: "All rivers",
+    pass: "Image details",
+    scoreboard: "Track record",
+    rivers: "Accuracy",
   },
-  // Every river the validation evaluated, the ones that do not beat guessing the usual value too.
+  // Where the satellite works and where it does not: every station tested, from the committed
+  // results, the ones it does not beat guessing the usual value on included.
   rivers: {
-    caption: (total: number, rated: number, median: string) =>
-      `The two demo reaches are the best two of ${String(total)} stations. The honest summary is the median error over the ${String(rated)} stations evaluated: ${median} %.`,
-    tableCaption: "Every evaluated river's locked test, lowest error first",
+    summary: (k: number, n: number, median: string) =>
+      `The satellite passed its locked test (${LOCKED_TEST}) at ${String(k)} of the ${String(n)} stations rated; across them, half of its errors were under ${median} %. The two demo rivers with a station are the best two.`,
+    summaryNever: (k: number, n: number) =>
+      `Scored once by a model that never saw the river (20 Oct 2026), it still passed at ${String(k)} of ${String(n)} stations: the error to expect where there is no station.`,
+    outside:
+      "All of these stations are in the US. This reach lies outside that region, so none of these errors applies to it.",
+    works: (k: number) => `Where it works · ${String(k)} stations`,
+    notRecommended: (k: number) => `Not recommended on these rivers · ${String(k)}`,
+    notNote: "it did not beat guessing the usual value, so RiverEtch shows no number there",
+    notNoteNever: "a model that never saw them did not beat guessing the usual value",
+    thin: "Too few test passes to judge",
+    tableCaption: "Every evaluated station's test, lowest error first",
     columns: {
-      river: "River (USGS gauge)",
+      river: "River (USGS station)",
       level: "Level",
       satellite: "Satellite error",
       baseline: "Guess the usual value",
@@ -292,11 +389,6 @@ export const CASE_COPY = {
     noGain: "no clear gain",
     worse: "not better than guessing",
     inside: (k: number) => `${String(k)} inside the range`,
-    // The same rivers, each scored by a model that never saw its river (the transfer test).
-    views: { own: "Its own model", never: "A model that never saw it" },
-    viewsLabel: "Which test to show",
-    neverNote:
-      "Each river scored by a model trained only on the other river groups, as fixed before the test ran (preregistration-transfer.md, run once on 20 Oct 2026). This is the error to expect on a river with no gauge.",
     otherMedian: (v: string) => `other rivers' median: ${v} %`,
     // Display names of the gauges, as the report's table writes them.
     names: {
@@ -313,27 +405,27 @@ export const CASE_COPY = {
       "USGS-06934500": "Missouri at Hermann",
     } as Readonly<Record<string, string>>,
   },
-  // The scoreboard (docs/water-quality/prospective.md): counts, never percentages, until there are
-  // 20 passes; every count says whether it was committed before the gauge was read.
+  // The track record (docs/water-quality/prospective.md): counts, never percentages, until there
+  // are 20 passes; every count says whether it was sealed before the station was read.
   scoreboard: {
     caption:
-      "How many gauge values fell inside the expected range. Counts, not percentages, until there are 20 passes.",
-    prospective: "Prospective",
-    prospectiveHelpLabel: "About prospective passes",
+      "How many station values fell inside the expected range. Counts, not percentages, until there are 20 passes.",
+    prospective: "Sealed before the station was read",
+    prospectiveHelpLabel: "About passes sealed in advance",
     prospectiveHelp:
-      "The model and the scoring rule were anchored on Sepolia before the satellite took the image, and the estimate was sealed and anchored before RiverEtch read the gauge. That proves the estimate was not changed after the reading, not that the reading was unknown: the USGS publishes provisional values within minutes.",
+      "The model and the scoring rule were anchored on Sepolia before the satellite took the image, and the estimate was sealed and anchored before RiverEtch read the station. That proves the estimate was not changed after the reading, not that the reading was unknown: the USGS publishes provisional values within minutes.",
     since: (date: string) => `since ${date}`,
     notStarted: "Starts when the scoring rule is anchored on Sepolia.",
-    empty:
-      "No prospective pass scored yet. Clouds hide about three passes in four; a clear pass is scored at the first daily run after its anchor, at least 12 hours after the pass.",
-    retrospective: "Retrospective (backtest)",
-    retrospectiveHelpLabel: "About retrospective passes",
+    empty: (date: string) =>
+      `Waiting for the first clear pass since ${date}. Each new pass is sealed and anchored before the station's value is read, then scored here.`,
+    retrospective: "Checked after the station's value was public",
+    retrospectiveHelpLabel: "About passes checked after the fact",
     retrospectiveHelp:
-      "Sealed after the gauge's value was public. It shows the model's behaviour, not a commitment made in advance.",
-    passes2026: "2026 passes",
-    passes2026Note: "gauge values mostly provisional",
+      "Sealed after the station's value was public. It shows how the model behaves, not a claim made in advance.",
+    passes2026: "This year's passes",
+    passes2026Note: "recent station values may be revised",
     lockbox: "Locked test",
-    lockboxNote: "passes the model never saw",
+    lockboxNote: `passes the model never saw, ${LOCKED_TEST}`,
     count: (k: number, n: number) => `${String(k)} of ${String(n)}`,
     inside: "inside",
     turbidity: "Turbidity",
@@ -341,19 +433,19 @@ export const CASE_COPY = {
     results: {
       inside: "Inside the range",
       outside: "Outside the range",
-      pending: "No gauge value yet",
-      none: "No gauge value",
+      pending: "No station value yet",
+      none: "No station value",
       abstained: "No estimate (abstained)",
       noRange: "No expected range",
     },
     approvedLater: (value: string) => `Approved later: ${value}`,
-    columns: { pass: "Pass", estimate: "Estimate", gauge: "Gauge", result: "Result" },
+    columns: { pass: "Pass", estimate: "Estimate", gauge: "Station", result: "Result" },
   },
   climate: {
     lead: "Continued warming is projected to make wet and dry extremes more severe",
     cite: "IPCC AR6, SPM B.3.1",
     citeUrl: "https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/",
-    note: "Below, the gauge's own daily record: measurements, not a trend or an attribution.",
+    note: "Below, the station's own daily record: measurements, not a trend or an attribution.",
     measures: { peak: "Annual peak", low: "7-day low", warm: "Warmest day" },
     facts: {
       peak: "Highest annual peak",
@@ -364,12 +456,13 @@ export const CASE_COPY = {
     since: (year: string, station: string) => `${station} · record since ${year}`,
     weekTo: "week to",
     toDate: "so far, not ranked",
+    soFar: "so far",
     incomplete: "incomplete year, not ranked",
     provisional: "includes provisional values",
     keyTop: "Three most extreme years",
     keyToDate: "This year so far",
     chart: (measure: string, station: string) => `${measure} per year at ${station}`,
-    table: "Every year of the gauge's record",
+    table: "Every year of the station's record",
     // Extreme days (rule v1, docs/water-quality/prospective.md): counts and ranks from the gauge.
     views: { label: "What the climate tab shows", values: "Yearly extremes", days: "Extreme days" },
     kinds: { low: "Low-flow days", high: "High-flow days", warm: "Warm-water days" },
@@ -388,26 +481,29 @@ export const CASE_COPY = {
     definitionLabel: "About extreme days",
     definition: {
       low: (value: string, unit: string, first: string) =>
-        `A day whose mean flow is at or below ${value} ${unit}: the lowest tenth of this gauge's approved days from ${first} to 2025.`,
+        `A day whose mean flow is at or below ${value} ${unit}: the lowest tenth of this station's approved days from ${first} to 2025.`,
       high: (value: string, unit: string, first: string) =>
-        `A day whose mean flow is at or above ${value} ${unit}: the highest tenth of this gauge's approved days from ${first} to 2025.`,
+        `A day whose mean flow is at or above ${value} ${unit}: the highest tenth of this station's approved days from ${first} to 2025.`,
       warm: (value: string, unit: string, first: string) =>
-        `A June–September day whose mean water temperature is at or above ${value} ${unit}: the warmest tenth of this gauge's approved summer days from ${first} to 2025.`,
+        `A June–September day whose mean water temperature is at or above ${value} ${unit}: the warmest tenth of this station's approved summer days from ${first} to 2025.`,
     },
     definitionNote:
-      "Counted from the gauge's own record, never from the satellite, as the scoring rule defines them; no error on such days had been computed when it was written.",
-    tableDays: "Extreme days in every year of the gauge's record",
+      "Counted from the station's own record, never from the satellite, as the scoring rule defines them; no error on such days had been computed when it was written.",
+    tableDays: "Extreme days in every year of the station's record",
   },
   thermal: {
     title: "Water temperature",
     satellite: "Landsat estimate (°C) and its 90 % interval",
-    gauge: "USGS gauge at the overpass",
-    upstreamGauge: (name: string) => `USGS gauge at ${name} (where it was validated)`,
+    gauge: "USGS station when Landsat passed",
+    upstreamGauge: (name: string) => `USGS station at ${name} (where it was validated)`,
     upstreamNote: (name: string) =>
-      `Validated at ${name}, the nearest gauge on the river that measures temperature.`,
-    cursor: "Selected Sentinel-2 pass",
+      `Validated at ${name}, the nearest station on the river that measures temperature.`,
+    // The dashed line: the Sentinel-2 pass the map and the other tabs show (Landsat passes on
+    // other days); the lit dot: the Landsat pass whose record is open.
+    cursor: "Day shown on the map",
+    picked: "Selected Landsat pass",
     hint: "Select a Landsat pass to see its record.",
-    pixels: "water pixels in the gauge window",
+    pixels: "water pixels at the station spot",
     lead: "Locked test",
     error: "mean error",
     on: "on",
@@ -416,7 +512,12 @@ export const CASE_COPY = {
   },
   quality: {
     satellite: "Estimated from the satellite",
-    gauge: "Measured by the USGS gauge at the pass",
+    // What every tile's small line spans, said once; a station value's approval, said once.
+    satelliteLines: "each line: this year's passes",
+    gauge: "Measured by the USGS station",
+    provisional: "recent values may be revised",
+    provisionalLong:
+      "The USGS publishes a station's values within minutes and may still revise the recent ones after review.",
     turbidity: "Turbidity",
     temperature: "Water temperature",
     sentinel: "Sentinel-2",
@@ -428,21 +529,23 @@ export const CASE_COPY = {
     own: "Turbidity index vs its own past",
     ownSource: "Sentinel-2 · NDTI",
     usual: "Usual",
-    high: "Unusually high",
-    low: "Unusually low",
-    ownDetail: (up: string, down: string) =>
-      `z ${up} upstream, ${down} downstream, against this reach's earlier passes; unusual at 3 or more.`,
+    high: "Muddier than usual",
+    low: "Clearer than usual",
+    ownDetail: (up: string, down: string, n: number, from: string, to: string) =>
+      `${up} upstream and ${down} downstream, in spreads from usual, against ${String(n)} passes from ${from} to ${to}. Unusual from 3.`,
+    ownDetailShort: (up: string, down: string) =>
+      `${up} upstream and ${down} downstream, in spreads from usual. Unusual from 3.`,
     ownNone: "No index for this pass",
   },
   context: {
-    title: "Measured by the USGS gauge at this pass",
-    none: "The gauge reported no other value at this pass.",
+    title: "Measured by the USGS station when the satellite passed",
+    none: "The station reported no value at this pass.",
     provisional: "Provisional data, subject to revision by the USGS.",
     provisionalShort: "provisional",
     approvedShort: "approved",
     names: {
-      "00060": "Discharge",
-      "00065": "Gage height",
+      "00060": "River flow",
+      "00065": "Water level",
       "00010": "Water temperature",
       "00300": "Dissolved oxygen",
       "00095": "Specific conductance",
@@ -516,7 +619,9 @@ export const LEVEL_LABELS = {
   validated: "Validated",
   estimated: "Estimated",
   indicative: "Indicative",
-  unvalidated: "Unvalidated",
+  // A reach with no station: the satellite's reading is the only one. The preregistered label
+  // ("unvalidated: expected error from the transfer test") stays, word for word, beside it.
+  unvalidated: "Satellite only",
   none: "No level",
 } as const satisfies Record<Level, string>;
 

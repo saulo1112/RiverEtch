@@ -1,4 +1,3 @@
-import { Gauge, Satellite } from "lucide-react";
 import type { CSSProperties } from "react";
 
 import {
@@ -7,6 +6,7 @@ import {
   isOutside,
   isUngauged,
   nearestThermal,
+  ownPast,
   sceneKey,
   thermalValidatedAt,
   turbidity,
@@ -23,7 +23,7 @@ import {
 } from "../content.ts";
 import { leanOfTemperature, leanOfTurbidity, type Lean } from "../reading.ts";
 
-const { reading, kinds } = CASE_COPY;
+const { reading } = CASE_COPY;
 
 // Which way an estimate leans, in words ("" when there is no clear lean).
 function leanText(lean: Lean): string {
@@ -107,9 +107,10 @@ interface Tile {
   readonly value: string | null;
   readonly unit: string;
   readonly detail: string;
-  /** A satellite estimate's level, or a gauge value's approval (Provisional, Approved). */
+  /** A satellite estimate's level (a station's value carries none). */
   readonly chip: string | null;
   readonly level?: string;
+  /** A station value: provisional or approved by the USGS (said once, over the group). */
   readonly approval?: string;
   readonly foot: string;
   readonly spark: { values: readonly (number | null)[]; selected: number | null };
@@ -149,6 +150,9 @@ function classTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
   };
 }
 
+// "Jan 2019" from an ISO date.
+const monthYear = (iso: string) => formatDate(iso, true).split(" ").slice(1).join(" ");
+
 // A z-score as the tile writes it: one decimal, a true minus sign.
 const zText = (z: number | null | undefined) =>
   z == null ? "–" : `${z < 0 ? "\u2212" : z > 0 ? "+" : ""}${Math.abs(z).toFixed(1)}`;
@@ -158,27 +162,28 @@ const zText = (z: number | null | undefined) =>
 // the year's downstream z-scores as its line. Relative: no unit, no level.
 function ownPastTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
   const copy = CASE_COPY.quality;
+  const base = reach.info.baseline;
   const z = row.indices.ndti.zScore;
-  const signals = row.verdict?.signals ?? [];
-  const strongest = signals
-    .map((s) => (z === undefined ? null : (z[s as keyof typeof z] ?? null)))
-    .filter((v): v is number => v !== null)
-    .sort((a, b) => Math.abs(b) - Math.abs(a))[0];
-  const value =
-    z === undefined || row.verdict === undefined
-      ? null
-      : !row.verdict.anomalous
-        ? copy.usual
-        : (strongest ?? 0) < 0
-          ? copy.low
-          : copy.high;
+  const judged = ownPast(row);
+  const value = judged === null ? null : copy[judged];
   return {
     id: "own-past",
     title: copy.own,
     source: copy.ownSource,
     value,
     unit: "",
-    detail: z === undefined ? copy.ownNone : copy.ownDetail(zText(z.upstream), zText(z.downstream)),
+    detail:
+      z === undefined
+        ? copy.ownNone
+        : base.first === null || base.last === null
+          ? copy.ownDetailShort(zText(z.upstream), zText(z.downstream))
+          : copy.ownDetail(
+              zText(z.upstream),
+              zText(z.downstream),
+              base.usableScenes,
+              monthYear(base.first),
+              monthYear(base.last),
+            ),
     chip: null,
     level: "none",
     foot: "",
@@ -295,12 +300,7 @@ function gaugeTiles(reach: ReachData, row: SeriesRow, selected: number): Tile[] 
       value: here === undefined ? null : formatReading(here.value),
       unit: sample?.unit ?? "",
       detail: here === undefined ? copy.none : "",
-      chip:
-        here === undefined
-          ? null
-          : here.approval === "Approved"
-            ? kinds.approved
-            : kinds.provisional,
+      chip: null,
       approval: here?.approval,
       foot: "",
       spark: {
@@ -315,8 +315,9 @@ function gaugeTiles(reach: ReachData, row: SeriesRow, selected: number): Tile[] 
 /**
  * The selected pass's water quality at a glance: what the satellite estimates (turbidity from
  * Sentinel-2, water temperature from the nearest Landsat pass), each with its interval, its level
- * and its locked-test error beside the error without the satellite; then what the USGS gauge
- * measured at the overpass. Each tile carries the year's values as a small line. The two groups
+ * and its locked-test error (and its years) beside the error without the satellite; then what the
+ * USGS station measured at the overpass, its approval said once over the group. Each tile carries
+ * the year's values as a small line, and each group says what its lines span. The two groups
  * share the panel's width by their tile counts (a satellite tile counts double); where they do not
  * fit side by side, the gauge's group goes under the satellite's and tiles wrap, never sideways.
  *
@@ -334,6 +335,7 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
     temperatureTile(reach, row),
   ].filter((t): t is Tile => t !== null);
   const gauge = gaugeTiles(reach, row, selected);
+  const provisional = gauge.some((t) => t.value !== null && t.approval !== "Approved");
   // The tile's parts are placed by CSS grid areas: the line gets its own row when the panel is
   // tall, or sits beside the value when it is short.
   const tile = (t: Tile) => (
@@ -354,15 +356,7 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
           </>
         )}
       </p>
-      {t.chip === null ? null : t.tone === "gauge" ? (
-        <span
-          className="case-chip case-quality__chip"
-          data-approval={t.approval}
-          title={t.approval === "Approved" ? kinds.approvedHelp : kinds.provisionalHelp}
-        >
-          {t.chip}
-        </span>
-      ) : (
+      {t.chip === null ? null : (
         <span className="case-chip case-chip--level case-quality__chip" data-level={t.level}>
           {t.chip}
         </span>
@@ -381,8 +375,7 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
         style={{ "--count": satellite.length } as CSSProperties}
       >
         <p className="case-quality__label">
-          <Satellite size={13} strokeWidth={1.9} aria-hidden="true" />
-          {copy.satellite}
+          {copy.satellite} <span className="case-quality__muted">· {copy.satelliteLines}</span>
         </p>
         <ul className="case-quality__tiles">{satellite.map(tile)}</ul>
       </section>
@@ -393,9 +386,11 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
           aria-label={copy.gauge}
           style={{ "--count": gauge.length } as CSSProperties}
         >
-          <p className="case-quality__label">
-            <Gauge size={13} strokeWidth={1.9} aria-hidden="true" />
+          <p className="case-quality__label" title={provisional ? copy.provisionalLong : undefined}>
             {copy.gauge} · {formatDate(row.date, true)}
+            {provisional ? (
+              <span className="case-quality__muted"> · {copy.provisional}</span>
+            ) : null}
           </p>
           <ul className="case-quality__tiles">{gauge.map(tile)}</ul>
         </section>

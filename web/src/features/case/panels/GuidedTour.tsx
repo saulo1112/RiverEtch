@@ -71,10 +71,10 @@ function steps(ungauged: boolean, outside: boolean): Step[] {
     { target: "layers", title: t.layersTitle, body: t.layers },
     { target: "tabs", title: t.tabsTitle, body: ungauged ? t.tabsUngauged : t.tabs },
     {
-      target: "never",
+      target: "accuracy",
       tab: "rivers",
-      title: t.neverTitle,
-      body: outside ? t.neverOutside : t.never,
+      title: ungauged ? t.neverTitle : t.accuracyTitle,
+      body: outside ? t.neverOutside : ungauged ? t.never : t.accuracy,
     },
     { target: null, title: t.endTitle, body: t.end },
   ];

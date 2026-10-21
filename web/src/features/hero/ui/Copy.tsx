@@ -1,5 +1,5 @@
 import { ArrowRight } from "lucide-react";
-import { useCallback, type Ref, type RefCallback } from "react";
+import { useCallback, useState, type Ref, type RefCallback } from "react";
 
 import { COPY, INDICATORS, type Indicator } from "./content.ts";
 import { riversTested } from "./how/numbers.ts";
@@ -55,6 +55,26 @@ const FIGURES: Readonly<Record<Indicator["id"], string>> = {
   proofs: "3",
 };
 
+// "How it works" calls softly until a visitor first opens it (remembered in this browser only; a
+// browser that keeps nothing simply calls again).
+const HOW_SEEN = "riveretch.how.seen";
+
+function howSeenBefore(): boolean {
+  try {
+    return window.localStorage.getItem(HOW_SEEN) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markHowSeen(): void {
+  try {
+    window.localStorage.setItem(HOW_SEEN, "1");
+  } catch {
+    // Nothing kept: the button calls again next time.
+  }
+}
+
 /**
  * The entry screen's text column: eyebrow, two-line headline, subtitle, the two calls to action
  * ("Explore your cases" opens the demo workspace's cases; "How it works" opens the dialog) and three
@@ -70,6 +90,7 @@ export function Copy({
   exploreRef,
   howItWorksRef,
 }: CopyProps) {
+  const [howSeen, setHowSeen] = useState(howSeenBefore);
   const primaryLift = useLift<HTMLButtonElement>();
   const secondaryLift = useLift<HTMLButtonElement>();
   const primaryRef = useCallback(
@@ -108,7 +129,12 @@ export function Copy({
           ref={secondaryRef}
           type="button"
           className="hero-btn hero-btn--ghost hero-btn--how hero-btn--lift"
-          onClick={onHowItWorks}
+          data-calling={!howSeen}
+          onClick={() => {
+            markHowSeen();
+            setHowSeen(true);
+            onHowItWorks();
+          }}
           aria-haspopup="dialog"
         >
           {COPY.secondary.label}

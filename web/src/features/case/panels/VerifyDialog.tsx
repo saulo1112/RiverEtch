@@ -32,7 +32,10 @@ function excerpt(result: Verification): { before: string; mark: string; after: s
       .split(".")
       .at(-1)
       ?.replace(/\[\d+\]/, "") ?? "";
-  const at = text.indexOf(`"${key}":${result.altered.to}`);
+  // A class is a JSON string: its quotes are part of what changed.
+  const to =
+    result.altered.kind === "class" ? JSON.stringify(result.altered.to) : result.altered.to;
+  const at = text.indexOf(`"${key}":${to}`);
   if (at < 0) {
     return { before: text.slice(0, 260), mark: "", after: "…" };
   }
@@ -40,8 +43,8 @@ function excerpt(result: Verification): { before: string; mark: string; after: s
   const markStart = at + key.length + 3;
   return {
     before: `${start > 0 ? "…" : ""}${text.slice(start, markStart)}`,
-    mark: result.altered.to,
-    after: `${text.slice(markStart + result.altered.to.length, markStart + 140)}…`,
+    mark: to,
+    after: `${text.slice(markStart + to.length, markStart + 140)}…`,
   };
 }
 

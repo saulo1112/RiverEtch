@@ -179,6 +179,19 @@ const mlDsaKey = (
 ).publicKey;
 // The test on rivers the model never saw (preregistration-transfer.md), run once.
 const transferScores = readFileSync(join(RESULTS, "transfer", "transfer_scores.csv"), "utf8");
+// Published measurements beside a reach with no station (docs/water-quality/published/<reach>.json):
+// looked up after its readings were known, labelled so, and named by no record.
+const PUBLISHED = fileURLToPath(new URL("../docs/water-quality/published/", import.meta.url));
+const published = existsSync(PUBLISHED)
+  ? Object.fromEntries(
+      readdirSync(PUBLISHED)
+        .filter((name) => name.endsWith(".json"))
+        .map((name) => [
+          name.replace(/\.json$/, ""),
+          JSON.parse(readFileSync(join(PUBLISHED, name), "utf8")) as unknown,
+        ]),
+    )
+  : {};
 // Its pooled result on the sediment-carrying rivers: the class agreement an ungauged reach states.
 const transferPooled = JSON.parse(
   readFileSync(join(RESULTS, "transfer", "transfer_pooled.json"), "utf8"),
@@ -211,6 +224,35 @@ const howFlow = HOW_SITES.map((site) =>
   ),
 ).filter((station) => station !== null);
 
+// "How it works": what the turbidity models learned from, read from the committed cards: the most
+// satellite-station pairs a station's model learned from, and the no-station model's trees and
+// pairs (docs/water-quality/ungauged/mississippi-st-joseph/turbidity.json, the A4 model).
+const MODELS = join(RESULTS, "models");
+const modelPairs = readdirSync(MODELS)
+  .map((site) => join(MODELS, site, "turbidity.json"))
+  .filter((path) => existsSync(path))
+  .map((path) => JSON.parse(readFileSync(path, "utf8")) as { trainingPairs?: { usgs?: number } })
+  .flatMap((card) =>
+    typeof card.trainingPairs?.usgs === "number" ? [card.trainingPairs.usgs] : [],
+  );
+const noStationCard = JSON.parse(
+  readFileSync(
+    fileURLToPath(
+      new URL(
+        "../docs/water-quality/ungauged/mississippi-st-joseph/turbidity.json",
+        import.meta.url,
+      ),
+    ),
+    "utf8",
+  ),
+) as { chosen: { n_estimators: number }; trainingPairs: { usgs: number; groups: number } };
+const howModels = {
+  maxPairs: Math.max(...modelPairs),
+  trees: noStationCard.chosen.n_estimators,
+  pairs: noStationCard.trainingPairs.usgs,
+  groups: noStationCard.trainingPairs.groups,
+};
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), reachData()],
@@ -222,7 +264,9 @@ export default defineConfig({
     __REACH_FACTS__: JSON.stringify(reachFacts),
     __V5_RESULTS__: JSON.stringify(v5Results),
     __TRANSFER_SCORES__: JSON.stringify(transferScores),
+    __PUBLISHED__: JSON.stringify(published),
     __HOW_FLOW__: JSON.stringify(howFlow),
+    __HOW_MODELS__: JSON.stringify(howModels),
     __TRANSFER_POOLED__: JSON.stringify(transferPooled),
     __FOUR_CLASSES__: JSON.stringify(fourClasses),
     __ML_DSA_PUBLIC_KEY__: JSON.stringify(mlDsaKey),

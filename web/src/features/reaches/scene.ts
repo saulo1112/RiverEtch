@@ -52,12 +52,46 @@ export const FNU_CLASSES = ["under_30", "30_to_100", "100_and_over"] as const;
 
 // Each class's range in FNU (the upper end excluded; null: none).
 const CLASS_RANGE: Readonly<Record<FnuClass, readonly [number, number | null]>> = {
+  under_15: [0, 15],
+  "15_to_30": [15, 30],
   under_30: [0, 30],
   "30_to_50": [30, 50],
   "50_to_100": [50, 100],
   "30_to_100": [30, 100],
   "100_and_over": [100, null],
 };
+
+/**
+ * A class's upper end in FNU (null: it has none).
+ *
+ * @param cls - The class.
+ * @returns E.g. 30 for under 30.
+ */
+export function classUpper(cls: FnuClass): number | null {
+  return CLASS_RANGE[cls][1];
+}
+
+/**
+ * How a pass's turbidity index stands against the reach's own past passes, as rule D0 judged it
+ * in the sealed record: usual, or unusually high or low (by its strongest unusual signal).
+ *
+ * @param row - The series row.
+ * @returns The judgement (null: the record carries none).
+ */
+export function ownPast(row: SeriesRow): "usual" | "high" | "low" | null {
+  const z = row.indices.ndti.zScore;
+  if (z === undefined || row.verdict === undefined) {
+    return null;
+  }
+  if (!row.verdict.anomalous) {
+    return "usual";
+  }
+  const strongest = row.verdict.signals
+    .map((s) => z[s as keyof typeof z] ?? null)
+    .filter((v): v is number => v !== null)
+    .sort((a, b) => Math.abs(b) - Math.abs(a))[0];
+  return (strongest ?? 0) < 0 ? "low" : "high";
+}
 
 /**
  * A reach's class edges in FNU: its card's (four classes since preregistration-four-classes.md

@@ -12,16 +12,20 @@ import { useId, type Ref } from "react";
 import { useRecordAnchor } from "../../chain/useRecordAnchor.ts";
 import type { ReachCase } from "../../reaches/catalog.ts";
 import {
+  classUpper,
   gaugeAt,
   isOutside,
   isUngauged,
+  ownPast,
   thermalValidatedAt,
   turbidity,
 } from "../../reaches/scene.ts";
 import type {
   CardMetrics,
   ExpectedError,
+  FnuClass,
   Level,
+  PublishedMeasurement,
   ReachData,
   SeriesRow,
   ThermalRow,
@@ -201,6 +205,94 @@ function Reliability({ lockbox }: { readonly lockbox: CardMetrics }) {
   );
 }
 
+// A number as a published table writes it, without a trailing ".0" ("5", "7.5", "4.35").
+const plain = (v: number) => String(Number(v.toFixed(2)));
+
+// One published measurement in a line: what and where, its value or range, when, and who.
+function publishedLine(m: PublishedMeasurement): string {
+  const { published } = ungauged;
+  const value =
+    m.values !== undefined
+      ? published.span(plain(Math.min(...m.values)), plain(Math.max(...m.values)), m.unit)
+      : m.median === undefined
+        ? ""
+        : m.min === m.max
+          ? published.every(plain(m.median), m.unit)
+          : published.median(plain(m.median), m.unit, plain(m.min ?? 0), plain(m.max ?? 0));
+  const away =
+    m.distanceKm === undefined || m.direction === undefined
+      ? ""
+      : published.away(m.distanceKm.toFixed(1), m.direction.split(" ")[0] ?? "");
+  return `${m.short}${away}: ${value}, ${m.periodShort}.`;
+}
+
+// Published measurements beside a reach with no station (docs/water-quality/published/): looked
+// up after its readings were known, from other years and in another unit, so they check
+// plausibility and are labelled so; the class is called in line with them only when its upper
+// end lies above every published turbidity value.
+function Published({ reach, cls }: { readonly reach: ReachData; readonly cls: FnuClass | null }) {
+  const data = __PUBLISHED__[reach.info.site];
+  if (data === undefined) {
+    return null;
+  }
+  const { published } = ungauged;
+  const upper = cls === null ? null : classUpper(cls);
+  const turbidities = data.measurements.filter((m) => m.unit === "NTU" && m.max !== undefined);
+  const inLine =
+    cls !== null &&
+    upper !== null &&
+    turbidities.length > 0 &&
+    turbidities.every((m) => (m.max ?? Infinity) < upper);
+  const cites = [...new Map(data.measurements.map((m) => [m.cite, m.url])).entries()];
+  return (
+    <section className="case-file__reliability" aria-label={published.title}>
+      <p className="case-file__reliability-head">
+        <span>{published.title}</span>
+        <HelpTip label={published.helpLabel}>{data.note}</HelpTip>
+      </p>
+      <ul className="case-file__published">
+        {data.measurements.map((m) => (
+          <li key={m.id}>{publishedLine(m)}</li>
+        ))}
+      </ul>
+      <p className="case-file__note">
+        {inLine ? `${published.inLine(ungauged.classes[cls])} ` : ""}
+        {published.caveat}{" "}
+        {cites.map(([cite, url], k) => (
+          <span key={cite}>
+            {k === 0 ? "" : " · "}
+            <a href={url} target="_blank" rel="noopener noreferrer">
+              {cite}
+            </a>
+          </span>
+        ))}
+      </p>
+    </section>
+  );
+}
+
+// A no-station reach's pass against the river's own past passes (rule D0): one line, with what
+// the comparison is in its help.
+function OwnPast({ reach, row }: { readonly reach: ReachData; readonly row: SeriesRow }) {
+  const judged = ownPast(row);
+  const base = reach.info.baseline;
+  if (judged === null) {
+    return null;
+  }
+  const month = (iso: string | null) =>
+    iso === null ? "" : formatDate(iso, true).split(" ").slice(1).join(" ");
+  return (
+    <p className="case-file__range-line">
+      <span>
+        {ungauged.ownPast}: <strong>{ungauged.ownPastWords[judged]}</strong>
+      </span>
+      <HelpTip label={ungauged.ownPastHelpLabel}>
+        {ungauged.ownPastHelp(base.usableScenes, month(base.first), month(base.last))}
+      </HelpTip>
+    </p>
+  );
+}
+
 // An ungauged reach's expected error (preregistration-transfer.md, section 5): the class agreement
 // as a count, the pooled median error with what it is a share of, and which way it leans.
 function ExpectedErrorNote({
@@ -327,6 +419,7 @@ export function CaseFile({
                 <p className="case-file__note">
                   {fnuClass === null ? (estimate?.abstainReason ?? noGaugeLabel) : noGaugeLabel}
                 </p>
+                <OwnPast reach={reach} row={row} />
               </>
             ) : value === null ? (
               <>
@@ -360,6 +453,7 @@ export function CaseFile({
             )}
             <Trust reach={reach} row={row} level={level} />
             {lockbox === undefined ? null : <Reliability lockbox={lockbox} />}
+            {noGauge ? <Published reach={reach} cls={fnuClass} /> : null}
             {card?.expectedError === undefined ? null : (
               <ExpectedErrorNote
                 error={card.expectedError}

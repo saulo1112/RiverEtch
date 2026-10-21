@@ -1,7 +1,9 @@
 import { Columns2, Download, Layers } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
-import type { ReachData, SeriesRow } from "../../reaches/types.ts";
+import { csvOfSeries } from "../../reaches/export.ts";
+import { isUngauged } from "../../reaches/scene.ts";
+import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY, formatDate } from "../content.ts";
 import type { LayerMode, Overlays } from "../map.ts";
 
@@ -92,52 +94,6 @@ function Popover({
   );
 }
 
-function csvOfSeries(reach: ReachData): string {
-  const head = [
-    "date",
-    "sceneId",
-    "level",
-    "turbidity_fnu",
-    "interval90_low",
-    "interval90_high",
-    "abstain_reason",
-    "gauge_fnu",
-    "gauge_approval",
-    "ndti_upstream",
-    "ndti_downstream",
-    "recordSha256",
-  ];
-  const lines = reach.series.map((row: SeriesRow) => {
-    const e = row.estimates.find((x) => x.target === "turbidity");
-    const key = row.file
-      .split("/")
-      .at(-1)
-      ?.replace(/\.json$/, "")
-      .split("_")
-      .slice(1)
-      .join("_");
-    const gauge = reach.checks.find((c) => c.key === key);
-    const cells = [
-      row.date,
-      row.sceneId,
-      e?.level ?? "",
-      e?.value ?? "",
-      e?.interval?.low ?? "",
-      e?.interval?.high ?? "",
-      e?.abstainReason ?? "",
-      gauge?.value ?? "",
-      gauge?.value === null || gauge === undefined ? "" : gauge.approval,
-      row.indices.ndti.upstream ?? "",
-      row.indices.ndti.downstream ?? "",
-      row.recordSha256,
-    ];
-    return cells
-      .map((c) => (/[",]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : String(c)))
-      .join(",");
-  });
-  return `${[head.join(","), ...lines].join("\n")}\n`;
-}
-
 /**
  * The map's toolbar, top centre: what the river shows (NDTI, true color or nothing) and its
  * opacity, the overlays and 3D terrain, comparing two passes, and the downloads (the series as
@@ -210,7 +166,7 @@ export function MapToolbar(props: MapToolbarProps) {
         {(
           [
             ["outline", tools.outline],
-            ["window", tools.window],
+            ["window", isUngauged(reach) ? tools.windowUngauged : tools.window],
           ] as const
         ).map(([key, label]) => (
           <label key={key} className="case-tools__check">

@@ -2,10 +2,10 @@ import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
-import { isUngauged, thermalValidatedAt } from "../../reaches/scene.ts";
+import { isOutside, isUngauged, thermalValidatedAt } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
-import { medianError, oneDecimal, riverResults, transferResults } from "../rivers.ts";
+import { riverResults, transferResults } from "../rivers.ts";
 import { AllRiversView } from "./AllRiversView.tsx";
 import { ClimateView, type ClimateTabView } from "./ClimateView.tsx";
 import { PassStatsView } from "./PassStatsView.tsx";
@@ -62,7 +62,6 @@ const TABS: readonly BottomTab[] = [
 // Every evaluated river, from the committed results (vite.config.ts).
 const RIVERS = riverResults(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
 const TRANSFER = transferResults(__TRANSFER_SCORES__);
-const RATED = RIVERS.filter((r) => r.level !== null).length;
 
 function IconButton({
   label,
@@ -184,6 +183,10 @@ function Caption({
           {upstream === null ? CASE_COPY.thermal.gauge : CASE_COPY.thermal.upstreamGauge(upstream)}
         </li>
         <li>
+          <span className="case-timeline__key case-timeline__key--picked" aria-hidden="true" />
+          {CASE_COPY.thermal.picked}
+        </li>
+        <li>
           <span className="case-timeline__key case-timeline__key--cursor" aria-hidden="true" />
           {CASE_COPY.thermal.cursor}
         </li>
@@ -238,13 +241,6 @@ function Caption({
   }
   if (tab === "scoreboard") {
     return <p className="case-timeline__caption">{CASE_COPY.scoreboard.caption}</p>;
-  }
-  if (tab === "rivers") {
-    return (
-      <p className="case-timeline__caption">
-        {CASE_COPY.rivers.caption(RIVERS.length, RATED, oneDecimal(medianError(RIVERS)))}
-      </p>
-    );
   }
   return null;
 }
@@ -364,7 +360,12 @@ export function Timeline(props: TimelineProps) {
           ) : tab === "scoreboard" ? (
             <ScoreboardView reach={reach} t0={__PROSPECTIVE_T0__} />
           ) : tab === "rivers" ? (
-            <AllRiversView rivers={RIVERS} transfer={TRANSFER} station={reach.info.station.id} />
+            <AllRiversView
+              rivers={RIVERS}
+              transfer={TRANSFER}
+              station={reach.info.station.id}
+              kind={isOutside(reach) ? "outside" : isUngauged(reach) ? "ungauged" : "gauged"}
+            />
           ) : passView === "profile" ? (
             <ProfileChart
               reach={reach}

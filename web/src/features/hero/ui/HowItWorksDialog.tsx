@@ -5,7 +5,7 @@ import { CASE_COPY } from "../../case/content.ts";
 import { oneDecimal } from "../../case/rivers.ts";
 import { HOW_IT_WORKS } from "./content.ts";
 import { Fingerprint } from "./how/Fingerprint.tsx";
-import { FlowChart } from "./how/FlowChart.tsx";
+import { EXAMPLE_YEAR, FlowChart } from "./how/FlowChart.tsx";
 import { unpackStation } from "./how/flow.ts";
 import { headline, neverSaw, ownRiver } from "./how/numbers.ts";
 import { StationBars } from "./how/StationBars.tsx";
@@ -24,6 +24,8 @@ export interface HowItWorksDialogProps {
 const copy = HOW_IT_WORKS;
 // Every number below comes from a committed file, cut or parsed at build time (vite.config.ts).
 const FLOW = __HOW_FLOW__.map(unpackStation);
+// The problem's example: Belle Chasse (FlowChart.tsx, EXAMPLE_YEAR).
+const EXAMPLE = FLOW.find((s) => s.id === "USGS-07374525");
 const HEADLINE = headline(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
 const NEVER = neverSaw(__TRANSFER_SCORES__);
 // The ungauged reaches' classes: four once preregistration-four-classes.md passed.
@@ -35,7 +37,7 @@ function Problem() {
     <>
       <p className="how-lead">{copy.problem.lead}</p>
       <p className="how-text">{copy.problem.more}</p>
-      {FLOW.length === 0 ? null : <FlowChart stations={FLOW} />}
+      {EXAMPLE === undefined ? null : <FlowChart station={EXAMPLE} year={EXAMPLE_YEAR} />}
     </>
   );
 }
@@ -56,6 +58,13 @@ function Reads() {
             </p>
           </article>
         ))}
+      </div>
+      <div className="how-station">
+        <h3 className="how-read__title">{copy.reads.modelTitle}</h3>
+        <p className="how-text">{copy.reads.modelText(__HOW_MODELS__.maxPairs)}</p>
+        <p className="how-small">
+          {copy.reads.modelTerm(__HOW_MODELS__.trees, __HOW_MODELS__.pairs, __HOW_MODELS__.groups)}
+        </p>
       </div>
       <div className="how-station">
         <h3 className="how-read__title">{copy.reads.stationTitle}</h3>
@@ -159,6 +168,7 @@ function Try({ onOpenCase }: { readonly onOpenCase?: (caseId: string) => void })
           <ArrowRight className="how-try__arrow" size={18} strokeWidth={1.75} aria-hidden="true" />
         </button>
       </div>
+      <p className="how-text">{copy.try.file}</p>
       <p className="how-small">{copy.try.tour}</p>
     </>
   );

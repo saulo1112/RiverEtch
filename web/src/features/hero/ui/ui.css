@@ -163,33 +163,34 @@
 }
 
 /*
- * "How it works" calls for a first look: three soft cyan rings a moment after the page settles,
- * then still. With reduced motion there is no ring; its hairline carries a faint cyan instead.
+ * "How it works" calls until it is first opened: a soft cyan glow that breathes slowly, from a
+ * moment after the page settles. Once opened it rests. With reduced motion the glow holds still.
  */
-.hero-btn--how {
-  border-color: rgb(34 211 238 / 0.42);
+.hero-btn--how[data-calling="true"] {
+  border-color: rgb(34 211 238 / 0.5);
+  box-shadow: 0 0 14px rgb(34 211 238 / 0.18);
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hero-btn--how {
-    border-color: rgb(240 246 255 / 0.22);
-    animation: hero-how-call 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 2.2s 3 both;
+  .hero-btn--how[data-calling="true"] {
+    animation: hero-how-call 3.2s ease-in-out 2.2s infinite both;
   }
 }
 
 @keyframes hero-how-call {
-  0% {
-    border-color: rgb(34 211 238 / 0.6);
-    box-shadow: 0 0 0 0 rgb(34 211 238 / 0.36);
-  }
-
-  70% {
-    box-shadow: 0 0 0 9px rgb(34 211 238 / 0);
-  }
-
+  0%,
   100% {
-    border-color: rgb(240 246 255 / 0.22);
-    box-shadow: 0 0 0 9px rgb(34 211 238 / 0);
+    border-color: rgb(34 211 238 / 0.38);
+    box-shadow:
+      0 0 10px rgb(34 211 238 / 0.12),
+      0 0 0 0 rgb(34 211 238 / 0);
+  }
+
+  50% {
+    border-color: rgb(34 211 238 / 0.7);
+    box-shadow:
+      0 0 18px rgb(34 211 238 / 0.32),
+      0 0 0 4px rgb(34 211 238 / 0.08);
   }
 }
 

@@ -29,7 +29,6 @@ import {
   turbidity,
 } from "../reaches/scene.ts";
 import type { ReachData } from "../reaches/types.ts";
-import { WalletControl } from "../wallet/WalletControl.tsx";
 import { FLIGHT, IMAGERY, MAP_LOOK, RETURN, TERRAIN } from "./config.ts";
 import { CASE_COPY, formatDate, formatValue } from "./content.ts";
 import { loadCaseMap } from "./loadMap.ts";
@@ -402,7 +401,7 @@ export function CaseView({
             : CASE_COPY.ungauged.classes[cls],
       caption: isUngauged(reach)
         ? CASE_COPY.ungauged.mapCaption
-        : reach.info.station.id.replace("USGS-", "USGS "),
+        : reach.info.station.id.replace("USGS-", "USGS station "),
     });
   }, [reach, row, file, photo, mapStatus]);
 
@@ -692,10 +691,6 @@ export function CaseView({
           selected={selected}
         />
         <div className="case-side">
-          {/* Outside the panels' frame (finalFrame): on phones it sits on the Back row. */}
-          <div className="case-corner">
-            <WalletControl variant="corner" />
-          </div>
           <Legend mode={mode} ungauged={isUngauged(reach)} />
           <RecordPanel reach={reach} row={row} thermal={tab === "thermal" ? thermalRow : null} />
         </div>

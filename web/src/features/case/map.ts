@@ -501,9 +501,55 @@ function gaugeElement(): { root: HTMLElement; value: HTMLElement; caption: HTMLE
   return { root, value, caption };
 }
 
+// How much of the true-color image's shorter side fades out at each edge.
+const PHOTO_FEATHER = 0.06;
+
 /**
- * One map's pass layers: the NDTI canvas (colored up to the reveal) and the true-color image,
- * inserted under the gauge window's outline. Shared by the main map and its compared copy.
+ * The true-color image with its edges faded to transparent, so the pass's own photo blends into
+ * the base map (a cloudless mosaic of other dates, darker) instead of sitting on it as a
+ * hard-edged rectangle. The image's pixels are not changed inside the fade.
+ *
+ * @param url - The image (`maps/<key>.rgb.webp`).
+ * @returns An object URL of the faded image (the caller revokes it), or the URL itself if the
+ *   browser cannot draw it.
+ */
+async function featheredPhoto(url: string): Promise<string> {
+  const image = new Image();
+  image.decoding = "async";
+  image.src = url;
+  await image.decode();
+  const canvas = document.createElement("canvas");
+  const w = (canvas.width = image.naturalWidth);
+  const h = (canvas.height = image.naturalHeight);
+  const ctx = canvas.getContext("2d");
+  if (ctx === null || w === 0 || h === 0) {
+    return url;
+  }
+  ctx.drawImage(image, 0, 0);
+  const edge = Math.max(1, Math.round(Math.min(w, h) * PHOTO_FEATHER));
+  ctx.globalCompositeOperation = "destination-out";
+  // One strip per edge, from fully cut at the border to untouched `edge` pixels in.
+  const strip = (x0: number, y0: number, x1: number, y1: number, box: readonly number[]) => {
+    const gradient = ctx.createLinearGradient(x0, y0, x1, y1);
+    gradient.addColorStop(0, "rgb(0 0 0 / 1)");
+    gradient.addColorStop(1, "rgb(0 0 0 / 0)");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(box[0] ?? 0, box[1] ?? 0, box[2] ?? 0, box[3] ?? 0);
+  };
+  strip(0, 0, edge, 0, [0, 0, edge, h]);
+  strip(w, 0, w - edge, 0, [w - edge, 0, edge, h]);
+  strip(0, 0, 0, edge, [0, 0, w, edge]);
+  strip(0, h, 0, h - edge, [0, h - edge, w, edge]);
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, "image/webp", 0.92);
+  });
+  return blob === null ? url : URL.createObjectURL(blob);
+}
+
+/**
+ * One map's pass layers: the NDTI canvas (colored up to the reveal) and the true-color image
+ * (its edges faded), inserted under the gauge window's outline. Shared by the main map and its
+ * compared copy.
  */
 class PassLayers {
   readonly canvas = document.createElement("canvas");
@@ -521,6 +567,8 @@ class PassLayers {
   private readonly context: CanvasRenderingContext2D | null;
   private opacity = 1;
   private photo: string | null = null;
+  /** The faded copy of the photo on the map, and which photo it is. */
+  private photoShown: { readonly photo: string; readonly url: string } | null = null;
   private request = 0;
   private file: string | null = null;
   private disposed = false;
@@ -665,10 +713,39 @@ class PassLayers {
 
   private showPhoto(): void {
     const coordinates = this.corners();
-    if (coordinates === null || this.photo === null || !this.map.isStyleLoaded()) {
+    const photo = this.photo;
+    if (coordinates === null || photo === null || !this.map.isStyleLoaded()) {
       return;
     }
-    const url = `${this.reach.base}${this.photo}`;
+    if (this.photoShown?.photo === photo) {
+      this.placePhoto(this.photoShown.url, coordinates);
+      return;
+    }
+    const plain = `${this.reach.base}${photo}`;
+    featheredPhoto(plain)
+      .catch(() => plain)
+      .then((url) => {
+        if (this.disposed || this.photo !== photo) {
+          if (url !== plain) {
+            URL.revokeObjectURL(url);
+          }
+          return;
+        }
+        const before = this.photoShown?.url;
+        this.photoShown = { photo, url };
+        this.placePhoto(url, coordinates);
+        if (before?.startsWith("blob:") === true) {
+          URL.revokeObjectURL(before);
+        }
+      })
+      .catch(() => undefined);
+  }
+
+  // Puts the (faded) photo on the map, under the corridor's fill.
+  private placePhoto(url: string, coordinates: Corners): void {
+    if (!this.map.isStyleLoaded()) {
+      return;
+    }
     const source = this.map.getSource<ImageSource>(SOURCE.photo);
     if (source === undefined) {
       this.map.addSource(SOURCE.photo, { type: "image", url, coordinates });
@@ -717,6 +794,9 @@ class PassLayers {
   /** Stops painting. */
   dispose(): void {
     this.disposed = true;
+    if (this.photoShown?.url.startsWith("blob:") === true) {
+      URL.revokeObjectURL(this.photoShown.url);
+    }
   }
 }
 
@@ -852,6 +932,14 @@ export async function createCaseMap(
     paintOverlays();
   }
 
+  // With 3D terrain, MapLibre draws these layers into a texture cached per terrain tile, and a
+  // paint change alone does not always clear it: a toggle would show only after the next zoom.
+  function redraw(): void {
+    const terrain = map.terrain as typeof map.terrain | null;
+    terrain?.tileManager.freeRtt();
+    map.triggerRepaint();
+  }
+
   // The NDTI layer joins as soon as the style is parsed, not on `load` (which waits for every
   // imagery and terrain tile), so the fill shows during the flight.
   map.on("style.load", () => {
@@ -865,10 +953,14 @@ export async function createCaseMap(
   const marker =
     point === null
       ? null
-      : new SettledMarker({ element: gauge.root, anchor: "center" }).setLngLat([
-          point[0],
-          point[1],
-        ]);
+      : // Fully drawn even where MapLibre's terrain check calls it covered: the station sits on
+        // the water, and a false "covered" left its label at a fifth of its opacity.
+        new SettledMarker({
+          element: gauge.root,
+          anchor: "center",
+          opacity: "1",
+          opacityWhenCovered: "1",
+        }).setLngLat([point[0], point[1]]);
   marker?.addTo(map);
   gauge.root.dataset.shown = "false";
 
@@ -1015,13 +1107,17 @@ export async function createCaseMap(
     setLayer(mode, opacity) {
       layers.setLayer(mode, opacity);
       paintOverlays();
+      redraw();
       for (const copy of compares) {
         copy.setLayer(mode, opacity);
       }
     },
     setOverlays(next) {
       overlays = next;
+      // The station spot is the window's outline and the marker over it (its dot, ring and label).
+      gauge.root.dataset.hidden = String(!next.window);
       paintOverlays();
+      redraw();
     },
     setTerrain3d(on) {
       terrain3d = on;

@@ -55,7 +55,8 @@ export const REACH_CASES: readonly ReachCase[] = [
   {
     id: "mississippi-st-joseph",
     title: "Mississippi · St. Joseph",
-    place: "Mississippi River above Natchez, from St. Joseph, Louisiana (USA): no turbidity gauge",
+    place:
+      "Mississippi River above Natchez, from St. Joseph, Louisiana (USA): no turbidity station",
     center: [-91.303384, 31.822055],
     handoffZoom: 5.2,
     pitch: 52,
@@ -66,7 +67,8 @@ export const REACH_CASES: readonly ReachCase[] = [
   {
     id: "firat-birecik",
     title: "Fırat · Birecik",
-    place: "Fırat (Euphrates) River below the Birecik Dam, Şanlıurfa (Türkiye): no turbidity gauge",
+    place:
+      "Fırat (Euphrates) River below the Birecik Dam, Şanlıurfa (Türkiye): no turbidity station",
     center: [37.945756, 37.039699],
     handoffZoom: 5.2,
     pitch: 52,

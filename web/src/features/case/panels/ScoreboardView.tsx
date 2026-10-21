@@ -165,10 +165,10 @@ function ClaimTable({ rows }: { readonly rows: readonly ClaimRow[] }) {
 }
 
 /**
- * The scoreboard: how many gauge values fell inside the sealed expected range, in counts. First
- * the prospective passes (claims sealed and anchored before the gauge was read, after T0), then
- * two retrospective counts: this year's passes sealed after their gauge value was public, and the
- * locked test. Each group says which it is, in words and a mark.
+ * The track record: how many station values fell inside the sealed expected range, in counts.
+ * First what was checked after the station's value was public (this year's passes and the locked
+ * test), then the passes sealed and anchored before the station was read (after T0), with what
+ * that wait means while there are none. Each group says which it is, in words and a mark.
  *
  * @returns The view.
  */
@@ -179,35 +179,6 @@ export function ScoreboardView({ reach, t0 }: ScoreboardViewProps) {
   const targets = TARGETS.filter((t) => t.id === "turbidity" || reach.thermal !== null);
   return (
     <div className="case-score">
-      <section className="case-score__group" data-kind="prospective" aria-label={copy.prospective}>
-        <p className="case-score__label">
-          <Anchor size={13} strokeWidth={1.9} aria-hidden="true" />
-          <span>
-            {copy.prospective}
-            {t0 === null ? null : ` · ${copy.since(formatDate(t0.slice(0, 10), true))}`}
-          </span>
-          <HelpTip label={copy.prospectiveHelpLabel}>{copy.prospectiveHelp}</HelpTip>
-        </p>
-        {t0 === null || rows.length === 0 ? (
-          <p className="case-score__empty" aria-live="polite">
-            {t0 === null ? copy.notStarted : copy.empty}
-          </p>
-        ) : (
-          <div className="case-score__prospective">
-            <dl className="case-score__rows case-score__rows--inline">
-              {targets.map((t) => (
-                <div key={t.id}>
-                  <dt>{t.name}</dt>
-                  <dd>
-                    <Count hits={prospectiveHits(rows, t.id)} />
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            <ClaimTable rows={rows} />
-          </div>
-        )}
-      </section>
       <section
         className="case-score__group"
         data-kind="retrospective"
@@ -236,6 +207,35 @@ export function ScoreboardView({ reach, t0 }: ScoreboardViewProps) {
             ]}
           />
         </ul>
+      </section>
+      <section className="case-score__group" data-kind="prospective" aria-label={copy.prospective}>
+        <p className="case-score__label">
+          <Anchor size={13} strokeWidth={1.9} aria-hidden="true" />
+          <span>
+            {copy.prospective}
+            {t0 === null ? null : ` · ${copy.since(formatDate(t0.slice(0, 10), true))}`}
+          </span>
+          <HelpTip label={copy.prospectiveHelpLabel}>{copy.prospectiveHelp}</HelpTip>
+        </p>
+        {t0 === null || rows.length === 0 ? (
+          <p className="case-score__empty" aria-live="polite">
+            {t0 === null ? copy.notStarted : copy.empty(formatDate(t0.slice(0, 10), true))}
+          </p>
+        ) : (
+          <div className="case-score__prospective">
+            <dl className="case-score__rows case-score__rows--inline">
+              {targets.map((t) => (
+                <div key={t.id}>
+                  <dt>{t.name}</dt>
+                  <dd>
+                    <Count hits={prospectiveHits(rows, t.id)} />
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <ClaimTable rows={rows} />
+          </div>
+        )}
       </section>
     </div>
   );

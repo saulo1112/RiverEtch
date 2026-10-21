@@ -9,8 +9,12 @@ const copy = HOW_IT_WORKS.problem;
 const PAD = { left: 40, right: 12, top: 10, bottom: 24 };
 const HEIGHT = 204;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-/** The year the chapter opens on: Belle Chasse's most low-flow days among the satellite years. */
-const FIRST_YEAR = 2023;
+/**
+ * The chapter's one example year: the year whose low-flow days the satellite read clearly most
+ * often, in share, at Belle Chasse among the satellite years (2022: 18 of 78; the packed data,
+ * test/how.test.ts). It is labelled an example; every count of it is shown.
+ */
+export const EXAMPLE_YEAR = 2022;
 
 const flowText = (v: number) =>
   v >= 1000 ? `${(v / 1000).toFixed(v >= 10_000 || v % 1000 === 0 ? 0 : 1)}K` : v.toFixed(0);
@@ -56,22 +60,25 @@ function dayWords(d: FlowDay): string {
  * days stay as visible as its floods), its low-flow and high-flow lines with the zones beyond them
  * washed, and a dot on each day the satellite had a clear view:
  * filled on a low-flow or high-flow day, a ring on any other day, so the two read apart without
- * colour. The reader picks the station and the year; moving over the chart (or focusing it and
- * pressing the arrow keys, which step through the clear-view days) reads out any day. The table
- * under the chart lists every clear-view day.
+ * colour. It shows one example year of one station, labelled so; moving over the chart (or
+ * focusing it and pressing the arrow keys, which step through the clear-view days) reads out any
+ * day. The table under the chart lists every clear-view day.
  *
- * @returns The chart, its controls and its table.
+ * @returns The chart and its table.
  */
-export function FlowChart({ stations }: { readonly stations: readonly FlowStation[] }) {
+export function FlowChart({
+  station,
+  year,
+}: {
+  readonly station: FlowStation;
+  readonly year: number;
+}) {
   const ids = useId();
   const [ref, { width }] = useSize<HTMLDivElement>();
-  const [stationAt, setStationAt] = useState(0);
-  const station = stations[stationAt] ?? stations[0];
-  const [yearPicked, setYearPicked] = useState(FIRST_YEAR);
-  const data = station?.years.find((y) => y.year === yearPicked) ?? station?.years.at(-1);
+  const data = station.years.find((y) => y.year === year) ?? station.years.at(-1);
   const [at, setAt] = useState<number | null>(null);
   const [byKeys, setByKeys] = useState(false);
-  if (station === undefined || data === undefined) {
+  if (data === undefined) {
     return null;
   }
   const days = data.days;
@@ -148,42 +155,9 @@ export function FlowChart({ stations }: { readonly stations: readonly FlowStatio
 
   return (
     <figure className="how-chart how-flow">
-      <div className="how-flow__controls">
-        <div className="how-seg" role="group" aria-label={copy.stationLabel}>
-          {stations.map((s, k) => (
-            <button
-              key={s.id}
-              type="button"
-              className="how-seg__option"
-              aria-pressed={k === stationAt}
-              onClick={() => {
-                setStationAt(k);
-                pick(null, false);
-              }}
-            >
-              {name(s)}
-            </button>
-          ))}
-        </div>
-        <div className="how-seg how-seg--years" role="group" aria-label={copy.yearLabel}>
-          {station.years.map((yr) => (
-            <button
-              key={yr.year}
-              type="button"
-              className="how-seg__option"
-              aria-pressed={yr.year === data.year}
-              onClick={() => {
-                setYearPicked(yr.year);
-                pick(null, false);
-              }}
-            >
-              {yr.year}
-            </button>
-          ))}
-        </div>
-      </div>
-      <figcaption className="how-chart__title" aria-live="polite">
-        {copy.chartTitle(data)}
+      <p className="how-small how-flow__example">{copy.example(name(station), data.year)}</p>
+      <figcaption className="how-chart__title">
+        {copy.chartTitle({ ...data, seen: seenAt.length })}
       </figcaption>
       <ul className="how-chart__keys">
         <li>
@@ -342,7 +316,9 @@ export function FlowChart({ stations }: { readonly stations: readonly FlowStatio
       <p className="hero-ui__visually-hidden" aria-live="polite">
         {byKeys && on !== undefined ? dayWords(on) : ""}
       </p>
-      <p className="how-source">{copy.source(station.name, station.source, missing)}</p>
+      <p className="how-source">
+        {copy.counts(data)} {copy.source(station.name, station.source, missing)}
+      </p>
       <details className="how-table">
         <summary>{copy.tableCaption(data.year)}</summary>
         <table>

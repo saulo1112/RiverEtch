@@ -16,7 +16,8 @@ export type Level = "validated" | "estimated" | "indicative" | "unvalidated" | "
  * An ungauged reach's class: three (preregistration-transfer.md), or four since
  * preregistration-four-classes.md passed (30 to 100 split at 50).
  */
-export type FnuClass = "under_30" | "30_to_100" | "100_and_over" | "30_to_50" | "50_to_100";
+export type FnuClass =
+  "under_30" | "30_to_100" | "100_and_over" | "30_to_50" | "50_to_100" | "under_15" | "15_to_30";
 
 /** A 90 % (or other) interval around an estimate. */
 export interface Interval {
@@ -90,6 +91,33 @@ export interface SeriesRow {
   readonly verdict?: { readonly anomalous: boolean; readonly signals: readonly string[] };
   /** The earlier record of this pass this one replaces (read again with a newer card). */
   readonly supersedes?: string;
+}
+
+/** One published measurement beside a reach with no station (docs/water-quality/published/). */
+export interface PublishedMeasurement {
+  readonly id: string;
+  /** What and where, in a few words. */
+  readonly short: string;
+  readonly periodShort: string;
+  /** The source, cited short ("Alp et al. 2010"); `source` holds the full reference. */
+  readonly cite: string;
+  readonly source: string;
+  readonly url: string;
+  readonly unit: string;
+  readonly median?: number;
+  readonly min?: number;
+  readonly max?: number;
+  readonly values?: readonly number[];
+  readonly distanceKm?: number;
+  readonly direction?: string;
+}
+
+/** A reach's published measurements, looked up after its readings were known. */
+export interface PublishedMeasurements {
+  readonly reach: string;
+  readonly label: string;
+  readonly note: string;
+  readonly measurements: readonly PublishedMeasurement[];
 }
 
 /** `reach.json`: the site, its estimate station and the baseline's period. */

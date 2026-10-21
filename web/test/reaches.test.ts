@@ -14,10 +14,11 @@ import {
   isOutside,
   nearestThermal,
   OUTSIDE_BASIS,
+  sceneKey,
   thermalValidatedAt,
 } from "../src/features/reaches/scene.ts";
 import type { ReachInfo, ThermalRow } from "../src/features/reaches/types.ts";
-import { verifyRecord } from "../src/features/reaches/verify.ts";
+import { editable, verifyRecord } from "../src/features/reaches/verify.ts";
 
 const REACHES = new URL("../../docs/water-quality/reach/", import.meta.url);
 
@@ -79,19 +80,58 @@ void test("sha256Hex matches node's hash, and ASCII escaping matches Python's", 
   assert.equal(canonical(parseJson(text)), '{"n":1,"name":"Río"}');
 });
 
+void test("every pass finds its NDTI map, a pass read again with a newer card included", () => {
+  for (const reach of REACH_CASES) {
+    const folder = examples(reach.id);
+    const series = JSON.parse(read(new URL("series.json", folder))) as {
+      sceneId: string;
+      file: string;
+    }[];
+    const maps = JSON.parse(read(new URL("maps.json", folder))) as { maps: { key: string }[] };
+    const keys = new Set(maps.maps.map((m) => m.key));
+    for (const row of series) {
+      assert.ok(keys.has(sceneKey(row)), `${reach.id}: ${row.file}`);
+    }
+  }
+});
+
 void test("a real record verifies, and an altered one fails only its seal", async () => {
   for (const reach of REACH_CASES) {
     const folder = examples(reach.id);
-    const file = readdirSync(new URL("records/", folder)).at(-1) ?? "";
-    const record = read(new URL(`records/${file}`, folder));
+    // The newest pass as the case shows it (a pass read again shows its newer record).
+    const series = JSON.parse(read(new URL("series.json", folder))) as { file: string }[];
+    const file = series.at(-1)?.file ?? "";
+    const record = read(new URL(file, folder));
     const ledger = read(new URL("ledger.jsonl", folder));
     const card = read(new URL("cards/turbidity.json", folder));
     const ok = await verifyRecord(record, ledger, card);
     assert.ok(ok.sealed && ok.inLedger && ok.chainIntact && ok.cardMatches === true, reach.id);
     assert.equal(ok.altered, null);
-    const altered = await verifyRecord(record, ledger, card, true);
+    // The reader changes the estimate (its value, or its class where there is no gauge).
+    const field = editable(record);
+    assert.ok(field !== null, reach.id);
+    const other =
+      field.kind === "class"
+        ? field.sealed === "under_30"
+          ? "100_and_over"
+          : "under_30"
+        : Number(field.sealed) === 1234.5
+          ? "1"
+          : "1234.5";
+    const altered = await verifyRecord(record, ledger, card, other);
     assert.ok(!altered.sealed && altered.inLedger && altered.chainIntact, reach.id);
-    assert.notEqual(altered.altered, null);
+    assert.deepEqual(
+      altered.altered,
+      { path: field.path, kind: field.kind, from: field.sealed, to: other },
+      reach.id,
+    );
+    // Put back, however it is typed, the sealed value matches again.
+    const back =
+      field.kind === "number" && /^-?\d+\.\d+$/.test(field.sealed)
+        ? `${field.sealed}0`
+        : field.sealed;
+    const same = await verifyRecord(record, ledger, card, back);
+    assert.ok(same.sealed && same.altered === null, reach.id);
     const broken = ledger.trim().split("\n").reverse().join("\n");
     assert.equal((await verifyRecord(record, broken, card)).chainIntact, false);
   }
@@ -167,7 +207,7 @@ void test("the water-temperature records verify against their ledger and card", 
     }
     const last = series.at(-1);
     assert.ok(last !== undefined);
-    const altered = await verifyRecord(read(new URL(last.file, folder)), ledger, card, true);
+    const altered = await verifyRecord(read(new URL(last.file, folder)), ledger, card, "99.5");
     assert.equal(altered.sealed, false);
     assert.equal(altered.altered?.path, "estimate.value");
   }

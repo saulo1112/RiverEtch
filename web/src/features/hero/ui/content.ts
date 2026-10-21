@@ -119,15 +119,15 @@ export const CASES = {
   back: "Back",
   backLabel: "Back to the start",
   listLabel: "Cases",
-  // Two kinds of case: the station ones show how far off the satellite is; the others are what
-  // RiverEtch is for.
+  // Two kinds of case: the station ones show how far off the satellite is; on the others the
+  // satellite's reading is the only one.
   groups: {
     station: "Checked against a station",
     stationNote:
       "The satellite's reading beside the station's own, so you can see how far off it is.",
-    none: "No station: what RiverEtch is for",
+    none: "No station on these reaches",
     noneNote:
-      "Most rivers have no measuring station. Here the satellite's reading is the only one.",
+      "No station measures turbidity on these reaches. Here the satellite's reading is the only one.",
   },
   announceOpen: "Your cases.",
   announceBack: "Start screen.",
@@ -167,20 +167,25 @@ export const HOW_IT_WORKS = {
   problem: {
     lead: "A measuring station sees one point of a river. Most of the river lies far from any station.",
     more: "RiverEtch reads the whole stretch from free satellite images, every few days, when there are no clouds.",
+    // One example year (FlowChart.tsx says which, and why): what the satellite read, first.
+    example: (station: string, year: number) => `An example year: ${station}, ${String(year)}`,
     chartTitle: (y: {
       year: number;
+      seen: number;
       low: number;
       lowSeen: number;
       high: number;
       highSeen: number;
     }) =>
-      y.low > 0 && y.high > 0
-        ? `In ${String(y.year)} the river ran low on ${String(y.low)} days and high on ${String(y.high)}. The satellite saw ${String(y.lowSeen)} of the low days and ${String(y.highSeen)} of the high ones clearly.`
-        : y.low > 0
-          ? `In ${String(y.year)} the river ran low on ${String(y.low)} days. The satellite saw it clearly on ${String(y.lowSeen)} of them.`
+      `${String(y.seen)} clear satellite readings of the whole stretch in ${String(y.year)}${
+        y.low > 0
+          ? `, ${String(y.lowSeen)} of them while the river ran very low`
           : y.high > 0
-            ? `In ${String(y.year)} the river ran high on ${String(y.high)} days. The satellite saw it clearly on ${String(y.highSeen)} of them.`
-            : `In ${String(y.year)} the river never ran very low or very high.`,
+            ? `, ${String(y.highSeen)} of them while the river ran very high`
+            : ""
+      }.`,
+    counts: (y: { year: number; low: number; high: number }) =>
+      `In ${String(y.year)} the river ran very low on ${String(y.low)} days and very high on ${String(y.high)}. The satellite passes every few days, and clouds hide some passes.`,
     stationLabel: "Station",
     yearLabel: "Year",
     plotLabel: (station: string, year: number) => `${station}: daily flow in ${String(year)}`,
@@ -221,6 +226,12 @@ export const HOW_IT_WORKS = {
         url: "https://www.usgs.gov/special-topics/water-science-school/science/temperature-and-water",
       },
     ],
+    // The model, in plain words; its kinds and numbers in the small line (from the cards).
+    modelTitle: "How a colour becomes a number",
+    modelText: (pairs: number) =>
+      `A machine-learning model turns the colour of the water in the image into turbidity. It learned from up to ${pairs.toLocaleString("en-US")} past moments when the satellite passed over a station that was measuring the water. If the colours are unlike anything it learned from, it gives no reading instead of guessing.`,
+    modelTerm: (trees: number, pairs: number, groups: number) =>
+      `Ridge regression or gradient-boosted trees (LightGBM), chosen for each river by a rule fixed before its test. Where there is no station: ${String(trees)} trees, learned from ${pairs.toLocaleString("en-US")} pairs on ${String(groups)} US river groups.`,
     stationTitle: "From the station, for context",
     stationText:
       "Flow and water level come from the river's measuring station. They are shown beside the satellite's reading. The satellite does not measure flow.",
@@ -307,7 +318,7 @@ export const HOW_IT_WORKS = {
     steps: [
       "Open a river",
       "Press “Verify this record”",
-      "Tick “Change one number first”",
+      "Tick “Change one number first” and type another number",
       "Press it again: the check fails",
     ],
     gauged: "Open a river with a station",
@@ -315,6 +326,7 @@ export const HOW_IT_WORKS = {
     ungauged: "Open a river with no station",
     ungaugedNote: "Mississippi at St. Joseph",
     tour: "Each river has a short tour, top left.",
+    file: "Sent a RiverEtch file by someone? “Check a file you were sent”, under the record, compares it with the sealed records in your browser.",
   },
   limits: [
     { title: "Clouds", text: "Clouds hide about three passes in four." },
