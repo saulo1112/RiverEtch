@@ -3549,18 +3549,14 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   vertical-align: baseline;
 }
 
+/* The head: bold on the panel's own glass, no fill of its own. Not sticky, so no row ever slides
+   under its words. */
 .case-rivers__table thead th {
-  position: sticky;
-  top: 0;
-  z-index: 1;
   border-top: 0;
-  border-bottom: 1px solid rgb(240 246 255 / 0.12);
-  background: rgb(38 48 70 / 0.94);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  color: var(--text-2);
+  border-bottom: 1px solid rgb(240 246 255 / 0.16);
+  color: var(--text-1);
   font-size: var(--type-micro);
-  font-weight: 500;
+  font-weight: 650;
   vertical-align: bottom;
 }
 
