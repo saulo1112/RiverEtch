@@ -1,16 +1,16 @@
 {
-  "since": "2026-10-12T20:55:48+00:00",
-  "rows": 1,
-  "paired": 1,
-  "mdsa": 13.833905360136889,
-  "sspb": -13.833905360136889,
+  "since": "2026-01-01T00:00:00+00:00",
+  "rows": 15,
+  "paired": 10,
+  "mdsa": 44.88762749761952,
+  "sspb": 24.37372247478613,
   "approvals": {
-    "Approved": 0,
-    "Provisional": 1
+    "Approved": 2,
+    "Provisional": 8
   },
   "site": "platte-louisville",
   "station": "USGS-06805500",
   "unit": "FNU",
-  "note": "report-only; never a level (values may be provisional)",
-  "checksSha256": "526ace1278bcfd442a5385a91567b64019f26da8b6019d4a3a6a6378e2b278c3"
+  "note": "report-only; never a level (values may be provisional); --since: scenes before the card's commit too (their approved values were in the lock box)",
+  "checksSha256": "67e7261b85e31480795f3ffba26cc69e382fbd480b445a5d127db9671da196fc"
 }

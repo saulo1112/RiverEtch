@@ -1,16 +1,16 @@
 {
-  "since": "2026-10-12T16:57:51+00:00",
-  "rows": 0,
-  "paired": 0,
-  "mdsa": null,
-  "sspb": null,
+  "since": "2026-01-01T00:00:00+00:00",
+  "rows": 7,
+  "paired": 7,
+  "mdsa": 67.4191297442875,
+  "sspb": -67.4191297442875,
   "approvals": {
-    "Approved": 0,
-    "Provisional": 0
+    "Approved": 2,
+    "Provisional": 5
   },
   "site": "missouri-hermann",
   "station": "USGS-06934500",
   "unit": "FNU",
-  "note": "report-only; never a level (values may be provisional)",
-  "checksSha256": "d98fb9154eb4cdf7183d664de73cee2e3dc04b4a3c107c8e3244b39f34cb9b9b"
+  "note": "report-only; never a level (values may be provisional); --since: scenes before the card's commit too (their approved values were in the lock box)",
+  "checksSha256": "fbb463227318e6b777634a713f2ba9819b795ee7ba9f88dd9249c075f8de91da"
 }
