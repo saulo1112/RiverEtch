@@ -630,7 +630,14 @@ export function CaseView({
             aria-valuemax={100}
             aria-valuenow={Math.round(split * 100)}
             onPointerDown={(event) => {
+              // No text selection (its labels turned blue) and no drag of selected text, which
+              // takes the pointer from the slider and left it stuck.
+              event.preventDefault();
+              window.getSelection()?.removeAllRanges();
               event.currentTarget.setPointerCapture(event.pointerId);
+            }}
+            onDragStart={(event) => {
+              event.preventDefault();
             }}
             onPointerMove={(event) => {
               if (event.currentTarget.hasPointerCapture(event.pointerId)) {

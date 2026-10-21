@@ -2474,6 +2474,8 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   margin-left: -12px;
   cursor: ew-resize;
   touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .case-split::before {
