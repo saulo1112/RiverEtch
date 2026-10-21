@@ -5,7 +5,7 @@ a chain read, with its source.
 
 | If you want…                                               | Read                                                                                                                   |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| The short path through the project, and how to check it    | [judges.md](judges.md)                                                                                                 |
+| The short path through the project, and how to check it    | [reviewers.md](reviewers.md)                                                                                           |
 | Why a reading can be trusted, and what it does not prove   | [trust-model.md](trust-model.md)                                                                                       |
 | The results: every river, its error, the failures included | [water-quality/report.md](water-quality/report.md)                                                                     |
 | The rules, fixed and anchored before each test ran         | [preregistrations](#preregistrations) below                                                                            |

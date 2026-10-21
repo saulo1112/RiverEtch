@@ -1,5 +1,5 @@
 {
-  "name": "climate-change-ieee",
+  "name": "riveretch",
   "version": "0.1.0",
   "private": true,
   "description": "RiverEtch: river turbidity read from free satellite images, with how far off each reading can be, sealed so any later change would show.",

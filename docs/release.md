@@ -21,11 +21,11 @@ snapshot bundled with its build; it says which one it shows.
 From the repository root, on the commit that is submitted:
 
 ```bash
-git tag -a submission-2026-10-25 -m "IEEE ClimateChain submission"
+git tag -a submission-2026-10-25 -m "Submission"
 git push origin submission-2026-10-25
 ```
 
-The tag is the version judges evaluate. Records sealed later are on `data`, each naming the code
+The tag is the version reviewers evaluate. Records sealed later are on `data`, each naming the code
 commit that produced it (the tag's commit, as long as `main` does not change).
 
 ## The daily run

@@ -188,7 +188,7 @@ seal, its ledger chain or its card's hash.
 the run's exit code. To register it (once, in PowerShell):
 
 ```powershell
-$script = "C:\Users\ASUS\Desktop\S\IEEE Hackathon\pipeline\scripts\reach-run.ps1"
+$script = "C:\path\to\RiverEtch\pipeline\scripts\reach-run.ps1"
 $action = New-ScheduledTaskAction -Execute "powershell.exe" `
     -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$script`""
 $trigger = New-ScheduledTaskTrigger -Daily -At 6:30am

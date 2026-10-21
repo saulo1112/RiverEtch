@@ -1,5 +1,5 @@
 {
-  "name": "@climate-change-ieee/web",
+  "name": "@riveretch/web",
   "version": "0.1.0",
   "private": true,
   "description": "RiverEtch web app: the globe, the river cases and the in-browser checks of every sealed reading.",

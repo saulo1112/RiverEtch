@@ -31,7 +31,7 @@ from urllib.parse import urldefrag, urljoin, urlparse
 import httpx
 
 USER_AGENT = (
-    "climate-pipeline/0.1 (research fetch of public documents for a hackathon study; "
+    "climate-pipeline/0.1 (research fetch of public documents for a research study; "
     "+https://github.com/saulo1112/RiverEtch)"
 )
 CDX_URL = "https://web.archive.org/cdx/search/cdx"

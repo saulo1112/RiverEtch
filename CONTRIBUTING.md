@@ -1,6 +1,6 @@
 # Contributing
 
-Conventions for this repository. It is a solo hackathon project, so they are deliberately light,
+Conventions for this repository. It is a solo project, so they are deliberately light,
 but they are enforced by tooling wherever possible.
 
 ## Language: English only

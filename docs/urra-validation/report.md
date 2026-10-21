@@ -1,7 +1,7 @@
 # Urrá validation report
 
 **Status:** full run of 2026-10-08, Actions run
-[37797380051](https://github.com/saulo1112/Climate_Change_IEEE/actions/runs/37797380051) at
+[37797380051](https://github.com/saulo1112/RiverEtch/actions/runs/37797380051) at
 commit `f8cc1ce`, outputs in [results/](results/results.md) (committed by the workflow in
 `0a45235`). The method was pre-registered in [method.md](method.md) (git blob `583ee4fe`, last
 changed in `63254a3`) before any NDTI of this validation was computed, and it has not changed
@@ -266,14 +266,14 @@ With the longer baselines, the screening's single hit (`sinu-urra-01`) becomes a
 - **Regulatory fetch.** The documents were fetched on the developer's machine, which reaches the
   sources, so the planned `regulatory-docs` workflow was not created.
 - **Catchment grid.** The grid run in Actions
-  ([37732708699](https://github.com/saulo1112/Climate_Change_IEEE/actions/runs/37732708699)) got
+  ([37732708699](https://github.com/saulo1112/RiverEtch/actions/runs/37732708699)) got
   HTTP 403 from `data.hydrosheds.org`.
   - The grid was built locally with the same command at commit `a9a3ccf`. It was committed by the
     project owner in `2421310`, not by the workflow.
   - The HydroBASINS archive's SHA-256 (`50afa9de…`) is recorded in every row.
   - An earlier local build gave the same file.
 - **Smoke run.** The smoke run
-  ([37733457260](https://github.com/saulo1112/Climate_Change_IEEE/actions/runs/37733457260)) was
+  ([37733457260](https://github.com/saulo1112/RiverEtch/actions/runs/37733457260)) was
   read from its log; its outputs are not committed. All 33 of its checks passed.
 - **Full run.** It was started by an empty commit (`f8cc1ce`) carrying the run tag.
 

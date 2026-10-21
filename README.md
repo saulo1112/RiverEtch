@@ -1,189 +1,114 @@
-# RiverEtch
+<div align="center">
 
-**RiverEtch is a verifiable record of the state of rivers that have no gauge.** Gauged rivers are
-where we measure how wrong the satellite is; ungauged rivers are where it is used. On an ungauged
-river nobody can check the number later against a gauge, so the only protection is that the record
-cannot be edited.
+<h1>RiverEtch</h1>
+
+<p><strong>See the river. Verify the reading.</strong></p>
+
+<p>RiverEtch reads river water from free satellite images, says how far off each reading can be,
+and seals every reading so that any later change would show.</p>
+
+[![CI](https://github.com/saulo1112/RiverEtch/actions/workflows/ci.yml/badge.svg)](https://github.com/saulo1112/RiverEtch/actions/workflows/ci.yml)
+[![Code: MIT](https://img.shields.io/badge/code-MIT-blue)](LICENSE)
+[![Docs and data: CC BY 4.0](https://img.shields.io/badge/docs%20%26%20data-CC%20BY%204.0-blue)](LICENSE-docs)
+[![Contract source verified](https://img.shields.io/badge/contract-verified%20%28exact%20match%29-brightgreen)](https://sourcify.dev/server/repo-ui/11155111/0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762)
 
 **[Open the live app](https://river-etch.vercel.app)** ·
-**[Verify a record in one minute](docs/judges.md#verify-a-record-in-one-minute)** · **Video (3–5
-min):** linked here when it is published
+[Verify a record in one minute](docs/reviewers.md#verify-a-record-in-one-minute) ·
+[How it is checked](docs/trust-model.md) · [Results](docs/water-quality/report.md) ·
+[Architecture](docs/architecture.md)
 
-![The Mississippi above Natchez in RiverEtch: no turbidity gauge, so each pass shows a class (here 30 to 100 FNU), labelled unvalidated, beside the error measured on rivers the model never saw](docs/img/st-joseph-case.jpg)
+</div>
 
-Built for the IEEE ClimateChain Global Hackathon (October 5–25, 2026), Track 4: climate data and
-monitoring. Judges: [the short path](docs/judges.md).
+![The RiverEtch start page: a globe with the rivers it follows, the title "See the river. Verify the reading.", and three facts: 9 rivers tested with their failures shown, 1 click to check with no wallet or account, and 3 separate checks (Ethereum, Bitcoin and a quantum-safe signature)](docs/img/hero.jpg)
 
-## Limits, before anything else
+## In one minute
 
-- **Sealing proves a number was not changed; it does not prove it was right. The tests show how
-  often it was right.**
-- **On a river with no gauge, RiverEtch shows a class, never a value:** under 30, 30 to 50, 50 to
-  100, or 100 FNU and over. Its expected error comes from a test on rivers the model never saw:
-  there, the class matched the gauge in 160 of 298 passes, against 61 for always guessing the most
-  common class, and half of the estimates were off by less than 36.9 % of the gauge's value,
-  reading low by about 23 %. The four classes replaced three (185 of 298) after a preregistered
-  test, decided after seeing the three-class result
-  ([report](docs/water-quality/report.md#the-class-tests-2026-10-20-each-run-once-after-its-anchor)).
-- **A value with a unit appears only where a gauge validated the model.** Along the river, the map
-  is a relative index (NDTI).
-- **Clouds hide about three passes in four** (72–76 % in 2026).
-- **The 2026 records sealed before T0 are a backtest.** A pass counts as prospective only when its
-  claim was committed before the gauge was read. Even then, sealing first does not prove the gauge
-  value was unknown: the USGS publishes within minutes.
-- **Sepolia is a test network,** and a proposal would sunset it in 2027. The Bitcoin timestamps and
-  the signatures do not depend on it ([trust model](docs/trust-model.md)).
+- **The problem.** A measuring station sees one point of a river. Most of the river lies far from
+  any station, so when the water turns muddy or warm there, nobody measures it.
+- **What RiverEtch does.** Every few days a free satellite (Sentinel-2 or Landsat) passes over the
+  river. RiverEtch turns each clear pass into a reading of the water: how muddy it is (turbidity)
+  and how warm it is (water temperature).
+- **How far off it can be.** Every model was tested once, on years it never saw, against a USGS
+  station. The app shows that error beside each reading, and says plainly where the satellite does
+  not work.
+- **Why you can trust the record.** Each reading gets a fingerprint (a SHA-256 hash). The
+  fingerprints are posted on two public blockchains, Ethereum and Bitcoin, and signed with a
+  quantum-safe signature. Change one number, and the fingerprint no longer matches.
+- **Who it is for.** A water-quality analyst at an environmental agency. The analyst decides;
+  RiverEtch informs, with a reading they can cite and show was never changed.
 
-## The judging criteria
+## How it works
 
-### Climate Impact
+```mermaid
+flowchart LR
+  SAT["Satellite pass<br/>Sentinel-2 or Landsat<br/>(free images)"] --> READ["Reading of the water<br/>turbidity or temperature"]
+  STATION["USGS station<br/>measures one point"] -. "tests the model once,<br/>on years it never saw" .-> MODEL["Frozen model<br/>with its measured error"]
+  MODEL --> READ
+  READ --> SEAL["Sealed record<br/>fingerprint: SHA-256"]
+  SEAL --> LEDGER["Ledger<br/>each line names<br/>the line before"]
+  LEDGER --> ETH["Ethereum (Sepolia)<br/>the ledger's fingerprint,<br/>with the block's time"]
+  LEDGER --> BTC["Bitcoin<br/>an OpenTimestamps proof"]
+  LEDGER --> SIG["Quantum-safe signature<br/>ML-DSA-65"]
+  ETH --> CHECK["Anyone checks it<br/>in the browser,<br/>no wallet, no account"]
+  BTC --> CHECK
+  SIG --> CHECK
+```
 
-Floods and droughts arrive through rivers. The gauges behind the two demo reaches recorded both:
-the Platte's highest peak in 72 years (March 2019), and the Mississippi's three lowest 7-day flows
-in 16 years (2022 to 2024), when saltwater moved up the river towards drinking-water intakes. A
-gauge measures one point; between gauges, and on rivers with none, an agency has nothing to read
-in those years. RiverEtch reads such reaches from free satellite imagery, says how far off the
-reading tends to be, and keeps a record of it that cannot be quietly changed afterwards. It
-attributes no event to climate change and claims no trend: the satellite record (since 2018) is
-far too short ([why it matters](#why-it-matters-for-climate)).
+1. **Read.** At every clear pass, each water pixel of the river gets a relative index of how muddy
+   it is (NDTI). Clouds, glare and the river banks are left out.
+2. **Estimate.** At the reading spot, a frozen model turns the pass into a reading with its
+   expected range. If the image is outside what the model was trained on, it gives no reading and
+   says why.
+3. **Seal.** The reading becomes a record, and its fingerprint is added to the river's ledger, a
+   list where each line names the fingerprint of the line before.
+4. **Witness.** The ledger's last fingerprint is posted on Ethereum, timestamped on Bitcoin and
+   signed. Nobody, RiverEtch included, can change those afterwards.
+5. **Check.** The web app recomputes all of this in your browser. A job runs the whole cycle twice
+   a day (13:00 and 00:00 UTC) on public data only, and holds no key.
 
-### Innovation & Creativity
+The [architecture](docs/architecture.md) shows each part in detail.
 
-- **Commitment before the answer.** Every test is written, frozen and anchored on a public chain
-  before it runs, and then run once. The test on rivers the model never saw was anchored at block
-  11952275 and ran 18 minutes later.
-- **An ungauged reach that shows only what that test earned:** the Mississippi above Natchez, with
-  no turbidity gauge on the river, shows a class beside its expected error, labelled "unvalidated".
-- **Three independent witnesses of the same ledger heads:** an anchor on Ethereum Sepolia (the
-  contract can only append), a Bitcoin timestamp (OpenTimestamps: hashes only, made by a daily job
-  that holds no key), and a post-quantum ML-DSA-65 signature.
-- **A scoreboard of claims committed before the gauge was read,** scored under a rule frozen before
-  the first pass it scores.
+## Two kinds of river
 
-### Technical Execution
+The app follows four reaches (stretches of river) on three rivers. On two, a station measures the
+water, so RiverEtch can show how close the satellite comes. On the other two, no station measures
+turbidity, so the satellite's reading is the only one there is.
 
-- **Every result is recomputed in CI** from committed inputs and compared with its MANIFEST, to the
-  last printed digit (`quality verify`, `quality transfer-verify`).
-- **Every record is checkable in the browser:** its SHA-256 over canonical JSON, the hash chain of
-  its ledger, its model card, its Sepolia anchor, its Bitcoin timestamp and its signature.
-- **Two independent ML-DSA-65 implementations** (pqcrypto in the pipeline, @noble/post-quantum in
-  the browser) pass NIST's ACVP vectors and verify each other's signatures.
-- **The contract's source reproduces its deployed bytecode** (`contracts/scripts/bytecode-check.ts`,
-  no key).
-- **The daily run is a GitHub Actions job with no secrets.** Anchoring and signing stay on the
-  owner's machine.
+```mermaid
+flowchart TD
+  Q{"Does a station measure<br/>turbidity on this reach?"}
+  Q -->|"Yes: Mississippi at Belle Chasse,<br/>Platte at Louisville"| A["A value with a unit (FNU)<br/>and its 90 % range,<br/>tested once against that station"]
+  Q -->|"No: Mississippi above Natchez"| B["A class only (for example 30 to 50 FNU),<br/>with the error measured on<br/>rivers the model never saw"]
+  Q -->|"No, and outside the tested region:<br/>the Euphrates at Birecik, Türkiye"| C["A class only,<br/>with no error estimate"]
+```
 
-### Practical Usefulness
+![A river with a station: the Mississippi at Belle Chasse. The map shows the reach in 3D; the panel reads 32.9 FNU with an expected range of 22.6 to 47.9 FNU, labelled Validated, sealed and anchored; at the bottom, the satellite's readings beside the station's own flow and water level](docs/img/case-gauged.jpg)
 
-- **For a water-quality analyst at an environmental agency**, who decides; RiverEtch informs. On a
-  reach with no gauge: a class, its measured error and a record they can cite and show unchanged.
-  Where a gauge exists: a value with its 90 % interval, tested once against that gauge.
-- **It costs nothing to run or to check:** free imagery (Sentinel-2, Landsat), a free CI runner,
-  and no wallet or account to read or verify a record.
-- **Open data:** the Export menu (CSV, GeoJSON, JSONL, JSON); records, ledgers and cards under CC
-  BY 4.0.
-- **A new reach is a site file and a settings entry;** the ungauged reach was added that way.
+_With a station (Mississippi at Belle Chasse): a value, its expected range, and the station's own
+measurements beside it._
 
-### Presentation & Storytelling
+![A river with no station: the Mississippi above Natchez. The panel reads "30 to 50 FNU", a class, labelled "Unvalidated: expected error from the transfer test"; the chart notes that in 160 of 298 test passes on rivers the model never saw, the class matched the station](docs/img/case-ungauged.jpg)
 
-- **The live app tells one case at a time:** the globe, the river, the pass, its record.
-  **Verify this record** walks the checks one by one, and **Change one number first** lets you
-  type another number and watch the seal break (and match again when you put it back).
-- **Check a file you were sent** compares a RiverEtch record (JSON) or series (CSV) with the
-  sealed records in the browser, and names any value that changed.
-- **Accuracy** lists every station tested, where the satellite works and where it is not
-  recommended; on a reach with no station, the same stations scored by a model that never saw
-  them.
-- **A guided tour** on each case points at each control in eight steps, from the pass to what a
-  seal does and does not prove.
-- **For a quick read:** [the judges' page](docs/judges.md), the
-  [report](docs/water-quality/report.md) and the [trust model](docs/trust-model.md).
+_With no station (Mississippi above Natchez): a class, and how often that class was right on
+rivers the model never saw._
 
-## Why it matters for climate
+## Change one number, and the seal breaks
 
-Rivers carry the climate's extremes, and the two reaches RiverEtch follows have lived through
-them. These numbers are the USGS gauges' own daily records (`reach climate`), not satellite
-estimates:
+**Verify this record** recomputes the record's fingerprint in your browser and walks its ledger,
+its model, its Ethereum anchor, its Bitcoin timestamp and its signature. **Change one number
+first** lets you type a different value and watch the check fail:
 
-**Platte at Louisville, Nebraska** (daily record since 1953):
+![Two verification panels side by side. Left, the real record: the sealed and recomputed fingerprints are identical, and its ledger line #37 is fine. Right, the same record with the turbidity changed from 32.92 to 12.92: the recomputed fingerprint is different and shown in red, and ledger line #37 turns red](docs/img/verify-tamper.jpg)
 
-- **2019:** the highest annual peak in 72 complete years, 6,201 m³/s on 16 March
-  ([the March 2019 floods](https://www.usgs.gov/media/images/spring-2019-flooding-louisville-ne)).
-- **2022:** its annual peak ranked 70th of 72.
-- **2023:** the warmest summer day in 20 summers, 32.1 °C.
+A seal proves that a reading was **not changed**. It does not prove that the reading is **right**:
+that comes from the tests below. The [trust model](docs/trust-model.md) lists what each check
+catches and what it does not.
 
-**Mississippi at Belle Chasse, Louisiana** (daily record since 2008):
+## Does it work?
 
-- **2023, 2022 and 2024:** the three lowest 7-day flows in 16 complete years. In 2022 and 2023,
-  [saltwater moved up the river](https://www.wwno.org/coastal-desk/2023-09-19/saltwater-threatens-south-louisiana-drinking-water-second-year-in-a-row-amid-severe-drought)
-  towards the parish's drinking-water intakes.
-
-What these years mean:
-
-- **More of these years are expected.** Continued warming is projected to make wet and dry
-  extremes more severe ([IPCC AR6 WGI, SPM B.3.1](https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/)).
-  Those are the years an agency most needs to read a river, between and beyond its gauges: between
-  them as a relative map, with a unit only where a gauge validated the model.
-- **Water temperature matters for climate impacts.** The Belle Chasse gauge does not measure it.
-  Landsat does, with a 0.86 °C error validated at Baton Rouge.
-- **Adaptation runs on records.** Drinking-water intakes, permits and insurance claims all depend
-  on readings that nobody revised after the fact. Each pass is sealed, and its ledger is anchored on
-  Ethereum, so the record of a flood or a drought stays as it was measured.
-- **What this does not claim.** One gauge's record attributes no event to climate change, and the
-  satellite record (since 2018) is far too short for a trend.
-
-In the web app, each case's **Climate** tab shows its gauge's whole record, year by year, and its
-extreme days: how many low-flow, high-flow and warm-water days each year held, and how often the
-satellite saw them. The locked test holds fewer than 20 passes on any kind of extreme day, so the
-app says so instead of giving an error for them.
-
-## What RiverEtch does
-
-RiverEtch reads rivers from free satellite imagery (Sentinel-2 and Landsat). It turns each clear
-pass into water-quality values with a stated error. Every value was tested once, on years its model
-never saw, against a USGS gauge. On a reach with no gauge it gives a class instead, with the error
-measured on rivers the model never saw. Each pass is sealed as a record (the SHA-256 of its
-content) and chained in an append-only ledger, so anyone can recompute it from public data and see
-that it has not changed.
-
-## Who decides
-
-A water-quality analyst at an environmental agency decides; RiverEtch informs. The analyst needs an
-independent estimate they can cite, and needs to show it was not adjusted after the fact. The gauge
-is the referee: RiverEtch publishes a value only where a gauge validated its model, and a class
-where there is none. Every record says which model card produced it.
-
-## Limits in detail
-
-- **Clouds:** about three passes in four are lost to them (72–76 % in 2026).
-- **Validated only at the gauge:** a value with a unit is published only at a validated gauge's
-  window. The per-pixel map along the reach is relative (NDTI) and not validated.
-- **The 2026 check (retrospective) raises two warnings:**
-  - At Belle Chasse the error holds on new data (18.0 %), but the 90 % intervals covered 17 of 22
-    values.
-  - The Platte overestimated five provisional summer values by 1.5–2×.
-  - Both are reported, not hidden: see [The reaches in operation](docs/water-quality/report.md).
-- **Timing:** every 2026 record so far was sealed in batch runs (2026-10-12 to 2026-10-15), after
-  its gauge value was public, so those passes are a backtest; they show only that the model cards
-  were frozen and committed first. Only passes after T0, the anchor of the scoring rule, are scored
-  as prospective (see the scoreboard below).
-- **The estimate never reads the gauge, but that does not make the gauge unknown.** An estimate
-  comes from the model card and the image alone: `estimate` in
-  [quality/cards.py](pipeline/src/climate_pipeline/quality/cards.py#L180) (turbidity) and in
-  [reach/thermal.py](pipeline/src/climate_pipeline/reach/thermal.py#L73) (water temperature) takes
-  no gauge value, and the gauge is read only after the record is sealed (`reach check`, `context`,
-  `score`). The USGS publishes provisional values within minutes, so sealing first proves the
-  estimate was not changed after the reading, not that the reading was unknown.
-- **Gauge values are often provisional.** The USGS can still revise them; every one is labelled.
-- **Sepolia is a test network,** not mainnet: an anchor there is a public, checkable timestamp.
-- **A seal shows a record has not changed, not that it is right.** Correctness comes from the locked
-  tests and the scoreboard.
-
-## What it measures today
-
-Every error is out of sample: a locked test (December 2023 to September 2026) that training and
-model selection never saw, scored once. Each error sits next to its baseline, the error a user would
-get without the satellite.
+Every error below is out of sample: a locked test (December 2023 to September 2026) that the
+training and the model selection never saw, scored once. Each error sits beside its baseline, the
+error you would get without the satellite.
 
 | Variable, reach                              | Locked-test error            | Baseline (no satellite)         | Level     |
 | -------------------------------------------- | ---------------------------- | ------------------------------- | --------- |
@@ -194,32 +119,32 @@ get without the satellite.
 | Suspended sediment, both reaches             | too few samples, or biased   | —                               | not shown |
 | Discharge, dissolved oxygen (Platte)         | 110.6 % and 1.02 mg/L        | 65.5 % and 1.34 mg/L            | not shown |
 
-- **The two reaches are the best two of ten stations** (on eight rivers) validated with the same
-  protocol. The honest summary of the method is the median over the nine evaluated: **33.1 %**. Turbid rivers do best;
-  clear, tidal rivers do worst. Every river's result is in the
-  [report](docs/water-quality/report.md).
-- **Water temperature at Belle Chasse** was validated at Baton Rouge, the only main-stem gauge on
-  the lower Mississippi that measures it (about 245 km upstream), against provisional values, so it
-  is capped at _estimated_.
-- **What did not pass (v7, v7.1):**
-  - discharge from the water surface erred more than the seasonal average;
-  - dissolved oxygen missed on its interval's coverage;
-  - specific conductance earned _estimated_ by the rule but does not follow the river's changes
-    (correlation 0.03), so it is not shown.
-  - The gauges' own readings of all three stay visible as context, labelled as measurements.
+- **The two rivers above are the best two of ten stations** (on eight rivers) tested with the same
+  protocol. The honest summary is the median over the nine rated: **33.1 %**. Muddy rivers do
+  best; clear, tidal rivers do worst. The app's **Accuracy** tab lists every one, failures
+  included:
 
-## The scoreboard: committed before the gauge is read
+  ![The Accuracy tab: the satellite passed its locked test at 7 of the 9 stations rated, with half of its errors under 33.1 %; the table lists each river, its level, the satellite's error beside the error of guessing the usual value, and its test passes](docs/img/accuracy.jpg)
 
-What the chain adds is a commitment made before the answer exists. The scoring rule
-([rule v1](docs/water-quality/prospective.md)), the model cards, the preregistration and the
-results' MANIFEST are listed with their hashes in a frozen ledger and anchored on Sepolia; that
-anchor's block time is **T0**. A pass after T0 is **prospective** only when its record was sealed
-and anchored before RiverEtch read the gauge, at least 12 hours after the pass. `reach score` then
-appends the outcome (inside or outside the sealed range, with the gauge value's approval) to an
-outcomes ledger, which is anchored too.
+- **On a river with no station**, the class is tested on rivers the model never saw: it matched the
+  station in **160 of 298** passes, against 61 for always guessing the most common class. Half of
+  the estimates were off by less than 36.9 % of the station's value, reading low by about 23 %. Four
+  classes replaced three (185 of 298) after a preregistered test, decided after seeing the
+  three-class result ([report](docs/water-quality/report.md#the-class-tests-2026-10-20-and-21-each-run-once-after-its-anchor)).
+- **What did not pass** is reported too: discharge from the water surface erred more than the
+  seasonal average; dissolved oxygen missed on its range's coverage; specific conductance did not
+  follow the river's changes. The stations' own readings of all three stay visible, labelled as
+  measurements.
+- **Every result is recomputed in CI** from committed inputs and compared with its MANIFEST, to the
+  last printed digit.
 
-The **Track record** tab shows counts, never percentages, until there are 20 passes. The
-retrospective counts, labelled as such:
+### Committed before the station is read
+
+A test is only fair if its answer was not known when it was written. So every test is written,
+frozen and anchored on Ethereum before it runs, and then run once: the test on rivers the model
+never saw was anchored at block 11952275 and ran 18 minutes later. The same goes for each new
+reading: it counts as **prospective** only if its record was sealed and anchored before RiverEtch
+read the station.
 
 | Inside the expected range                     | Turbidity, Belle Chasse | Turbidity, Platte | Water temperature, Belle Chasse | Water temperature, Platte |
 | --------------------------------------------- | ----------------------- | ----------------- | ------------------------------- | ------------------------- |
@@ -227,89 +152,54 @@ retrospective counts, labelled as such:
 | Sealed before the station was read (since T0) | 1 of 1                  | 1 of 1            | none yet                        | none yet                  |
 | Locked test, retrospective                    | 54 of 57                | 50 of 54          | 33 of 37                        | 23 of 24                  |
 
-The prospective count is as of the 21 Oct 2026 daily run: the first pass after T0 at each reach,
-both inside. Two passes say little, and clouds hide about three passes in four, so it grows
-slowly. Every count is computed from the
-committed files (`web/test/scoreboard.test.ts`).
+The prospective count is as of the 21 Oct 2026 daily run. Two passes say little, and clouds hide
+about three passes in four, so it grows slowly. The **Track record** tab shows counts, never
+percentages, until there are 20 passes.
 
-## How it works
+## Limits, before you rely on it
 
-1. **Observe.** At every clear Sentinel-2 pass, each water pixel of the reach gets its NDTI, a
-   relative turbidity index. Clouds, glint and the banks are masked out.
-2. **Estimate.** At the gauge's window, a model card turns the pass into a value with a 90 %
-   interval: turbidity in FNU from Sentinel-2, water temperature in °C from Landsat's thermal band.
-   A value outside the card's training range abstains and says why.
-3. **Seal.** Each pass becomes a record: the SHA-256 of its canonical JSON. The record names its
-   model card's hash and the code commit that produced it. Records are chained in a ledger, where
-   each line names the hash of the line before.
-4. **Verify.** The web app recomputes a record's seal in the browser, walks the ledger chain and
-   checks the model card. Changing a single digit breaks the seal.
-5. **Check (retrospective).** After each run, the estimates are compared with the gauge's own
-   readings (report-only). That shows whether the error holds on new data.
-6. **Score (prospective).** Each anchored claim after T0 is scored against the gauge into the
-   outcomes ledger, under the frozen rule (see the scoreboard above).
+- **A seal proves a number was not changed, not that it was right.** The tests above show how often
+  it was right.
+- **A value with a unit appears only where a station validated the model.** Along the river, the
+  map is a relative index (NDTI); on a river with no station, the reading is a class.
+- **Clouds hide about three passes in four** (72–76 % in 2026).
+- **The 2026 records sealed before T0 are a backtest:** they were made after their station values
+  were public. And sealing first does not prove the station value was unknown: the USGS publishes
+  within minutes.
+- **Station values are often provisional** and can still be revised; every one is labelled.
+- **Sepolia is a test network,** and a proposal would retire it in 2027. The Bitcoin timestamps and
+  the signatures do not depend on it.
+- **RiverEtch states no trend and blames no one.** The satellite record (since 2018) is far too
+  short for a trend, and no output says any event was caused by anything.
 
-A GitHub Actions job ([daily.yml](.github/workflows/daily.yml)) runs the cycle twice a day (13:00
-and 00:00 UTC): score, new records, check, the web's files, and a Bitcoin timestamp of every new
-ledger head. It reads public data only, holds no key, and publishes to the repository's `data`
-branch, which the web app reads first ([release procedure](docs/release.md)). The ledgers and the
-anchoring log show when it actually ran.
+## Why it matters for climate
 
-**Anchored on Ethereum (Sepolia).** `contracts/src/LedgerAnchor.sol` stores each ledger's head
-(the SHA-256 of its last line, which commits to every line above it) with the block's time. The
-contract's owner anchors the ledgers from the terminal (`contracts/scripts/anchor.ts`), which also
-rebuilds the anchoring log, [docs/ledgers/anchors.jsonl](docs/ledgers/anchors.jsonl), from the
-chain. **Verify this record** then reads the anchor without a wallet: anchored at block N, recorded
-after the last anchor, or changed since. An anchor proves the ledger's state from its own date on,
-never before. See [docs/anchoring.md](docs/anchoring.md) and the
-[trust model](docs/trust-model.md).
+Rivers carry the climate's extremes, and the stations on the two reaches with a station have
+recorded both. These are the USGS stations' own daily records, not satellite estimates:
 
-## Glossary
+- **Platte at Louisville, Nebraska** (daily record since 1953): in **2019**, the highest annual peak
+  in 72 complete years, 6,201 m³/s on 16 March
+  ([the March 2019 floods](https://www.usgs.gov/media/images/spring-2019-flooding-louisville-ne));
+  in **2023**, the warmest summer day in 20 summers, 32.1 °C.
+- **Mississippi at Belle Chasse, Louisiana** (daily record since 2008): **2023, 2022 and 2024** were
+  the three lowest 7-day flows in 16 complete years. In 2022 and 2023,
+  [saltwater moved up the river](https://www.wwno.org/coastal-desk/2023-09-19/saltwater-threatens-south-louisiana-drinking-water-second-year-in-a-row-amid-severe-drought)
+  towards the parish's drinking-water intakes.
 
-| Term            | Meaning                                                                                         |
-| --------------- | ----------------------------------------------------------------------------------------------- |
-| NDTI            | Normalized Difference Turbidity Index, (red − green) / (red + green): relative, with no unit    |
-| FNU             | Formazin Nephelometric Units, the unit the USGS turbidity sensors report                        |
-| Median error    | MdSA, median symmetric accuracy: 100 × (exp(median of abs(ln(estimate / gauge))) − 1), in %     |
-| Locked test     | Years held out from training and selection, scored once                                         |
-| Preregistration | The rules (candidates, metrics, thresholds) written and committed before any result is computed |
-| Level           | _validated_ / _estimated_ / _indicative_: what a locked test earned; below _estimated_, no unit |
-| Model card      | The frozen model of a reach and target, with its locked-test scores; records name its SHA-256   |
-| Seal, ledger    | A record's SHA-256, and the append-only list of seals where each line names the one before      |
-| 7-day low flow  | A year's lowest mean discharge over 7 consecutive days: the standard measure of a dry spell     |
-| T0              | The block time of the scoring rule's first anchor: passes after it can be prospective           |
-| Prospective     | Sealed and anchored before the gauge was read, after T0; anything else is retrospective         |
+Continued warming is projected to make wet and dry extremes more severe
+([IPCC AR6 WGI, SPM B.3.1](https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/)).
+Those are the years an agency most needs to read a river, between its stations and beyond them.
+Each case's **Climate** tab shows its station's whole record, year by year.
 
-## Repository structure
+## Quick start
 
-```text
-.
-├── pipeline/   Python 3.12 (uv): screening, water-quality validation (`quality`), reach records (`reach`)
-├── web/        Vite + React: the globe, the cases and the case view (map, charts, record verification)
-├── contracts/  Hardhat 3: the ledger anchor (LedgerAnchor, Sepolia)
-├── docs/       the water-quality report and preregistration, the record schema, the decision log
-└── .github/    CI: every result is recomputed and checked against its MANIFEST
-```
+### Requirements
 
-**Key documents:**
-
-- **For judges:** [the short path](docs/judges.md) and [the trust model](docs/trust-model.md).
-- **Results:** [report](docs/water-quality/report.md), [preregistration](docs/water-quality/preregistration.md),
-  [results](docs/water-quality/results/results.md) and the
-  [scoring rule](docs/water-quality/prospective.md).
-- **Records:** [the record schema](docs/schema/README.md) and
-  [the reach pipeline](docs/water-quality/reach/README.md).
-- **Design:** [architecture](docs/architecture.md) and [decision log](docs/decisions.md).
-
-## Getting started
-
-### Prerequisites
-
-| Tool                                                          | Version                                | Needed for                                       |
-| ------------------------------------------------------------- | -------------------------------------- | ------------------------------------------------ |
-| [Git](https://git-scm.com/)                                   | any recent                             | everything                                       |
-| [Node.js](https://nodejs.org/)                                | 24 LTS (see `.nvmrc`; npm 11 included) | web, contracts, hooks                            |
-| [uv](https://docs.astral.sh/uv/getting-started/installation/) | 0.12 or newer                          | Python pipeline (uv installs Python 3.12 itself) |
+| Tool                                                          | Version                                | Needed for                                    |
+| ------------------------------------------------------------- | -------------------------------------- | --------------------------------------------- |
+| [Git](https://git-scm.com/)                                   | any recent                             | everything                                    |
+| [Node.js](https://nodejs.org/)                                | 24 LTS (see `.nvmrc`; npm 11 included) | the web app, the contracts, the Git hooks     |
+| [uv](https://docs.astral.sh/uv/getting-started/installation/) | 0.12 or newer                          | the Python pipeline (uv installs Python 3.12) |
 
 ### Run the web app
 
@@ -321,8 +211,8 @@ npm install        # installs every workspace and the Git pre-commit hook
 npm run dev        # http://localhost:5173
 ```
 
-The app reads the reaches' committed records from `docs/water-quality/reach/*/examples/`. It needs
-no account and no wallet. `web/.env.example` lists the optional WalletConnect and Sepolia settings.
+The app needs no account and no wallet. `web/.env.example` lists the optional WalletConnect and
+Sepolia settings.
 
 ### Reproduce the results
 
@@ -332,53 +222,86 @@ uv sync                                                  # Python 3.12 and the l
 uv run climate-pipeline quality run --root ..            # recompute every validation from the snapshots
 uv run climate-pipeline quality verify --root ..         # compare them with the MANIFEST, to the last digit
 uv run pytest tests/test_reach_examples.py               # check every committed record's seal, ledger and card
-uv run climate-pipeline ledger verify --root ..          # the frozen rule, cards and MANIFEST are unchanged
+uv run climate-pipeline ledger verify --root ..          # the frozen rules, cards and MANIFEST are unchanged
 ```
 
-`reach run`, `reach thermal` and `reach check` make new records from public data and compare them
-with the gauges; `reach score` scores the anchored claims under the frozen rule. `reach climate`
-fetches each gauge's whole daily record for the Climate tab. See
-[docs/water-quality/reach/README.md](docs/water-quality/reach/README.md).
+`reach run` makes new records from public data, `reach check` compares them with the stations, and
+`reach score` scores the anchored claims under the frozen rule. See
+[the reach pipeline](docs/water-quality/reach/README.md).
 
 ### Run every check
 
 ```bash
-npm run check            # format, lint, compile, types, all tests, frontend build
-npm run pipeline:check   # ruff format + lint, mypy --strict, pytest
+npm run check            # format, lint, compile, types, all tests, web build
+npm run pipeline:check   # ruff format and lint, mypy --strict, pytest
 ```
 
-### The contracts
+The contract is in `contracts/`: `npm run compile` builds it and `npm test` runs its tests.
+Anchoring on Sepolia is described in [anchoring](docs/anchoring.md); keys are read from Hardhat's
+encrypted keystore, never from committed files.
 
-```bash
-npm run compile          # contracts and TypeChain bindings
-npm test                 # contract tests (LedgerAnchor, in Solidity and TypeScript)
+## What is in this repository
+
+```text
+.
+├── pipeline/   Python 3.12 (uv): the satellite readings, the tests (`quality`), the records (`reach`)
+├── web/        Vite + React: the globe, the cases and each case's map, charts and record checks
+├── contracts/  Hardhat 3: the ledger anchor (LedgerAnchor, on Sepolia)
+├── docs/       results, preregistrations, records, ledgers, the trust model and the decision log
+└── .github/    CI, and the daily run that makes the new records
 ```
 
-Deploying the ledger anchor to Sepolia and anchoring the ledgers is described in
-[docs/anchoring.md](docs/anchoring.md). Secrets are read from Hardhat's encrypted keystore, never
-from committed files.
+| If you want…                     | Read                                                         |
+| -------------------------------- | ------------------------------------------------------------ |
+| the short path for a reviewer    | [docs/reviewers.md](docs/reviewers.md)                       |
+| what is checked, and what is not | [docs/trust-model.md](docs/trust-model.md)                   |
+| every result, failures included  | [docs/water-quality/report.md](docs/water-quality/report.md) |
+| how the system fits together     | [docs/architecture.md](docs/architecture.md)                 |
+| the record format                | [docs/schema/README.md](docs/schema/README.md)               |
+| why each choice was made         | [docs/decisions.md](docs/decisions.md)                       |
+| every document                   | [docs/README.md](docs/README.md)                             |
 
-## Useful scripts
+## Frequently asked questions
 
-Run from the repository root.
+- **Is this a forecast?** No. Every reading is of a pass that already happened.
+- **Do I need a wallet or an account?** No. Reading and checking a record needs neither; a wallet
+  only lets you read Ethereum through your own connection.
+- **Why a blockchain?** A seal needs a date that RiverEtch itself cannot move. A public chain gives
+  one that no single party sets and nobody can edit
+  ([why a blockchain, and why two](docs/trust-model.md#why-a-blockchain-and-why-two)).
+- **Why only a class where there is no station?** Because nothing there can check a number. The
+  class comes with the error measured on rivers the model never saw.
+- **Can I get the data?** Yes. The **Export** menu gives the series (CSV), the reach's geometry
+  (GeoJSON), its ledger (JSONL) and its model card (JSON).
 
-| Script                          | What it does                                                      |
-| ------------------------------- | ----------------------------------------------------------------- |
-| `npm run dev` / `npm run build` | Frontend dev server / production build                            |
-| `npm run pipeline:check`        | Everything CI runs for the Python side                            |
-| `npm run check`                 | Everything CI runs for the JavaScript side                        |
-| `npm run lint`                  | ESLint (TypeScript + TSDoc) and Solhint (Solidity + NatSpec)      |
-| `npm run format`                | Format everything with Prettier                                   |
-| `npm run typecheck`             | `tsc` in every workspace                                          |
-| `npm run compile`               | Compile Solidity with Hardhat (also generates TypeChain bindings) |
-| `npm test`                      | Contract tests                                                    |
+## Glossary
+
+| Term            | Meaning                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| Turbidity       | How muddy the water is                                                                          |
+| FNU             | Formazin Nephelometric Units, the unit the USGS turbidity sensors report                        |
+| NDTI            | Normalized Difference Turbidity Index, (red − green) / (red + green): relative, with no unit    |
+| Median error    | MdSA, median symmetric accuracy: 100 × (exp(median of abs(ln(estimate / station))) − 1), in %   |
+| Locked test     | Years held out from training and selection, scored once                                         |
+| Preregistration | The rules of a test, written and committed before any result is computed                        |
+| Level           | _validated_ / _estimated_ / _indicative_: what a locked test earned; below _estimated_, no unit |
+| Model card      | The frozen model of a reach and a target, with its test scores; records name its SHA-256        |
+| Seal, ledger    | A record's SHA-256, and the append-only list of seals where each line names the one before      |
+| Anchor          | A ledger's last fingerprint stored on Ethereum with the block's time                            |
+| T0              | The block time of the scoring rule's first anchor: passes after it can be prospective           |
 
 ## Contributing
 
-Conventions (commit messages, branches, documentation standards, the English-only rule) are in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+Conventions (commit messages, branches, documentation standards) are in
+[CONTRIBUTING.md](CONTRIBUTING.md). Questions and problems go to the
+[issue tracker](https://github.com/saulo1112/RiverEtch/issues).
 
 ## License
 
 The code is under the [MIT License](LICENSE); the documentation and the data RiverEtch produces
-(`docs/`) are under [CC BY 4.0](LICENSE-docs). Third-party data keep their own terms.
+(`docs/`) are under [CC BY 4.0](LICENSE-docs). Third-party data keep their own terms: USGS and
+Landsat data are public domain; Sentinel-2 data follow the Copernicus data policy.
+
+## Contact
+
+Maintained by [@saulo1112](https://github.com/saulo1112).

@@ -1,5 +1,5 @@
 {
-  "name": "@climate-change-ieee/contracts",
+  "name": "@riveretch/contracts",
   "version": "0.1.0",
   "private": true,
   "description": "Solidity contracts (Hardhat 3): the ledger anchor (LedgerAnchor) on Sepolia.",

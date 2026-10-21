@@ -1,4 +1,4 @@
-# For the judges
+# For reviewers
 
 RiverEtch is a verifiable record of the state of rivers that have no gauge. It estimates river
 water quality from free satellite images, tests every model once on data it never saw against a
@@ -77,7 +77,7 @@ Without the app:
   [`0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762`](https://sepolia.etherscan.io/address/0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762)
   on Sepolia; every anchor and its transaction are in
   [`docs/ledgers/anchors.jsonl`](ledgers/anchors.jsonl).
-- From a clone (see the [README](../README.md#getting-started)):
+- From a clone (see the [README](../README.md#quick-start)):
 
   ```bash
   cd pipeline
