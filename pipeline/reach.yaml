@@ -109,6 +109,22 @@ reaches:
         widths the model was trained on (305 to 773 m) by the largest margin of the points
         measured."
       source_url: https://www.openstreetmap.org/way/13638374
+    # Its climate context only (never its own reading, never scored): no open station record of
+    # the river's daily flow was found, so the flow a flood model computes, named as modelled.
+    # The cell: the largest modelled flow within 5 km of the reading spot (2019 to 2021: mean
+    # 674 m³/s); the cells around it carry a few m³/s, side valleys of a 5 km grid. The API
+    # documents values from 1984; at this cell they start on 1 January 1997 (earlier days empty).
+    climate_model:
+      lat: 37.025
+      lon: 37.925
+      name: "GloFAS flood model, cell 37.025° N, 37.925° E"
+      basis: "Modelled, not measured: GloFAS v4 (Copernicus Emergency Management Service) through
+        Open-Meteo, its reanalysis to July 2022 and its forecasts after (Open-Meteo's
+        documentation). The cell is the one with the most modelled flow within 5 km of the
+        reading spot, 4 km west of it."
+      # Its 7-day low stays within about 1 % every year (402.7 to 406.4 m³/s, 1997 to 2025), so
+      # the years are not ranked by it; decided after seeing the record.
+      rank_lows: false
     timezone: Europe/Istanbul
     targets: [turbidity] # FNU class
     cards:

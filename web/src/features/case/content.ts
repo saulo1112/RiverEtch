@@ -104,7 +104,7 @@ export const CASE_COPY = {
     mapCaption: "No station here",
     // Why a reach with no station may have no Climate tab.
     noClimate:
-      "No open daily flow record of this river was found, so this case has no Climate tab. A modelled flow was not used in its place: the tab shows measurements only.",
+      "No open daily flow record of this river was found, so this case has no Climate tab.",
     chartKey: "Each pass's turbidity class in FNU (the height means the class only)",
     noGauge: "No station on this reach, so nothing here is scored against one.",
     // The pass's turbidity index against the river's own past passes (rule D0), on the card.
@@ -462,6 +462,16 @@ export const CASE_COPY = {
     noteContext: (name: string) =>
       `Below, the river's daily flow measured upstream (${name}): this reach has no station of its own. Measurements, not a trend or an attribution.`,
     contextHelpLabel: "About this station",
+    // A reach with no open station record of its river: the GloFAS flood model's flow (reach.yaml,
+    // climate_model), named as modelled and credited as the data's licence asks (CC BY 4.0).
+    model: {
+      before: "Below, the river's daily flow from the GloFAS flood model (data by ",
+      link: "Open-Meteo.com",
+      url: "https://open-meteo.com/",
+      after:
+        "), as no open station record was found: modelled, not measured, and not a trend or an attribution.",
+      helpLabel: "About this model",
+    },
     measures: { peak: "Annual peak", low: "7-day low", warm: "Warmest day" },
     facts: {
       peak: "Highest annual peak",
@@ -478,7 +488,9 @@ export const CASE_COPY = {
     keyTop: "Three most extreme years",
     keyToDate: "This year so far",
     chart: (measure: string, station: string) => `${measure} per year at ${station}`,
+    chartModel: (measure: string, model: string) => `${measure} per year in the ${model}`,
     table: "Every year of the station's record",
+    tableModel: "Every year of the modelled record",
     // Extreme days (rule v1, docs/water-quality/prospective.md): counts and ranks from the gauge.
     views: { label: "What the climate tab shows", values: "Yearly extremes", days: "Extreme days" },
     kinds: { low: "Low-flow days", high: "High-flow days", warm: "Warm-water days" },

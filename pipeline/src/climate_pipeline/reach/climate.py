@@ -43,6 +43,15 @@ LOW_WINDOW = 7
 SUMMER = (6, 7, 8, 9)
 FIRST_DAY = "1800-01-01"  # before any USGS daily value
 SNAPSHOT_COLUMNS = ("day", "parameter", "value", "approval")
+# A flood model's daily flow, already in m³/s (GloFAS v4 through the Open-Meteo flood API).
+MODELLED = "river_discharge"
+MODELLED_APPROVAL = "Modelled"
+GLOFAS_API = "https://flood-api.open-meteo.com/v1/flood"
+GLOFAS_FIRST_DAY = "1984-01-01"  # GloFAS v4's first day (Open-Meteo flood API documentation)
+GLOFAS_SOURCE = (
+    "GloFAS v4 river discharge (Global Flood Awareness System, Copernicus Emergency Management "
+    "Service), through the Open-Meteo flood API: modelled, not measured"
+)
 
 
 @dataclass(frozen=True)
@@ -74,6 +83,36 @@ def fetch(client: httpx.Client, api: str, station: str, until: date) -> list[dic
     return sorted(rows, key=lambda r: (r["parameter"], r["day"]))
 
 
+def fetch_modelled(client: httpx.Client, lat: float, lon: float, until: date
+                   ) -> list[dict[str, Any]]:  # fmt: skip
+    """A GloFAS cell's daily river discharge (m³/s) from 1984, through the Open-Meteo flood API.
+
+    Args:
+        client: HTTP client.
+        lat: The cell's latitude.
+        lon: The cell's longitude.
+        until: Last day.
+
+    Returns:
+        Snapshot rows (``parameter`` "river_discharge", ``approval`` "Modelled"), sorted.
+
+    Raises:
+        ReachError: When the API answers with no daily values.
+    """
+    response = client.get(GLOFAS_API, params={
+        "latitude": lat, "longitude": lon, "daily": "river_discharge",
+        "start_date": GLOFAS_FIRST_DAY, "end_date": until.isoformat(),
+        "cell_selection": "nearest",
+    })  # fmt: skip
+    response.raise_for_status()
+    daily = response.json().get("daily") or {}
+    days, values = daily.get("time") or [], daily.get("river_discharge") or []
+    if not days:
+        raise reach_run.ReachError(f"GloFAS at {lat}, {lon}: no daily values")
+    return [{"day": d, "parameter": MODELLED, "value": v, "approval": MODELLED_APPROVAL}
+            for d, v in zip(days, values, strict=True) if v is not None]  # fmt: skip
+
+
 def write_snapshot(path: Path, rows: Iterable[Mapping[str, Any]]) -> None:
     """The fetched values, one row per day and parameter (LF line ends).
 
@@ -101,8 +140,9 @@ def read_snapshot(path: Path) -> dict[str, list[Daily]]:
     """
     out: dict[str, list[Daily]] = {}
     for r in csv.DictReader(io.StringIO(path.read_text(encoding="utf-8"))):
+        provisional = r["approval"] not in ("Approved", MODELLED_APPROVAL)
         out.setdefault(r["parameter"], []).append(
-            Daily(date.fromisoformat(r["day"]), float(r["value"]), r["approval"] != "Approved")
+            Daily(date.fromisoformat(r["day"]), float(r["value"]), provisional)
         )
     for values in out.values():
         values.sort(key=lambda d: d.day)
@@ -124,12 +164,14 @@ def _ranks(values: Mapping[int, float], highest_first: bool) -> dict[int, int]:
             for y, v in values.items()}  # fmt: skip
 
 
-def discharge_years(values: Sequence[Daily], through: date) -> list[dict[str, Any]]:
+def discharge_years(values: Sequence[Daily], through: date, factor: float = FT3_TO_M3
+                    ) -> list[dict[str, Any]]:  # fmt: skip
     """Each calendar year's peak and 7-day low discharge (m³/s), ranked over the complete years.
 
     Args:
-        values: Daily mean discharge (ft³/s, as published), in day order.
+        values: Daily mean discharge (ft³/s as the USGS publishes it, or m³/s), in day order.
         through: The last day with a value: its year is shown to date, never ranked.
+        factor: To m³/s (1 for a model's m³/s).
 
     Returns:
         One row per year with a value.
@@ -152,8 +194,8 @@ def discharge_years(values: Sequence[Daily], through: date) -> list[dict[str, An
         rows.append({
             "year": year, "days": len(days), "complete": complete, "toDate": year == through.year,
             "provisional": any(d.provisional for d in days.values()),
-            "peak": round(peak.value * FT3_TO_M3, 1), "peakDay": peak.day.isoformat(),
-            "low7": None if low is None else round(low[0] * FT3_TO_M3, 1),
+            "peak": round(peak.value * factor, 1), "peakDay": peak.day.isoformat(),
+            "low7": None if low is None else round(low[0] * factor, 1),
             "low7Day": None if low is None else low[1].isoformat(),
         })  # fmt: skip
     ranked = [r for r in rows if r["complete"]]
@@ -205,15 +247,16 @@ def summarise(snapshot: Mapping[str, Sequence[Daily]], station: Mapping[str, Any
     Returns:
         The document (deterministic for a given snapshot).
     """
-    flow = list(snapshot.get(DISCHARGE, []))
+    modelled = MODELLED in snapshot  # a flood model's m³/s, not a gauge's ft³/s
+    flow = list(snapshot.get(MODELLED if modelled else DISCHARGE, []))
     warm = list(snapshot.get(TEMPERATURE, []))
     if not flow:
         raise reach_run.ReachError(f"{station.get('id')}: no daily discharge")
     through = max(d.day for d in [*flow, *warm])
-    years = discharge_years(flow, through)
+    years = discharge_years(flow, through, 1.0 if modelled else FT3_TO_M3)
     out: dict[str, Any] = {
         "station": dict(station),
-        "source": "USGS Water Data, daily mean values (OGC API)",
+        "source": GLOFAS_SOURCE if modelled else "USGS Water Data, daily mean values (OGC API)",
         "through": through.isoformat(),
         "rules": {"coverage": COVERAGE, "lowWindowDays": LOW_WINDOW, "summerMonths": list(SUMMER)},
         "discharge": {"unit": "m³/s", "first": flow[0].day.isoformat(),
@@ -226,6 +269,24 @@ def summarise(snapshot: Mapping[str, Sequence[Daily]], station: Mapping[str, Any
                               "rankedYears": sum(1 for r in rows if r["complete"]),
                               "years": rows}  # fmt: skip
     return out
+
+
+def unrank_lows(doc: dict[str, Any]) -> None:
+    """Drop the 7-day low's ranks and say its spread instead (a model whose low barely moves).
+
+    Args:
+        doc: ``climate.json``, changed in place.
+    """
+    flow = doc["discharge"]
+    lows = [y["low7"] for y in flow["years"] if y["complete"] and y["low7"] is not None]
+    for y in flow["years"]:
+        y["low7Rank"] = None
+    flow["lowsRanked"] = False
+    flow["lowsNote"] = (
+        f"The model's 7-day low stays between {min(lows):,.1f} and {max(lows):,.1f} "
+        f"{flow['unit']} in every complete year, so the years are not ranked by it (decided "
+        "after seeing the record)."
+    )
 
 
 def snapshot_path(root: Path, site_id: str) -> Path:
@@ -258,29 +319,42 @@ def climate(cfg: ReachConfig, root: Path, site_id: str, until: date | None = Non
         The counts written.
 
     Raises:
-        ReachError: For a reach with neither a USGS gauge nor a climate station.
+        ReachError: For a reach with no USGS gauge, climate station or climate model.
     """
     reach = cfg.reach(site_id)
     context = reach.climate_station
-    if reach.station_source != "usgs" and context is None:
+    model = reach.climate_model
+    if reach.station_source != "usgs" and context is None and model is None:
         raise reach_run.ReachError(f"{site_id}: the climate context needs a USGS gauge")
-    # A reach with no station of its own reads a station on the same river, named as such.
-    gauge = reach.estimate_station if context is None else context.id
     path = snapshot_path(root, site_id)
-    if fetch_new:
-        api = load_quality_config(root / cfg.quality_config).usgs.api
-        client = http or httpx.Client(timeout=120, follow_redirects=True)
-        last = until or date.today() - timedelta(days=1)
-        write_snapshot(path, fetch(client, api, gauge, last))
-    station = (
-        reach_run.reach_info(cfg, root, site_id)["station"]
-        if context is None
-        else {"id": context.id, "name": context.name, "basis": context.basis,
-              "url": f"https://waterdata.usgs.gov/monitoring-location/{context.id}/",
-              "context": True}
-    )  # fmt: skip
+    station: dict[str, Any]
+    if model is not None:  # no open station record of the river: a flood model, named so
+        if fetch_new:
+            client = http or httpx.Client(timeout=120, follow_redirects=True)
+            last = until or date.today() - timedelta(days=1)
+            write_snapshot(path, fetch_modelled(client, model.lat, model.lon, last))
+        station = {"id": f"GloFAS-{model.lat:.3f}N-{model.lon:.3f}E", "name": model.name,
+                   "basis": model.basis, "url": "https://open-meteo.com/en/docs/flood-api",
+                   "context": True, "modelled": True}  # fmt: skip
+    else:
+        # A reach with no station of its own reads a station on the same river, named as such.
+        gauge = reach.estimate_station if context is None else context.id
+        if fetch_new:
+            api = load_quality_config(root / cfg.quality_config).usgs.api
+            client = http or httpx.Client(timeout=120, follow_redirects=True)
+            last = until or date.today() - timedelta(days=1)
+            write_snapshot(path, fetch(client, api, gauge, last))
+        station = (
+            reach_run.reach_info(cfg, root, site_id)["station"]
+            if context is None
+            else {"id": context.id, "name": context.name, "basis": context.basis,
+                  "url": f"https://waterdata.usgs.gov/monitoring-location/{context.id}/",
+                  "context": True}
+        )  # fmt: skip
     snapshot = read_snapshot(path)
     doc = summarise(snapshot, station)
+    if model is not None and not model.rank_lows:
+        unrank_lows(doc)
     from climate_pipeline.reach import extremes
     from climate_pipeline.reach.score import SCORED
 
@@ -289,6 +363,6 @@ def climate(cfg: ReachConfig, root: Path, site_id: str, until: date | None = Non
     out = root / "docs" / "water-quality" / "reach" / site_id / "examples" / "climate.json"
     out.write_text(json.dumps(doc, indent=2, ensure_ascii=False) + "\n", encoding="utf-8",
                    newline="\n")  # fmt: skip
-    counts = {p: len(snapshot.get(p, [])) for p in (DISCHARGE, TEMPERATURE)}
+    counts = {p: len(values) for p, values in snapshot.items()}
     return {"days": counts, "through": doc["through"],
             "rankedYears": doc["discharge"]["rankedYears"]}  # fmt: skip

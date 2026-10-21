@@ -256,8 +256,11 @@ function Chart({
 }
 
 // The station as the tab names it: its USGS number, and its place when it is a station on the
-// same river standing in for a reach with none of its own.
+// same river standing in for a reach with none of its own; a flood model's cell by its name.
 function stationLabel(climate: ClimateRecord): string {
+  if (climate.station.modelled === true) {
+    return climate.station.name;
+  }
   const id = climate.station.id.replace(/^USGS-/, "USGS ");
   return climate.station.context === true ? `${climate.station.name} (${id})` : id;
 }
@@ -289,6 +292,7 @@ export function ClimateView({ climate, view = "values" }: ClimateViewProps) {
   const points = climatePoints(climate, measure);
   const unit = unitOf(climate, measure);
   const station = stationLabel(climate);
+  const modelled = climate.station.modelled === true;
   return (
     <div className="case-climate">
       <div className="case-climate__facts" role="radiogroup" aria-label={copy.note}>
@@ -328,15 +332,18 @@ export function ClimateView({ climate, view = "values" }: ClimateViewProps) {
         <p className="case-climate__since">
           {copy.since(climate.discharge.first.slice(0, 4), station)}
         </p>
+        {climate.discharge.lowsNote === undefined ? null : (
+          <p className="case-climate__lows">{climate.discharge.lowsNote}</p>
+        )}
       </div>
       <Chart
         measure={measure}
         points={points}
         unit={unit}
-        label={copy.chart(copy.measures[measure], station)}
+        label={(modelled ? copy.chartModel : copy.chart)(copy.measures[measure], station)}
       />
       <table className="case-visually-hidden">
-        <caption>{copy.table}</caption>
+        <caption>{modelled ? copy.tableModel : copy.table}</caption>
         <thead>
           <tr>
             <th scope="col">Year</th>

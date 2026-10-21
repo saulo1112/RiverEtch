@@ -421,7 +421,10 @@ export interface ClimateHeatYear extends ClimateYearBase {
   readonly warmestRank: number | null;
 }
 
-/** `climate.json`: the gauge's own daily record, year by year (never an estimate). */
+/**
+ * `climate.json`: the gauge's own daily record, year by year (never an estimate), or, for a reach
+ * with no open station record of its river, a flood model's daily flow, named as modelled.
+ */
 export interface ClimateRecord {
   readonly station: {
     readonly id: string;
@@ -430,6 +433,8 @@ export interface ClimateRecord {
     /** A station on the same river, for a reach with no station of its own; why it, from where. */
     readonly context?: boolean;
     readonly basis?: string;
+    /** A flood model's grid cell (GloFAS), not a station: modelled, not measured. */
+    readonly modelled?: boolean;
   };
   readonly source: string;
   /** The last day with a value. */
@@ -440,6 +445,10 @@ export interface ClimateRecord {
     readonly first: string;
     readonly rankedYears: number;
     readonly years: readonly ClimateFlowYear[];
+    /** False where the record's 7-day low barely moves, so its years are not ranked by it. */
+    readonly lowsRanked?: boolean;
+    /** Why not, with the spread. */
+    readonly lowsNote?: string;
   };
   readonly temperature: {
     readonly unit: string;

@@ -54,8 +54,9 @@ for site in "${demo[@]}" "${ungauged[@]}"; do
 done
 step reach examples --site missouri-hermann
 # Each climate.json from its committed daily snapshot (fetching nothing), so its count of the year's
-# passes follows the published series: the demo reaches, and St. Joseph's station upstream.
-for site in "${demo[@]}" mississippi-st-joseph; do
+# passes follows the published series: the demo reaches, St. Joseph's station upstream and the
+# Fırat's modelled flow.
+for site in "${demo[@]}" mississippi-st-joseph firat-birecik; do
   step reach climate --site "$site" --snapshot
 done
 step ledger stamp # the new heads

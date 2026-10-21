@@ -2680,6 +2680,15 @@ select.case-record__input {
   font-size: var(--type-micro);
 }
 
+/* Why a record's 7-day low is not ranked (a flood model's flat low), under its source. */
+.case-climate__lows {
+  margin: 4px 0 0;
+  padding-inline: 9px;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+  line-height: 1.45;
+}
+
 .case-climate__bar {
   fill: rgb(244 248 255 / 0.32);
 }
@@ -3713,7 +3722,8 @@ select.case-record__input {
     --timeline-body: 136px;
   }
 
-  .case-climate__since {
+  .case-climate__since,
+  .case-climate__lows {
     display: none;
   }
 

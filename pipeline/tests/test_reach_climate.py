@@ -84,3 +84,39 @@ def test_the_snapshot_round_trips_and_the_summary_is_deterministic(tmp_path: Pat
     assert doc["temperature"]["years"][0]["warmest"] == 27.5
     with pytest.raises(ReachError):
         climate.summarise({}, station)
+
+
+def test_a_flood_models_flow_is_kept_in_m3_s_and_named_as_modelled(tmp_path: Path) -> None:
+    import httpx
+
+    days = [date(2019, 1, 1) + timedelta(days=k) for k in range(365 + 366 + 5)]
+    seen: dict[str, str] = {}
+
+    def answer(request: httpx.Request) -> httpx.Response:
+        seen.update(request.url.params)
+        values = [None, *(700.0 if d.year == 2019 else 400.0 + (d.day == 9) for d in days[1:])]
+        return httpx.Response(200, json={"daily": {"time": [d.isoformat() for d in days],
+                                                   "river_discharge": values}})  # fmt: skip
+
+    client = httpx.Client(transport=httpx.MockTransport(answer))
+    rows = climate.fetch_modelled(client, 37.025, 37.925, days[-1])
+    assert seen["cell_selection"] == "nearest" and seen["daily"] == "river_discharge"
+    assert seen["start_date"] == climate.GLOFAS_FIRST_DAY and seen["end_date"] == "2021-01-05"
+    # An empty day is dropped, never filled.
+    assert len(rows) == len(days) - 1 and rows[0]["day"] == "2019-01-02"
+    path = tmp_path / "daily.csv"
+    climate.write_snapshot(path, rows)
+    snapshot = climate.read_snapshot(path)
+    assert not snapshot[climate.MODELLED][0].provisional  # a model run is not "provisional"
+    doc = climate.summarise(snapshot, {"id": "GloFAS-cell", "name": "A cell", "modelled": True})
+    assert doc["source"] == climate.GLOFAS_SOURCE and "modelled, not measured" in doc["source"]
+    years = {y["year"]: y for y in doc["discharge"]["years"]}
+    assert years[2019]["peak"] == 700.0  # m³/s as the model gives it, not converted from ft³/s
+    assert years[2020]["low7"] == 400.0
+    climate.unrank_lows(doc)
+    assert all(y["low7Rank"] is None for y in doc["discharge"]["years"])
+    assert doc["discharge"]["lowsRanked"] is False
+    assert "between 400.0 and 700.0 m³/s" in doc["discharge"]["lowsNote"]
+    with pytest.raises(ReachError):
+        empty = httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json={})))
+        climate.fetch_modelled(empty, 0.0, 0.0, days[-1])

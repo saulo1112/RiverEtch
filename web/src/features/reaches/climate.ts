@@ -26,10 +26,13 @@ export interface ClimatePoint {
  * The measures a reach's gauge record supports.
  *
  * @param record - The reach's climate context.
- * @returns The flows always, the warmest day where the gauge measures water temperature.
+ * @returns The peak always; the 7-day low unless the record leaves it unranked; the warmest day
+ * where the gauge measures water temperature.
  */
 export function climateMeasures(record: ClimateRecord): ClimateMeasure[] {
-  return record.temperature === null ? ["peak", "low"] : ["peak", "low", "warm"];
+  const flows: ClimateMeasure[] =
+    record.discharge.lowsRanked === false ? ["peak"] : ["peak", "low"];
+  return record.temperature === null ? flows : [...flows, "warm"];
 }
 
 /**

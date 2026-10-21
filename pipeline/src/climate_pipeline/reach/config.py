@@ -34,6 +34,23 @@ class ClimateStation(_Frozen):
     basis: str = Field(min_length=1, description="where it is from the reach, and why this one")
 
 
+class ClimateModel(_Frozen):
+    """A flood model's grid cell whose daily river flow is a reach's climate context.
+
+    For a reach with no open station record of the river: modelled, named so, and never scored.
+    """
+
+    lat: float = Field(ge=-90, le=90, description="the cell's centre, as the model names it")
+    lon: float = Field(ge=-180, le=180)
+    name: str = Field(min_length=1)
+    basis: str = Field(min_length=1, description="why this cell, and what the model is")
+    rank_lows: bool = Field(
+        default=True,
+        description="False where the model's 7-day low barely moves from year to year: ranking "
+        "it would rank noise, so its spread is said instead",
+    )
+
+
 class Reach(_Frozen):
     """One published reach."""
 
@@ -55,6 +72,10 @@ class Reach(_Frozen):
     climate_station: ClimateStation | None = Field(
         default=None,
         description="an ungauged reach's climate context: a USGS station on the same river",
+    )
+    climate_model: ClimateModel | None = Field(
+        default=None,
+        description="an ungauged reach with no open station record: a flood model's cell",
     )
     timezone: str = Field(default="America/Bogota", description="local dates and rain")
     targets: tuple[str, ...] = Field(default=("turbidity", "tss"), min_length=1)

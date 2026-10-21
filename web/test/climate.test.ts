@@ -30,6 +30,18 @@ void test("the Platte's record holds its 2019 flood and its warmest summer day",
   assert.equal(recordYear(climatePoints(record, "warm"))?.year, 2023);
 });
 
+void test("the Fırat's record is the flood model's, named so, with its flat low unranked", () => {
+  const record = climate("firat-birecik");
+  assert.equal(record.station.modelled, true);
+  assert.match(record.source, /modelled, not measured/);
+  assert.equal(record.discharge.lowsRanked, false);
+  assert.ok(record.discharge.years.every((y) => y.low7Rank === null));
+  // Only the peak is offered: ranking a low that barely moves would rank noise.
+  assert.deepEqual(climateMeasures(record), ["peak"]);
+  const peak = recordYear(climatePoints(record, "peak"));
+  assert.equal(peak?.ranked, record.discharge.rankedYears);
+});
+
 void test("Belle Chasse has no temperature, and its lowest week is in 2023", () => {
   const record = climate("mississippi-belle-chasse");
   assert.deepEqual(climateMeasures(record), ["peak", "low"]);

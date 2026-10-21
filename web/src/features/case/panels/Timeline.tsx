@@ -204,7 +204,21 @@ function Caption({
           {climate.cite}
         </a>
         ).{" "}
-        {station?.context === true ? (
+        {station?.modelled === true ? (
+          <>
+            {climate.model.before}
+            <a href={climate.model.url} target="_blank" rel="noreferrer">
+              {climate.model.link}
+            </a>
+            {climate.model.after}
+            {/* Why the 7-day low is not ranked, here too: short screens hide it beside the chart. */}
+            {station.basis === undefined ? null : (
+              <HelpTip label={climate.model.helpLabel}>
+                {station.basis} {reach.climate?.discharge.lowsNote}
+              </HelpTip>
+            )}
+          </>
+        ) : station?.context === true ? (
           <>
             {climate.noteContext(station.name)}
             {station.basis === undefined ? null : (

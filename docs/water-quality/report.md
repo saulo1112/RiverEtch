@@ -301,8 +301,8 @@ main-stem water-quality gauge, at Natchez (07290880), records nitrate but not tu
   at Vicksburg (USGS 07289000, 2008 to 2026), on the same river 59.0 km upstream of the reading
   spot in a straight line; Natchez and Tarbert Landing, downstream, publish no daily discharge.
   It is named as the station upstream, never read as the reach's own and never scored
-  (`climate_station` in [`reach.yaml`](../../pipeline/reach.yaml)). The Fırat has no such record
-  in the open, so it has no Climate tab.
+  (`climate_station` in [`reach.yaml`](../../pipeline/reach.yaml)). No open station record of the
+  Fırat was found: its Climate tab shows a flood model's flow instead (below).
 - **Where the window sits, and why (decided on 2026-10-20, before any estimate on the reach):** the
   model abstains when the channel is wider than any river it was trained on (305 to 773 m). With
   the pipeline's selection rule (SCL water frequency, 2022 to 2025), the channel measures 848 m at
@@ -338,6 +338,17 @@ Birecik Dam to the bridge ([site file](../../pipeline/reaches/firat-birecik.yaml
   to 4.35 m down in the reservoir (Kutlu et al. 2015, _Turk. J. Agric. Food Sci. Technol._ 3(7):
   623–628). Under 30 FNU is in line with them. Other years and another unit (NTU): a check of
   plausibility, not a test, and no record names them.
+- **Its climate context** (the app's Climate tab, added 2026-10-21): no open daily flow record of
+  the river was found, so the tab shows the daily river discharge the GloFAS v4 flood model
+  computes (Copernicus Emergency Management Service, through the Open-Meteo flood API), labelled
+  "modelled, not measured", never read as the reach's own and never scored (`climate_model` in
+  [`reach.yaml`](../../pipeline/reach.yaml)). The cell, 37.025° N 37.925° E, is the one with the
+  largest modelled flow within 5 km of the reading spot, about 4 km west of it. Its values run from
+  1 January 1997 (the API documents 1984; earlier days came back empty) to 20 Oct 2026 in the
+  committed [snapshot](reach/firat-birecik/climate/daily.csv): the model's reanalysis to July 2022,
+  its forecasts after (Open-Meteo's documentation). Of 29 complete years, 2023 has the highest
+  peak, 3,827.2 m³/s on 15 March. The 7-day low stays between 402.7 and 406.4 m³/s every year, so
+  the years are not ranked by it (decided after seeing the record).
 
 ### The class tests (2026-10-20 and 21, each run once after its anchor)
 

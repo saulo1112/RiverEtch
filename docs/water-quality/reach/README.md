@@ -145,6 +145,14 @@ without fetching:
 uv run climate-pipeline reach climate --site platte-louisville --snapshot --root ..
 ```
 
+A reach with no USGS gauge reads its climate context elsewhere, always named as such and never
+scored. `climate_station` in `reach.yaml` names a USGS station on the same river (St. Joseph reads
+Vicksburg). `climate_model` names a flood model's grid cell where no open station record of the
+river was found: the Fırat reads GloFAS v4 through the Open-Meteo flood API (`river_discharge`,
+already in m³/s, so not converted). Its `climate.json` has `station.modelled` true and a source that
+says "modelled, not measured". With `rank_lows: false` its years are not ranked by the 7-day low,
+and `discharge.lowsNote` states the spread instead.
+
 ## Files for the web (`docs/water-quality/reach/<site>/examples/`, committed)
 
 ```powershell
@@ -167,7 +175,7 @@ uv run climate-pipeline reach render --site mississippi-belle-chasse --root ..
 | `maps/*.rgb.webp`    | `render`: each pass in true color (bands 4, 3, 2) over the same box, for comparison           |
 | `thermal/*`          | v6: the water-temperature records, their ledger, series and the gauge check                   |
 | `checks/context.csv` | v6: the gauge's own readings at each pass (measurements, labelled)                            |
-| `climate.json`       | `climate`: the gauge's whole record, each year's peak, 7-day low and warmest day, ranked      |
+| `climate.json`       | `climate`: the gauge's whole record (or its stand-in's, named), each year's extremes, ranked  |
 | `outcomes/*`         | `score`: the prospective outcomes of the anchored claims, a hash-chained ledger (rule v1)     |
 
 A map is a picture of the record's own pixels: NDTI is relative, so the maps carry no unit. A test
