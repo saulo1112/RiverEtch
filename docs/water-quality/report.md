@@ -313,9 +313,9 @@ Birecik Dam to the bridge ([site file](../../pipeline/reaches/firat-birecik.yaml
 - **Its baseline stopped at the preregistered 6 GB network cap,** as Belle Chasse's and Hermann's
   did: 359 of 1069 acquisitions measured (2019-01 to 2021-06), 213 usable. Its scenes are larger
   than the Mississippi's, so the cap came sooner. Each pass's z-scores compare it with those 213.
-- **What 2026 showed** (the 70 passes to 12 Aug 2026 in the committed examples): 55 read under 30
-  FNU and 15 abstained (10 with the red-to-blue ratio log B04/B02 outside the training range, 2 for
-  glint, 3 on other features); against its own 2019–2021 passes, 63 were usual.
+- **What 2026 showed** (the 93 passes to 20 Oct 2026 in the committed examples): 74 read under 30
+  FNU and 19 abstained (13 with the red-to-blue ratio log B04/B02 outside the training range, 2 for
+  glint, 4 on other features); against its own 2019–2021 passes, 84 were usual.
 - **Published measurements, looked up after seeing the result**
   ([file](published/firat-birecik.json)): the Euphrates at the Atatürk and Birecik dams' outlets,
   one point 0.8 km above the reading spot, read 5.0 NTU as median, minimum and maximum over eight

@@ -3847,5 +3847,1270 @@
         "abstainReason": "log_B04/B02 outside the training range"
       }
     ]
+  },
+  {
+    "date": "2026-08-14",
+    "sceneId": "firat-birecik:sentinel-2a_2026-08-14_R121",
+    "file": "records/2026-08-14_sentinel-2a_2026-08-14_R121.json",
+    "recordSha256": "a0886e9a360e177f08d04f8d633f8e04c7739fb56b0d2a447885cb2c35fb22c0",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2664,
+        "downstream": -0.2742,
+        "reach": -0.2703,
+        "delta": -0.0077,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.59,
+          "downstream": 0.75,
+          "delta": 0.12
+        }
+      },
+      "nirRed": {
+        "upstream": 0.9119,
+        "downstream": 0.9652,
+        "reach": 0.9386,
+        "delta": 0.0532,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.27,
+          "downstream": -0.05,
+          "delta": 0.32
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-14",
+    "sceneId": "firat-birecik:sentinel-2b_2026-08-14_R078",
+    "file": "records/2026-08-14_sentinel-2b_2026-08-14_R078.json",
+    "recordSha256": "cbd563535009ba3169a60ced1b5717bcfd50b8b524ea839a43e4eba687785714",
+    "indices": {
+      "ndti": {
+        "upstream": -0.3397,
+        "downstream": -0.4078,
+        "reach": -0.3737,
+        "delta": -0.0681,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.31,
+          "downstream": 0.22,
+          "delta": -0.28
+        }
+      },
+      "nirRed": {
+        "upstream": 0.6852,
+        "downstream": 0.6824,
+        "reach": 0.6838,
+        "delta": -0.0028,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.96,
+          "downstream": -0.48,
+          "delta": 0.18
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-17",
+    "sceneId": "firat-birecik:sentinel-2b_2026-08-17_R121",
+    "file": "records/2026-08-17_sentinel-2b_2026-08-17_R121.json",
+    "recordSha256": "ed5d46f39c25573991371d9efc7d3feee6108ab52121d67c8ae7c8e029dd5654",
+    "indices": {
+      "ndti": {
+        "upstream": -0.3841,
+        "downstream": -0.9813,
+        "reach": -0.6827,
+        "delta": -0.5972,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.14,
+          "downstream": -2.05,
+          "delta": -3.8
+        }
+      },
+      "nirRed": {
+        "upstream": 1.0194,
+        "downstream": 1.0,
+        "reach": 1.0097,
+        "delta": -0.0194,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.06,
+          "downstream": 0.0,
+          "delta": 0.14
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "delta"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": "log_B04/B02 outside the training range"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-19",
+    "sceneId": "firat-birecik:sentinel-2c_2026-08-19_R078",
+    "file": "records/2026-08-19_sentinel-2c_2026-08-19_R078.json",
+    "recordSha256": "90a5ed3c0025b33f4c28d439dc97557e28b0b1904ac724911544a13fff90e529",
+    "indices": {
+      "ndti": {
+        "upstream": -0.4763,
+        "downstream": -0.982,
+        "reach": -0.7292,
+        "delta": -0.5057,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.21,
+          "downstream": -2.05,
+          "delta": -3.19
+        }
+      },
+      "nirRed": {
+        "upstream": 0.6296,
+        "downstream": 1.0,
+        "reach": 0.8148,
+        "delta": 0.3704,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -1.13,
+          "downstream": 0.0,
+          "delta": 1.09
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": true,
+      "signals": [
+        "delta"
+      ]
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": "log_B04/B02 outside the training range"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-21",
+    "sceneId": "firat-birecik:sentinel-2a_2026-08-21_R078",
+    "file": "records/2026-08-21_sentinel-2a_2026-08-21_R078.json",
+    "recordSha256": "4e74ab139e1579e6301885ea9471b9ccbe6f259b71dfd198495bde856949538b",
+    "indices": {
+      "ndti": {
+        "upstream": -0.6593,
+        "downstream": -0.5163,
+        "reach": -0.5878,
+        "delta": 0.143,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.9,
+          "downstream": -0.21,
+          "delta": 1.13
+        }
+      },
+      "nirRed": {
+        "upstream": 0.3,
+        "downstream": 1.8286,
+        "reach": 1.0643,
+        "delta": 1.5286,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -2.14,
+          "downstream": 1.25,
+          "delta": 3.91
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22",
+    "sceneId": "firat-birecik:sentinel-2c_2026-08-22_R121",
+    "file": "records/2026-08-22_sentinel-2c_2026-08-22_R121.json",
+    "recordSha256": "4a51c4308c8ca2d27bf32ccd2ff5cf6ddba584551f6eff0b98ce5e3cdc4f7650",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2271,
+        "downstream": -0.2255,
+        "reach": -0.2263,
+        "delta": 0.0015,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.73,
+          "downstream": 0.94,
+          "delta": 0.18
+        }
+      },
+      "nirRed": {
+        "upstream": 1.1399,
+        "downstream": 1.0686,
+        "reach": 1.1042,
+        "delta": -0.0713,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.43,
+          "downstream": 0.1,
+          "delta": 0.01
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-24",
+    "sceneId": "firat-birecik:sentinel-2a_2026-08-24_R121",
+    "file": "records/2026-08-24_sentinel-2a_2026-08-24_R121.json",
+    "recordSha256": "c276ec0c67c64a69f5ee7333209694a9365affa8f1a3efe5c2117cf7a29013b7",
+    "indices": {
+      "ndti": {
+        "upstream": -0.3024,
+        "downstream": -0.6429,
+        "reach": -0.4726,
+        "delta": -0.3404,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.45,
+          "downstream": -0.71,
+          "delta": -2.09
+        }
+      },
+      "nirRed": {
+        "upstream": 0.9855,
+        "downstream": 0.28,
+        "reach": 0.6328,
+        "delta": -0.7055,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.04,
+          "downstream": -1.08,
+          "delta": -1.53
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": "log_B04/B02 outside the training range"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-24",
+    "sceneId": "firat-birecik:sentinel-2b_2026-08-24_R078",
+    "file": "records/2026-08-24_sentinel-2b_2026-08-24_R078.json",
+    "recordSha256": "bd74181e31c6d08c542f5f7d36581e309c14d2d3a44662f4d0d543e8ee414172",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2933,
+        "downstream": -0.7565,
+        "reach": -0.5249,
+        "delta": -0.4632,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.48,
+          "downstream": -1.16,
+          "delta": -2.91
+        }
+      },
+      "nirRed": {
+        "upstream": 0.8581,
+        "downstream": 0.0588,
+        "reach": 0.4585,
+        "delta": -0.7993,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.43,
+          "downstream": -1.42,
+          "delta": -1.76
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-27",
+    "sceneId": "firat-birecik:sentinel-2b_2026-08-27_R121",
+    "file": "records/2026-08-27_sentinel-2b_2026-08-27_R121.json",
+    "recordSha256": "48be526abdfd4fc9caad6708c3690545f90cace835c4041571f348aeb52c782f",
+    "indices": {
+      "ndti": {
+        "upstream": -0.3641,
+        "downstream": -0.4684,
+        "reach": -0.4162,
+        "delta": -0.1043,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.22,
+          "downstream": -0.02,
+          "delta": -0.52
+        }
+      },
+      "nirRed": {
+        "upstream": 0.7805,
+        "downstream": 0.2917,
+        "reach": 0.5361,
+        "delta": -0.4888,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.67,
+          "downstream": -1.07,
+          "delta": -1.0
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-31",
+    "sceneId": "firat-birecik:sentinel-2a_2026-08-31_R078",
+    "file": "records/2026-08-31_sentinel-2a_2026-08-31_R078.json",
+    "recordSha256": "9920917e5099be959dbdf6d490b537fc37f6ab99e92346f95a9eff59bd4811ea",
+    "indices": {
+      "ndti": {
+        "upstream": -0.269,
+        "downstream": -0.2813,
+        "reach": -0.2752,
+        "delta": -0.0124,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.58,
+          "downstream": 0.72,
+          "delta": 0.09
+        }
+      },
+      "nirRed": {
+        "upstream": 1.3448,
+        "downstream": 1.1385,
+        "reach": 1.2416,
+        "delta": -0.2064,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.06,
+          "downstream": 0.21,
+          "delta": -0.31
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-01",
+    "sceneId": "firat-birecik:sentinel-2c_2026-09-01_R121",
+    "file": "records/2026-09-01_sentinel-2c_2026-09-01_R121.json",
+    "recordSha256": "940f6a6e8110e50b0b19c4e26aa3723276fb3e7de6702ac31f61cfc5c826d57a",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1873,
+        "downstream": -0.2419,
+        "reach": -0.2146,
+        "delta": -0.0546,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.89,
+          "downstream": 0.87,
+          "delta": -0.19
+        }
+      },
+      "nirRed": {
+        "upstream": 1.2143,
+        "downstream": 1.2474,
+        "reach": 1.2309,
+        "delta": 0.0331,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.66,
+          "downstream": 0.37,
+          "delta": 0.27
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-03",
+    "sceneId": "firat-birecik:sentinel-2a_2026-09-03_R121",
+    "file": "records/2026-09-03_sentinel-2a_2026-09-03_R121.json",
+    "recordSha256": "7430f5a91651500a48f12b0cd591a0fdc3ca3142352f309f6cd179249534d582",
+    "indices": {
+      "ndti": {
+        "upstream": -0.3,
+        "downstream": -0.3082,
+        "reach": -0.3041,
+        "delta": -0.0082,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.46,
+          "downstream": 0.61,
+          "delta": 0.12
+        }
+      },
+      "nirRed": {
+        "upstream": 1.04,
+        "downstream": 0.8022,
+        "reach": 0.9211,
+        "delta": -0.2378,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.12,
+          "downstream": -0.3,
+          "delta": -0.39
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-03",
+    "sceneId": "firat-birecik:sentinel-2b_2026-09-03_R078",
+    "file": "records/2026-09-03_sentinel-2b_2026-09-03_R078.json",
+    "recordSha256": "11d4b7041bdac0de79cafec12835ed13117fe6fe15ab5a7d40e07dc3ae909a01",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2732,
+        "downstream": -0.352,
+        "reach": -0.3126,
+        "delta": -0.0788,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.56,
+          "downstream": 0.44,
+          "delta": -0.35
+        }
+      },
+      "nirRed": {
+        "upstream": 0.9355,
+        "downstream": 0.7176,
+        "reach": 0.8266,
+        "delta": -0.2178,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.2,
+          "downstream": -0.43,
+          "delta": -0.34
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-08",
+    "sceneId": "firat-birecik:sentinel-2c_2026-09-08_R078",
+    "file": "records/2026-09-08_sentinel-2c_2026-09-08_R078.json",
+    "recordSha256": "f817d9716e2c5543196bc1297fbe7b206a0467c17bc5eae0b92975dfac90fd92",
+    "indices": {
+      "ndti": {
+        "upstream": -0.3249,
+        "downstream": -0.3728,
+        "reach": -0.3488,
+        "delta": -0.0479,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.36,
+          "downstream": 0.36,
+          "delta": -0.15
+        }
+      },
+      "nirRed": {
+        "upstream": 1.3253,
+        "downstream": 1.4038,
+        "reach": 1.3646,
+        "delta": 0.0785,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.0,
+          "downstream": 0.61,
+          "delta": 0.38
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-10",
+    "sceneId": "firat-birecik:sentinel-2a_2026-09-10_R078",
+    "file": "records/2026-09-10_sentinel-2a_2026-09-10_R078.json",
+    "recordSha256": "12b7163576fec67443509ee12c29ea077bc34b1200e80f624e76460594a49b07",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2308,
+        "downstream": -0.2888,
+        "reach": -0.2598,
+        "delta": -0.058,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.72,
+          "downstream": 0.69,
+          "delta": -0.21
+        }
+      },
+      "nirRed": {
+        "upstream": 0.791,
+        "downstream": 0.4034,
+        "reach": 0.5972,
+        "delta": -0.3877,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.64,
+          "downstream": -0.9,
+          "delta": -0.76
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-11",
+    "sceneId": "firat-birecik:sentinel-2c_2026-09-11_R121",
+    "file": "records/2026-09-11_sentinel-2c_2026-09-11_R121.json",
+    "recordSha256": "5df470e63b68a52f9278549ac57caba9bef38122fdef88b0755b9b47e0045908",
+    "indices": {
+      "ndti": {
+        "upstream": -0.3136,
+        "downstream": -0.551,
+        "reach": -0.4323,
+        "delta": -0.2374,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.41,
+          "downstream": -0.35,
+          "delta": -1.41
+        }
+      },
+      "nirRed": {
+        "upstream": 0.9735,
+        "downstream": 0.6562,
+        "reach": 0.8149,
+        "delta": -0.3172,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.08,
+          "downstream": -0.52,
+          "delta": -0.58
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-13",
+    "sceneId": "firat-birecik:sentinel-2a_2026-09-13_R121",
+    "file": "records/2026-09-13_sentinel-2a_2026-09-13_R121.json",
+    "recordSha256": "3314f07af2efc166abc20337fd5def7933c79ff763fcee96cd195b5aeaecb4b4",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1243,
+        "downstream": -0.1299,
+        "reach": -0.1271,
+        "delta": -0.0056,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.12,
+          "downstream": 1.32,
+          "delta": 0.14
+        }
+      },
+      "nirRed": {
+        "upstream": 0.9371,
+        "downstream": 0.8384,
+        "reach": 0.8878,
+        "delta": -0.0987,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.19,
+          "downstream": -0.24,
+          "delta": -0.05
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-13",
+    "sceneId": "firat-birecik:sentinel-2b_2026-09-13_R078",
+    "file": "records/2026-09-13_sentinel-2b_2026-09-13_R078.json",
+    "recordSha256": "45440d56b0a78450a51365ef10993bcf9ff11386d52edb3997888ce157911bf9",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1528,
+        "downstream": -0.1941,
+        "reach": -0.1734,
+        "delta": -0.0413,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.02,
+          "downstream": 1.06,
+          "delta": -0.1
+        }
+      },
+      "nirRed": {
+        "upstream": 0.8597,
+        "downstream": 0.6916,
+        "reach": 0.7757,
+        "delta": -0.1681,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.43,
+          "downstream": -0.46,
+          "delta": -0.22
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-16",
+    "sceneId": "firat-birecik:sentinel-2b_2026-09-16_R121",
+    "file": "records/2026-09-16_sentinel-2b_2026-09-16_R121.json",
+    "recordSha256": "287cba16d7225a7c20edca0c00931f3d89bc74b305aac2c4424415dc9502ca9e",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2538,
+        "downstream": -0.2144,
+        "reach": -0.2341,
+        "delta": 0.0394,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.63,
+          "downstream": 0.98,
+          "delta": 0.44
+        }
+      },
+      "nirRed": {
+        "upstream": 1.0936,
+        "downstream": 0.9167,
+        "reach": 1.0051,
+        "delta": -0.1769,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.29,
+          "downstream": -0.13,
+          "delta": -0.24
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-21",
+    "sceneId": "firat-birecik:sentinel-2c_2026-09-21_R121",
+    "file": "records/2026-09-21_sentinel-2c_2026-09-21_R121.json",
+    "recordSha256": "06ba32e750d18371acb5ff0a7db0b1bdfe6b5d45e3a579f313571254615c33de",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1711,
+        "downstream": -0.3289,
+        "reach": -0.25,
+        "delta": -0.1578,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.95,
+          "downstream": 0.53,
+          "delta": -0.88
+        }
+      },
+      "nirRed": {
+        "upstream": 1.533,
+        "downstream": 1.1099,
+        "reach": 1.3214,
+        "delta": -0.4231,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.63,
+          "downstream": 0.17,
+          "delta": -0.84
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-28",
+    "sceneId": "firat-birecik:sentinel-2c_2026-09-28_R078",
+    "file": "records/2026-09-28_sentinel-2c_2026-09-28_R078.json",
+    "recordSha256": "a3205c92e43fe4ac7ce068fe6dd62e6eedd6542a4cd860b9b55c24655f2da2c7",
+    "indices": {
+      "ndti": {
+        "upstream": -0.4574,
+        "downstream": -0.5146,
+        "reach": -0.486,
+        "delta": -0.0572,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.14,
+          "downstream": -0.2,
+          "delta": -0.21
+        }
+      },
+      "nirRed": {
+        "upstream": 1.3095,
+        "downstream": 1.1515,
+        "reach": 1.2305,
+        "delta": -0.158,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.95,
+          "downstream": 0.23,
+          "delta": -0.2
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-10-10",
+    "sceneId": "firat-birecik:sentinel-2a_2026-10-10_R078",
+    "file": "records/2026-10-10_sentinel-2a_2026-10-10_R078.json",
+    "recordSha256": "3ad9ac7815b3c1d498e45a41635afc158acd4ef6cb147b5805ed302d10a86c45",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1316,
+        "downstream": -0.1525,
+        "reach": -0.1421,
+        "delta": -0.021,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.1,
+          "downstream": 1.23,
+          "delta": 0.03
+        }
+      },
+      "nirRed": {
+        "upstream": 1.3378,
+        "downstream": 1.5109,
+        "reach": 1.4244,
+        "delta": 0.173,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.04,
+          "downstream": 0.77,
+          "delta": 0.61
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": "B8A-B11 outside the training range"
+      }
+    ]
+  },
+  {
+    "date": "2026-10-20",
+    "sceneId": "firat-birecik:sentinel-2a_2026-10-20_R078",
+    "file": "records/2026-10-20_sentinel-2a_2026-10-20_R078.json",
+    "recordSha256": "01d171176260a62eb62bc52317884b6aedfecf74e832e86c82375e1b74b6ba8c",
+    "indices": {
+      "ndti": {
+        "upstream": -0.2742,
+        "downstream": -0.2941,
+        "reach": -0.2842,
+        "delta": -0.0199,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.56,
+          "downstream": 0.67,
+          "delta": 0.04
+        }
+      },
+      "nirRed": {
+        "upstream": 1.0978,
+        "downstream": 0.8333,
+        "reach": 0.9656,
+        "delta": -0.2645,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.3,
+          "downstream": -0.25,
+          "delta": -0.46
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
   }
 ]
