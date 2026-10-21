@@ -2,8 +2,8 @@
   {
     "date": "2026-01-19",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-01-19_R126",
-    "file": "records/2026-01-19_sentinel-2b_2026-01-19_R126.json",
-    "recordSha256": "c810ea04138b0deefec7043a26c9fc0180fd2ff0ae1e492e7e836fd30d4bcf3f",
+    "file": "records/2026-01-19_sentinel-2b_2026-01-19_R126.01f3e89a218f.json",
+    "recordSha256": "01f3e89a218f2b7fb45e2289166f11a700a1ea90e550a971ac8c8e8d9b68276a",
     "indices": {
       "ndti": {
         "upstream": -0.0993,
@@ -52,13 +52,14 @@
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "c810ea04138b0deefec7043a26c9fc0180fd2ff0ae1e492e7e836fd30d4bcf3f"
   },
   {
     "date": "2026-02-08",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-02-08_R126",
-    "file": "records/2026-02-08_sentinel-2b_2026-02-08_R126.json",
-    "recordSha256": "7597f095ad2b0cbc1f9b8473fd86800bacd5af644b55256743545f5e03f9b6ec",
+    "file": "records/2026-02-08_sentinel-2b_2026-02-08_R126.a949b6b281f1.json",
+    "recordSha256": "a949b6b281f15a3b9824aeeb767e7a6f2ffaef9ff72024c0aec1b51904b2b6cb",
     "indices": {
       "ndti": {
         "upstream": -0.0937,
@@ -105,15 +106,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "30_to_50"
       }
-    ]
+    ],
+    "supersedes": "7597f095ad2b0cbc1f9b8473fd86800bacd5af644b55256743545f5e03f9b6ec"
   },
   {
     "date": "2026-02-13",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-02-13_R126",
-    "file": "records/2026-02-13_sentinel-2c_2026-02-13_R126.json",
-    "recordSha256": "dfc70ec225e633c947fb45708bd53504ede57c77cd6123e16ebbf53eca30f0d5",
+    "file": "records/2026-02-13_sentinel-2c_2026-02-13_R126.035c78cdd30e.json",
+    "recordSha256": "035c78cdd30e4fb56d66e6069f1e57473a126afe0583162c17d667d6502d9ef6",
     "indices": {
       "ndti": {
         "upstream": -0.0965,
@@ -162,13 +164,14 @@
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "dfc70ec225e633c947fb45708bd53504ede57c77cd6123e16ebbf53eca30f0d5"
   },
   {
     "date": "2026-02-23",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-02-23_R126",
-    "file": "records/2026-02-23_sentinel-2c_2026-02-23_R126.json",
-    "recordSha256": "3010615394011d679e804e975521eab64872ba7809366bb0bd156b52e331e853",
+    "file": "records/2026-02-23_sentinel-2c_2026-02-23_R126.77331766865d.json",
+    "recordSha256": "77331766865dadeffa7138d6953f3ab57f7a1eb126298d366ed74663d4cb4e5e",
     "indices": {
       "ndti": {
         "upstream": 0.0135,
@@ -215,15 +218,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "30_to_50"
       }
-    ]
+    ],
+    "supersedes": "3010615394011d679e804e975521eab64872ba7809366bb0bd156b52e331e853"
   },
   {
     "date": "2026-03-20",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-03-20_R126",
-    "file": "records/2026-03-20_sentinel-2b_2026-03-20_R126.json",
-    "recordSha256": "8b252e98505bb2996d7bc925ea910a3f3be53328c39fd41ca9a7b997e08c39a1",
+    "file": "records/2026-03-20_sentinel-2b_2026-03-20_R126.7840664abb83.json",
+    "recordSha256": "7840664abb8399aacdfbb75fd8ee153df118b0231a988dd01ceeaba3c42034fa",
     "indices": {
       "ndti": {
         "upstream": 0.0971,
@@ -272,13 +276,14 @@
         "abstainReason": null,
         "fnuClass": "100_and_over"
       }
-    ]
+    ],
+    "supersedes": "8b252e98505bb2996d7bc925ea910a3f3be53328c39fd41ca9a7b997e08c39a1"
   },
   {
     "date": "2026-03-25",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-03-25_R126",
-    "file": "records/2026-03-25_sentinel-2c_2026-03-25_R126.json",
-    "recordSha256": "30a0dc399b8d27cce4be8db0bc3f9c961b1f4324e347f442dee539c515a6363b",
+    "file": "records/2026-03-25_sentinel-2c_2026-03-25_R126.a14e3e048bce.json",
+    "recordSha256": "a14e3e048bce02ad1c6c555375aa1dff5284db5a887ee0d22d91dfb804e2eeba",
     "indices": {
       "ndti": {
         "upstream": 0.0807,
@@ -327,13 +332,14 @@
         "abstainReason": null,
         "fnuClass": "100_and_over"
       }
-    ]
+    ],
+    "supersedes": "30a0dc399b8d27cce4be8db0bc3f9c961b1f4324e347f442dee539c515a6363b"
   },
   {
     "date": "2026-04-09",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-04-09_R126",
-    "file": "records/2026-04-09_sentinel-2b_2026-04-09_R126.json",
-    "recordSha256": "05d1378c21a283190e72782fa12f125d4bb9ddc3fdcae1188b9ef0f70159c676",
+    "file": "records/2026-04-09_sentinel-2b_2026-04-09_R126.e00e8aaba674.json",
+    "recordSha256": "e00e8aaba674b877c0095e87b31fa10fb8f3a2ca0c3ede8dfa62ffd9d0c8e67e",
     "indices": {
       "ndti": {
         "upstream": 0.0139,
@@ -380,15 +386,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "30_to_50"
       }
-    ]
+    ],
+    "supersedes": "05d1378c21a283190e72782fa12f125d4bb9ddc3fdcae1188b9ef0f70159c676"
   },
   {
     "date": "2026-04-19",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-04-19_R126",
-    "file": "records/2026-04-19_sentinel-2b_2026-04-19_R126.json",
-    "recordSha256": "f48a8beaa9b700a251db13f7f2260f0dabbceb82867382bd824390357b8a6bd9",
+    "file": "records/2026-04-19_sentinel-2b_2026-04-19_R126.262529d712ef.json",
+    "recordSha256": "262529d712ef9dd94d0e0ef26fc46c3678da0e3cd28adce94258d9d3182f7156",
     "indices": {
       "ndti": {
         "upstream": 0.0786,
@@ -435,15 +442,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "50_to_100"
       }
-    ]
+    ],
+    "supersedes": "f48a8beaa9b700a251db13f7f2260f0dabbceb82867382bd824390357b8a6bd9"
   },
   {
     "date": "2026-05-04",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-05-04_R126",
-    "file": "records/2026-05-04_sentinel-2c_2026-05-04_R126.json",
-    "recordSha256": "c18401822d9d79bbfde289d6b8488f88a47bfa4c27946eefb8a57272939c666e",
+    "file": "records/2026-05-04_sentinel-2c_2026-05-04_R126.a37edbe6d5b1.json",
+    "recordSha256": "a37edbe6d5b1398257babc3c06c27bd9c9062e1c9aad495231f2cfdda490e0eb",
     "indices": {
       "ndti": {
         "upstream": 0.0846,
@@ -491,13 +499,14 @@
         "relativeClass": null,
         "abstainReason": "window too cloudy to measure"
       }
-    ]
+    ],
+    "supersedes": "c18401822d9d79bbfde289d6b8488f88a47bfa4c27946eefb8a57272939c666e"
   },
   {
     "date": "2026-05-14",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-05-14_R126",
-    "file": "records/2026-05-14_sentinel-2c_2026-05-14_R126.json",
-    "recordSha256": "71662cfdeea38fcbbf8275b034cb3753ac33434d99358d8b3255e8192eb017e4",
+    "file": "records/2026-05-14_sentinel-2c_2026-05-14_R126.66ec23798217.json",
+    "recordSha256": "66ec23798217e2d7e8cf5b67447536d9a82420ea05ed3b4147d0cb598dc0b83c",
     "indices": {
       "ndti": {
         "upstream": 0.1004,
@@ -544,15 +553,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "50_to_100"
       }
-    ]
+    ],
+    "supersedes": "71662cfdeea38fcbbf8275b034cb3753ac33434d99358d8b3255e8192eb017e4"
   },
   {
     "date": "2026-07-03",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-07-03_R126",
-    "file": "records/2026-07-03_sentinel-2c_2026-07-03_R126.json",
-    "recordSha256": "a46a74d60dd2550c969751250e4e2ef36d4c3c8d5d854eab69963c5328062db6",
+    "file": "records/2026-07-03_sentinel-2c_2026-07-03_R126.80ea3e283d84.json",
+    "recordSha256": "80ea3e283d843817ea06c2f0ab41822a23cb855c6c06fbb9a394f0c31c2c7503",
     "indices": {
       "ndti": {
         "upstream": 0.0737,
@@ -600,13 +610,14 @@
         "relativeClass": null,
         "abstainReason": "window too cloudy to measure"
       }
-    ]
+    ],
+    "supersedes": "a46a74d60dd2550c969751250e4e2ef36d4c3c8d5d854eab69963c5328062db6"
   },
   {
     "date": "2026-08-14",
     "sceneId": "mississippi-st-joseph:sentinel-2a_2026-08-14_R126",
-    "file": "records/2026-08-14_sentinel-2a_2026-08-14_R126.json",
-    "recordSha256": "430edda602982b91d207f4ebf3d90b0a311c7dfe6ef6c571c8b23eeea1f786ee",
+    "file": "records/2026-08-14_sentinel-2a_2026-08-14_R126.9e0c26c56da9.json",
+    "recordSha256": "9e0c26c56da920ea4ebb494c538231aa83f49f739971db86ec86dc893ef247ed",
     "indices": {
       "ndti": {
         "upstream": -0.0469,
@@ -655,13 +666,14 @@
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "430edda602982b91d207f4ebf3d90b0a311c7dfe6ef6c571c8b23eeea1f786ee"
   },
   {
     "date": "2026-08-17",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-08-17_R126",
-    "file": "records/2026-08-17_sentinel-2b_2026-08-17_R126.json",
-    "recordSha256": "189a464bc07e2e09662fccf0d96626a85751c30d1fa3bae001af882b7a2c3756",
+    "file": "records/2026-08-17_sentinel-2b_2026-08-17_R126.b99ae709d04f.json",
+    "recordSha256": "b99ae709d04f6f156a731ead363eb58cb47aec0c6bda093b0824c71cd5de8790",
     "indices": {
       "ndti": {
         "upstream": -0.074,
@@ -710,13 +722,14 @@
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "189a464bc07e2e09662fccf0d96626a85751c30d1fa3bae001af882b7a2c3756"
   },
   {
     "date": "2026-08-22",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-08-22_R126",
-    "file": "records/2026-08-22_sentinel-2c_2026-08-22_R126.json",
-    "recordSha256": "b7ed2c4e3891ee254a202ee4910424d13522241df0ca6f56e85ca55ad7523046",
+    "file": "records/2026-08-22_sentinel-2c_2026-08-22_R126.d7d0b6b70f3a.json",
+    "recordSha256": "d7d0b6b70f3af36083465973fd78f529ecc111f42d51eeff444c2caafe1d6f9f",
     "indices": {
       "ndti": {
         "upstream": -0.006,
@@ -763,15 +776,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "30_to_50"
       }
-    ]
+    ],
+    "supersedes": "b7ed2c4e3891ee254a202ee4910424d13522241df0ca6f56e85ca55ad7523046"
   },
   {
     "date": "2026-09-03",
     "sceneId": "mississippi-st-joseph:sentinel-2a_2026-09-03_R126",
-    "file": "records/2026-09-03_sentinel-2a_2026-09-03_R126.json",
-    "recordSha256": "5311413fe0690e0f190c245b3b201ba7f4ae40cfecff40eca8497a3ee9c733f2",
+    "file": "records/2026-09-03_sentinel-2a_2026-09-03_R126.961853f7947c.json",
+    "recordSha256": "961853f7947c1b743afde7620b5cd1c662775bdb3ca0bfeaf41857eb1f278b3b",
     "indices": {
       "ndti": {
         "upstream": 0.0429,
@@ -818,15 +832,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "30_to_50"
       }
-    ]
+    ],
+    "supersedes": "5311413fe0690e0f190c245b3b201ba7f4ae40cfecff40eca8497a3ee9c733f2"
   },
   {
     "date": "2026-09-06",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-09-06_R126",
-    "file": "records/2026-09-06_sentinel-2b_2026-09-06_R126.json",
-    "recordSha256": "116717b57e0f09f6f42c6643b2251b519d43f7edd937ab631637f46dd8c4e536",
+    "file": "records/2026-09-06_sentinel-2b_2026-09-06_R126.3b44da672233.json",
+    "recordSha256": "3b44da672233e8dad7328ed8520c3851b197e71bf48a4bedca17ed0b5ad26a71",
     "indices": {
       "ndti": {
         "upstream": 0.0166,
@@ -873,15 +888,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "30_to_50"
       }
-    ]
+    ],
+    "supersedes": "116717b57e0f09f6f42c6643b2251b519d43f7edd937ab631637f46dd8c4e536"
   },
   {
     "date": "2026-09-16",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-09-16_R126",
-    "file": "records/2026-09-16_sentinel-2b_2026-09-16_R126.json",
-    "recordSha256": "c1fcfb0603c0f1a9a0ada1498dcf3b7b1e5a060f9c6d5bf94ab00a59372e0b31",
+    "file": "records/2026-09-16_sentinel-2b_2026-09-16_R126.58dffd1e5c28.json",
+    "recordSha256": "58dffd1e5c28b7835dc9788717fd0c76ba993ee914eb5cc648418a72b5270e51",
     "indices": {
       "ndti": {
         "upstream": -0.0611,
@@ -930,13 +946,14 @@
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "c1fcfb0603c0f1a9a0ada1498dcf3b7b1e5a060f9c6d5bf94ab00a59372e0b31"
   },
   {
     "date": "2026-09-21",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-09-21_R126",
-    "file": "records/2026-09-21_sentinel-2c_2026-09-21_R126.json",
-    "recordSha256": "7cef934f1622ede1e22a5f3e7ec21dd2cfe65320ea55ed6e66a9c5917264711b",
+    "file": "records/2026-09-21_sentinel-2c_2026-09-21_R126.d55bfe7bbf07.json",
+    "recordSha256": "d55bfe7bbf07ce82ed654a989acebb224466b1074ea83494439dddab4ab7fd1a",
     "indices": {
       "ndti": {
         "upstream": -0.0517,
@@ -985,13 +1002,14 @@
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "7cef934f1622ede1e22a5f3e7ec21dd2cfe65320ea55ed6e66a9c5917264711b"
   },
   {
     "date": "2026-09-23",
     "sceneId": "mississippi-st-joseph:sentinel-2a_2026-09-23_R126",
-    "file": "records/2026-09-23_sentinel-2a_2026-09-23_R126.json",
-    "recordSha256": "a1f7057730022d98e1b29700fe34be9c6407b947ab60d73a92c7f26a8302e74d",
+    "file": "records/2026-09-23_sentinel-2a_2026-09-23_R126.8754e7b05dc5.json",
+    "recordSha256": "8754e7b05dc50ca0b0915c5a1b91f64df73faa821934d66a98d0cbd534a15ca2",
     "indices": {
       "ndti": {
         "upstream": -0.0578,
@@ -1040,13 +1058,14 @@
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "a1f7057730022d98e1b29700fe34be9c6407b947ab60d73a92c7f26a8302e74d"
   },
   {
     "date": "2026-10-06",
     "sceneId": "mississippi-st-joseph:sentinel-2b_2026-10-06_R126",
-    "file": "records/2026-10-06_sentinel-2b_2026-10-06_R126.json",
-    "recordSha256": "af0744dcf7e281c31d5efff87301329735ef1eaacce36f14b3ea207733c49f2f",
+    "file": "records/2026-10-06_sentinel-2b_2026-10-06_R126.baa71e6ec719.json",
+    "recordSha256": "baa71e6ec71911b573556b11f1514d2186f686c1005e385f9c5bc84379c885c0",
     "indices": {
       "ndti": {
         "upstream": 0.0594,
@@ -1093,15 +1112,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "50_to_100"
       }
-    ]
+    ],
+    "supersedes": "af0744dcf7e281c31d5efff87301329735ef1eaacce36f14b3ea207733c49f2f"
   },
   {
     "date": "2026-10-11",
     "sceneId": "mississippi-st-joseph:sentinel-2c_2026-10-11_R126",
-    "file": "records/2026-10-11_sentinel-2c_2026-10-11_R126.json",
-    "recordSha256": "76a02e40cc26ac2b2a5673cc10466b34a8e751ec715e5ae0eb5b37d23dd6718e",
+    "file": "records/2026-10-11_sentinel-2c_2026-10-11_R126.c441df3224b9.json",
+    "recordSha256": "c441df3224b911c6dbbfefc6b3cb925792e3eb4e1895805e7c6ae7ac96838f59",
     "indices": {
       "ndti": {
         "upstream": 0.054,
@@ -1148,15 +1168,16 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "30_to_50"
       }
-    ]
+    ],
+    "supersedes": "76a02e40cc26ac2b2a5673cc10466b34a8e751ec715e5ae0eb5b37d23dd6718e"
   },
   {
     "date": "2026-10-13",
     "sceneId": "mississippi-st-joseph:sentinel-2a_2026-10-13_R126",
-    "file": "records/2026-10-13_sentinel-2a_2026-10-13_R126.json",
-    "recordSha256": "01c5fe013318f434390b7076e530064d42f238d3ce54dd4d6a26f71ca4b93066",
+    "file": "records/2026-10-13_sentinel-2a_2026-10-13_R126.1a3f9a1ef4c1.json",
+    "recordSha256": "1a3f9a1ef4c17d9b4cd6f88ca67eb5b8cad7d088539e972ef3cd62507ade857d",
     "indices": {
       "ndti": {
         "upstream": 0.0461,
@@ -1203,8 +1224,9 @@
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
-        "fnuClass": "30_to_100"
+        "fnuClass": "30_to_50"
       }
-    ]
+    ],
+    "supersedes": "01c5fe013318f434390b7076e530064d42f238d3ce54dd4d6a26f71ca4b93066"
   }
 ]
