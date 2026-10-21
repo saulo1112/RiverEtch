@@ -562,6 +562,16 @@ async function featheredPhoto(url: string): Promise<string> {
   return blob === null ? url : URL.createObjectURL(blob);
 }
 
+// With 3D terrain, MapLibre draws the river's layers into a texture cached per terrain tile, and
+// redraws a tile's copy only when a source reports new tiles: a paint change does not, nor do new
+// pixels in a canvas source. The map would keep showing the old layer (on some tiles, or all)
+// until the next zoom; freeing the cache redraws it from what the layers hold now.
+function refreshTerrain(map: MapLibreMap): void {
+  const terrain = map.terrain as typeof map.terrain | null;
+  terrain?.tileManager.freeRtt();
+  map.triggerRepaint();
+}
+
 /**
  * One map's pass layers: the NDTI canvas (colored up to the reveal) and the true-color image
  * (its edges faded), inserted under the gauge window's outline. Shared by the main map and its
@@ -674,11 +684,13 @@ class PassLayers {
     }
     const source = this.map.getSource<CanvasSource>(SOURCE.ndti);
     if (source !== undefined) {
-      // A static canvas source is read once: a short play makes it pick up the new pixels.
+      // A static canvas source is read once: a short play makes it pick up the new pixels. They
+      // are on the GPU by the next frame, so the 3D terrain's cached copy is redrawn from them.
       source.play();
       requestAnimationFrame(() => {
         if (!this.disposed && !this.animating) {
           source.pause();
+          refreshTerrain(this.map);
         }
       });
     }
@@ -948,12 +960,9 @@ export async function createCaseMap(
     paintOverlays();
   }
 
-  // With 3D terrain, MapLibre draws these layers into a texture cached per terrain tile, and a
-  // paint change alone does not always clear it: a toggle would show only after the next zoom.
+  // A toggle redraws the 3D terrain's cached copy of the layers (see `refreshTerrain`).
   function redraw(): void {
-    const terrain = map.terrain as typeof map.terrain | null;
-    terrain?.tileManager.freeRtt();
-    map.triggerRepaint();
+    refreshTerrain(map);
   }
 
   // The NDTI layer joins as soon as the style is parsed, not on `load` (which waits for every
