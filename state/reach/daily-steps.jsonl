@@ -1,6 +1,6 @@
-{"args":"ledger upgrade","exit":0,"last":"attested  docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.20.ots"}
-{"args":"reach score --site all","exit":0,"last":"platte-louisville: {'t0': '2026-10-19T23:21:00+00:00', 'claims': 34, 'added': {'scored': 1}, 'skipped': {'retrospective: acquired before T0': 33}}"}
-{"args":"reach run --site all","exit":0,"last":"firat-birecik: 0 records, 1 skipped, 0 failed, ~0.00 GB"}
+{"args":"ledger upgrade","exit":0,"last":""}
+{"args":"reach score --site all","exit":0,"last":"platte-louisville: {'t0': '2026-10-19T23:21:00+00:00', 'claims': 34, 'added': {}, 'skipped': {'retrospective: acquired before T0': 33, 'scored on a provisional value; not approved yet': 1}}"}
+{"args":"reach run --site all","exit":0,"last":"firat-birecik: 0 records, 0 skipped, 0 failed, ~0.00 GB"}
 {"args":"reach thermal --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'passes': 3, 'recorded': 0, 'checked': 19}"}
 {"args":"reach context --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'context_rows': 54}"}
 {"args":"reach render --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'maps': 37, 'drawn': 0, 'missing': []}"}
@@ -17,4 +17,4 @@
 {"args":"reach examples --site mississippi-st-joseph --all-records","exit":0,"last":"mississippi-st-joseph: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/mississippi-st-joseph/examples"}
 {"args":"reach examples --site firat-birecik --all-records","exit":0,"last":"firat-birecik: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/firat-birecik/examples"}
 {"args":"reach examples --site missouri-hermann","exit":0,"last":"missouri-hermann: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/missouri-hermann/examples"}
-{"args":"ledger stamp","exit":0,"last":"stamped   docs/ledgers/ots/terrachain_platte-louisville_outcomes.1.ots"}
+{"args":"ledger stamp","exit":0,"last":""}
