@@ -63,6 +63,27 @@ def test_four_classes_counts_the_model_the_baseline_and_the_pass_rule() -> None:
     assert pooled["label"] == "decided after seeing the result"
 
 
+def test_five_classes_count_the_split_on_its_own_and_pass_only_on_both() -> None:
+    assert [ct.klass(v, ct.FIVE) for v in (14.9, 15.0, 29.9, 30.0, 50.0, 100.0)] == [
+        0, 1, 1, 2, 3, 4]  # fmt: skip
+    labels = list(v2.FNU_CLASSES_FIVE)
+    for v in (3.0, 15.0, 29.0, 30.0, 64.0, 100.0):
+        assert labels[ct.klass(v, ct.FIVE)] == v2.fnu_class(v, v2.FNU_CLASS_EDGES_FIVE)
+    result = ct.five_classes(None, ROOT, synthetic())  # type: ignore[arg-type]
+    s = result["summary"]
+    # Five classes (15/30/50/100): A right on all four (its 20 read as 25: both 15 to 30); B not.
+    assert s["model_matched"] == 4
+    # The split: only A's 20 (read as 25) has both under 30; the model says 15 to 30, right. Its
+    # baseline: B's training values under 30 (20: 15 to 30), right too, so b = c = 0.
+    assert (s["split_n"], s["split_model_matched"], s["split_baseline_matched"]) == (1, 1, 1)
+    assert s["split_p_value"] == 1.0
+    assert s["passes"] is False, "the split did not beat guessing"
+    assert s["alpha"] == pytest.approx(0.05 / 3)
+    assert [b["gauge"] for b in result["bins"]] == [0, 1, 3, 1, 1]
+    assert [b["estimate"] for b in result["bins"]] == [1, 1, 1, 1, 2]
+    assert s["four_class_matched"] == 4
+
+
 def test_the_three_class_baselines_use_other_rivers_all_rivers_and_the_own_river() -> None:
     result = ct.class_baseline(None, ROOT, synthetic())  # type: ignore[arg-type]
     s = result["summary"]

@@ -72,14 +72,20 @@ Target = Literal["turbidity", "tss"]
 RelativeClass = Literal["low", "medium", "high"]
 # The ungauged reaches' classes: three (preregistration-transfer.md), and four from
 # preregistration-four-classes.md, which split 30 to 100 at 50 once its test passed.
-FnuClass = Literal["under_30", "30_to_100", "100_and_over", "30_to_50", "50_to_100"]
+FnuClass = Literal[
+    "under_30", "30_to_100", "100_and_over", "30_to_50", "50_to_100", "under_15", "15_to_30"
+]
 FNU_CLASSES: Final[tuple[FnuClass, ...]] = ("under_30", "30_to_100", "100_and_over")
 FNU_CLASS_EDGES: Final = (30.0, 100.0)
 FNU_CLASSES_FOUR: Final[tuple[FnuClass, ...]] = ("under_30", "30_to_50", "50_to_100",
                                                   "100_and_over")  # fmt: skip
 FNU_CLASS_EDGES_FOUR: Final = (30.0, 50.0, 100.0)
+FNU_CLASSES_FIVE: Final[tuple[FnuClass, ...]] = ("under_15", "15_to_30", "30_to_50", "50_to_100",
+                                                  "100_and_over")  # fmt: skip
+FNU_CLASS_EDGES_FIVE: Final = (15.0, 30.0, 50.0, 100.0)
 CLASS_LABELS: Final[dict[tuple[float, ...], tuple[FnuClass, ...]]] = {
-    FNU_CLASS_EDGES: FNU_CLASSES, FNU_CLASS_EDGES_FOUR: FNU_CLASSES_FOUR}  # fmt: skip
+    FNU_CLASS_EDGES: FNU_CLASSES, FNU_CLASS_EDGES_FOUR: FNU_CLASSES_FOUR,
+    FNU_CLASS_EDGES_FIVE: FNU_CLASSES_FIVE}  # fmt: skip
 SHA256_HEX: Final = r"^[0-9a-f]{64}$"
 
 
@@ -160,7 +166,8 @@ class Estimate(_Model):
     fnu_class: FnuClass | None = Field(
         default=None, alias="fnuClass",
         description="an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over; or, "
-        "with four classes, under 30, 30 to 50, 50 to 100, 100 and over); absent from the JSON "
+        "with four classes, under 30, 30 to 50, 50 to 100, 100 and over; or, with five, under "
+        "15, 15 to 30, 30 to 50, 50 to 100, 100 and over); absent from the JSON "
         "when empty, so records sealed before it existed keep their hash",
     )  # fmt: skip
     model_id: str | None = Field(default=None, alias="modelId")

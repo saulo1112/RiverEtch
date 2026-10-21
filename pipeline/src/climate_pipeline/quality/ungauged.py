@@ -18,8 +18,10 @@ the label "Outside the tested region. No error estimate."
 
 Once ``docs/water-quality/preregistration-four-classes.md`` passed, each ungauged reach also has
 a **four-class card** (``turbidity-4.json``): the same model and ranges, the class edges 30, 50
-and 100 FNU, and at St. Joseph the four-class agreement as its class agreement. The three-class
-cards stay frozen, named by the records sealed with them.
+and 100 FNU, and at St. Joseph the four-class agreement as its class agreement. Once
+``docs/water-quality/preregistration-five-classes.md`` passed, a **five-class card**
+(``turbidity-5.json``) the same way, with the edges 15, 30, 50 and 100 FNU. The earlier cards stay
+frozen, named by the records sealed with them.
 
 The cards are recomputed from committed files only, so ``quality transfer-verify`` checks them.
 """
@@ -46,6 +48,14 @@ REACHES: Final = (REACH, *OUTSIDE_REACHES)
 OUTSIDE_LABEL: Final = "Outside the tested region. No error estimate."
 FOUR_PREREGISTRATION: Final = Path("docs/water-quality/preregistration-four-classes.md")
 FOUR_RESULTS: Final = Path("docs/water-quality/results/four-classes/four_classes.json")
+FIVE_PREREGISTRATION: Final = Path("docs/water-quality/preregistration-five-classes.md")
+FIVE_RESULTS: Final = Path("docs/water-quality/results/five-classes/five_classes.json")
+# The finer classes, each with the test that allows it: its preregistration, its result, its
+# edges and labels.
+FINER: Final = {
+    4: (FOUR_PREREGISTRATION, FOUR_RESULTS, v2.FNU_CLASS_EDGES_FOUR, v2.FNU_CLASSES_FOUR),
+    5: (FIVE_PREREGISTRATION, FIVE_RESULTS, v2.FNU_CLASS_EDGES_FIVE, v2.FNU_CLASSES_FIVE),
+}
 DECISIVE: Final = ("parameters", "adjustment", "featureRange", "targetRange", "display", "classes")
 
 
@@ -117,41 +127,51 @@ def card(cfg: QualityConfig, root: Path, reach: str = REACH) -> dict[str, Any]:
     }  # fmt: skip
 
 
-def four_class_card(cfg: QualityConfig, root: Path, reach: str = REACH) -> dict[str, Any]:
-    """An ungauged reach's four-class card (preregistration-four-classes.md, section 4).
+def finer_card(
+    cfg: QualityConfig, root: Path, reach: str = REACH, classes: int = 4
+) -> dict[str, Any]:
+    """An ungauged reach's four- or five-class card.
+
+    Section 4 of preregistration-four-classes.md, section 5 of preregistration-five-classes.md.
 
     Args:
         cfg: Settings.
         root: Repository root.
         reach: The reach's site id.
+        classes: Four, or five.
 
     Returns:
         The card (JSON-ready).
 
     Raises:
-        ValueError: When the four-class test has not run or did not pass.
+        ValueError: When the test of those classes has not run or did not pass.
     """
-    path = root / FOUR_RESULTS
+    prereg, results, edges, labels = FINER[classes]
+    path = root / results
     if not path.exists():
-        raise ValueError("the four-class test has not run")
-    four = json.loads(path.read_text(encoding="utf-8"))
-    if not four["passes"]:
-        raise ValueError("the four-class test did not pass: the reaches keep three classes")
+        raise ValueError(f"the {classes}-class test has not run")
+    test = json.loads(path.read_text(encoding="utf-8"))
+    if not test["passes"]:
+        raise ValueError(f"the {classes}-class test did not pass: the reaches keep fewer classes")
     c = card(cfg, root, reach)
-    c["classes"] = {"edgesFnu": list(v2.FNU_CLASS_EDGES_FOUR),
-                    "labels": list(v2.FNU_CLASSES_FOUR)}  # fmt: skip
+    c["classes"] = {"edgesFnu": list(edges), "labels": list(labels)}
     c["parametersHash"] = hashlib.sha256(
         json.dumps({k: c[k] for k in DECISIVE}, sort_keys=True).encode()).hexdigest()  # fmt: skip
     c["classTest"] = {
-        "preregistration": FOUR_PREREGISTRATION.as_posix(),
-        "preregistrationSha256": cards.file_sha256(root / FOUR_PREREGISTRATION),
-        "source": FOUR_RESULTS.as_posix(), "sourceSha256": cards.file_sha256(path),
-        "n": four["n"], "matched": four["model_matched"],
-        "baselineMatched": four["baseline_matched"], "label": four["label"],
+        "preregistration": prereg.as_posix(),
+        "preregistrationSha256": cards.file_sha256(root / prereg),
+        "source": results.as_posix(), "sourceSha256": cards.file_sha256(path),
+        "n": test["n"], "matched": test["model_matched"],
+        "baselineMatched": test["baseline_matched"], "label": test["label"],
     }  # fmt: skip
-    if "expectedError" in c:  # St. Joseph: its class agreement, on four classes
-        c["expectedError"] = {**c["expectedError"], "classAgreement": four["model_matched"]}
+    if "expectedError" in c:  # St. Joseph: its class agreement, on these classes
+        c["expectedError"] = {**c["expectedError"], "classAgreement": test["model_matched"]}
     return c
+
+
+def four_class_card(cfg: QualityConfig, root: Path, reach: str = REACH) -> dict[str, Any]:
+    """An ungauged reach's four-class card (preregistration-four-classes.md, section 4)."""
+    return finer_card(cfg, root, reach, 4)
 
 
 def card_text(c: dict[str, Any]) -> str:
@@ -160,12 +180,13 @@ def card_text(c: dict[str, Any]) -> str:
 
 
 def card_path(root: Path, reach: str = REACH, classes: int = 3) -> Path:
-    """Where a card is committed: ``turbidity.json`` (three classes), ``turbidity-4.json``."""
-    return root / CARDS / reach / ("turbidity.json" if classes == 3 else "turbidity-4.json")
+    """Where a card is committed: ``turbidity.json`` (three classes), ``turbidity-<n>.json``."""
+    name = "turbidity.json" if classes == 3 else f"turbidity-{classes}.json"
+    return root / CARDS / reach / name
 
 
 def _built(cfg: QualityConfig, root: Path, reach: str, classes: int) -> dict[str, Any]:
-    return card(cfg, root, reach) if classes == 3 else four_class_card(cfg, root, reach)
+    return card(cfg, root, reach) if classes == 3 else finer_card(cfg, root, reach, classes)
 
 
 def write(cfg: QualityConfig, root: Path, reach: str = REACH, classes: int = 3) -> Path:
@@ -175,7 +196,7 @@ def write(cfg: QualityConfig, root: Path, reach: str = REACH, classes: int = 3) 
         cfg: Settings.
         root: Repository root.
         reach: The reach's site id.
-        classes: Three, or four (preregistration-four-classes.md).
+        classes: Three, four or five (preregistration-four-classes.md, -five-).
 
     Returns:
         The card's path.
@@ -199,7 +220,7 @@ def verify(cfg: QualityConfig, root: Path, reach: str = REACH, classes: int = 3)
         cfg: Settings.
         root: Repository root.
         reach: The reach's site id.
-        classes: Three, or four (preregistration-four-classes.md).
+        classes: Three, four or five (preregistration-four-classes.md, -five-).
 
     Returns:
         The problems (empty when the committed card is the recomputed one).

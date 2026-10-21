@@ -42,14 +42,28 @@ def test_an_example_ledger_is_chained_and_names_its_records(folder: Path) -> Non
         assert json.loads(path.read_text("utf-8"))["recordSha256"] in named
 
 
+def frozen_card_hashes() -> set[str]:
+    path = DOCS / "ledgers" / "frozen-artifacts.jsonl"
+    lines = [json.loads(t) for t in path.read_text("utf-8").splitlines() if t.strip()]
+    return {x["canonicalSha256"] for x in lines if "canonicalSha256" in x}
+
+
 @pytest.mark.parametrize("folder", EXAMPLES, ids=lambda p: p.parent.name)
 def test_an_example_card_is_the_one_its_records_name(folder: Path) -> None:
     copied = {p.stem: json.loads(p.read_text("utf-8")) for p in (folder / "cards").glob("*.json")}
-    for path in (folder / "records").glob("*.json"):
-        for estimate in json.loads(path.read_text("utf-8"))["estimates"]:
+    records = [json.loads(p.read_text("utf-8")) for p in (folder / "records").glob("*.json")]
+    # A pass read again with a newer card keeps its earlier record, which names an earlier card:
+    # one that is frozen, and only on a record that a newer one replaces.
+    replaced = {r["supersedes"] for r in records if "supersedes" in r}
+    frozen = frozen_card_hashes()
+    for record in records:
+        for estimate in record["estimates"]:
             card = copied.get(estimate["target"])
             if card is not None and estimate.get("modelCardSha256"):
-                assert cards.card_hash(card) == estimate["modelCardSha256"]
+                if record["recordSha256"] in replaced:
+                    assert estimate["modelCardSha256"] in frozen
+                else:
+                    assert cards.card_hash(card) == estimate["modelCardSha256"]
 
 
 @pytest.mark.parametrize("folder", THERMAL, ids=lambda p: p.parents[1].name)

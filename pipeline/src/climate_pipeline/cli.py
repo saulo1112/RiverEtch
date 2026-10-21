@@ -126,7 +126,8 @@ def _parser() -> argparse.ArgumentParser:
         choices=("fetch", "fetch-usgs", "fetch-site", "fetch-v5", "fetch-v6", "fetch-v7",
                  "fetch-landsat", "fetch-extended", "export-lab", "stage-b-list", "run", "verify",
                  "transfer-export", "transfer-train", "transfer-evaluate", "transfer-verify",
-                 "transfer-card", "class-baseline", "four-classes", "class-verify"),
+                 "transfer-card", "class-baseline", "four-classes", "five-classes",
+                 "class-verify"),
         help="fetch [--stations-only]: Colombian stations and values; fetch-usgs [--sites-only]: "
         "the USGS pilot; fetch-site --site ID: every clear scene of one pilot site (v4's second "
         "reach); fetch-v5: every clear scene, turbidity and SSC of v5's gauged rivers; "
@@ -139,9 +140,9 @@ def _parser() -> argparse.ArgumentParser:
         "run: offline results; verify: recompute and compare with the MANIFEST; transfer-*: "
         "the test on rivers the model never saw (preregistration-transfer.md): export the "
         "folds' training tables, train them in the lab, evaluate once on the lock boxes, write "
-        "the ungauged reach's card (transfer-card), verify both; class-baseline, four-classes: "
-        "the class tests (preregistration-class-baseline.md, preregistration-four-classes.md), "
-        "each once after its anchor; class-verify: recompute both",
+        "the ungauged reach's card (transfer-card), verify both; class-baseline, four-classes, "
+        "five-classes: the class tests (preregistration-class-baseline.md, -four-classes.md, "
+        "-five-classes.md), each once after its anchor; class-verify: recompute them",
     )  # fmt: skip
     quality.add_argument("--root", type=Path, default=Path.cwd(), help="repository root")
     quality.add_argument("--stations-only", action="store_true",
@@ -520,11 +521,13 @@ def _transfer(action: str, cfg: Any, root: Path) -> int:
         for path in t.write(t.evaluate(cfg, root), root, root / t.RESULTS):
             print(f"wrote  {path.relative_to(root).as_posix()}")
         return 0
-    # Four-class cards once preregistration-four-classes.md passed (its result is committed).
-    four = root / ungauged.FOUR_RESULTS
-    classes = (
-        [3, 4] if four.exists() and json.loads(four.read_text(encoding="utf-8"))["passes"] else [3]
-    )
+
+    # The finer cards whose test passed (preregistration-four-classes.md, -five-classes.md).
+    def passed(path: Path) -> bool:
+        return path.exists() and bool(json.loads(path.read_text(encoding="utf-8"))["passes"])
+
+    finer = ungauged.FINER.items()
+    classes = [3, *(n for n, (_, results, _, _) in finer if passed(root / results))]
     if action == "transfer-card":
         for reach in ungauged.REACHES:
             for n in classes:
@@ -568,7 +571,7 @@ def quality(args: argparse.Namespace) -> int:
     cfg = load_quality_config(config)
     if args.action.startswith("transfer-"):
         return _transfer(args.action, cfg, root)
-    if args.action in ("class-baseline", "four-classes", "class-verify"):
+    if args.action in ("class-baseline", "four-classes", "five-classes", "class-verify"):
         return _class_tests(args.action, cfg, root)
     if args.action == "export-lab":
         from climate_pipeline.quality import lab, transfer

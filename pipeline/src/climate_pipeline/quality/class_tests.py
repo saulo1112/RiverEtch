@@ -1,14 +1,17 @@
-"""The two class tests beside the transfer test, each run once after its anchor.
+"""The class tests beside the transfer test, each run once after its anchor.
 
 * ``docs/water-quality/preregistration-class-baseline.md``: always guessing the most common class
   (under 30, 30 to 100, 100 FNU and over), next to the model's 185 of 298;
 * ``docs/water-quality/preregistration-four-classes.md``: four classes (edges 30, 50 and 100 FNU)
-  against the four-class form of that baseline, by an exact one-sided McNemar test.
+  against the four-class form of that baseline, by an exact one-sided McNemar test;
+* ``docs/water-quality/preregistration-five-classes.md``: five classes (edges 15, 30, 50 and 100
+  FNU) the same way at a third of the level, and the split at 15 FNU on its own, on the pairs whose
+  estimate and gauge value are both under 30.
 
-Both read exactly the transfer test's 298 pooled pairs (the similar sites' lock-box pairs, each
+All read exactly the transfer test's 298 pooled pairs (the similar sites' lock-box pairs, each
 estimated by the model that never saw its river group), rebuilt from the committed models; the
 rebuild must reproduce the transfer test's pooled class agreement before anything is counted.
-Both were decided after seeing that result, and say so.
+All were decided after seeing that result, and say so.
 """
 
 from __future__ import annotations
@@ -35,10 +38,15 @@ BASELINE_PREREGISTRATION: Final = Path("docs/water-quality/preregistration-class
 FOUR_PREREGISTRATION: Final = Path("docs/water-quality/preregistration-four-classes.md")
 BASELINE_RESULTS: Final = Path("docs/water-quality/results/transfer-baseline")
 FOUR_RESULTS: Final = Path("docs/water-quality/results/four-classes")
+FIVE_PREREGISTRATION: Final = Path("docs/water-quality/preregistration-five-classes.md")
+FIVE_RESULTS: Final = Path("docs/water-quality/results/five-classes")
 FROZEN: Final = Path("docs/ledgers/frozen-artifacts.jsonl")
 THREE: Final = (30.0, 100.0)  # FNU: under 30, 30 to 100, 100 and over
 FOUR: Final = (30.0, 50.0, 100.0)  # FNU: under 30, 30 to 50, 50 to 100, 100 and over
+FIVE: Final = (15.0, 30.0, 50.0, 100.0)  # FNU: under 15, 15 to 30, 30 to 50, 50 to 100, 100+
 ALPHA: Final = 0.05  # the four-class pass rule's one-sided level
+FIVE_ALPHA: Final = ALPHA / 3  # the third class test on the same 298 pairs
+SPLIT: Final = 30.0  # the split test reads the pairs whose estimate and gauge are both under it
 LABEL: Final = "decided after seeing the result"
 
 
@@ -232,12 +240,86 @@ def four_classes(cfg: QualityConfig, root: Path, data: Pooled | None = None) -> 
     return {"rows": rows, "summary": summary}
 
 
+def _split_guess(data: Pooled, group: str) -> int:
+    # The baseline of the split: the more common of under 15 and 15 to 30 among the training-year
+    # values under 30 FNU of the other similar sites (a tie goes to under 15).
+    sites = [s for s in data.similar if data.group_of[s] != group]
+    return mode([v for s in sites for v in data.training[s] if v < SPLIT], FIVE[:1])
+
+
+def _split(data: Pooled, pairs: Sequence[Scored]) -> dict[str, Any]:
+    """The split at 15 FNU on its own, on the pairs whose estimate and gauge are both under 30."""
+    both = [p for p in pairs if p.estimate < SPLIT and p.value < SPLIT]
+    model_right = [klass(p.estimate, FIVE[:1]) == klass(p.value, FIVE[:1]) for p in both]
+    guess_right = [_split_guess(data, p.group) == klass(p.value, FIVE[:1]) for p in both]
+    b = sum(m and not g for m, g in zip(model_right, guess_right, strict=True))
+    c = sum(g and not m for m, g in zip(model_right, guess_right, strict=True))
+    return {"split_n": len(both), "split_model_matched": sum(model_right),
+            "split_baseline_matched": sum(guess_right), "split_model_only": b,
+            "split_baseline_only": c, "split_p_value": mcnemar_one_sided(b, c)}  # fmt: skip
+
+
+def five_classes(cfg: QualityConfig, root: Path, data: Pooled | None = None) -> dict[str, Any]:
+    """Five classes against their baseline, and the split (preregistration-five-classes.md).
+
+    Args:
+        cfg: Settings.
+        root: Repository root.
+        data: The pooled pairs (rebuilt when omitted).
+
+    Returns:
+        ``rows`` (one per site, and pooled), ``bins`` (each class's counts, pooled) and
+        ``summary`` (with the pass decision: both p-values below ``FIVE_ALPHA``).
+    """
+    data = data or pooled(cfg, root)
+    rows: list[dict[str, Any]] = []
+    summary: dict[str, Any] = {}
+    for s in [*sorted({p.station for p in data.pairs}), "pooled"]:
+        mine = [p for p in data.pairs if s in ("pooled", p.station)]
+        guesses = [_guess(data, p.group, "B1", FIVE) for p in mine]
+        model_right = [klass(p.estimate, FIVE) == klass(p.value, FIVE) for p in mine]
+        guess_right = [g == klass(p.value, FIVE) for g, p in zip(guesses, mine, strict=True)]
+        b = sum(m and not g for m, g in zip(model_right, guess_right, strict=True))
+        c = sum(g and not m for m, g in zip(model_right, guess_right, strict=True))
+        far = sum(abs(klass(p.estimate, FIVE) - klass(p.value, FIVE)) >= 2 for p in mine)
+        split = _split(data, mine)
+        row = {"site": s, "n": len(mine), "model_matched": sum(model_right),
+               "baseline_matched": sum(guess_right), "model_only": b, "baseline_only": c,
+               "p_value": mcnemar_one_sided(b, c), "two_or_more_away": far, **split,
+               "baseline_class": "" if s == "pooled" else guesses[0]}  # fmt: skip
+        rows.append(row)
+        if s == "pooled":
+            passes = row["p_value"] < FIVE_ALPHA and split["split_p_value"] < FIVE_ALPHA
+            summary = {
+                "n": len(mine), "class_edges_fnu": list(FIVE),
+                "model_matched": sum(model_right), "baseline_matched": sum(guess_right),
+                "model_only": b, "baseline_only": c, "p_value": row["p_value"],
+                "alpha": FIVE_ALPHA, **split, "passes": bool(passes), "two_or_more_away": far,
+                "four_class_matched": sum(klass(p.estimate, FOUR) == klass(p.value, FOUR)
+                                          for p in mine),
+                "label": LABEL, "preregistration": FIVE_PREREGISTRATION.as_posix(),
+                "preregistration_sha256": cards.file_sha256(root / FIVE_PREREGISTRATION),
+            }  # fmt: skip
+    labels = ("under_15", "15_to_30", "30_to_50", "50_to_100", "100_and_over")
+    bins = [
+        {"class": labels[k],
+         "gauge": sum(klass(p.value, FIVE) == k for p in data.pairs),
+         "estimate": sum(klass(p.estimate, FIVE) == k for p in data.pairs),
+         "both": sum(klass(p.value, FIVE) == k == klass(p.estimate, FIVE) for p in data.pairs)}
+        for k in range(len(FIVE) + 1)
+    ]  # fmt: skip
+    return {"rows": rows, "bins": bins, "summary": summary}
+
+
 def _write(results: Mapping[str, Any], out: Path, stem: str) -> list[Path]:
     shutil.rmtree(out, ignore_errors=True)
     out.mkdir(parents=True)
     write_table(_rounded(results["rows"], 6), out / f"{stem}.csv")
     _json(_rounded([results["summary"]], 6)[0], out / f"{stem}.json")
     written = [out / f"{stem}.csv", out / f"{stem}.json"]
+    if "bins" in results:  # five classes: each class's counts
+        write_table(_rounded(results["bins"], 6), out / f"{stem}_bins.csv")
+        written.append(out / f"{stem}_bins.csv")
     lines = [f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.name}" for p in sorted(written)]
     (out / "MANIFEST").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     return [*written, out / "MANIFEST"]
@@ -247,6 +329,7 @@ TESTS: Final = {
     "class-baseline": (BASELINE_PREREGISTRATION, BASELINE_RESULTS, "class_baseline",
                        class_baseline),
     "four-classes": (FOUR_PREREGISTRATION, FOUR_RESULTS, "four_classes", four_classes),
+    "five-classes": (FIVE_PREREGISTRATION, FIVE_RESULTS, "five_classes", five_classes),
 }  # fmt: skip
 
 
@@ -256,7 +339,7 @@ def run(cfg: QualityConfig, root: Path, name: str) -> list[Path]:
     Args:
         cfg: Settings.
         root: Repository root.
-        name: ``class-baseline`` or ``four-classes``.
+        name: ``class-baseline``, ``four-classes`` or ``five-classes``.
 
     Returns:
         The files written.

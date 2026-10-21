@@ -317,7 +317,15 @@
         "fnuClass": {
           "anyOf": [
             {
-              "enum": ["under_30", "30_to_100", "100_and_over", "30_to_50", "50_to_100"],
+              "enum": [
+                "under_30",
+                "30_to_100",
+                "100_and_over",
+                "30_to_50",
+                "50_to_100",
+                "under_15",
+                "15_to_30"
+              ],
               "type": "string"
             },
             {
@@ -325,7 +333,7 @@
             }
           ],
           "default": null,
-          "description": "an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over; or, with four classes, under 30, 30 to 50, 50 to 100, 100 and over); absent from the JSON when empty, so records sealed before it existed keep their hash",
+          "description": "an ungauged reach's class in FNU (under 30, 30 to 100, 100 and over; or, with four classes, under 30, 30 to 50, 50 to 100, 100 and over; or, with five, under 15, 15 to 30, 30 to 50, 50 to 100, 100 and over); absent from the JSON when empty, so records sealed before it existed keep their hash",
           "title": "Fnuclass"
         },
         "interval": {
