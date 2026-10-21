@@ -8,20 +8,32 @@
     "n_estimators": 500,
     "num_leaves": 7
   },
+  "classTest": {
+    "baselineMatched": 61,
+    "label": "decided after seeing the result",
+    "matched": 160,
+    "n": 298,
+    "preregistration": "docs/water-quality/preregistration-four-classes.md",
+    "preregistrationSha256": "004c13213af19dacf26da1d4cdb779a61168f3eca4e947709eaa5a63befb90ec",
+    "source": "docs/water-quality/results/four-classes/four_classes.json",
+    "sourceSha256": "9bf274448f66523d976d2e55fe09ff88c46ee6a4faa04b7fe3e0ef61530ddd38"
+  },
   "classes": {
     "edgesFnu": [
       30.0,
+      50.0,
       100.0
     ],
     "labels": [
       "under_30",
-      "30_to_100",
+      "30_to_50",
+      "50_to_100",
       "100_and_over"
     ]
   },
   "display": "class",
   "expectedError": {
-    "classAgreement": 185,
+    "classAgreement": 160,
     "coverage90Inside": 248,
     "mdsa": 36.8695,
     "n": 298,
@@ -146,7 +158,7 @@
     "kind": "lightgbm",
     "sha256": "238c28f23394c7a78df5533abae4c3af774e5ebff09253b91511399dcfe30bed"
   },
-  "parametersHash": "b2d2239ac3824606503cdb8d7d1f2f51fa9035cc7991cd8297b5ae7ea101f7d7",
+  "parametersHash": "2da68cf54252a53b0a806535a92f34a3db75872d73d36eb6f85c9243e407b07c",
   "preregistration": "docs/water-quality/preregistration-transfer.md",
   "preregistrationSha256": "b81edc9af84ac57f7869cc38ffd2d6a06bb2409582a69383b5a3bd5bc9046fe4",
   "site": "mississippi-st-joseph",

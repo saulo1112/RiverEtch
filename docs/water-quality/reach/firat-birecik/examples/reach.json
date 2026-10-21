@@ -1,0 +1,28 @@
+{
+  "site": "firat-birecik",
+  "name": "F\u0131rat (Euphrates) River, below the Birecik Dam to the Birecik Bridge (\u015eanl\u0131urfa, T\u00fcrkiye)",
+  "river": "F\u0131rat (Euphrates) River",
+  "timezone": "Europe/Istanbul",
+  "station": {
+    "id": "window-birecik",
+    "source": "ungauged",
+    "name": "",
+    "window": {
+      "lon": 37.97299,
+      "lat": 37.02655,
+      "basis": "The Birecik Bridge (OpenStreetMap way 13638374). Chosen by preregistration-outside-us.md, section 2, before any reading of the reach: its main channel (322.5 m) lies inside the widths the model was trained on (305 to 773 m) by the largest margin of the points measured.",
+      "sourceUrl": "https://www.openstreetmap.org/way/13638374"
+    }
+  },
+  "targets": [
+    "turbidity"
+  ],
+  "cards": {
+    "turbidity": "cards/turbidity.json"
+  },
+  "baseline": {
+    "first": "2019-01-11",
+    "last": "2021-06-21",
+    "usableScenes": 213
+  }
+}

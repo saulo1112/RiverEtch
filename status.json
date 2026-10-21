@@ -1,8 +1,8 @@
 {
-  "updatedUtc": "2026-10-20T17:44:57+00:00",
+  "updatedUtc": "2026-10-21T02:42:50+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39467936160",
-    "ok": true,
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39529181263",
+    "ok": false,
     "steps": [
       {
         "args": "ledger upgrade",
@@ -14,7 +14,7 @@
       },
       {
         "args": "reach run --site all",
-        "exit": 0
+        "exit": 3
       },
       {
         "args": "reach thermal --site mississippi-belle-chasse",
@@ -41,7 +41,19 @@
         "exit": 0
       },
       {
+        "args": "reach reread --site mississippi-st-joseph",
+        "exit": 0
+      },
+      {
         "args": "reach render --site mississippi-st-joseph",
+        "exit": 0
+      },
+      {
+        "args": "reach reread --site firat-birecik",
+        "exit": 0
+      },
+      {
+        "args": "reach render --site firat-birecik",
         "exit": 0
       },
       {
@@ -61,6 +73,10 @@
         "exit": 0
       },
       {
+        "args": "reach examples --site firat-birecik --all-records",
+        "exit": 0
+      },
+      {
         "args": "reach examples --site missouri-hermann",
         "exit": 0
       },
@@ -73,23 +89,29 @@
   "lastSuccessUtc": "2026-10-20T17:44:57+00:00",
   "lastSealed": {
     "reach": "mississippi-belle-chasse",
-    "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-10-16_R126",
-    "date": "2026-10-16"
+    "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-10-20_R083",
+    "date": "2026-10-20"
   },
   "lastAnchor": {
-    "label": "terrachain:mississippi-belle-chasse:observations",
-    "lines": 36,
-    "block": 11953295,
-    "timestampUtc": "2026-10-20T05:45:36Z",
-    "tx": "0x614da4696473cc9422359abb6404c4bacf85ee5c2ce8366c189efc56cf852504"
+    "label": "terrachain:riveretch:frozen-artifacts",
+    "lines": 20,
+    "block": 11959229,
+    "timestampUtc": "2026-10-21T01:44:36Z",
+    "tx": "0x6feadcfb47e4ef97e5e2798bbf70e6c2582a980a0462df57892beba8169ef595"
   },
   "lastBitcoin": {
     "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.36.ots",
     "height": 972266,
     "blockTime": "2026-10-20T05:18:10+00:00"
   },
-  "pendingBitcoin": 0,
+  "pendingBitcoin": 5,
   "proofs": [
+    {
+      "label": "terrachain:firat-birecik:observations",
+      "lines": 70,
+      "file": "docs/ledgers/ots/terrachain_firat-birecik_observations.70.ots",
+      "height": null
+    },
     {
       "label": "terrachain:mississippi-belle-chasse:observations",
       "lines": 33,
@@ -101,6 +123,12 @@
       "lines": 36,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.36.ots",
       "height": 972266
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:observations",
+      "lines": 37,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.37.ots",
+      "height": null
     },
     {
       "label": "terrachain:mississippi-belle-chasse:water-temperature",
@@ -115,6 +143,12 @@
       "height": 972266
     },
     {
+      "label": "terrachain:mississippi-st-joseph:observations",
+      "lines": 44,
+      "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_observations.44.ots",
+      "height": null
+    },
+    {
       "label": "terrachain:platte-louisville:observations",
       "lines": 16,
       "file": "docs/ledgers/ots/terrachain_platte-louisville_observations.16.ots",
@@ -125,6 +159,12 @@
       "lines": 17,
       "file": "docs/ledgers/ots/terrachain_platte-louisville_observations.17.ots",
       "height": 972266
+    },
+    {
+      "label": "terrachain:platte-louisville:observations",
+      "lines": 18,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_observations.18.ots",
+      "height": null
     },
     {
       "label": "terrachain:platte-louisville:water-temperature",
@@ -143,6 +183,12 @@
       "lines": 13,
       "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.13.ots",
       "height": 972266
+    },
+    {
+      "label": "terrachain:riveretch:frozen-artifacts",
+      "lines": 20,
+      "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.20.ots",
+      "height": null
     }
   ],
   "outcomes": [],
@@ -160,6 +206,13 @@
       "step": "reach run --site all",
       "exit": 3,
       "reason": "platte-louisville stopped: 13.3 GB free, 20 GB must stay free"
+    },
+    {
+      "utc": "2026-10-21T02:42:50+00:00",
+      "run": "https://github.com/saulo1112/RiverEtch/actions/runs/39529181263",
+      "step": "reach run --site all",
+      "exit": 3,
+      "reason": "firat-birecik: 70 records, 51 skipped, 0 failed, ~2.02 GB; stopped: network cap of 2 GB reached"
     }
   ]
 }

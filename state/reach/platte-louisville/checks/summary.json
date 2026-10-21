@@ -1,16 +1,16 @@
 {
   "since": "2026-10-12T20:55:48+00:00",
-  "rows": 0,
-  "paired": 0,
-  "mdsa": null,
-  "sspb": null,
+  "rows": 1,
+  "paired": 1,
+  "mdsa": 13.833905360136889,
+  "sspb": -13.833905360136889,
   "approvals": {
     "Approved": 0,
-    "Provisional": 0
+    "Provisional": 1
   },
   "site": "platte-louisville",
   "station": "USGS-06805500",
   "unit": "FNU",
   "note": "report-only; never a level (values may be provisional)",
-  "checksSha256": "d98fb9154eb4cdf7183d664de73cee2e3dc04b4a3c107c8e3244b39f34cb9b9b"
+  "checksSha256": "526ace1278bcfd442a5385a91567b64019f26da8b6019d4a3a6a6378e2b278c3"
 }

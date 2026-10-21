@@ -986,5 +986,64 @@
         "abstainReason": null
       }
     ]
+  },
+  {
+    "date": "2026-10-20",
+    "sceneId": "platte-louisville:sentinel-2c_2026-10-20_R112",
+    "file": "records/2026-10-20_sentinel-2c_2026-10-20_R112.json",
+    "recordSha256": "548c99ab1dae00be8dd9fe315b9f577187d8ffdce14e1d49fa49eeb34589fbb1",
+    "indices": {
+      "ndti": {
+        "upstream": -0.0722,
+        "downstream": -0.0781,
+        "reach": -0.0752,
+        "delta": -0.006,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.42,
+          "downstream": -0.54,
+          "delta": -0.29
+        }
+      },
+      "nirRed": {
+        "upstream": 0.364,
+        "downstream": 0.3698,
+        "reach": 0.3669,
+        "delta": 0.0058,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.78,
+          "downstream": -0.75,
+          "delta": -0.0
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "estimated",
+        "value": 29.17,
+        "interval": {
+          "low": 19.44,
+          "high": 43.76,
+          "coverage": 0.9,
+          "method": "mondrian_split_conformal_log"
+        },
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
   }
 ]

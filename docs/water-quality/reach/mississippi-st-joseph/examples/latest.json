@@ -51,10 +51,10 @@
       "value": null,
       "interval": null,
       "relativeClass": null,
-      "fnuClass": "30_to_100",
+      "fnuClass": "30_to_50",
       "modelId": "A4:turbidity:core:transfer-all",
       "modelVersion": "1",
-      "modelCardSha256": "f9f04853b744cd28ef4b928e0084a32062494bee2b721184cb52f2eba6edfd23",
+      "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
       "validRange": null,
       "rangeMdsa": null,
       "abstainReason": null,
@@ -90,8 +90,8 @@
         "retrievedUtc": null
       }
     ],
-    "codeCommit": "4562b6c5dbfbcdb66f7a778199a111da37bcc443",
-    "processingParamsSha256": "c34b59fe5cc15d484ed4a3b3375059f32e7993dcbedc5432e39b655fa0ac7328",
+    "codeCommit": "df8ef7a4c91cc52b7f2d298727080bdd4c1ad123",
+    "processingParamsSha256": "2ad6c7bde3c9edead23b14cfcc1cc1880a314fcf393cb1958d66ae7d59726abb",
     "boaOffsetApplied": [
       true
     ],
@@ -99,5 +99,6 @@
       "05.13"
     ]
   },
-  "recordSha256": "01c5fe013318f434390b7076e530064d42f238d3ce54dd4d6a26f71ca4b93066"
+  "recordSha256": "1a3f9a1ef4c17d9b4cd6f88ca67eb5b8cad7d088539e972ef3cd62507ade857d",
+  "supersedes": "01c5fe013318f434390b7076e530064d42f238d3ce54dd4d6a26f71ca4b93066"
 }
