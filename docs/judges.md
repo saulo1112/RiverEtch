@@ -92,6 +92,49 @@ Without the app:
 What each check proves and what it does not, and which attacks it stops:
 [trust model](trust-model.md).
 
+## Questions a blockchain reviewer will ask
+
+Each answer is short; the [trust model](trust-model.md) has the detail.
+
+- **Why a blockchain, not a signed git tag?** A tag's date is the signer's own claim, and the
+  repository's owner can move it. A public chain's date is set by no single party, and nobody,
+  RiverEtch included, can edit it ([why a blockchain](trust-model.md#why-a-blockchain-and-why-two)).
+- **What is on chain?** For each ledger: its head (the hash of its last line), its line count, and
+  the block's time and number, every anchor kept. Only the owner adds, and a ledger's line count
+  must grow. No reading itself goes on chain. The contract's source is
+  [verified on Etherscan](https://sepolia.etherscan.io/address/0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762#code).
+- **If a seal does not make a reading right, what does it add?** It shows the reading was not
+  changed after its date. How it was computed is named in the record (its scene, its card, its code
+  commit); how often it is right comes from the locked tests and the scoreboard.
+- **What stops the owner sealing false readings from the start?** Nothing on chain. Each record's
+  inputs are public, so its numbers can be computed again, and prospective passes are scored
+  against USGS stations after the seal
+  ([attacks](trust-model.md#attacks-what-stops-them-and-how-to-check)).
+- **Why Sepolia?** A prototype: anchoring costs nothing of value. The date on a main network comes
+  from Bitcoin (OpenTimestamps), which needs no key ([Sepolia](trust-model.md#where-sepolia)).
+- **When is an anchor final?** About 15 minutes after its block. The first two scored passes were
+  read 3 minutes after their anchor; its block has been final since
+  ([Sepolia](trust-model.md#where-sepolia)).
+- **Can the owner's key be changed if it leaks?** No: the owner is fixed in the contract. A thief
+  could only add anchors with more lines, whose heads match no published ledger and carry no ML-DSA
+  signature ([who can do what](trust-model.md#who-can-do-what)).
+- **Why is the ML-DSA signature not checked in the contract?** The contract was deployed before the
+  signatures existed and cannot be changed. A contract that checked them would refuse a false head;
+  here a false head is detected
+  ([post-quantum](trust-model.md#post-quantum-what-a-quantum-computer-would-and-would-not-break)).
+- **How do I know the ML-DSA key is yours?** Its file is line 11 of the frozen-artifacts ledger,
+  anchored at block 11952275 (2026-10-20 02:19:48 UTC), before the earliest signature's stated
+  time (05:50:57 UTC that day).
+- **Do I have to trust your block explorers or RPC node?** No. Connect a wallet to read Sepolia
+  through your own connection; check a Bitcoin proof with `ots verify` or your own node.
+- **Why does the contract say TerraChain and `UNLICENSED`?** They are as deployed: changing any
+  character of the source would break its verified match.
+- **Why no Merkle tree?** The ledgers are short (93 lines at most) and are replayed in full.
+- **Is zero-knowledge used?** No. The circuits in `contracts/` are an unused scaffold from an
+  earlier plan ([zk-circuits.md](zk-circuits.md)).
+- **What if this repository goes away?** The records are kept only here for now. The anchors and
+  timestamps would stay, with nothing to check them against.
+
 ## Open data
 
 - **In the app:** the **Export** menu downloads the turbidity series (CSV), the reach's geometry
