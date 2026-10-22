@@ -1,6 +1,6 @@
 {
   "since": "2026-01-01T00:00:00+00:00",
-  "rows": 33,
+  "rows": 34,
   "paired": 22,
   "mdsa": 18.025550043281214,
   "sspb": -13.939271247758445,
@@ -12,5 +12,5 @@
   "station": "USGS-07374525",
   "unit": "FNU",
   "note": "report-only; never a level (values may be provisional); --since: scenes before the card's commit too (their approved values were in the lock box)",
-  "checksSha256": "4c5fa075a75f0325a47ba1f7604682671bd9c6ab6433afd2b6b1340cc12ec5a6"
+  "checksSha256": "f9878807e27f360c93e9ff41bdeb04d130d15150781fc64353545b18cdc787b9"
 }

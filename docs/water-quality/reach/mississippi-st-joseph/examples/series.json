@@ -1228,5 +1228,60 @@
       }
     ],
     "supersedes": "01c5fe013318f434390b7076e530064d42f238d3ce54dd4d6a26f71ca4b93066"
+  },
+  {
+    "date": "2026-10-21",
+    "sceneId": "mississippi-st-joseph:sentinel-2c_2026-10-21_R126",
+    "file": "records/2026-10-21_sentinel-2c_2026-10-21_R126.json",
+    "recordSha256": "b4b33bbee5aa634b35594f761a52636ceaf7506ff31cd8c98a22dbae2db75c59",
+    "indices": {
+      "ndti": {
+        "upstream": 0.1026,
+        "downstream": 0.1063,
+        "reach": 0.1044,
+        "delta": 0.0037,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.91,
+          "downstream": 1.05,
+          "delta": 0.67
+        }
+      },
+      "nirRed": {
+        "upstream": 0.4174,
+        "downstream": 0.4019,
+        "reach": 0.4096,
+        "delta": -0.0155,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.79,
+          "downstream": 1.38,
+          "delta": -0.4
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "50_to_100"
+      }
+    ]
   }
 ]

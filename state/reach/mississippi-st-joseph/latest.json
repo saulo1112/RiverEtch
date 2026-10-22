@@ -1,34 +1,34 @@
 {
   "schemaVersion": 2,
   "reachId": "mississippi-st-joseph",
-  "date": "2026-10-13",
-  "sceneId": "mississippi-st-joseph:sentinel-2a_2026-10-13_R126",
+  "date": "2026-10-21",
+  "sceneId": "mississippi-st-joseph:sentinel-2c_2026-10-21_R126",
   "stacItemIds": [
-    "S2A_15SXR_20261013_0_L2A"
+    "S2C_15SXR_20261021_0_L2A"
   ],
   "indices": {
     "ndti": {
-      "upstream": 0.0461,
-      "downstream": 0.0444,
-      "reach": 0.0452,
-      "delta": -0.0018,
+      "upstream": 0.1026,
+      "downstream": 0.1063,
+      "reach": 0.1044,
+      "delta": 0.0037,
       "zScore": {
         "rule": "D0",
-        "upstream": 0.09,
-        "downstream": 0.13,
-        "delta": 0.12
+        "upstream": 0.91,
+        "downstream": 1.05,
+        "delta": 0.67
       }
     },
     "nirRed": {
-      "upstream": 0.357,
-      "downstream": 0.3514,
-      "reach": 0.3542,
-      "delta": -0.0056,
+      "upstream": 0.4174,
+      "downstream": 0.4019,
+      "reach": 0.4096,
+      "delta": -0.0155,
       "zScore": {
         "rule": "D0",
-        "upstream": 1.03,
-        "downstream": 0.86,
-        "delta": 0.24
+        "upstream": 1.79,
+        "downstream": 1.38,
+        "delta": -0.4
       }
     }
   },
@@ -51,7 +51,7 @@
       "value": null,
       "interval": null,
       "relativeClass": null,
-      "fnuClass": "30_to_50",
+      "fnuClass": "50_to_100",
       "modelId": "A4:turbidity:core:transfer-all",
       "modelVersion": "1",
       "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
@@ -84,14 +84,14 @@
     "collection": "sentinel-2-l2a",
     "stacItems": [
       {
-        "id": "S2A_15SXR_20261013_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/S/XR/2026/10/S2A_15SXR_20261013_0_L2A/S2A_15SXR_20261013_0_L2A.json",
+        "id": "S2C_15SXR_20261021_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/S/XR/2026/10/S2C_15SXR_20261021_0_L2A/S2C_15SXR_20261021_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       }
     ],
-    "codeCommit": "df8ef7a4c91cc52b7f2d298727080bdd4c1ad123",
-    "processingParamsSha256": "2ad6c7bde3c9edead23b14cfcc1cc1880a314fcf393cb1958d66ae7d59726abb",
+    "codeCommit": "f53129ba465233b15482732bc64f7ce78c6e066e",
+    "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
     "boaOffsetApplied": [
       true
     ],
@@ -99,6 +99,5 @@
       "05.13"
     ]
   },
-  "recordSha256": "1a3f9a1ef4c17d9b4cd6f88ca67eb5b8cad7d088539e972ef3cd62507ade857d",
-  "supersedes": "01c5fe013318f434390b7076e530064d42f238d3ce54dd4d6a26f71ca4b93066"
+  "recordSha256": "b4b33bbee5aa634b35594f761a52636ceaf7506ff31cd8c98a22dbae2db75c59"
 }
