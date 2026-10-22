@@ -79,7 +79,7 @@ flowchart TD
   Q{"Does a station measure<br/>turbidity on this reach?"}
   Q -->|"Yes: Mississippi at Belle Chasse,<br/>Platte at Louisville"| A["A value with a unit (FNU)<br/>and its 90 % range,<br/>tested once against that station"]
   Q -->|"No: Mississippi above Natchez"| B["A class only (for example 30 to 50 FNU),<br/>with the error measured on<br/>rivers the model never saw"]
-  Q -->|"No, and outside the tested region:<br/>the Euphrates at Birecik, Türkiye"| C["A class only,<br/>with no error estimate"]
+  Q -->|"No, and outside the United States:<br/>the Euphrates at Birecik, Türkiye"| C["A class only;<br/>its error there<br/>has not been measured"]
 ```
 
 ![A river with a station: the Mississippi at Belle Chasse. The map shows the reach in 3D; the panel reads 32.9 FNU with an expected range of 22.6 to 47.9 FNU, labelled Validated, sealed and anchored; at the bottom, the satellite's readings beside the station's own flow and water level](docs/img/case-gauged.jpg)
@@ -91,6 +91,23 @@ measurements beside it._
 
 _With no station (Mississippi above Natchez): a class, and how often that class was right on
 rivers the model never saw._
+
+## Every stretch of the river
+
+A station sees one point of a river. So the same frozen model also reads a window every 600 m
+along each reach: 38 windows at Belle Chasse, 35 on the Platte, 29 above Natchez and 16 at Birecik.
+Each stretch gets a turbidity class (under 30, 30 to 50, 50 to 100, 100 FNU and over), or the
+reason it has none (cloud, glare, or a width outside the model's range). The map paints the river
+by class, and the **Along the river** tab shows the year: one column per pass, one row per
+stretch. Hover a stretch and the map marks it.
+
+- **Fixed before any stretch was read.** The windows, the model and the labels were frozen and
+  anchored on Ethereum first ([preregistration](docs/water-quality/preregistration-along-river.md)).
+- **Sealed like every record.** Each pass along the river is a record in the reach's own ledger
+  (`terrachain:<reach>:along`), anchored, timestamped and signed like the others.
+- **A class, never a value with a unit.** No station measures these stretches, so their error is
+  not measured there. On rivers the model never saw, its class matched the station in 160 of 298
+  test passes; at Birecik, outside the United States, its error has not been measured at all.
 
 ## Change one number, and the seal breaks
 
@@ -121,10 +138,10 @@ error you would get without the satellite.
 
 - **The two rivers above are the best two of ten stations** (on eight rivers) tested with the same
   protocol. The honest summary is the median over the nine rated: **33.1 %**. Muddy rivers do
-  best; clear, tidal rivers do worst. The app's **Accuracy** tab lists every one, failures
-  included:
+  best; clear, tidal rivers do worst. **How it works → Does it work?** lists every one,
+  failures included:
 
-  ![The Accuracy tab: the satellite passed its locked test at 7 of the 9 stations rated, with half of its errors under 33.1 %; the table lists each river, its level, the satellite's error beside the error of guessing the usual value, and its test passes](docs/img/accuracy.jpg)
+  ![How it works, chapter 4 of 6, "Does it work?": about 2 times smaller error than guessing the river's usual value; at the middle station of the nine, half of the satellite's errors were under 33.1 %, and guessing the usual value gave 71.4 % (Mississippi at Cape Girardeau); 6 of 9 stations beat guessing by a clear margin. Below, on rivers the model never saw, 8 of 10 stations still beat guessing, as paired bars per station](docs/img/does-it-work.jpg)
 
 - **On a river with no station**, the class is tested on rivers the model never saw: it matched the
   station in **160 of 298** passes, against 61 for always guessing the most common class. Half of
@@ -160,8 +177,8 @@ percentages, until there are 20 passes.
 
 - **A seal proves a number was not changed, not that it was right.** The tests above show how often
   it was right.
-- **A value with a unit appears only where a station validated the model.** Along the river, the
-  map is a relative index (NDTI); on a river with no station, the reading is a class.
+- **A value with a unit appears only where a station validated the model**, at its window. Along
+  the river, and on a river with no station, the reading is a class.
 - **Clouds hide about three passes in four** (72–76 % in 2026).
 - **The 2026 records sealed before T0 are a backtest:** they were made after their station values
   were public. And sealing first does not prove the station value was unknown: the USGS publishes

@@ -45,6 +45,11 @@ for site in "${ungauged[@]}"; do
   step reach reread --site "$site"
   step reach render --site "$site"
 done
+# Each new recorded pass along the whole river (preregistration-along-river.md; it refuses to run
+# until that file's line is anchored).
+for site in "${demo[@]}" "${ungauged[@]}"; do
+  step reach along --site "$site"
+done
 # The year's check, from 2026-01-01, as the committed one was made (the report's "13 of 18" and the
 # web's station values at every 2026 pass): without --since it would keep only the passes after
 # the cards' commit.

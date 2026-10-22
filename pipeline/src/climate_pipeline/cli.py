@@ -170,7 +170,7 @@ def _parser() -> argparse.ArgumentParser:
     reach.add_argument(
         "action",
         choices=("baseline", "run", "reread", "check", "examples", "render", "thermal",
-                 "context", "climate", "score", "verify"),
+                 "context", "climate", "score", "verify", "along-plan", "along", "history"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); reread: "
         "the passes whose record names an earlier card, read again with the current one "
@@ -183,7 +183,10 @@ def _parser() -> argparse.ArgumentParser:
         "whole daily record and each year's extremes, beside the examples (web; --until: last "
         "day); score: the prospective outcomes of the anchored claims (rule v1, "
         "docs/water-quality/prospective.md); verify: every record's seal, the ledger chain and "
-        "the cards (exit 1 on any problem)",
+        "the cards (exit 1 on any problem); along-plan: the windows along the reach, geometry "
+        "only, once (preregistration-along-river.md); along: each recorded pass's class on every "
+        "window, sealed in the reach's along ledger, beside the examples; history: the station "
+        "window's earlier passes read by the reach's card, beside the examples (web)",
     )  # fmt: skip
     reach.add_argument(
         "--site", default="all",
@@ -723,6 +726,33 @@ def reach(args: argparse.Namespace) -> int:
             print(f"{site}: " + ("verified" if not problems else f"{len(problems)} problems"))
             failed += bool(problems)
         return 1 if failed else 0
+    if args.action in ("along", "history"):
+        from climate_pipeline.reach import along, history
+
+        codes = []
+        for site in sites:
+            try:
+                if args.action == "along":
+                    done = along.run(cfg, root, site, root / args.cache, args.workers)
+                    print(f"{site}: {len(done.recorded)} records, {len(done.failed)} failed")
+                    codes.append(done.exit_code)
+                else:
+                    path = history.write(cfg, root, site, root / args.cache, args.workers)
+                    print(f"{site}: {path}")
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+                codes.append(1)
+        return max(codes, default=0)
+    if args.action == "along-plan":
+        from climate_pipeline.reach import along
+
+        for site in sites:
+            try:
+                path = along.write_plan(cfg, root, site, root / args.cache, args.workers)
+                print(f"{site}: {path}")
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+        return 0
     if args.action == "examples":
         for site in sites:
             try:

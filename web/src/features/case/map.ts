@@ -42,7 +42,7 @@ class SettledMarker extends Marker {
 export type CaseMapStart = "handoff" | "final";
 
 /** What the river shows: the pass's NDTI, the pass in true color, or nothing over the basemap. */
-export type LayerMode = "ndti" | "photo" | "none";
+export type LayerMode = "class" | "ndti" | "photo" | "none";
 
 // The overlays' opacities change at once (the reveal animates them itself, frame by frame). With
 // MapLibre's default 300 ms transition, 3D terrain caches the layers drawn on the transition's first
@@ -143,6 +143,12 @@ export interface CompareHandle {
    * @param opacity - The layer's opacity.
    */
   readonly setLayer: (mode: LayerMode, opacity: number) => void;
+  /**
+   * The compared pass's turbidity classes along the river (the "Turbidity" layer).
+   *
+   * @param table - RGBA per place byte (null: none).
+   */
+  readonly setClasses: (table: Uint8ClampedArray | null) => void;
   /** Removes the copy. */
   readonly dispose: () => void;
 }
@@ -217,6 +223,12 @@ export interface CaseMapHandle {
    * @param opacity - 0..1.
    */
   readonly setLayer: (mode: LayerMode, opacity: number) => void;
+  /**
+   * The selected pass's turbidity classes along the river (the "Turbidity" layer).
+   *
+   * @param table - RGBA per place byte (null: none).
+   */
+  readonly setClasses: (table: Uint8ClampedArray | null) => void;
   /**
    * Switches the vector overlays.
    *
@@ -593,6 +605,8 @@ class PassLayers {
   private readonly context: CanvasRenderingContext2D | null;
   private opacity = 1;
   private photo: string | null = null;
+  /** The pass's classes along the river, by place byte (the "Turbidity" layer). */
+  private classes: Uint8ClampedArray | null = null;
   /** The faded copy of the photo on the map, and which photo it is. */
   private photoShown: { readonly photo: string; readonly url: string } | null = null;
   private request = 0;
@@ -668,6 +682,7 @@ class PassLayers {
         packed: reach.maps.encoding.r.ndti,
         feather: MAP_LOOK.corridor.revealFeather,
         opacity: MAP_LOOK.corridor.ndtiOpacity,
+        classes: this.mode === "class" ? this.classes : null,
       });
       const changed = this.colorizer.render(this.reveal);
       if (changed !== null) {
@@ -799,8 +814,14 @@ class PassLayers {
    * @param opacity - 0..1.
    */
   setLayer(mode: LayerMode, opacity: number): void {
+    // NDTI and the classes share the canvas: switching between them repaints it.
+    const repaint = (mode === "class") !== (this.mode === "class");
     this.mode = mode;
     this.opacity = opacity;
+    if (repaint) {
+      this.colorizer = null;
+      this.paint();
+    }
     if (mode === "photo") {
       this.showPhoto();
     }
@@ -810,12 +831,29 @@ class PassLayers {
   private applyLayer(): void {
     const { map } = this;
     if (map.getLayer(LAYER.ndti) !== undefined) {
-      map.setLayoutProperty(LAYER.ndti, "visibility", this.mode === "ndti" ? "visible" : "none");
+      map.setLayoutProperty(
+        LAYER.ndti,
+        "visibility",
+        this.mode === "ndti" || this.mode === "class" ? "visible" : "none",
+      );
       map.setPaintProperty(LAYER.ndti, "raster-opacity", this.opacity);
     }
     if (map.getLayer(LAYER.photo) !== undefined) {
       map.setLayoutProperty(LAYER.photo, "visibility", this.mode === "photo" ? "visible" : "none");
       map.setPaintProperty(LAYER.photo, "raster-opacity", this.opacity);
+    }
+  }
+
+  /**
+   * The pass's classes along the river; the canvas repaints when they show.
+   *
+   * @param table - RGBA per place byte (null: none).
+   */
+  setClasses(table: Uint8ClampedArray | null): void {
+    this.classes = table;
+    if (this.mode === "class") {
+      this.colorizer = null;
+      this.paint();
     }
   }
 
@@ -1129,6 +1167,10 @@ export async function createCaseMap(
         }
       }
     },
+    setClasses(table) {
+      layers.setClasses(table);
+      redraw();
+    },
     setLayer(mode, opacity) {
       layers.setLayer(mode, opacity);
       paintOverlays();
@@ -1218,6 +1260,9 @@ export async function createCaseMap(
         setLayer(mode, opacity) {
           layer = { mode, opacity };
           passes.setLayer(mode, opacity);
+        },
+        setClasses(table) {
+          passes.setClasses(table);
         },
         // Once: the main map's own dispose removes its copies before React's cleanup does.
         dispose() {

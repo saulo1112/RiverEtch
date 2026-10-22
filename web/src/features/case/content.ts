@@ -53,6 +53,10 @@ export const CASE_COPY = {
     leanHigh: (p: string) => `tends to read about ${p} % high`,
     leanLow: (p: string) => `tends to read about ${p} % low`,
     leanNone: "no clear tendency to read high or low",
+    // A tile's foot, short enough for one line; the whole sentence opens from its (?).
+    tileShortMedian: (mdsa: string) => `Typical error ${mdsa} %`,
+    tileShortMean: (mae: string) => `Average error ${mae} °C`,
+    tileHelpLabel: "About this error",
   },
   // What each level lets a reader do with the number (preregistration v5, levels).
   levelHelpLabel: "About this level",
@@ -72,7 +76,7 @@ export const CASE_COPY = {
   // A reach with no gauge outside the region the model was tested in
   // (preregistration-outside-us.md): the same class, and no error figure of any kind.
   levelHelpOutside:
-    "No station measures this reach, and the model was only ever tested on US rivers, so no error estimate exists here. Read the class as a turbidity range in FNU, never as a number, and not as checked.",
+    "A turbidity class read from the satellite. The model was tested on rivers in the United States; its error here has not been measured.",
   // A reach with no gauge (preregistration-transfer.md, section 5): a class only, beside the
   // expected error that the test on rivers the model never saw measured; never a value.
   ungauged: {
@@ -86,22 +90,25 @@ export const CASE_COPY = {
       "50_to_100": "50 to 100 FNU",
       "100_and_over": "100 FNU and over",
     },
+    // The cards' own labels, as preregistration-transfer.md and preregistration-outside-us.md fixed
+    // them (a test compares them with the frozen cards). Since preregistration-along-river.md,
+    // section 6, the app shows the class alone and these facts behind its (?).
     label: "Unvalidated: expected error from the transfer test",
-    // The card's own label, as preregistration-outside-us.md fixes it (a test compares the two).
     outsideLabel: "Outside the tested region. No error estimate.",
     noClass: "No class for this pass",
     errorTitle: "How far off it tends to be, on rivers it never saw",
     agreement: (k: number, n: number) =>
       `In ${String(k)} of ${String(n)} test passes on rivers it never saw, the class matched the station.`,
+    agreementShort: (k: number, n: number) => `Class right in ${String(k)} of ${String(n)} tests`,
     median: (mdsa: string, sites: number) =>
       `Half of those estimates were off by less than ${mdsa} % of the station's value (${String(sites)} sediment-carrying rivers like this one).`,
     baselineNote:
-      "With no station here there is no usual value to compare with; each river's comparison is under Accuracy.",
+      "With no station here there is no usual value to compare with; each river's comparison is in How it works, under Does it work?",
     trainedOn:
       "The model never saw this reach. It did learn from two other Mississippi stations, at Cape Girardeau (upstream) and Belle Chasse (downstream).",
     window: "Reading spot (no station)",
-    legendWindow: "The reading spot (no station here: a class only)",
-    mapCaption: "No station here",
+    legendWindow: "The reading spot",
+    mapCaption: "Reading spot",
     // Why a reach with no station may have no Climate tab.
     noClimate:
       "No open daily flow record of this river was found, so this case has no Climate tab.",
@@ -145,9 +152,9 @@ export const CASE_COPY = {
     summary:
       "One clear Sentinel-2 pass: the turbidity at the station spot, in FNU, with the range the station's value should fall in 9 times out of 10.",
     summaryUngauged:
-      "One clear Sentinel-2 pass. No station measures this reach, so it shows a turbidity range in FNU, never a value, beside the error measured on rivers the model never saw.",
+      "One clear Sentinel-2 pass: the water's turbidity class at the reading spot, in FNU. The (?) beside it says how often such a class was right.",
     summaryOutside:
-      "One clear Sentinel-2 pass. No station measures this reach, and the model was only tested on US rivers, so it shows a turbidity range in FNU with no error estimate.",
+      "One clear Sentinel-2 pass: the water's turbidity class at the reading spot, in FNU. The (?) beside it says how the model was tested.",
     trustTitle: "What it is worth, and what protects it",
     trust:
       "The level says how far the model was tested; the (?) explains it. Sealed: the record's SHA-256 is fixed. Anchored: its ledger line is stored on a public chain.",
@@ -164,14 +171,9 @@ export const CASE_COPY = {
     tabs: "The tabs hold the year's passes beside the station, the station's own readings and climate record, and the track record of readings sealed before the station's value was read.",
     tabsUngauged:
       "The tabs hold the year's passes by class, the turbidity index against the river's own past, the image in detail and, where a station upstream measures it, the river's flow. With no station there is no track record: nothing here is scored.",
-    accuracyTitle: "Where it works",
-    accuracy:
-      "Every station it was tested on: where the satellite beats guessing the river's usual value, and the few where it does not.",
-    neverTitle: "Rivers it never saw",
-    never:
-      "Every river tested, scored by a model that never saw it: the error to expect where there is no station.",
-    neverOutside:
-      "Every river tested, failures included, all of them in the US. This reach lies outside that region, so none of these errors applies to it.",
+    alongTitle: "Along the whole river",
+    along:
+      "Each column is a pass and each row 600 m of river, coloured by its turbidity class. Move over a stretch to find it on the map; click a column to open that pass.",
     endTitle: "That is the record",
     end: "Sealing proves a number was not changed; it does not prove it was right. The tests show how often it was right.",
   },
@@ -302,6 +304,9 @@ export const CASE_COPY = {
     failed: "The record could not be checked.",
   },
   legendTitle: "NDTI per pixel (relative)",
+  // The Turbidity layer: each stretch of river coloured by its class on the pass.
+  legendClass: "Turbidity along the river",
+  legendClassNone: "Cloud, glare or no reading on this stretch",
   legendLow: "Low",
   legendHigh: "High",
   legendRange: "within this reach's 2026 passes",
@@ -317,6 +322,7 @@ export const CASE_COPY = {
   tools: {
     label: "Map tools",
     layer: "What the river shows",
+    classes: "Turbidity",
     ndti: "NDTI",
     photo: "True color",
     none: "Off",
@@ -353,51 +359,60 @@ export const CASE_COPY = {
     ndti: "NDTI",
     relative: "relative",
     unusable: "Unusable on this pass",
+    noClass: "No reading on this stretch",
     km: "km",
     of: "of",
   },
   tabs: {
     quality: "Water quality",
-    series: "Turbidity, 2026",
+    series: "Turbidity",
     thermal: "Water temperature",
     climate: "Climate",
     pass: "Image details",
     scoreboard: "Track record",
-    rivers: "Accuracy",
+    along: "Along the river",
   },
-  // Where the satellite works and where it does not: every station tested, from the committed
-  // results, the ones it does not beat guessing the usual value on included.
-  rivers: {
-    summary: (k: number, n: number, median: string) =>
-      `The satellite passed its locked test (${LOCKED_TEST}) at ${String(k)} of the ${String(n)} stations rated; across them, half of its errors were under ${median} %. The two demo rivers with a station are the best two.`,
-    summaryNever: (k: number, n: number) =>
-      `Scored once by a model that never saw the river (20 Oct 2026), it still passed at ${String(k)} of ${String(n)} stations: the error to expect where there is no station.`,
-    outside:
-      "All of these stations are in the US. This reach lies outside that region, so none of these errors applies to it.",
-    works: (k: number) => `Where it works · ${String(k)} stations`,
-    notRecommended: (k: number) => `Not recommended on these rivers · ${String(k)}`,
-    notNote: "it did not beat guessing the usual value, so RiverEtch shows no number there",
-    notNoteNever: "a model that never saw them did not beat guessing the usual value",
-    thin: "Too few test passes to judge",
-    tableCaption: "Every evaluated station's test, lowest error first",
-    columns: {
-      river: "River (USGS station)",
-      level: "Level",
-      satellite: "Satellite error",
-      baseline: "Guess the usual value",
-      passes: "Test passes",
+  // A station window's earlier years (preregistration-along-river.md, section 5): read only.
+  history: {
+    year: "Year",
+    yearLabel: "Which year the chart shows",
+    // The caption's line: what this year's passes were to the model.
+    phases: {
+      training: "in sample",
+      test: "locked test",
+      after: "after the locked test",
+      unseen: "a river the model never saw",
     },
-    errorHelpLabel: "About the errors",
-    errorHelp:
-      "Half of the locked-test errors were smaller than this share of the value. Guessing the usual value means always guessing the median of the river's past values, with no satellite.",
-    demo: "demo reach",
-    thisCase: "this case",
-    insufficient: "Too few test passes",
-    gain: (r: string) => `${r} times smaller`,
-    noGain: "no clear gain",
-    worse: "not better than guessing",
-    inside: (k: number) => `${String(k)} inside the range`,
-    otherMedian: (v: string) => `other rivers' median: ${v} %`,
+    line: (phases: string) => `Station window, not sealed: ${phases}`,
+    helpLabel: "About earlier years",
+    // Behind the (?): what the line means.
+    help: "An earlier year shows the station window only, read by the same frozen model. These are not sealed records. In sample: the model learned from these passes, so they do not test it. Locked test: passes the model never saw while it was built.",
+    noPasses: "No usable pass of the station window this year.",
+  },
+  // Along the whole river (preregistration-along-river.md): a class for each stretch, pass by pass.
+  along: {
+    noReading: "No reading",
+    // Beside "No reading" where the caption has room (hidden on a phone).
+    noReadingWhy: " (cloud, glare or outside the model's range)",
+    hint: "Each column a pass, each row 600 m of river from upstream to downstream",
+    empty: "The turbidity along the river is not available for this reach yet.",
+    chartLabel:
+      "Turbidity class along the river, pass by pass. Left and right change the pass; up and down move along the river.",
+    stretch: (from: string, to: string) => `km ${from} to ${to}`,
+    read: (k: number, n: number) => `${String(k)} of ${String(n)} stretches read on this pass`,
+    unit: "km from upstream",
+    unitShort: "km",
+    // The caption's swatches, short enough for a phone ("FNU" closes the list).
+    short: {
+      under_30: "Under 30",
+      "30_to_50": "30–50",
+      "50_to_100": "50–100",
+      "100_and_over": "100+ FNU",
+    } as Readonly<Record<string, string>>,
+    station: "Station",
+    spot: "Reading spot",
+  },
+  rivers: {
     // Display names of the gauges, as the report's table writes them.
     names: {
       "USGS-07374525": "Mississippi at Belle Chasse",
@@ -568,7 +583,7 @@ export const CASE_COPY = {
   },
   context: {
     title: "Measured by the USGS station when the satellite passed",
-    none: "The station reported no value at this pass.",
+    none: "No value at this pass",
     provisional: "Provisional data, subject to revision by the USGS.",
     provisionalShort: "provisional",
     approvedShort: "approved",

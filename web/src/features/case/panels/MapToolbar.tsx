@@ -16,6 +16,8 @@ export interface MapToolbarProps {
   readonly onMode: (mode: LayerMode) => void;
   /** Whether the selected pass has a true-color image. */
   readonly photoAvailable: boolean;
+  /** Whether the selected pass has turbidity classes along the river. */
+  readonly classAvailable?: boolean;
   readonly opacity: number;
   readonly onOpacity: (opacity: number) => void;
   readonly overlays: Overlays;
@@ -30,6 +32,7 @@ export interface MapToolbarProps {
 }
 
 const MODES: readonly { readonly id: LayerMode; readonly label: string }[] = [
+  { id: "class", label: CASE_COPY.tools.classes },
   { id: "ndti", label: CASE_COPY.tools.ndti },
   { id: "photo", label: CASE_COPY.tools.photo },
   { id: "none", label: CASE_COPY.tools.none },
@@ -159,7 +162,10 @@ export function MapToolbar(props: MapToolbarProps) {
             role="radio"
             aria-checked={mode === m.id}
             className="case-tools__segment"
-            disabled={m.id === "photo" && !props.photoAvailable}
+            disabled={
+              (m.id === "photo" && !props.photoAvailable) ||
+              (m.id === "class" && props.classAvailable !== true)
+            }
             onClick={() => {
               props.onMode(m.id);
             }}

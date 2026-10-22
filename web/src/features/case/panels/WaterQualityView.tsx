@@ -3,7 +3,6 @@ import type { CSSProperties } from "react";
 import {
   classEdges,
   classSpan,
-  isOutside,
   isUngauged,
   nearestThermal,
   ownPast,
@@ -22,6 +21,7 @@ import {
   LEVEL_LABELS,
 } from "../content.ts";
 import { leanOfTemperature, leanOfTurbidity, type Lean } from "../reading.ts";
+import { HelpTip } from "./HelpTip.tsx";
 
 const { reading } = CASE_COPY;
 
@@ -42,6 +42,9 @@ function leanText(lean: Lean): string {
 }
 
 const joined = (...parts: string[]) => parts.filter((p) => p !== "").join(" · ");
+
+// A tile's whole foot as a sentence, for its (?).
+const sentence = (text: string) => (text.endsWith(".") ? text : `${text}.`);
 
 /** Props of {@link WaterQualityView}. */
 export interface WaterQualityViewProps {
@@ -113,6 +116,8 @@ interface Tile {
   /** A station value: provisional or approved by the USGS (said once, over the group). */
   readonly approval?: string;
   readonly foot: string;
+  /** The foot's whole sentence, behind its (?) (the tile shows one short line). */
+  readonly footHelp?: string;
   readonly spark: { values: readonly (number | null)[]; selected: number | null };
   readonly tone: "sat" | "thermal" | "gauge";
 }
@@ -124,17 +129,17 @@ function classTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
   const estimate = turbidity(row);
   const cls = estimate?.fnuClass ?? null;
   const error = reach.card?.expectedError;
-  const label = isOutside(reach) ? ungauged.outsideLabel : ungauged.label;
   return {
     id: "turbidity",
     title: ungauged.turbidity,
     source: `${copy.sentinel} · ${formatDate(row.date)}`,
     value: cls === null ? null : ungauged.classes[cls],
     unit: "",
-    detail: cls === null ? (estimate?.abstainReason ?? label) : label,
+    detail: cls === null ? (estimate?.abstainReason ?? ungauged.noClass) : "",
     chip: LEVEL_LABELS[estimate?.level ?? "unvalidated"],
     level: estimate?.level ?? "unvalidated",
-    foot: error === undefined ? "" : ungauged.agreement(error.classAgreement, error.n),
+    foot: error === undefined ? "" : ungauged.agreementShort(error.classAgreement, error.n),
+    footHelp: error === undefined ? undefined : ungauged.agreement(error.classAgreement, error.n),
     spark: {
       values: reach.series.map((r) => {
         const c = turbidity(r)?.fnuClass;
@@ -216,12 +221,15 @@ function turbidityTile(reach: ReachData, row: SeriesRow, selected: number): Tile
         : `${reading.expectedRange} ${formatValue(interval.low)}–${formatValue(interval.high)}`,
     chip: LEVEL_LABELS[estimate?.level ?? "none"],
     level: estimate?.level ?? "none",
-    foot:
+    foot: lock === undefined ? "" : reading.tileShortMedian(lock.mdsa.toFixed(1)),
+    footHelp:
       lock === undefined
-        ? ""
-        : joined(
-            reading.tileMedian(lock.mdsa.toFixed(1), lock.n),
-            leanText(leanOfTurbidity(lock.sspb)),
+        ? undefined
+        : sentence(
+            joined(
+              reading.tileMedian(lock.mdsa.toFixed(1), lock.n),
+              leanText(leanOfTurbidity(lock.sspb)),
+            ),
           ),
     spark: {
       values: reach.series.map((r) => {
@@ -261,13 +269,16 @@ function temperatureTile(reach: ReachData, row: SeriesRow): Tile | null {
         : `${reading.expectedRange} ± ${((interval.high - interval.low) / 2).toFixed(1)} °C`,
     chip: LEVEL_LABELS[pass?.estimate.level ?? "none"],
     level: pass?.estimate.level ?? "none",
-    foot:
+    foot: card === null ? "" : reading.tileShortMean(card.metrics.lockbox.mae.toFixed(2)),
+    footHelp:
       card === null
-        ? ""
-        : joined(
-            reading.tileMean(card.metrics.lockbox.mae.toFixed(2), card.metrics.lockbox.n),
-            leanText(leanOfTemperature(card.metrics.lockbox.bias)),
-            upstream === null ? "" : `${copy.validatedAt} ${upstream}`,
+        ? undefined
+        : sentence(
+            joined(
+              reading.tileMean(card.metrics.lockbox.mae.toFixed(2), card.metrics.lockbox.n),
+              leanText(leanOfTemperature(card.metrics.lockbox.bias)),
+              upstream === null ? "" : `${copy.validatedAt} ${upstream}`,
+            ),
           ),
     spark: {
       values: thermal.series.map((r) =>
@@ -363,7 +374,16 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
       )}
       {t.detail === "" ? null : <p className="case-quality__detail">{t.detail}</p>}
       <Sparkline values={t.spark.values} selected={t.spark.selected} tone={t.tone} />
-      {t.foot === "" ? null : <p className="case-quality__foot">{t.foot}</p>}
+      {t.foot === "" ? null : (
+        <p className="case-quality__foot">
+          <span className="case-quality__foot-text">{t.foot}</span>
+          {t.footHelp === undefined ? null : (
+            <HelpTip label={reading.tileHelpLabel} float>
+              {t.footHelp}
+            </HelpTip>
+          )}
+        </p>
+      )}
     </li>
   );
   return (

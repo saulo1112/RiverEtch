@@ -103,6 +103,13 @@ flowchart LR
 - **The estimate.** At the reading spot, the model card turns the pass into turbidity in FNU
   (Sentinel-2) or water temperature in °C (Landsat's thermal band, separate records). On a reach
   with no station it gives a class, never a value.
+- **Along the river.** The same card's class, on a window every 600 m along the reach, frozen
+  in a plan per reach (`docs/water-quality/reach/<site>/along/windows.json`). Each window is made
+  exactly as a station's, and one read of the scene covers them all. The US reaches use the
+  four-class transfer card; Birecik its own copy of the same model. Each pass gives an
+  along-river record (`riveretch.along-river.v1`) in the reach's own ledger
+  (`terrachain:<reach>:along`), witnessed like the others
+  ([preregistration](water-quality/preregistration-along-river.md)).
 - **Isolation.** The estimate never reads a station value. Station values enter only the tests,
   the report-only check and the scoring, after the record is sealed.
 - **The record.** An [observation record v2](schema/README.md) for each Sentinel-2 pass (a
@@ -118,6 +125,10 @@ flowchart LR
 | Platte at Louisville        | yes                           | a value in FNU and its 90 % range                                 | the locked test against that station |
 | Mississippi above Natchez   | no                            | a class (under 30, 30 to 50, 50 to 100, 100 FNU and over)         | a test on rivers the model never saw |
 | Euphrates at Birecik        | no                            | a class, labelled "Outside the tested region. No error estimate." | nothing: no such test exists there   |
+
+The app shows the class alone, for example "Under 30 FNU"; the label's facts sit behind its (?)
+([preregistration-along-river.md](water-quality/preregistration-along-river.md), section 6). The
+sealed records keep their labels.
 
 The two reaches with a station are where RiverEtch measures how wrong the satellite is; the two
 without one are where it is used. Each case's **Climate** tab shows the river's daily flow for

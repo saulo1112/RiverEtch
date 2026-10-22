@@ -28,7 +28,7 @@ declare const __PROSPECTIVE_T0__: string | null;
 
 /**
  * The water-quality validation's committed results (docs/water-quality/results/v5_levels.csv and
- * v5_scores.csv, as text), for the All rivers tab (vite.config.ts, at startup).
+ * v5_scores.csv, as text), for How it works (vite.config.ts, at startup).
  */
 declare const __V5_RESULTS__: { readonly levels: string; readonly scores: string };
 /** results/transfer/transfer_scores.csv: each river scored by a model that never saw it. */

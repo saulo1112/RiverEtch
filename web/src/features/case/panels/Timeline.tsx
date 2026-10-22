@@ -2,11 +2,12 @@ import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
-import { isOutside, isUngauged, thermalValidatedAt } from "../../reaches/scene.ts";
+import { isUngauged, thermalValidatedAt } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
-import { riverResults, transferResults } from "../rivers.ts";
-import { AllRiversView } from "./AllRiversView.tsx";
+import { ALONG_CLASSES, CLASS_COLORS } from "../../reaches/along.ts";
+import { chartYears, sealedYear, yearPhases, yearReach } from "../../reaches/history.ts";
+import { AlongView } from "./AlongView.tsx";
 import { ClimateView, type ClimateTabView } from "./ClimateView.tsx";
 import { HelpTip } from "./HelpTip.tsx";
 import { PassStatsView } from "./PassStatsView.tsx";
@@ -18,7 +19,7 @@ import { WaterQualityView } from "./WaterQualityView.tsx";
 
 /** The bottom panel's tabs. */
 export type BottomTab =
-  "quality" | "series" | "thermal" | "climate" | "pass" | "scoreboard" | "rivers";
+  "quality" | "series" | "along" | "thermal" | "climate" | "pass" | "scoreboard";
 
 /** What the "This pass" tab shows: its statistics, or its NDTI along the river. */
 type PassView = "stats" | "profile";
@@ -53,16 +54,12 @@ export interface TimelineProps {
 const TABS: readonly BottomTab[] = [
   "quality",
   "series",
+  "along",
   "thermal",
   "climate",
   "pass",
   "scoreboard",
-  "rivers",
 ];
-
-// Every evaluated river, from the committed results (vite.config.ts).
-const RIVERS = riverResults(__V5_RESULTS__.levels, __V5_RESULTS__.scores);
-const TRANSFER = transferResults(__TRANSFER_SCORES__);
 
 function IconButton({
   label,
@@ -131,18 +128,59 @@ function Caption({
   onPassView,
   climateView,
   onClimateView,
+  year,
+  onYear,
 }: {
   readonly tab: BottomTab;
   readonly reach: ReachData;
+  readonly year: number;
+  readonly onYear: (year: number) => void;
   readonly passView: PassView;
   readonly onPassView: (view: PassView) => void;
   readonly climateView: ClimateTabView;
   readonly onClimateView: (view: ClimateTabView) => void;
 }) {
   const upstream = thermalValidatedAt(reach);
+  const years = chartYears(reach);
+  const picker =
+    tab === "series" && years.length > 1 ? (
+      <label className="case-timeline__year">
+        <span className="case-visually-hidden">{CASE_COPY.history.yearLabel}</span>
+        <select
+          className="case-timeline__year-select"
+          value={year}
+          aria-label={CASE_COPY.history.yearLabel}
+          onChange={(event) => {
+            onYear(Number(event.target.value));
+          }}
+        >
+          {years.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </select>
+      </label>
+    ) : null;
+  if (tab === "series" && year !== sealedYear(reach)) {
+    const { history } = CASE_COPY;
+    const phases = yearPhases(reach.history ?? [], year)
+      .map((p) => history.phases[p])
+      .join(", then ");
+    return (
+      <p className="case-timeline__caption case-timeline__keys">
+        {picker}
+        <span>{phases === "" ? history.noPasses : history.line(phases)}</span>
+        <HelpTip label={history.helpLabel} float>
+          {history.help}
+        </HelpTip>
+      </p>
+    );
+  }
   if (tab === "series" && isUngauged(reach)) {
     return (
       <ul className="case-timeline__caption case-timeline__keys">
+        {picker === null ? null : <li>{picker}</li>}
         <li>
           <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
           {CASE_COPY.ungauged.chartKey}
@@ -157,6 +195,7 @@ function Caption({
   if (tab === "series") {
     return (
       <ul className="case-timeline__caption case-timeline__keys">
+        {picker === null ? null : <li>{picker}</li>}
         <li>
           <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
           {CASE_COPY.timelineSatellite}
@@ -268,6 +307,31 @@ function Caption({
   if (tab === "scoreboard") {
     return <p className="case-timeline__caption">{CASE_COPY.scoreboard.caption}</p>;
   }
+  if (tab === "along") {
+    const { along, ungauged } = CASE_COPY;
+    return (
+      <ul className="case-timeline__caption case-timeline__keys" data-tour="along">
+        {ALONG_CLASSES.map((c) => (
+          <li key={c}>
+            <span
+              className="case-timeline__key case-timeline__key--class"
+              style={{ background: CLASS_COLORS[c] }}
+              aria-hidden="true"
+            />
+            {along.short[c] ?? ungauged.classes[c]}
+          </li>
+        ))}
+        <li>
+          <span className="case-timeline__key case-timeline__key--class-none" aria-hidden="true" />
+          <span>
+            {along.noReading}
+            <span className="case-timeline__keys-more">{along.noReadingWhy}</span>
+          </span>
+        </li>
+        <li className="case-timeline__keys-note">{along.hint}</li>
+      </ul>
+    );
+  }
   return null;
 }
 
@@ -287,6 +351,9 @@ export function Timeline(props: TimelineProps) {
   const { play, tabs } = CASE_COPY;
   const [passView, setPassView] = useState<PassView>("stats");
   const [climateView, setClimateView] = useState<ClimateTabView>("values");
+  const [year, setYear] = useState(() => sealedYear(reach));
+  const [earlier, setEarlier] = useState(0);
+  const pastYear = year !== sealedYear(reach) ? yearReach(reach, year) : null;
   const last = reach.series.length - 1;
   const row = reach.series[selected] ?? null;
   // A reach with no gauge is never scored: no scoreboard.
@@ -363,10 +430,22 @@ export function Timeline(props: TimelineProps) {
           }}
           climateView={climateView}
           onClimateView={setClimateView}
+          year={year}
+          onYear={(y) => {
+            setYear(y);
+            setEarlier(0);
+          }}
         />
         <div className="case-timeline__view">
           {tab === "quality" ? (
             <WaterQualityView reach={reach} selected={selected} />
+          ) : tab === "series" && pastYear !== null ? (
+            <SeriesChart
+              reach={pastYear}
+              selected={Math.min(earlier, Math.max(0, pastYear.series.length - 1))}
+              compared={null}
+              onSelect={setEarlier}
+            />
           ) : tab === "series" ? (
             <SeriesChart
               reach={reach}
@@ -385,12 +464,12 @@ export function Timeline(props: TimelineProps) {
             <ClimateView climate={reach.climate} view={climateView} />
           ) : tab === "scoreboard" ? (
             <ScoreboardView reach={reach} t0={__PROSPECTIVE_T0__} />
-          ) : tab === "rivers" ? (
-            <AllRiversView
-              rivers={RIVERS}
-              transfer={TRANSFER}
-              station={reach.info.station.id}
-              kind={isOutside(reach) ? "outside" : isUngauged(reach) ? "ungauged" : "gauged"}
+          ) : tab === "along" ? (
+            <AlongView
+              reach={reach}
+              selected={selected}
+              onSelect={props.onSelect}
+              onProbe={props.onProbe}
             />
           ) : passView === "profile" ? (
             <ProfileChart

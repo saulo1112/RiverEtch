@@ -6,7 +6,10 @@ import type { HeadSignature } from "../chain/mldsa.ts";
 import type { ProofEntry } from "../chain/witness.ts";
 import { parseChecks, parseContext, parseThermalChecks } from "./checks.ts";
 import type {
+  AlongPass,
+  AlongPlan,
   ClimateRecord,
+  HistoryRow,
   MapsIndex,
   ModelCard,
   Outcome,
@@ -98,19 +101,24 @@ export function loadReach(id: string): Promise<ReachData> {
     const live = LIVE ? await fetchJson<SeriesRow[]>(`${liveBase(id)}series.json`) : null;
     const source = live === null ? "snapshot" : "live";
     const base = live === null ? reachBase(id) : liveBase(id);
-    const [info, series, maps, geometry, checks, context, climate, outcomes] = await Promise.all([
-      fetchJson<ReachInfo>(`${base}reach.json`),
-      live ?? fetchJson<SeriesRow[]>(`${base}series.json`),
-      fetchJson<MapsIndex>(`${base}maps.json`),
-      fetchJson<ReachGeometry>(`${base}geometry.geojson`),
-      fetchText(`${base}checks/checks.csv`),
-      fetchText(`${base}checks/context.csv`),
-      fetchJson<ClimateRecord>(`${base}climate.json`),
-      // The snapshot asks only for files this build has; the live copy may have newer ones.
-      source === "live" || __OUTCOMES__.includes(id)
-        ? fetchText(`${base}outcomes/ledger.jsonl`)
-        : null,
-    ]);
+    const [info, series, maps, geometry, checks, context, climate, outcomes, plan, along, history] =
+      await Promise.all([
+        fetchJson<ReachInfo>(`${base}reach.json`),
+        live ?? fetchJson<SeriesRow[]>(`${base}series.json`),
+        fetchJson<MapsIndex>(`${base}maps.json`),
+        fetchJson<ReachGeometry>(`${base}geometry.geojson`),
+        fetchText(`${base}checks/checks.csv`),
+        fetchText(`${base}checks/context.csv`),
+        fetchJson<ClimateRecord>(`${base}climate.json`),
+        // The snapshot asks only for files this build has; the live copy may have newer ones.
+        source === "live" || __OUTCOMES__.includes(id)
+          ? fetchText(`${base}outcomes/ledger.jsonl`)
+          : null,
+        // Along the river and the station's earlier years (absent until the reach has them).
+        fetchJson<AlongPlan>(`${base}along/windows.json`),
+        fetchJson<AlongPass[]>(`${base}along/series.json`),
+        fetchJson<HistoryRow[]>(`${base}history.json`),
+      ]);
     if (info === null || series === null) {
       throw new Error(`${id}: the reach's files could not be loaded`);
     }
@@ -143,6 +151,8 @@ export function loadReach(id: string): Promise<ReachData> {
       context: context === null ? [] : parseContext(context),
       climate,
       outcomes: jsonLines<Outcome>(outcomes),
+      along: plan === null || along === null ? null : { plan, passes: along },
+      history,
     };
   })();
   loads.set(id, pending);

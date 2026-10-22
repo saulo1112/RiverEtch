@@ -1745,6 +1745,96 @@ select.case-record__input {
     linear-gradient(-45deg, transparent 42%, rgb(150 162 186 / 0.6) 42% 58%, transparent 58%);
 }
 
+/* Along the river: a class's swatch (its colour is set inline) and a stretch with no reading. */
+.case-timeline__key--class,
+.case-timeline__key--class-none {
+  width: 12px;
+  height: 9px;
+  border-radius: 2px;
+}
+
+.case-timeline__key--class-none {
+  background: rgb(240 246 255 / 0.07);
+  box-shadow: inset 0 0 0 1px rgb(240 246 255 / 0.18);
+}
+
+.case-timeline__keys-note {
+  color: var(--text-3);
+}
+
+@media (max-width: 760px) {
+  .case-timeline__keys .case-timeline__keys-note,
+  .case-timeline__keys-more {
+    display: none;
+  }
+
+  .case-timeline__keys {
+    gap: 4px 10px;
+  }
+
+  .case-timeline__keys li {
+    gap: 5px;
+  }
+}
+
+/* The Turbidity tab's year: the sealed year, or an earlier one from the station window. */
+.case-timeline__year {
+  display: inline-flex;
+}
+
+.case-timeline__year-select {
+  height: 24px;
+  padding: 0 6px;
+  border: 1px solid rgb(240 246 255 / 0.22);
+  border-radius: 6px;
+  background: rgb(10 16 32 / 0.9);
+  color: var(--text-1);
+  font: inherit;
+  font-size: var(--type-small);
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+/* The year's passes along the whole river: columns are passes, rows stretches of river. */
+.case-along {
+  position: relative;
+  height: 100%;
+  cursor: crosshair;
+  outline: none;
+}
+
+.case-along__cell[data-hover="true"] {
+  stroke: #f4f8ff;
+  stroke-width: 1.5;
+}
+
+.case-along__selected {
+  fill: none;
+  stroke: #f4f8ff;
+  stroke-width: 1.5;
+}
+
+.case-along__spot line {
+  stroke: #f5b942;
+  stroke-width: 2;
+}
+
+.case-along__spot text,
+.case-along__end {
+  fill: var(--text-3);
+  font-size: var(--type-micro);
+}
+
+.case-along__spot text {
+  fill: #f5b942;
+}
+
+.case-along__empty {
+  margin: 0;
+  color: var(--text-3);
+  font-size: var(--type-small);
+}
+
 .case-timeline__grid {
   stroke: var(--hairline);
   stroke-width: 1;
@@ -3208,10 +3298,14 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   line-height: 1.3;
 }
 
+/* One line each, so a tile never runs under its panel's edge; the foot's whole sentence opens
+   from its (?), over the page. */
 .case-quality__detail {
   grid-area: detail;
+  overflow: hidden;
   color: var(--text-3);
-  text-wrap: pretty;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* A gauge value's approval: the chip says it; a provisional one also has a dashed edge. */
@@ -3236,9 +3330,36 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
 
 /* The locked test's error against the usual value: kept whole. */
 .case-quality__foot {
+  display: flex;
   grid-area: foot;
+  gap: 2px;
+  align-items: center;
   color: var(--text-2);
+}
+
+.case-quality__foot-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A (?)'s explanation over the page, above its button (a tile clips anything inline). */
+.case-help__pop {
+  position: fixed;
+  z-index: 40;
+  width: min(300px, calc(100vw - 16px));
+  padding: 10px 12px;
+  border-radius: var(--case-r-inner);
+  color: var(--text-2);
+  font-size: var(--type-small);
+  font-weight: 450;
+  line-height: 1.45;
   text-wrap: pretty;
+}
+
+.case-help__pop.case-glass {
+  background-color: rgb(10 16 32 / 0.95);
 }
 
 .case-quality__spark {
@@ -3481,161 +3602,32 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   color: #ffc2bb;
 }
 
-/* All rivers: one table, lowest error first; it scrolls down in the panel, its cells wrap. */
-.case-rivers {
-  height: 100%;
-  overflow-y: auto;
-  overscroll-behavior: contain;
+/* Phones: each river is a short block (name and level, then its labelled numbers); the table's
+   roles are explicit in the markup, so it stays a table to assistive technology. */
+
+/* The Turbidity layer's key: each class's swatch and its words. */
+.case-legend__classes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 10px;
+  margin: 8px 0 0;
+  padding: 0;
+  color: var(--text-2);
+  font-size: var(--type-small);
+  list-style: none;
 }
 
-/* Which test the table shows: its own model, or one that never saw the river. */
-.case-rivers__views {
+.case-legend__classes li {
   display: flex;
-  flex-wrap: wrap;
   gap: 6px;
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 0 6px;
-}
-
-.case-rivers__view {
-  min-height: 32px;
-  font-size: var(--type-small);
-}
-
-.case-rivers__view[aria-pressed="true"] {
-  border-color: rgb(34 211 238 / 0.55);
-  background: rgb(34 211 238 / 0.14);
-  color: var(--text-1);
-  font-weight: 600;
-}
-
-.case-rivers__note,
-.case-rivers__summary {
-  margin: 0 0 6px;
-  color: var(--text-2);
-  font-size: var(--type-small);
-}
-
-.case-rivers__summary {
-  color: var(--text-1);
-}
-
-/* A group's heading row: where it works, not recommended, too few passes. */
-.case-rivers__table .case-rivers__group th {
-  padding-top: 10px;
-  color: var(--text-2);
-  font-size: var(--type-micro);
-  font-weight: 600;
-}
-
-/* Phones: the heading row spans the river's block. */
-.case-rivers__table .case-rivers__group th {
-  grid-column: 1 / -1;
-}
-
-.case-rivers__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--type-small);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.3;
-}
-
-.case-rivers__table :is(th, td) {
-  padding: 4px 12px 4px 0;
-  border-top: 1px solid var(--hairline);
-  color: var(--text-1);
-  font-weight: 450;
-  text-align: left;
-  vertical-align: baseline;
-}
-
-/* The head: bold on the panel's own glass, no fill of its own. Not sticky, so no row ever slides
-   under its words. */
-.case-rivers__table thead th {
-  border-top: 0;
-  border-bottom: 1px solid rgb(240 246 255 / 0.16);
-  color: var(--text-1);
-  font-size: var(--type-micro);
-  font-weight: 650;
-  vertical-align: bottom;
-}
-
-.case-rivers__head {
-  display: inline-flex;
-  gap: 2px;
   align-items: center;
 }
 
-/* The help's text opens under the table head, across the panel. */
-.case-rivers__head .case-help__text:not([hidden]) {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: min(420px, 80vw);
-  border: 1px solid var(--hairline);
-  background: rgb(8 14 32 / 0.97);
-  color: var(--text-2);
-}
-
-.case-rivers__table tr[data-demo] th {
-  font-weight: 560;
-}
-
-.case-rivers__table tr[data-here] :is(th, td) {
-  background: rgb(34 211 238 / 0.06);
-}
-
-.case-rivers__value {
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.case-rivers__muted {
-  color: var(--text-3);
-  font-weight: 450;
-}
-
-.case-rivers__mark {
-  color: #a5f0fc;
-  font-weight: 450;
-}
-
-/* Phones: each river is a short block (name and level, then its labelled numbers); the table's
-   roles are explicit in the markup, so it stays a table to assistive technology. */
-@media (max-width: 760px) {
-  .case-rivers__table thead {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-
-  .case-rivers__table tbody tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2px 8px;
-    padding: 6px 0;
-    border-top: 1px solid var(--hairline);
-  }
-
-  .case-rivers__table tbody :is(th, td) {
-    display: block;
-    padding: 0;
-    border: 0;
-  }
-
-  .case-rivers__table tbody td[data-label] {
-    grid-column: 1 / -1;
-  }
-
-  .case-rivers__table tbody td[data-label]::before {
-    color: var(--text-3);
-    content: attr(data-label) " ";
-  }
+.case-legend__class {
+  flex: none;
+  width: 14px;
+  height: 10px;
+  border-radius: 2px;
 }
 
 .case-legend__photo {

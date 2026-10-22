@@ -533,6 +533,59 @@ export interface ClimateExtremes {
 }
 
 /** Everything the case view loads for one reach, up front. */
+/** One window along the reach (`along/windows.json`, preregistration-along-river.md). */
+export interface AlongWindow {
+  readonly id: string;
+  /** Its centre's distance along the river from the upstream end. */
+  readonly chainageM: number;
+  readonly lon: number;
+  readonly lat: number;
+  /** The main channel's width there (null: not measured). */
+  readonly widthM: number | null;
+  /** Whether a window could be placed there (a main channel within reach). */
+  readonly selected: boolean;
+  readonly reason: string;
+}
+
+/** The reach's windows, placed before any of them was read (geometry only). */
+export interface AlongPlan {
+  readonly site: string;
+  readonly spacingM: number;
+  readonly firstM: number;
+  /** The four-class card that reads them (repository-relative). */
+  readonly card: string;
+  readonly windows: readonly AlongWindow[];
+}
+
+/** One pass along the river: each window's class, or why it has none, in the plan's order. */
+export interface AlongPass {
+  readonly sceneId: string;
+  readonly date: string;
+  /** The seal of the pass's along-river record. */
+  readonly recordSha256: string;
+  readonly classes: readonly (FnuClass | null)[];
+  readonly reasons: readonly (string | null)[];
+}
+
+/** A reach's turbidity classes along the whole river. */
+export interface AlongData {
+  readonly plan: AlongPlan;
+  readonly passes: readonly AlongPass[];
+}
+
+/** One earlier pass at the station's window (`history.json`), read by the reach's frozen card. */
+export interface HistoryRow {
+  readonly date: string;
+  readonly key: string;
+  readonly value: number | null;
+  readonly low: number | null;
+  readonly high: number | null;
+  readonly fnuClass: FnuClass | null;
+  readonly reason: string | null;
+  /** The card's training years (in sample), its locked test, after both, or a river it never saw. */
+  readonly phase: "training" | "test" | "after" | "unseen";
+}
+
 export interface ReachData {
   /** Where the files live (ends with a slash). */
   readonly base: string;
@@ -556,4 +609,8 @@ export interface ReachData {
   readonly climate: ClimateRecord | null;
   /** The prospective outcomes of its anchored claims (demo reaches; empty: none yet). */
   readonly outcomes: readonly Outcome[];
+  /** Its turbidity classes along the whole river (absent or null: none yet). */
+  readonly along?: AlongData | null;
+  /** Its station window's earlier years (absent or null: none). */
+  readonly history?: readonly HistoryRow[] | null;
 }

@@ -1,4 +1,5 @@
 import { CASE_COPY } from "../content.ts";
+import { ALONG_CLASSES, CLASS_COLORS } from "../../reaches/along.ts";
 import type { LayerMode } from "../map.ts";
 import { rampGradientCss } from "../ramp.ts";
 
@@ -25,10 +26,27 @@ export function Legend({ mode, ungauged = false }: LegendProps) {
       aria-labelledby="case-legend-title"
     >
       <h2 className="case-legend__title" id="case-legend-title">
-        {mode === "photo" ? CASE_COPY.legendPhoto : CASE_COPY.legendTitle}
+        {mode === "photo"
+          ? CASE_COPY.legendPhoto
+          : mode === "class"
+            ? CASE_COPY.legendClass
+            : CASE_COPY.legendTitle}
       </h2>
       {mode === "photo" ? (
         <p className="case-legend__photo">{CASE_COPY.legendPhotoNote}</p>
+      ) : mode === "class" ? (
+        <ul className="case-legend__classes">
+          {ALONG_CLASSES.map((c) => (
+            <li key={c}>
+              <span
+                className="case-legend__class"
+                style={{ background: CLASS_COLORS[c] }}
+                aria-hidden="true"
+              />
+              {CASE_COPY.ungauged.classes[c]}
+            </li>
+          ))}
+        </ul>
       ) : (
         <>
           <div
@@ -44,10 +62,10 @@ export function Legend({ mode, ungauged = false }: LegendProps) {
         </>
       )}
       <ul className="case-legend__keys">
-        {mode === "ndti" ? (
+        {mode === "ndti" || mode === "class" ? (
           <li className="case-legend__nodata">
             <span className="case-hatch case-legend__swatch" aria-hidden="true" />
-            {CASE_COPY.noData}
+            {mode === "class" ? CASE_COPY.legendClassNone : CASE_COPY.noData}
           </li>
         ) : null}
         <li className="case-legend__nodata">

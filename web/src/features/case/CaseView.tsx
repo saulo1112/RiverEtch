@@ -15,6 +15,7 @@ import "./case.css";
 import { useEffect, useEffectEvent, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { cubicBezier } from "../../lib/easing.ts";
+import { classTable, riverLength, windowAt } from "../reaches/along.ts";
 import { passStats, profile } from "../reaches/analysis.ts";
 import type { ReachCase } from "../reaches/catalog.ts";
 import { ndtiDomain } from "../reaches/colorize.ts";
@@ -235,7 +236,10 @@ export function CaseView({
     const index = reach.series.findIndex((row) => sceneKey(row) === initialPass);
     return index >= 0 ? index : defaultScene(reach.series);
   });
-  const [mode, setMode] = useState<LayerMode>("ndti");
+  // The river's turbidity class, stretch by stretch, where the reach has it; else its NDTI.
+  const [mode, setMode] = useState<LayerMode>(() =>
+    reach.along != null && reach.along.passes.length > 0 ? "class" : "ndti",
+  );
   const [opacity, setOpacity] = useState(1);
   const [overlays, setOverlays] = useState<Overlays>({ outline: true, window: true });
   const [terrain3d, setTerrain3d] = useState(true);
@@ -420,10 +424,29 @@ export function CaseView({
     window.history.replaceState(null, "", url);
   }, [landed, row, reachCase.id]);
 
-  // The map's layers follow the toolbar.
+  // The map's layers follow the toolbar; a pass with no classes along the river shows its NDTI.
+  const shownMode: LayerMode =
+    mode === "class" &&
+    !(reach.along?.passes.some((p) => p.sceneId === reach.series[selected]?.sceneId) ?? false)
+      ? "ndti"
+      : mode;
   useEffect(() => {
-    handleRef.current?.setLayer(mode, opacity);
-  }, [mode, opacity, mapStatus]);
+    handleRef.current?.setLayer(shownMode, opacity);
+  }, [shownMode, opacity, mapStatus]);
+  // The selected pass's classes along the river, by place along the reach (the Turbidity layer).
+  const length = useMemo(() => riverLength(reach), [reach]);
+  const passOf = (index: number | null) =>
+    index === null
+      ? null
+      : (reach.along?.passes.find((p) => p.sceneId === reach.series[index]?.sceneId) ?? null);
+  const classes = useMemo(
+    () => (reach.along == null ? null : classTable(reach.along, passOf(selected), length)),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- passOf reads only reach and selected
+    [reach, selected, length],
+  );
+  useEffect(() => {
+    handleRef.current?.setClasses(classes);
+  }, [classes, mapStatus]);
   useEffect(() => {
     handleRef.current?.setOverlays(overlays);
   }, [overlays, mapStatus]);
@@ -474,8 +497,12 @@ export function CaseView({
     if (other !== null) {
       compareHandle.current?.setScene(mapFile(reach, other), photoFile(reach, other));
     }
-    compareHandle.current?.setLayer(mode, opacity);
-  }, [comparing, other, reach, mode, opacity]);
+    compareHandle.current?.setLayer(shownMode, opacity);
+    compareHandle.current?.setClasses(
+      reach.along == null ? null : classTable(reach.along, passOf(compareWith), length),
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- passOf reads only reach
+  }, [comparing, other, reach, shownMode, opacity, compareWith, length]);
 
   // Crossfade in; the caller removes what was underneath once it is done.
   useEffect(() => {
@@ -668,7 +695,17 @@ export function CaseView({
       {mapStatus === "failed" ? (
         <p className="case-view__note">{CASE_COPY.mapUnavailable}</p>
       ) : null}
-      <Inspector hover={hover} reach={reach} />
+      <Inspector
+        hover={hover}
+        reach={reach}
+        stretchClass={
+          shownMode !== "class" || hover?.reading == null || reach.along == null
+            ? undefined
+            : (passOf(selected)?.classes[
+                windowAt(reach.along, hover.reading.place, length) ?? -1
+              ] ?? null)
+        }
+      />
       {/* Under the guided tour (a modal dialog) the panels are inert: seen, not reachable. */}
       <div className="case-view__panels" inert={touring}>
         <CaseFile
@@ -690,6 +727,7 @@ export function CaseView({
           mode={mode}
           onMode={setMode}
           photoAvailable={photo !== null}
+          classAvailable={reach.along != null && passOf(selected) !== null}
           opacity={opacity}
           onOpacity={setOpacity}
           overlays={overlays}
@@ -701,7 +739,7 @@ export function CaseView({
           selected={selected}
         />
         <div className="case-side">
-          <Legend mode={mode} ungauged={isUngauged(reach)} />
+          <Legend mode={shownMode} ungauged={isUngauged(reach)} />
           <RecordPanel reach={reach} row={row} thermal={tab === "thermal" ? thermalRow : null} />
         </div>
         <MapControls

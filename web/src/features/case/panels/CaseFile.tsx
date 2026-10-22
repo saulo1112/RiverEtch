@@ -354,7 +354,7 @@ export function CaseFile({
   const gauge = row === null ? null : gaugeAt(reach, row);
   const unit = estimate?.unit ?? card?.unit ?? "FNU";
   const noGauge = isUngauged(reach);
-  const noGaugeLabel = isOutside(reach) ? ungauged.outsideLabel : ungauged.label;
+
   const fnuClass = estimate?.fnuClass ?? null;
   const level = estimate?.level ?? overall?.level ?? (noGauge ? "unvalidated" : "none");
   return (
@@ -417,9 +417,9 @@ export function CaseFile({
                     ungauged.classes[fnuClass]
                   )}
                 </p>
-                <p className="case-file__note">
-                  {fnuClass === null ? (estimate?.abstainReason ?? noGaugeLabel) : noGaugeLabel}
-                </p>
+                {fnuClass === null ? (
+                  <p className="case-file__note">{estimate?.abstainReason ?? ungauged.noClass}</p>
+                ) : null}
                 <OwnPast reach={reach} row={row} />
               </>
             ) : value === null ? (
@@ -506,7 +506,7 @@ export function CaseFile({
               ) : (
                 <p className="case-file__note">
                   {noGauge
-                    ? (estimate?.abstainReason ?? noGaugeLabel)
+                    ? (estimate?.abstainReason ?? ungauged.noClass)
                     : (estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel)}
                 </p>
               )}

@@ -1,5 +1,9 @@
 import { CircleHelp } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+
+const POP_WIDTH = 300; // a floating explanation's width (CSS), to keep it on screen
+const POP_MARGIN = 8;
 
 /** Props of {@link HelpTip}. */
 export interface HelpTipProps {
@@ -7,6 +11,11 @@ export interface HelpTipProps {
   readonly label: string;
   /** The explanation shown under the row. */
   readonly children: ReactNode;
+  /**
+   * Open over the page instead of inline: for a (?) inside a box that clips its content, such as a
+   * Water quality tile.
+   */
+  readonly float?: boolean;
 }
 
 /**
@@ -17,10 +26,13 @@ export interface HelpTipProps {
  *
  * @returns The button and its explanation.
  */
-export function HelpTip({ label, children }: HelpTipProps) {
+export function HelpTip({ label, children, float = false }: HelpTipProps) {
   const [open, setOpen] = useState(false);
   const id = useId();
   const rootRef = useRef<HTMLSpanElement>(null);
+  const popRef = useRef<HTMLSpanElement>(null);
+  // Where a floating text opens: over the button, kept on screen, and the page it opens in.
+  const [place, setPlace] = useState<{ left: number; bottom: number; host: Element } | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -32,7 +44,8 @@ export function HelpTip({ label, children }: HelpTipProps) {
       }
     };
     const onDown = (event: PointerEvent) => {
-      if (!rootRef.current?.parentElement?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (!rootRef.current?.parentElement?.contains(target) && !popRef.current?.contains(target)) {
         setOpen(false);
       }
     };
@@ -53,16 +66,45 @@ export function HelpTip({ label, children }: HelpTipProps) {
           aria-label={label}
           aria-expanded={open}
           aria-controls={id}
-          onClick={() => {
+          onClick={(event) => {
+            if (float && !open) {
+              const rect = event.currentTarget.getBoundingClientRect();
+              const width = Math.min(POP_WIDTH, window.innerWidth - 2 * POP_MARGIN);
+              setPlace({
+                left: Math.min(
+                  Math.max(POP_MARGIN, rect.left + rect.width / 2 - width / 2),
+                  window.innerWidth - width - POP_MARGIN,
+                ),
+                bottom: window.innerHeight - rect.top + 6,
+                host: event.currentTarget.closest(".case-view") ?? document.body,
+              });
+            }
             setOpen(!open);
           }}
         >
           <CircleHelp size={15} strokeWidth={1.9} aria-hidden="true" />
         </button>
       </span>
-      <span className="case-help__text" id={id} hidden={!open}>
-        {children}
-      </span>
+      {float ? (
+        open && place !== null ? (
+          createPortal(
+            <span
+              ref={popRef}
+              className="case-help__pop case-glass"
+              id={id}
+              role="note"
+              style={{ left: `${String(place.left)}px`, bottom: `${String(place.bottom)}px` }}
+            >
+              {children}
+            </span>,
+            place.host,
+          )
+        ) : null
+      ) : (
+        <span className="case-help__text" id={id} hidden={!open}>
+          {children}
+        </span>
+      )}
     </>
   );
 }

@@ -15,6 +15,11 @@ export interface ColorizeOptions {
   readonly feather: number;
   /** Opacity of usable water. */
   readonly opacity: number;
+  /**
+   * Colour usable water by its stretch's turbidity class instead of the NDTI ramp: RGBA per place
+   * byte (256 entries; alpha 0 marks a stretch with no class on the pass).
+   */
+  readonly classes?: Uint8ClampedArray | null;
 }
 
 const LUT_SIZE = 256;
@@ -30,6 +35,8 @@ const UNUSABLE_BIT = 4;
 // Hatch of unusable pixels: a light stroke every HATCH pixels along the diagonal.
 const HATCH = 7;
 const HATCH_RGB = [190, 200, 220] as const;
+// A stretch of river the pass gave no class: faint, so the river's shape stays.
+const NO_CLASS_RGB = [200, 210, 230] as const;
 
 /**
  * Colors a packed map into RGBA pixels.
@@ -195,6 +202,16 @@ export class Colorizer {
           out[p + 1] = HATCH_RGB[1];
           out[p + 2] = HATCH_RGB[2];
           out[p + 3] = Math.round((stroke ? 150 : 40) * edge);
+          continue;
+        }
+        const classes = options.classes;
+        if (classes != null) {
+          const c = g * 4;
+          const read = (classes[c + 3] ?? 0) > 0;
+          out[p] = read ? (classes[c] ?? 0) : NO_CLASS_RGB[0];
+          out[p + 1] = read ? (classes[c + 1] ?? 0) : NO_CLASS_RGB[1];
+          out[p + 2] = read ? (classes[c + 2] ?? 0) : NO_CLASS_RGB[2];
+          out[p + 3] = Math.round((read ? 255 * options.opacity : 46) * edge);
           continue;
         }
         const ndti = lo + ((byte - 1) / 254) * (hi - lo);

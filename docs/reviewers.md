@@ -14,14 +14,15 @@ it.
   with the error measured on rivers the model never saw: the class matched the gauge in 160 of 298
   test passes, against 61 for always guessing the most common class (a comparison decided after
   seeing the result).
-- **Values with a unit only at a validated gauge.** Along the river the map is relative (NDTI).
+- **Values with a unit only at a validated gauge.** Along the river, each 600 m stretch gets a
+  class, never a value; no station measures those stretches.
 - **Clouds** hide about three passes in four (72–76 % in 2026).
 - **The 2026 records sealed before T0 are retrospective:** they were sealed after their gauge values
   were public. Only passes after T0 (the anchor of the scoring rule) can count as prospective.
 - **Station values are often provisional.** The USGS may still revise them; the app says so.
 - **Sepolia is a test network,** not mainnet.
 - **The two gauged demo reaches are the best two of ten stations** (on eight rivers). The median
-  error over the nine rated is 33.1 % (the **Accuracy** tab).
+  error over the nine rated is 33.1 % (**How it works → Does it work?**).
 
 ## The 3-minute path
 
@@ -34,10 +35,9 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
    ends it.
 3. **The case file** (top left): on a gauged reach, the value, its expected range (?), its level
    (?), "Sealed" and the anchor date, and how far off the model tends to be beside guessing the
-   river's usual value. On a reach with no station, the class with the tag "Satellite only", the
-   label "unvalidated: expected error from the transfer test" (at the Fırat, "Outside the tested
-   region. No error estimate.") and that error, and how the pass compares with the river's own
-   past. At the Fırat, published measurements of the river at Birecik, labelled as looked up after
+   river's usual value. On a reach with no station, the class with the tag "Satellite only"; its
+   (?) gives the error measured on rivers the model never saw (at the Fırat: not measured), and
+   the case file shows how the pass compares with the river's own past. At the Fırat, published measurements of the river at Birecik, labelled as looked up after
    seeing the result.
 4. **Verify this record** (right), below.
 5. **Change one number first**, type another number (or pick another class), then verify again:
@@ -45,9 +45,10 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
 6. **Check a file you were sent** (under the record): the record's JSON from its details, or the
    series from Export, edited or not; the browser names any value that differs from the sealed
    record.
-7. **Accuracy** (bottom tabs): every station tested, where it works and where it is not
-   recommended. On a reach with no station, the same stations scored by a model trained only on
-   the other river groups: the error to expect where there is no station.
+7. **Along the river** (bottom tabs): the year's passes along the whole reach, one column per
+   pass and one row per 600 m stretch, coloured by class; hover a stretch to mark it on the map.
+   The **Turbidity** tab beside it has a year menu: an earlier year is the station window, read
+   by the same frozen model and labelled in sample or locked test.
 8. **Track record** (reaches with a station): the counts checked after the station's value was
    public, then the passes sealed before it was read (0 until a pass after T0 is scored).
 9. **Climate → Extreme days:** the station's own record of low-flow, high-flow and warm-water

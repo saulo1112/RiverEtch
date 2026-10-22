@@ -71,6 +71,11 @@ foreach ($site in $ungauged) {
     Step "reach reread --site $site" | Out-Null
     Step "reach render --site $site" | Out-Null
 }
+# Each new recorded pass along the whole river (preregistration-along-river.md; it refuses to run
+# until that file's line is anchored).
+foreach ($site in $demo + $ungauged) {
+    Step "reach along --site $site" | Out-Null
+}
 # The year's check, from 2026-01-01, as the committed one was made: without --since it would keep
 # only the passes after the cards' commit.
 Step "reach check --site all --since 2026-01-01" | Out-Null

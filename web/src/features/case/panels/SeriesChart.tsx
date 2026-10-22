@@ -1,13 +1,6 @@
 import { useState, type KeyboardEvent } from "react";
 
-import {
-  classEdges,
-  classSpan,
-  gaugeAt,
-  isOutside,
-  isUngauged,
-  turbidity,
-} from "../../reaches/scene.ts";
+import { classEdges, classSpan, gaugeAt, isUngauged, turbidity } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY, daysBetween, formatDate, formatValue } from "../content.ts";
 import { useSize } from "./useSize.ts";
@@ -226,9 +219,6 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
           ) : (
             <p className="case-series__tip-value">{ungauged.classes[tip.cls]}</p>
           )}
-          <p className="case-series__tip-gauge">
-            {isOutside(reach) ? ungauged.outsideLabel : ungauged.label}
-          </p>
         </div>
       )}
     </div>
@@ -281,7 +271,13 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
     months.push(cursor.toISOString().slice(0, 10));
     cursor.setUTCMonth(cursor.getUTCMonth() + 1);
   }
-  const yTicks = TICKS.filter((t) => t >= yMin && t <= yMax);
+  const yTicks: number[] = [];
+  for (const t of TICKS.filter((v) => v >= yMin && v <= yMax)) {
+    const last = yTicks.at(-1);
+    if (last === undefined || y(last) - y(t) >= 13) {
+      yTicks.push(t);
+    }
+  }
 
   const onKey = (event: KeyboardEvent<HTMLDivElement>) => {
     const step = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
