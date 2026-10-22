@@ -1,0 +1,168 @@
+{
+  "site": "firat-birecik",
+  "spacingM": 600.0,
+  "firstM": 300.0,
+  "card": "docs/water-quality/ungauged/firat-birecik/turbidity-4.json",
+  "windows": [
+    {
+      "id": "w01",
+      "chainageM": 300.0,
+      "lon": 37.918114,
+      "lat": 37.042461,
+      "widthM": 320.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w02",
+      "chainageM": 900.0,
+      "lon": 37.924645,
+      "lat": 37.0418,
+      "widthM": 320.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w03",
+      "chainageM": 1500.0,
+      "lon": 37.931169,
+      "lat": 37.041678,
+      "widthM": 320.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w04",
+      "chainageM": 2100.0,
+      "lon": 37.937915,
+      "lat": 37.041739,
+      "widthM": 304.6,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w05",
+      "chainageM": 2700.0,
+      "lon": 37.943271,
+      "lat": 37.044671,
+      "widthM": 282.8,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w06",
+      "chainageM": 3300.0,
+      "lon": 37.948406,
+      "lat": 37.047421,
+      "widthM": 322.5,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w07",
+      "chainageM": 3900.0,
+      "lon": 37.953302,
+      "lat": 37.05125,
+      "widthM": 396.0,
+      "snapM": 20.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w08",
+      "chainageM": 4500.0,
+      "lon": 37.958892,
+      "lat": 37.053643,
+      "widthM": 368.8,
+      "snapM": 20.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w09",
+      "chainageM": 5100.0,
+      "lon": 37.965409,
+      "lat": 37.054061,
+      "widthM": 368.8,
+      "snapM": 20.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w10",
+      "chainageM": 5700.0,
+      "lon": 37.971235,
+      "lat": 37.055734,
+      "widthM": 322.5,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w11",
+      "chainageM": 6300.0,
+      "lon": 37.976226,
+      "lat": 37.052532,
+      "widthM": 320.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w12",
+      "chainageM": 6900.0,
+      "lon": 37.97921,
+      "lat": 37.048051,
+      "widthM": 320.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w13",
+      "chainageM": 7500.0,
+      "lon": 37.979728,
+      "lat": 37.043007,
+      "widthM": 312.4,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w14",
+      "chainageM": 8100.0,
+      "lon": 37.9798,
+      "lat": 37.0376,
+      "widthM": 282.8,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w15",
+      "chainageM": 8700.0,
+      "lon": 37.977617,
+      "lat": 37.032713,
+      "widthM": 322.5,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w16",
+      "chainageM": 9300.0,
+      "lon": 37.974979,
+      "lat": 37.028183,
+      "widthM": 322.5,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    }
+  ]
+}
