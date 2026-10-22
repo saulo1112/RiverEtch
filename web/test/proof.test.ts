@@ -1,0 +1,213 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+
+import type { ChainAnchor } from "../src/features/chain/ledger.ts";
+import { canonical, parseJson, sha256Hex } from "../src/features/reaches/canonical.ts";
+import { buildExport, planExport, type ProofIo } from "../src/features/reaches/proof.ts";
+import { checkProofFile, NOTES, type CheckIo } from "../src/features/reaches/proofcheck.ts";
+import type { ReachData } from "../src/features/reaches/types.ts";
+import { makeZip, readZip } from "../src/features/reaches/zip.ts";
+
+const enc = new TextEncoder();
+const dec = new TextDecoder();
+
+// A small reach with three sealed turbidity records, chained in its record list.
+async function fixture() {
+  const site = "x-river";
+  const files = new Map<string, string>();
+  const series = [];
+  const lines: string[] = [];
+  let previous: string | null = null;
+  for (const [k, value] of ["12.5", "30.04", "101"].entries()) {
+    const date = `2026-0${String(k + 1)}-10`;
+    const sceneId = `${site}:s${String(k)}`;
+    const content = `{"date":"${date}","estimates":[{"level":"validated","target":"turbidity","unit":"FNU","value":${value}}],"indices":{"ndti":{"downstream":0.01,"upstream":0.02}},"sceneId":"${sceneId}"}`;
+    const seal = await sha256Hex(canonical(parseJson(content)));
+    const record = `${content.slice(0, -1)},"recordSha256":"${seal}"}`;
+    const file = `records/${date}_s${String(k)}.json`;
+    files.set(file, record);
+    const line = JSON.stringify({
+      createdUtc: `2026-0${String(k + 1)}-11T00:00:00+00:00`,
+      date,
+      file,
+      previousLineSha256: previous,
+      recordSha256: seal,
+      sceneId,
+    });
+    lines.push(line);
+    previous = await sha256Hex(line);
+    series.push({ date, sceneId, file, recordSha256: seal });
+  }
+  files.set("ledger.jsonl", `${lines.join("\n")}\n`);
+  files.set("cards/turbidity.json", '{"modelId":"m"}');
+  const reach = {
+    base: "/x/",
+    info: { site, cards: { turbidity: "cards/turbidity.json" } },
+    series,
+    thermal: null,
+    along: null,
+    alongTemperature: null,
+  } as unknown as ReachData;
+  const hashes = await Promise.all(lines.map((l) => sha256Hex(l)));
+  // Ethereum holds the record list up to its second line.
+  const chain: ChainAnchor[] = [
+    { head: `0x${hashes[1] ?? ""}`, lines: 2, timestamp: 1, blockNumber: 7 },
+  ];
+  const io = (online = true): CheckIo & ProofIo => ({
+    text: (_r, path) => Promise.resolve(files.get(path) ?? null),
+    anchors: () => Promise.resolve(online ? chain : null),
+    proofs: () => Promise.resolve([]),
+    proof: () => Promise.resolve(null),
+    signatures: () => Promise.resolve([]),
+    reach: (id) => Promise.resolve(id === site ? reach : null),
+    header: () => Promise.resolve(null),
+    publicKey: "",
+  });
+  const meta = {
+    exportedUtc: "2026-10-22T12:00:00Z",
+    appVersion: "0.1.0",
+    appCommit: "abc",
+    publicKey: "00",
+    cards: {},
+  };
+  const plan = await planExport([reach], ["turbidity"], null, null, io());
+  const exported = await buildExport(plan, false, io(), meta);
+  return { site, reach, io, plan, exported };
+}
+
+// The zip with one file's text changed.
+async function edited(zip: Uint8Array, name: string, change: (text: string) => string) {
+  const files = await readZip(zip);
+  const entries = [...files].map(([n, data]) => ({
+    name: n,
+    data: n === name ? enc.encode(change(dec.decode(data))) : data,
+  }));
+  return makeZip(entries);
+}
+
+void test("a stored zip reads back byte for byte, and a damaged file is refused", async () => {
+  const entries = [
+    { name: "a.txt", data: enc.encode("hello") },
+    { name: "dir/b.json", data: enc.encode('{"x":1}') },
+  ];
+  const zip = makeZip(entries, new Date("2026-10-22T00:00:00Z"));
+  const files = await readZip(zip);
+  assert.deepEqual([...files.keys()], ["a.txt", "dir/b.json"]);
+  assert.equal(dec.decode(files.get("a.txt")), "hello");
+  const broken = zip.slice();
+  const at = 30 + "a.txt".length; // the first file's first byte
+  broken[at] = (broken[at] ?? 0) ^ 1;
+  await assert.rejects(readZip(broken), /damaged/);
+});
+
+void test("the export counts each board apart, and its check finds every row unchanged", async () => {
+  const { plan, exported, io } = await fixture();
+  assert.deepEqual(plan.total, { readings: 3, ethereum: 2, bitcoin: 0, waiting: 1 });
+  const files = await readZip(exported.zip);
+  for (const name of [
+    "READ-ME.txt",
+    "manifest.json",
+    "data/x-river/turbidity.csv",
+    "ledgers/x-river/ledger.jsonl",
+    "proof/anchors.json",
+    "keys/ml-dsa-65.json",
+  ]) {
+    assert.ok(files.has(name), name);
+  }
+  assert.match(dec.decode(files.get("READ-ME.txt")), new RegExp(exported.manifestSha256));
+  const report = await checkProofFile(exported.zip, io());
+  assert.ok(report !== null);
+  assert.equal(report.kind, "zip");
+  assert.equal(report.rows, 3);
+  assert.equal(report.unchanged, 3);
+  assert.equal(report.ethereum, 2);
+  assert.equal(report.waiting, 1);
+  assert.deepEqual(
+    [report.changed, report.notFound, report.missing, report.notes],
+    [[], [], [], []],
+  );
+  assert.equal(report.manifestSha256, exported.manifestSha256);
+});
+
+void test("one changed cell is reported with its row, its column and the sealed value", async () => {
+  const { exported, io } = await fixture();
+  const zip = await edited(exported.zip, "data/x-river/turbidity.csv", (t) =>
+    t.replace(",30.04,", ",3.04,"),
+  );
+  const report = await checkProofFile(zip, io());
+  assert.ok(report !== null);
+  assert.equal(report.changed.length, 1);
+  const issue = report.changed[0];
+  assert.equal(issue?.row, 2);
+  assert.deepEqual(issue.changes, [{ column: "turbidity_fnu", sealed: "30.04", given: "3.04" }]);
+  assert.equal(report.unchanged, 2);
+  assert.ok(report.notes.includes(NOTES.manifest("data/x-river/turbidity.csv")));
+});
+
+void test("a deleted row is reported missing", async () => {
+  const { exported, io } = await fixture();
+  const zip = await edited(exported.zip, "data/x-river/turbidity.csv", (t) =>
+    t
+      .split("\n")
+      .filter((l) => !l.includes("x-river:s1"))
+      .join("\n"),
+  );
+  const report = await checkProofFile(zip, io());
+  assert.ok(report !== null);
+  assert.equal(report.rows, 2);
+  assert.deepEqual(
+    report.missing.map((m) => m.sceneId),
+    ["x-river:s1"],
+  );
+});
+
+void test("a row from another reach is not found", async () => {
+  const { exported, io } = await fixture();
+  const zip = await edited(exported.zip, "data/x-river/turbidity.csv", (t) =>
+    t.replace("turbidity,x-river,x-river:s2", "turbidity,y-river,y-river:s2"),
+  );
+  const report = await checkProofFile(zip, io());
+  assert.ok(report !== null);
+  assert.deepEqual(
+    report.notFound.map((m) => m.sceneId),
+    ["y-river:s2"],
+  );
+});
+
+void test("posts listed inside a zip that Ethereum does not hold are never trusted", async () => {
+  const { exported, io } = await fixture();
+  const zip = await edited(exported.zip, "proof/anchors.json", (t) =>
+    t
+      .replace(/"lines": 2/, '"lines": 3')
+      .replace(/"head": "0x[0-9a-f]+"/, `"head": "0x${"ab".repeat(32)}"`),
+  );
+  const report = await checkProofFile(zip, io());
+  assert.ok(report !== null);
+  assert.ok(report.notes.includes(NOTES.anchorsIgnored));
+  assert.equal(report.ethereum, 2, "the chain's two posts, not the zip's claim of three");
+});
+
+void test("without the chain, nothing is counted as on Ethereum", async () => {
+  const { exported, io } = await fixture();
+  const report = await checkProofFile(exported.zip, io(false));
+  assert.ok(report !== null);
+  assert.equal(report.unchanged, 3);
+  assert.equal(report.ethereum, null);
+  assert.equal(report.waiting, null);
+});
+
+void test("a lone record file is checked against the site's sealed record", async () => {
+  const { exported, io } = await fixture();
+  const files = await readZip(exported.zip);
+  const name = [...files.keys()].find((n) => n.startsWith("records/") && n.includes("_s0"));
+  assert.ok(name !== undefined);
+  const record = files.get(name);
+  assert.ok(record !== undefined);
+  const same = await checkProofFile(record, io());
+  assert.equal(same?.unchanged, 1);
+  const changed = await checkProofFile(
+    enc.encode(dec.decode(record).replace(":12.5", ":99")),
+    io(),
+  );
+  assert.equal(changed?.changed.length, 1);
+});
