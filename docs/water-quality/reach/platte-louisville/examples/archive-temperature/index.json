@@ -1,0 +1,40 @@
+{
+ "schema": "riveretch.archive-temperature.v1",
+ "years": [
+  {
+   "year": 2019,
+   "passes": 9,
+   "failed": 0
+  },
+  {
+   "year": 2020,
+   "passes": 15,
+   "failed": 0
+  },
+  {
+   "year": 2021,
+   "passes": 10,
+   "failed": 0
+  },
+  {
+   "year": 2022,
+   "passes": 18,
+   "failed": 0
+  },
+  {
+   "year": 2023,
+   "passes": 22,
+   "failed": 0
+  },
+  {
+   "year": 2024,
+   "passes": 25,
+   "failed": 0
+  },
+  {
+   "year": 2025,
+   "passes": 20,
+   "failed": 0
+  }
+ ]
+}
