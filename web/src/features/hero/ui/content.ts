@@ -43,7 +43,7 @@ export const COPY = {
   eyebrow: ["Satellite images", "Stated error", "Sealed readings"],
   title: ["See the river.", "Verify the reading."],
   subtitle:
-    "A measuring station sees one point of a river. Most of the river lies far from any station. RiverEtch reads the water from free satellite images, tells you how far off each reading can be, and seals it, so any later change would show.",
+    "A station watches one spot. The river runs on for kilometres, unmeasured. RiverEtch reads it from free satellite images and locks every reading to Ethereum and Bitcoin. When a number is disputed, you do not argue. Just open the record, and anyone can check it.",
   // A button: it opens the cases screen.
   primary: { label: "Explore your cases" },
   // A button: it opens the "How it works" dialog.
