@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import { test } from "node:test";
 
 import { CASE_COPY } from "../src/features/case/content.ts";
+import { formatLatLon, parseCoordinate, parsePair } from "../src/features/case/coords.ts";
 import { turbidityPoints } from "../src/features/case/spot.ts";
 import {
   ALONG_CLASSES,
@@ -10,6 +11,7 @@ import {
   TEMPERATURE_EDGES,
   alongPasses,
   classTable,
+  metres,
   nearestWindow,
   placeOf,
   stepWindow,
@@ -244,4 +246,19 @@ void test("a stretch's points keep the series' order, with no class where it has
     { index: 1, date: "2026-02-01", cls: null },
   ]);
   assert.equal(turbidityPoints(reach, 0)[0]?.cls, null);
+});
+
+void test("coordinates are read in WGS 84 decimal degrees, hemisphere letters and pasted pairs too", () => {
+  assert.equal(parseCoordinate("29.85512", "lat"), 29.85512);
+  assert.equal(parseCoordinate("89.99731 W", "lon"), -89.99731);
+  assert.equal(parseCoordinate("29,855° N", "lat"), 29.855);
+  assert.equal(parseCoordinate("95", "lat"), null, "beyond the pole");
+  assert.equal(parseCoordinate("10 E", "lat"), null, "a longitude's letter on a latitude");
+  assert.deepEqual(parsePair("29.85512, -89.99731"), { lat: 29.85512, lon: -89.99731 });
+  assert.deepEqual(parsePair("29.85 N 89.99 W"), { lat: 29.85, lon: -89.99 });
+  assert.equal(parsePair("29.85"), null);
+  assert.equal(formatLatLon({ lat: 29.855121, lon: -89.997314 }), "29.85512, −89.99731");
+  const w = plan.windows.find((x) => x.selected);
+  assert.ok(w !== undefined);
+  assert.equal(Math.round(metres(w.lon, w.lat, w.lon, w.lat + 0.01)), 1113);
 });

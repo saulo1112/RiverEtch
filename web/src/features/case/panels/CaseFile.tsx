@@ -4,6 +4,7 @@ import {
   ChevronDown,
   ChevronUp,
   Clock,
+  Crosshair,
   Compass,
   ExternalLink,
   ShieldCheck,
@@ -126,6 +127,8 @@ export interface SpotControls {
   readonly downstream: (() => void) | null;
   /** Back to the start (null: it is there). */
   readonly toStart: (() => void) | null;
+  /** Opens "Go to coordinates". */
+  readonly coords: () => void;
 }
 
 // The reading spot's row: where it is, a step upstream or downstream, and the way back to the
@@ -169,6 +172,15 @@ function SpotRow({
           onClick={controls.downstream ?? undefined}
         >
           <ChevronDown size={15} strokeWidth={2} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="case-spot__step"
+          aria-label={copy.coordsOpen}
+          title={copy.coordsOpen}
+          onClick={controls.coords}
+        >
+          <Crosshair size={15} strokeWidth={2} aria-hidden="true" />
         </button>
       </span>
       {controls.toStart === null ? null : (

@@ -101,6 +101,8 @@ export interface CreateCaseMapOptions {
   readonly onSpotDrop?: (lng: number, lat: number) => void;
   /** The map was clicked, on the river or off it. */
   readonly onRiverClick?: (lng: number, lat: number, onRiver: boolean) => void;
+  /** The reading spot was clicked, not dragged ("Go to coordinates"). */
+  readonly onSpotClick?: () => void;
 }
 
 /** How the final view fits around the panels. */
@@ -1117,6 +1119,21 @@ export async function createCaseMap(
         }).setLngLat([point[0], point[1]]);
   marker?.addTo(map);
   gauge.root.dataset.shown = "false";
+  // A click on the spot, not a drag, opens "Go to coordinates".
+  let dragged = false;
+  marker?.on("dragstart", () => {
+    dragged = true;
+  });
+  gauge.root.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (dragged) {
+      dragged = false;
+      return;
+    }
+    if (gauge.root.dataset.draggable === "true") {
+      options.onSpotClick?.();
+    }
+  });
   // A drop: the case view snaps the spot to a window (and moves it there), or leaves it.
   marker?.on("dragend", () => {
     const dropped = marker.getLngLat();

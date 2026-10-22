@@ -189,8 +189,16 @@ export function thermalPasses(reach: ReachData): { pass: AlongTemperaturePass; i
     .sort((a, b) => a.pass.date.localeCompare(b.pass.date) || a.index - b.index);
 }
 
-// Metres between two points (an equirectangular approximation, fine within a reach).
-function metres(lng0: number, lat0: number, lng1: number, lat1: number): number {
+/**
+ * Metres between two points (an equirectangular approximation, fine within a reach).
+ *
+ * @param lng0 - The first point's longitude.
+ * @param lat0 - Its latitude.
+ * @param lng1 - The second point's longitude.
+ * @param lat1 - Its latitude.
+ * @returns The distance in metres.
+ */
+export function metres(lng0: number, lat0: number, lng1: number, lat1: number): number {
   const scale = Math.cos((((lat0 + lat1) / 2) * Math.PI) / 180);
   return Math.hypot((lng1 - lng0) * scale, lat1 - lat0) * 111_320;
 }

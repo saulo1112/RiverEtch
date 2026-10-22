@@ -1587,6 +1587,89 @@ select.case-record__input {
   overflow-wrap: anywhere;
 }
 
+/* "Go to coordinates": under the toolbar, over the map; on a phone, a sheet over the timeline. */
+.case-coords {
+  position: absolute;
+  z-index: 30;
+  top: 84px;
+  left: 50%;
+  width: min(330px, calc(100vw - 24px));
+  padding: 14px 16px 12px;
+  border-radius: var(--case-r);
+  transform: translateX(-50%);
+}
+
+.case-coords__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.case-coords__title {
+  margin: 0;
+  color: var(--text-1);
+  font-size: var(--type-body);
+  font-weight: 600;
+}
+
+.case-coords__system,
+.case-coords__now,
+.case-coords__note {
+  margin: 6px 0 0;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+  line-height: 1.4;
+}
+
+.case-coords__system {
+  color: var(--text-2);
+}
+
+.case-coords__form {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 10px;
+  align-items: center;
+  margin-top: 10px;
+  color: var(--text-2);
+  font-size: var(--type-small);
+}
+
+.case-coords__form input {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgb(240 246 255 / 0.22);
+  border-radius: 8px;
+  background: rgb(10 16 32 / 0.9);
+  color: var(--text-1);
+  font: inherit;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.case-coords__go {
+  grid-column: 1 / -1;
+  height: 34px;
+}
+
+.case-coords__status {
+  min-height: 1.3em;
+  margin: 8px 0 0;
+  color: var(--text-2);
+  font-size: var(--type-small);
+}
+
+.case-coords__status[data-ok="false"] {
+  color: #ffc2bb;
+}
+
+@media (max-width: 760px) {
+  .case-coords {
+    top: auto;
+    bottom: 12px;
+  }
+}
+
 /* "Check this reading": a small link on the reading card's trust strip. */
 .case-check-link {
   display: inline-flex;

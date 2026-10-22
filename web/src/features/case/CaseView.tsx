@@ -61,6 +61,7 @@ import { MapToolbar } from "./panels/MapToolbar.tsx";
 import { ExportDialog } from "./panels/ExportDialog.tsx";
 import { ProofPanel } from "./panels/ProofPanel.tsx";
 import { ReadingCheck } from "./panels/ReadingCheck.tsx";
+import { SpotCoords } from "./panels/SpotCoords.tsx";
 import { Timeline, type BottomTab } from "./panels/Timeline.tsx";
 import { markFlight } from "./qa.ts";
 import { spotOf, turbidityAt } from "./spot.ts";
@@ -275,6 +276,8 @@ export function CaseView({
   const [probe, setProbe] = useState<number | null>(null);
   // "Export with proof" is open (from the Proof panel or the toolbar).
   const [exporting, setExporting] = useState(false);
+  // "Go to coordinates" is open (one click on the orange spot, or its button in the case file).
+  const [coords, setCoords] = useState(false);
   // The reading spot: a window along the river, or the start (null). It moves only where the reach
   // has its classes along the river (preregistration-along-temperature.md, section 3).
   const [spotIndex, setSpotIndex] = useState<number | null>(null);
@@ -401,6 +404,9 @@ export function CaseView({
     onLanded?.();
   });
 
+  const openCoords = useEffectEvent(() => {
+    setCoords(true);
+  });
   // A drop or a click on the river: the spot snaps to the nearest window within 1.5 km.
   const dropSpot = useEffectEvent((lng: number, lat: number) => {
     const index = along === null ? null : nearestWindow(along, lng, lat, 1500);
@@ -444,6 +450,9 @@ export function CaseView({
             if (onRiver) {
               dropSpot(lng, lat);
             }
+          },
+          onSpotClick: () => {
+            openCoords();
           },
         });
         if (!live()) {
@@ -892,6 +901,9 @@ export function CaseView({
                       : () => {
                           moveSpot(null);
                         },
+                  coords: () => {
+                    setCoords(true);
+                  },
                 }
           }
         />
@@ -964,6 +976,17 @@ export function CaseView({
           onSpot={moveSpot}
         />
       </div>
+      {along === null ? null : (
+        <SpotCoords
+          open={coords && landed && exit === null}
+          along={along}
+          current={spotIndex ?? start}
+          onMove={moveSpot}
+          onClose={() => {
+            setCoords(false);
+          }}
+        />
+      )}
       <ExportDialog
         open={exporting}
         reach={reach}

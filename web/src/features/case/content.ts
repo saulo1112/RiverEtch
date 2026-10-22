@@ -493,6 +493,24 @@ export const CASE_COPY = {
     recordTemperatureCaption: (platform: string, date: string) =>
       `Along the river · ${platform} · ${date}`,
     recordStretch: "Stretch",
+    // "Go to coordinates": one click on the orange spot, or its button in the case file.
+    coordsOpen: "Enter coordinates",
+    coordsTitle: "Go to coordinates",
+    coordsSystem:
+      "WGS 84 (EPSG:4326), decimal degrees: the system GPS uses and Google Maps shows. Latitude first.",
+    coordsLat: "Latitude",
+    coordsLon: "Longitude",
+    coordsGo: "Go",
+    coordsClose: "Close coordinates",
+    coordsNow: (point: string) => `This stretch's centre: ${point}`,
+    coordsNote:
+      "The spot moves to the nearest 600 m stretch: a reading covers its window, 300 m around its centre, not the exact point.",
+    coordsMoved: (stretch: string, m: number) =>
+      `Moved to ${stretch}. Its centre is ${String(m)} m from your point.`,
+    coordsTooFar: (km: string) =>
+      `That point is ${km} km from this reach's river, so the spot did not move.`,
+    coordsInvalid:
+      "Type a latitude from −90 to 90 and a longitude from −180 to 180, such as 29.85512 and −89.99731.",
     recordWindow: (id: string, stretch: string) => `${id} · ${stretch}`,
   },
   rivers: {
