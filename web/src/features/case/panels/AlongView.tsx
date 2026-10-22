@@ -1,24 +1,41 @@
 import { useState, type KeyboardEvent, type PointerEvent } from "react";
 
-import { CLASS_COLORS, alongPasses, placeOf, readCount, riverLength } from "../../reaches/along.ts";
-import type { FnuClass, ReachData } from "../../reaches/types.ts";
+import {
+  CLASS_COLORS,
+  TEMPERATURE_COLORS,
+  alongPasses,
+  placeOf,
+  riverLength,
+  startWindow,
+  stepWindow,
+  thermalPasses,
+} from "../../reaches/along.ts";
+import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY, daysBetween, formatDate } from "../content.ts";
 import { useSize } from "./useSize.ts";
+
+/** What the chart shows: turbidity (Sentinel-2) or water temperature (Landsat). */
+export type AlongVariable = "turbidity" | "temperature";
 
 /** Props of {@link AlongView}. */
 export interface AlongViewProps {
   readonly reach: ReachData;
-  /** Index of the selected pass in the series. */
-  readonly selected: number;
-  /** Selects a pass (its index in the series). */
+  readonly variable: AlongVariable;
+  /** Index of the selected pass in the variable's series (Sentinel-2's or Landsat's). */
+  readonly selected: number | null;
+  /** Selects a pass (its index in that series). */
   readonly onSelect: (index: number) => void;
+  /** The reading spot's window (null: the start). */
+  readonly spot: number | null;
+  /** Moves the reading spot to a window. */
+  readonly onSpot: (index: number) => void;
   /** Marks a place on the map's river (a fraction from upstream; null: none). */
   readonly onProbe: (place: number | null) => void;
 }
 
 // Chart geometry (CSS px), as the other charts': the distance axis left, the months below, the
-// station's row named on the right. A small chart (a phone's panel) keeps its height for the rows:
-// the unit moves beside the months and the station's row keeps only its mark.
+// reading spot's row named on the right. A small chart (a phone's panel) keeps its height for the
+// rows: the unit moves beside the months and the spot's row keeps only its mark.
 function frame(width: number, height: number) {
   const compact = height < 100 || width < 520;
   return { compact, left: 40, right: compact ? 14 : 88, top: compact ? 4 : 18, bottom: 20 };
@@ -28,7 +45,7 @@ const NONE = "rgb(240 246 255 / 0.07)"; // a stretch the pass could not read
 const copy = CASE_COPY.along;
 
 // The months from the first pass's January to the last pass, and the x scale over them (the same
-// axis as the turbidity chart's, so a column sits under its pass).
+// axis as the year's charts, so a column sits under its pass).
 function timeAxis(dates: readonly string[], width: number, pad: ReturnType<typeof frame>) {
   const first = dates[0] ?? "2026-01-01";
   const start = `${first.slice(0, 4)}-01-01`;
@@ -48,50 +65,48 @@ function timeAxis(dates: readonly string[], width: number, pad: ReturnType<typeo
   };
 }
 
-// The window nearest the reach's station or reading spot (its point in the geometry).
-function spotWindow(reach: ReachData): number | null {
-  const point = reach.geometry?.features.find((f) => f.properties.kind === "station");
-  const windows = reach.along?.plan.windows ?? [];
-  if (point?.geometry.type !== "Point" || windows.length === 0) {
-    return null;
-  }
-  const [lon, lat] = point.geometry.coordinates as [number, number];
-  const scale = Math.cos((lat * Math.PI) / 180);
-  let best = 0;
-  let distance = Infinity;
-  windows.forEach((w, k) => {
-    const d = Math.hypot((w.lon - lon) * scale, w.lat - lat);
-    if (d < distance) {
-      best = k;
-      distance = d;
-    }
-  });
-  return best;
-}
-
 /**
- * The year's passes along the whole river: each column a pass (on the turbidity chart's time
- * axis), each row a stretch of river from upstream (top) to downstream, coloured by its turbidity
- * class, a stretch the pass could not read left faint. Hovering a cell names its day, its stretch
- * and its class and marks the stretch on the map; clicking a column selects that pass. The arrow
- * keys step through passes (left, right) and stretches (up, down).
+ * The year's passes along the whole river: each column a pass, each row a stretch of river from
+ * upstream (top) to downstream, coloured by its class (turbidity, or water temperature on a reach
+ * that has it); a stretch the pass could not read is left faint and says "No reading". Hovering a
+ * cell names its day, its stretch and its class and marks the stretch on the map; clicking a cell
+ * opens that pass and moves the reading spot to that stretch. The arrow keys step through passes
+ * (left, right) and move the reading spot (up, down).
  *
  * @param props - The view's props.
  * @param props.reach - The reach, with its classes along the river.
- * @param props.selected - Index of the selected pass in the series.
+ * @param props.variable - Turbidity or water temperature.
+ * @param props.selected - Index of the selected pass in that variable's series.
  * @param props.onSelect - Selects a pass.
+ * @param props.spot - The reading spot's window (null: the start).
+ * @param props.onSpot - Moves the reading spot.
  * @param props.onProbe - Marks a place on the map's river.
  * @returns The view.
  */
-export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps) {
+export function AlongView({
+  reach,
+  variable,
+  selected,
+  onSelect,
+  spot,
+  onSpot,
+  onProbe,
+}: AlongViewProps) {
   const [plotRef, { width, height }] = useSize<HTMLDivElement>();
   const [hover, setHover] = useState<{ column: number; row: number } | null>(null);
-  const [focusRow, setFocusRow] = useState(0);
   const along = reach.along;
-  const passes = alongPasses(reach);
+  const temperature = variable === "temperature";
+  const passes = temperature ? thermalPasses(reach) : alongPasses(reach);
   if (along === undefined || along === null || passes.length === 0) {
-    return <p className="case-along__empty">{copy.empty}</p>;
+    return <p className="case-along__empty">{temperature ? copy.emptyTemperature : copy.empty}</p>;
   }
+  const colors: Readonly<Record<string, string>> = temperature ? TEMPERATURE_COLORS : CLASS_COLORS;
+  const words = (cls: string | null) =>
+    cls === null
+      ? copy.noReading
+      : temperature
+        ? (CASE_COPY.temperatureClasses[cls] ?? cls)
+        : ((CASE_COPY.ungauged.classes as Readonly<Record<string, string>>)[cls] ?? cls);
   const windows = along.plan.windows;
   const length = riverLength(reach);
   const PAD = frame(width, height);
@@ -106,7 +121,8 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
   const gap = rowH > 5 ? 1 : 0;
   const y = (row: number) => PAD.top + row * rowH;
   const column = passes.findIndex((p) => p.index === selected);
-  const spot = spotWindow(reach);
+  const start = startWindow(reach);
+  const spotRow = spot ?? start;
   const kmTicks: number[] = [];
   const stepKm = length > 40_000 ? 10 : length > 12_000 ? 5 : 2;
   for (let km = 0; km * 1000 <= length; km += stepKm) {
@@ -150,17 +166,19 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
       return;
     }
     event.preventDefault();
-    const at = column < 0 ? 0 : column;
     if (dx !== 0) {
+      const at = column < 0 ? passes.length - 1 : column;
       const next = passes[Math.min(passes.length - 1, Math.max(0, at + dx))];
       if (next !== undefined) {
         onSelect(next.index);
       }
     }
-    const row = Math.min(windows.length - 1, Math.max(0, focusRow + dy));
-    setFocusRow(row);
-    const w = windows[row];
-    onProbe(w === undefined ? null : placeOf(w.chainageM, length));
+    if (dy !== 0 && spotRow !== null) {
+      const next = stepWindow(along, spotRow, dy === 1 ? 1 : -1);
+      if (next !== null) {
+        onSpot(next);
+      }
+    }
   };
 
   const tip = hover === null ? undefined : passes[hover.column];
@@ -168,7 +186,6 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
   const tipClass =
     tip === undefined || hover === null ? null : (tip.pass.classes[hover.row] ?? null);
   const current = column < 0 ? undefined : passes[column];
-  const focused = windows[focusRow];
   const km = (m: number) => (m / 1000).toFixed(1);
   const stretch = (row: number) => {
     const w = windows[row];
@@ -178,8 +195,8 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
     const half = along.plan.spacingM / 2;
     return copy.stretch(km(Math.max(0, w.chainageM - half)), km(w.chainageM + half));
   };
-  const words = (cls: FnuClass | null, reason: string | null | undefined) =>
-    cls === null ? (reason ?? CASE_COPY.ungauged.noClass) : CASE_COPY.ungauged.classes[cls];
+  const spotName =
+    spot === null && reach.info.station.window === undefined ? copy.station : copy.spot;
 
   return (
     <div
@@ -187,7 +204,7 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
       ref={plotRef}
       role="group"
       tabIndex={0}
-      aria-label={copy.chartLabel}
+      aria-label={temperature ? copy.chartLabelTemperature : copy.chartLabel}
       data-own-keys=""
       onKeyDown={onKey}
       onPointerMove={(event) => {
@@ -199,8 +216,12 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
       onClick={(event) => {
         const cell = pick(event as unknown as PointerEvent<HTMLDivElement>);
         const pass = cell === null ? undefined : passes[cell.column];
-        if (pass !== undefined) {
-          onSelect(pass.index);
+        if (cell === null || pass === undefined) {
+          return;
+        }
+        onSelect(pass.index);
+        if (windows[cell.row]?.selected === true) {
+          onSpot(cell.row);
         }
       }}
     >
@@ -222,7 +243,7 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
                   width={cellW}
                   height={Math.max(1, rowH - gap)}
                   rx={cellW > 5 && rowH > 5 ? 1.5 : 0}
-                  fill={cls === null ? NONE : (CLASS_COLORS[cls] ?? NONE)}
+                  fill={cls === null ? NONE : (colors[cls] ?? NONE)}
                   data-hover={hover?.column === c && hover.row === r ? "true" : undefined}
                   className="case-along__cell"
                 />
@@ -236,6 +257,16 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
               y={PAD.top - 1.5}
               width={cellW + 3}
               height={plotHeight + 3}
+              rx={2}
+            />
+          )}
+          {spotRow === null ? null : (
+            <rect
+              className="case-along__spot-row"
+              x={PAD.left - 3}
+              y={y(spotRow) - 1}
+              width={Math.max(1, width - PAD.left - PAD.right + 6)}
+              height={Math.max(2, rowH + 1)}
               rx={2}
             />
           )}
@@ -253,17 +284,17 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
           <text className="case-series__unit" x={4} y={PAD.compact ? height - 6 : 10}>
             {PAD.compact ? copy.unitShort : copy.unit}
           </text>
-          {spot === null ? null : (
+          {spotRow === null ? null : (
             <g className="case-along__spot">
               <line
                 x1={width - PAD.right + 4}
                 x2={width - PAD.right + 10}
-                y1={y(spot) + rowH / 2}
-                y2={y(spot) + rowH / 2}
+                y1={y(spotRow) + rowH / 2}
+                y2={y(spotRow) + rowH / 2}
               />
               {PAD.compact ? null : (
-                <text x={width - PAD.right + 13} y={y(spot) + rowH / 2 + 3.5}>
-                  {reach.info.station.window === undefined ? copy.station : copy.spot}
+                <text x={width - PAD.right + 13} y={y(spotRow) + rowH / 2 + 3.5}>
+                  {spotName}
                 </text>
               )}
             </g>
@@ -293,20 +324,22 @@ export function AlongView({ reach, selected, onSelect, onProbe }: AlongViewProps
           <p className="case-series__tip-date">
             {formatDate(tip.pass.date, true)} · {stretch(hover.row)}
           </p>
-          {tipClass === null ? (
-            <p className="case-series__tip-none">{words(null, tip.pass.reasons[hover.row])}</p>
-          ) : (
-            <p className="case-series__tip-value">{words(tipClass, null)}</p>
-          )}
-          <p className="case-series__tip-gauge">{copy.read(readCount(tip.pass), windows.length)}</p>
+          <p className={tipClass === null ? "case-series__tip-none" : "case-series__tip-value"}>
+            {words(tipClass)}
+          </p>
+          <p className="case-series__tip-gauge">
+            {copy.read(
+              tip.pass.classes.filter((c) => c !== null).length,
+              windows.filter((w) => w.selected).length,
+            )}
+          </p>
         </div>
       )}
       <p className="case-visually-hidden" aria-live="polite">
-        {current === undefined || focused === undefined
+        {current === undefined || spotRow === null
           ? ""
-          : `${formatDate(current.pass.date, true)}, ${stretch(focusRow)}: ${words(
-              current.pass.classes[focusRow] ?? null,
-              current.pass.reasons[focusRow],
+          : `${formatDate(current.pass.date, true)}, ${stretch(spotRow)}: ${words(
+              current.pass.classes[spotRow] ?? null,
             )}`}
       </p>
     </div>

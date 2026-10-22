@@ -19,6 +19,10 @@ export type Level = "validated" | "estimated" | "indicative" | "unvalidated" | "
 export type FnuClass =
   "under_30" | "30_to_100" | "100_and_over" | "30_to_50" | "50_to_100" | "under_15" | "15_to_30";
 
+/** A water-temperature class along the river (preregistration-along-temperature.md). */
+export type TemperatureClass =
+  "under_10" | "10_to_15" | "15_to_20" | "20_to_25" | "25_to_30" | "30_and_over";
+
 /** A 90 % (or other) interval around an estimate. */
 export interface Interval {
   readonly low: number;
@@ -563,7 +567,19 @@ export interface AlongPass {
   readonly date: string;
   /** The seal of the pass's along-river record. */
   readonly recordSha256: string;
+  /** The record's file in the along folder (absent in series written before it was listed). */
+  readonly file?: string;
   readonly classes: readonly (FnuClass | null)[];
+  readonly reasons: readonly (string | null)[];
+}
+
+/** One Landsat pass along the river: each window's temperature class, or why it has none. */
+export interface AlongTemperaturePass {
+  readonly sceneId: string;
+  readonly date: string;
+  readonly recordSha256: string;
+  readonly file?: string;
+  readonly classes: readonly (TemperatureClass | null)[];
   readonly reasons: readonly (string | null)[];
 }
 
@@ -611,6 +627,8 @@ export interface ReachData {
   readonly outcomes: readonly Outcome[];
   /** Its turbidity classes along the whole river (absent or null: none yet). */
   readonly along?: AlongData | null;
+  /** Its water-temperature classes along the river, on the plan's windows (absent or null: none). */
+  readonly alongTemperature?: readonly AlongTemperaturePass[] | null;
   /** Its station window's earlier years (absent or null: none). */
   readonly history?: readonly HistoryRow[] | null;
 }

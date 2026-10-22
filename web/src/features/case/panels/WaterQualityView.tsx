@@ -1,8 +1,11 @@
 import type { CSSProperties } from "react";
 
+import { ALONG_CLASSES, TEMPERATURE_CLASSES } from "../../reaches/along.ts";
+
 import {
   classEdges,
   classSpan,
+  isOutside,
   isUngauged,
   nearestThermal,
   ownPast,
@@ -21,6 +24,7 @@ import {
   LEVEL_LABELS,
 } from "../content.ts";
 import { leanOfTemperature, leanOfTurbidity, type Lean } from "../reading.ts";
+import { temperatureAt, turbidityAt, turbidityHelp, type Spot } from "../spot.ts";
 import { HelpTip } from "./HelpTip.tsx";
 
 const { reading } = CASE_COPY;
@@ -51,6 +55,8 @@ export interface WaterQualityViewProps {
   readonly reach: ReachData;
   /** Index of the selected Sentinel-2 pass. */
   readonly selected: number;
+  /** The reading spot, away from the start (null or absent: at the start). */
+  readonly spot?: Spot | null;
 }
 
 const SPARK = { width: 120, height: 22, pad: 3 };
@@ -135,7 +141,7 @@ function classTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
     source: `${copy.sentinel} · ${formatDate(row.date)}`,
     value: cls === null ? null : ungauged.classes[cls],
     unit: "",
-    detail: cls === null ? (estimate?.abstainReason ?? ungauged.noClass) : "",
+    detail: "",
     chip: LEVEL_LABELS[estimate?.level ?? "unvalidated"],
     level: estimate?.level ?? "unvalidated",
     foot: error === undefined ? "" : ungauged.agreementShort(error.classAgreement, error.n),
@@ -217,7 +223,7 @@ function turbidityTile(reach: ReachData, row: SeriesRow, selected: number): Tile
     unit: estimate?.unit ?? "FNU",
     detail:
       interval === null
-        ? (estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel)
+        ? ""
         : `${reading.expectedRange} ${formatValue(interval.low)}–${formatValue(interval.high)}`,
     chip: LEVEL_LABELS[estimate?.level ?? "none"],
     level: estimate?.level ?? "none",
@@ -264,9 +270,11 @@ function temperatureTile(reach: ReachData, row: SeriesRow): Tile | null {
     value: value === null ? null : formatCelsius(value),
     unit: "°C",
     detail:
-      value === null || interval === null
+      pass === undefined || pass === null
         ? copy.noLandsat
-        : `${reading.expectedRange} ± ${((interval.high - interval.low) / 2).toFixed(1)} °C`,
+        : value === null || interval === null
+          ? ""
+          : `${reading.expectedRange} ± ${((interval.high - interval.low) / 2).toFixed(1)} °C`,
     chip: LEVEL_LABELS[pass?.estimate.level ?? "none"],
     level: pass?.estimate.level ?? "none",
     foot: card === null ? "" : reading.tileShortMean(card.metrics.lockbox.mae.toFixed(2)),
@@ -283,6 +291,78 @@ function temperatureTile(reach: ReachData, row: SeriesRow): Tile | null {
     spark: {
       values: thermal.series.map((r) =>
         typeof r.estimate.value === "number" ? r.estimate.value : null,
+      ),
+      selected: index,
+    },
+    tone: "thermal",
+  };
+}
+
+// A class's place on its scale, for a tile's line (the middle of its band).
+const step = (classes: readonly string[], cls: string | null) =>
+  cls === null ? null : classes.indexOf(cls) + 0.5;
+
+// Away from the start: the stretch's turbidity class on the pass, from its along-river record.
+function stretchTurbidityTile(
+  reach: ReachData,
+  row: SeriesRow,
+  selected: number,
+  spot: Spot,
+): Tile {
+  const copy = CASE_COPY.quality;
+  const cls = turbidityAt(reach, row.sceneId, spot.index);
+  const four = __FOUR_CLASSES__;
+  return {
+    id: "turbidity",
+    title: CASE_COPY.spot.turbidity,
+    source: `${copy.sentinel} · ${formatDate(row.date)}`,
+    value: cls === null ? null : CASE_COPY.ungauged.classes[cls],
+    unit: "",
+    detail: spot.stretch,
+    chip: LEVEL_LABELS.unvalidated,
+    level: "unvalidated",
+    foot:
+      four === null || isOutside(reach)
+        ? CASE_COPY.spot.classHelpLabel
+        : CASE_COPY.ungauged.agreementShort(four.model_matched, four.n),
+    footHelp: turbidityHelp(reach, four) || undefined,
+    spark: {
+      values: reach.series.map((r) =>
+        step(ALONG_CLASSES, turbidityAt(reach, r.sceneId, spot.index)),
+      ),
+      selected,
+    },
+    tone: "sat",
+  };
+}
+
+// Away from the start: the stretch's water-temperature class on the nearest Landsat pass.
+function stretchTemperatureTile(reach: ReachData, row: SeriesRow, spot: Spot): Tile | null {
+  const thermal = reach.thermal;
+  if (thermal === null || thermal.series.length === 0) {
+    return null;
+  }
+  const copy = CASE_COPY.quality;
+  const index = nearestThermal(thermal.series, row.date);
+  const pass = index === null ? undefined : thermal.series[index];
+  const cls = pass === undefined ? null : temperatureAt(reach, pass.sceneId, spot.index);
+  return {
+    id: "temperature",
+    title: CASE_COPY.spot.temperature,
+    source:
+      pass === undefined
+        ? copy.landsat
+        : `${landsatName(pass.platform)} · ${formatDate(pass.date)}`,
+    value: cls === null ? null : (CASE_COPY.temperatureClasses[cls] ?? cls),
+    unit: "",
+    detail: pass === undefined ? copy.noLandsat : spot.stretch,
+    chip: LEVEL_LABELS.unvalidated,
+    level: "unvalidated",
+    foot: CASE_COPY.spot.classHelpLabel,
+    footHelp: CASE_COPY.spot.temperatureHelp,
+    spark: {
+      values: thermal.series.map((r) =>
+        step(TEMPERATURE_CLASSES, temperatureAt(reach, r.sceneId, spot.index)),
       ),
       selected: index,
     },
@@ -334,17 +414,23 @@ function gaugeTiles(reach: ReachData, row: SeriesRow, selected: number): Tile[] 
  *
  * @returns The view.
  */
-export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
+export function WaterQualityView({ reach, selected, spot = null }: WaterQualityViewProps) {
   const row = reach.series[selected];
   if (row === undefined) {
     return <div className="case-quality" />;
   }
   const copy = CASE_COPY.quality;
-  const satellite = [
-    turbidityTile(reach, row, selected),
-    isUngauged(reach) ? ownPastTile(reach, row, selected) : null,
-    temperatureTile(reach, row),
-  ].filter((t): t is Tile => t !== null);
+  // Away from the start the tiles follow the reading spot's stretch (the river's own past is the
+  // start's sub-reaches, so it stays with the start).
+  const satellite = (
+    spot === null
+      ? [
+          turbidityTile(reach, row, selected),
+          isUngauged(reach) ? ownPastTile(reach, row, selected) : null,
+          temperatureTile(reach, row),
+        ]
+      : [stretchTurbidityTile(reach, row, selected, spot), stretchTemperatureTile(reach, row, spot)]
+  ).filter((t): t is Tile => t !== null);
   const gauge = gaugeTiles(reach, row, selected);
   const provisional = gauge.some((t) => t.value !== null && t.approval !== "Approved");
   // The tile's parts are placed by CSS grid areas: the line gets its own row when the panel is
@@ -359,7 +445,9 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
       </p>
       <p className="case-quality__value">
         {t.value === null ? (
-          <span className="case-quality__none">–</span>
+          <span className="case-quality__none">
+            {t.tone === "gauge" ? "–" : CASE_COPY.noReading}
+          </span>
         ) : (
           <>
             {t.value}
@@ -374,7 +462,7 @@ export function WaterQualityView({ reach, selected }: WaterQualityViewProps) {
       )}
       {t.detail === "" ? null : <p className="case-quality__detail">{t.detail}</p>}
       <Sparkline values={t.spark.values} selected={t.spark.selected} tone={t.tone} />
-      {t.foot === "" ? null : (
+      {t.foot === "" && t.footHelp === undefined ? null : (
         <p className="case-quality__foot">
           <span className="case-quality__foot-text">{t.foot}</span>
           {t.footHelp === undefined ? null : (

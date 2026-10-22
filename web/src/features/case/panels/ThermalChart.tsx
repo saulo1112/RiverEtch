@@ -179,35 +179,37 @@ export function ThermalChart({ reach, selected, cursor, onSelect }: ThermalChart
         </svg>
       ) : null}
       {width > 0
-        ? points.map((p) => (
-            <button
-              key={p.row.sceneId}
-              id={`case-thermal-${String(p.index)}`}
-              type="button"
-              role="option"
-              aria-selected={p.index === selected}
-              tabIndex={-1}
-              className="case-series__hit"
-              style={{
-                left: `${String(x(p.row.date) - 9)}px`,
-                top: `${String((p.value === null ? baseY : y(p.value)) - 9)}px`,
-              }}
-              onClick={() => {
-                onSelect(p.index);
-              }}
-              onPointerEnter={() => {
-                setHovered(p.index);
-              }}
-              onPointerLeave={() => {
-                setHovered(null);
-              }}
-            >
-              <span className="case-visually-hidden">
-                {formatDate(p.row.date, true)}:{" "}
-                {p.value === null ? CASE_COPY.timelineNoValue : `${formatCelsius(p.value)} °C`}
-              </span>
-            </button>
-          ))
+        ? points
+            .filter((p) => p.value !== null)
+            .map((p) => (
+              <button
+                key={p.row.sceneId}
+                id={`case-thermal-${String(p.index)}`}
+                type="button"
+                role="option"
+                aria-selected={p.index === selected}
+                tabIndex={-1}
+                className="case-series__hit"
+                style={{
+                  left: `${String(x(p.row.date) - 9)}px`,
+                  top: `${String((p.value === null ? baseY : y(p.value)) - 9)}px`,
+                }}
+                onClick={() => {
+                  onSelect(p.index);
+                }}
+                onPointerEnter={() => {
+                  setHovered(p.index);
+                }}
+                onPointerLeave={() => {
+                  setHovered(null);
+                }}
+              >
+                <span className="case-visually-hidden">
+                  {formatDate(p.row.date, true)}:{" "}
+                  {p.value === null ? CASE_COPY.timelineNoValue : `${formatCelsius(p.value)} °C`}
+                </span>
+              </button>
+            ))
         : null}
       {tip?.value == null ? null : (
         <div

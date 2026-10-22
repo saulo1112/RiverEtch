@@ -11,6 +11,7 @@ import { useEthersProvider } from "./ethers.ts";
 import {
   anchorStatus,
   ledgerHead,
+  ledgerPath,
   subjectLabel,
   type ChainAnchor,
   type LedgerKind,
@@ -29,7 +30,7 @@ const ledgers = new Map<string, Promise<LedgerView>>();
 const anchors = new Map<string, Promise<ChainAnchor[]>>();
 
 function ledgerOf(reach: ReachData, kind: LedgerKind): Promise<LedgerView> {
-  const path = kind === "observations" ? "ledger.jsonl" : "thermal/ledger.jsonl";
+  const path = ledgerPath(kind);
   const key = `${reach.base}${path}`;
   let found = ledgers.get(key);
   if (found === undefined) {

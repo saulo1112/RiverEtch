@@ -15,7 +15,14 @@ import "./case.css";
 import { useEffect, useEffectEvent, useMemo, useRef, useState, type CSSProperties } from "react";
 
 import { cubicBezier } from "../../lib/easing.ts";
-import { classTable, riverLength, windowAt } from "../reaches/along.ts";
+import {
+  classTable,
+  nearestWindow,
+  riverLength,
+  startWindow,
+  stepWindow,
+  windowAt,
+} from "../reaches/along.ts";
 import { passStats, profile } from "../reaches/analysis.ts";
 import type { ReachCase } from "../reaches/catalog.ts";
 import { ndtiDomain } from "../reaches/colorize.ts";
@@ -51,6 +58,7 @@ import { MapToolbar } from "./panels/MapToolbar.tsx";
 import { RecordPanel } from "./panels/RecordPanel.tsx";
 import { Timeline, type BottomTab } from "./panels/Timeline.tsx";
 import { markFlight } from "./qa.ts";
+import { spotOf, turbidityAt } from "./spot.ts";
 
 /**
  * How the case view enters: `flight` starts the map at the handoff pose and flies in on `go`;
@@ -260,6 +268,15 @@ export function CaseView({
     defaultThermal(reach.thermal?.series ?? []),
   );
   const [probe, setProbe] = useState<number | null>(null);
+  // The reading spot: a window along the river, or the start (null). It moves only where the reach
+  // has its classes along the river (preregistration-along-temperature.md, section 3).
+  const [spotIndex, setSpotIndex] = useState<number | null>(null);
+  const along = reach.along != null && reach.along.passes.length > 0 ? reach.along : null;
+  const start = useMemo(() => startWindow(reach), [reach]);
+  const spot = spotOf(reach, spotIndex);
+  const moveSpot = (index: number | null) => {
+    setSpotIndex(index === start ? null : index);
+  };
   const domain = useMemo(() => ndtiDomain(ndtiMedians(reach.series)), [reach.series]);
   const row = reach.series[selected] ?? null;
   const thermalRow =
@@ -318,6 +335,14 @@ export function CaseView({
     onLanded?.();
   });
 
+  // A drop or a click on the river: the spot snaps to the nearest window within 1.5 km.
+  const dropSpot = useEffectEvent((lng: number, lat: number) => {
+    const index = along === null ? null : nearestWindow(along, lng, lat, 1500);
+    if (index !== null) {
+      moveSpot(index);
+    }
+  });
+
   // The map, created once per mount.
   useEffect(() => {
     const container = mapRef.current;
@@ -346,6 +371,14 @@ export function CaseView({
             setScene({ file: shown, data });
           },
           onCamera: setCamera,
+          onSpotDrop: (lng, lat) => {
+            dropSpot(lng, lat);
+          },
+          onRiverClick: (lng, lat, onRiver) => {
+            if (onRiver) {
+              dropSpot(lng, lat);
+            }
+          },
         });
         if (!live()) {
           created.dispose();
@@ -394,6 +427,15 @@ export function CaseView({
       return;
     }
     handle.showScene(file, photo);
+    if (spotIndex !== null && spot !== null) {
+      // Away from the start: the stretch's class on this pass, never a value.
+      const cls = turbidityAt(reach, row.sceneId, spotIndex);
+      handle.setGauge({
+        value: cls === null ? CASE_COPY.noReading : CASE_COPY.ungauged.classes[cls],
+        caption: spot.stretch,
+      });
+      return;
+    }
     const estimate = turbidity(row);
     // A reach with no gauge labels its window with the pass's class, never a value.
     const cls = estimate?.fnuClass ?? null;
@@ -402,13 +444,28 @@ export function CaseView({
         typeof estimate?.value === "number"
           ? `${formatValue(estimate.value)} ${estimate.unit}`
           : cls === null
-            ? ""
+            ? CASE_COPY.noReading
             : CASE_COPY.ungauged.classes[cls],
       caption: isUngauged(reach)
         ? CASE_COPY.ungauged.mapCaption
         : reach.info.station.id.replace("USGS-", "USGS station "),
     });
-  }, [reach, row, file, photo, mapStatus]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- spot follows spotIndex
+  }, [reach, row, file, photo, mapStatus, spotIndex]);
+
+  // The reading spot on the map: its marker and window, and the station marked on its own.
+  useEffect(() => {
+    const window = spotIndex === null ? undefined : along?.plan.windows[spotIndex];
+    handleRef.current?.setSpot(
+      window === undefined ? null : [window.lon, window.lat],
+      isUngauged(reach) ? null : CASE_COPY.spot.station(reach.info.station.id.replace("USGS-", "")),
+    );
+  }, [spotIndex, along, reach, mapStatus]);
+  useEffect(() => {
+    handleRef.current?.setSpotDraggable(
+      landed && exit === null && along !== null && start !== null,
+    );
+  }, [landed, exit, along, start, mapStatus]);
 
   // Once landed, the map is the user's; the URL names the pass (a link opens it).
   useEffect(() => {
@@ -628,6 +685,16 @@ export function CaseView({
     setPlaying(false);
     setSelected(index);
   };
+  // One placed window upstream or downstream of the spot (null: none that way).
+  function stepOf(step: -1 | 1): (() => void) | null {
+    const from = spotIndex ?? start;
+    const next = along === null || from === null ? null : stepWindow(along, from, step);
+    return next === null
+      ? null
+      : () => {
+          moveSpot(next);
+        };
+  }
   return (
     <section
       ref={rootRef}
@@ -721,6 +788,22 @@ export function CaseView({
           }}
           selected={selected}
           onSelect={select}
+          spot={spot}
+          spotControls={
+            along === null || start === null
+              ? null
+              : {
+                  here: spotOf(reach, spotIndex ?? start)?.stretch ?? "",
+                  upstream: stepOf(-1),
+                  downstream: stepOf(1),
+                  toStart:
+                    spotIndex === null
+                      ? null
+                      : () => {
+                          moveSpot(null);
+                        },
+                }
+          }
         />
         <MapToolbar
           reach={reach}
@@ -739,8 +822,18 @@ export function CaseView({
           selected={selected}
         />
         <div className="case-side">
-          <Legend mode={shownMode} ungauged={isUngauged(reach)} />
-          <RecordPanel reach={reach} row={row} thermal={tab === "thermal" ? thermalRow : null} />
+          <Legend
+            mode={shownMode}
+            ungauged={isUngauged(reach)}
+            movable={along !== null && start !== null}
+            moved={spotIndex !== null}
+          />
+          <RecordPanel
+            reach={reach}
+            row={row}
+            thermal={tab === "thermal" ? thermalRow : null}
+            spot={spot}
+          />
         </div>
         <MapControls
           bearing={camera.bearing}
@@ -769,6 +862,8 @@ export function CaseView({
           stats={analysed?.stats ?? null}
           domain={domain}
           onProbe={setProbe}
+          spot={spot}
+          onSpot={moveSpot}
         />
       </div>
       <GuidedTour

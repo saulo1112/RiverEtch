@@ -79,9 +79,39 @@ export interface Editable {
   readonly sealed: string;
 }
 
-// The field to change: the estimate's value; else its class (a reach with no gauge); else the
-// downstream NDTI (a pass with neither: the model abstained).
-function editableIn(record: JsonObject): (Editable & { holder: JsonObject; key: string }) | null {
+// One window's class in an along-river record (turbidity or water temperature).
+function windowClass(
+  record: JsonObject,
+  windowId: string,
+): (Editable & { holder: JsonObject; key: string }) | null {
+  const windows = record.windows;
+  if (!Array.isArray(windows)) {
+    return null;
+  }
+  const at = windows.findIndex((w) => isObject(w) && w.id === windowId);
+  const holder = windows[at];
+  if (!isObject(holder)) {
+    return null;
+  }
+  for (const key of ["fnuClass", "temperatureClass"]) {
+    const cls = holder[key];
+    if (typeof cls === "string") {
+      return { holder, key, path: `windows[${String(at)}].${key}`, kind: "class", sealed: cls };
+    }
+  }
+  return null;
+}
+
+// The field to change: in an along-river record, the given window's class; else the estimate's
+// value; else its class (a reach with no gauge); else the downstream NDTI (a pass with neither:
+// the model abstained).
+function editableIn(
+  record: JsonObject,
+  windowId?: string,
+): (Editable & { holder: JsonObject; key: string }) | null {
+  if (windowId !== undefined) {
+    return windowClass(record, windowId);
+  }
   const first = firstEstimate(record);
   if (first !== undefined) {
     const value = first.value.value;
@@ -107,14 +137,16 @@ function editableIn(record: JsonObject): (Editable & { holder: JsonObject; key: 
 
 /**
  * The field of a record a reader may change before a check: the estimate it makes (its value, or
- * its class on a reach with no gauge), else the downstream NDTI.
+ * its class on a reach with no gauge), else the downstream NDTI; in an along-river record, one
+ * window's class.
  *
  * @param recordText - The record file.
+ * @param windowId - In an along-river record, the window whose class is the field.
  * @returns The field and its sealed value (null: the record has none of them).
  */
-export function editable(recordText: string): Editable | null {
+export function editable(recordText: string, windowId?: string): Editable | null {
   const record = parseJson(recordText);
-  const found = isObject(record) ? editableIn(record) : null;
+  const found = isObject(record) ? editableIn(record, windowId) : null;
   return found === null ? null : { path: found.path, kind: found.kind, sealed: found.sealed };
 }
 
@@ -130,8 +162,8 @@ export function isNumberText(text: string): boolean {
 
 // Sets the field to the reader's value. The sealed value, however it is typed (23.40 for 23.4),
 // changes nothing: a verifier reads both as the same number.
-function change(record: JsonObject, to: string): Verification["altered"] {
-  const field = editableIn(record);
+function change(record: JsonObject, to: string, windowId?: string): Verification["altered"] {
+  const field = editableIn(record, windowId);
   if (field === null) {
     return null;
   }
@@ -162,6 +194,7 @@ function change(record: JsonObject, to: string): Verification["altered"] {
  * @param cardText - The model card the record's first estimate names (null: not checked).
  * @param alter - The value to give the record's editable field first (see `editable`), in memory:
  *   a number, or a class label.
+ * @param windowId - In an along-river record, the window whose class `alter` changes.
  * @returns What matched.
  */
 export async function verifyRecord(
@@ -169,6 +202,7 @@ export async function verifyRecord(
   ledgerText: string,
   cardText: string | null,
   alter?: string,
+  windowId?: string,
 ): Promise<Verification> {
   const record = parseJson(recordText);
   if (!isObject(record)) {
@@ -177,7 +211,7 @@ export async function verifyRecord(
   const stated = typeof record.recordSha256 === "string" ? record.recordSha256 : "";
   const content: JsonObject = { ...record };
   delete content.recordSha256;
-  const altered = alter === undefined ? null : change(content, alter);
+  const altered = alter === undefined ? null : change(content, alter, windowId);
   const text = canonical(content);
   const computed = await sha256Hex(text);
 
@@ -209,7 +243,7 @@ export async function verifyRecord(
   const inLedger = position >= 0;
 
   let cardMatches: boolean | null = null;
-  const named = firstEstimate(record)?.value.modelCardSha256;
+  const named = firstEstimate(record)?.value.modelCardSha256 ?? record.modelCardSha256;
   if (cardText !== null && typeof named === "string") {
     cardMatches = (await sha256Hex(canonical(parseJson(cardText), true))) === named;
   }

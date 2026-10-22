@@ -5,9 +5,17 @@ import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
 import { isUngauged, thermalValidatedAt } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
-import { ALONG_CLASSES, CLASS_COLORS } from "../../reaches/along.ts";
+import {
+  ALONG_CLASSES,
+  CLASS_COLORS,
+  TEMPERATURE_CLASSES,
+  TEMPERATURE_COLORS,
+  TEMPERATURE_EDGES,
+} from "../../reaches/along.ts";
 import { chartYears, sealedYear, yearPhases, yearReach } from "../../reaches/history.ts";
-import { AlongView } from "./AlongView.tsx";
+import { temperaturePoints, turbidityPoints, type Spot } from "../spot.ts";
+import { AlongView, type AlongVariable } from "./AlongView.tsx";
+import { BandChart } from "./BandChart.tsx";
 import { ClimateView, type ClimateTabView } from "./ClimateView.tsx";
 import { HelpTip } from "./HelpTip.tsx";
 import { PassStatsView } from "./PassStatsView.tsx";
@@ -49,7 +57,21 @@ export interface TimelineProps {
   readonly domain: readonly [number, number];
   /** The profile's cursor moved to a place along the river. */
   readonly onProbe: (place: number | null) => void;
+  /** The reading spot, away from the start (null: at the start). */
+  readonly spot: Spot | null;
+  /** Moves the reading spot to a window. */
+  readonly onSpot: (index: number) => void;
 }
+
+// The turbidity classes' edges along the river (four classes) and their words.
+const ALONG_EDGES = [30, 50, 100];
+const turbidityWords = (cls: string) =>
+  CASE_COPY.ungauged.classes[cls as keyof typeof CASE_COPY.ungauged.classes];
+const temperatureWords = (cls: string) => CASE_COPY.temperatureClasses[cls] ?? cls;
+
+// Whether the reach has water temperature along the river.
+const hasAlongTemperature = (reach: ReachData) =>
+  reach.thermal !== null && (reach.alongTemperature?.length ?? 0) > 0;
 
 const TABS: readonly BottomTab[] = [
   "quality",
@@ -130,11 +152,17 @@ function Caption({
   onClimateView,
   year,
   onYear,
+  spot,
+  variable,
+  onVariable,
 }: {
   readonly tab: BottomTab;
   readonly reach: ReachData;
   readonly year: number;
   readonly onYear: (year: number) => void;
+  readonly spot: Spot | null;
+  readonly variable: AlongVariable;
+  readonly onVariable: (variable: AlongVariable) => void;
   readonly passView: PassView;
   readonly onPassView: (view: PassView) => void;
   readonly climateView: ClimateTabView;
@@ -143,7 +171,7 @@ function Caption({
   const upstream = thermalValidatedAt(reach);
   const years = chartYears(reach);
   const picker =
-    tab === "series" && years.length > 1 ? (
+    tab === "series" && spot === null && years.length > 1 ? (
       <label className="case-timeline__year">
         <span className="case-visually-hidden">{CASE_COPY.history.yearLabel}</span>
         <select
@@ -162,7 +190,29 @@ function Caption({
         </select>
       </label>
     ) : null;
-  if (tab === "series" && year !== sealedYear(reach)) {
+  // Away from the start: the stretch's classes, the height meaning the class only.
+  if (spot !== null && (tab === "series" || tab === "thermal")) {
+    return (
+      <ul className="case-timeline__caption case-timeline__keys">
+        <li>
+          <span
+            className={`case-timeline__key case-timeline__key--${tab === "series" ? "sat" : "thermal"}`}
+            aria-hidden="true"
+          />
+          {tab === "series"
+            ? CASE_COPY.spot.chartKey(spot.stretch)
+            : CASE_COPY.spot.temperatureKey(spot.stretch)}
+        </li>
+        {tab === "thermal" ? (
+          <li>
+            <span className="case-timeline__key case-timeline__key--cursor" aria-hidden="true" />
+            {CASE_COPY.thermal.cursor}
+          </li>
+        ) : null}
+      </ul>
+    );
+  }
+  if (tab === "series" && spot === null && year !== sealedYear(reach)) {
     const { history } = CASE_COPY;
     const phases = yearPhases(reach.history ?? [], year)
       .map((p) => history.phases[p])
@@ -185,10 +235,6 @@ function Caption({
           <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
           {CASE_COPY.ungauged.chartKey}
         </li>
-        <li>
-          <span className="case-timeline__key case-timeline__key--none" aria-hidden="true" />
-          {CASE_COPY.ungauged.noClass}
-        </li>
       </ul>
     );
   }
@@ -203,10 +249,6 @@ function Caption({
         <li>
           <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
           {CASE_COPY.timelineGauge}
-        </li>
-        <li>
-          <span className="case-timeline__key case-timeline__key--none" aria-hidden="true" />
-          {CASE_COPY.timelineNoValue}
         </li>
       </ul>
     );
@@ -308,28 +350,48 @@ function Caption({
     return <p className="case-timeline__caption">{CASE_COPY.scoreboard.caption}</p>;
   }
   if (tab === "along") {
-    const { along, ungauged } = CASE_COPY;
+    const { along } = CASE_COPY;
+    const temperature = variable === "temperature" && hasAlongTemperature(reach);
+    const classes: readonly string[] = temperature ? TEMPERATURE_CLASSES : ALONG_CLASSES;
+    const colors: Readonly<Record<string, string>> = temperature
+      ? TEMPERATURE_COLORS
+      : CLASS_COLORS;
+    const short = temperature ? along.shortTemperature : along.short;
     return (
-      <ul className="case-timeline__caption case-timeline__keys" data-tour="along">
-        {ALONG_CLASSES.map((c) => (
-          <li key={c}>
+      <div className="case-timeline__caption case-timeline__switch" data-tour="along">
+        {hasAlongTemperature(reach) ? (
+          <Switch
+            label={along.variable.label}
+            views={[
+              { id: "turbidity", label: along.variable.turbidity },
+              { id: "temperature", label: along.variable.temperature },
+            ]}
+            value={temperature ? "temperature" : "turbidity"}
+            onChange={onVariable}
+          />
+        ) : null}
+        <ul className="case-timeline__keys">
+          {classes.map((c, k) => (
+            // On a phone only the first and last classes keep their words: a ramp, ends named.
+            <li key={c} data-middle={k > 0 && k < classes.length - 1}>
+              <span
+                className="case-timeline__key case-timeline__key--class"
+                style={{ background: colors[c] }}
+                aria-hidden="true"
+              />
+              <span className="case-timeline__key-text">{short[c] ?? c}</span>
+            </li>
+          ))}
+          <li>
             <span
-              className="case-timeline__key case-timeline__key--class"
-              style={{ background: CLASS_COLORS[c] }}
+              className="case-timeline__key case-timeline__key--class-none"
               aria-hidden="true"
             />
-            {along.short[c] ?? ungauged.classes[c]}
-          </li>
-        ))}
-        <li>
-          <span className="case-timeline__key case-timeline__key--class-none" aria-hidden="true" />
-          <span>
             {along.noReading}
-            <span className="case-timeline__keys-more">{along.noReadingWhy}</span>
-          </span>
-        </li>
-        <li className="case-timeline__keys-note">{along.hint}</li>
-      </ul>
+          </li>
+          <li className="case-timeline__keys-note">{along.hint}</li>
+        </ul>
+      </div>
     );
   }
   return null;
@@ -352,8 +414,11 @@ export function Timeline(props: TimelineProps) {
   const [passView, setPassView] = useState<PassView>("stats");
   const [climateView, setClimateView] = useState<ClimateTabView>("values");
   const [year, setYear] = useState(() => sealedYear(reach));
+  const [variable, setVariable] = useState<AlongVariable>("turbidity");
+  const { spot } = props;
   const [earlier, setEarlier] = useState(0);
-  const pastYear = year !== sealedYear(reach) ? yearReach(reach, year) : null;
+  const pastYear = spot === null && year !== sealedYear(reach) ? yearReach(reach, year) : null;
+  const alongTemperature = variable === "temperature" && hasAlongTemperature(reach);
   const last = reach.series.length - 1;
   const row = reach.series[selected] ?? null;
   // A reach with no gauge is never scored: no scoreboard.
@@ -435,10 +500,39 @@ export function Timeline(props: TimelineProps) {
             setYear(y);
             setEarlier(0);
           }}
+          spot={spot}
+          variable={variable}
+          onVariable={setVariable}
         />
         <div className="case-timeline__view">
           {tab === "quality" ? (
-            <WaterQualityView reach={reach} selected={selected} />
+            <WaterQualityView reach={reach} selected={selected} spot={spot} />
+          ) : tab === "series" && spot !== null ? (
+            <BandChart
+              points={turbidityPoints(reach, spot.index)}
+              classes={ALONG_CLASSES}
+              edges={ALONG_EDGES}
+              unit="FNU"
+              label={turbidityWords}
+              selected={selected}
+              onSelect={props.onSelect}
+              ariaLabel={CASE_COPY.timelineHint}
+              idPrefix="case-stretch"
+            />
+          ) : tab === "thermal" && spot !== null ? (
+            <BandChart
+              points={temperaturePoints(reach, spot.index)}
+              classes={TEMPERATURE_CLASSES}
+              edges={TEMPERATURE_EDGES}
+              unit="°C"
+              label={temperatureWords}
+              selected={props.thermalSelected}
+              cursor={row?.date ?? null}
+              onSelect={props.onThermalSelect}
+              ariaLabel={CASE_COPY.thermal.hint}
+              idPrefix="case-stretch-thermal"
+              tone="thermal"
+            />
           ) : tab === "series" && pastYear !== null ? (
             <SeriesChart
               reach={pastYear}
@@ -467,8 +561,11 @@ export function Timeline(props: TimelineProps) {
           ) : tab === "along" ? (
             <AlongView
               reach={reach}
-              selected={selected}
-              onSelect={props.onSelect}
+              variable={alongTemperature ? "temperature" : "turbidity"}
+              selected={alongTemperature ? props.thermalSelected : selected}
+              onSelect={alongTemperature ? props.onThermalSelect : props.onSelect}
+              spot={spot?.index ?? null}
+              onSpot={props.onSpot}
               onProbe={props.onProbe}
             />
           ) : passView === "profile" ? (

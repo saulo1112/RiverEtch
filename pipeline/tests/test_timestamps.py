@@ -115,6 +115,9 @@ def test_the_ledgers_are_the_ones_the_anchor_script_anchors() -> None:
             for k in ("observations", "water-temperature", "outcomes")]  # fmt: skip
     ungauged_obs = [f"terrachain:{r}:observations" for r in timestamps.UNGAUGED]
     along = [f"terrachain:{r}:along" for r in (*SCORED, *timestamps.UNGAUGED)]
-    assert labels[1:] == [*demo, *ungauged_obs, *along]
-    # The anchor script lists each reach's along ledger too (preregistration-along-river.md).
+    along_temperature = [f"terrachain:{r}:along-temperature" for r in SCORED]
+    assert labels[1:] == [*demo, *ungauged_obs, *along, *along_temperature]
+    # The anchor script lists each reach's along ledgers too (preregistration-along-river.md and
+    # preregistration-along-temperature.md).
     assert "terrachain:${reach}:along" in script
+    assert "terrachain:${reach}:along-temperature" in script

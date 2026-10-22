@@ -8,6 +8,7 @@ import { parseChecks, parseContext, parseThermalChecks } from "./checks.ts";
 import type {
   AlongPass,
   AlongPlan,
+  AlongTemperaturePass,
   ClimateRecord,
   HistoryRow,
   MapsIndex,
@@ -125,11 +126,15 @@ export function loadReach(id: string): Promise<ReachData> {
     // Water temperature (v6) only where reach.json names its card.
     const cardPath = info.cards.turbidity;
     const tempPath = info.cards.water_temperature;
-    const [card, tempCard, thermal, thermalChecks] = await Promise.all([
+    const [card, tempCard, thermal, thermalChecks, alongTemperature] = await Promise.all([
       cardPath === undefined ? null : fetchJson<ModelCard>(`${base}${cardPath}`),
       tempPath === undefined ? null : fetchJson<TemperatureCard>(`${base}${tempPath}`),
       tempPath === undefined ? null : fetchJson<ThermalRow[]>(`${base}thermal/series.json`),
       tempPath === undefined ? null : fetchText(`${base}thermal/checks.csv`),
+      // Water temperature along the river (preregistration-along-temperature.md).
+      tempPath === undefined
+        ? null
+        : fetchJson<AlongTemperaturePass[]>(`${base}along-temperature/series.json`),
     ]);
     return {
       base,
@@ -152,6 +157,7 @@ export function loadReach(id: string): Promise<ReachData> {
       climate,
       outcomes: jsonLines<Outcome>(outcomes),
       along: plan === null || along === null ? null : { plan, passes: along },
+      alongTemperature: plan === null ? null : alongTemperature,
       history,
     };
   })();

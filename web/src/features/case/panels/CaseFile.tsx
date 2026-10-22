@@ -1,14 +1,18 @@
 import {
   Anchor,
   ArrowLeft,
+  ChevronDown,
+  ChevronUp,
   Clock,
   Compass,
   ExternalLink,
   ShieldCheck,
   TriangleAlert,
+  Undo2,
 } from "lucide-react";
 import { useId, type Ref } from "react";
 
+import type { LedgerKind } from "../../chain/ledger.ts";
 import { useRecordAnchor } from "../../chain/useRecordAnchor.ts";
 import type { ReachCase } from "../../reaches/catalog.ts";
 import {
@@ -40,6 +44,7 @@ import {
   LEVEL_LABELS,
 } from "../content.ts";
 import { gainOver, insideCount, leanOfTurbidity } from "../reading.ts";
+import { alongPassOf, temperatureAt, turbidityHelp, type Spot } from "../spot.ts";
 import { DayChooser } from "./DayChooser.tsx";
 import { DisclosureButton } from "./DisclosureButton.tsx";
 import { HelpTip } from "./HelpTip.tsx";
@@ -67,6 +72,75 @@ export interface CaseFileProps {
   /** Index of the selected pass, and the day chooser's pick (no chooser without it). */
   readonly selected?: number;
   readonly onSelect?: (index: number) => void;
+  /** The reading spot, away from the start (null or absent: at the start). */
+  readonly spot?: Spot | null;
+  /** The reading spot's controls (null or absent: it cannot move on this reach). */
+  readonly spotControls?: SpotControls | null;
+}
+
+/** Where the reading spot is, and how it moves. */
+export interface SpotControls {
+  /** Its stretch, e.g. "km 3.0 to 3.6". */
+  readonly here: string;
+  /** One stretch upstream (null: none that way). */
+  readonly upstream: (() => void) | null;
+  /** One stretch downstream (null: none that way). */
+  readonly downstream: (() => void) | null;
+  /** Back to the start (null: it is there). */
+  readonly toStart: (() => void) | null;
+}
+
+// The reading spot's row: where it is, a step upstream or downstream, and the way back to the
+// start (dragging it on the map, or clicking the river, does the same with the pointer).
+function SpotRow({
+  controls,
+  gauged,
+}: {
+  readonly controls: SpotControls;
+  readonly gauged: boolean;
+}) {
+  const copy = CASE_COPY.spot;
+  return (
+    <div className="case-spot" role="group" aria-label={copy.label}>
+      <span className="case-spot__mark" aria-hidden="true" />
+      <span className="case-spot__where">
+        <span className="case-visually-hidden">{copy.label}: </span>
+        <strong>{controls.here}</strong>
+        {controls.toStart === null && gauged ? (
+          <span className="case-file__muted"> · {copy.atStation}</span>
+        ) : null}{" "}
+        <HelpTip label={copy.helpLabel}>{copy.help}</HelpTip>
+      </span>
+      <span className="case-spot__steps">
+        <button
+          type="button"
+          className="case-spot__step"
+          aria-label={copy.upstream}
+          title={copy.upstream}
+          disabled={controls.upstream === null}
+          onClick={controls.upstream ?? undefined}
+        >
+          <ChevronUp size={15} strokeWidth={2} aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          className="case-spot__step"
+          aria-label={copy.downstream}
+          title={copy.downstream}
+          disabled={controls.downstream === null}
+          onClick={controls.downstream ?? undefined}
+        >
+          <ChevronDown size={15} strokeWidth={2} aria-hidden="true" />
+        </button>
+      </span>
+      {controls.toStart === null ? null : (
+        <button type="button" className="case-spot__back" onClick={controls.toStart}>
+          <Undo2 size={13} strokeWidth={2} aria-hidden="true" />
+          {copy.back}
+        </button>
+      )}
+    </div>
+  );
 }
 
 // Where the value sits in its interval, on a log scale (0..1).
@@ -79,11 +153,35 @@ function intervalPosition(value: number, low: number, high: number): number {
 function Temperature({
   reach,
   thermal,
+  spot,
 }: {
   readonly reach: ReachData;
   readonly thermal: ThermalRow;
+  readonly spot: Spot | null;
 }) {
   const copy = CASE_COPY.thermal;
+  if (spot !== null) {
+    const cls = temperatureAt(reach, thermal.sceneId, spot.index);
+    return (
+      <section className="case-file__section case-file__thermal" aria-label={copy.title}>
+        <p className="case-file__metric">
+          {CASE_COPY.spot.temperature} · {landsatName(thermal.platform)} ·{" "}
+          {formatDate(thermal.date)}
+        </p>
+        <p className="case-file__thermal-value">
+          {cls === null ? (
+            CASE_COPY.noReading
+          ) : (
+            <strong>{CASE_COPY.temperatureClasses[cls]}</strong>
+          )}
+          <span className="case-chip case-chip--level" data-level="unvalidated">
+            {LEVEL_LABELS.unvalidated}
+          </span>
+          <HelpTip label={CASE_COPY.spot.classHelpLabel}>{CASE_COPY.spot.temperatureHelp}</HelpTip>
+        </p>
+      </section>
+    );
+  }
   const { estimate } = thermal;
   const value = typeof estimate.value === "number" ? estimate.value : null;
   const half =
@@ -125,14 +223,20 @@ function Temperature({
 // its ledger line is anchored on Sepolia, by mark and words, never by colour alone.
 function Trust({
   reach,
-  row,
+  kind,
+  recordSha256,
   level,
+  help,
 }: {
   readonly reach: ReachData;
-  readonly row: SeriesRow;
+  readonly kind: LedgerKind;
+  /** The seal of the record shown (null: no record, so nothing sealed). */
+  readonly recordSha256: string | null;
   readonly level: Level;
+  /** What the level means here, behind its (?). */
+  readonly help: string;
 }) {
-  const anchor = useRecordAnchor(reach, "observations", row.recordSha256);
+  const anchor = useRecordAnchor(reach, kind, recordSha256);
   const anchorText =
     anchor.state === "anchored"
       ? trust.anchored(
@@ -153,20 +257,22 @@ function Trust({
         <span className="case-chip case-chip--level" data-level={level}>
           {LEVEL_LABELS[level]}
         </span>
-        <HelpTip label={`${CASE_COPY.levelHelpLabel}: ${LEVEL_LABELS[level]}`}>
-          {level === "unvalidated" && isOutside(reach)
-            ? CASE_COPY.levelHelpOutside
-            : CASE_COPY.levelHelp[level]}
-        </HelpTip>
+        {help === "" ? null : (
+          <HelpTip label={`${CASE_COPY.levelHelpLabel}: ${LEVEL_LABELS[level]}`}>{help}</HelpTip>
+        )}
       </span>
-      <span className="case-trust__item">
-        <ShieldCheck size={14} strokeWidth={1.9} aria-hidden="true" />
-        {trust.sealed}
-      </span>
-      <span className="case-trust__item" data-state={anchor.state} aria-live="polite">
-        <AnchorIcon size={14} strokeWidth={1.9} aria-hidden="true" />
-        {anchorText}
-      </span>
+      {recordSha256 === null ? null : (
+        <>
+          <span className="case-trust__item">
+            <ShieldCheck size={14} strokeWidth={1.9} aria-hidden="true" />
+            {trust.sealed}
+          </span>
+          <span className="case-trust__item" data-state={anchor.state} aria-live="polite">
+            <AnchorIcon size={14} strokeWidth={1.9} aria-hidden="true" />
+            {anchorText}
+          </span>
+        </>
+      )}
     </div>
   );
 }
@@ -342,6 +448,8 @@ export function CaseFile({
   onTour,
   selected,
   onSelect,
+  spot = null,
+  spotControls = null,
 }: CaseFileProps) {
   const detailsId = useId();
   const [open, setOpen] = usePanelOpen("file");
@@ -357,6 +465,11 @@ export function CaseFile({
 
   const fnuClass = estimate?.fnuClass ?? null;
   const level = estimate?.level ?? overall?.level ?? (noGauge ? "unvalidated" : "none");
+  // Away from the start: the stretch's class on this pass, from its along-river record.
+  const alongPass = spot === null ? null : alongPassOf(reach, row?.sceneId);
+  const stretchClass = spot === null ? null : (alongPass?.classes[spot.index] ?? null);
+  const spotRow =
+    spotControls === null ? null : <SpotRow controls={spotControls} gauged={!noGauge} />;
   return (
     <div className="case-panel case-top" data-frame="">
       <div className="case-bar" role="group" aria-label={CASE_COPY.tour.bar}>
@@ -394,7 +507,47 @@ export function CaseFile({
           />
         </header>
 
-        {row === null ? null : (
+        {row !== null && spot !== null ? (
+          <section
+            className="case-file__summary"
+            data-tour="summary"
+            aria-label={CASE_COPY.spot.turbidity}
+          >
+            <p className="case-file__metric">
+              {CASE_COPY.spot.turbidity} ·{" "}
+              {selected === undefined || onSelect === undefined ? (
+                formatDate(row.date, true)
+              ) : (
+                <DayChooser reach={reach} selected={selected} onSelect={onSelect} />
+              )}
+            </p>
+            <p className="case-file__value">
+              {stretchClass === null ? (
+                <span className="case-file__none">{CASE_COPY.noReading}</span>
+              ) : (
+                ungauged.classes[stretchClass]
+              )}
+            </p>
+            {spotRow}
+            <Trust
+              reach={reach}
+              kind="along"
+              recordSha256={alongPass?.recordSha256 ?? null}
+              level="unvalidated"
+              help={turbidityHelp(reach, __FOUR_CLASSES__)}
+            />
+            {card?.expectedError === undefined ? null : (
+              <ExpectedErrorNote
+                error={card.expectedError}
+                baseline={
+                  card.classTest === undefined
+                    ? undefined
+                    : { matched: card.classTest.baselineMatched, n: card.classTest.n }
+                }
+              />
+            )}
+          </section>
+        ) : row === null ? null : (
           <section
             className="case-file__summary"
             data-tour="summary"
@@ -412,24 +565,20 @@ export function CaseFile({
               <>
                 <p className="case-file__value">
                   {fnuClass === null ? (
-                    <span className="case-file__none">{ungauged.noClass}</span>
+                    <span className="case-file__none">{CASE_COPY.noReading}</span>
                   ) : (
                     ungauged.classes[fnuClass]
                   )}
                 </p>
-                {fnuClass === null ? (
-                  <p className="case-file__note">{estimate?.abstainReason ?? ungauged.noClass}</p>
-                ) : null}
+                {spotRow}
                 <OwnPast reach={reach} row={row} />
               </>
             ) : value === null ? (
               <>
                 <p className="case-file__value">
-                  <span className="case-file__none">{CASE_COPY.noValue}</span>
+                  <span className="case-file__none">{CASE_COPY.noReading}</span>
                 </p>
-                <p className="case-file__note">
-                  {estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel}
-                </p>
+                {spotRow}
               </>
             ) : (
               <>
@@ -450,9 +599,20 @@ export function CaseFile({
                     )}
                   </p>
                 )}
+                {spotRow}
               </>
             )}
-            <Trust reach={reach} row={row} level={level} />
+            <Trust
+              reach={reach}
+              kind="observations"
+              recordSha256={row.recordSha256}
+              level={level}
+              help={
+                level === "unvalidated" && isOutside(reach)
+                  ? CASE_COPY.levelHelpOutside
+                  : CASE_COPY.levelHelp[level]
+              }
+            />
             {lockbox === undefined ? null : <Reliability lockbox={lockbox} />}
             {noGauge ? <Published reach={reach} cls={fnuClass} /> : null}
             {card?.expectedError === undefined ? null : (
@@ -487,7 +647,7 @@ export function CaseFile({
                 {CASE_COPY.scenePrefix} · {formatDate(row.date, true)}
                 {platformName(row) === "" ? "" : ` · ${platformName(row)}`}
               </p>
-              {value !== null && interval !== null ? (
+              {spot !== null ? null : value !== null && interval !== null ? (
                 <div className="case-file__interval">
                   <div className="case-file__bar" aria-hidden="true">
                     <span
@@ -504,11 +664,7 @@ export function CaseFile({
                   </p>
                 </div>
               ) : (
-                <p className="case-file__note">
-                  {noGauge
-                    ? (estimate?.abstainReason ?? ungauged.noClass)
-                    : (estimate?.abstainReason ?? CASE_COPY.rangeWithoutLevel)}
-                </p>
+                <p className="case-file__note">{CASE_COPY.noReading}</p>
               )}
               <p className="case-file__gauge">
                 <span className="case-file__gauge-dot" aria-hidden="true" />
@@ -531,7 +687,7 @@ export function CaseFile({
             </section>
           )}
 
-          {thermal === null ? null : <Temperature reach={reach} thermal={thermal} />}
+          {thermal === null ? null : <Temperature reach={reach} thermal={thermal} spot={spot} />}
 
           {reach.info.station.window === undefined ? null : (
             <section className="case-file__section" aria-label={ungauged.window}>

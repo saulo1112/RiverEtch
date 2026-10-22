@@ -37,8 +37,10 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
    (?), "Sealed" and the anchor date, and how far off the model tends to be beside guessing the
    river's usual value. On a reach with no station, the class with the tag "Satellite only"; its
    (?) gives the error measured on rivers the model never saw (at the Fırat: not measured), and
-   the case file shows how the pass compares with the river's own past. At the Fırat, published measurements of the river at Birecik, labelled as looked up after
-   seeing the result.
+   the case file shows how the pass compares with the river's own past. At the Fırat, published
+   measurements of the river at Birecik, labelled as looked up after seeing the result. Under
+   the value, the reading spot's stretch and its arrows: move it upstream or downstream (or drag
+   the amber spot on the map, or click the river) and the panels follow that stretch, as a class.
 4. **Verify this record** (right), below.
 5. **Change one number first**, type another number (or pick another class), then verify again:
    the seal breaks; put the sealed value back and it matches again.
@@ -46,7 +48,8 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
    series from Export, edited or not; the browser names any value that differs from the sealed
    record.
 7. **Along the river** (bottom tabs): the year's passes along the whole reach, one column per
-   pass and one row per 600 m stretch, coloured by class; hover a stretch to mark it on the map.
+   pass and one row per 600 m stretch, coloured by class (turbidity, or water temperature where the
+   reach has it); hover a stretch to mark it on the map, click it to move the reading spot there.
    The **Turbidity** tab beside it has a year menu: an earlier year is the station window, read
    by the same frozen model and labelled in sample or locked test.
 8. **Track record** (reaches with a station): the counts checked after the station's value was

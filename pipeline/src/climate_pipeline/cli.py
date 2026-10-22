@@ -170,7 +170,8 @@ def _parser() -> argparse.ArgumentParser:
     reach.add_argument(
         "action",
         choices=("baseline", "run", "reread", "check", "examples", "render", "thermal",
-                 "context", "climate", "score", "verify", "along-plan", "along", "history"),
+                 "context", "climate", "score", "verify", "along-plan", "along",
+                 "along-temperature", "history"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); reread: "
         "the passes whose record names an earlier card, read again with the current one "
@@ -185,7 +186,9 @@ def _parser() -> argparse.ArgumentParser:
         "docs/water-quality/prospective.md); verify: every record's seal, the ledger chain and "
         "the cards (exit 1 on any problem); along-plan: the windows along the reach, geometry "
         "only, once (preregistration-along-river.md); along: each recorded pass's class on every "
-        "window, sealed in the reach's along ledger, beside the examples; history: the station "
+        "window, sealed in the reach's along ledger, beside the examples; along-temperature: "
+        "each water-temperature pass's class on every window (preregistration-along-temperature.md"
+        "), sealed in its own ledger, beside the examples; history: the station "
         "window's earlier passes read by the reach's card, beside the examples (web)",
     )  # fmt: skip
     reach.add_argument(
@@ -720,20 +723,24 @@ def reach(args: argparse.Namespace) -> int:
     if args.action == "verify":
         failed = 0
         for site in sites:
-            problems = reach_run.verify_outputs(cfg, root, site)
+            from climate_pipeline.reach import along, along_temperature
+
+            problems = [*reach_run.verify_outputs(cfg, root, site), *along.verify(cfg, root, site),
+                        *along_temperature.verify(cfg, root, site)]  # fmt: skip
             for line in problems:
                 print(f"{site}: {line}")
             print(f"{site}: " + ("verified" if not problems else f"{len(problems)} problems"))
             failed += bool(problems)
         return 1 if failed else 0
-    if args.action in ("along", "history"):
-        from climate_pipeline.reach import along, history
+    if args.action in ("along", "along-temperature", "history"):
+        from climate_pipeline.reach import along, along_temperature, history
 
         codes = []
         for site in sites:
             try:
-                if args.action == "along":
-                    done = along.run(cfg, root, site, root / args.cache, args.workers)
+                if args.action in ("along", "along-temperature"):
+                    run_along = along.run if args.action == "along" else along_temperature.run
+                    done = run_along(cfg, root, site, root / args.cache, args.workers)
                     print(f"{site}: {len(done.recorded)} records, {len(done.failed)} failed")
                     codes.append(done.exit_code)
                 else:

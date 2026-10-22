@@ -96,10 +96,16 @@ rivers the model never saw._
 
 A station sees one point of a river. So the same frozen model also reads a window every 600 m
 along each reach: 38 windows at Belle Chasse, 35 on the Platte, 29 above Natchez and 16 at Birecik.
-Each stretch gets a turbidity class (under 30, 30 to 50, 50 to 100, 100 FNU and over), or the
-reason it has none (cloud, glare, or a width outside the model's range). The map paints the river
-by class, and the **Along the river** tab shows the year: one column per pass, one row per
-stretch. Hover a stretch and the map marks it.
+Each stretch gets a turbidity class (under 30, 30 to 50, 50 to 100, 100 FNU and over), or no
+reading (the record says why). The map paints the river by class, and the **Along the river** tab
+shows the year: one column per pass, one row per stretch. Hover a stretch and the map marks it.
+
+**Move the reading spot.** Drag the amber spot along the river, click the river, or use the arrows
+in the case file: the panels follow that stretch. On the two reaches with a water-temperature
+model, the same windows also get a water-temperature class on each Landsat pass (under 10, 10 to
+15, 15 to 20, 20 to 25, 25 to 30, 30 °C and over), fixed before any was read
+([preregistration](docs/water-quality/preregistration-along-temperature.md)). The station stays marked where it stands, and only its
+window shows a value with a unit.
 
 - **Fixed before any stretch was read.** The windows, the model and the labels were frozen and
   anchored on Ethereum first ([preregistration](docs/water-quality/preregistration-along-river.md)).

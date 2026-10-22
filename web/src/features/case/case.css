@@ -1775,6 +1775,14 @@ select.case-record__input {
   .case-timeline__keys li {
     gap: 5px;
   }
+
+  .case-timeline__keys li[data-middle="true"] .case-timeline__key-text {
+    display: none;
+  }
+
+  .case-timeline__keys li[data-middle="true"] {
+    margin-inline: -6px;
+  }
 }
 
 /* The Turbidity tab's year: the sealed year, or an earlier one from the station window. */
@@ -1833,6 +1841,169 @@ select.case-record__input {
   margin: 0;
   color: var(--text-3);
   font-size: var(--type-small);
+}
+
+/* The reading spot's row along the river (preregistration-along-temperature.md): an amber frame
+   round the stretch the spot reads, as the map's dashed window. */
+.case-along__spot-row {
+  fill: none;
+  stroke: rgb(245 185 66 / 0.75);
+  stroke-width: 1;
+  pointer-events: none;
+}
+
+/* A stretch with no reading all year: said over the empty chart. */
+.case-series__empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+/* The case file's reading spot: where it is, a step upstream or downstream, and back to the start.
+   The amber mark repeats the map's spot; the words carry the meaning. */
+.case-spot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 8px;
+  align-items: center;
+  margin-top: 10px;
+  color: var(--text-2);
+  font-size: var(--type-small);
+}
+
+.case-spot__mark {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f5b942;
+  box-shadow: 0 0 0 2px rgb(4 16 31 / 0.9);
+}
+
+.case-spot__where {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.case-spot__where strong {
+  color: var(--text-1);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.case-spot__steps {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.case-spot__step,
+.case-spot__back {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  border: 1px solid rgb(240 246 255 / 0.16);
+  border-radius: 7px;
+  background: rgb(255 255 255 / 0.04);
+  color: var(--text-1);
+  font: inherit;
+  cursor: pointer;
+  transition: background-color 150ms var(--ease);
+}
+
+.case-spot__step {
+  width: 26px;
+  padding: 0;
+}
+
+.case-spot__back {
+  padding: 0 9px;
+}
+
+.case-spot__step:hover:not(:disabled),
+.case-spot__back:hover {
+  background: rgb(255 255 255 / 0.12);
+}
+
+.case-spot__step:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (pointer: coarse) {
+  .case-spot__step,
+  .case-spot__back {
+    height: 36px;
+  }
+
+  .case-spot__step {
+    width: 36px;
+  }
+}
+
+/* The reading spot can be dragged: its dot takes the pointer, with a hit area larger than it. */
+.case-gauge[data-draggable="true"] .case-gauge__dot {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.case-gauge[data-draggable="true"] .case-gauge__dot::before {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  content: "";
+}
+
+.case-gauge[data-draggable="true"] .case-gauge__dot:active {
+  cursor: grabbing;
+}
+
+/* The station, once the reading spot has moved away from it: a small light diamond and its name,
+   so it is never taken for the spot. */
+.case-station {
+  position: relative;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.case-station__mark {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: #f4f8ff;
+  box-shadow: 0 0 0 2px #04101f;
+  transform: rotate(45deg);
+}
+
+.case-station__label {
+  position: absolute;
+  top: -10px;
+  left: 12px;
+  padding: 2px 7px 3px;
+  border-radius: 6px;
+  background: rgb(4 10 22 / 0.78);
+  color: rgb(240 246 255 / 0.72);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.case-legend__swatch--station {
+  width: 9px;
+  height: 9px;
+  margin-inline: 6px 7px;
+  border-radius: 2px;
+  background: #f4f8ff;
+  box-shadow: none;
+  transform: rotate(45deg);
 }
 
 .case-timeline__grid {

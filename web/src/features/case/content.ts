@@ -19,7 +19,10 @@ export const CASE_COPY = {
   gaugeAt: "USGS station when the satellite passed",
   gaugeNone: "no station value when the satellite passed",
   gaugeLink: "Station page (USGS)",
-  noValue: "No value for this pass",
+  // A pass or a stretch with no estimate, wherever it appears (preregistration-along-temperature.md,
+  // section 4): the reason stays in the record, shown in its details.
+  noReading: "No reading",
+  noValue: "No reading",
   rangeWithoutLevel:
     "The estimate fell in a range the locked test did not rate, so no value is published.",
   // How to read a value: its range, how far off it tends to be, and which way it leans.
@@ -95,7 +98,7 @@ export const CASE_COPY = {
     // section 6, the app shows the class alone and these facts behind its (?).
     label: "Unvalidated: expected error from the transfer test",
     outsideLabel: "Outside the tested region. No error estimate.",
-    noClass: "No class for this pass",
+    noClass: "No reading",
     errorTitle: "How far off it tends to be, on rivers it never saw",
     agreement: (k: number, n: number) =>
       `In ${String(k)} of ${String(n)} test passes on rivers it never saw, the class matched the station.`,
@@ -150,11 +153,11 @@ export const CASE_COPY = {
     finish: "Finish",
     summaryTitle: "One pass of the satellite",
     summary:
-      "One clear Sentinel-2 pass: the turbidity at the station spot, in FNU, with the range the station's value should fall in 9 times out of 10.",
+      "One clear Sentinel-2 pass: the turbidity at the station spot, in FNU, with the range the station's value should fall in 9 times out of 10. The arrows under it, or the orange spot dragged on the map, read any other stretch of the river, as a class.",
     summaryUngauged:
-      "One clear Sentinel-2 pass: the water's turbidity class at the reading spot, in FNU. The (?) beside it says how often such a class was right.",
+      "One clear Sentinel-2 pass: the water's turbidity class at the reading spot, in FNU. The (?) beside it says how often such a class was right. The arrows under it, or the orange spot dragged on the map, read any stretch of the river.",
     summaryOutside:
-      "One clear Sentinel-2 pass: the water's turbidity class at the reading spot, in FNU. The (?) beside it says how the model was tested.",
+      "One clear Sentinel-2 pass: the water's turbidity class at the reading spot, in FNU. The (?) beside it says how the model was tested. The arrows under it, or the orange spot dragged on the map, read any stretch of the river.",
     trustTitle: "What it is worth, and what protects it",
     trust:
       "The level says how far the model was tested; the (?) explains it. Sealed: the record's SHA-256 is fixed. Anchored: its ledger line is stored on a public chain.",
@@ -173,7 +176,7 @@ export const CASE_COPY = {
       "The tabs hold the year's passes by class, the turbidity index against the river's own past, the image in detail and, where a station upstream measures it, the river's flow. With no station there is no track record: nothing here is scored.",
     alongTitle: "Along the whole river",
     along:
-      "Each column is a pass and each row 600 m of river, coloured by its turbidity class. Move over a stretch to find it on the map; click a column to open that pass.",
+      "Each column is a pass and each row 600 m of river, coloured by its class. Move over a stretch to find it on the map; click a cell to open that pass and move the reading spot there.",
     endTitle: "That is the record",
     end: "Sealing proves a number was not changed; it does not prove it was right. The tests show how often it was right.",
   },
@@ -211,6 +214,8 @@ export const CASE_COPY = {
     processing: "Processing",
     thermalProcessing: "Collection 2 Level-2 · band 10 surface temperature",
     window: "Station spot",
+    // A pass with no estimate: the reason its record names (the panels say "No reading" only).
+    noReadingWhy: "Why no reading",
     waterPixels: "water pixels",
     code: "Code",
     card: "Model card",
@@ -224,6 +229,7 @@ export const CASE_COPY = {
     fieldValue: (unit: string) => `Turbidity estimate (${unit})`,
     fieldTemperature: (unit: string) => `Water temperature (${unit})`,
     fieldClass: "Turbidity class",
+    fieldTemperatureClass: "Water temperature class",
     fieldIndex: "Turbidity index downstream (NDTI)",
     sealedAs: (value: string) => `Sealed as ${value}. Change it, then verify.`,
     notNumber: "Type a number, such as 12.5.",
@@ -306,7 +312,7 @@ export const CASE_COPY = {
   legendTitle: "NDTI per pixel (relative)",
   // The Turbidity layer: each stretch of river coloured by its class on the pass.
   legendClass: "Turbidity along the river",
-  legendClassNone: "Cloud, glare or no reading on this stretch",
+  legendClassNone: "No reading on this stretch",
   legendLow: "Low",
   legendHigh: "High",
   legendRange: "within this reach's 2026 passes",
@@ -317,7 +323,7 @@ export const CASE_COPY = {
   timelineTitle: "Turbidity, 2026",
   timelineSatellite: "Satellite estimate (FNU) and its 90 % interval",
   timelineGauge: "USGS station when the satellite passed",
-  timelineNoValue: "No reading (cloud, glare or out of range)",
+  timelineNoValue: "No reading",
   timelineHint: "Select a pass to see its map and record.",
   tools: {
     label: "Map tools",
@@ -359,7 +365,7 @@ export const CASE_COPY = {
     ndti: "NDTI",
     relative: "relative",
     unusable: "Unusable on this pass",
-    noClass: "No reading on this stretch",
+    noClass: "No reading",
     km: "km",
     of: "of",
   },
@@ -392,12 +398,15 @@ export const CASE_COPY = {
   // Along the whole river (preregistration-along-river.md): a class for each stretch, pass by pass.
   along: {
     noReading: "No reading",
-    // Beside "No reading" where the caption has room (hidden on a phone).
-    noReadingWhy: " (cloud, glare or outside the model's range)",
     hint: "Each column a pass, each row 600 m of river from upstream to downstream",
     empty: "The turbidity along the river is not available for this reach yet.",
+    emptyTemperature: "The water temperature along the river is not available for this reach yet.",
     chartLabel:
-      "Turbidity class along the river, pass by pass. Left and right change the pass; up and down move along the river.",
+      "Turbidity class along the river, pass by pass. Left and right change the pass; up and down move the reading spot along the river.",
+    chartLabelTemperature:
+      "Water temperature class along the river, Landsat pass by pass. Left and right change the pass; up and down move the reading spot along the river.",
+    // What the tab shows, where the reach has both (preregistration-along-temperature.md).
+    variable: { label: "What the chart shows", turbidity: "Turbidity", temperature: "Temperature" },
     stretch: (from: string, to: string) => `km ${from} to ${to}`,
     read: (k: number, n: number) => `${String(k)} of ${String(n)} stretches read on this pass`,
     unit: "km from upstream",
@@ -409,8 +418,63 @@ export const CASE_COPY = {
       "50_to_100": "50–100",
       "100_and_over": "100+ FNU",
     } as Readonly<Record<string, string>>,
+    // The temperature caption's swatches ("°C" closes the list).
+    shortTemperature: {
+      under_10: "Under 10",
+      "10_to_15": "10–15",
+      "15_to_20": "15–20",
+      "20_to_25": "20–25",
+      "25_to_30": "25–30",
+      "30_and_over": "30+ °C",
+    } as Readonly<Record<string, string>>,
     station: "Station",
     spot: "Reading spot",
+  },
+  // The water-temperature classes along the river (preregistration-along-temperature.md).
+  temperatureClasses: {
+    under_10: "Under 10 °C",
+    "10_to_15": "10 to 15 °C",
+    "15_to_20": "15 to 20 °C",
+    "20_to_25": "20 to 25 °C",
+    "25_to_30": "25 to 30 °C",
+    "30_and_over": "30 °C and over",
+  } as Readonly<Record<string, string>>,
+  // The reading spot that moves (preregistration-along-temperature.md, section 3).
+  spot: {
+    label: "Reading spot",
+    stretch: (from: string, to: string) => `km ${from} to ${to}`,
+    atStation: "at the station",
+    atStart: "where the daily record is read",
+    upstream: "Move the reading spot upstream",
+    downstream: "Move the reading spot downstream",
+    back: "Back to the start",
+    helpLabel: "About the reading spot",
+    help: "Drag the orange spot along the river, click the river, or use these arrows. It snaps to the nearest 600 m stretch. Away from the start, each stretch shows a class from the along-river records, never a value.",
+    turbidity: "Turbidity class",
+    temperature: "Water temperature class",
+    // Behind the class's (?), word for word as section 3 fixes them.
+    usHelp: (k: number, n: number) =>
+      `In ${String(k)} of ${String(n)} test passes on rivers the model never saw, the class matched the station.`,
+    outsideHelp:
+      "The model was tested on rivers in the United States; its error here has not been measured.",
+    temperatureHelp:
+      "The model was checked at a station; along the river its error has not been measured.",
+    classHelpLabel: "About this class",
+    chartKey: (stretch: string) =>
+      `Each pass's turbidity class at ${stretch} (the height means the class only)`,
+    temperatureKey: (stretch: string) =>
+      `Each Landsat pass's water temperature class at ${stretch} (the height means the class only)`,
+    noReadings: "No reading on this stretch this year.",
+    // The map: the station, marked on its own where it stands.
+    station: (id: string) => `USGS station ${id}`,
+    legendSpot: "The reading spot (drag it along the river)",
+    legendStation: "The USGS station",
+    // The record of a stretch: the pass's along-river record.
+    recordCaption: (date: string) => `Along the river · Sentinel-2 pass · ${date}`,
+    recordTemperatureCaption: (platform: string, date: string) =>
+      `Along the river · ${platform} · ${date}`,
+    recordStretch: "Stretch",
+    recordWindow: (id: string, stretch: string) => `${id} · ${stretch}`,
   },
   rivers: {
     // Display names of the gauges, as the report's table writes them.
@@ -462,7 +526,7 @@ export const CASE_COPY = {
       outside: "Outside the range",
       pending: "No station value yet",
       none: "No station value",
-      abstained: "No estimate (abstained)",
+      abstained: "No reading",
       noRange: "No expected range",
     },
     approvedLater: (value: string) => `Approved later: ${value}`,
@@ -633,7 +697,7 @@ export const CASE_COPY = {
     passesOn: (n: number, date: string) =>
       `${n === 2 ? "Two" : String(n)} satellites passed on ${date}`,
     keyRead: "A reading",
-    keyNone: "No reading (cloud, glare or out of range)",
+    keyNone: "No reading",
     keyEmpty: "Grey: no pass",
   },
   verify: {

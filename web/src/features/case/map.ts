@@ -12,6 +12,7 @@ import {
   Marker,
   type CanvasSource,
   type ExpressionSpecification,
+  type GeoJSONSource,
   type FilterSpecification,
   type ImageSource,
   type RasterDEMSourceSpecification,
@@ -96,6 +97,10 @@ export interface CreateCaseMapOptions {
   readonly onScene?: (file: string, data: ImageData) => void;
   /** The camera moved (for the compass and the scale bar). */
   readonly onCamera?: (camera: CameraState) => void;
+  /** The reading spot was dropped after a drag (the case view snaps it to a window, or not). */
+  readonly onSpotDrop?: (lng: number, lat: number) => void;
+  /** The map was clicked, on the river or off it. */
+  readonly onRiverClick?: (lng: number, lat: number, onRiver: boolean) => void;
 }
 
 /** How the final view fits around the panels. */
@@ -252,6 +257,20 @@ export interface CaseMapHandle {
    */
   readonly resetNorth: () => void;
   /**
+   * Moves the reading spot (the amber marker and its window's outline) to a window along the
+   * river, or back to the start; away from the start, the station is marked on its own.
+   *
+   * @param at - The window's centre (null: the start, the station's or the reach's spot).
+   * @param station - The station's label, on a reach that has one (null: none).
+   */
+  readonly setSpot: (at: LngLat | null, station: string | null) => void;
+  /**
+   * Lets the reading spot be dragged (once landed, where the reach has windows along the river).
+   *
+   * @param on - Whether it can be dragged.
+   */
+  readonly setSpotDraggable: (on: boolean) => void;
+  /**
    * Marks a place along the river (the profile's cursor), or clears it.
    *
    * @param place - 0 at the upstream anchor to 1 at the downstream one (null: none).
@@ -286,6 +305,7 @@ const SOURCE = {
   reach: "reach",
   ndti: "ndti",
   photo: "photo",
+  spot: "spot",
 };
 const LAYER = {
   hillshade: "hillshade",
@@ -295,7 +315,37 @@ const LAYER = {
   ndti: "reach-ndti",
   photo: "reach-photo",
   window: "reach-window",
+  spotWindow: "spot-window",
 };
+// The reading spot's window: 300 m around its centre, as a station's window (water-quality.yaml).
+const SPOT_RADIUS_M = 300;
+interface Lines {
+  type: "FeatureCollection";
+  features: {
+    type: "Feature";
+    properties: Record<string, never>;
+    geometry: { type: "LineString"; coordinates: number[][] };
+  }[];
+}
+const EMPTY: Lines = { type: "FeatureCollection", features: [] };
+
+// A circle of `radius` metres around a point, as a closed ring of 64 points.
+function circle(at: LngLat, radius: number): Lines {
+  const [lng, lat] = at;
+  const dLat = radius / 111_320;
+  const dLng = dLat / Math.cos((lat * Math.PI) / 180);
+  const ring = Array.from({ length: 65 }, (_, k) => {
+    const a = (k / 64) * 2 * Math.PI;
+    return [lng + dLng * Math.cos(a), lat + dLat * Math.sin(a)];
+  });
+  return {
+    type: "FeatureCollection",
+    features: [
+      { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: ring } },
+    ],
+  };
+}
+
 const HANDLERS = [
   "scrollZoom",
   "boxZoom",
@@ -357,6 +407,7 @@ function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
         type: "geojson",
         data: reach.geometry ?? { type: "FeatureCollection", features: [] },
       },
+      [SOURCE.spot]: { type: "geojson", data: EMPTY },
     },
     layers: [
       { id: "background", type: "background", paint: { "background-color": MAP_LOOK.background } },
@@ -426,6 +477,19 @@ function buildStyle(reach: ReachData, tiles: TileUrls): StyleSpecification {
         paint: {
           "line-color": corridor.window,
           "line-width": 1.6,
+          "line-opacity": 0,
+          "line-opacity-transition": NOW,
+        },
+      },
+      {
+        id: LAYER.spotWindow,
+        type: "line",
+        source: SOURCE.spot,
+        layout: { "line-join": "round" },
+        paint: {
+          "line-color": corridor.window,
+          "line-width": 1.6,
+          "line-dasharray": [2, 1.5],
           "line-opacity": 0,
           "line-opacity-transition": NOW,
         },
@@ -974,6 +1038,8 @@ export async function createCaseMap(
 
   const layers = new PassLayers(map, reach, domain, start === "final" ? 1 : 0);
   let overlays: Overlays = { outline: true, window: true };
+  // Where the reading spot is (null: the start).
+  let spotAt: LngLat | null = null;
   let revealFrame = 0;
   let shownFile: string | null = null;
   const { corridor } = MAP_LOOK;
@@ -990,7 +1056,9 @@ export async function createCaseMap(
     map.setPaintProperty(LAYER.water, "fill-opacity", water * on(overlays.outline));
     map.setPaintProperty(LAYER.glow, "line-opacity", corridor.glowOpacity * on(overlays.outline));
     map.setPaintProperty(LAYER.edge, "line-opacity", corridor.edgeOpacity * on(overlays.outline));
-    map.setPaintProperty(LAYER.window, "line-opacity", on(overlays.window));
+    // The station's window while the spot is there; the spot's own window once it has moved.
+    map.setPaintProperty(LAYER.window, "line-opacity", on(overlays.window && spotAt === null));
+    map.setPaintProperty(LAYER.spotWindow, "line-opacity", on(overlays.window && spotAt !== null));
   }
 
   function paint(): void {
@@ -1026,6 +1094,26 @@ export async function createCaseMap(
         }).setLngLat([point[0], point[1]]);
   marker?.addTo(map);
   gauge.root.dataset.shown = "false";
+  // A drop: the case view snaps the spot to a window (and moves it there), or leaves it.
+  marker?.on("dragend", () => {
+    const dropped = marker.getLngLat();
+    const back = spotAt ?? point;
+    marker.setLngLat(back === null ? dropped : [back[0], back[1]]);
+    options.onSpotDrop?.(dropped.lng, dropped.lat);
+  });
+
+  // The station, marked on its own once the reading spot has moved away from it.
+  const stationElement = document.createElement("div");
+  stationElement.className = "case-station";
+  stationElement.innerHTML =
+    '<span class="case-station__mark"></span><span class="case-station__label"></span>';
+  const stationLabel = stationElement.querySelector<HTMLElement>(".case-station__label");
+  const stationMarker = new SettledMarker({
+    element: stationElement,
+    anchor: "center",
+    opacity: "1",
+    opacityWhenCovered: "1",
+  });
 
   // The profile's cursor on the river.
   const probe = document.createElement("div");
@@ -1047,7 +1135,23 @@ export async function createCaseMap(
           ? null
           : readPixel(reach.maps, layers.packed.data, pixel.col, pixel.row);
       options.onHover?.({ x: event.point.x, y: event.point.y, lng, lat, reading });
+      // The river can be clicked to move the reading spot there.
+      map.getCanvas().style.cursor =
+        reading !== null && options.onRiverClick !== undefined ? "pointer" : "";
     });
+  });
+  map.on("click", (event) => {
+    if (!interactive) {
+      return;
+    }
+    const { lng, lat } = event.lngLat;
+    const pixel = reach.maps === null ? null : pixelAt(reach.maps, [lng, lat]);
+    const onRiver =
+      pixel !== null &&
+      layers.packed !== null &&
+      reach.maps !== null &&
+      readPixel(reach.maps, layers.packed.data, pixel.col, pixel.row) !== null;
+    options.onRiverClick?.(lng, lat, onRiver);
   });
   map.getCanvas().addEventListener("mouseleave", () => {
     cancelAnimationFrame(hoverFrame);
@@ -1200,6 +1304,28 @@ export async function createCaseMap(
     resetNorth() {
       map.easeTo({ ...framed(lastFrame), duration: 700 });
     },
+    setSpot(at, station) {
+      spotAt = at;
+      const start = point === null ? null : ([point[0], point[1]] as LngLat);
+      const here = at ?? start;
+      if (here !== null) {
+        marker?.setLngLat([here[0], here[1]]);
+      }
+      const source = map.getSource<GeoJSONSource>(SOURCE.spot);
+      source?.setData(at === null ? EMPTY : circle(at, SPOT_RADIUS_M));
+      if (at !== null && station !== null && start !== null && stationLabel !== null) {
+        stationLabel.textContent = station;
+        stationMarker.setLngLat([start[0], start[1]]).addTo(map);
+      } else {
+        stationMarker.remove();
+      }
+      paintOverlays();
+      redraw();
+    },
+    setSpotDraggable(on) {
+      marker?.setDraggable(on);
+      gauge.root.dataset.draggable = String(on);
+    },
     setProbe(place) {
       const at = place === null ? null : centrelinePoint(reach, place);
       if (at === null) {
@@ -1315,6 +1441,7 @@ export async function createCaseMap(
       settleReady();
       endFlight();
       marker?.remove();
+      stationMarker.remove();
       probeMarker.remove();
       map.remove();
     },

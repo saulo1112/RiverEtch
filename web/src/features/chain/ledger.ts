@@ -6,7 +6,21 @@
 import { sha256Hex } from "../reaches/canonical.ts";
 
 /** The ledgers a reach keeps. */
-export type LedgerKind = "observations" | "water-temperature";
+export type LedgerKind = "observations" | "water-temperature" | "along" | "along-temperature";
+
+/**
+ * Where a reach's ledger of a kind lives, in its folder.
+ *
+ * @param kind - Which ledger.
+ * @returns Its path, e.g. `thermal/ledger.jsonl`.
+ */
+export function ledgerPath(kind: LedgerKind): string {
+  return kind === "observations"
+    ? "ledger.jsonl"
+    : kind === "water-temperature"
+      ? "thermal/ledger.jsonl"
+      : `${kind}/ledger.jsonl`;
+}
 
 /** One anchor read from the contract. */
 export interface ChainAnchor {

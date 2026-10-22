@@ -25,11 +25,11 @@ import {
   type AnchorOutcome,
   type ChainCheck,
 } from "../../chain/useLedgerAnchor.ts";
+import { ALONG_CLASSES, TEMPERATURE_CLASSES } from "../../reaches/along.ts";
 import { checkFile, type FileCheck } from "../../reaches/checkfile.ts";
 import { loadProof, loadSignatures, loadStatus, loadText } from "../../reaches/data.ts";
 import { FNU_CLASSES } from "../../reaches/scene.ts";
 import type {
-  FnuClass,
   ObservationRecord,
   ReachData,
   SeriesRow,
@@ -44,6 +44,7 @@ import {
   type Verification,
 } from "../../reaches/verify.ts";
 import { CASE_COPY, formatDate, landsatName } from "../content.ts";
+import { alongPassOf, temperaturePassOf, type Spot } from "../spot.ts";
 import { DisclosureButton } from "./DisclosureButton.tsx";
 import { HelpTip } from "./HelpTip.tsx";
 import { usePanelOpen } from "./usePanelOpen.ts";
@@ -57,6 +58,69 @@ export interface RecordPanelProps {
   readonly row: SeriesRow | null;
   /** A water-temperature pass to show instead (the temperature tab; null: the pass's record). */
   readonly thermal?: ThermalRow | null;
+  /** The reading spot, away from the start (null or absent: the start's records). */
+  readonly spot?: Spot | null;
+}
+
+/** An along-river record (turbidity or water temperature): one class, or reason, per window. */
+interface AlongRecord {
+  readonly schema: string;
+  readonly sceneId: string;
+  readonly recordSha256: string;
+  readonly codeCommit: string;
+  readonly modelId: string;
+  readonly modelCardSha256: string;
+  readonly items: readonly { readonly id: string }[];
+  readonly windows: readonly {
+    readonly id: string;
+    readonly fnuClass?: string;
+    readonly temperatureClass?: string;
+    readonly abstainReason?: string;
+  }[];
+}
+
+type AnyRecord = ObservationRecord | ThermalRecord | AlongRecord;
+
+function isAlong(record: AnyRecord): record is AlongRecord {
+  return "schema" in record && record.schema.startsWith("riveretch.along");
+}
+
+// The along record a pass has, and where its file is: its series names it; a series published
+// before it did leaves it to the ledger.
+function useAlongFile(
+  reach: ReachData,
+  folder: "along" | "along-temperature",
+  pass: { readonly recordSha256: string; readonly file?: string } | null,
+): string | null {
+  const [found, setFound] = useState<{ sha: string; file: string } | null>(null);
+  useEffect(() => {
+    if (pass === null || pass.file !== undefined) {
+      return undefined;
+    }
+    let live = true;
+    loadText(reach.base, `${folder}/ledger.jsonl`)
+      .then((text) => {
+        const line = text
+          .split("\n")
+          .filter((t) => t.trim() !== "")
+          .map((t) => JSON.parse(t) as { recordSha256: string; file: string })
+          .find((l) => l.recordSha256 === pass.recordSha256);
+        if (live && line !== undefined) {
+          setFound({ sha: pass.recordSha256, file: `${folder}/${line.file}` });
+        }
+      })
+      .catch(() => undefined);
+    return () => {
+      live = false;
+    };
+  }, [reach.base, folder, pass]);
+  if (pass === null) {
+    return null;
+  }
+  if (pass.file !== undefined) {
+    return `${folder}/${pass.file}`;
+  }
+  return found?.sha === pass.recordSha256 ? found.file : null;
 }
 
 /** The repository the records' code commits belong to. */
@@ -82,14 +146,22 @@ interface Source {
   readonly ledger: string;
   readonly card: string | undefined;
   readonly caption: string;
+  /** An along record: the reading spot's window, its classes and their words. */
+  readonly windowId?: string;
+  readonly classes?: readonly string[];
+  readonly words?: Readonly<Record<string, string>>;
 }
 
 function sourceOf(
   reach: ReachData,
   row: SeriesRow | null,
   thermal: ThermalRow | null,
+  along: Source | null,
 ): Source | null {
   const { record: copy } = CASE_COPY;
+  if (along !== null) {
+    return along;
+  }
   if (thermal !== null) {
     const date = formatDate(thermal.date, true);
     return {
@@ -111,7 +183,7 @@ function sourceOf(
       };
 }
 
-function isThermal(record: ObservationRecord | ThermalRecord): record is ThermalRecord {
+function isThermal(record: AnyRecord): record is ThermalRecord {
   return "kind" in record;
 }
 
@@ -328,7 +400,7 @@ async function witnesses(
  *
  * @returns The record panel.
  */
-export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
+export function RecordPanel({ reach, row, thermal = null, spot = null }: RecordPanelProps) {
   const { record: copy } = CASE_COPY;
   const alterId = useId();
   const fieldId = useId();
@@ -337,7 +409,7 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
   const [open, setOpen] = usePanelOpen("record");
   const [record, setRecord] = useState<{
     file: string;
-    data: ObservationRecord | ThermalRecord;
+    data: AnyRecord;
     field: Editable | null;
   } | null>(null);
   const [alter, setAlter] = useState(false);
@@ -359,7 +431,42 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
     signature: SignatureWitness | null;
   } | null>(null);
   const anchor = useLedgerAnchor(reach);
-  const source = sourceOf(reach, row, thermal);
+  // Away from the start: the pass's along-river record (water temperature on its tab), when it has
+  // one; else the start's record, as before.
+  const alongPass = spot === null || thermal !== null ? null : alongPassOf(reach, row?.sceneId);
+  const temperaturePass =
+    spot === null || thermal === null ? null : temperaturePassOf(reach, thermal.sceneId);
+  const alongFile = useAlongFile(reach, "along", alongPass);
+  const temperatureFile = useAlongFile(reach, "along-temperature", temperaturePass);
+  const along: Source | null =
+    spot !== null && alongFile !== null && row !== null
+      ? {
+          kind: "along",
+          file: alongFile,
+          ledger: "along/ledger.jsonl",
+          card: undefined,
+          caption: CASE_COPY.spot.recordCaption(formatDate(row.date, true)),
+          windowId: spot.id,
+          classes: ALONG_CLASSES,
+          words: CASE_COPY.ungauged.classes,
+        }
+      : spot !== null && temperatureFile !== null && thermal !== null
+        ? {
+            kind: "along-temperature",
+            file: temperatureFile,
+            ledger: "along-temperature/ledger.jsonl",
+            card: undefined,
+            caption: CASE_COPY.spot.recordTemperatureCaption(
+              landsatName(thermal.platform),
+              formatDate(thermal.date, true),
+            ),
+            windowId: spot.id,
+            classes: TEMPERATURE_CLASSES,
+            words: CASE_COPY.temperatureClasses,
+          }
+        : null;
+  const source = sourceOf(reach, row, thermal, along);
+  const windowId = source?.windowId;
   const file = source?.file ?? null;
   const check: CheckState =
     stored.state !== "idle" && stored.file === file ? stored : { state: "idle" };
@@ -374,8 +481,8 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
         if (live) {
           setRecord({
             file,
-            data: JSON.parse(text) as ObservationRecord | ThermalRecord,
-            field: editable(text),
+            data: JSON.parse(text) as AnyRecord,
+            field: editable(text, windowId),
           });
         }
       })
@@ -387,34 +494,39 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
     return () => {
       live = false;
     };
-  }, [reach.base, file]);
+  }, [reach.base, file, windowId]);
 
   const data = record !== null && record.file === file ? record.data : null;
-  const estimate = data === null ? undefined : isThermal(data) ? data.estimate : data.estimates[0];
+  const estimate =
+    data === null || isAlong(data)
+      ? undefined
+      : isThermal(data)
+        ? data.estimate
+        : data.estimates[0];
   const field = record !== null && record.file === file ? record.field : null;
   const value = field === null ? "" : draft?.file === file ? draft.text : field.sealed;
   const valid = field === null || field.kind === "class" || isNumberText(value);
   // A class reads as its range; a number as the record writes it.
-  const shown = (text: string) =>
-    field?.kind === "class" && text in CASE_COPY.ungauged.classes
-      ? CASE_COPY.ungauged.classes[text as FnuClass]
-      : text;
+  const words: Readonly<Record<string, string>> = source?.words ?? CASE_COPY.ungauged.classes;
+  const shown = (text: string) => (field?.kind === "class" ? (words[text] ?? text) : text);
   const unit = estimate?.unit ?? "";
   const fieldLabel =
     field === null
       ? ""
-      : field.kind === "class"
-        ? copy.fieldClass
-        : field.path === "indices.ndti.downstream"
-          ? copy.fieldIndex
-          : data !== null && isThermal(data)
-            ? copy.fieldTemperature(unit)
-            : copy.fieldValue(unit);
+      : source?.kind === "along-temperature"
+        ? copy.fieldTemperatureClass
+        : field.kind === "class"
+          ? copy.fieldClass
+          : field.path === "indices.ndti.downstream"
+            ? copy.fieldIndex
+            : data !== null && isThermal(data)
+              ? copy.fieldTemperature(unit)
+              : copy.fieldValue(unit);
   // The reach's classes, and the sealed one when it is not among them.
-  const classes: readonly FnuClass[] = reach.card?.classes?.labels ?? FNU_CLASSES;
+  const classes: readonly string[] = source?.classes ?? reach.card?.classes?.labels ?? FNU_CLASSES;
   const options =
-    field?.kind === "class" && !classes.includes(field.sealed as FnuClass)
-      ? [...classes, field.sealed as FnuClass]
+    field?.kind === "class" && !classes.includes(field.sealed)
+      ? [...classes, field.sealed]
       : classes;
   const typed = (text: string) => {
     setDraft({ file: file ?? "", text });
@@ -438,6 +550,7 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
         ledger,
         card,
         alter && field !== null ? value.trim() : undefined,
+        source.windowId,
       );
       const chain = anchor.configured
         ? await anchor.check(
@@ -459,59 +572,97 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
     }
   };
 
+  // A record with no reading names why; the panels say "No reading" only.
+  const why =
+    data === null
+      ? undefined
+      : isAlong(data)
+        ? data.windows.find((w) => w.id === windowId)?.abstainReason
+        : ((estimate as { abstainReason?: string | null } | undefined)?.abstainReason ?? undefined);
   const rows =
     data === null
       ? []
-      : [
-          { label: copy.scene, value: data.sceneId.split(":").at(-1) ?? data.sceneId },
-          {
-            label: isThermal(data) ? copy.landsatImages : copy.images,
-            value: data.provenance.stacItems.map((item) => (
-              <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer">
-                {item.id}
-              </a>
-            )),
-          },
-          isThermal(data)
-            ? { label: copy.processing, value: copy.thermalProcessing }
-            : {
-                label: copy.processing,
-                value: `Sen2Cor L2A · baseline ${data.provenance.processingBaseline.join(", ")}`,
-              },
-          ...(isThermal(data)
-            ? [
-                {
-                  label: copy.window,
-                  value: `${String(data.window.waterPixels)} ${copy.waterPixels} · ${String(data.window.surfaceTemperatureK)} K`,
+      : isAlong(data)
+        ? [
+            { label: copy.scene, value: data.sceneId.split(":").at(-1) ?? data.sceneId },
+            {
+              label: data.schema.includes("temperature") ? copy.landsatImages : copy.images,
+              value: data.items.map((item) => item.id).join(", "),
+            },
+            {
+              label: CASE_COPY.spot.recordStretch,
+              value: spot === null ? "–" : CASE_COPY.spot.recordWindow(spot.id, spot.stretch),
+            },
+            ...(why === undefined ? [] : [{ label: copy.noReadingWhy, value: why }]),
+            {
+              label: copy.code,
+              value: (
+                <a
+                  href={`${REPOSITORY}/commit/${data.codeCommit}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {short(data.codeCommit, 10)}
+                </a>
+              ),
+            },
+            {
+              label: copy.card,
+              value: `${data.modelId.split(":")[0] ?? "–"} · ${short(data.modelCardSha256)}`,
+            },
+            { label: copy.seal, value: short(data.recordSha256, 16) },
+          ]
+        : [
+            { label: copy.scene, value: data.sceneId.split(":").at(-1) ?? data.sceneId },
+            {
+              label: isThermal(data) ? copy.landsatImages : copy.images,
+              value: data.provenance.stacItems.map((item) => (
+                <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer">
+                  {item.id}
+                </a>
+              )),
+            },
+            isThermal(data)
+              ? { label: copy.processing, value: copy.thermalProcessing }
+              : {
+                  label: copy.processing,
+                  value: `Sen2Cor L2A · baseline ${data.provenance.processingBaseline.join(", ")}`,
                 },
-              ]
-            : []),
-          {
-            label: copy.code,
-            value: (
-              <a
-                href={`${REPOSITORY}/commit/${data.provenance.codeCommit}`}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {short(data.provenance.codeCommit, 10)}
-              </a>
-            ),
-          },
-          {
-            label: copy.card,
-            value: `${estimate?.modelId?.split(":")[0] ?? "–"} · ${short(estimate?.modelCardSha256 ?? "–")}`,
-          },
-          { label: copy.seal, value: short(data.recordSha256, 16) },
-          ...(row?.supersedes === undefined || isThermal(data)
-            ? []
-            : [
-                {
-                  label: copy.replaces,
-                  value: `${short(row.supersedes, 16)} · ${copy.replacesNote}`,
-                },
-              ]),
-        ];
+            ...(isThermal(data)
+              ? [
+                  {
+                    label: copy.window,
+                    value: `${String(data.window.waterPixels)} ${copy.waterPixels} · ${String(data.window.surfaceTemperatureK)} K`,
+                  },
+                ]
+              : []),
+            {
+              label: copy.code,
+              value: (
+                <a
+                  href={`${REPOSITORY}/commit/${data.provenance.codeCommit}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {short(data.provenance.codeCommit, 10)}
+                </a>
+              ),
+            },
+            {
+              label: copy.card,
+              value: `${estimate?.modelId?.split(":")[0] ?? "–"} · ${short(estimate?.modelCardSha256 ?? "–")}`,
+            },
+            ...(why === undefined ? [] : [{ label: copy.noReadingWhy, value: why }]),
+            { label: copy.seal, value: short(data.recordSha256, 16) },
+            ...(row?.supersedes === undefined || isThermal(data)
+              ? []
+              : [
+                  {
+                    label: copy.replaces,
+                    value: `${short(row.supersedes, 16)} · ${copy.replacesNote}`,
+                  },
+                ]),
+          ];
 
   return (
     <section
@@ -570,7 +721,7 @@ export function RecordPanel({ reach, row, thermal = null }: RecordPanelProps) {
             >
               {options.map((c) => (
                 <option key={c} value={c}>
-                  {CASE_COPY.ungauged.classes[c]}
+                  {words[c] ?? c}
                 </option>
               ))}
             </select>

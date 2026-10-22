@@ -9,6 +9,10 @@ export interface LegendProps {
   readonly mode: LayerMode;
   /** The reach has no gauge: the outline is its estimate window. */
   readonly ungauged?: boolean;
+  /** The reading spot can be dragged along the river. */
+  readonly movable?: boolean;
+  /** The reading spot has moved away from the start (the station is then marked on its own). */
+  readonly moved?: boolean;
 }
 
 /**
@@ -18,7 +22,7 @@ export interface LegendProps {
  *
  * @returns The legend panel.
  */
-export function Legend({ mode, ungauged = false }: LegendProps) {
+export function Legend({ mode, ungauged = false, movable = false, moved = false }: LegendProps) {
   return (
     <aside
       className="case-panel case-legend case-glass"
@@ -70,8 +74,18 @@ export function Legend({ mode, ungauged = false }: LegendProps) {
         ) : null}
         <li className="case-legend__nodata">
           <span className="case-legend__swatch case-legend__swatch--window" aria-hidden="true" />
-          {ungauged ? CASE_COPY.ungauged.legendWindow : CASE_COPY.window}
+          {movable
+            ? CASE_COPY.spot.legendSpot
+            : ungauged
+              ? CASE_COPY.ungauged.legendWindow
+              : CASE_COPY.window}
         </li>
+        {moved && !ungauged ? (
+          <li className="case-legend__nodata">
+            <span className="case-legend__swatch case-legend__swatch--station" aria-hidden="true" />
+            {CASE_COPY.spot.legendStation}
+          </li>
+        ) : null}
       </ul>
     </aside>
   );

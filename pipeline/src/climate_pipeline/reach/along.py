@@ -57,14 +57,15 @@ PREREGISTRATION = "docs/water-quality/preregistration-along-river.md"
 FROZEN_LABEL = "terrachain:riveretch:frozen-artifacts"
 
 
-def anchored(root: Path) -> bool:
-    """Whether this module's preregistration is listed and its line anchored on Sepolia.
+def anchored(root: Path, preregistration: str = PREREGISTRATION) -> bool:
+    """Whether a preregistration is listed and its line anchored on Sepolia.
 
     Its line in ``docs/ledgers/frozen-artifacts.jsonl`` must be covered by an anchor of that
     ledger in ``docs/ledgers/anchors.jsonl`` (rebuilt from the chain): until then nothing is read.
 
     Args:
         root: Repository root.
+        preregistration: Its repository-relative path (this module's by default).
 
     Returns:
         True once an anchor covers the line.
@@ -74,7 +75,7 @@ def anchored(root: Path) -> bool:
     if not frozen.exists() or not log_path.exists():
         return False
     lines = [json.loads(t) for t in frozen.read_text(encoding="utf-8").splitlines() if t.strip()]
-    position = next((k + 1 for k, x in enumerate(lines) if x["path"] == PREREGISTRATION), None)
+    position = next((k + 1 for k, x in enumerate(lines) if x["path"] == preregistration), None)
     if position is None:
         return False
     anchors = [json.loads(t) for t in log_path.read_text(encoding="utf-8").splitlines()
@@ -449,6 +450,7 @@ def series(cfg: ReachConfig, root: Path, site_id: str) -> list[dict[str, Any]]:
         doc = json.loads((out / line["file"]).read_text(encoding="utf-8"))
         rows.append({
             "sceneId": doc["sceneId"], "date": doc["date"], "recordSha256": doc["recordSha256"],
+            "file": line["file"],
             "classes": [w.get("fnuClass") for w in doc["windows"]],
             "reasons": [w.get("abstainReason") for w in doc["windows"]],
         })  # fmt: skip

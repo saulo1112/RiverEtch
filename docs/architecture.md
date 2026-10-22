@@ -109,7 +109,15 @@ flowchart LR
   four-class transfer card; Birecik its own copy of the same model. Each pass gives an
   along-river record (`riveretch.along-river.v1`) in the reach's own ledger
   (`terrachain:<reach>:along`), witnessed like the others
-  ([preregistration](water-quality/preregistration-along-river.md)).
+  ([preregistration](water-quality/preregistration-along-river.md)). On the two reaches with a
+  water-temperature card, each Landsat pass is read on the same windows' cores, on Landsat's
+  30 m pixels, by that card, and each estimate becomes one of six classes (under 10 °C to 30 °C
+  and over): an along-river temperature record (`riveretch.along-temperature.v1`) in the ledger
+  `terrachain:<reach>:along-temperature`
+  ([preregistration](water-quality/preregistration-along-temperature.md)).
+- **The reading spot.** The web app's reading spot moves to any window of the plan; away from
+  the start it shows that window's classes from the along-river records, never a value. Where
+  there is no estimate, the app says "No reading"; the record keeps the reason.
 - **Isolation.** The estimate never reads a station value. Station values enter only the tests,
   the report-only check and the scoring, after the record is sealed.
 - **The record.** An [observation record v2](schema/README.md) for each Sentinel-2 pass (a

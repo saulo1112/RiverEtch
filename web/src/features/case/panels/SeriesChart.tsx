@@ -65,7 +65,7 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
   const { series } = reach;
   const points = series.map((row, index) => {
     const estimate = turbidity(row);
-    return { index, row, cls: estimate?.fnuClass ?? null, reason: estimate?.abstainReason ?? null };
+    return { index, row, cls: estimate?.fnuClass ?? null };
   });
   const { months, x } = timeAxis(reach, width);
   const plotHeight = Math.max(1, height - PAD.top - PAD.bottom);
@@ -159,13 +159,7 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
             />
           )}
           {points.map((p) =>
-            p.cls === null ? (
-              <path
-                key={`n${String(p.index)}`}
-                className="case-series__none"
-                d={`M${String(x(p.row.date) - 2)},${String(baseY - 2)}l4,4m0,-4l-4,4`}
-              />
-            ) : (
+            p.cls === null ? null : (
               <circle
                 key={`v${String(p.index)}`}
                 className="case-series__dot"
@@ -180,32 +174,34 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
         </svg>
       ) : null}
       {width > 0
-        ? points.map((p) => (
-            <button
-              key={p.row.sceneId}
-              id={`case-pass-${String(p.index)}`}
-              type="button"
-              role="option"
-              aria-selected={p.index === selected}
-              tabIndex={-1}
-              className="case-series__hit"
-              style={{ left: `${String(x(p.row.date) - 9)}px`, top: `${String(at(p) - 9)}px` }}
-              onClick={() => {
-                onSelect(p.index);
-              }}
-              onPointerEnter={() => {
-                setHovered(p.index);
-              }}
-              onPointerLeave={() => {
-                setHovered(null);
-              }}
-            >
-              <span className="case-visually-hidden">
-                {formatDate(p.row.date, true)}:{" "}
-                {p.cls === null ? ungauged.noClass : ungauged.classes[p.cls]}
-              </span>
-            </button>
-          ))
+        ? points
+            .filter((p) => p.cls !== null)
+            .map((p) => (
+              <button
+                key={p.row.sceneId}
+                id={`case-pass-${String(p.index)}`}
+                type="button"
+                role="option"
+                aria-selected={p.index === selected}
+                tabIndex={-1}
+                className="case-series__hit"
+                style={{ left: `${String(x(p.row.date) - 9)}px`, top: `${String(at(p) - 9)}px` }}
+                onClick={() => {
+                  onSelect(p.index);
+                }}
+                onPointerEnter={() => {
+                  setHovered(p.index);
+                }}
+                onPointerLeave={() => {
+                  setHovered(null);
+                }}
+              >
+                <span className="case-visually-hidden">
+                  {formatDate(p.row.date, true)}:{" "}
+                  {p.cls === null ? ungauged.noClass : ungauged.classes[p.cls]}
+                </span>
+              </button>
+            ))
         : null}
       {tip === undefined ? null : (
         <div
@@ -215,7 +211,7 @@ function ClassChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
         >
           <p className="case-series__tip-date">{formatDate(tip.row.date, true)}</p>
           {tip.cls === null ? (
-            <p className="case-series__tip-none">{tip.reason ?? ungauged.noClass}</p>
+            <p className="case-series__tip-none">{CASE_COPY.noReading}</p>
           ) : (
             <p className="case-series__tip-value">{ungauged.classes[tip.cls]}</p>
           )}
@@ -242,7 +238,6 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
       row,
       value,
       level: estimate?.level ?? "none",
-      reason: estimate?.abstainReason ?? null,
       low: estimate?.interval?.low ?? null,
       high: estimate?.interval?.high ?? null,
       gauge: gauge?.value ?? null,
@@ -264,6 +259,9 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
   const x = (date: string) => PAD.left + (daysBetween(start, date) / span) * plotWidth;
   const y = (v: number) => PAD.top + (1 - Math.log(v / yMin) / Math.log(yMax / yMin)) * plotHeight;
   const baseY = PAD.top + plotHeight;
+  // Where a pass's mark is: its value's dot, or the station's ring when the satellite had none.
+  const markY = (p: { value: number | null; gauge: number | null }) =>
+    p.value !== null ? y(p.value) : p.gauge !== null ? y(p.gauge) : baseY;
 
   const months: string[] = [];
   const cursor = new Date(`${start}T00:00:00Z`);
@@ -377,13 +375,7 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
             ),
           )}
           {points.map((p) =>
-            p.value === null ? (
-              <path
-                key={`n${String(p.index)}`}
-                className="case-series__none"
-                d={`M${String(x(p.row.date) - 2)},${String(baseY - 2)}l4,4m0,-4l-4,4`}
-              />
-            ) : (
+            p.value === null ? null : (
               <circle
                 key={`v${String(p.index)}`}
                 className="case-series__dot"
@@ -398,35 +390,37 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
         </svg>
       ) : null}
       {width > 0
-        ? points.map((p) => (
-            <button
-              key={p.row.sceneId}
-              id={`case-pass-${String(p.index)}`}
-              type="button"
-              role="option"
-              aria-selected={p.index === selected}
-              tabIndex={-1}
-              className="case-series__hit"
-              style={{
-                left: `${String(x(p.row.date) - 9)}px`,
-                top: `${String((p.value === null ? baseY : y(p.value)) - 9)}px`,
-              }}
-              onClick={() => {
-                onSelect(p.index);
-              }}
-              onPointerEnter={() => {
-                setHovered(p.index);
-              }}
-              onPointerLeave={() => {
-                setHovered(null);
-              }}
-            >
-              <span className="case-visually-hidden">
-                {formatDate(p.row.date, true)}:{" "}
-                {p.value === null ? CASE_COPY.timelineNoValue : `${formatValue(p.value)} FNU`}
-              </span>
-            </button>
-          ))
+        ? points
+            .filter((p) => p.value !== null || p.gauge !== null)
+            .map((p) => (
+              <button
+                key={p.row.sceneId}
+                id={`case-pass-${String(p.index)}`}
+                type="button"
+                role="option"
+                aria-selected={p.index === selected}
+                tabIndex={-1}
+                className="case-series__hit"
+                style={{
+                  left: `${String(x(p.row.date) - 9)}px`,
+                  top: `${String(markY(p) - 9)}px`,
+                }}
+                onClick={() => {
+                  onSelect(p.index);
+                }}
+                onPointerEnter={() => {
+                  setHovered(p.index);
+                }}
+                onPointerLeave={() => {
+                  setHovered(null);
+                }}
+              >
+                <span className="case-visually-hidden">
+                  {formatDate(p.row.date, true)}:{" "}
+                  {p.value === null ? CASE_COPY.timelineNoValue : `${formatValue(p.value)} FNU`}
+                </span>
+              </button>
+            ))
         : null}
       {tip === undefined ? null : (
         <div
@@ -434,12 +428,12 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
           data-side={x(tip.row.date) > width - 220 ? "left" : "right"}
           style={{
             left: `${String(x(tip.row.date))}px`,
-            top: `${String(tip.value === null ? baseY : y(tip.value))}px`,
+            top: `${String(markY(tip))}px`,
           }}
         >
           <p className="case-series__tip-date">{formatDate(tip.row.date, true)}</p>
           {tip.value === null ? (
-            <p className="case-series__tip-none">{tip.reason ?? CASE_COPY.rangeWithoutLevel}</p>
+            <p className="case-series__tip-none">{CASE_COPY.noReading}</p>
           ) : (
             <p className="case-series__tip-value">
               {formatValue(tip.value)} FNU

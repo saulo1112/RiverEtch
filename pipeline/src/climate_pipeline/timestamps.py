@@ -87,7 +87,7 @@ def ledgers(root: Path) -> list[Ledger]:
     Returns:
         Frozen artifacts, then each demo reach's observations, water temperature and outcomes,
         then each ungauged reach's observations (no gauge: no outcomes), then each reach's classes
-        along the river.
+        along the river, then each demo reach's water-temperature classes along the river.
     """
     out = [Ledger("terrachain:riveretch:frozen-artifacts", root / FROZEN)]
     reaches = root / "docs" / "water-quality" / "reach"
@@ -104,6 +104,11 @@ def ledgers(root: Path) -> list[Ledger]:
     for reach in (*SCORED, *UNGAUGED):
         out.append(Ledger(f"terrachain:{reach}:along",
                           reaches / reach / "examples" / "along" / "ledger.jsonl"))  # fmt: skip
+    # Each demo reach's water-temperature classes along the river
+    # (preregistration-along-temperature.md).
+    for reach in SCORED:
+        ledger_path = reaches / reach / "examples" / "along-temperature" / "ledger.jsonl"
+        out.append(Ledger(f"terrachain:{reach}:along-temperature", ledger_path))
     return out
 
 
