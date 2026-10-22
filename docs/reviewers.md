@@ -68,8 +68,9 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
    explorers);
 6. the **ML-DSA-65 signature** of that head, with the published key.
 
-Steps 5 and 6 read the daily run's published files; until they are public, the dialog says they
-could not be read.
+Steps 5 and 6 read the daily run's published files on the `data` branch. A record the daily run
+made after the owner's last anchor and signature shows "not anchored yet" and "not signed yet"
+until then, and its Bitcoin proof waits a few hours for its block.
 
 Without the app:
 

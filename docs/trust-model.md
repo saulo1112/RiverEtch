@@ -220,7 +220,7 @@ under MIT.
 | Every result, to the last digit      | `uv run climate-pipeline quality verify` (CI runs it on every change)                   |
 | That the passes are all there        | List the scenes on Earth Search and compare with the ledger's `sceneId`s                |
 
-## Open items (2026-10-21)
+## Open items (2026-10-22)
 
 - The contract's source is verified: an exact match on
   [Sourcify](https://sourcify.dev/server/repo-ui/11155111/0xe5d12E7C63041537ffcb3dd258aD69BF345Fe762)
@@ -230,7 +230,8 @@ under MIT.
   `SPDX-License-Identifier: UNLICENSED`, as deployed: changing even a comment would change the
   compiled metadata and break the match. `contracts/scripts/bytecode-check.ts` checks the same
   with no key ([anchoring](anchoring.md#verifying)).
-- The repository is private, so the code commits the records cite cannot be opened from outside.
+- The repository is public (checked on 2026-10-22 UTC), so anyone can open the code commits the
+  records cite and read the `data` branch the web app reads.
 
 T0 is set: the frozen-artifacts ledger (8 lines) was anchored at block 11951391,
 2026-10-19 23:21:00 UTC (transaction
