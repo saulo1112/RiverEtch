@@ -96,29 +96,47 @@ jobs:
         if: always()
         env:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        # The owner may push signatures and anchors to `data` while the run works: when the push is
+        # rejected, the run's outputs are laid again over the newer branch and pushed (three tries).
+        # The ledgers' logs are append-only, so the longer copy of each is the newer one.
         run: |
-          mkdir -p data/state/reach data/docs/ledgers data/docs/water-quality/reach
-          rsync -a --exclude 'daily*.log' --exclude '_superseded' pipeline/out/reach/ data/state/reach/
-          for examples in docs/water-quality/reach/*/examples; do
-            mkdir -p "data/$examples"
-            rsync -a "$examples/" "data/$examples/"
-          done
-          if [ -d docs/ledgers/ots ]; then rsync -a docs/ledgers/ots/ data/docs/ledgers/ots/; fi
-          for file in anchors.jsonl signatures.jsonl frozen-artifacts.jsonl; do
-            if [ -f "docs/ledgers/$file" ]; then cp "docs/ledgers/$file" "data/docs/ledgers/$file"; fi
-          done
-          (cd pipeline && uv run climate-pipeline status --root .. \
-            --steps out/reach/daily-steps.jsonl --previous ../data/status.json \
-            --out ../data/status.json --run-url "$RUN_URL")
           git -C data config user.name "github-actions[bot]"
           git -C data config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git -C data add -A
-          if git -C data diff --cached --quiet; then
-            echo "Nothing new to publish."
-          else
+          publish() {
+            mkdir -p data/state/reach data/docs/ledgers data/docs/water-quality/reach
+            rsync -a --exclude 'daily*.log' --exclude '_superseded' pipeline/out/reach/ data/state/reach/
+            for examples in docs/water-quality/reach/*/examples; do
+              mkdir -p "data/$examples"
+              rsync -a "$examples/" "data/$examples/"
+            done
+            if [ -d docs/ledgers/ots ]; then rsync -a docs/ledgers/ots/ data/docs/ledgers/ots/; fi
+            for file in anchors.jsonl signatures.jsonl frozen-artifacts.jsonl; do
+              src="docs/ledgers/$file"
+              dst="data/docs/ledgers/$file"
+              if [ -f "$src" ] && { [ ! -f "$dst" ] || [ "$(wc -l < "$src")" -ge "$(wc -l < "$dst")" ]; }; then
+                cp "$src" "$dst"
+              fi
+            done
+            (cd pipeline && uv run climate-pipeline status --root .. \
+              --steps out/reach/daily-steps.jsonl --previous ../data/status.json \
+              --out ../data/status.json --run-url "$RUN_URL")
+            git -C data add -A
+            if git -C data diff --cached --quiet; then
+              echo "Nothing new to publish."
+              return 0
+            fi
             git -C data commit -q -m "data: daily run $(date -u +%Y-%m-%dT%H:%MZ)"
             git -C data push origin data
-          fi
+          }
+          for attempt in 1 2 3; do
+            if publish; then
+              exit 0
+            fi
+            echo "The data branch moved during the run: publishing again over it (try $attempt)."
+            git -C data fetch --no-tags origin data
+            git -C data reset -q --hard origin/data
+          done
+          exit 1
 
       - name: Fail the job when the run failed
         if: steps.run.outcome == 'failure'
