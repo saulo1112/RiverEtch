@@ -30,6 +30,11 @@
    "year": 2024,
    "passes": 90,
    "failed": 0
+  },
+  {
+   "year": 2025,
+   "passes": 140,
+   "failed": 0
   }
  ]
 }
