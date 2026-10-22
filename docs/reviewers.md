@@ -41,12 +41,14 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
    measurements of the river at Birecik, labelled as looked up after seeing the result. Under
    the value, the reading spot's stretch and its arrows: move it upstream or downstream (or drag
    the amber spot on the map, or click the river) and the panels follow that stretch, as a class.
-4. **Verify this record** (right), below.
-5. **Change one number first**, type another number (or pick another class), then verify again:
-   the seal breaks; put the sealed value back and it matches again.
-6. **Check a file you were sent** (under the record): the record's JSON from its details, or the
-   series from Export, edited or not; the browser names any value that differs from the sealed
-   record.
+4. **Check this reading** (the small link on the reading card), below: its verdict in one
+   sentence, its steps under "Show the steps".
+5. **Export with proof** (the Proof panel, or the toolbar's Export): one zip of the readings with
+   what proves they have not changed; its live count names each board apart.
+6. **Check a file** (the Proof panel): that zip, a CSV or one record, edited or not; the report
+   says how many rows are unchanged and on which board, and names any changed cell with its fixed
+   value. To watch a single check fail, How it works → The fingerprint lets you change one
+   number.
 7. **Along the river** (bottom tabs): the year's passes along the whole reach, one column per
    pass and one row per 600 m stretch, coloured by class (turbidity, or water temperature where the
    reach has it); hover a stretch to mark it on the map, click it to move the reading spot there.
@@ -59,9 +61,9 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
 10. **The status chip** (bottom right of the first screen): the daily run's last run, last anchor
     and Bitcoin timestamps.
 
-## Verify a record in one minute
+## Check a reading in one minute
 
-**Verify this record** recomputes, in your browser:
+**Check this reading** recomputes, in your browser:
 
 1. the record's canonical content and its **SHA-256**, against the seal it carries;
 2. its place in the **ledger**: each line names the hash of the line before;

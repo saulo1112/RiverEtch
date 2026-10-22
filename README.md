@@ -120,11 +120,22 @@ sealed": a pass read after the fact is not a record
   not measured there. On rivers the model never saw, its class matched the station in 160 of 298
   test passes; at Birecik, outside the United States, its error has not been measured at all.
 
-## Change one number, and the seal breaks
+## Take it out with proof, check it anywhere
 
-**Verify this record** recomputes the record's fingerprint in your browser and walks its ledger,
-its model, its Ethereum anchor, its Bitcoin timestamp and its signature. **Change one number
-first** lets you type a different value and watch the check fail:
+Every reading is fingerprinted, posted on Ethereum (test network), timestamped on Bitcoin and
+signed. The app makes that useful in two actions, in its **Proof** panel:
+
+- **Export with proof** downloads one zip, built in your browser: the readings as CSV (every row
+  with its fingerprint), the sealed records, their record lists, the posts on Ethereum and Bitcoin,
+  the signatures, the model sheets and a manifest whose fingerprint you can cite.
+- **Check a file** takes a RiverEtch file someone sent you (that zip, a CSV or one record) and
+  reports on the whole file: how many rows are unchanged, on Ethereum, on Bitcoin, or waiting for
+  the next post, and which cells changed, with the fixed value. It trusts nothing inside the file:
+  it reads Ethereum and checks Bitcoin itself. Nothing is uploaded.
+
+**Check this reading**, on the reading card, checks the one reading shown and says it in one
+sentence ("Same as when it was fixed on 21 Oct 2026. On Ethereum and on Bitcoin."), with its steps
+one click away. To watch a check fail, How it works → The fingerprint lets you change one number:
 
 ![Two verification panels side by side. Left, the real record: the sealed and recomputed fingerprints are identical, and its ledger line #37 is fine. Right, the same record with the turbidity changed from 32.92 to 12.92: the recomputed fingerprint is different and shown in red, and ledger line #37 turns red](docs/img/verify-tamper.jpg)
 

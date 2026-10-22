@@ -209,16 +209,34 @@ under MIT.
 
 ## Check it without trusting us
 
-| What                                 | How                                                                                     |
-| ------------------------------------ | --------------------------------------------------------------------------------------- |
-| A record's seal, its chain, its card | **Verify this record** in the web app, or `uv run climate-pipeline reach verify`        |
-| A record's anchor                    | **Verify this record** (no wallet), or `anchorAt(subject, index)` on Etherscan          |
-| A head's Bitcoin timestamp           | **Verify this record**; `uv run climate-pipeline ledger proofs`; or `ots verify`        |
-| A head's signature                   | **Verify this record**; `uv run climate-pipeline sign verify`                           |
-| The anchoring log                    | `npx tsx scripts/anchor-log.ts` (from `contracts/`) rebuilds it from the contract state |
-| The frozen artifacts                 | `uv run climate-pipeline ledger verify`                                                 |
-| Every result, to the last digit      | `uv run climate-pipeline quality verify` (CI runs it on every change)                   |
-| That the passes are all there        | List the scenes on Earth Search and compare with the ledger's `sceneId`s                |
+| What                               | How                                                                                     |
+| ---------------------------------- | --------------------------------------------------------------------------------------- |
+| One reading: its seal, chain, card | **Check this reading** in the web app, or `uv run climate-pipeline reach verify`        |
+| One reading's post on Ethereum     | **Check this reading** (no wallet), or `anchorAt(subject, index)` on Etherscan          |
+| A head's Bitcoin timestamp         | **Check this reading**; `uv run climate-pipeline ledger proofs`; or `ots verify`        |
+| A head's signature                 | **Check this reading**; `uv run climate-pipeline sign verify`                           |
+| A file someone sent you            | **Check a file** in the Proof panel: an export (.zip), a CSV or one record (JSON)       |
+| The anchoring log                  | `npx tsx scripts/anchor-log.ts` (from `contracts/`) rebuilds it from the contract state |
+| The frozen artifacts               | `uv run climate-pipeline ledger verify`                                                 |
+| Every result, to the last digit    | `uv run climate-pipeline quality verify` (CI runs it on every change)                   |
+| That the passes are all there      | List the scenes on Earth Search and compare with the ledger's `sceneId`s                |
+
+## Export with proof, and Check a file
+
+- **Export with proof** builds one zip in the browser: a CSV per dataset whose every row carries
+  its record's fingerprint, the sealed records, the full record lists (ledgers), the posts read
+  from Ethereum at export time, the Bitcoin timestamps and signatures that cover the rows, the
+  public key, the model sheets, a manifest of every file with its SHA-256, and a READ-ME with a
+  citation line that names the manifest's fingerprint.
+- **Check a file** trusts nothing inside the file. It finds each row by its fingerprint in the
+  site's own record list, compares every cell with the site's sealed record (recomputing that
+  record's fingerprint), recomputes the record list's chain, reads Ethereum itself, and checks the
+  Bitcoin timestamp and the signature as the single-reading check does. The posts listed inside a
+  zip are only compared with Ethereum, never used; when Ethereum cannot be read, the report says
+  "not checked against Ethereum (offline)" and shows no pass.
+- Each board is counted apart (on Ethereum, on Bitcoin, waiting for the next post), never merged
+  into one number. A changed cell is reported with its row, its column and the fixed value; a row
+  of the export's period that the file no longer holds is reported missing.
 
 ## Open items (2026-10-22)
 
@@ -232,6 +250,18 @@ under MIT.
   with no key ([anchoring](anchoring.md#verifying)).
 - The repository is public (checked on 2026-10-22 UTC), so anyone can open the code commits the
   records cite and read the `data` branch the web app reads.
+- **Posting is manual.** The anchoring log ([anchors.jsonl](ledgers/anchors.jsonl), 2026-10-22)
+  holds 31 posts on 13 of the 15 record lists; the two new lists of water temperature along the
+  river (Belle Chasse and the Platte) are fingerprinted and timestamped on Bitcoin but wait for
+  the owner's next post on Ethereum, and the app says so ("waiting for the next post").
+- **Bitcoin confirms in hours.** At the daily run of 2026-10-22 18:13 UTC (`status.json` on the
+  `data` branch), 26 of the 29 listed timestamps were in a Bitcoin block; the other 3 wait for
+  theirs, and the app shows them as waiting, not as checked.
+- **Earlier years are not records.** 2019 to 2025 are read again with the same frozen models
+  ([preregistration-archive.md](water-quality/preregistration-archive.md)) and labelled
+  "Recomputed, not sealed"; they are not part of any export with proof.
+- **Sepolia is a test network.** The posts live there; the Bitcoin timestamps and the signatures
+  do not depend on it.
 
 T0 is set: the frozen-artifacts ledger (8 lines) was anchored at block 11951391,
 2026-10-19 23:21:00 UTC (transaction
