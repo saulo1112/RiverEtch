@@ -360,6 +360,8 @@ export const CASE_COPY = {
     compare: "Compare",
     compareWith: "Compare the selected pass with the one on…",
     compareStop: "Stop comparing",
+    compareYear: "Which year to compare with",
+    compareEarlier: "An earlier year has only its classes, so both sides show turbidity classes.",
     compareHint:
       "Drag the split on the map to sweep between the two passes. Click Compare again to stop.",
     export: "Export with proof",

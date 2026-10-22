@@ -24,7 +24,7 @@ import {
   windowAt,
 } from "../reaches/along.ts";
 import { passStats, profile } from "../reaches/analysis.ts";
-import { archiveReach, caseYears } from "../reaches/archive.ts";
+import { archiveReach, caseYears, reachYear } from "../reaches/archive.ts";
 import { loadArchive } from "../reaches/data.ts";
 import type { ReachCase } from "../reaches/catalog.ts";
 import { ndtiDomain } from "../reaches/colorize.ts";
@@ -64,7 +64,7 @@ import { ReadingCheck } from "./panels/ReadingCheck.tsx";
 import { SpotCoords } from "./panels/SpotCoords.tsx";
 import { Timeline, type BottomTab } from "./panels/Timeline.tsx";
 import { markFlight } from "./qa.ts";
-import { spotOf, turbidityAt } from "./spot.ts";
+import { alongPassOf, spotOf, turbidityAt } from "./spot.ts";
 
 /**
  * How the case view enters: `flight` starts the map at the handoff pose and flies in on `go`;
@@ -210,6 +210,11 @@ function MapSources() {
   );
 }
 
+// A pass's classes along the river (null: none for it, or no pass).
+function passOf(side: ReachData, index: number | null) {
+  return index === null ? null : alongPassOf(side, side.series[index]?.sceneId);
+}
+
 /**
  * Full-viewport case view: the map of the reach, the case file, legend, record and timeline
  * panels, the map's tools, the wallet corner and the map attribution. It stays inert until it has
@@ -265,7 +270,10 @@ export function CaseView({
   });
   const [scene, setScene] = useState<{ file: string; data: ImageData } | null>(null);
   const [playing, setPlaying] = useState(false);
-  const [compareWith, setCompareWith] = useState<number | null>(null);
+  // Compare: the other pass and its year (any year the case can show), and the year its calendar
+  // shows (null: the compared pass's year, else the year on the map).
+  const [compareWith, setCompareWith] = useState<{ year: number; index: number } | null>(null);
+  const [compareYear, setCompareYear] = useState<number | null>(null);
   const [split, setSplit] = useState(0.5);
   const [tab, setTab] = useState<BottomTab>("quality");
   const [touring, setTouring] = useState(false);
@@ -293,6 +301,8 @@ export function CaseView({
   const years = useMemo(() => caseYears(reach), [reach]);
   const [year, setYear] = useState<number | null>(null);
   const [archived, setArchived] = useState<ReachData | null>(null);
+  // The earlier years read so far, for Compare as for the year shown (each read once per case).
+  const [loadedYears, setLoadedYears] = useState<Readonly<Record<number, ReachData>>>({});
   // The 2026 map whose water outline an earlier year's classes are painted on: the latest one.
   const outline = useMemo(() => {
     for (let k = reach.series.length - 1; k >= 0; k -= 1) {
@@ -320,6 +330,7 @@ export function CaseView({
         }
         const earlier = archiveReach(reach, sentinel, landsat, outline);
         setArchived(earlier);
+        setLoadedYears((loaded) => ({ ...loaded, [year]: earlier }));
         setSelected(defaultScene(earlier.series));
         setThermalSelected(defaultThermal(earlier.thermal?.series ?? []));
       })
@@ -336,7 +347,6 @@ export function CaseView({
   const shown = year !== null && archived !== null ? archived : reach;
   const chooseYear = (next: number) => {
     setPlaying(false);
-    setCompareWith(null);
     if (next === years[0]) {
       setYear(null);
       setArchived(null);
@@ -346,6 +356,40 @@ export function CaseView({
     }
     setYear(next);
   };
+  const shownYear = reachYear(shown);
+  // A year's passes, for Compare: the sealed year, or an earlier year once read (null: not yet).
+  const yearReach = (y: number): ReachData | null =>
+    y === years[0] ? reach : (loadedYears[y] ?? null);
+  const browseYear = compareYear ?? compareWith?.year ?? shownYear;
+  const browseLoaded = yearReach(browseYear) !== null;
+  useEffect(() => {
+    if (browseLoaded) {
+      return undefined;
+    }
+    let live = true;
+    loadArchive(reach, browseYear)
+      .then(([sentinel, landsat]) => {
+        if (!live) {
+          return;
+        }
+        if (sentinel === null) {
+          setCompareYear(null);
+          return;
+        }
+        const earlier = archiveReach(reach, sentinel, landsat, outline);
+        setLoadedYears((loaded) => ({ ...loaded, [browseYear]: earlier }));
+      })
+      .catch(() => {
+        if (live) {
+          setCompareYear(null);
+        }
+      });
+    return () => {
+      live = false;
+    };
+  }, [reach, browseYear, browseLoaded, outline]);
+  const compareReach = compareWith === null ? null : yearReach(compareWith.year);
+  const other = compareWith === null ? null : (compareReach?.series[compareWith.index] ?? null);
   const row = shown.series[selected] ?? null;
   const thermalRow =
     thermalSelected === null ? null : (shown.thermal?.series[thermalSelected] ?? null);
@@ -560,29 +604,33 @@ export function CaseView({
     window.history.replaceState(null, "", url);
   }, [landed, row, reachCase.id]);
 
+  // Compare: a synchronised copy of the map, right of the split, showing the other pass. It closes
+  // when the way back starts, so the flight out shows one map.
+  const comparing = other !== null && mapStatus === "ready" && exit === null;
+  // An earlier year on either side: both sides show their classes.
+  const classesOnly = comparing && (shown.archive != null || compareReach?.archive != null);
   // The map's layers follow the toolbar; a pass with no classes along the river shows its NDTI;
   // an earlier year shows only its classes (it keeps no image of its passes).
-  const shownMode: LayerMode =
-    shown.archive != null
-      ? mode === "none"
-        ? "none"
-        : "class"
-      : mode === "class" &&
-          !(reach.along?.passes.some((p) => p.sceneId === reach.series[selected]?.sceneId) ?? false)
-        ? "ndti"
-        : mode;
+  const sideMode = (side: ReachData, index: number | null): LayerMode => {
+    if (mode === "none") {
+      return "none";
+    }
+    if (side.archive != null) {
+      return "class";
+    }
+    const wanted = classesOnly ? "class" : mode;
+    return wanted === "class" && passOf(side, index) === null ? "ndti" : wanted;
+  };
+  const shownMode = sideMode(shown, selected);
+  const compareMode =
+    compareReach === null ? shownMode : sideMode(compareReach, compareWith?.index ?? null);
   useEffect(() => {
     handleRef.current?.setLayer(shownMode, opacity);
   }, [shownMode, opacity, mapStatus]);
   // The selected pass's classes along the river, by place along the reach (the Turbidity layer).
   const length = useMemo(() => riverLength(reach), [reach]);
-  const passOf = (index: number | null) =>
-    index === null
-      ? null
-      : (shown.along?.passes.find((p) => p.sceneId === shown.series[index]?.sceneId) ?? null);
   const classes = useMemo(
-    () => (shown.along == null ? null : classTable(shown.along, passOf(selected), length)),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- passOf reads only shown and selected
+    () => (shown.along == null ? null : classTable(shown.along, passOf(shown, selected), length)),
     [shown, selected, length],
   );
   useEffect(() => {
@@ -616,10 +664,7 @@ export function CaseView({
     };
   }, [playing, shown.series.length]);
 
-  // Compare: a synchronised copy of the map, right of the split, showing the other pass. It closes
-  // when the way back starts, so the flight out shows one map.
   const compareHandle = useRef<CompareHandle | null>(null);
-  const comparing = compareWith !== null && mapStatus === "ready" && exit === null;
   useEffect(() => {
     const element = compareRef.current;
     const handle = handleRef.current;
@@ -633,17 +678,25 @@ export function CaseView({
       compareHandle.current = null;
     };
   }, [comparing]);
-  const other = compareWith === null ? null : (reach.series[compareWith] ?? null);
+  // An earlier year's pass is painted as the year shown is: its classes on the 2026 outline.
   useEffect(() => {
-    if (other !== null) {
-      compareHandle.current?.setScene(mapFile(reach, other), photoFile(reach, other));
+    const copy = compareHandle.current;
+    if (copy === null || compareReach === null || other === null) {
+      return;
     }
-    compareHandle.current?.setLayer(shownMode, opacity);
-    compareHandle.current?.setClasses(
-      reach.along == null ? null : classTable(reach.along, passOf(compareWith), length),
+    const earlier = compareReach.archive;
+    copy.setScene(
+      earlier == null ? mapFile(reach, other) : earlier.outline,
+      earlier == null ? photoFile(reach, other) : null,
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- passOf reads only reach
-  }, [comparing, other, reach, shownMode, opacity, compareWith, length]);
+    copy.setArchive(earlier != null);
+    copy.setLayer(compareMode, opacity);
+    copy.setClasses(
+      compareReach.along == null
+        ? null
+        : classTable(compareReach.along, alongPassOf(compareReach, other.sceneId), length),
+    );
+  }, [comparing, compareReach, other, reach, compareMode, opacity, length]);
 
   // Crossfade in; the caller removes what was underneath once it is done.
   useEffect(() => {
@@ -832,10 +885,16 @@ export function CaseView({
           >
             <span className="case-split__label case-split__label--left">
               {CASE_COPY.compare.left} · {row === null ? "" : formatDate(row.date, true)}
+              {shown.archive == null ? null : (
+                <span className="case-split__note">{CASE_COPY.archive.label}</span>
+              )}
             </span>
             <span className="case-split__grip" aria-hidden="true" />
             <span className="case-split__label case-split__label--right">
-              {CASE_COPY.compare.right} · {other === null ? "" : formatDate(other.date, true)}
+              {CASE_COPY.compare.right} · {formatDate(other.date, true)}
+              {compareReach?.archive == null ? null : (
+                <span className="case-split__note">{CASE_COPY.archive.label}</span>
+              )}
             </span>
           </div>
         </>
@@ -854,7 +913,7 @@ export function CaseView({
           hover?.reading == null ||
           shown.along == null
             ? undefined
-            : (passOf(selected)?.classes[
+            : (passOf(shown, selected)?.classes[
                 windowAt(shown.along, hover.reading.place, length) ?? -1
               ] ?? null)
         }
@@ -912,19 +971,30 @@ export function CaseView({
           onExport={() => {
             setExporting(true);
           }}
-          mode={mode}
+          mode={shownMode}
           onMode={setMode}
           photoAvailable={photo !== null}
-          classAvailable={shown.along != null && passOf(selected) !== null}
+          classAvailable={shown.along != null && passOf(shown, selected) !== null}
           opacity={opacity}
           onOpacity={setOpacity}
           overlays={overlays}
           onOverlays={setOverlays}
           terrain3d={terrain3d}
           onTerrain3d={setTerrain3d}
-          compareWith={compareWith}
-          onCompare={setCompareWith}
-          selected={selected}
+          comparing={comparing}
+          classesOnly={classesOnly}
+          compareYears={years}
+          compareYear={browseYear}
+          compareReach={yearReach(browseYear)}
+          onCompareYear={(next) => {
+            setCompareYear(next);
+          }}
+          compareWith={compareWith?.year === browseYear ? compareWith.index : null}
+          onCompare={(index) => {
+            setCompareYear(null);
+            setCompareWith(index === null ? null : { year: browseYear, index });
+          }}
+          selected={browseYear === shownYear ? selected : null}
         />
         <div className="case-side">
           <Legend
@@ -960,7 +1030,7 @@ export function CaseView({
         <Timeline
           reach={shown}
           selected={selected}
-          compared={compareWith}
+          compared={compareWith?.year === shownYear ? compareWith.index : null}
           onSelect={select}
           thermalSelected={thermalSelected}
           onThermalSelect={setThermalSelected}

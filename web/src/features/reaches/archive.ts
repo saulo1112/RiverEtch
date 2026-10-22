@@ -173,12 +173,22 @@ export function yearPhases(reach: ReachData): ArchivePhase[] {
 }
 
 /**
+ * The year of a reach's sealed records (or of an earlier year's reach, its year).
+ *
+ * @param reach - The reach.
+ * @returns The year.
+ */
+export function reachYear(reach: ReachData): number {
+  return reach.archive?.year ?? Number((reach.series.at(-1)?.date ?? "2026-01-01").slice(0, 4));
+}
+
+/**
  * The years a reach can show: the sealed year, then each earlier year with passes.
  *
  * @param reach - The reach.
  * @returns The years, newest first.
  */
 export function caseYears(reach: ReachData): number[] {
-  const sealed = Number((reach.series.at(-1)?.date ?? "2026-01-01").slice(0, 4));
+  const sealed = reachYear(reach);
   return [sealed, ...(reach.archiveYears ?? []).filter((y) => y < sealed)].sort((a, b) => b - a);
 }

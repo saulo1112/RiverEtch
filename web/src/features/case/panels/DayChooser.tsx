@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -6,6 +6,7 @@ import type { ReachData } from "../../reaches/types.ts";
 import { focusForVisitor } from "../../ui/modality.ts";
 import { CASE_COPY, formatDate } from "../content.ts";
 import { PassPicker } from "./PassPicker.tsx";
+import { YearStep } from "./YearStep.tsx";
 
 const copy = CASE_COPY.calendar;
 const WIDTH = 280; // the popover's width (CSS), to keep it on screen
@@ -22,53 +23,6 @@ export interface DayChooserProps {
   /** The year asked for (it may still be loading). */
   readonly year?: number;
   readonly onYear?: (year: number) => void;
-}
-
-// The year above the month: a step to an earlier or a later year, and what that year is.
-function YearStep({
-  years,
-  year,
-  onYear,
-}: {
-  readonly years: readonly number[];
-  readonly year: number;
-  readonly onYear: (year: number) => void;
-}) {
-  const copy = CASE_COPY.archive;
-  const at = years.indexOf(year);
-  const sealed = at === 0;
-  return (
-    <div className="case-calendar__years" role="group" aria-label={copy.yearLabel}>
-      <button
-        type="button"
-        className="case-calendar__nav"
-        aria-label={copy.earlier}
-        disabled={at < 0 || at >= years.length - 1}
-        onClick={() => {
-          onYear(years[at + 1] ?? year);
-        }}
-      >
-        <ChevronLeft size={16} strokeWidth={1.8} aria-hidden="true" />
-      </button>
-      <p className="case-calendar__year" aria-live="polite">
-        <span className="case-calendar__year-number">{year}</span>
-        <span className="case-calendar__year-note" data-sealed={sealed}>
-          {sealed ? copy.sealedYear : copy.label}
-        </span>
-      </p>
-      <button
-        type="button"
-        className="case-calendar__nav"
-        aria-label={copy.later}
-        disabled={at <= 0}
-        onClick={() => {
-          onYear(years[at - 1] ?? year);
-        }}
-      >
-        <ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
-      </button>
-    </div>
-  );
 }
 
 /**
@@ -95,6 +49,8 @@ export function DayChooser({
   onYear,
 }: DayChooserProps) {
   const [place, setPlace] = useState<{ top: number; left: number; host: Element } | null>(null);
+  // A year stepped to keeps the focus on its arrow (the calendar takes it only when it opens).
+  const [stepped, setStepped] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -166,6 +122,7 @@ export function DayChooser({
             );
             // Inside the case view, whose tokens (glass, type) it uses.
             const host = button.closest(".case-view") ?? document.body;
+            setStepped(false);
             setPlace({ top: rect.bottom + MARGIN, left, host });
           }
         }}
@@ -183,7 +140,14 @@ export function DayChooser({
               style={{ top: `${String(place.top)}px`, left: `${String(place.left)}px` }}
             >
               {years.length > 1 && year !== undefined && onYear !== undefined ? (
-                <YearStep years={years} year={year} onYear={onYear} />
+                <YearStep
+                  years={years}
+                  year={year}
+                  onYear={(next) => {
+                    setStepped(true);
+                    onYear(next);
+                  }}
+                />
               ) : null}
               {year !== undefined && shownYear !== year ? (
                 <p className="case-calendar__loading">{CASE_COPY.archive.loading(String(year))}</p>
@@ -193,7 +157,7 @@ export function DayChooser({
                   reach={reach}
                   selected={selected}
                   label={copy.label}
-                  autoFocus
+                  autoFocus={!stepped}
                   onPick={(index, done) => {
                     onSelect(index);
                     if (done) {

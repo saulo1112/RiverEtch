@@ -6,6 +6,7 @@ import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
 import type { LayerMode, Overlays } from "../map.ts";
 import { PassPicker } from "./PassPicker.tsx";
+import { YearStep } from "./YearStep.tsx";
 
 /** Props of {@link MapToolbar}. */
 export interface MapToolbarProps {
@@ -23,17 +24,28 @@ export interface MapToolbarProps {
   readonly onOverlays: (overlays: Overlays) => void;
   readonly terrain3d: boolean;
   readonly onTerrain3d: (on: boolean) => void;
-  /** The pass compared with the selected one (null: compare is off). */
+  /** Two passes are compared (the button then turns it off). */
+  readonly comparing: boolean;
+  /** An earlier year is on one side: both sides show their classes, nothing else. */
+  readonly classesOnly?: boolean;
+  /** The years Compare's calendar can show, newest first (one: no year control). */
+  readonly compareYears: readonly number[];
+  /** The year Compare's calendar shows (or asks for, while it loads). */
+  readonly compareYear: number;
+  /** That year's passes (null: still loading). */
+  readonly compareReach: ReachData | null;
+  readonly onCompareYear: (year: number) => void;
+  /** The compared pass, in that year (null: none there). */
   readonly compareWith: number | null;
   readonly onCompare: (index: number | null) => void;
-  /** Index of the selected pass. */
-  readonly selected: number;
+  /** Index of the selected pass, in that year (null: it is in another year). */
+  readonly selected: number | null;
   /** Opens "Export with proof". */
   readonly onExport: () => void;
 }
 
 // An earlier year (preregistration-archive.md) keeps no image of its passes: no NDTI, no true
-// colour, nothing to compare; its export is the year's file.
+// colour; its export is the year's file.
 const archived = (reach: ReachData) => reach.archive != null;
 
 const MODES: readonly { readonly id: LayerMode; readonly label: string }[] = [
@@ -120,6 +132,60 @@ function Popover({
   );
 }
 
+// Compare's calendar: a year (sealed, or recomputed and not sealed) and its passes. A year stepped
+// to keeps the focus on its arrow; the calendar takes it only when the popover opens.
+function ComparePicker({
+  props,
+  close,
+}: {
+  readonly props: MapToolbarProps;
+  readonly close: () => void;
+}) {
+  const { tools } = CASE_COPY;
+  const [stepped, setStepped] = useState(false);
+  const shown = props.compareReach;
+  return (
+    <>
+      <p className="case-tools__heading">{tools.compareWith}</p>
+      {props.compareYears.length > 1 ? (
+        <YearStep
+          years={props.compareYears}
+          year={props.compareYear}
+          label={tools.compareYear}
+          onYear={(year) => {
+            setStepped(true);
+            props.onCompareYear(year);
+          }}
+        />
+      ) : null}
+      {shown === null ? (
+        <p className="case-calendar__loading">
+          {CASE_COPY.archive.loading(String(props.compareYear))}
+        </p>
+      ) : (
+        <PassPicker
+          key={props.compareYear}
+          reach={shown}
+          selected={props.compareWith}
+          disabled={props.selected}
+          label={tools.compareWith}
+          autoFocus={!stepped}
+          onPick={(index, done) => {
+            props.onCompare(index);
+            if (done) {
+              close();
+            }
+          }}
+        />
+      )}
+      {archived(props.reach) || props.compareYear !== props.compareYears[0] ? (
+        <p className="case-tools__note">{tools.compareEarlier}</p>
+      ) : null}
+      <p className="case-tools__note">{tools.compareHint}</p>
+    </>
+  );
+}
+
 /**
  * The map's toolbar, top centre: what the river shows (NDTI, true color or nothing) and its
  * opacity, the overlays and 3D terrain, comparing two passes, and the downloads (the series as
@@ -129,7 +195,8 @@ function Popover({
  * @returns The toolbar.
  */
 export function MapToolbar(props: MapToolbarProps) {
-  const { reach, mode, overlays, compareWith, selected } = props;
+  const { reach, mode, overlays } = props;
+  const classesOnly = archived(reach) || props.classesOnly === true;
   const { tools } = CASE_COPY;
   const opacityId = useId();
   const noteId = useId();
@@ -159,8 +226,8 @@ export function MapToolbar(props: MapToolbarProps) {
             aria-checked={mode === m.id}
             className="case-tools__segment"
             disabled={
-              (m.id === "photo" && !props.photoAvailable) ||
-              (m.id === "ndti" && archived(reach)) ||
+              (m.id === "photo" && (!props.photoAvailable || classesOnly)) ||
+              (m.id === "ndti" && classesOnly) ||
               (m.id === "class" && props.classAvailable !== true)
             }
             onClick={() => {
@@ -226,37 +293,17 @@ export function MapToolbar(props: MapToolbarProps) {
           </span>
         </label>
       </Popover>
-      {archived(reach) ? null : (
-        <Popover
-          label={tools.compare}
-          active={compareWith !== null}
-          onOff={() => {
-            props.onCompare(null);
-          }}
-          offLabel={tools.compareStop}
-          icon={<Columns2 size={15} strokeWidth={1.8} aria-hidden="true" />}
-        >
-          {(close) => (
-            <>
-              <p className="case-tools__heading">{tools.compareWith}</p>
-              <PassPicker
-                reach={reach}
-                selected={compareWith}
-                disabled={selected}
-                label={tools.compareWith}
-                autoFocus
-                onPick={(index, done) => {
-                  props.onCompare(index);
-                  if (done) {
-                    close();
-                  }
-                }}
-              />
-              <p className="case-tools__note">{tools.compareHint}</p>
-            </>
-          )}
-        </Popover>
-      )}
+      <Popover
+        label={tools.compare}
+        active={props.comparing}
+        onOff={() => {
+          props.onCompare(null);
+        }}
+        offLabel={tools.compareStop}
+        icon={<Columns2 size={15} strokeWidth={1.8} aria-hidden="true" />}
+      >
+        {(close) => <ComparePicker props={props} close={close} />}
+      </Popover>
       <div className="case-tools__group">
         <button type="button" className="case-tools__btn" onClick={props.onExport}>
           <Download size={15} strokeWidth={1.8} aria-hidden="true" />

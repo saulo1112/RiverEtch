@@ -3054,6 +3054,13 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   left: 30px;
 }
 
+/* An earlier year's side: "Recomputed, not sealed", as in its calendar. */
+.case-split__note {
+  display: block;
+  color: #e7dcff;
+  font-size: var(--type-micro);
+}
+
 /* The bottom panel: the transport, the tabs and one chart. */
 .case-timeline__transport {
   display: inline-flex;
@@ -4598,10 +4605,32 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
     padding-bottom: calc(var(--pad-y) + 40px);
   }
 
+  /* Over the panels below it, so its menus (Layers, Compare) open on top of them. */
   .case-tools {
+    position: relative;
+    z-index: 3;
     grid-area: tools;
     justify-self: start;
     max-width: 100%;
+  }
+
+  /* A menu spans the toolbar, not centred on its button (which would push it off the screen). */
+  .case-tools__group {
+    position: static;
+  }
+
+  .case-tools__popover {
+    right: 0;
+    left: 0;
+    max-width: none;
+    max-height: calc(100dvh - 240px);
+    overflow-y: auto;
+    translate: none;
+  }
+
+  /* Over the panels, not the map: opaque, so their words never show through. */
+  .case-tools__popover.case-glass {
+    background-color: rgb(10 16 32);
   }
 
   .case-tools__opacity,
@@ -4689,6 +4718,12 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   .case-legend__keys,
   .case-legend__range {
     display: none;
+  }
+
+  /* An earlier year's note under the title and the classes, not in the title's column. */
+  .case-legend__archive {
+    grid-column: 1 / -1;
+    margin-top: 6px;
   }
 
   .case-record__alter {

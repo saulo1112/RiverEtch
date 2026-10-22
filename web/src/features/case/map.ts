@@ -156,6 +156,13 @@ export interface CompareHandle {
    * @param table - RGBA per place byte (null: none).
    */
   readonly setClasses: (table: Uint8ClampedArray | null) => void;
+  /**
+   * The compared pass is from an earlier year: its classes on the whole water outline of the
+   * 2026 pass given to `setScene`.
+   *
+   * @param on - An earlier year is compared.
+   */
+  readonly setArchive: (on: boolean) => void;
   /** Removes the copy. */
   readonly dispose: () => void;
 }
@@ -1433,6 +1440,9 @@ export async function createCaseMap(
         },
         setClasses(table) {
           passes.setClasses(table);
+        },
+        setArchive(on) {
+          passes.setWholeRiver(on);
         },
         // Once: the main map's own dispose removes its copies before React's cleanup does.
         dispose() {
