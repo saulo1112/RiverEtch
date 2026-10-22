@@ -58,7 +58,9 @@ import { GuidedTour } from "./panels/GuidedTour.tsx";
 import { Legend } from "./panels/Legend.tsx";
 import { Inspector, MapControls, ScaleBar } from "./panels/MapControls.tsx";
 import { MapToolbar } from "./panels/MapToolbar.tsx";
-import { RecordPanel } from "./panels/RecordPanel.tsx";
+import { ExportDialog } from "./panels/ExportDialog.tsx";
+import { ProofPanel } from "./panels/ProofPanel.tsx";
+import { ReadingCheck } from "./panels/ReadingCheck.tsx";
 import { Timeline, type BottomTab } from "./panels/Timeline.tsx";
 import { markFlight } from "./qa.ts";
 import { spotOf, turbidityAt } from "./spot.ts";
@@ -271,6 +273,8 @@ export function CaseView({
     defaultThermal(reach.thermal?.series ?? []),
   );
   const [probe, setProbe] = useState<number | null>(null);
+  // "Export with proof" is open (from the Proof panel or the toolbar).
+  const [exporting, setExporting] = useState(false);
   // The reading spot: a window along the river, or the start (null). It moves only where the reach
   // has its classes along the river (preregistration-along-temperature.md, section 3).
   const [spotIndex, setSpotIndex] = useState<number | null>(null);
@@ -854,6 +858,16 @@ export function CaseView({
           years={years}
           year={year ?? years[0]}
           onYear={chooseYear}
+          check={
+            shown.archive != null ? null : (
+              <ReadingCheck
+                reach={reach}
+                row={row}
+                thermal={tab === "thermal" ? thermalRow : null}
+                spot={spot}
+              />
+            )
+          }
           row={row}
           thermal={thermalRow}
           headingRef={headingRef}
@@ -883,6 +897,9 @@ export function CaseView({
         />
         <MapToolbar
           reach={shown}
+          onExport={() => {
+            setExporting(true);
+          }}
           mode={mode}
           onMode={setMode}
           photoAvailable={photo !== null}
@@ -908,11 +925,11 @@ export function CaseView({
           {shown.archive != null ? (
             <ArchivePanel reach={shown} />
           ) : (
-            <RecordPanel
+            <ProofPanel
               reach={reach}
-              row={row}
-              thermal={tab === "thermal" ? thermalRow : null}
-              spot={spot}
+              onExport={() => {
+                setExporting(true);
+              }}
             />
           )}
         </div>
@@ -947,6 +964,14 @@ export function CaseView({
           onSpot={moveSpot}
         />
       </div>
+      <ExportDialog
+        open={exporting}
+        reach={reach}
+        title={reachCase.title}
+        onClose={() => {
+          setExporting(false);
+        }}
+      />
       <GuidedTour
         open={touring && landed && exit === null}
         ungauged={isUngauged(reach)}

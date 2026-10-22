@@ -1,7 +1,6 @@
 import { Columns2, Download, Layers, X } from "lucide-react";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
-import { csvOfSeries } from "../../reaches/export.ts";
 import { isUngauged } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
@@ -29,6 +28,8 @@ export interface MapToolbarProps {
   readonly onCompare: (index: number | null) => void;
   /** Index of the selected pass. */
   readonly selected: number;
+  /** Opens "Export with proof". */
+  readonly onExport: () => void;
 }
 
 // An earlier year (preregistration-archive.md) keeps no image of its passes: no NDTI, no true
@@ -139,15 +140,6 @@ export function MapToolbar(props: MapToolbarProps) {
       ? ["window", tools.windowUngauged, tools.windowUngaugedNote]
       : ["window", tools.window, tools.windowNote],
   ];
-  const download = () => {
-    const blob = new Blob([csvOfSeries(reach)], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${reach.info.site}-${(reach.series.at(-1)?.date ?? "2026").slice(0, 4)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-  };
   const toggle = (key: keyof Overlays) => {
     props.onOverlays({ ...overlays, [key]: !overlays[key] });
   };
@@ -265,29 +257,12 @@ export function MapToolbar(props: MapToolbarProps) {
           )}
         </Popover>
       )}
-      <Popover
-        label={tools.export}
-        icon={<Download size={15} strokeWidth={1.8} aria-hidden="true" />}
-      >
-        <button type="button" className="case-tools__item" onClick={download}>
-          {tools.exportCsv}
+      <div className="case-tools__group">
+        <button type="button" className="case-tools__btn" onClick={props.onExport}>
+          <Download size={15} strokeWidth={1.8} aria-hidden="true" />
+          <span className="case-tools__label">{CASE_COPY.proof.export}</span>
         </button>
-        <a className="case-tools__item" href={`${reach.base}geometry.geojson`} download>
-          {tools.exportGeometry}
-        </a>
-        {reach.archive == null ? (
-          <a className="case-tools__item" href={`${reach.base}ledger.jsonl`} download>
-            {tools.exportLedger}
-          </a>
-        ) : (
-          <a className="case-tools__item" href={`${reach.base}${reach.archive.file}`} download>
-            {CASE_COPY.archive.download(String(reach.archive.year))}
-          </a>
-        )}
-        <a className="case-tools__item" href={`${reach.base}cards/turbidity.json`} download>
-          {tools.exportCard}
-        </a>
-      </Popover>
+      </div>
     </div>
   );
 }

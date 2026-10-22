@@ -10,7 +10,7 @@ import {
   TriangleAlert,
   Undo2,
 } from "lucide-react";
-import { useId, type Ref } from "react";
+import { useId, type ReactNode, type Ref } from "react";
 
 import type { LedgerKind } from "../../chain/ledger.ts";
 import { useRecordAnchor } from "../../chain/useRecordAnchor.ts";
@@ -76,6 +76,8 @@ export interface CaseFileProps {
   readonly spot?: Spot | null;
   /** The reading spot's controls (null or absent: it cannot move on this reach). */
   readonly spotControls?: SpotControls | null;
+  /** "Check this reading" (on the reading card's trust strip). */
+  readonly check?: ReactNode;
   /** The years the case can show, newest first, the one asked for, and its choice. */
   readonly years?: readonly number[];
   readonly year?: number;
@@ -263,6 +265,7 @@ function Trust({
   recordSha256,
   level,
   help,
+  check,
 }: {
   readonly reach: ReachData;
   readonly kind: LedgerKind;
@@ -271,6 +274,8 @@ function Trust({
   readonly level: Level;
   /** What the level means here, behind its (?). */
   readonly help: string;
+  /** "Check this reading", after the marks. */
+  readonly check?: ReactNode;
 }) {
   const anchor = useRecordAnchor(reach, kind, recordSha256);
   const anchorText =
@@ -307,6 +312,7 @@ function Trust({
             <AnchorIcon size={14} strokeWidth={1.9} aria-hidden="true" />
             {anchorText}
           </span>
+          {check}
         </>
       )}
     </div>
@@ -489,6 +495,7 @@ export function CaseFile({
   years = [],
   year,
   onYear,
+  check,
 }: CaseFileProps) {
   const detailsId = useId();
   const [open, setOpen] = usePanelOpen("file");
@@ -600,6 +607,7 @@ export function CaseFile({
                 recordSha256={alongPass?.recordSha256 ?? null}
                 level="unvalidated"
                 help={turbidityHelp(reach, __FOUR_CLASSES__)}
+                check={check}
               />
             )}
             {card?.expectedError === undefined ? null : (
@@ -674,6 +682,7 @@ export function CaseFile({
                     ? CASE_COPY.levelHelpOutside
                     : CASE_COPY.levelHelp[level]
                 }
+                check={check}
               />
             )}
             {lockbox === undefined ? null : <Reliability lockbox={lockbox} />}

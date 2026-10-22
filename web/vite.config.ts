@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { extname, join, normalize, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -253,6 +254,38 @@ const howModels = {
   groups: noStationCard.trainingPairs.groups,
 };
 
+// "Export with proof" names the app that made it (its version, and the commit Vercel or git built).
+const appVersion = (
+  JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as {
+    version: string;
+  }
+).version;
+const appCommit = (() => {
+  if (process.env.VERCEL_GIT_COMMIT_SHA !== undefined) {
+    return process.env.VERCEL_GIT_COMMIT_SHA;
+  }
+  try {
+    return execSync("git rev-parse HEAD", { stdio: ["ignore", "pipe", "ignore"] })
+      .toString()
+      .trim();
+  } catch {
+    return "unknown";
+  }
+})();
+// The model sheets the along-the-river records name (each plan's card): the reach folders do not
+// hold them, so the export takes them from the build.
+const alongCards: Record<string, string> = {};
+for (const site of readdirSync(REACHES)) {
+  const plan = join(REACHES, site, "along", "windows.json");
+  if (existsSync(plan)) {
+    const card = (JSON.parse(readFileSync(plan, "utf8")) as { card: string }).card;
+    const file = fileURLToPath(new URL(`../${card}`, import.meta.url));
+    if (existsSync(file)) {
+      alongCards[card] = readFileSync(file, "utf8");
+    }
+  }
+}
+
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), reachData()],
@@ -270,5 +303,8 @@ export default defineConfig({
     __TRANSFER_POOLED__: JSON.stringify(transferPooled),
     __FOUR_CLASSES__: JSON.stringify(fourClasses),
     __ML_DSA_PUBLIC_KEY__: JSON.stringify(mlDsaKey),
+    __APP_VERSION__: JSON.stringify(appVersion),
+    __APP_COMMIT__: JSON.stringify(appCommit),
+    __ALONG_CARDS__: JSON.stringify(alongCards),
   },
 });

@@ -68,7 +68,7 @@ function steps(ungauged: boolean, outside: boolean): Step[] {
     },
     { target: "trust", title: t.trustTitle, body: t.trust },
     { target: "verify", title: t.verifyTitle, body: t.verify },
-    { target: "alter", title: t.alterTitle, body: t.alter },
+    { target: "proof", title: t.proofTitle, body: t.proof },
     { target: "layers", title: t.layersTitle, body: t.layers },
     { target: "tabs", title: t.tabsTitle, body: ungauged ? t.tabsUngauged : t.tabs },
     { target: "along", tab: "along", title: t.alongTitle, body: t.along },

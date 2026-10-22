@@ -60,6 +60,12 @@ declare const __HOW_MODELS__: {
 declare const __HOW_FLOW__: readonly import("./features/hero/ui/how/flow.ts").PackedStation[];
 /** The ML-DSA-65 public key that signs ledger heads (docs/keys/ml-dsa-65.json), hex. */
 declare const __ML_DSA_PUBLIC_KEY__: string;
+/** The app's version (web/package.json), named in every export's manifest. */
+declare const __APP_VERSION__: string;
+/** The commit the app was built from ("unknown" outside git), named in every export's manifest. */
+declare const __APP_COMMIT__: string;
+/** The along-the-river model sheets by their repository path, for "Export with proof". */
+declare const __ALONG_CARDS__: Readonly<Record<string, string>>;
 
 /** The reaches with an outcomes ledger (vite.config.ts, at startup). */
 declare const __OUTCOMES__: readonly string[];

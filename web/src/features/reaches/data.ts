@@ -276,6 +276,17 @@ export async function loadProof(file: string): Promise<Uint8Array | null> {
 }
 
 /**
+ * Fetches a file of a reach as text, or null when it is missing (for "Export with proof").
+ *
+ * @param base - The reach's folder ({@link reachBase}).
+ * @param path - The file, relative to it.
+ * @returns Its text, or null.
+ */
+export function loadTextOrNull(base: string, path: string): Promise<string | null> {
+  return fetchText(`${base}${path}`);
+}
+
+/**
  * Fetches a file of a reach as text (a record, the ledger, a card), for verification.
  *
  * @param base - The reach's folder ({@link reachBase}).

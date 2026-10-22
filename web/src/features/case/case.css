@@ -1499,6 +1499,123 @@ select.case-record__input {
   margin-top: 8px;
 }
 
+/* The Proof panel's two actions, each a button and its purpose in one line. */
+.case-action {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.case-action__btn {
+  justify-content: center;
+  width: 100%;
+  min-height: 36px;
+  font-size: var(--type-small);
+  cursor: pointer;
+}
+
+.case-action__purpose {
+  margin: 0;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+  line-height: 1.4;
+}
+
+/* A whole file's report: its verdict first, then what changed, was not found or is missing. */
+.case-report {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: var(--type-small);
+}
+
+.case-report__verdict {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--text-1);
+  line-height: 1.4;
+}
+
+.case-report__verdict svg {
+  flex: none;
+  margin-top: 2px;
+}
+
+.case-report__verdict[data-ok="true"] svg {
+  color: #34d399;
+}
+
+.case-report__verdict[data-ok="false"] svg {
+  color: #ff4f3f;
+}
+
+.case-report__verdict[data-ok="pending"] svg {
+  color: #f5b942;
+}
+
+.case-report__title {
+  margin: 4px 0 0;
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.case-report__list {
+  margin: 2px 0 0;
+  padding-left: 18px;
+  color: var(--text-2);
+}
+
+.case-report__list ul {
+  padding-left: 16px;
+  color: #f6d38f;
+}
+
+.case-report__note {
+  margin: 0;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+  line-height: 1.4;
+}
+
+.case-report__note[data-warn="true"] {
+  color: #f6d38f;
+}
+
+.case-report__hash {
+  overflow-wrap: anywhere;
+}
+
+/* "Check this reading": a small link on the reading card's trust strip. */
+.case-check-link {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-2);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.case-check-link:hover:not(:disabled) {
+  color: var(--text-1);
+}
+
+.case-check-link:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.case-check-link__note {
+  color: #ffc2bb;
+  font-size: var(--type-micro);
+}
+
 .case-record__file-btn {
   justify-content: center;
   width: 100%;
@@ -4137,6 +4254,112 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   border: 1px solid rgb(255 79 63 / 0.55);
   background: rgb(255 79 63 / 0.14);
   color: #ffc2bb;
+}
+
+/* The verdict first (shown at once), its steps folded under "Show the steps". Not posted on
+   Ethereum yet, or not read: amber, never the pass's green. */
+.case-proof__verdict--first {
+  margin-top: 4px;
+  opacity: 1;
+}
+
+.case-proof__verdict[data-ok="pending"] {
+  border: 1px solid rgb(245 185 66 / 0.5);
+  background: rgb(245 185 66 / 0.1);
+  color: #f6d38f;
+}
+
+.case-proof__more {
+  margin-top: 14px;
+}
+
+.case-proof__more > summary {
+  color: var(--text-2);
+  font-size: var(--type-small);
+  cursor: pointer;
+}
+
+.case-proof__more[open] > summary {
+  margin-bottom: 8px;
+}
+
+/* "Export with proof": the dialog's choices, its live count and its download. */
+.case-export__group {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.case-export__group legend {
+  margin-bottom: 6px;
+  color: var(--text-1);
+  font-size: var(--type-small);
+  font-weight: 600;
+}
+
+.case-export__choice {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--text-2);
+  font-size: var(--type-small);
+  cursor: pointer;
+}
+
+.case-export__choice input {
+  accent-color: var(--accent);
+}
+
+.case-export__dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  margin-left: 24px;
+  color: var(--text-2);
+  font-size: var(--type-small);
+}
+
+.case-export__dates input {
+  height: 30px;
+  padding: 0 8px;
+  border: 1px solid rgb(240 246 255 / 0.22);
+  border-radius: 8px;
+  background: rgb(10 16 32 / 0.9);
+  color: var(--text-1);
+  font: inherit;
+  color-scheme: dark;
+}
+
+.case-export__note {
+  margin: 2px 0 0;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+}
+
+.case-export__summary {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border: 1px solid rgb(240 246 255 / 0.14);
+  border-radius: 10px;
+  color: var(--text-1);
+  font-size: var(--type-small);
+  font-variant-numeric: tabular-nums;
+}
+
+.case-export__download {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.case-export__status {
+  min-height: 1.4em;
+  margin: 8px 0 0;
+  color: var(--text-2);
+  font-size: var(--type-small);
+  overflow-wrap: anywhere;
 }
 
 /* Below 1280 px the attribution wraps to two lines: keep the timeline clear of it. */
