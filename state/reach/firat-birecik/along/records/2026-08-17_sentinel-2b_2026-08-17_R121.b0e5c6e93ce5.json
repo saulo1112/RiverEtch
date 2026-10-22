@@ -1,0 +1,98 @@
+{
+  "schema": "riveretch.along-river.v1",
+  "reach": "firat-birecik",
+  "sceneId": "firat-birecik:sentinel-2b_2026-08-17_R121",
+  "date": "2026-08-17",
+  "observationRecordSha256": "ed5d46f39c25573991371d9efc7d3feee6108ab52121d67c8ae7c8e029dd5654",
+  "planSha256": "6e3ba6c35130e6ee55e7f90e5b5dfb2329548c1e85097e3b1dfe4d54f79a253b",
+  "card": "docs/water-quality/ungauged/firat-birecik/turbidity-4.json",
+  "modelCardSha256": "bfd24b6b5205785daad77cea9cd8f899c0d97f706ad90cc31949382a6762e197",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "outside_tested_region",
+  "items": [
+    {
+      "id": "S2B_37SCA_20260817_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2B_37SCB_20260817_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2B_37SDA_20260817_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2B_37SDB_20260817_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w02",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w03",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w04",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w08",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w11",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w12",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w13",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "log_B04/B02 outside the training range"
+    }
+  ],
+  "codeCommit": "78a874224cbd15ab37816091526a12be39620979",
+  "recordSha256": "b0e5c6e93ce5b581382bb4bd0a93b32c284f0218cc0a78951f1b269f5c0c05d5"
+}

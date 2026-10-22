@@ -1,0 +1,358 @@
+{
+  "site": "platte-louisville",
+  "spacingM": 600.0,
+  "firstM": 300.0,
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "windows": [
+    {
+      "id": "w01",
+      "chainageM": 300.0,
+      "lon": -96.153323,
+      "lat": 41.014853,
+      "widthM": 329.8,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w02",
+      "chainageM": 900.0,
+      "lon": -96.147742,
+      "lat": 41.017417,
+      "widthM": 339.4,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w03",
+      "chainageM": 1500.0,
+      "lon": -96.14213,
+      "lat": 41.0207,
+      "widthM": 282.8,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w04",
+      "chainageM": 2100.0,
+      "lon": -96.137215,
+      "lat": 41.024361,
+      "widthM": 268.3,
+      "snapM": 20.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w05",
+      "chainageM": 2700.0,
+      "lon": -96.133226,
+      "lat": 41.028585,
+      "widthM": 488.3,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w06",
+      "chainageM": 3300.0,
+      "lon": -96.129941,
+      "lat": 41.033007,
+      "widthM": 481.7,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w07",
+      "chainageM": 3900.0,
+      "lon": -96.124794,
+      "lat": 41.036481,
+      "widthM": 440.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w08",
+      "chainageM": 4500.0,
+      "lon": -96.118973,
+      "lat": 41.039037,
+      "widthM": 440.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w09",
+      "chainageM": 5100.0,
+      "lon": -96.113817,
+      "lat": 41.042691,
+      "widthM": 339.4,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w10",
+      "chainageM": 5700.0,
+      "lon": -96.108209,
+      "lat": 41.045793,
+      "widthM": 357.8,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w11",
+      "chainageM": 6300.0,
+      "lon": -96.102617,
+      "lat": 41.048534,
+      "widthM": 368.8,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w12",
+      "chainageM": 6900.0,
+      "lon": -96.096802,
+      "lat": 41.05091,
+      "widthM": 466.5,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w13",
+      "chainageM": 7500.0,
+      "lon": -96.09097,
+      "lat": 41.053645,
+      "widthM": 468.2,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w14",
+      "chainageM": 8100.0,
+      "lon": -96.084283,
+      "lat": 41.054196,
+      "widthM": 430.8,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w15",
+      "chainageM": 8700.0,
+      "lon": -96.078023,
+      "lat": 41.055839,
+      "widthM": 322.5,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w16",
+      "chainageM": 9300.0,
+      "lon": -96.071542,
+      "lat": 41.057115,
+      "widthM": 417.6,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w17",
+      "chainageM": 9900.0,
+      "lon": -96.065076,
+      "lat": 41.058031,
+      "widthM": 360.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w18",
+      "chainageM": 10500.0,
+      "lon": -96.05838,
+      "lat": 41.058761,
+      "widthM": 291.2,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w19",
+      "chainageM": 11100.0,
+      "lon": -96.052768,
+      "lat": 41.06186,
+      "widthM": 243.3,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w20",
+      "chainageM": 11700.0,
+      "lon": -96.046745,
+      "lat": 41.063507,
+      "widthM": 312.4,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w21",
+      "chainageM": 12300.0,
+      "lon": -96.040475,
+      "lat": 41.065327,
+      "widthM": 344.1,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w22",
+      "chainageM": 12900.0,
+      "lon": -96.033557,
+      "lat": 41.065689,
+      "widthM": 440.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w23",
+      "chainageM": 13500.0,
+      "lon": -96.026425,
+      "lat": 41.065505,
+      "widthM": 400.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w24",
+      "chainageM": 14100.0,
+      "lon": -96.020309,
+      "lat": 41.063906,
+      "widthM": 362.2,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w25",
+      "chainageM": 14700.0,
+      "lon": -96.014726,
+      "lat": 41.06106,
+      "widthM": 411.8,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w26",
+      "chainageM": 15300.0,
+      "lon": -96.009128,
+      "lat": 41.058573,
+      "widthM": 329.8,
+      "snapM": 20.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w27",
+      "chainageM": 15900.0,
+      "lon": -96.002005,
+      "lat": 41.058207,
+      "widthM": 456.1,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w28",
+      "chainageM": 16500.0,
+      "lon": -95.995145,
+      "lat": 41.057308,
+      "widthM": 394.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w29",
+      "chainageM": 17100.0,
+      "lon": -95.989547,
+      "lat": 41.05482,
+      "widthM": 312.4,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w30",
+      "chainageM": 17700.0,
+      "lon": -95.982925,
+      "lat": 41.053926,
+      "widthM": 288.4,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w31",
+      "chainageM": 18300.0,
+      "lon": -95.975778,
+      "lat": 41.054099,
+      "widthM": 200.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w32",
+      "chainageM": 18900.0,
+      "lon": -95.969516,
+      "lat": 41.055736,
+      "widthM": 339.4,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w33",
+      "chainageM": 19500.0,
+      "lon": -95.963917,
+      "lat": 41.05847,
+      "widthM": 312.4,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w34",
+      "chainageM": 20100.0,
+      "lon": -95.95745,
+      "lat": 41.05938,
+      "widthM": 280.0,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    },
+    {
+      "id": "w35",
+      "chainageM": 20700.0,
+      "lon": -95.950582,
+      "lat": 41.058658,
+      "widthM": 407.9,
+      "snapM": 0.0,
+      "selected": true,
+      "reason": ""
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "schema": "riveretch.along-river.v1",
+  "reach": "mississippi-st-joseph",
+  "sceneId": "mississippi-st-joseph:sentinel-2c_2026-05-04_R126",
+  "date": "2026-05-04",
+  "observationRecordSha256": "a37edbe6d5b1398257babc3c06c27bd9c9062e1c9aad495231f2cfdda490e0eb",
+  "planSha256": "13a507f4b0e66abd2ca4b13fbc8b231c4478d26743c9c01cc4e07bfb8deb6525",
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "transfer_test_ungauged",
+  "items": [
+    {
+      "id": "S2C_15SXR_20260504_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "100_and_over"
+    },
+    {
+      "id": "w02",
+      "fnuClass": "100_and_over"
+    },
+    {
+      "id": "w03",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w08",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w17",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w18",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w19",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w20",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w21",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w22",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w23",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w24",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w25",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w26",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w27",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w28",
+      "fnuClass": "100_and_over"
+    },
+    {
+      "id": "w29",
+      "fnuClass": "100_and_over"
+    }
+  ],
+  "codeCommit": "78a874224cbd15ab37816091526a12be39620979",
+  "recordSha256": "94cbbbfbbd5ce30a289d8929df2662b4e139cbe63580972cd7d93a8b9d11a387"
+}

@@ -1,0 +1,98 @@
+{
+  "schema": "riveretch.along-river.v1",
+  "reach": "firat-birecik",
+  "sceneId": "firat-birecik:sentinel-2a_2026-05-16_R121",
+  "date": "2026-05-16",
+  "observationRecordSha256": "4232c8d13784003d21aac135550c76ef838622162bafc336972fa768e72449d7",
+  "planSha256": "6e3ba6c35130e6ee55e7f90e5b5dfb2329548c1e85097e3b1dfe4d54f79a253b",
+  "card": "docs/water-quality/ungauged/firat-birecik/turbidity-4.json",
+  "modelCardSha256": "bfd24b6b5205785daad77cea9cd8f899c0d97f706ad90cc31949382a6762e197",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "outside_tested_region",
+  "items": [
+    {
+      "id": "S2A_37SCA_20260516_1_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2A_37SCB_20260516_1_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2A_37SDA_20260516_1_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2A_37SDB_20260516_1_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w02",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w03",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w08",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w16",
+      "fnuClass": "under_30"
+    }
+  ],
+  "codeCommit": "78a874224cbd15ab37816091526a12be39620979",
+  "recordSha256": "ea6c5acdca99e039d227c3e9f843a560cd9ba105171ef35d9f09be8fd2480bf0"
+}

@@ -1,7 +1,7 @@
 {
-  "updatedUtc": "2026-10-22T05:37:05+00:00",
+  "updatedUtc": "2026-10-22T06:53:03+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39728247226",
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39729735965",
     "ok": false,
     "steps": [
       {
@@ -18,7 +18,7 @@
       },
       {
         "args": "reach thermal --site mississippi-belle-chasse",
-        "exit": 0
+        "exit": 1
       },
       {
         "args": "reach context --site mississippi-belle-chasse",
@@ -30,7 +30,7 @@
       },
       {
         "args": "reach thermal --site platte-louisville",
-        "exit": 0
+        "exit": 1
       },
       {
         "args": "reach context --site platte-louisville",
@@ -58,19 +58,19 @@
       },
       {
         "args": "reach along --site mississippi-belle-chasse",
-        "exit": 1
+        "exit": 0
       },
       {
         "args": "reach along --site platte-louisville",
-        "exit": 1
+        "exit": 0
       },
       {
         "args": "reach along --site mississippi-st-joseph",
-        "exit": 1
+        "exit": 0
       },
       {
         "args": "reach along --site firat-birecik",
-        "exit": 1
+        "exit": 0
       },
       {
         "args": "reach check --site all --since 2026-01-01",
@@ -125,19 +125,25 @@
     "date": "2026-10-21"
   },
   "lastAnchor": {
-    "label": "terrachain:mississippi-belle-chasse:observations",
-    "lines": 38,
-    "block": 11966884,
-    "timestampUtc": "2026-10-22T03:31:36Z",
-    "tx": "0x006299cd58a637fafe4997b080b69ff92ae6bf6633103acddb1f64bb249f9a07"
+    "label": "terrachain:riveretch:frozen-artifacts",
+    "lines": 26,
+    "block": 11967444,
+    "timestampUtc": "2026-10-22T05:24:48Z",
+    "tx": "0xc64fa89ec59288956bd5395eaa5ff81a096783204b6d250b70267da6845b9556"
   },
   "lastBitcoin": {
     "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.38.ots",
     "height": 972558,
     "blockTime": "2026-10-22T03:03:42+00:00"
   },
-  "pendingBitcoin": 2,
+  "pendingBitcoin": 6,
   "proofs": [
+    {
+      "label": "terrachain:firat-birecik:along",
+      "lines": 93,
+      "file": "docs/ledgers/ots/terrachain_firat-birecik_along.93.ots",
+      "height": null
+    },
     {
       "label": "terrachain:firat-birecik:observations",
       "lines": 70,
@@ -149,6 +155,12 @@
       "lines": 93,
       "file": "docs/ledgers/ots/terrachain_firat-birecik_observations.93.ots",
       "height": 972412
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:along",
+      "lines": 38,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_along.38.ots",
+      "height": null
     },
     {
       "label": "terrachain:mississippi-belle-chasse:observations",
@@ -193,6 +205,12 @@
       "height": 972246
     },
     {
+      "label": "terrachain:mississippi-st-joseph:along",
+      "lines": 23,
+      "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_along.23.ots",
+      "height": null
+    },
+    {
       "label": "terrachain:mississippi-st-joseph:observations",
       "lines": 22,
       "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_observations.22.ots",
@@ -209,6 +227,12 @@
       "lines": 45,
       "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_observations.45.ots",
       "height": 972558
+    },
+    {
+      "label": "terrachain:platte-louisville:along",
+      "lines": 18,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_along.18.ots",
+      "height": null
     },
     {
       "label": "terrachain:platte-louisville:observations",
@@ -324,6 +348,20 @@
       "step": "reach along --site firat-birecik",
       "exit": 1,
       "reason": "firat-birecik: firat-birecik: docs/water-quality/preregistration-along-river.md is not anchored yet"
+    },
+    {
+      "utc": "2026-10-22T06:53:03+00:00",
+      "run": "https://github.com/saulo1112/RiverEtch/actions/runs/39729735965",
+      "step": "reach thermal --site mississippi-belle-chasse",
+      "exit": 1,
+      "reason": "pystac_client.exceptions.APIError: Request rate limited or blocked. Slow down, or contact planetarycomputer@microsoft.com with reference 20261022T055140Z-178dbddcf86z42rqhC1IADmtvg0000000u2g00000000157c."
+    },
+    {
+      "utc": "2026-10-22T06:53:03+00:00",
+      "run": "https://github.com/saulo1112/RiverEtch/actions/runs/39729735965",
+      "step": "reach thermal --site platte-louisville",
+      "exit": 1,
+      "reason": "pystac_client.exceptions.APIError: Request rate limited or blocked. Slow down, or contact planetarycomputer@microsoft.com with reference 20261022T055508Z-178dbddcf86z42rqhC1IADmtvg0000000ts0000000007uwu."
     }
   ]
 }

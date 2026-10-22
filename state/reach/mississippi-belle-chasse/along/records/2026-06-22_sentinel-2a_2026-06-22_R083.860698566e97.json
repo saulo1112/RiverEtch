@@ -1,0 +1,178 @@
+{
+  "schema": "riveretch.along-river.v1",
+  "reach": "mississippi-belle-chasse",
+  "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-06-22_R083",
+  "date": "2026-06-22",
+  "observationRecordSha256": "de284df264b71bbec48611350df80b016f14b3c132643f9a0c2b78bfe0b9d8f7",
+  "planSha256": "efe40180c42cecc9623d90a73457112c19445f23e343d9be5b8129b6c9a9e2b6",
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "transfer_test_ungauged",
+  "items": [
+    {
+      "id": "S2A_15RYP_20260622_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2A_16RBU_20260622_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w02",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w03",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w04",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w05",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w07",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w08",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w09",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w10",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w14",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w15",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w16",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w17",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w18",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w19",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w20",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w21",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w22",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w23",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w24",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w25",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w26",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w27",
+      "fnuClass": "50_to_100"
+    },
+    {
+      "id": "w28",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w29",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w30",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w31",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w32",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w33",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w34",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w35",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w36",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w37",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w38",
+      "abstainReason": "failed water-B11 check"
+    }
+  ],
+  "codeCommit": "78a874224cbd15ab37816091526a12be39620979",
+  "recordSha256": "860698566e97d2ffff27d53db148c74b68a10a5d7e456a55b9cd7f12ee1dbf06"
+}

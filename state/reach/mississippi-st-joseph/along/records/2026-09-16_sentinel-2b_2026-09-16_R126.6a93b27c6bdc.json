@@ -1,0 +1,138 @@
+{
+  "schema": "riveretch.along-river.v1",
+  "reach": "mississippi-st-joseph",
+  "sceneId": "mississippi-st-joseph:sentinel-2b_2026-09-16_R126",
+  "date": "2026-09-16",
+  "observationRecordSha256": "58dffd1e5c28b7835dc9788717fd0c76ba993ee914eb5cc648418a72b5270e51",
+  "planSha256": "13a507f4b0e66abd2ca4b13fbc8b231c4478d26743c9c01cc4e07bfb8deb6525",
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "transfer_test_ungauged",
+  "items": [
+    {
+      "id": "S2B_15SXR_20260916_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w02",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w03",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w08",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w17",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w18",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w19",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w20",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w21",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w22",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w23",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w24",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w25",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w26",
+      "fnuClass": "under_30"
+    },
+    {
+      "id": "w27",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w28",
+      "fnuClass": "30_to_50"
+    },
+    {
+      "id": "w29",
+      "fnuClass": "30_to_50"
+    }
+  ],
+  "codeCommit": "78a874224cbd15ab37816091526a12be39620979",
+  "recordSha256": "6a93b27c6bdcab3c4fb684171edf1dc16cd26aa2aff8dc4ed26271b993b12a3a"
+}
