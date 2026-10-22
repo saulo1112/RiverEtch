@@ -1171,6 +1171,35 @@
   color: #cdf6fd;
 }
 
+/* An earlier year (preregistration-archive.md): read again, never sealed. Its own quiet lilac and
+   a dashed outline set it apart from the sealed records' marks, and the words say it. */
+.case-chip--archive {
+  border-style: dashed;
+  border-color: rgb(196 181 253 / 0.45);
+  background: rgb(167 139 250 / 0.08);
+  color: #e7dcff;
+}
+
+.case-trust--archive {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+.case-timeline__archive {
+  gap: 8px;
+}
+
+.case-legend__archive {
+  margin: 8px 0 0;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+  line-height: 1.4;
+}
+
+.case-archive__text {
+  margin-top: 10px;
+}
+
 .case-file__interval {
   margin-top: 12px;
 }
@@ -2355,6 +2384,49 @@ select.case-record__input {
   color: var(--text-1);
   font-size: var(--type-body);
   font-weight: 560;
+}
+
+/* The year above the months (preregistration-archive.md): the sealed year, or an earlier year
+   read again and not sealed, said in words under the number. */
+.case-calendar__years {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.case-calendar__year {
+  display: grid;
+  justify-items: center;
+  margin: 0;
+  line-height: 1.15;
+}
+
+.case-calendar__year-number {
+  color: var(--text-1);
+  font-size: var(--type-title);
+  font-weight: 620;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.case-calendar__year-note {
+  color: var(--text-3);
+  font-size: var(--type-micro);
+}
+
+.case-calendar__year-note[data-sealed="false"] {
+  color: #e7dcff;
+}
+
+.case-calendar__loading {
+  margin: 0;
+  padding: 24px 0;
+  color: var(--text-3);
+  font-size: var(--type-small);
+  text-align: center;
 }
 
 .case-calendar__nav {

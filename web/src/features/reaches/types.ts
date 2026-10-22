@@ -589,17 +589,18 @@ export interface AlongData {
   readonly passes: readonly AlongPass[];
 }
 
-/** One earlier pass at the station's window (`history.json`), read by the reach's frozen card. */
-export interface HistoryRow {
-  readonly date: string;
-  readonly key: string;
-  readonly value: number | null;
-  readonly low: number | null;
-  readonly high: number | null;
-  readonly fnuClass: FnuClass | null;
-  readonly reason: string | null;
-  /** The card's training years (in sample), its locked test, after both, or a river it never saw. */
-  readonly phase: "training" | "test" | "after" | "unseen";
+/** What an earlier pass was to the model: training years, locked test, after both, or unseen. */
+export type ArchivePhase = "training" | "test" | "after" | "unseen";
+
+/** An earlier year the case view shows (preregistration-archive.md): recomputed, not sealed. */
+export interface ArchiveInfo {
+  readonly year: number;
+  /** The year's file, in the reach's folder (for its download). */
+  readonly file: string;
+  /** Each pass's phase, by scene id (Sentinel-2's and Landsat's alike). */
+  readonly phases: Readonly<Record<string, ArchivePhase>>;
+  /** The 2026 map whose water outline the year's classes are painted on (null: none). */
+  readonly outline: string | null;
 }
 
 export interface ReachData {
@@ -629,6 +630,8 @@ export interface ReachData {
   readonly along?: AlongData | null;
   /** Its water-temperature classes along the river, on the plan's windows (absent or null: none). */
   readonly alongTemperature?: readonly AlongTemperaturePass[] | null;
-  /** Its station window's earlier years (absent or null: none). */
-  readonly history?: readonly HistoryRow[] | null;
+  /** The earlier years it has (preregistration-archive.md; absent or null: none). */
+  readonly archiveYears?: readonly number[] | null;
+  /** Set when this is an earlier year, recomputed and not sealed (absent: the sealed year). */
+  readonly archive?: ArchiveInfo | null;
 }

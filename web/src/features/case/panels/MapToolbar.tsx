@@ -31,6 +31,10 @@ export interface MapToolbarProps {
   readonly selected: number;
 }
 
+// An earlier year (preregistration-archive.md) keeps no image of its passes: no NDTI, no true
+// colour, nothing to compare; its export is the year's file.
+const archived = (reach: ReachData) => reach.archive != null;
+
 const MODES: readonly { readonly id: LayerMode; readonly label: string }[] = [
   { id: "class", label: CASE_COPY.tools.classes },
   { id: "ndti", label: CASE_COPY.tools.ndti },
@@ -140,7 +144,7 @@ export function MapToolbar(props: MapToolbarProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `${reach.info.site}-2026.csv`;
+    link.download = `${reach.info.site}-${(reach.series.at(-1)?.date ?? "2026").slice(0, 4)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
   };
@@ -164,6 +168,7 @@ export function MapToolbar(props: MapToolbarProps) {
             className="case-tools__segment"
             disabled={
               (m.id === "photo" && !props.photoAvailable) ||
+              (m.id === "ndti" && archived(reach)) ||
               (m.id === "class" && props.classAvailable !== true)
             }
             onClick={() => {
@@ -229,35 +234,37 @@ export function MapToolbar(props: MapToolbarProps) {
           </span>
         </label>
       </Popover>
-      <Popover
-        label={tools.compare}
-        active={compareWith !== null}
-        onOff={() => {
-          props.onCompare(null);
-        }}
-        offLabel={tools.compareStop}
-        icon={<Columns2 size={15} strokeWidth={1.8} aria-hidden="true" />}
-      >
-        {(close) => (
-          <>
-            <p className="case-tools__heading">{tools.compareWith}</p>
-            <PassPicker
-              reach={reach}
-              selected={compareWith}
-              disabled={selected}
-              label={tools.compareWith}
-              autoFocus
-              onPick={(index, done) => {
-                props.onCompare(index);
-                if (done) {
-                  close();
-                }
-              }}
-            />
-            <p className="case-tools__note">{tools.compareHint}</p>
-          </>
-        )}
-      </Popover>
+      {archived(reach) ? null : (
+        <Popover
+          label={tools.compare}
+          active={compareWith !== null}
+          onOff={() => {
+            props.onCompare(null);
+          }}
+          offLabel={tools.compareStop}
+          icon={<Columns2 size={15} strokeWidth={1.8} aria-hidden="true" />}
+        >
+          {(close) => (
+            <>
+              <p className="case-tools__heading">{tools.compareWith}</p>
+              <PassPicker
+                reach={reach}
+                selected={compareWith}
+                disabled={selected}
+                label={tools.compareWith}
+                autoFocus
+                onPick={(index, done) => {
+                  props.onCompare(index);
+                  if (done) {
+                    close();
+                  }
+                }}
+              />
+              <p className="case-tools__note">{tools.compareHint}</p>
+            </>
+          )}
+        </Popover>
+      )}
       <Popover
         label={tools.export}
         icon={<Download size={15} strokeWidth={1.8} aria-hidden="true" />}
@@ -268,9 +275,15 @@ export function MapToolbar(props: MapToolbarProps) {
         <a className="case-tools__item" href={`${reach.base}geometry.geojson`} download>
           {tools.exportGeometry}
         </a>
-        <a className="case-tools__item" href={`${reach.base}ledger.jsonl`} download>
-          {tools.exportLedger}
-        </a>
+        {reach.archive == null ? (
+          <a className="case-tools__item" href={`${reach.base}ledger.jsonl`} download>
+            {tools.exportLedger}
+          </a>
+        ) : (
+          <a className="case-tools__item" href={`${reach.base}${reach.archive.file}`} download>
+            {CASE_COPY.archive.download(String(reach.archive.year))}
+          </a>
+        )}
         <a className="case-tools__item" href={`${reach.base}cards/turbidity.json`} download>
           {tools.exportCard}
         </a>

@@ -171,7 +171,8 @@ def _parser() -> argparse.ArgumentParser:
         "action",
         choices=("baseline", "run", "reread", "check", "examples", "render", "thermal",
                  "context", "climate", "score", "verify", "along-plan", "along",
-                 "along-temperature", "history"),
+                 "along-temperature", "history", "archive", "archive-temperature",
+                 "archive-index"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); reread: "
         "the passes whose record names an earlier card, read again with the current one "
@@ -188,7 +189,10 @@ def _parser() -> argparse.ArgumentParser:
         "only, once (preregistration-along-river.md); along: each recorded pass's class on every "
         "window, sealed in the reach's along ledger, beside the examples; along-temperature: "
         "each water-temperature pass's class on every window (preregistration-along-temperature.md"
-        "), sealed in its own ledger, beside the examples; history: the station "
+        "), sealed in its own ledger, beside the examples; archive, archive-temperature: the "
+        "earlier years 2019-2025 along the river and at the station, recomputed, not sealed "
+        "(preregistration-archive.md; --year to read one); archive-index: list the years written; "
+        "history: the station "
         "window's earlier passes read by the reach's card, beside the examples (web)",
     )  # fmt: skip
     reach.add_argument(
@@ -215,6 +219,10 @@ def _parser() -> argparse.ArgumentParser:
         "--cache", type=Path, default=Path("pipeline/out/cache"), help="caches, relative to root"
     )
     reach.add_argument("--workers", type=int, default=8)
+    reach.add_argument(
+        "--year", type=int, action="append", default=None,
+        help="archive, archive-temperature: one year to read (repeatable; default 2019 to 2025)",
+    )  # fmt: skip
     reach.add_argument(
         "--config", type=Path, default=Path("pipeline/reach.yaml"),
         help="settings, relative to the root",
@@ -732,6 +740,26 @@ def reach(args: argparse.Namespace) -> int:
             print(f"{site}: " + ("verified" if not problems else f"{len(problems)} problems"))
             failed += bool(problems)
         return 1 if failed else 0
+    if args.action in ("archive", "archive-temperature", "archive-index"):
+        from climate_pipeline.reach import archive
+
+        years = tuple(args.year) if args.year else archive.YEARS
+        codes = []
+        for site in sites:
+            try:
+                if args.action == "archive-index":
+                    for kind in ("archive", "archive-temperature"):
+                        if archive.folder(root, site, kind).exists():
+                            print(f"{site}: {archive.write_index(root, site, kind)}")
+                    continue
+                read = archive.run if args.action == "archive" else archive.run_temperature
+                result = read(cfg, root, site, root / args.cache, args.workers, years)
+                print(f"{site}: {result.read} passes read, {len(result.failed)} failed")
+                codes.append(result.exit_code)
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+                codes.append(1)
+        return max(codes, default=0)
     if args.action in ("along", "along-temperature", "history"):
         from climate_pipeline.reach import along, along_temperature, history
 

@@ -4,13 +4,13 @@
 // see vite.config.ts). The data say which they came from.
 import type { HeadSignature } from "../chain/mldsa.ts";
 import type { ProofEntry } from "../chain/witness.ts";
+import type { ArchivePass, ArchiveTemperaturePass, ArchiveYear } from "./archive.ts";
 import { parseChecks, parseContext, parseThermalChecks } from "./checks.ts";
 import type {
   AlongPass,
   AlongPlan,
   AlongTemperaturePass,
   ClimateRecord,
-  HistoryRow,
   MapsIndex,
   ModelCard,
   Outcome,
@@ -102,7 +102,7 @@ export function loadReach(id: string): Promise<ReachData> {
     const live = LIVE ? await fetchJson<SeriesRow[]>(`${liveBase(id)}series.json`) : null;
     const source = live === null ? "snapshot" : "live";
     const base = live === null ? reachBase(id) : liveBase(id);
-    const [info, series, maps, geometry, checks, context, climate, outcomes, plan, along, history] =
+    const [info, series, maps, geometry, checks, context, climate, outcomes, plan, along, years] =
       await Promise.all([
         fetchJson<ReachInfo>(`${base}reach.json`),
         live ?? fetchJson<SeriesRow[]>(`${base}series.json`),
@@ -118,7 +118,9 @@ export function loadReach(id: string): Promise<ReachData> {
         // Along the river and the station's earlier years (absent until the reach has them).
         fetchJson<AlongPlan>(`${base}along/windows.json`),
         fetchJson<AlongPass[]>(`${base}along/series.json`),
-        fetchJson<HistoryRow[]>(`${base}history.json`),
+        // The earlier years (preregistration-archive.md): the snapshot's copy when the live one
+        // has none yet.
+        archiveIndex(base, id),
       ]);
     if (info === null || series === null) {
       throw new Error(`${id}: the reach's files could not be loaded`);
@@ -158,7 +160,7 @@ export function loadReach(id: string): Promise<ReachData> {
       outcomes: jsonLines<Outcome>(outcomes),
       along: plan === null || along === null ? null : { plan, passes: along },
       alongTemperature: plan === null ? null : alongTemperature,
-      history,
+      archiveYears: years,
     };
   })();
   loads.set(id, pending);
@@ -166,6 +168,43 @@ export function loadReach(id: string): Promise<ReachData> {
     loads.delete(id);
   });
   return pending;
+}
+
+// The years with earlier passes (`archive/index.json`), from the reach's folder or its snapshot.
+interface Index {
+  readonly years: readonly { readonly year: number; readonly passes: number }[];
+}
+
+async function archiveIndex(base: string, id: string): Promise<number[] | null> {
+  const index =
+    (await fetchJson<Index>(`${base}archive/index.json`)) ??
+    (base === reachBase(id) ? null : await fetchJson<Index>(`${reachBase(id)}archive/index.json`));
+  return index === null ? null : index.years.filter((y) => y.passes > 0).map((y) => y.year);
+}
+
+/**
+ * One earlier year of a reach (preregistration-archive.md): its Sentinel-2 file and, on a reach
+ * with water temperature, its Landsat file; from the reach's folder or its snapshot.
+ *
+ * @param reach - The reach.
+ * @param year - The year.
+ * @returns The two files (null where missing).
+ */
+export async function loadArchive(
+  reach: ReachData,
+  year: number,
+): Promise<[ArchiveYear<ArchivePass> | null, ArchiveYear<ArchiveTemperaturePass> | null]> {
+  const one = async <T>(path: string): Promise<T | null> =>
+    (await fetchJson<T>(`${reach.base}${path}`)) ??
+    (reach.base === reachBase(reach.info.site)
+      ? null
+      : await fetchJson<T>(`${reachBase(reach.info.site)}${path}`));
+  return Promise.all([
+    one<ArchiveYear<ArchivePass>>(`archive/${String(year)}.json`),
+    reach.thermal === null
+      ? Promise.resolve(null)
+      : one<ArchiveYear<ArchiveTemperaturePass>>(`archive-temperature/${String(year)}.json`),
+  ]);
 }
 
 /** The daily run's status (`status.json` on the data branch, pipeline/src/climate_pipeline/status.py). */

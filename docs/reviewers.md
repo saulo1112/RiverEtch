@@ -50,8 +50,8 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
 7. **Along the river** (bottom tabs): the year's passes along the whole reach, one column per
    pass and one row per 600 m stretch, coloured by class (turbidity, or water temperature where the
    reach has it); hover a stretch to mark it on the map, click it to move the reading spot there.
-   The **Turbidity** tab beside it has a year menu: an earlier year is the station window, read
-   by the same frozen model and labelled in sample or locked test.
+   The case file's calendar also chooses the year: 2019 to 2025 are read again with the same frozen
+   models and labelled "Recomputed, not sealed", with each pass's training years or locked test.
 8. **Track record** (reaches with a station): the counts checked after the station's value was
    public, then the passes sealed before it was read (0 until a pass after T0 is scored).
 9. **Climate → Extreme days:** the station's own record of low-flow, high-flow and warm-water

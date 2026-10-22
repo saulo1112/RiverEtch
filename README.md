@@ -107,6 +107,11 @@ model, the same windows also get a water-temperature class on each Landsat pass 
 ([preregistration](docs/water-quality/preregistration-along-temperature.md)). The station stays marked where it stands, and only its
 window shows a value with a unit.
 
+**Earlier years.** The calendar also opens 2019 to 2025. Those years are read again with the same
+frozen models, along the river and at the station, and every panel labels them "Recomputed, not
+sealed": a pass read after the fact is not a record
+([preregistration](docs/water-quality/preregistration-archive.md)).
+
 - **Fixed before any stretch was read.** The windows, the model and the labels were frozen and
   anchored on Ethereum first ([preregistration](docs/water-quality/preregistration-along-river.md)).
 - **Sealed like every record.** Each pass along the river is a record in the reach's own ledger

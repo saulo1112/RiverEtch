@@ -378,22 +378,31 @@ export const CASE_COPY = {
     scoreboard: "Track record",
     along: "Along the river",
   },
-  // A station window's earlier years (preregistration-along-river.md, section 5): read only.
-  history: {
-    year: "Year",
-    yearLabel: "Which year the chart shows",
-    // The caption's line: what this year's passes were to the model.
+  // The earlier years, 2019 to 2025 (preregistration-archive.md): recomputed, not sealed.
+  archive: {
+    label: "Recomputed, not sealed",
     phases: {
-      training: "in sample",
-      test: "locked test",
+      training: "training years: the model learned from this period",
+      test: "locked test: passes the model never saw",
       after: "after the locked test",
       unseen: "a river the model never saw",
     },
-    line: (phases: string) => `Station window, not sealed: ${phases}`,
     helpLabel: "About earlier years",
-    // Behind the (?): what the line means.
-    help: "An earlier year shows the station window only, read by the same frozen model. These are not sealed records. In sample: the model learned from these passes, so they do not test it. Locked test: passes the model never saw while it was built.",
-    noPasses: "No usable pass of the station window this year.",
+    help: "Read again in 2026 from the public satellite images, with the same frozen models as the sealed records. A pass read after the fact is not a record, so nothing here is sealed or anchored. Training years: the model learned from this period, so its passes do not test it. Locked test: passes the model never saw while it was built.",
+    year: "Year",
+    yearLabel: "Which year the case shows",
+    earlier: "Earlier year",
+    later: "Later year",
+    sealedYear: "Sealed records",
+    loading: (year: string) => `Loading ${year}…`,
+    back: (year: string) => `Back to ${year}`,
+    recordCaption: (year: string) => `${year} · recomputed, not sealed`,
+    recordText:
+      "Earlier years are read again from the public images with the same frozen models. They are not sealed records, so there is nothing to verify here. The year's file names the code and the models, so anyone can read the same passes again and compare.",
+    download: (year: string) => `Download ${year} (JSON)`,
+    mapNote:
+      "An earlier year: each stretch's class, painted on the river's 2026 outline. No image of the pass is kept.",
+    quality: "Recomputed from the satellite, not sealed",
   },
   // Along the whole river (preregistration-along-river.md): a class for each stretch, pass by pass.
   along: {
@@ -660,7 +669,12 @@ export const CASE_COPY = {
       "00630": "Nitrate + nitrite (N)",
     } as Readonly<Record<string, string>>,
   },
-  play: { play: "Play 2026", pause: "Pause", previous: "Previous pass", next: "Next pass" },
+  play: {
+    play: (year: string) => `Play ${year}`,
+    pause: "Pause",
+    previous: "Previous pass",
+    next: "Next pass",
+  },
   profile: {
     title: "NDTI along the river, upstream to downstream",
     unusable: "unusable stretch",

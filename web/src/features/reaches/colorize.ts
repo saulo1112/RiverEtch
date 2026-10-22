@@ -20,6 +20,11 @@ export interface ColorizeOptions {
    * byte (256 entries; alpha 0 marks a stretch with no class on the pass).
    */
   readonly classes?: Uint8ClampedArray | null;
+  /**
+   * Paint every water pixel by its class, ignoring the pass's unusable pixels: an earlier year
+   * drawn on a 2026 pass's water outline, whose clouds are not its own.
+   */
+  readonly wholeRiver?: boolean;
 }
 
 const LUT_SIZE = 256;
@@ -196,7 +201,8 @@ export class Colorizer {
         }
         const code = packed[p + 2] ?? 0;
         const byte = packed[p] ?? 0;
-        if ((code & UNUSABLE_BIT) !== 0 || byte === 0) {
+        const whole = options.wholeRiver === true && options.classes != null;
+        if (!whole && ((code & UNUSABLE_BIT) !== 0 || byte === 0)) {
           const stroke = (x + y) % HATCH < 2;
           out[p] = HATCH_RGB[0];
           out[p + 1] = HATCH_RGB[1];

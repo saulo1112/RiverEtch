@@ -12,7 +12,7 @@ import {
   TEMPERATURE_COLORS,
   TEMPERATURE_EDGES,
 } from "../../reaches/along.ts";
-import { chartYears, sealedYear, yearPhases, yearReach } from "../../reaches/history.ts";
+import { yearPhases } from "../../reaches/archive.ts";
 import { temperaturePoints, turbidityPoints, type Spot } from "../spot.ts";
 import { AlongView, type AlongVariable } from "./AlongView.tsx";
 import { BandChart } from "./BandChart.tsx";
@@ -150,16 +150,12 @@ function Caption({
   onPassView,
   climateView,
   onClimateView,
-  year,
-  onYear,
   spot,
   variable,
   onVariable,
 }: {
   readonly tab: BottomTab;
   readonly reach: ReachData;
-  readonly year: number;
-  readonly onYear: (year: number) => void;
   readonly spot: Spot | null;
   readonly variable: AlongVariable;
   readonly onVariable: (variable: AlongVariable) => void;
@@ -169,31 +165,27 @@ function Caption({
   readonly onClimateView: (view: ClimateTabView) => void;
 }) {
   const upstream = thermalValidatedAt(reach);
-  const years = chartYears(reach);
-  const picker =
-    tab === "series" && spot === null && years.length > 1 ? (
-      <label className="case-timeline__year">
-        <span className="case-visually-hidden">{CASE_COPY.history.yearLabel}</span>
-        <select
-          className="case-timeline__year-select"
-          value={year}
-          aria-label={CASE_COPY.history.yearLabel}
-          onChange={(event) => {
-            onYear(Number(event.target.value));
-          }}
-        >
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-      </label>
-    ) : null;
+  // An earlier year (preregistration-archive.md): recomputed, not sealed, and what its passes
+  // were to the model, said first on its charts.
+  const { archive } = CASE_COPY;
+  const phases = yearPhases(reach)
+    .map((p) => archive.phases[p])
+    .join(", then ");
+  const recomputed =
+    reach.archive == null || (tab !== "series" && tab !== "thermal" && tab !== "quality") ? null : (
+      <li className="case-timeline__archive">
+        <span className="case-chip case-chip--archive">{archive.label}</span>
+        <span>{phases}</span>
+        <HelpTip label={archive.helpLabel} float>
+          {archive.help}
+        </HelpTip>
+      </li>
+    );
   // Away from the start: the stretch's classes, the height meaning the class only.
   if (spot !== null && (tab === "series" || tab === "thermal")) {
     return (
       <ul className="case-timeline__caption case-timeline__keys">
+        {recomputed}
         <li>
           <span
             className={`case-timeline__key case-timeline__key--${tab === "series" ? "sat" : "thermal"}`}
@@ -212,25 +204,13 @@ function Caption({
       </ul>
     );
   }
-  if (tab === "series" && spot === null && year !== sealedYear(reach)) {
-    const { history } = CASE_COPY;
-    const phases = yearPhases(reach.history ?? [], year)
-      .map((p) => history.phases[p])
-      .join(", then ");
-    return (
-      <p className="case-timeline__caption case-timeline__keys">
-        {picker}
-        <span>{phases === "" ? history.noPasses : history.line(phases)}</span>
-        <HelpTip label={history.helpLabel} float>
-          {history.help}
-        </HelpTip>
-      </p>
-    );
+  if (tab === "quality" && recomputed !== null) {
+    return <ul className="case-timeline__caption case-timeline__keys">{recomputed}</ul>;
   }
   if (tab === "series" && isUngauged(reach)) {
     return (
       <ul className="case-timeline__caption case-timeline__keys">
-        {picker === null ? null : <li>{picker}</li>}
+        {recomputed}
         <li>
           <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
           {CASE_COPY.ungauged.chartKey}
@@ -241,26 +221,29 @@ function Caption({
   if (tab === "series") {
     return (
       <ul className="case-timeline__caption case-timeline__keys">
-        {picker === null ? null : <li>{picker}</li>}
+        {recomputed}
         <li>
           <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
           {CASE_COPY.timelineSatellite}
         </li>
-        <li>
-          <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
-          {CASE_COPY.timelineGauge}
-        </li>
+        {reach.archive == null ? (
+          <li>
+            <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
+            {CASE_COPY.timelineGauge}
+          </li>
+        ) : null}
       </ul>
     );
   }
   if (tab === "thermal") {
     return (
       <ul className="case-timeline__caption case-timeline__keys">
+        {recomputed}
         <li>
           <span className="case-timeline__key case-timeline__key--thermal" aria-hidden="true" />
           {CASE_COPY.thermal.satellite}
         </li>
-        <li>
+        <li hidden={reach.archive != null}>
           <span className="case-timeline__key case-timeline__key--gauge" aria-hidden="true" />
           {upstream === null ? CASE_COPY.thermal.gauge : CASE_COPY.thermal.upstreamGauge(upstream)}
         </li>
@@ -413,21 +396,22 @@ export function Timeline(props: TimelineProps) {
   const { play, tabs } = CASE_COPY;
   const [passView, setPassView] = useState<PassView>("stats");
   const [climateView, setClimateView] = useState<ClimateTabView>("values");
-  const [year, setYear] = useState(() => sealedYear(reach));
   const [variable, setVariable] = useState<AlongVariable>("turbidity");
   const { spot } = props;
-  const [earlier, setEarlier] = useState(0);
-  const pastYear = spot === null && year !== sealedYear(reach) ? yearReach(reach, year) : null;
   const alongTemperature = variable === "temperature" && hasAlongTemperature(reach);
   const last = reach.series.length - 1;
   const row = reach.series[selected] ?? null;
-  // A reach with no gauge is never scored: no scoreboard.
+  // A reach with no gauge is never scored: no scoreboard. An earlier year keeps no image of its
+  // passes and no track record: no image details, no scoreboard.
+  const archived = reach.archive != null;
   const shown = TABS.filter(
     (t) =>
       (t !== "thermal" || reach.thermal !== null) &&
       (t !== "climate" || reach.climate !== null) &&
-      (t !== "scoreboard" || !isUngauged(reach)),
+      (t !== "scoreboard" || (!isUngauged(reach) && !archived)) &&
+      (t !== "pass" || !archived),
   );
+  const year = (row?.date ?? reach.series.at(-1)?.date ?? "2026").slice(0, 4);
   return (
     <section className="case-panel case-timeline case-glass" data-frame="" aria-label={tabs[tab]}>
       <header className="case-timeline__head">
@@ -451,7 +435,7 @@ export function Timeline(props: TimelineProps) {
             {/* Both labels share one cell, so the button keeps the longer one's width. */}
             <span className="case-timeline__play-face" data-shown={!playing}>
               <Play size={15} strokeWidth={2} aria-hidden="true" />
-              {play.play}
+              {play.play(year)}
             </span>
             <span className="case-timeline__play-face" data-shown={playing}>
               <Pause size={15} strokeWidth={2} aria-hidden="true" />
@@ -495,11 +479,6 @@ export function Timeline(props: TimelineProps) {
           }}
           climateView={climateView}
           onClimateView={setClimateView}
-          year={year}
-          onYear={(y) => {
-            setYear(y);
-            setEarlier(0);
-          }}
           spot={spot}
           variable={variable}
           onVariable={setVariable}
@@ -532,13 +511,6 @@ export function Timeline(props: TimelineProps) {
               ariaLabel={CASE_COPY.thermal.hint}
               idPrefix="case-stretch-thermal"
               tone="thermal"
-            />
-          ) : tab === "series" && pastYear !== null ? (
-            <SeriesChart
-              reach={pastYear}
-              selected={Math.min(earlier, Math.max(0, pastYear.series.length - 1))}
-              compared={null}
-              onSelect={setEarlier}
             />
           ) : tab === "series" ? (
             <SeriesChart

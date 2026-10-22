@@ -115,6 +115,11 @@ flowchart LR
   and over): an along-river temperature record (`riveretch.along-temperature.v1`) in the ledger
   `terrachain:<reach>:along-temperature`
   ([preregistration](water-quality/preregistration-along-temperature.md)).
+- **Earlier years.** `reach archive` and `reach archive-temperature` read the years before the
+  sealed records (2019 to 2025) once, with the same frozen models and code paths, along the river
+  and at the station; the results are written per reach and year beside the examples, recomputed
+  and never sealed ([preregistration](water-quality/preregistration-archive.md)). The app's
+  calendar chooses the year; an earlier year is painted on the river's 2026 outline.
 - **The reading spot.** The web app's reading spot moves to any window of the plan; away from
   the start it shows that window's classes from the along-river records, never a value. Where
   there is no estimate, the app says "No reading"; the record keeps the reason.

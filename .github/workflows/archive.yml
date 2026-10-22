@@ -1,0 +1,112 @@
+# The earlier years, 2019 to 2025 (docs/water-quality/preregistration-archive.md): read once, by
+# hand, after that preregistration's line is anchored (the pipeline refuses before). One job per
+# reach and year for Sentinel-2, one per reach for Landsat, in parallel; each uploads its files as
+# an artifact, which the owner downloads and commits beside the examples. It needs no secret and
+# never pushes.
+name: Earlier years
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sentinel:
+    name: Sentinel-2 ${{ matrix.site }} ${{ matrix.year }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 14
+      matrix:
+        site: [mississippi-belle-chasse, platte-louisville, mississippi-st-joseph, firat-birecik]
+        year: [2019, 2020, 2021, 2022, 2023, 2024, 2025]
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: "0.12.23"
+          working-directory: pipeline
+
+      - name: Install dependencies (locked)
+        working-directory: pipeline
+        run: uv sync --locked
+
+      # The daily run's band and geometry reads, so the reach's frozen geometry is not read again.
+      - name: Restore the daily run's cache
+        uses: actions/cache/restore@v6
+        with:
+          path: pipeline/out/cache
+          key: archive-${{ github.run_id }}
+          restore-keys: daily-
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: Read the year
+        working-directory: pipeline
+        run: >-
+          uv run climate-pipeline reach archive --site ${{ matrix.site }}
+          --year ${{ matrix.year }} --root ..
+
+      - name: Upload the year
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive-${{ matrix.site }}-${{ matrix.year }}
+          path: docs/water-quality/reach/${{ matrix.site }}/examples/archive/${{ matrix.year }}.json
+          if-no-files-found: warn
+
+  landsat:
+    name: Landsat ${{ matrix.site }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        site: [mississippi-belle-chasse, platte-louisville]
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@bec219d24cd3e171d82865faccec33120bb574f4 # v10.1.0
+        with:
+          version: "0.12.23"
+          working-directory: pipeline
+
+      - name: Install dependencies (locked)
+        working-directory: pipeline
+        run: uv sync --locked
+
+      - name: Restore the daily run's cache
+        uses: actions/cache/restore@v6
+        with:
+          path: pipeline/out/cache
+          key: archive-landsat-${{ github.run_id }}
+          restore-keys: daily-
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+          df -h /
+
+      - name: Read the years
+        working-directory: pipeline
+        run: uv run climate-pipeline reach archive-temperature --site ${{ matrix.site }} --root ..
+
+      - name: Upload the years
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: archive-temperature-${{ matrix.site }}
+          path: docs/water-quality/reach/${{ matrix.site }}/examples/archive-temperature/
+          if-no-files-found: warn

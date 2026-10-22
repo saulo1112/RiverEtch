@@ -76,6 +76,42 @@ export interface CaseFileProps {
   readonly spot?: Spot | null;
   /** The reading spot's controls (null or absent: it cannot move on this reach). */
   readonly spotControls?: SpotControls | null;
+  /** The years the case can show, newest first, the one asked for, and its choice. */
+  readonly years?: readonly number[];
+  readonly year?: number;
+  readonly onYear?: (year: number) => void;
+}
+
+// An earlier year's strip, in place of the record's (preregistration-archive.md): recomputed, not
+// sealed, what the pass was to the model, and the way back to the sealed year.
+function ArchiveStrip({
+  reach,
+  row,
+  latest,
+  onLatest,
+}: {
+  readonly reach: ReachData;
+  readonly row: SeriesRow;
+  readonly latest: number | undefined;
+  readonly onLatest: (() => void) | null;
+}) {
+  const copy = CASE_COPY.archive;
+  const phase = reach.archive?.phases[row.sceneId];
+  return (
+    <div className="case-trust case-trust--archive" role="group" aria-label={copy.label}>
+      <span className="case-trust__level">
+        <span className="case-chip case-chip--archive">{copy.label}</span>
+        <HelpTip label={copy.helpLabel}>{copy.help}</HelpTip>
+      </span>
+      {phase === undefined ? null : <span className="case-trust__item">{copy.phases[phase]}</span>}
+      {onLatest === null || latest === undefined ? null : (
+        <button type="button" className="case-spot__back" onClick={onLatest}>
+          <Undo2 size={13} strokeWidth={2} aria-hidden="true" />
+          {copy.back(String(latest))}
+        </button>
+      )}
+    </div>
+  );
 }
 
 /** Where the reading spot is, and how it moves. */
@@ -450,6 +486,9 @@ export function CaseFile({
   onSelect,
   spot = null,
   spotControls = null,
+  years = [],
+  year,
+  onYear,
 }: CaseFileProps) {
   const detailsId = useId();
   const [open, setOpen] = usePanelOpen("file");
@@ -470,6 +509,36 @@ export function CaseFile({
   const stretchClass = spot === null ? null : (alongPass?.classes[spot.index] ?? null);
   const spotRow =
     spotControls === null ? null : <SpotRow controls={spotControls} gauged={!noGauge} />;
+  // The calendar, with the year above its months.
+  const chooser = (date: string) =>
+    selected === undefined || onSelect === undefined ? (
+      formatDate(date, true)
+    ) : (
+      <DayChooser
+        reach={reach}
+        selected={selected}
+        onSelect={onSelect}
+        years={years}
+        year={year}
+        onYear={onYear}
+      />
+    );
+  const latest = years[0];
+  const archiveStrip =
+    reach.archive == null || row === null ? null : (
+      <ArchiveStrip
+        reach={reach}
+        row={row}
+        latest={latest}
+        onLatest={
+          onYear === undefined || latest === undefined
+            ? null
+            : () => {
+                onYear(latest);
+              }
+        }
+      />
+    );
   return (
     <div className="case-panel case-top" data-frame="">
       <div className="case-bar" role="group" aria-label={CASE_COPY.tour.bar}>
@@ -514,12 +583,7 @@ export function CaseFile({
             aria-label={CASE_COPY.spot.turbidity}
           >
             <p className="case-file__metric">
-              {CASE_COPY.spot.turbidity} ·{" "}
-              {selected === undefined || onSelect === undefined ? (
-                formatDate(row.date, true)
-              ) : (
-                <DayChooser reach={reach} selected={selected} onSelect={onSelect} />
-              )}
+              {CASE_COPY.spot.turbidity} · {chooser(row.date)}
             </p>
             <p className="case-file__value">
               {stretchClass === null ? (
@@ -529,13 +593,15 @@ export function CaseFile({
               )}
             </p>
             {spotRow}
-            <Trust
-              reach={reach}
-              kind="along"
-              recordSha256={alongPass?.recordSha256 ?? null}
-              level="unvalidated"
-              help={turbidityHelp(reach, __FOUR_CLASSES__)}
-            />
+            {archiveStrip ?? (
+              <Trust
+                reach={reach}
+                kind="along"
+                recordSha256={alongPass?.recordSha256 ?? null}
+                level="unvalidated"
+                help={turbidityHelp(reach, __FOUR_CLASSES__)}
+              />
+            )}
             {card?.expectedError === undefined ? null : (
               <ExpectedErrorNote
                 error={card.expectedError}
@@ -554,12 +620,7 @@ export function CaseFile({
             aria-label={noGauge ? ungauged.turbidity : CASE_COPY.turbidity}
           >
             <p className="case-file__metric">
-              {noGauge ? ungauged.turbidity : CASE_COPY.turbidity} ·{" "}
-              {selected === undefined || onSelect === undefined ? (
-                formatDate(row.date, true)
-              ) : (
-                <DayChooser reach={reach} selected={selected} onSelect={onSelect} />
-              )}
+              {noGauge ? ungauged.turbidity : CASE_COPY.turbidity} · {chooser(row.date)}
             </p>
             {noGauge ? (
               <>
@@ -602,17 +663,19 @@ export function CaseFile({
                 {spotRow}
               </>
             )}
-            <Trust
-              reach={reach}
-              kind="observations"
-              recordSha256={row.recordSha256}
-              level={level}
-              help={
-                level === "unvalidated" && isOutside(reach)
-                  ? CASE_COPY.levelHelpOutside
-                  : CASE_COPY.levelHelp[level]
-              }
-            />
+            {archiveStrip ?? (
+              <Trust
+                reach={reach}
+                kind="observations"
+                recordSha256={row.recordSha256}
+                level={level}
+                help={
+                  level === "unvalidated" && isOutside(reach)
+                    ? CASE_COPY.levelHelpOutside
+                    : CASE_COPY.levelHelp[level]
+                }
+              />
+            )}
             {lockbox === undefined ? null : <Reliability lockbox={lockbox} />}
             {noGauge ? <Published reach={reach} cls={fnuClass} /> : null}
             {card?.expectedError === undefined ? null : (

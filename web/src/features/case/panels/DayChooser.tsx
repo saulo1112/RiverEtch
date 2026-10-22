@@ -1,4 +1,4 @@
-import { CalendarDays } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
@@ -17,6 +17,58 @@ export interface DayChooserProps {
   /** Index of the selected pass. */
   readonly selected: number;
   readonly onSelect: (index: number) => void;
+  /** The years the case can show, newest first (the sealed year first); one: no year control. */
+  readonly years?: readonly number[];
+  /** The year asked for (it may still be loading). */
+  readonly year?: number;
+  readonly onYear?: (year: number) => void;
+}
+
+// The year above the month: a step to an earlier or a later year, and what that year is.
+function YearStep({
+  years,
+  year,
+  onYear,
+}: {
+  readonly years: readonly number[];
+  readonly year: number;
+  readonly onYear: (year: number) => void;
+}) {
+  const copy = CASE_COPY.archive;
+  const at = years.indexOf(year);
+  const sealed = at === 0;
+  return (
+    <div className="case-calendar__years" role="group" aria-label={copy.yearLabel}>
+      <button
+        type="button"
+        className="case-calendar__nav"
+        aria-label={copy.earlier}
+        disabled={at < 0 || at >= years.length - 1}
+        onClick={() => {
+          onYear(years[at + 1] ?? year);
+        }}
+      >
+        <ChevronLeft size={16} strokeWidth={1.8} aria-hidden="true" />
+      </button>
+      <p className="case-calendar__year" aria-live="polite">
+        <span className="case-calendar__year-number">{year}</span>
+        <span className="case-calendar__year-note" data-sealed={sealed}>
+          {sealed ? copy.sealedYear : copy.label}
+        </span>
+      </p>
+      <button
+        type="button"
+        className="case-calendar__nav"
+        aria-label={copy.later}
+        disabled={at <= 0}
+        onClick={() => {
+          onYear(years[at - 1] ?? year);
+        }}
+      >
+        <ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
+      </button>
+    </div>
+  );
 }
 
 /**
@@ -29,15 +81,27 @@ export interface DayChooserProps {
  * @param props.reach - The reach, with its year's passes.
  * @param props.selected - Index of the selected pass.
  * @param props.onSelect - Called with the pass chosen.
+ * @param props.years - The years the case can show, newest first.
+ * @param props.year - The year asked for.
+ * @param props.onYear - Called with a year chosen.
  * @returns The button, and the calendar while it is open.
  */
-export function DayChooser({ reach, selected, onSelect }: DayChooserProps) {
+export function DayChooser({
+  reach,
+  selected,
+  onSelect,
+  years = [],
+  year,
+  onYear,
+}: DayChooserProps) {
   const [place, setPlace] = useState<{ top: number; left: number; host: Element } | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
   const id = useId();
   const open = place !== null;
   const date = reach.series[selected]?.date;
+  // The year the calendar shows (the reach given may still be the year before the one asked for).
+  const shownYear = Number((reach.series.at(-1)?.date ?? "2026").slice(0, 4));
 
   const close = (refocus: boolean) => {
     setPlace(null);
@@ -118,18 +182,26 @@ export function DayChooser({ reach, selected, onSelect }: DayChooserProps) {
               className="case-calendar-pop case-glass"
               style={{ top: `${String(place.top)}px`, left: `${String(place.left)}px` }}
             >
-              <PassPicker
-                reach={reach}
-                selected={selected}
-                label={copy.label}
-                autoFocus
-                onPick={(index, done) => {
-                  onSelect(index);
-                  if (done) {
-                    close(true);
-                  }
-                }}
-              />
+              {years.length > 1 && year !== undefined && onYear !== undefined ? (
+                <YearStep years={years} year={year} onYear={onYear} />
+              ) : null}
+              {year !== undefined && shownYear !== year ? (
+                <p className="case-calendar__loading">{CASE_COPY.archive.loading(String(year))}</p>
+              ) : (
+                <PassPicker
+                  key={shownYear}
+                  reach={reach}
+                  selected={selected}
+                  label={copy.label}
+                  autoFocus
+                  onPick={(index, done) => {
+                    onSelect(index);
+                    if (done) {
+                      close(true);
+                    }
+                  }}
+                />
+              )}
             </div>,
             place.host,
           )}

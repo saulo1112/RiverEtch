@@ -13,6 +13,8 @@ export interface LegendProps {
   readonly movable?: boolean;
   /** The reading spot has moved away from the start (the station is then marked on its own). */
   readonly moved?: boolean;
+  /** An earlier year is shown: its classes on the river's 2026 outline (preregistration-archive.md). */
+  readonly archived?: boolean;
 }
 
 /**
@@ -22,7 +24,13 @@ export interface LegendProps {
  *
  * @returns The legend panel.
  */
-export function Legend({ mode, ungauged = false, movable = false, moved = false }: LegendProps) {
+export function Legend({
+  mode,
+  ungauged = false,
+  movable = false,
+  moved = false,
+  archived = false,
+}: LegendProps) {
   return (
     <aside
       className="case-panel case-legend case-glass"
@@ -65,6 +73,7 @@ export function Legend({ mode, ungauged = false, movable = false, moved = false 
           </p>
         </>
       )}
+      {archived ? <p className="case-legend__archive">{CASE_COPY.archive.mapNote}</p> : null}
       <ul className="case-legend__keys">
         {mode === "ndti" || mode === "class" ? (
           <li className="case-legend__nodata">

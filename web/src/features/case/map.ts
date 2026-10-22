@@ -265,6 +265,13 @@ export interface CaseMapHandle {
    */
   readonly setSpot: (at: LngLat | null, station: string | null) => void;
   /**
+   * Paints an earlier year (preregistration-archive.md): its classes on the whole water outline of
+   * the 2026 pass shown, whose own clouds are not that year's.
+   *
+   * @param on - An earlier year is shown.
+   */
+  readonly setArchive: (on: boolean) => void;
+  /**
    * Lets the reading spot be dragged (once landed, where the reach has windows along the river).
    *
    * @param on - Whether it can be dragged.
@@ -671,6 +678,8 @@ class PassLayers {
   private photo: string | null = null;
   /** The pass's classes along the river, by place byte (the "Turbidity" layer). */
   private classes: Uint8ClampedArray | null = null;
+  /** An earlier year: its classes on the whole outline of a 2026 pass. */
+  private wholeRiver = false;
   /** The faded copy of the photo on the map, and which photo it is. */
   private photoShown: { readonly photo: string; readonly url: string } | null = null;
   private request = 0;
@@ -747,6 +756,7 @@ class PassLayers {
         feather: MAP_LOOK.corridor.revealFeather,
         opacity: MAP_LOOK.corridor.ndtiOpacity,
         classes: this.mode === "class" ? this.classes : null,
+        wholeRiver: this.wholeRiver,
       });
       const changed = this.colorizer.render(this.reveal);
       if (changed !== null) {
@@ -916,6 +926,19 @@ class PassLayers {
   setClasses(table: Uint8ClampedArray | null): void {
     this.classes = table;
     if (this.mode === "class") {
+      this.colorizer = null;
+      this.paint();
+    }
+  }
+
+  /**
+   * Paints an earlier year: its classes on the whole outline of the 2026 pass shown.
+   *
+   * @param on - An earlier year is shown.
+   */
+  setWholeRiver(on: boolean): void {
+    if (on !== this.wholeRiver) {
+      this.wholeRiver = on;
       this.colorizer = null;
       this.paint();
     }
@@ -1320,6 +1343,10 @@ export async function createCaseMap(
         stationMarker.remove();
       }
       paintOverlays();
+      redraw();
+    },
+    setArchive(on) {
+      layers.setWholeRiver(on);
       redraw();
     },
     setSpotDraggable(on) {

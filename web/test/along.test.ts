@@ -20,14 +20,8 @@ import {
 import { canonical, parseJson, sha256Hex } from "../src/features/reaches/canonical.ts";
 import { editable, verifyRecord } from "../src/features/reaches/verify.ts";
 import { Colorizer } from "../src/features/reaches/colorize.ts";
-import { chartYears, sealedYear, yearPhases, yearReach } from "../src/features/reaches/history.ts";
-import type {
-  AlongData,
-  AlongPlan,
-  HistoryRow,
-  ReachData,
-  SeriesRow,
-} from "../src/features/reaches/types.ts";
+import { archiveReach, caseYears, yearPhases } from "../src/features/reaches/archive.ts";
+import type { AlongData, AlongPlan, ReachData, SeriesRow } from "../src/features/reaches/types.ts";
 
 // Belle Chasse's frozen plan: the windows the pipeline reads along the river.
 const plan = JSON.parse(
@@ -110,54 +104,52 @@ void test("each pass along the river joins its series pass by its scene, oldest 
   );
 });
 
-void test("an earlier year is drawn from the station window's history, read only", () => {
-  const history: HistoryRow[] = [
-    {
-      date: "2021-05-01",
-      key: "a",
-      value: 12,
-      low: 8,
-      high: 18,
-      fnuClass: null,
-      reason: null,
-      phase: "training",
-    },
-    {
-      date: "2023-12-02",
-      key: "b",
-      value: null,
-      low: null,
-      high: null,
-      fnuClass: null,
-      reason: "cloud",
-      phase: "test",
-    },
-    {
-      date: "2023-03-02",
-      key: "c",
-      value: 9,
-      low: 6,
-      high: 13,
-      fnuClass: null,
-      reason: null,
-      phase: "training",
-    },
-  ];
+void test("an earlier year becomes a reach the case shows, recomputed and never sealed", () => {
   const reach = {
+    base: "/r/",
     info: { site: "x" },
     card: null,
-    series: [{ date: "2026-10-20" }] as unknown as SeriesRow[],
-    history,
-    checks: [],
+    series: [{ date: "2026-10-20", sceneId: "x:now" }],
+    along: { plan, passes: [] },
+    thermal: { series: [], checks: [], card: null },
+    archiveYears: [2025, 2019],
+    checks: [{}],
+    context: [{}],
+    outcomes: [],
   } as unknown as ReachData;
-  assert.deepEqual(chartYears(reach), [2026, 2023, 2021]);
-  assert.equal(sealedYear(reach), 2026);
-  const year = yearReach(reach, 2021);
-  assert.equal(year.series.length, 1);
-  const estimate = year.series.at(0)?.estimates.at(0);
-  assert.equal(estimate?.value, 12);
-  assert.equal(estimate.interval?.low, 8);
-  assert.deepEqual(yearPhases(history, 2023), ["test", "training"]);
+  const classes = plan.windows.map(() => "under_30" as const);
+  const year = {
+    year: 2019,
+    codeCommit: "c",
+    passes: [
+      {
+        sceneId: "x:a",
+        date: "2019-05-01",
+        phase: "training" as const,
+        station: {
+          level: "validated" as const,
+          value: 12,
+          low: 8,
+          high: 18,
+          fnuClass: null,
+          reason: null,
+        },
+        classes,
+        reasons: classes.map(() => null),
+      },
+    ],
+  };
+  const earlier = archiveReach(reach, year, null, "maps/k.png");
+  assert.equal(earlier.series.length, 1);
+  const first = earlier.series[0];
+  assert.equal(first?.estimates[0]?.value, 12);
+  assert.equal(first.recordSha256, "", "nothing is sealed");
+  assert.deepEqual(earlier.checks, [], "no station check of an earlier pass");
+  assert.equal(earlier.along?.passes[0]?.classes[0], "under_30");
+  assert.equal(earlier.archive?.file, "archive/2019.json");
+  assert.equal(earlier.archive.outline, "maps/k.png");
+  assert.deepEqual(yearPhases(earlier), ["training"]);
+  assert.deepEqual(caseYears(reach), [2026, 2025, 2019]);
 });
 
 // The reading spot that moves (preregistration-along-temperature.md, section 3).
