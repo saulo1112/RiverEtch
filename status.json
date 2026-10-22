@@ -1,8 +1,8 @@
 {
-  "updatedUtc": "2026-10-22T02:59:24+00:00",
+  "updatedUtc": "2026-10-22T05:37:05+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39713591959",
-    "ok": true,
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39728247226",
+    "ok": false,
     "steps": [
       {
         "args": "ledger upgrade",
@@ -57,6 +57,22 @@
         "exit": 0
       },
       {
+        "args": "reach along --site mississippi-belle-chasse",
+        "exit": 1
+      },
+      {
+        "args": "reach along --site platte-louisville",
+        "exit": 1
+      },
+      {
+        "args": "reach along --site mississippi-st-joseph",
+        "exit": 1
+      },
+      {
+        "args": "reach along --site firat-birecik",
+        "exit": 1
+      },
+      {
         "args": "reach check --site all --since 2026-01-01",
         "exit": 0
       },
@@ -109,16 +125,16 @@
     "date": "2026-10-21"
   },
   "lastAnchor": {
-    "label": "terrachain:mississippi-belle-chasse:outcomes",
-    "lines": 1,
-    "block": 11964135,
-    "timestampUtc": "2026-10-21T18:15:48Z",
-    "tx": "0x11233c32a8d0f90b34800f8ebeb706b8c7c7bf49bd554a531555e12a5b0da699"
+    "label": "terrachain:mississippi-belle-chasse:observations",
+    "lines": 38,
+    "block": 11966884,
+    "timestampUtc": "2026-10-22T03:31:36Z",
+    "tx": "0x006299cd58a637fafe4997b080b69ff92ae6bf6633103acddb1f64bb249f9a07"
   },
   "lastBitcoin": {
-    "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_outcomes.1.ots",
-    "height": 972517,
-    "blockTime": "2026-10-21T18:30:40+00:00"
+    "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.38.ots",
+    "height": 972558,
+    "blockTime": "2026-10-22T03:03:42+00:00"
   },
   "pendingBitcoin": 2,
   "proofs": [
@@ -156,13 +172,19 @@
       "label": "terrachain:mississippi-belle-chasse:observations",
       "lines": 38,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.38.ots",
-      "height": null
+      "height": 972558
     },
     {
       "label": "terrachain:mississippi-belle-chasse:outcomes",
       "lines": 1,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_outcomes.1.ots",
       "height": 972517
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:outcomes",
+      "lines": 2,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_outcomes.2.ots",
+      "height": null
     },
     {
       "label": "terrachain:mississippi-belle-chasse:water-temperature",
@@ -186,7 +208,7 @@
       "label": "terrachain:mississippi-st-joseph:observations",
       "lines": 45,
       "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_observations.45.ots",
-      "height": null
+      "height": 972558
     },
     {
       "label": "terrachain:platte-louisville:observations",
@@ -241,6 +263,12 @@
       "lines": 21,
       "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.21.ots",
       "height": 972517
+    },
+    {
+      "label": "terrachain:riveretch:frozen-artifacts",
+      "lines": 26,
+      "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.26.ots",
+      "height": null
     }
   ],
   "outcomes": [
@@ -268,6 +296,34 @@
       "step": "reach run --site all",
       "exit": 3,
       "reason": "firat-birecik: 70 records, 51 skipped, 0 failed, ~2.02 GB; stopped: network cap of 2 GB reached"
+    },
+    {
+      "utc": "2026-10-22T05:37:05+00:00",
+      "run": "https://github.com/saulo1112/RiverEtch/actions/runs/39728247226",
+      "step": "reach along --site mississippi-belle-chasse",
+      "exit": 1,
+      "reason": "mississippi-belle-chasse: mississippi-belle-chasse: docs/water-quality/preregistration-along-river.md is not anchored yet"
+    },
+    {
+      "utc": "2026-10-22T05:37:05+00:00",
+      "run": "https://github.com/saulo1112/RiverEtch/actions/runs/39728247226",
+      "step": "reach along --site platte-louisville",
+      "exit": 1,
+      "reason": "platte-louisville: platte-louisville: docs/water-quality/preregistration-along-river.md is not anchored yet"
+    },
+    {
+      "utc": "2026-10-22T05:37:05+00:00",
+      "run": "https://github.com/saulo1112/RiverEtch/actions/runs/39728247226",
+      "step": "reach along --site mississippi-st-joseph",
+      "exit": 1,
+      "reason": "mississippi-st-joseph: mississippi-st-joseph: docs/water-quality/preregistration-along-river.md is not anchored yet"
+    },
+    {
+      "utc": "2026-10-22T05:37:05+00:00",
+      "run": "https://github.com/saulo1112/RiverEtch/actions/runs/39728247226",
+      "step": "reach along --site firat-birecik",
+      "exit": 1,
+      "reason": "firat-birecik: firat-birecik: docs/water-quality/preregistration-along-river.md is not anchored yet"
     }
   ]
 }
