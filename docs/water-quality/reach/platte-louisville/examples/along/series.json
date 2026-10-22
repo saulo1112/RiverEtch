@@ -3,6 +3,7 @@
     "sceneId": "platte-louisville:sentinel-2c_2026-02-12_R112",
     "date": "2026-02-12",
     "recordSha256": "95814686e28b47afcd54248847b88a52d3928b943e5c1ddd70e24e977a5fcbd8",
+    "file": "records/2026-02-12_sentinel-2c_2026-02-12_R112.95814686e28b.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -82,6 +83,7 @@
     "sceneId": "platte-louisville:sentinel-2c_2026-02-22_R112",
     "date": "2026-02-22",
     "recordSha256": "31de752937f20edcb8da33a4438274ae25efd54d89252f55bfa362611ba5fcb4",
+    "file": "records/2026-02-22_sentinel-2c_2026-02-22_R112.31de752937f2.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -161,6 +163,7 @@
     "sceneId": "platte-louisville:sentinel-2b_2026-02-27_R112",
     "date": "2026-02-27",
     "recordSha256": "358fcfcd9db84b46d01bbcafd637d03fe01aa28d0f29f423854f60a3efceda2d",
+    "file": "records/2026-02-27_sentinel-2b_2026-02-27_R112.358fcfcd9db8.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -240,6 +243,7 @@
     "sceneId": "platte-louisville:sentinel-2b_2026-03-09_R112",
     "date": "2026-03-09",
     "recordSha256": "4ea97644b535fedfab459658bbc316d91add9c56c0f8f1ae39f7d51aca86db30",
+    "file": "records/2026-03-09_sentinel-2b_2026-03-09_R112.4ea97644b535.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -319,6 +323,7 @@
     "sceneId": "platte-louisville:sentinel-2b_2026-04-18_R112",
     "date": "2026-04-18",
     "recordSha256": "f6dd43916d9929278caa3f3e080790bcac7014c872c07618540a6607b4ce35a3",
+    "file": "records/2026-04-18_sentinel-2b_2026-04-18_R112.f6dd43916d99.json",
     "classes": [
       "under_30",
       "30_to_50",
@@ -398,6 +403,7 @@
     "sceneId": "platte-louisville:sentinel-2c_2026-05-13_R112",
     "date": "2026-05-13",
     "recordSha256": "21c054691be3008ca3798b7b0f5aa523e08840a43ec4e48fff8bf536e438a6c5",
+    "file": "records/2026-05-13_sentinel-2c_2026-05-13_R112.21c054691be3.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -477,6 +483,7 @@
     "sceneId": "platte-louisville:sentinel-2a_2026-05-25_R112",
     "date": "2026-05-25",
     "recordSha256": "f0888921ac35e0f25b03a63c1c29abb5cb2d70e6ddbcd1e4dc1ec903bf4cd587",
+    "file": "records/2026-05-25_sentinel-2a_2026-05-25_R112.f0888921ac35.json",
     "classes": [
       "100_and_over",
       "50_to_100",
@@ -556,6 +563,7 @@
     "sceneId": "platte-louisville:sentinel-2c_2026-06-12_R112",
     "date": "2026-06-12",
     "recordSha256": "cf4db2d90dc2c5cce3d16e92229421d33b060a31a124073b392fbe0e2cfcee2f",
+    "file": "records/2026-06-12_sentinel-2c_2026-06-12_R112.cf4db2d90dc2.json",
     "classes": [
       "50_to_100",
       "100_and_over",
@@ -635,6 +643,7 @@
     "sceneId": "platte-louisville:sentinel-2b_2026-06-17_R112",
     "date": "2026-06-17",
     "recordSha256": "bc812c98b56c30a24abb1f9e6e0bd78ff9779287372173413dbc8e63cd0f2512",
+    "file": "records/2026-06-17_sentinel-2b_2026-06-17_R112.bc812c98b56c.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -714,6 +723,7 @@
     "sceneId": "platte-louisville:sentinel-2c_2026-07-12_R112",
     "date": "2026-07-12",
     "recordSha256": "2769b5b90e2189bbd139d680a5e7b2906d262c0d5ff44ecaaac46558ca3e72ba",
+    "file": "records/2026-07-12_sentinel-2c_2026-07-12_R112.2769b5b90e21.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -793,6 +803,7 @@
     "sceneId": "platte-louisville:sentinel-2b_2026-07-17_R112",
     "date": "2026-07-17",
     "recordSha256": "31a2e498b4e3b41c803e5c199f2a61ecb0be3c2250799c3199268bd0c6b3b08e",
+    "file": "records/2026-07-17_sentinel-2b_2026-07-17_R112.31a2e498b4e3.json",
     "classes": [
       "30_to_50",
       "50_to_100",
@@ -872,6 +883,7 @@
     "sceneId": "platte-louisville:sentinel-2b_2026-07-27_R112",
     "date": "2026-07-27",
     "recordSha256": "0495727d2ba7b929a9bb0b3808a3084dec6893c1bbd5ce447ea062d4e26a5fb5",
+    "file": "records/2026-07-27_sentinel-2b_2026-07-27_R112.0495727d2ba7.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -951,6 +963,7 @@
     "sceneId": "platte-louisville:sentinel-2c_2026-08-11_R112",
     "date": "2026-08-11",
     "recordSha256": "ef9107550ca7a866d9266e56e77bb9f686cf94de4cf5c19f6e1f569eb791ba12",
+    "file": "records/2026-08-11_sentinel-2c_2026-08-11_R112.ef9107550ca7.json",
     "classes": [
       "30_to_50",
       "50_to_100",
@@ -1030,6 +1043,7 @@
     "sceneId": "platte-louisville:sentinel-2b_2026-09-05_R112",
     "date": "2026-09-05",
     "recordSha256": "e6f50619e25f576e4ed3fe7677ca16897eab907860bcfb256213e742623a9a6a",
+    "file": "records/2026-09-05_sentinel-2b_2026-09-05_R112.e6f50619e25f.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -1109,6 +1123,7 @@
     "sceneId": "platte-louisville:sentinel-2b_2026-10-05_R112",
     "date": "2026-10-05",
     "recordSha256": "36e80bd6cd2013b11b9073f433704ecc744e286becbed989bb857087e49a1adc",
+    "file": "records/2026-10-05_sentinel-2b_2026-10-05_R112.36e80bd6cd20.json",
     "classes": [
       "50_to_100",
       "50_to_100",
@@ -1188,6 +1203,7 @@
     "sceneId": "platte-louisville:sentinel-2c_2026-10-10_R112",
     "date": "2026-10-10",
     "recordSha256": "0bb62bd975e0aec53dfe12eb1e5061fbee91b9c2076d0e8b75abe9b2b39cb7fe",
+    "file": "records/2026-10-10_sentinel-2c_2026-10-10_R112.0bb62bd975e0.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1267,6 +1283,7 @@
     "sceneId": "platte-louisville:sentinel-2a_2026-10-12_R112",
     "date": "2026-10-12",
     "recordSha256": "78d6d2d910dce79444d49a649beaf60d63a2845794b30bc97b36c62ab7126836",
+    "file": "records/2026-10-12_sentinel-2a_2026-10-12_R112.78d6d2d910dc.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -1346,6 +1363,7 @@
     "sceneId": "platte-louisville:sentinel-2c_2026-10-20_R112",
     "date": "2026-10-20",
     "recordSha256": "48ac9f563d9d42200a9f45dc262f4a79673fee0c6a71188473fd911ffa099664",
+    "file": "records/2026-10-20_sentinel-2c_2026-10-20_R112.48ac9f563d9d.json",
     "classes": [
       "under_30",
       "30_to_50",

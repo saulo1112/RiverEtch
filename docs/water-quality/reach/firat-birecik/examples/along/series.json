@@ -3,6 +3,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-01-03_R078",
     "date": "2026-01-03",
     "recordSha256": "76b6cffa9e59c60cd43531a511d300d50784a1b0e0427228b46eee8a7dc02338",
+    "file": "records/2026-01-03_sentinel-2a_2026-01-03_R078.76b6cffa9e59.json",
     "classes": [
       "under_30",
       "under_30",
@@ -44,6 +45,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-01-04_R121",
     "date": "2026-01-04",
     "recordSha256": "0e183bab0392c54f3f27a93402cbc870b96d4abb0c416d37c31b28b3816e4f65",
+    "file": "records/2026-01-04_sentinel-2c_2026-01-04_R121.0e183bab0392.json",
     "classes": [
       null,
       "under_30",
@@ -85,6 +87,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-01-16_R078",
     "date": "2026-01-16",
     "recordSha256": "059c1bdf2fc82762604d2e5036173dce30605d14d0216779ed7dd717c8f605f2",
+    "file": "records/2026-01-16_sentinel-2b_2026-01-16_R078.059c1bdf2fc8.json",
     "classes": [
       "under_30",
       "under_30",
@@ -126,6 +129,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-01-19_R121",
     "date": "2026-01-19",
     "recordSha256": "52124c2edd3e788f5acc23fcfbe01acd9b13dfb977aa32c49bab20a86875d982",
+    "file": "records/2026-01-19_sentinel-2b_2026-01-19_R121.52124c2edd3e.json",
     "classes": [
       "under_30",
       "under_30",
@@ -167,6 +171,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-01-26_R078",
     "date": "2026-01-26",
     "recordSha256": "f491ea5f998b128d0963e242a979aca9965f342127d91be68c0c775454cf29b8",
+    "file": "records/2026-01-26_sentinel-2b_2026-01-26_R078.f491ea5f998b.json",
     "classes": [
       "under_30",
       "under_30",
@@ -208,6 +213,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-01-29_R121",
     "date": "2026-01-29",
     "recordSha256": "d6a5ad55a6f217497ab26a0c877babd49148b26ae8e2cee57b72e72d78f74eaf",
+    "file": "records/2026-01-29_sentinel-2b_2026-01-29_R121.d6a5ad55a6f2.json",
     "classes": [
       "under_30",
       "under_30",
@@ -249,6 +255,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-02-05_R078",
     "date": "2026-02-05",
     "recordSha256": "a593c4a4e501ef10d8e8562f3c92c57c3b57905edb934c680ae21935051d52ba",
+    "file": "records/2026-02-05_sentinel-2b_2026-02-05_R078.a593c4a4e501.json",
     "classes": [
       "under_30",
       "under_30",
@@ -290,6 +297,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-02-15_R078",
     "date": "2026-02-15",
     "recordSha256": "fdb17896df88017435d92f7a0ab47f0364e48542c78067042ca70ae8100db506",
+    "file": "records/2026-02-15_sentinel-2b_2026-02-15_R078.fdb17896df88.json",
     "classes": [
       "under_30",
       "under_30",
@@ -331,6 +339,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-02-20_R078",
     "date": "2026-02-20",
     "recordSha256": "1781260d78ba1ab1becb78e71956255cb35c3c4d463fac27b8c8b9bddef8c0a5",
+    "file": "records/2026-02-20_sentinel-2c_2026-02-20_R078.1781260d78ba.json",
     "classes": [
       null,
       "under_30",
@@ -372,6 +381,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-03-02_R078",
     "date": "2026-03-02",
     "recordSha256": "bd72ab7e229bf43115c1dc965a7a8a333b54c5d2b7556d4e517c75eb6876612d",
+    "file": "records/2026-03-02_sentinel-2c_2026-03-02_R078.bd72ab7e229b.json",
     "classes": [
       "under_30",
       "under_30",
@@ -413,6 +423,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-03-05_R121",
     "date": "2026-03-05",
     "recordSha256": "5d41e962d2a12b32fd33ca26ab2609a936633eb97ed8711527f66a53921894bb",
+    "file": "records/2026-03-05_sentinel-2c_2026-03-05_R121.5d41e962d2a1.json",
     "classes": [
       null,
       "under_30",
@@ -454,6 +465,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-03-27_R121",
     "date": "2026-03-27",
     "recordSha256": "df9ad997854714aedb7b86078a902b8bcd15f436ab7f00fd5dda7d3229ccb7d3",
+    "file": "records/2026-03-27_sentinel-2a_2026-03-27_R121.df9ad9978547.json",
     "classes": [
       "under_30",
       "under_30",
@@ -495,6 +507,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-03-27_R078",
     "date": "2026-03-27",
     "recordSha256": "06b115b66b1b7b40db42428ee87e5796d171a302c3ae6948997f66ff8b7b9448",
+    "file": "records/2026-03-27_sentinel-2b_2026-03-27_R078.06b115b66b1b.json",
     "classes": [
       null,
       "under_30",
@@ -536,6 +549,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-04-01_R078",
     "date": "2026-04-01",
     "recordSha256": "544a5f201ab854bb4d8a75856117944729b2f10b1e6a5c1defe1515c8188c240",
+    "file": "records/2026-04-01_sentinel-2c_2026-04-01_R078.544a5f201ab8.json",
     "classes": [
       "under_30",
       "under_30",
@@ -577,6 +591,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-04-04_R121",
     "date": "2026-04-04",
     "recordSha256": "def9b9fe278044e8956869c87858d5de67b8fed24ba1bf85dff49ce0ee03e835",
+    "file": "records/2026-04-04_sentinel-2c_2026-04-04_R121.def9b9fe2780.json",
     "classes": [
       "under_30",
       null,
@@ -618,6 +633,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-04-06_R121",
     "date": "2026-04-06",
     "recordSha256": "f63ac1b5125ed58d03e78865f13ab5eb53be62450402336d480535531dda7204",
+    "file": "records/2026-04-06_sentinel-2a_2026-04-06_R121.f63ac1b5125e.json",
     "classes": [
       null,
       "under_30",
@@ -659,6 +675,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-04-06_R078",
     "date": "2026-04-06",
     "recordSha256": "125883ede8173eabdb4ca6ce09c48c372022475c1f713a77f87b56044f41b185",
+    "file": "records/2026-04-06_sentinel-2b_2026-04-06_R078.125883ede817.json",
     "classes": [
       null,
       "under_30",
@@ -700,6 +717,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-04-13_R078",
     "date": "2026-04-13",
     "recordSha256": "f9fad1fe3ba616e7f77ebee3a00585f61bb412c1f14a1d13ee7cc46ca7a3013f",
+    "file": "records/2026-04-13_sentinel-2a_2026-04-13_R078.f9fad1fe3ba6.json",
     "classes": [
       null,
       "under_30",
@@ -741,6 +759,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-04-14_R121",
     "date": "2026-04-14",
     "recordSha256": "f89b587531564ffcb878da6f5c78163a107dbd750b05ee3ee14333216915fd72",
+    "file": "records/2026-04-14_sentinel-2c_2026-04-14_R121.f89b58753156.json",
     "classes": [
       "under_30",
       "under_30",
@@ -782,6 +801,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-04-23_R078",
     "date": "2026-04-23",
     "recordSha256": "4ab3ae7322b105ac87f368b834f41d17148eb813a86282f956d54db12a2d0723",
+    "file": "records/2026-04-23_sentinel-2a_2026-04-23_R078.4ab3ae7322b1.json",
     "classes": [
       null,
       "under_30",
@@ -823,6 +843,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-04-24_R121",
     "date": "2026-04-24",
     "recordSha256": "b8218b45e79e17ea72658097a6fa22b73659000972936b950685f5f64a19d26d",
+    "file": "records/2026-04-24_sentinel-2c_2026-04-24_R121.b8218b45e79e.json",
     "classes": [
       "under_30",
       "under_30",
@@ -864,6 +885,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-04-29_R121",
     "date": "2026-04-29",
     "recordSha256": "d8d43ad08f968c5d0444f0bd49e0924f0c4c263f4ab762d51ccfa9200624575f",
+    "file": "records/2026-04-29_sentinel-2b_2026-04-29_R121.d8d43ad08f96.json",
     "classes": [
       null,
       null,
@@ -905,6 +927,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-05-06_R121",
     "date": "2026-05-06",
     "recordSha256": "596357a77014022d2db0f0e2c8909818f531fe72408b05725a7b844efb243abc",
+    "file": "records/2026-05-06_sentinel-2a_2026-05-06_R121.596357a77014.json",
     "classes": [
       null,
       null,
@@ -946,6 +969,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-05-06_R078",
     "date": "2026-05-06",
     "recordSha256": "d73f43625aea07ab7146d307b3b1f5de9f60a2af95974170758db26b668f5656",
+    "file": "records/2026-05-06_sentinel-2b_2026-05-06_R078.d73f43625aea.json",
     "classes": [
       "under_30",
       "under_30",
@@ -987,6 +1011,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-05-09_R121",
     "date": "2026-05-09",
     "recordSha256": "d2b66afca313751d4d397e5d51b523b73fecdeb552437a9b84a65f9d4e9aa077",
+    "file": "records/2026-05-09_sentinel-2b_2026-05-09_R121.d2b66afca313.json",
     "classes": [
       null,
       null,
@@ -1028,6 +1053,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-05-11_R078",
     "date": "2026-05-11",
     "recordSha256": "00e96358c2ac5e6056306c7b0d00482c40a24bb0966ca01bbce2796d20a36a50",
+    "file": "records/2026-05-11_sentinel-2c_2026-05-11_R078.00e96358c2ac.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1069,6 +1095,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-05-13_R078",
     "date": "2026-05-13",
     "recordSha256": "52551cb5d76e916e25878c51e5ecf7736d41276c625f387c80c389ae521f7bf4",
+    "file": "records/2026-05-13_sentinel-2a_2026-05-13_R078.52551cb5d76e.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1110,6 +1137,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-05-16_R121",
     "date": "2026-05-16",
     "recordSha256": "ea6c5acdca99e039d227c3e9f843a560cd9ba105171ef35d9f09be8fd2480bf0",
+    "file": "records/2026-05-16_sentinel-2a_2026-05-16_R121.ea6c5acdca99.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1151,6 +1179,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-05-16_R078",
     "date": "2026-05-16",
     "recordSha256": "25fe2992104fcc24516aab32e9bc992917e0750562d168d0ce9579ce46ec0108",
+    "file": "records/2026-05-16_sentinel-2b_2026-05-16_R078.25fe2992104f.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1192,6 +1221,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-05-26_R121",
     "date": "2026-05-26",
     "recordSha256": "df65a33bddd28911e6f57eb7bef606f9890ed3ea63b2b1fa5a5f17826c6a8a8b",
+    "file": "records/2026-05-26_sentinel-2a_2026-05-26_R121.df65a33bddd2.json",
     "classes": [
       "under_30",
       null,
@@ -1233,6 +1263,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-05-26_R078",
     "date": "2026-05-26",
     "recordSha256": "398479307c91cdeb67c7654bbdab0bf3c22e0b6a5679ee0c266cfe7a433c4ea0",
+    "file": "records/2026-05-26_sentinel-2b_2026-05-26_R078.398479307c91.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1274,6 +1305,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-05-31_R078",
     "date": "2026-05-31",
     "recordSha256": "a22b957ba0ae73d698dca24e452bb35dff76fe81c8e2223a6cce17b542209de0",
+    "file": "records/2026-05-31_sentinel-2c_2026-05-31_R078.a22b957ba0ae.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1315,6 +1347,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-06-02_R078",
     "date": "2026-06-02",
     "recordSha256": "49534977da8f0611e67cd0f4908fdbb4059309a3d2e57a5f714c2f32c1642f9d",
+    "file": "records/2026-06-02_sentinel-2a_2026-06-02_R078.49534977da8f.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1356,6 +1389,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-06-05_R121",
     "date": "2026-06-05",
     "recordSha256": "c8b4a5e185b40975eb40751102ff92f77b8209ad1c0bf85fe2d680a84e8783de",
+    "file": "records/2026-06-05_sentinel-2a_2026-06-05_R121.c8b4a5e185b4.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1397,6 +1431,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-06-05_R078",
     "date": "2026-06-05",
     "recordSha256": "5ff05fc1fb605e6748d80929f5c4de80194396b93bc8982c65543f6241772086",
+    "file": "records/2026-06-05_sentinel-2b_2026-06-05_R078.5ff05fc1fb60.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1438,6 +1473,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-06-08_R121",
     "date": "2026-06-08",
     "recordSha256": "f9373537f98b758724f266625661b8daaeadb2f39a7fdcfd638484d678fbf8c9",
+    "file": "records/2026-06-08_sentinel-2b_2026-06-08_R121.f9373537f98b.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1479,6 +1515,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-06-10_R078",
     "date": "2026-06-10",
     "recordSha256": "fa6b2584a9df59955bc0b0f0600e097494b2c9eafd55645ddec47e8394341efc",
+    "file": "records/2026-06-10_sentinel-2c_2026-06-10_R078.fa6b2584a9df.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1520,6 +1557,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-06-12_R078",
     "date": "2026-06-12",
     "recordSha256": "526aaf5099434dfdd19e918f4624538d84e52fb0ef31d4ab20d5a869ec04c310",
+    "file": "records/2026-06-12_sentinel-2a_2026-06-12_R078.526aaf509943.json",
     "classes": [
       null,
       null,
@@ -1561,6 +1599,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-06-13_R121",
     "date": "2026-06-13",
     "recordSha256": "059f5b06eed6e12edd7c3adff9f385c5bbd19492348c42302c5a4fd88c6c6338",
+    "file": "records/2026-06-13_sentinel-2c_2026-06-13_R121.059f5b06eed6.json",
     "classes": [
       null,
       "under_30",
@@ -1602,6 +1641,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-06-15_R121",
     "date": "2026-06-15",
     "recordSha256": "af291586cba6489f6a68eff6c9cba427021da62f041d3b126aecba222e79efad",
+    "file": "records/2026-06-15_sentinel-2a_2026-06-15_R121.af291586cba6.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1643,6 +1683,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-06-15_R078",
     "date": "2026-06-15",
     "recordSha256": "daeca9662621d25d3688bf6315a0d4e64f42b076267bf32f650525191c6059cc",
+    "file": "records/2026-06-15_sentinel-2b_2026-06-15_R078.daeca9662621.json",
     "classes": [
       null,
       null,
@@ -1684,6 +1725,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-06-18_R121",
     "date": "2026-06-18",
     "recordSha256": "0357ed0bda3e87d4cc046858ea04afb54a74e3848dd1b0cd285cf339f4ec65e2",
+    "file": "records/2026-06-18_sentinel-2b_2026-06-18_R121.0357ed0bda3e.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1725,6 +1767,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-06-20_R078",
     "date": "2026-06-20",
     "recordSha256": "303e5d126f498ab3cbe2831a76300bca6501a08cade54f65b6b5a6524e890b4f",
+    "file": "records/2026-06-20_sentinel-2c_2026-06-20_R078.303e5d126f49.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1766,6 +1809,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-06-22_R078",
     "date": "2026-06-22",
     "recordSha256": "b420d2d98fd2757cff4386acf41a3196048dd34a8cf7006f5d2f6647b0c0afff",
+    "file": "records/2026-06-22_sentinel-2a_2026-06-22_R078.b420d2d98fd2.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1807,6 +1851,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-06-25_R121",
     "date": "2026-06-25",
     "recordSha256": "593e6953455b440467989aa5931d0b78974cc625c560a6d93c41239cc118f095",
+    "file": "records/2026-06-25_sentinel-2a_2026-06-25_R121.593e6953455b.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1848,6 +1893,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-06-25_R078",
     "date": "2026-06-25",
     "recordSha256": "ce9ba40560c43ff04c9f874ce5bd899861cc4f2484853d619e43fb735e11e1ae",
+    "file": "records/2026-06-25_sentinel-2b_2026-06-25_R078.ce9ba40560c4.json",
     "classes": [
       null,
       "under_30",
@@ -1889,6 +1935,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-06-30_R078",
     "date": "2026-06-30",
     "recordSha256": "10622d698b460c46b5784463354455c91893d860a0f4e2025959a9bdbadd6e3c",
+    "file": "records/2026-06-30_sentinel-2c_2026-06-30_R078.10622d698b46.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1930,6 +1977,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-07-02_R078",
     "date": "2026-07-02",
     "recordSha256": "50b68f753ca8f097aebe5f0f0f34c30e61df5191df437ff3341a6cf0f62f20bb",
+    "file": "records/2026-07-02_sentinel-2a_2026-07-02_R078.50b68f753ca8.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1971,6 +2019,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-07-03_R121",
     "date": "2026-07-03",
     "recordSha256": "7d51da512e0d0b83865f7ae32a4162cc7d829de19ba32135f1e4edd167cf9e7c",
+    "file": "records/2026-07-03_sentinel-2c_2026-07-03_R121.7d51da512e0d.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2012,6 +2061,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-07-05_R121",
     "date": "2026-07-05",
     "recordSha256": "6a4d52230b580b5be2ab5e34b64cbd18e7dd62734c3968170c1b0525691a5a8b",
+    "file": "records/2026-07-05_sentinel-2a_2026-07-05_R121.6a4d52230b58.json",
     "classes": [
       "under_30",
       null,
@@ -2053,6 +2103,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-07-05_R078",
     "date": "2026-07-05",
     "recordSha256": "bafdfd144271473928c4dd701c82fe1b1b325e60d547a937135bcb7d5a9e8cc7",
+    "file": "records/2026-07-05_sentinel-2b_2026-07-05_R078.bafdfd144271.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2094,6 +2145,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-07-08_R121",
     "date": "2026-07-08",
     "recordSha256": "bce7bea0bcd4f29838028433f846287116f3b0d3935fec0c7a1da2953330ee81",
+    "file": "records/2026-07-08_sentinel-2b_2026-07-08_R121.bce7bea0bcd4.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2135,6 +2187,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-07-10_R078",
     "date": "2026-07-10",
     "recordSha256": "946bdc1c61e4584816602eda694902805e19c3dfc25b8b7314bfc786d6f4ceb6",
+    "file": "records/2026-07-10_sentinel-2c_2026-07-10_R078.946bdc1c61e4.json",
     "classes": [
       null,
       null,
@@ -2176,6 +2229,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-07-12_R078",
     "date": "2026-07-12",
     "recordSha256": "8df340976bb5c22a50415c5608663be4a9bbbd48f05a7727e0d875c075162742",
+    "file": "records/2026-07-12_sentinel-2a_2026-07-12_R078.8df340976bb5.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2217,6 +2271,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-07-13_R121",
     "date": "2026-07-13",
     "recordSha256": "dd9b605d297208da21c85a8b6712120581b8771b7a644dd0d72a7f6413b22d8a",
+    "file": "records/2026-07-13_sentinel-2c_2026-07-13_R121.dd9b605d2972.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2258,6 +2313,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-07-15_R121",
     "date": "2026-07-15",
     "recordSha256": "37b1a3fe822039e9c41d5079d1f1633d593938f836d84308a9fe214378f57913",
+    "file": "records/2026-07-15_sentinel-2a_2026-07-15_R121.37b1a3fe8220.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2299,6 +2355,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-07-15_R078",
     "date": "2026-07-15",
     "recordSha256": "8de0cb95b2b2b89c8918c60a998bd0b56afcea1d0b225306c6ddab4f86a86436",
+    "file": "records/2026-07-15_sentinel-2b_2026-07-15_R078.8de0cb95b2b2.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2340,6 +2397,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-07-18_R121",
     "date": "2026-07-18",
     "recordSha256": "e6ce1255fc8cb10939b7065dc977b78d33600ff84c8cda39ea1f8d83090f2516",
+    "file": "records/2026-07-18_sentinel-2b_2026-07-18_R121.e6ce1255fc8c.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2381,6 +2439,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-07-20_R078",
     "date": "2026-07-20",
     "recordSha256": "a2c1e8a127982e7e0af41511ba1ebd3c6bc7d9f17317b943f407cfacf400e8a9",
+    "file": "records/2026-07-20_sentinel-2c_2026-07-20_R078.a2c1e8a12798.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2422,6 +2481,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-07-22_R078",
     "date": "2026-07-22",
     "recordSha256": "fce94a4f2a77423c437ae80923d703669a5d7561ff5c1c7210dea7a9715076e5",
+    "file": "records/2026-07-22_sentinel-2a_2026-07-22_R078.fce94a4f2a77.json",
     "classes": [
       null,
       null,
@@ -2463,6 +2523,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-07-28_R121",
     "date": "2026-07-28",
     "recordSha256": "554be252716cbc2c5c9d4a55290759976a1d9d10cfbd079245394459eb29f64c",
+    "file": "records/2026-07-28_sentinel-2b_2026-07-28_R121.554be252716c.json",
     "classes": [
       null,
       null,
@@ -2504,6 +2565,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-07-30_R078",
     "date": "2026-07-30",
     "recordSha256": "c1519978b1376977fba2f27708b67619e49945583174d733bf6068193f79e5af",
+    "file": "records/2026-07-30_sentinel-2c_2026-07-30_R078.c1519978b137.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2545,6 +2607,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-08-01_R078",
     "date": "2026-08-01",
     "recordSha256": "1432c46103c600e3a7017f17ed150c1adaf0d11570926cd9652aecf69b467f57",
+    "file": "records/2026-08-01_sentinel-2a_2026-08-01_R078.1432c46103c6.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2586,6 +2649,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-08-02_R121",
     "date": "2026-08-02",
     "recordSha256": "78360635092f02ec784d7bfe219a4b77fa8655d8f4083b8db9a10c75b866cf76",
+    "file": "records/2026-08-02_sentinel-2c_2026-08-02_R121.78360635092f.json",
     "classes": [
       null,
       "under_30",
@@ -2627,6 +2691,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-08-04_R121",
     "date": "2026-08-04",
     "recordSha256": "a734930cf8aab0ac7e92691218cd3104feeaef61174a1b105b41ac06d180e265",
+    "file": "records/2026-08-04_sentinel-2a_2026-08-04_R121.a734930cf8aa.json",
     "classes": [
       null,
       "under_30",
@@ -2668,6 +2733,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-08-04_R078",
     "date": "2026-08-04",
     "recordSha256": "caf614969211e0aa6591d901f9e5ce250c88aeee46f38a72dadc14f50798d91d",
+    "file": "records/2026-08-04_sentinel-2b_2026-08-04_R078.caf614969211.json",
     "classes": [
       null,
       "under_30",
@@ -2709,6 +2775,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-08-07_R121",
     "date": "2026-08-07",
     "recordSha256": "73fa37f8b5c9292ee98b86a9d708892eb32d4b4b81478aed8eb31a9772d9a65e",
+    "file": "records/2026-08-07_sentinel-2b_2026-08-07_R121.73fa37f8b5c9.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2750,6 +2817,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-08-09_R078",
     "date": "2026-08-09",
     "recordSha256": "ec38a4403eed5dd2405385f768b26d5b8e173740bb7e988bec5d01ca492676c3",
+    "file": "records/2026-08-09_sentinel-2c_2026-08-09_R078.ec38a4403eed.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2791,6 +2859,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-08-11_R078",
     "date": "2026-08-11",
     "recordSha256": "a43bf6d0e40b21dc868db7acf9670208970381011d69716dd8457db39307adb5",
+    "file": "records/2026-08-11_sentinel-2a_2026-08-11_R078.a43bf6d0e40b.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2832,6 +2901,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-08-12_R121",
     "date": "2026-08-12",
     "recordSha256": "0c7bfd30023f4925094285e6af5014651352e70ed1c39be5716797d2ca326c13",
+    "file": "records/2026-08-12_sentinel-2c_2026-08-12_R121.0c7bfd30023f.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2873,6 +2943,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-08-14_R121",
     "date": "2026-08-14",
     "recordSha256": "b254797241ee401a3ca0a8f5ae56b6a969b7223ecac8f9dc9339150a9392ad18",
+    "file": "records/2026-08-14_sentinel-2a_2026-08-14_R121.b254797241ee.json",
     "classes": [
       null,
       "under_30",
@@ -2914,6 +2985,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-08-14_R078",
     "date": "2026-08-14",
     "recordSha256": "5da9115b95332e05bd080af0603f5fae6b9dc756e41d598169dabe10b3e62b9c",
+    "file": "records/2026-08-14_sentinel-2b_2026-08-14_R078.5da9115b9533.json",
     "classes": [
       null,
       null,
@@ -2955,6 +3027,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-08-17_R121",
     "date": "2026-08-17",
     "recordSha256": "b0e5c6e93ce5b581382bb4bd0a93b32c284f0218cc0a78951f1b269f5c0c05d5",
+    "file": "records/2026-08-17_sentinel-2b_2026-08-17_R121.b0e5c6e93ce5.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2996,6 +3069,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-08-19_R078",
     "date": "2026-08-19",
     "recordSha256": "b5462081df406854dc6a25b908c5eec0c23a83eab418be639b81faaa584bd5c0",
+    "file": "records/2026-08-19_sentinel-2c_2026-08-19_R078.b5462081df40.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3037,6 +3111,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-08-21_R078",
     "date": "2026-08-21",
     "recordSha256": "60a13735f7bfcc2de8b5d335a205c3ae7ff58f814b5a7d59884b7d74498ebfae",
+    "file": "records/2026-08-21_sentinel-2a_2026-08-21_R078.60a13735f7bf.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3078,6 +3153,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-08-22_R121",
     "date": "2026-08-22",
     "recordSha256": "6f3eb073631af4ae6639925b8957e516f4feb70b29c74f971c86390618bc5406",
+    "file": "records/2026-08-22_sentinel-2c_2026-08-22_R121.6f3eb073631a.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3119,6 +3195,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-08-24_R121",
     "date": "2026-08-24",
     "recordSha256": "86ff090ee76da2e7710df22592f45b90c7661c9c018597f51d22cff420b4b3e8",
+    "file": "records/2026-08-24_sentinel-2a_2026-08-24_R121.86ff090ee76d.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3160,6 +3237,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-08-24_R078",
     "date": "2026-08-24",
     "recordSha256": "e35e3c7aed8b5cfb045bffabd5c693d2de84cb9ea36d3f9862ec7c80d323d882",
+    "file": "records/2026-08-24_sentinel-2b_2026-08-24_R078.e35e3c7aed8b.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3201,6 +3279,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-08-27_R121",
     "date": "2026-08-27",
     "recordSha256": "326fa997f5e26af506e9c432218df42121adc33b867abe7f877f6bc53bdcae51",
+    "file": "records/2026-08-27_sentinel-2b_2026-08-27_R121.326fa997f5e2.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3242,6 +3321,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-08-31_R078",
     "date": "2026-08-31",
     "recordSha256": "755acbd6ccfd684026184f2ef2b960136bab76de90e0c4bea177b75b68e203d4",
+    "file": "records/2026-08-31_sentinel-2a_2026-08-31_R078.755acbd6ccfd.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3283,6 +3363,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-09-01_R121",
     "date": "2026-09-01",
     "recordSha256": "d01f883c3bfc1b16bc192a9d1c126973f6024daa8e677b1965e60989b8372cb9",
+    "file": "records/2026-09-01_sentinel-2c_2026-09-01_R121.d01f883c3bfc.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3324,6 +3405,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-09-03_R121",
     "date": "2026-09-03",
     "recordSha256": "aa8a369c4fc478fe205436ecda697a8fb3fceda80676e1e5f1464b60cd75bffa",
+    "file": "records/2026-09-03_sentinel-2a_2026-09-03_R121.aa8a369c4fc4.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3365,6 +3447,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-09-03_R078",
     "date": "2026-09-03",
     "recordSha256": "1e19c249ab390f9a94dd762bee40d124c84baef5d2b6abd508ce869cde0a1dcf",
+    "file": "records/2026-09-03_sentinel-2b_2026-09-03_R078.1e19c249ab39.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3406,6 +3489,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-09-08_R078",
     "date": "2026-09-08",
     "recordSha256": "362f309701e7b855c8619f920c73b6f8ae28704882ba3a1f4ae89ccb432fda68",
+    "file": "records/2026-09-08_sentinel-2c_2026-09-08_R078.362f309701e7.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3447,6 +3531,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-09-10_R078",
     "date": "2026-09-10",
     "recordSha256": "ff8ddf7e7ce06facf04c1d699744d71a7b3e857c1c9746d0126b5f5ce0706680",
+    "file": "records/2026-09-10_sentinel-2a_2026-09-10_R078.ff8ddf7e7ce0.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3488,6 +3573,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-09-11_R121",
     "date": "2026-09-11",
     "recordSha256": "5c313ccd948c10389caaa46eaf9edf8d449e7a711cbd93decb6259f505855d2d",
+    "file": "records/2026-09-11_sentinel-2c_2026-09-11_R121.5c313ccd948c.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3529,6 +3615,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-09-13_R121",
     "date": "2026-09-13",
     "recordSha256": "e59ac75bd2bbeb4b774c2ca390c62d9c6c0f3c22c291c5351bcfd2205997c280",
+    "file": "records/2026-09-13_sentinel-2a_2026-09-13_R121.e59ac75bd2bb.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3570,6 +3657,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-09-13_R078",
     "date": "2026-09-13",
     "recordSha256": "afb9566d7e8ce4f305a9e2b0a245048ba0c75c53e38d2396e9e45118c71bc570",
+    "file": "records/2026-09-13_sentinel-2b_2026-09-13_R078.afb9566d7e8c.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3611,6 +3699,7 @@
     "sceneId": "firat-birecik:sentinel-2b_2026-09-16_R121",
     "date": "2026-09-16",
     "recordSha256": "3201ecce61857dd5449e11e42cb88d881c978b69893cc2b8586c19805f3079bb",
+    "file": "records/2026-09-16_sentinel-2b_2026-09-16_R121.3201ecce6185.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3652,6 +3741,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-09-21_R121",
     "date": "2026-09-21",
     "recordSha256": "5b7bbc837d632ba44377f0c6873b4b71d59adf7965e747ad12972aaa907dbf71",
+    "file": "records/2026-09-21_sentinel-2c_2026-09-21_R121.5b7bbc837d63.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3693,6 +3783,7 @@
     "sceneId": "firat-birecik:sentinel-2c_2026-09-28_R078",
     "date": "2026-09-28",
     "recordSha256": "dc9bb050c902edc6ec3f1e6b3d2e1b76a2c4dfd06c90d8118d36eb6633ec6aad",
+    "file": "records/2026-09-28_sentinel-2c_2026-09-28_R078.dc9bb050c902.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3734,6 +3825,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-10-10_R078",
     "date": "2026-10-10",
     "recordSha256": "f3c8d6c9939794003f33cd816605a8780bacdfefcee7c9fd9c64811327c9a48c",
+    "file": "records/2026-10-10_sentinel-2a_2026-10-10_R078.f3c8d6c99397.json",
     "classes": [
       null,
       null,
@@ -3775,6 +3867,7 @@
     "sceneId": "firat-birecik:sentinel-2a_2026-10-20_R078",
     "date": "2026-10-20",
     "recordSha256": "c9883eab80ba3a9c2f7ee90c4b89f4ca49f6bd893c5fcf2e44bd5aa21ab92139",
+    "file": "records/2026-10-20_sentinel-2a_2026-10-20_R078.c9883eab80ba.json",
     "classes": [
       "under_30",
       "under_30",

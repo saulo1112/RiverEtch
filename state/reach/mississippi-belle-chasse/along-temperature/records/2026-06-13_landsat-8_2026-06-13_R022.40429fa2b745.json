@@ -1,0 +1,172 @@
+{
+  "schema": "riveretch.along-temperature.v1",
+  "reach": "mississippi-belle-chasse",
+  "sceneId": "mississippi-belle-chasse:landsat-8_2026-06-13_R022",
+  "date": "2026-06-13",
+  "thermalRecordSha256": "4884c0219c9a8f1ec664c205e37176cfaf911c7c94e34a28b61fe6c813487e43",
+  "planSha256": "efe40180c42cecc9623d90a73457112c19445f23e343d9be5b8129b6c9a9e2b6",
+  "card": "docs/water-quality/results/models/mississippi-belle-chasse/water_temperature.json",
+  "modelCardSha256": "9493a61bc96b62c0292c8f1af87db9c669e9baeb86eb07e8d916962c9789bb8c",
+  "modelId": "W2:water_temperature:core:mississippi-belle-chasse",
+  "items": [
+    {
+      "id": "LC08_L2SP_022039_20260613_02_T1"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w02",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w03",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w08",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w17",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w18",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w19",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w20",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w21",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w22",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w23",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w24",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w25",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w26",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w27",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w28",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w29",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w30",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w31",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w32",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w33",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w34",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w35",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w36",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w37",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w38",
+      "temperatureClass": "25_to_30"
+    }
+  ],
+  "codeCommit": "ed9fb977c201ce3fd8f31f850704165c75b09077",
+  "recordSha256": "40429fa2b7458e7d391c584c2d3cda423a53f4622235acc71a6fb3d840cc6be5"
+}

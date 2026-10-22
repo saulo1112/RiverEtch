@@ -1,0 +1,172 @@
+{
+  "schema": "riveretch.along-temperature.v1",
+  "reach": "mississippi-belle-chasse",
+  "sceneId": "mississippi-belle-chasse:landsat-8_2026-08-16_R022",
+  "date": "2026-08-16",
+  "thermalRecordSha256": "2e665577b7c090ae836cfca9e8bf852da3648761c75b705cb2f42592874327d3",
+  "planSha256": "efe40180c42cecc9623d90a73457112c19445f23e343d9be5b8129b6c9a9e2b6",
+  "card": "docs/water-quality/results/models/mississippi-belle-chasse/water_temperature.json",
+  "modelCardSha256": "9493a61bc96b62c0292c8f1af87db9c669e9baeb86eb07e8d916962c9789bb8c",
+  "modelId": "W2:water_temperature:core:mississippi-belle-chasse",
+  "items": [
+    {
+      "id": "LC08_L2SP_022039_20260816_02_T1"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w02",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w03",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w08",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w17",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w18",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w19",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w20",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w21",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w22",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w23",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w24",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w25",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w26",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w27",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w28",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w29",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w30",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w31",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w32",
+      "temperatureClass": "30_and_over"
+    },
+    {
+      "id": "w33",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w34",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w35",
+      "temperatureClass": "30_and_over"
+    },
+    {
+      "id": "w36",
+      "temperatureClass": "30_and_over"
+    },
+    {
+      "id": "w37",
+      "temperatureClass": "30_and_over"
+    },
+    {
+      "id": "w38",
+      "temperatureClass": "30_and_over"
+    }
+  ],
+  "codeCommit": "ed9fb977c201ce3fd8f31f850704165c75b09077",
+  "recordSha256": "f0c3b30b4e57699232ae0a078007dc0be6dbb09f7444427e1bad34bc85c81bed"
+}

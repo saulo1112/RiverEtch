@@ -1,0 +1,172 @@
+{
+  "schema": "riveretch.along-temperature.v1",
+  "reach": "mississippi-belle-chasse",
+  "sceneId": "mississippi-belle-chasse:landsat-8_2026-07-31_R022",
+  "date": "2026-07-31",
+  "thermalRecordSha256": "29562deed3fe3d1837711ddd02cfdce65f5b3ae39e7af24181a9c4e416e83e40",
+  "planSha256": "efe40180c42cecc9623d90a73457112c19445f23e343d9be5b8129b6c9a9e2b6",
+  "card": "docs/water-quality/results/models/mississippi-belle-chasse/water_temperature.json",
+  "modelCardSha256": "9493a61bc96b62c0292c8f1af87db9c669e9baeb86eb07e8d916962c9789bb8c",
+  "modelId": "W2:water_temperature:core:mississippi-belle-chasse",
+  "items": [
+    {
+      "id": "LC08_L2SP_022039_20260731_02_T1"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w02",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w03",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w04",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w05",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w06",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w07",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w08",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w09",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w10",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w11",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w12",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w13",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w14",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w15",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w16",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w17",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w18",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w19",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w20",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w21",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w22",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w23",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w24",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w25",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w26",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w27",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w28",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w29",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w30",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w31",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w32",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w33",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w34",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w35",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w36",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w37",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w38",
+      "temperatureClass": "25_to_30"
+    }
+  ],
+  "codeCommit": "ed9fb977c201ce3fd8f31f850704165c75b09077",
+  "recordSha256": "2337f7ac6f26bf2ba0d9f4b75e6357a4ab7f11989240fea1853e8ff2b2951f09"
+}

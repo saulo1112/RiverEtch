@@ -1,0 +1,163 @@
+{
+  "schema": "riveretch.along-temperature.v1",
+  "reach": "platte-louisville",
+  "sceneId": "platte-louisville:landsat-8_2026-08-26_R028",
+  "date": "2026-08-26",
+  "thermalRecordSha256": "658cb749d7a148565e8dbe1141d60283fbc6732497f3e63a9d4caa70aebd1758",
+  "planSha256": "b8dd8664e8d651c8a5a0acaf7b491ed4d4970b1eeb327c80307e19f19cca70b3",
+  "card": "docs/water-quality/results/models/platte-louisville/water_temperature.json",
+  "modelCardSha256": "d563bb7e4283205b61f27c5a1c37c112dc2051eef5c64499c58128aab4962c78",
+  "modelId": "W1:water_temperature:core:platte-louisville",
+  "items": [
+    {
+      "id": "LC08_L2SP_028031_20260826_02_T1"
+    },
+    {
+      "id": "LC08_L2SP_028032_20260826_02_T1"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w02",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w03",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w04",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w05",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w06",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w07",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w08",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w09",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w10",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w11",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w17",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w18",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w19",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w20",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w21",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w22",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w23",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w24",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w25",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w26",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w27",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w28",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w29",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w30",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w31",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w32",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w33",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w34",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w35",
+      "temperatureClass": "20_to_25"
+    }
+  ],
+  "codeCommit": "ed9fb977c201ce3fd8f31f850704165c75b09077",
+  "recordSha256": "ad36623c51bf5f576673c606a3a27a459f35deae29a666e3dc954449a640558c"
+}

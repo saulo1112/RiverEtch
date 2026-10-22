@@ -1,8 +1,8 @@
 {
-  "updatedUtc": "2026-10-22T06:53:03+00:00",
+  "updatedUtc": "2026-10-22T17:57:45+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39729735965",
-    "ok": false,
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39824814693",
+    "ok": true,
     "steps": [
       {
         "args": "ledger upgrade",
@@ -18,7 +18,7 @@
       },
       {
         "args": "reach thermal --site mississippi-belle-chasse",
-        "exit": 1
+        "exit": 0
       },
       {
         "args": "reach context --site mississippi-belle-chasse",
@@ -30,7 +30,7 @@
       },
       {
         "args": "reach thermal --site platte-louisville",
-        "exit": 1
+        "exit": 0
       },
       {
         "args": "reach context --site platte-louisville",
@@ -70,6 +70,14 @@
       },
       {
         "args": "reach along --site firat-birecik",
+        "exit": 0
+      },
+      {
+        "args": "reach along-temperature --site mississippi-belle-chasse",
+        "exit": 0
+      },
+      {
+        "args": "reach along-temperature --site platte-louisville",
         "exit": 0
       },
       {
@@ -118,7 +126,7 @@
       }
     ]
   },
-  "lastSuccessUtc": "2026-10-22T02:59:24+00:00",
+  "lastSuccessUtc": "2026-10-22T17:57:45+00:00",
   "lastSealed": {
     "reach": "mississippi-belle-chasse",
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-21_R126",
@@ -126,23 +134,23 @@
   },
   "lastAnchor": {
     "label": "terrachain:riveretch:frozen-artifacts",
-    "lines": 26,
-    "block": 11967444,
-    "timestampUtc": "2026-10-22T05:24:48Z",
-    "tx": "0xc64fa89ec59288956bd5395eaa5ff81a096783204b6d250b70267da6845b9556"
+    "lines": 28,
+    "block": 11970970,
+    "timestampUtc": "2026-10-22T17:16:24Z",
+    "tx": "0x4c7522faec9564ac6259f1b510006e828e67e010df6aa4e919b435b146248c98"
   },
   "lastBitcoin": {
-    "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_observations.38.ots",
-    "height": 972558,
-    "blockTime": "2026-10-22T03:03:42+00:00"
+    "file": "docs/ledgers/ots/terrachain_firat-birecik_along.93.ots",
+    "height": 972585,
+    "blockTime": "2026-10-22T07:32:36+00:00"
   },
-  "pendingBitcoin": 6,
+  "pendingBitcoin": 3,
   "proofs": [
     {
       "label": "terrachain:firat-birecik:along",
       "lines": 93,
       "file": "docs/ledgers/ots/terrachain_firat-birecik_along.93.ots",
-      "height": null
+      "height": 972585
     },
     {
       "label": "terrachain:firat-birecik:observations",
@@ -160,6 +168,12 @@
       "label": "terrachain:mississippi-belle-chasse:along",
       "lines": 38,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_along.38.ots",
+      "height": 972585
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:along-temperature",
+      "lines": 19,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_along-temperature.19.ots",
       "height": null
     },
     {
@@ -196,7 +210,7 @@
       "label": "terrachain:mississippi-belle-chasse:outcomes",
       "lines": 2,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_outcomes.2.ots",
-      "height": null
+      "height": 972577
     },
     {
       "label": "terrachain:mississippi-belle-chasse:water-temperature",
@@ -208,7 +222,7 @@
       "label": "terrachain:mississippi-st-joseph:along",
       "lines": 23,
       "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_along.23.ots",
-      "height": null
+      "height": 972585
     },
     {
       "label": "terrachain:mississippi-st-joseph:observations",
@@ -232,6 +246,12 @@
       "label": "terrachain:platte-louisville:along",
       "lines": 18,
       "file": "docs/ledgers/ots/terrachain_platte-louisville_along.18.ots",
+      "height": 972585
+    },
+    {
+      "label": "terrachain:platte-louisville:along-temperature",
+      "lines": 16,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_along-temperature.16.ots",
       "height": null
     },
     {
@@ -292,6 +312,12 @@
       "label": "terrachain:riveretch:frozen-artifacts",
       "lines": 26,
       "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.26.ots",
+      "height": 972577
+    },
+    {
+      "label": "terrachain:riveretch:frozen-artifacts",
+      "lines": 28,
+      "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.28.ots",
       "height": null
     }
   ],

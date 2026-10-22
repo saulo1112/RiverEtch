@@ -3,6 +3,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-01-01_R083",
     "date": "2026-01-01",
     "recordSha256": "39be24438600843865e985f5d18d63456f7ea14b41344082f58e0026b47063ac",
+    "file": "records/2026-01-01_sentinel-2c_2026-01-01_R083.39be24438600.json",
     "classes": [
       "under_30",
       "under_30",
@@ -88,6 +89,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-01-14_R126",
     "date": "2026-01-14",
     "recordSha256": "44f7471a5bda6d67886af8e6973f63001f9c7d3cdd5dcebd8a8bee9bae3ee079",
+    "file": "records/2026-01-14_sentinel-2c_2026-01-14_R126.44f7471a5bda.json",
     "classes": [
       "under_30",
       "under_30",
@@ -173,6 +175,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-01-16_R083",
     "date": "2026-01-16",
     "recordSha256": "6e6c3f29992d4a1e05831bdf36ecb144fce15fa5970407ffc92d037940d92543",
+    "file": "records/2026-01-16_sentinel-2b_2026-01-16_R083.6e6c3f29992d.json",
     "classes": [
       "under_30",
       "under_30",
@@ -258,6 +261,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-01-19_R126",
     "date": "2026-01-19",
     "recordSha256": "8c384d9df9aef7a868b743eaa1d8ef5d5cc3c6afd84937664458e9b6d1eaf01a",
+    "file": "records/2026-01-19_sentinel-2b_2026-01-19_R126.8c384d9df9ae.json",
     "classes": [
       "under_30",
       "under_30",
@@ -343,6 +347,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-02-03_R126",
     "date": "2026-02-03",
     "recordSha256": "77937d7c107063b6100abc30e282f592816dd9319032cd551cf9364fef0da8a4",
+    "file": "records/2026-02-03_sentinel-2c_2026-02-03_R126.77937d7c1070.json",
     "classes": [
       "under_30",
       "under_30",
@@ -428,6 +433,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-02-05_R083",
     "date": "2026-02-05",
     "recordSha256": "ae6e65c8ec9095768791d6508a8f57b8ddf775a001521fa00019aff2f66eeafc",
+    "file": "records/2026-02-05_sentinel-2a_2026-02-05_R083.ae6e65c8ec90.json",
     "classes": [
       "under_30",
       "under_30",
@@ -513,6 +519,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-02-05_R083",
     "date": "2026-02-05",
     "recordSha256": "9d89ea47447d721d225d3484adf1c94b3f776b29ffba1aa4c6c262a68f68cd94",
+    "file": "records/2026-02-05_sentinel-2b_2026-02-05_R083.9d89ea47447d.json",
     "classes": [
       "under_30",
       "under_30",
@@ -598,6 +605,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-02-08_R126",
     "date": "2026-02-08",
     "recordSha256": "d19ae39f0bb72c7458de99e4a8429b935a8ba593591bcbb7ef6fe798dc0729bc",
+    "file": "records/2026-02-08_sentinel-2b_2026-02-08_R126.d19ae39f0bb7.json",
     "classes": [
       "under_30",
       "under_30",
@@ -683,6 +691,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-02-15_R083",
     "date": "2026-02-15",
     "recordSha256": "0416a4e847a2fc31320e25c2a3288f4260a38fbb03db65a32911b1d5c06a23af",
+    "file": "records/2026-02-15_sentinel-2a_2026-02-15_R083.0416a4e847a2.json",
     "classes": [
       "under_30",
       "under_30",
@@ -768,6 +777,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-02-15_R083",
     "date": "2026-02-15",
     "recordSha256": "6508081843573f0682475ca42bc14e055d707de75a2e9b3bc2f3a867c76f0b28",
+    "file": "records/2026-02-15_sentinel-2b_2026-02-15_R083.650808184357.json",
     "classes": [
       "under_30",
       "under_30",
@@ -853,6 +863,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-02-23_R126",
     "date": "2026-02-23",
     "recordSha256": "f4a3195533700e4fa071f66a4bc4f5f244c8fed845a8df23b403d3c7f66066f2",
+    "file": "records/2026-02-23_sentinel-2c_2026-02-23_R126.f4a319553370.json",
     "classes": [
       "under_30",
       "under_30",
@@ -938,6 +949,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-03-02_R083",
     "date": "2026-03-02",
     "recordSha256": "b2314c5fa42c4b7a67911df2c4daa1297befca5a20000a832e510cb1427158a7",
+    "file": "records/2026-03-02_sentinel-2c_2026-03-02_R083.b2314c5fa42c.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1023,6 +1035,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-03-17_R083",
     "date": "2026-03-17",
     "recordSha256": "47a3ebca1af472ba2fd8d7a6c9ceff781922ee3ea62ae2f618e16645f8b68a73",
+    "file": "records/2026-03-17_sentinel-2b_2026-03-17_R083.47a3ebca1af4.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -1108,6 +1121,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-03-20_R126",
     "date": "2026-03-20",
     "recordSha256": "dc82afb42eb2af46935421cfdb4cd5902a107edd7b50f31f520ba5468d13d8f6",
+    "file": "records/2026-03-20_sentinel-2b_2026-03-20_R126.dc82afb42eb2.json",
     "classes": [
       "100_and_over",
       "50_to_100",
@@ -1193,6 +1207,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-03-22_R083",
     "date": "2026-03-22",
     "recordSha256": "1741f191f8c7d7afbe6dd62e568aa471165d3953de62caa36359e5d08ff73f89",
+    "file": "records/2026-03-22_sentinel-2c_2026-03-22_R083.1741f191f8c7.json",
     "classes": [
       "100_and_over",
       "100_and_over",
@@ -1278,6 +1293,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-03-25_R126",
     "date": "2026-03-25",
     "recordSha256": "cd580199f53ad40ef2cbc533b5b5e1b4421e25d32966d22ad6fe479125ece075",
+    "file": "records/2026-03-25_sentinel-2c_2026-03-25_R126.cd580199f53a.json",
     "classes": [
       null,
       null,
@@ -1363,6 +1379,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-04-11_R083",
     "date": "2026-04-11",
     "recordSha256": "1dc37dd173a26e34329fc79d3589fc44395571004c8a380b2bd46264814c6816",
+    "file": "records/2026-04-11_sentinel-2c_2026-04-11_R083.1dc37dd173a2.json",
     "classes": [
       "under_30",
       "30_to_50",
@@ -1448,6 +1465,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-04-23_R083",
     "date": "2026-04-23",
     "recordSha256": "60efe2141f2d8eae20b8fd9ba51dcdaf17e2942b3731ac8d191672173b9f382e",
+    "file": "records/2026-04-23_sentinel-2a_2026-04-23_R083.60efe2141f2d.json",
     "classes": [
       "50_to_100",
       "30_to_50",
@@ -1533,6 +1551,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-04-26_R083",
     "date": "2026-04-26",
     "recordSha256": "eeaf50690b638d19e700aeaa4d2db3e27887864903a854b7e339b2e792e335eb",
+    "file": "records/2026-04-26_sentinel-2b_2026-04-26_R083.eeaf50690b63.json",
     "classes": [
       "30_to_50",
       "50_to_100",
@@ -1618,6 +1637,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-06-22_R083",
     "date": "2026-06-22",
     "recordSha256": "860698566e97d2ffff27d53db148c74b68a10a5d7e456a55b9cd7f12ee1dbf06",
+    "file": "records/2026-06-22_sentinel-2a_2026-06-22_R083.860698566e97.json",
     "classes": [
       null,
       null,
@@ -1703,6 +1723,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-07-12_R083",
     "date": "2026-07-12",
     "recordSha256": "f75d7efcf9be3691d9c1e75a4a020d6fcd7c3c0e450499a8a3063af732b2da87",
+    "file": "records/2026-07-12_sentinel-2a_2026-07-12_R083.f75d7efcf9be.json",
     "classes": [
       "50_to_100",
       "50_to_100",
@@ -1788,6 +1809,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-07-20_R083",
     "date": "2026-07-20",
     "recordSha256": "3ff06a32e14b6a2b210a03fbbc7d7e1d8d9212ad00ec38050f4a489fe663fab9",
+    "file": "records/2026-07-20_sentinel-2c_2026-07-20_R083.3ff06a32e14b.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -1873,6 +1895,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-08-04_R083",
     "date": "2026-08-04",
     "recordSha256": "80072476d310bcf5a35fdb45cc9a85060055c5ad1ad8508d45d845c8026d3524",
+    "file": "records/2026-08-04_sentinel-2b_2026-08-04_R083.80072476d310.json",
     "classes": [
       "under_30",
       "under_30",
@@ -1958,6 +1981,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-08-14_R083",
     "date": "2026-08-14",
     "recordSha256": "5b0b5d6f6b18d408476db37730b53ed1be004a7a00eb7a4f0df44574bc251550",
+    "file": "records/2026-08-14_sentinel-2b_2026-08-14_R083.5b0b5d6f6b18.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2043,6 +2067,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-08-21_R083",
     "date": "2026-08-21",
     "recordSha256": "338ef0810be36ebc1fb9af4354cef200391012b3a6dc09e2e515a7eb05a9d3fb",
+    "file": "records/2026-08-21_sentinel-2a_2026-08-21_R083.338ef0810be3.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2128,6 +2153,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-08-24_R083",
     "date": "2026-08-24",
     "recordSha256": "af552735fa3dd06e89690dd978772d03ce05476be3013ef7c57a804b0e233423",
+    "file": "records/2026-08-24_sentinel-2b_2026-08-24_R083.af552735fa3d.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2213,6 +2239,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-08-29_R083",
     "date": "2026-08-29",
     "recordSha256": "d30e46ab999b0d309529955cdb6c00e068587c286961fc86993f8c5a789dd2f1",
+    "file": "records/2026-08-29_sentinel-2c_2026-08-29_R083.d30e46ab999b.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2298,6 +2325,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-09-08_R083",
     "date": "2026-09-08",
     "recordSha256": "ec5a220461d10106041aa84447e65c5cb5cec3b71912b1bd7df3554c34244bc6",
+    "file": "records/2026-09-08_sentinel-2c_2026-09-08_R083.ec5a220461d1.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2383,6 +2411,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-09-23_R126",
     "date": "2026-09-23",
     "recordSha256": "5d2757ce80ed4604e7a5ee0a747cce314ae55d81a4cc64036b1d512a8546632f",
+    "file": "records/2026-09-23_sentinel-2a_2026-09-23_R126.5d2757ce80ed.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2468,6 +2497,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-09-23_R083",
     "date": "2026-09-23",
     "recordSha256": "09fd94e34eec6d444157706168efd08ced7efeb61560739476fbc0bde621d5f8",
+    "file": "records/2026-09-23_sentinel-2b_2026-09-23_R083.09fd94e34eec.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2553,6 +2583,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-09-28_R083",
     "date": "2026-09-28",
     "recordSha256": "b5adb75f43eab0e45c10bed24a9539b1dffefe871bfa90299760c161d7e6d76b",
+    "file": "records/2026-09-28_sentinel-2c_2026-09-28_R083.b5adb75f43ea.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2638,6 +2669,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-01_R126",
     "date": "2026-10-01",
     "recordSha256": "3c5ad2e79649184b1279ca2ea751d595a3c3e6ce730ff082a50d2f2df6f69586",
+    "file": "records/2026-10-01_sentinel-2c_2026-10-01_R126.3c5ad2e79649.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2723,6 +2755,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-11_R126",
     "date": "2026-10-11",
     "recordSha256": "9a9426b511e563ebd362ae2fc2b55da4c040b660c76735d496f93ee2de6fb726",
+    "file": "records/2026-10-11_sentinel-2c_2026-10-11_R126.9a9426b511e5.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2808,6 +2841,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-10-13_R126",
     "date": "2026-10-13",
     "recordSha256": "028c10b4c2d510ee1430d3097a158ee4c73d4b202245116a9963a5ac4ebe177a",
+    "file": "records/2026-10-13_sentinel-2a_2026-10-13_R126.028c10b4c2d5.json",
     "classes": [
       "under_30",
       "under_30",
@@ -2893,6 +2927,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-10-13_R083",
     "date": "2026-10-13",
     "recordSha256": "a173323446752317ed2b1a2320cc44e5eb0fd4b3322d8aa145296c63c7e677e9",
+    "file": "records/2026-10-13_sentinel-2b_2026-10-13_R083.a17332344675.json",
     "classes": [
       "under_30",
       "30_to_50",
@@ -2978,6 +3013,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-10-16_R126",
     "date": "2026-10-16",
     "recordSha256": "6cbd1337fa30cad9b655433f8a6783f00bd097b5c81df1696386462de76fcb77",
+    "file": "records/2026-10-16_sentinel-2b_2026-10-16_R126.6cbd1337fa30.json",
     "classes": [
       "30_to_50",
       "30_to_50",
@@ -3063,6 +3099,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2a_2026-10-20_R083",
     "date": "2026-10-20",
     "recordSha256": "42d06eef613cfdb51d5bf6b0b90e9779c7ff1165896d31d7b3a433b10c7a14fc",
+    "file": "records/2026-10-20_sentinel-2a_2026-10-20_R083.42d06eef613c.json",
     "classes": [
       "under_30",
       "under_30",
@@ -3148,6 +3185,7 @@
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-21_R126",
     "date": "2026-10-21",
     "recordSha256": "640e038e74bbe2ebcb0411f96d3e30202c8f3578d8c795721684682ee5258731",
+    "file": "records/2026-10-21_sentinel-2c_2026-10-21_R126.640e038e74bb.json",
     "classes": [
       "under_30",
       "under_30",

@@ -1,0 +1,163 @@
+{
+  "schema": "riveretch.along-temperature.v1",
+  "reach": "platte-louisville",
+  "sceneId": "platte-louisville:landsat-9_2026-09-03_R028",
+  "date": "2026-09-03",
+  "thermalRecordSha256": "8185f54541bfcaaae08244f7f9a39706a3db25fe6bf296666c424b4900c25dc6",
+  "planSha256": "b8dd8664e8d651c8a5a0acaf7b491ed4d4970b1eeb327c80307e19f19cca70b3",
+  "card": "docs/water-quality/results/models/platte-louisville/water_temperature.json",
+  "modelCardSha256": "d563bb7e4283205b61f27c5a1c37c112dc2051eef5c64499c58128aab4962c78",
+  "modelId": "W1:water_temperature:core:platte-louisville",
+  "items": [
+    {
+      "id": "LC09_L2SP_028031_20260903_02_T1"
+    },
+    {
+      "id": "LC09_L2SP_028032_20260903_02_T1"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w02",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w03",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w06",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w08",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w15",
+      "temperatureClass": "20_to_25"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w17",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w18",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w19",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w20",
+      "temperatureClass": "25_to_30"
+    },
+    {
+      "id": "w21",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w22",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w23",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w24",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w25",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w26",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w27",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w28",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w29",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w30",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w31",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w32",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w33",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w34",
+      "abstainReason": "too few clear water pixels"
+    },
+    {
+      "id": "w35",
+      "abstainReason": "too few clear water pixels"
+    }
+  ],
+  "codeCommit": "ed9fb977c201ce3fd8f31f850704165c75b09077",
+  "recordSha256": "ed0ef4ffd494ec5e3b68758deadcea50a2927be6fe413343cc8a404901bffb9f"
+}

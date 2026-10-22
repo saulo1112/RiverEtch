@@ -1,0 +1,163 @@
+{
+  "schema": "riveretch.along-temperature.v1",
+  "reach": "platte-louisville",
+  "sceneId": "platte-louisville:landsat-8_2026-03-19_R028",
+  "date": "2026-03-19",
+  "thermalRecordSha256": "fa0a29c477ab6fc888a4cfb27f86501310741c991c1fc5dd384500e0508ddfff",
+  "planSha256": "b8dd8664e8d651c8a5a0acaf7b491ed4d4970b1eeb327c80307e19f19cca70b3",
+  "card": "docs/water-quality/results/models/platte-louisville/water_temperature.json",
+  "modelCardSha256": "d563bb7e4283205b61f27c5a1c37c112dc2051eef5c64499c58128aab4962c78",
+  "modelId": "W1:water_temperature:core:platte-louisville",
+  "items": [
+    {
+      "id": "LC08_L2SP_028031_20260319_02_T1"
+    },
+    {
+      "id": "LC08_L2SP_028032_20260319_02_T1"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w02",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w03",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w04",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w05",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w06",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w07",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w08",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w09",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w10",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w11",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w12",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w13",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w14",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w15",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w16",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w17",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w18",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w19",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w20",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w21",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w22",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w23",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w24",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w25",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w26",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w27",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w28",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w29",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w30",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w31",
+      "temperatureClass": "10_to_15"
+    },
+    {
+      "id": "w32",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w33",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w34",
+      "temperatureClass": "under_10"
+    },
+    {
+      "id": "w35",
+      "temperatureClass": "under_10"
+    }
+  ],
+  "codeCommit": "ed9fb977c201ce3fd8f31f850704165c75b09077",
+  "recordSha256": "06d493543756266e59461fa914851f55b0ba27130244663634d1c30f8ade40dc"
+}

@@ -1,0 +1,172 @@
+{
+  "schema": "riveretch.along-temperature.v1",
+  "reach": "mississippi-belle-chasse",
+  "sceneId": "mississippi-belle-chasse:landsat-8_2026-02-05_R022",
+  "date": "2026-02-05",
+  "thermalRecordSha256": "da8636e4d09b1f69da48c6d32198233eb9d5e417464483379c2b3491f4e5f668",
+  "planSha256": "efe40180c42cecc9623d90a73457112c19445f23e343d9be5b8129b6c9a9e2b6",
+  "card": "docs/water-quality/results/models/mississippi-belle-chasse/water_temperature.json",
+  "modelCardSha256": "9493a61bc96b62c0292c8f1af87db9c669e9baeb86eb07e8d916962c9789bb8c",
+  "modelId": "W2:water_temperature:core:mississippi-belle-chasse",
+  "items": [
+    {
+      "id": "LC08_L2SP_022039_20260205_02_T1"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w02",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w03",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w08",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w17",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w18",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w19",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w20",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w21",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w22",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w23",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w24",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w25",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w26",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w27",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w28",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w29",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w30",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w31",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w32",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w33",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w34",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w35",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w36",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w37",
+      "abstainReason": "surface temperature outside the card's input range"
+    },
+    {
+      "id": "w38",
+      "abstainReason": "surface temperature outside the card's input range"
+    }
+  ],
+  "codeCommit": "ed9fb977c201ce3fd8f31f850704165c75b09077",
+  "recordSha256": "bd106027168bc4337d1210b700b7d5c594d7d1e5bb15750a71b8c8ee35209a62"
+}
