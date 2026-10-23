@@ -4,8 +4,7 @@ import { useEffect, useId, useState, type Ref } from "react";
 import { IMAGERY } from "../../case/config.ts";
 import { formatDate, LEVEL_LABELS } from "../../case/content.ts";
 import type { ReachCase } from "../../reaches/catalog.ts";
-import { loadReach } from "../../reaches/data.ts";
-import { isUngauged } from "../../reaches/scene.ts";
+import { loadReach, loadReachSummary } from "../../reaches/data.ts";
 import type { LngLat, Level } from "../../reaches/types.ts";
 import { CASES } from "./content.ts";
 import { caseThumbnail, previewLayers, thumbnailSrcSet, type PreviewStatus } from "./preview.ts";
@@ -59,7 +58,11 @@ export function CaseCard({ reachCase, openCaseRef, onOpenCase, onWarmUp }: CaseC
 
   useEffect(() => {
     let live = true;
-    loadReach(reachCase.id)
+    // The card needs four small files; the whole case loads quietly once the card is up.
+    const warm = window.setTimeout(() => {
+      loadReach(reachCase.id).catch(() => undefined);
+    }, 1500);
+    loadReachSummary(reachCase.id)
       .then((reach) => {
         if (!live) {
           return;
@@ -68,7 +71,8 @@ export function CaseCard({ reachCase, openCaseRef, onOpenCase, onWarmUp }: CaseC
         const line = reach.geometry?.features.find((f) => f.properties.kind === "centreline");
         setSummary({
           // A reach with no gauge has no level of its own: "unvalidated".
-          level: overall?.level ?? (isUngauged(reach) ? "unvalidated" : null),
+          level:
+            overall?.level ?? (reach.info.station.source === "ungauged" ? "unvalidated" : null),
           mdsa: reach.card?.metrics?.lockbox.mdsa ?? null,
           lastPass: reach.series.at(-1)?.date ?? null,
           passes: reach.series.length,
@@ -78,6 +82,7 @@ export function CaseCard({ reachCase, openCaseRef, onOpenCase, onWarmUp }: CaseC
       .catch(() => undefined);
     return () => {
       live = false;
+      window.clearTimeout(warm);
     };
   }, [reachCase.id]);
 

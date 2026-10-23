@@ -84,6 +84,58 @@ function jsonLines<T>(text: string | null): T[] {
 }
 
 const loads = new Map<string, Promise<ReachData>>();
+const summaries = new Map<string, Promise<ReachSummary>>();
+
+/** What a case card shows of a reach: four small files, not the whole case. */
+export interface ReachSummary {
+  readonly info: ReachInfo;
+  readonly series: readonly SeriesRow[];
+  readonly card: ModelCard | null;
+  readonly geometry: ReachGeometry | null;
+}
+
+/**
+ * Loads just what a case card needs (info, series, turbidity card, geometry), all at once, from the
+ * live copy when it can be read (cached; a failed load is retried on the next call).
+ *
+ * @param id - The reach's site id.
+ * @returns The summary.
+ */
+export function loadReachSummary(id: string): Promise<ReachSummary> {
+  const cached = summaries.get(id);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const pending = (async (): Promise<ReachSummary> => {
+    const live = LIVE
+      ? await Promise.all([
+          fetchJson<ReachInfo>(`${liveBase(id)}reach.json`),
+          fetchJson<SeriesRow[]>(`${liveBase(id)}series.json`),
+          fetchJson<ReachGeometry>(`${liveBase(id)}geometry.geojson`),
+        ])
+      : null;
+    const base = live?.[1] == null ? reachBase(id) : liveBase(id);
+    const [info, series, geometry] =
+      live?.[0] != null && live[1] != null
+        ? live
+        : await Promise.all([
+            fetchJson<ReachInfo>(`${base}reach.json`),
+            fetchJson<SeriesRow[]>(`${base}series.json`),
+            fetchJson<ReachGeometry>(`${base}geometry.geojson`),
+          ]);
+    if (info === null || series === null) {
+      throw new Error(`${id}: the reach's files could not be loaded`);
+    }
+    const cardPath = info.cards.turbidity;
+    const card = cardPath === undefined ? null : await fetchJson<ModelCard>(`${base}${cardPath}`);
+    return { info, series, card, geometry };
+  })();
+  summaries.set(id, pending);
+  pending.catch(() => {
+    summaries.delete(id);
+  });
+  return pending;
+}
 
 /**
  * Loads a reach's info, series, card, gauge check, map index, geometry, the gauge's readings, its
@@ -103,28 +155,40 @@ export function loadReach(id: string): Promise<ReachData> {
     const live = LIVE ? await fetchJson<SeriesRow[]>(`${liveBase(id)}series.json`) : null;
     const source = live === null ? "snapshot" : "live";
     const base = live === null ? reachBase(id) : liveBase(id);
-    const [info, series, maps, geometry, checks, context, climate, outcomes, plan, along, years] =
-      await Promise.all([
-        fetchJson<ReachInfo>(`${base}reach.json`),
-        live ?? fetchJson<SeriesRow[]>(`${base}series.json`),
-        fetchJson<MapsIndex>(`${base}maps.json`),
-        fetchJson<ReachGeometry>(`${base}geometry.geojson`),
-        fetchText(`${base}checks/checks.csv`),
-        fetchText(`${base}checks/context.csv`),
-        fetchJson<ClimateRecord>(`${base}climate.json`),
-        // The snapshot asks only for files this build has; the live copy may have newer ones.
-        source === "live" || __OUTCOMES__.includes(id)
-          ? fetchText(`${base}outcomes/ledger.jsonl`)
-          : null,
-        // Along the river and the station's earlier years (absent until the reach has them).
-        fetchJson<AlongPlan>(`${base}along/windows.json`),
-        fetchJson<AlongPass[]>(`${base}along/series.json`),
-        // The earlier years (preregistration-archive.md): the snapshot's copy when the live one
-        // has none yet.
-        archiveIndex(base, id),
-      ]);
-    // The daily flow record, year by year (preregistration-daily-record.md): the daily run's.
-    const dailyRecord = await fetchJson<DailyRecordRow[]>(`${base}daily-record/series.json`);
+    const [
+      info,
+      series,
+      maps,
+      geometry,
+      checks,
+      context,
+      climate,
+      outcomes,
+      plan,
+      along,
+      years,
+      dailyRecord,
+    ] = await Promise.all([
+      fetchJson<ReachInfo>(`${base}reach.json`),
+      live ?? fetchJson<SeriesRow[]>(`${base}series.json`),
+      fetchJson<MapsIndex>(`${base}maps.json`),
+      fetchJson<ReachGeometry>(`${base}geometry.geojson`),
+      fetchText(`${base}checks/checks.csv`),
+      fetchText(`${base}checks/context.csv`),
+      fetchJson<ClimateRecord>(`${base}climate.json`),
+      // The snapshot asks only for files this build has; the live copy may have newer ones.
+      source === "live" || __OUTCOMES__.includes(id)
+        ? fetchText(`${base}outcomes/ledger.jsonl`)
+        : null,
+      // Along the river and the station's earlier years (absent until the reach has them).
+      fetchJson<AlongPlan>(`${base}along/windows.json`),
+      fetchJson<AlongPass[]>(`${base}along/series.json`),
+      // The earlier years (preregistration-archive.md): the snapshot's copy when the live one
+      // has none yet.
+      archiveIndex(base, id),
+      // The daily flow record, year by year (preregistration-daily-record.md): the daily run's.
+      fetchJson<DailyRecordRow[]>(`${base}daily-record/series.json`),
+    ]);
     if (info === null || series === null) {
       throw new Error(`${id}: the reach's files could not be loaded`);
     }
