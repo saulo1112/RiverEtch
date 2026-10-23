@@ -947,6 +947,14 @@
   max-width: calc(100% - 26px);
 }
 
+/* A pass whose station reading is not clear: one quiet line under the value, as the range is. */
+.case-file__unclear {
+  margin: 6px 0 0;
+  color: var(--text-2);
+  font-size: var(--type-small);
+  line-height: 1.4;
+}
+
 /* The trust strip: level, seal and anchor, each by a mark and its words. */
 .case-trust {
   display: flex;

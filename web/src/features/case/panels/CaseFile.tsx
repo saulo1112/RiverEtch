@@ -52,6 +52,7 @@ import {
   spotShown,
   stretchShown,
   stretchValued,
+  unclearAtStation,
   type TurbidityShown,
 } from "../turbidity.ts";
 import { DayChooser } from "./DayChooser.tsx";
@@ -718,6 +719,9 @@ export function CaseFile({
                     )}
                   </p>
                 )}
+                {unclearAtStation(reach, row) ? (
+                  <p className="case-file__unclear">{CASE_COPY.value.unclear}</p>
+                ) : null}
                 {spotRow}
               </>
             )}

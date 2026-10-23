@@ -502,3 +502,17 @@ last. Format: context → decision → consequences.
     commit that removed them, and its parent holds them as they were.
   - The earlier entries of this log (D5, D7 and others) still describe the scaffold as it was; their
     links to `zk-circuits.md` point to the history now.
+
+## D25. A note on passes where the station's reading is not clear (2026-10-23)
+
+- **Context:** on 29 Dec 2025 at the Platte the station's model read 431 FNU and the transfer model
+  on the same stretch read 40.6. Across 151 Platte passes the two agree (the stretch reads 83 % of
+  the station's, median). USGS has no turbidity record at that station from December 2025 to
+  mid-February 2026, so the measured value cannot say which was right.
+- **Decision:** at a station, a pass whose station value and its own stretch's value differ by more
+  than a factor of three shows one line, "The station data available does not allow a clear
+  turbidity reading on this date. Try using a near date." The same rule applies to every pass of every reach with a
+  station (5 of 418 compared: three at the Platte, two at Belle Chasse). Decided after seeing
+  29 Dec 2025. No value, model, record or year is changed or removed.
+- **Consequences:** a display rule only (`unclearAtStation`, `web/src/features/case/turbidity.ts`);
+  it needs no new run and no anchor. It says nothing about which reading is right.

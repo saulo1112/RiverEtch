@@ -387,6 +387,10 @@ export const CASE_COPY = {
   // The turbidity value beside its class, where the model's value is sealed
   // (preregistration-values.md): its typical error on the US reaches, its class's range elsewhere.
   value: {
+    // Beside a station's value on a pass where the satellite's two readings of the station's
+    // stretch differ by more than a factor of three (turbidity.ts, `unclearAtStation`).
+    unclear:
+      "The station data available does not allow a clear turbidity reading on this date. Try using a near date.",
     typicalError: (percent: number) => `Typical error ${String(percent)} %`,
     range: (cls: string) => `Range ${cls.charAt(0).toLowerCase()}${cls.slice(1)}`,
     errorHelpLabel: "About this error",

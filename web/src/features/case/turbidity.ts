@@ -1,7 +1,7 @@
 // The turbidity a place shows (preregistration-values.md): its value in FNU where the model's value
 // is sealed, beside its typical error on the US reaches (the transfer test's) or its class's range
 // outside the tested region; a record sealed before that shows its class alone.
-import { isOutside } from "../reaches/scene.ts";
+import { isOutside, isUngauged, turbidity } from "../reaches/scene.ts";
 import type { Estimate, FnuClass, ReachData, SeriesRow } from "../reaches/types.ts";
 import { CASE_COPY, formatValue } from "./content.ts";
 import { alongPassOf } from "./spot.ts";
@@ -111,6 +111,32 @@ export function secondaryText(shown: TurbidityShown | null): string | null {
   const parts = [error, after];
   const text = parts.filter((p) => p !== null).join(" · ");
   return text === "" ? null : text;
+}
+
+/** How far apart the station's value and its own stretch's may be before the pass is called unclear. */
+export const UNCLEAR_FACTOR = 3;
+
+/**
+ * Whether a pass at a station's reach is unclear: the station's value and the value of the stretch
+ * it stands in differ by more than a factor of three (decided after seeing 29 Dec 2025 at the
+ * Platte, 431 FNU against 40.6; the same rule for every pass of every reach with a station).
+ *
+ * @param reach - The reach.
+ * @param row - The pass.
+ * @returns True when both values exist and differ by more than the factor.
+ */
+export function unclearAtStation(reach: ReachData, row: SeriesRow | null): boolean {
+  if (row === null || isUngauged(reach)) {
+    return false;
+  }
+  const station = turbidity(row)?.value;
+  // The station stands in the plan's first window.
+  const stretch = alongPassOf(reach, row.sceneId)?.values?.[0];
+  if (typeof station !== "number" || typeof stretch !== "number" || station <= 0 || stretch <= 0) {
+    return false;
+  }
+  const ratio = stretch / station;
+  return ratio > UNCLEAR_FACTOR || ratio < 1 / UNCLEAR_FACTOR;
 }
 
 /**
