@@ -186,19 +186,14 @@ export function AlongView({
   const tipWindow = hover === null ? undefined : windows[hover.row];
   const tipClass =
     tip === undefined || hover === null ? null : (tip.pass.classes[hover.row] ?? null);
-  // A stretch's turbidity: its value beside its error or range (preregistration-values.md), or its
+  // A stretch's turbidity: its value beside its class's range (preregistration-values.md), or its
   // class on an older record.
   const turbidityOf = (pass: (typeof passes)[number]["pass"], row: number) => {
     if (temperature) {
       return null;
     }
     const turbidityPass = pass as AlongPass;
-    return shownOf(
-      reach,
-      turbidityPass.values?.[row],
-      turbidityPass.classes[row],
-      __TRANSFER_POOLED__.mdsa,
-    );
+    return shownOf(turbidityPass.values?.[row], turbidityPass.classes[row]);
   };
   const tipShown =
     temperature || tip === undefined || hover === null ? null : turbidityOf(tip.pass, hover.row);

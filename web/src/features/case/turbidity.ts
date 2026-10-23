@@ -1,7 +1,6 @@
 // The turbidity a place shows (preregistration-values.md): its value in FNU where the model's value
-// is sealed, beside its typical error on the US reaches (the transfer test's) or its class's range
-// outside the tested region; a record sealed before that shows its class alone.
-import { isOutside, isUngauged, turbidity } from "../reaches/scene.ts";
+// is sealed, beside its class's range; a record sealed before that shows its class alone.
+import { isUngauged, turbidity } from "../reaches/scene.ts";
 import type { Estimate, FnuClass, ReachData, SeriesRow } from "../reaches/types.ts";
 import { CASE_COPY, formatValue } from "./content.ts";
 import { alongPassOf } from "./spot.ts";
@@ -11,49 +10,33 @@ export interface TurbidityShown {
   /** In FNU (null: a class only). */
   readonly value: number | null;
   readonly cls: FnuClass | null;
-  /** The typical error shown beside the value, in percent (null: none is shown). */
-  readonly errorPercent: number | null;
 }
 
 /**
  * An estimate of a reach with no station, or of a stretch along a reach, as the app shows it.
  *
- * @param reach - The reach (outside the tested region, no error is shown).
  * @param value - Its value in FNU (null: none sealed).
  * @param cls - Its class (null: none).
- * @param transferMdsa - The transfer test's typical error (MdSA, %).
  * @returns What to show (null: no reading).
  */
 export function shownOf(
-  reach: Pick<ReachData, "card">,
   value: number | null | undefined,
   cls: FnuClass | null | undefined,
-  transferMdsa: number,
 ): TurbidityShown | null {
   if (cls == null && value == null) {
     return null;
   }
-  return {
-    value: value ?? null,
-    cls: cls ?? null,
-    errorPercent: value == null || isOutside(reach) ? null : Math.round(transferMdsa),
-  };
+  return { value: value ?? null, cls: cls ?? null };
 }
 
 /**
  * A pass's estimate at a reach's reading spot with no station.
  *
- * @param reach - The reach.
  * @param estimate - The pass's turbidity estimate.
- * @param transferMdsa - The transfer test's typical error.
  * @returns What to show (null: no reading).
  */
-export function spotShown(
-  reach: Pick<ReachData, "card">,
-  estimate: Estimate | null | undefined,
-  transferMdsa: number,
-): TurbidityShown | null {
-  return shownOf(reach, estimate?.value, estimate?.fnuClass, transferMdsa);
+export function spotShown(estimate: Estimate | null | undefined): TurbidityShown | null {
+  return shownOf(estimate?.value, estimate?.fnuClass);
 }
 
 /**
@@ -62,17 +45,15 @@ export function spotShown(
  * @param reach - The reach.
  * @param sceneId - The pass.
  * @param index - The window.
- * @param transferMdsa - The transfer test's typical error.
  * @returns What to show (null: no reading).
  */
 export function stretchShown(
   reach: ReachData,
   sceneId: string | undefined,
   index: number,
-  transferMdsa: number,
 ): TurbidityShown | null {
   const pass = alongPassOf(reach, sceneId);
-  return shownOf(reach, pass?.values?.[index], pass?.classes[index], transferMdsa);
+  return shownOf(pass?.values?.[index], pass?.classes[index]);
 }
 
 /**
@@ -92,25 +73,16 @@ export function primaryText(shown: TurbidityShown | null): string {
 }
 
 /**
- * The estimate's second line beside its value: its typical error and range, or its range.
+ * The estimate's second line beside its value: its class's range (docs/decisions.md, D26).
  *
  * @param shown - The estimate.
- * @returns E.g. "Typical error 37 % · range 50 to 100 FNU" (null: a class alone, nothing beside).
+ * @returns E.g. "Range 50 to 100 FNU" (null: a class alone, nothing beside).
  */
 export function secondaryText(shown: TurbidityShown | null): string | null {
-  if (shown?.value == null) {
+  if (shown?.value == null || shown.cls === null) {
     return null;
   }
-  const range =
-    shown.cls === null ? null : CASE_COPY.value.range(CASE_COPY.ungauged.classes[shown.cls]);
-  const error =
-    shown.errorPercent === null ? null : CASE_COPY.value.typicalError(shown.errorPercent);
-  // After the error, the range goes on in lower case ("· range 50 to 100 FNU").
-  const after =
-    range === null || error === null ? range : `${range.charAt(0).toLowerCase()}${range.slice(1)}`;
-  const parts = [error, after];
-  const text = parts.filter((p) => p !== null).join(" · ");
-  return text === "" ? null : text;
+  return CASE_COPY.value.range(CASE_COPY.ungauged.classes[shown.cls]);
 }
 
 /** How far apart the station's value and its own stretch's may be before the pass is called unclear. */

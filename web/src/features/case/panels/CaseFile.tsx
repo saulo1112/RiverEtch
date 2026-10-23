@@ -456,11 +456,8 @@ function OwnPast({ reach, row }: { readonly reach: ReachData; readonly row: Seri
   );
 }
 
-// An ungauged reach's expected error (preregistration-transfer.md, section 5): the class agreement
-// as a count, the pooled median error with what it is a share of, and which way it leans.
 // A reach with no station, or a stretch along a reach (preregistration-values.md): its value in FNU
-// with its typical error and range beside it (outside the tested region, its range), or its class
-// alone on a record sealed before the value.
+// with its class's range beside it, or its class alone on a record sealed before the value.
 function ShownValue({ shown }: { readonly shown: TurbidityShown | null }) {
   const beside = secondaryText(shown);
   return (
@@ -480,21 +477,14 @@ function ShownValue({ shown }: { readonly shown: TurbidityShown | null }) {
       {beside === null ? null : (
         <p className="case-file__range-line">
           <span>{beside}</span>
-          {shown?.errorPercent == null ? null : (
-            <HelpTip label={CASE_COPY.value.errorHelpLabel}>
-              {CASE_COPY.value.errorHelp(
-                __TRANSFER_POOLED__.mdsa.toFixed(1),
-                __TRANSFER_POOLED__.n,
-                Math.abs(__TRANSFER_POOLED__.sspb).toFixed(0),
-              )}
-            </HelpTip>
-          )}
         </p>
       )}
     </>
   );
 }
 
+// An ungauged reach's expected error (preregistration-transfer.md, section 5): the class agreement
+// as a count, the pooled median error with what it is a share of, and which way it leans.
 function ExpectedErrorNote({
   error,
   baseline,
@@ -571,8 +561,7 @@ export function CaseFile({
   const level = estimate?.level ?? overall?.level ?? (noGauge ? "unvalidated" : "none");
   // Away from the start: the stretch's class on this pass, from its along-river record.
   const alongPass = spot === null ? null : alongPassOf(reach, row?.sceneId);
-  const stretchValue =
-    spot === null ? null : stretchShown(reach, row?.sceneId, spot.index, __TRANSFER_POOLED__.mdsa);
+  const stretchValue = spot === null ? null : stretchShown(reach, row?.sceneId, spot.index);
   // "Turbidity" where the records carry values, "Turbidity class" where they carry a class alone
   // (older records).
   const stretchTitle =
@@ -689,7 +678,7 @@ export function CaseFile({
             </p>
             {noGauge ? (
               <>
-                <ShownValue shown={spotShown(reach, estimate, __TRANSFER_POOLED__.mdsa)} />
+                <ShownValue shown={spotShown(estimate)} />
                 {spotRow}
                 <OwnPast reach={reach} row={row} />
               </>

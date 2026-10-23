@@ -557,7 +557,7 @@ export function CaseView({
     if (spotIndex !== null && spot !== null) {
       // Away from the start: the stretch's value on this pass (its class, on an older record).
       handle.setGauge({
-        value: primaryText(stretchShown(shown, row.sceneId, spotIndex, __TRANSFER_POOLED__.mdsa)),
+        value: primaryText(stretchShown(shown, row.sceneId, spotIndex)),
         caption: spot.stretch,
       });
       return;
@@ -568,7 +568,7 @@ export function CaseView({
       value:
         typeof estimate?.value === "number" && estimate.level !== "unvalidated"
           ? `${formatValue(estimate.value)} ${estimate.unit}`
-          : primaryText(spotShown(shown, estimate, __TRANSFER_POOLED__.mdsa)),
+          : primaryText(spotShown(estimate)),
       caption: isUngauged(reach)
         ? CASE_COPY.ungauged.mapCaption
         : reach.info.station.id.replace("USGS-", "USGS station "),
@@ -920,7 +920,6 @@ export function CaseView({
                 shown,
                 shown.series[selected]?.sceneId,
                 windowAt(shown.along, hover.reading.place, length) ?? -1,
-                __TRANSFER_POOLED__.mdsa,
               )
         }
       />

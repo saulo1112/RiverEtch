@@ -511,8 +511,24 @@ last. Format: context → decision → consequences.
   mid-February 2026, so the measured value cannot say which was right.
 - **Decision:** at a station, a pass whose station value and its own stretch's value differ by more
   than a factor of three shows one line, "The station data available does not allow a clear
-  turbidity reading on this date. Try using a near date." The same rule applies to every pass of every reach with a
+  turbidity reading on this date. Try using a nearby date." The same rule applies to every pass of every reach with a
   station (5 of 418 compared: three at the Platte, two at Belle Chasse). Decided after seeing
   29 Dec 2025. No value, model, record or year is changed or removed.
 - **Consequences:** a display rule only (`unclearAtStation`, `web/src/features/case/turbidity.ts`);
   it needs no new run and no anchor. It says nothing about which reading is right.
+
+## D26. A value shows its class's range, not an error figure (2026-10-23)
+
+- **Context:** [preregistration-values.md](water-quality/preregistration-values.md), section 3,
+  fixed the value beside "typical error 37 %" on the US reaches. Seen on the map, the figure sat
+  beside single passes that differ from it (29 Dec 2025 at the Platte), and the owner judged it
+  misleading on a single pass and not a fair summary of a reading.
+- **Decision:** on every stretch, and at the reading spot of St. Joseph, the app shows the value
+  and the range of its class ("43.0 FNU, range 30 to 50 FNU"), at the US reaches as at Birecik.
+  The measured error (a median of 37 % over 298 passes; 15 % to 162 % by station; it reads low)
+  is no longer on the map. It stays in the report, in `reviewers.md` and in the README. Decided
+  after seeing results. This departs from section 3 of the preregistration, which stays as
+  anchored.
+- **Consequences:** a display rule only; no record, value or run changes. Reading "range" as a
+  margin of error would be wrong: it is the class's edges, and the model's value can differ from
+  the station's.

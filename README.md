@@ -78,7 +78,7 @@ turbidity, so the satellite's reading is the only one there is.
 flowchart TD
   Q{"Does a station measure<br/>turbidity on this reach?"}
   Q -->|"Yes: Mississippi at Belle Chasse,<br/>Platte at Louisville"| A["A value with a unit (FNU)<br/>and its 90 % range,<br/>tested once against that station"]
-  Q -->|"No: Mississippi above Natchez"| B["A value in FNU and its class,<br/>with the typical error measured<br/>on rivers the model never saw"]
+  Q -->|"No: Mississippi above Natchez"| B["A value in FNU<br/>and its class's range"]
   Q -->|"No, and outside the United States:<br/>the Euphrates at Birecik, Türkiye"| C["A value in FNU<br/>and its class's range"]
 ```
 
@@ -132,11 +132,11 @@ flow can also be exported with proof, one row per day, and checked with **Check 
   anchored on Ethereum first ([preregistration](docs/water-quality/preregistration-along-river.md)).
 - **Sealed like every record.** Each pass along the river is a record in the reach's own ledger
   (`terrachain:<reach>:along`), anchored, timestamped and signed like the others.
-- **A value beside its class.** Each stretch shows the model's value in FNU
-  ([preregistration](docs/water-quality/preregistration-values.md)). On the US reaches it comes with
-  the typical error the model had on rivers it never saw: 37 % (median symmetric accuracy over 298
-  test passes; by station, 15 % to 162 %), and its class matched the station in 160 of those 298
-  passes. At Birecik it comes with its class's range.
+- **A value beside its class's range.** Each stretch shows the model's value in FNU with the range
+  of its class ([preregistration](docs/water-quality/preregistration-values.md)). The error of this
+  model on rivers it never saw was measured (a median of 37 % over 298 test passes; by station,
+  15 % to 162 %; its class matched the station in 160 of those 298 passes), and it is in the
+  [report](docs/water-quality/report.md), not on the map.
 
 ## Take it out with proof, check it anywhere
 

@@ -135,7 +135,7 @@ function classTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
   const copy = CASE_COPY.quality;
   const { ungauged } = CASE_COPY;
   const estimate = turbidity(row);
-  const shown = spotShown(reach, estimate, __TRANSFER_POOLED__.mdsa);
+  const shown = spotShown(estimate);
   const error = reach.card?.expectedError;
   const valued = reach.series.some((r) => typeof turbidity(r)?.value === "number");
   return {
@@ -318,7 +318,7 @@ function stretchTurbidityTile(
   spot: Spot,
 ): Tile {
   const copy = CASE_COPY.quality;
-  const shown = stretchShown(reach, row.sceneId, spot.index, __TRANSFER_POOLED__.mdsa);
+  const shown = stretchShown(reach, row.sceneId, spot.index);
   const four = __FOUR_CLASSES__;
   // Its values where the along-river records carry them (preregistration-values.md), else its
   // classes; outside the tested region a value shows its range, and nothing more.
@@ -345,7 +345,7 @@ function stretchTurbidityTile(
     spark: {
       values: reach.series.map((r) =>
         valued
-          ? (stretchShown(reach, r.sceneId, spot.index, __TRANSFER_POOLED__.mdsa)?.value ?? null)
+          ? (stretchShown(reach, r.sceneId, spot.index)?.value ?? null)
           : step(ALONG_CLASSES, turbidityAt(reach, r.sceneId, spot.index)),
       ),
       selected,

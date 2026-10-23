@@ -16,10 +16,10 @@ it.
   and the class matched the gauge in 160 of the 298, against 61 for always guessing the most common
   class (a comparison decided after seeing the result). Showing the value was decided after seeing
   the classes ([preregistration](water-quality/preregistration-values.md)).
-- **Along the river**, each 600 m stretch gets the same: a value beside its class, with the same
-  typical error on the US reaches; no station measures those stretches. At Birecik, outside the
-  United States, the value comes with its class's range and no error figure: no station there
-  measures turbidity.
+- **Along the river**, each 600 m stretch gets the same: a value beside its class's range. The app
+  does not show the error figure above beside it (D26 in `decisions.md`); it is in this file and in
+  the report. At Birecik, outside the United States, no station measures turbidity, so no error
+  could be measured there.
 - **Clouds** hide about three passes in four (72–76 % in 2026).
 - **The 2026 records sealed before T0 are retrospective:** they were sealed after their gauge values
   were public. Only passes after T0 (the anchor of the scoring rule) can count as prospective.

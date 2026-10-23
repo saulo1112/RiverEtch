@@ -518,12 +518,7 @@ export function Timeline(props: TimelineProps) {
             <BandChart
               points={turbidityPoints(reach, spot.index).map((p) => {
                 // The stretch's value beside its class, where its record carries one.
-                const shown = stretchShown(
-                  reach,
-                  reach.series[p.index]?.sceneId,
-                  spot.index,
-                  __TRANSFER_POOLED__.mdsa,
-                );
+                const shown = stretchShown(reach, reach.series[p.index]?.sceneId, spot.index);
                 return shown?.value == null
                   ? p
                   : { ...p, text: primaryText(shown), detail: secondaryText(shown) };

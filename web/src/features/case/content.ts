@@ -385,17 +385,13 @@ export const CASE_COPY = {
     view2d: "2D",
   },
   // The turbidity value beside its class, where the model's value is sealed
-  // (preregistration-values.md): its typical error on the US reaches, its class's range elsewhere.
+  // (preregistration-values.md): its class's range beside it.
   value: {
     // Beside a station's value on a pass where the satellite's two readings of the station's
     // stretch differ by more than a factor of three (turbidity.ts, `unclearAtStation`).
     unclear:
-      "The station data available does not allow a clear turbidity reading on this date. Try using a near date.",
-    typicalError: (percent: number) => `Typical error ${String(percent)} %`,
+      "The station data available does not allow a clear turbidity reading on this date. Try using a nearby date.",
     range: (cls: string) => `Range ${cls.charAt(0).toLowerCase()}${cls.slice(1)}`,
-    errorHelpLabel: "About this error",
-    errorHelp: (mdsa: string, n: number, low: string) =>
-      `Measured on ${String(n)} passes of five rivers the model never saw: half of its values were within ${mdsa} % of the station's, and it tended to read about ${low} % low.`,
   },
   inspector: {
     ndti: "NDTI",

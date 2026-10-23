@@ -246,10 +246,7 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
       gauge: gauge?.value ?? null,
       approval: gauge?.approval ?? "",
       // A reach with no station: its error or range beside the value.
-      beside:
-        estimate?.level === "unvalidated"
-          ? secondaryText(spotShown(reach, estimate, __TRANSFER_POOLED__.mdsa))
-          : null,
+      beside: estimate?.level === "unvalidated" ? secondaryText(spotShown(estimate)) : null,
     };
   });
 
