@@ -1,5 +1,5 @@
 {
- "schema": "riveretch.archive.v1",
+ "schema": "riveretch.archive.v2",
  "reach": "firat-birecik",
  "year": 2025,
  "planSha256": "6e3ba6c35130e6ee55e7f90e5b5dfb2329548c1e85097e3b1dfe4d54f79a253b",
@@ -7,7 +7,7 @@
  "modelCardSha256": "bfd24b6b5205785daad77cea9cd8f899c0d97f706ad90cc31949382a6762e197",
  "stationCard": "docs/water-quality/ungauged/firat-birecik/turbidity-4.json",
  "stationCardSha256": "bfd24b6b5205785daad77cea9cd8f899c0d97f706ad90cc31949382a6762e197",
- "codeCommit": "52b338309f3dc17cd62d5c1336f679ebe938fbb1",
+ "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
  "passes": [
   {
    "sceneId": "firat-birecik:sentinel-2b_2025-01-01_R078",
@@ -39,6 +39,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    1.71,
+    null,
+    1.68,
+    1.48,
+    1.89,
+    1.62,
+    1.28,
+    1.27,
+    1.27,
+    1.55,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "log_B04/B02 outside the training range",
     "log_B04/B02 outside the training range",
@@ -64,7 +82,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.15,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -87,6 +105,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.87,
+    2.01,
+    1.87,
+    1.96,
+    null,
+    1.98,
+    2.71,
+    2.15,
+    1.96,
+    2.24,
+    2.13,
+    2.26,
+    2.41,
+    null,
+    2.11,
+    2.02
    ],
    "reasons": [
     null,
@@ -113,7 +149,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.67,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -136,6 +172,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.61,
+    1.41,
+    1.47,
+    1.14,
+    null,
+    1.53,
+    1.92,
+    1.12,
+    1.66,
+    1.09,
+    1.36,
+    1.41,
+    2.34,
+    null,
+    1.62,
+    1.7
    ],
    "reasons": [
     null,
@@ -162,7 +216,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 4.19,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -185,6 +239,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    3.02,
+    5.05,
+    null,
+    null,
+    7.08,
+    5.04,
+    2.14,
+    3.55,
+    5.09,
+    4.29,
+    4.29,
+    null,
+    5.25,
+    4.19
    ],
    "reasons": [
     "failed water-B11 check",
@@ -211,7 +283,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.02,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -234,6 +306,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.3,
+    1.01,
+    1.3,
+    1.48,
+    null,
+    1.54,
+    2.02,
+    1.6,
+    1.64,
+    2.21,
+    2.04,
+    1.63,
+    1.56,
+    null,
+    2.53,
+    2.06
    ],
    "reasons": [
     null,
@@ -260,7 +350,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.66,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -283,6 +373,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.53,
+    1.14,
+    1.49,
+    1.13,
+    null,
+    1.42,
+    1.93,
+    1.52,
+    1.43,
+    1.51,
+    1.43,
+    1.39,
+    2.11,
+    null,
+    1.63,
+    1.74
    ],
    "reasons": [
     null,
@@ -309,7 +417,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.27,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -332,6 +440,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.45,
+    1.13,
+    1.23,
+    1.44,
+    null,
+    1.35,
+    1.42,
+    1.58,
+    1.32,
+    1.2,
+    1.24,
+    1.45,
+    1.22,
+    null,
+    1.2,
+    1.24
    ],
    "reasons": [
     null,
@@ -365,6 +491,24 @@
     "reason": "failed water-B11 check"
    },
    "classes": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "values": [
     null,
     null,
     null,
@@ -431,6 +575,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "failed water-B11 check",
     "failed water-B11 check",
@@ -456,7 +618,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.49,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -479,6 +641,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.51,
+    1.45,
+    1.47,
+    1.86,
+    null,
+    1.37,
+    1.57,
+    1.54,
+    1.65,
+    1.3,
+    1.38,
+    1.34,
+    1.6,
+    null,
+    1.25,
+    1.51
    ],
    "reasons": [
     null,
@@ -512,6 +692,24 @@
     "reason": "failed water-B11 check"
    },
    "classes": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "values": [
     null,
     null,
     null,
@@ -578,6 +776,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "failed water-B11 check",
     "failed water-B11 check",
@@ -610,6 +826,24 @@
     "reason": "failed water-B11 check"
    },
    "classes": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "values": [
     null,
     null,
     null,
@@ -676,6 +910,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "failed water-B11 check",
     "failed water-B11 check",
@@ -708,6 +960,24 @@
     "reason": "failed water-B11 check"
    },
    "classes": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "values": [
     null,
     null,
     null,
@@ -774,6 +1044,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "failed water-B11 check",
     "failed water-B11 check",
@@ -799,7 +1087,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.36,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -822,6 +1110,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.38,
+    1.34,
+    1.44,
+    1.3,
+    null,
+    1.21,
+    1.22,
+    1.24,
+    1.46,
+    1.24,
+    1.27,
+    1.26,
+    1.65,
+    null,
+    1.35,
+    1.5
    ],
    "reasons": [
     null,
@@ -848,7 +1154,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.35,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -871,6 +1177,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.24,
+    1.18,
+    1.24,
+    1.13,
+    null,
+    null,
+    1.19,
+    1.07,
+    1.18,
+    1.02,
+    2.29,
+    2.01,
+    1.12,
+    null,
+    1.2,
+    1.35
    ],
    "reasons": [
     null,
@@ -897,7 +1221,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.89,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -920,6 +1244,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.31,
+    1.22,
+    1.34,
+    1.47,
+    null,
+    1.05,
+    1.61,
+    null,
+    null,
+    1.24,
+    null,
+    null,
+    1.35,
+    null,
+    1.67,
+    1.47
    ],
    "reasons": [
     null,
@@ -946,7 +1288,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.7,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -969,6 +1311,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.25,
+    1.04,
+    1.23,
+    1.46,
+    null,
+    2.42,
+    null,
+    null,
+    2.06,
+    2.43,
+    2.56,
+    2.12,
+    1.55,
+    null,
+    1.66,
+    1.71
    ],
    "reasons": [
     null,
@@ -995,7 +1355,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.76,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1018,6 +1378,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.49,
+    1.13,
+    1.27,
+    1.59,
+    null,
+    null,
+    1.25,
+    1.33,
+    1.83,
+    1.26,
+    null,
+    null,
+    null,
+    null,
+    1.69,
+    1.78
    ],
    "reasons": [
     null,
@@ -1044,7 +1422,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.8,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1067,6 +1445,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.72,
+    1.92,
+    2.03,
+    1.63,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1.66,
+    2.12,
+    2.21,
+    4.35,
+    null,
+    1.81,
+    1.88
    ],
    "reasons": [
     null,
@@ -1093,7 +1489,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.41,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1116,6 +1512,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.59,
+    2.27,
+    2.31,
+    1.57,
+    null,
+    1.67,
+    2.41,
+    1.44,
+    1.39,
+    2.76,
+    2.57,
+    2.84,
+    1.83,
+    null,
+    1.87,
+    2.91
    ],
    "reasons": [
     null,
@@ -1142,7 +1556,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.2,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1165,6 +1579,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.49,
+    1.48,
+    1.72,
+    1.47,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1.66,
+    1.84,
+    null,
+    1.25,
+    1.28
    ],
    "reasons": [
     null,
@@ -1191,7 +1623,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.23,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1214,6 +1646,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.37,
+    1.18,
+    1.2,
+    2.52,
+    null,
+    2.54,
+    3.91,
+    2.65,
+    2.38,
+    2.52,
+    2.62,
+    2.23,
+    1.63,
+    null,
+    1.66,
+    1.86
    ],
    "reasons": [
     null,
@@ -1240,7 +1690,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.55,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1263,6 +1713,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.4,
+    1.19,
+    1.38,
+    1.7,
+    null,
+    1.48,
+    1.54,
+    1.36,
+    1.97,
+    null,
+    null,
+    1.04,
+    null,
+    null,
+    2.06,
+    1.54
    ],
    "reasons": [
     null,
@@ -1289,7 +1757,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.39,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1312,6 +1780,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.55,
+    1.32,
+    1.41,
+    1.21,
+    null,
+    1.19,
+    3.85,
+    1.63,
+    1.31,
+    2.36,
+    2.3,
+    2.01,
+    1.47,
+    null,
+    1.12,
+    1.34
    ],
    "reasons": [
     null,
@@ -1338,7 +1824,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.16,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1361,6 +1847,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.62,
+    2.45,
+    2.14,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1.63,
+    1.61
    ],
    "reasons": [
     null,
@@ -1387,7 +1891,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.64,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1410,6 +1914,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.11,
+    1.72,
+    1.96,
+    1.19,
+    null,
+    1.03,
+    1.14,
+    1.18,
+    1.41,
+    1.02,
+    1.42,
+    1.85,
+    null,
+    null,
+    1.82,
+    1.64
    ],
    "reasons": [
     null,
@@ -1436,7 +1958,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.62,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1459,6 +1981,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.77,
+    2.4,
+    2.03,
+    1.72,
+    null,
+    1.77,
+    2.48,
+    1.68,
+    1.61,
+    null,
+    null,
+    null,
+    1.72,
+    null,
+    4.5,
+    4.76
    ],
    "reasons": [
     null,
@@ -1485,7 +2025,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.77,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1508,6 +2048,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    1.51,
+    1.59,
+    1.69,
+    null,
+    null,
+    null,
+    null,
+    null,
+    2.1,
+    null,
+    null,
+    null,
+    null,
+    1.72,
+    1.79
    ],
    "reasons": [
     "contamination above 0.2",
@@ -1534,7 +2092,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.91,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1557,6 +2115,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.69,
+    1.94,
+    1.71,
+    1.78,
+    null,
+    1.94,
+    3.2,
+    2.14,
+    1.63,
+    1.75,
+    1.8,
+    1.85,
+    2.12,
+    null,
+    2.26,
+    1.91
    ],
    "reasons": [
     null,
@@ -1583,7 +2159,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.96,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1606,6 +2182,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    2.03,
+    1.1,
+    1.6,
+    2.25,
+    null,
+    1.84,
+    3.53,
+    null,
+    null,
+    2.22,
+    2.2,
+    1.86,
+    2.42,
+    null,
+    2.34,
+    1.86
    ],
    "reasons": [
     null,
@@ -1632,7 +2226,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.11,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1655,6 +2249,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    2.01,
+    null,
+    null,
+    null,
+    1.77,
+    null,
+    2.47,
+    2.07
    ],
    "reasons": [
     "log_B04/B02 outside the training range",
@@ -1681,7 +2293,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.97,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1704,6 +2316,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.92,
+    1.2,
+    2.26,
+    1.32,
+    null,
+    1.36,
+    1.38,
+    1.49,
+    1.59,
+    1.52,
+    null,
+    1.94,
+    1.53,
+    null,
+    1.35,
+    2.21
    ],
    "reasons": [
     null,
@@ -1730,7 +2360,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.29,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1753,6 +2383,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.43,
+    2.52,
+    2.41,
+    1.89,
+    null,
+    2.05,
+    2.81,
+    1.78,
+    1.69,
+    2.75,
+    2.4,
+    2.78,
+    2.54,
+    null,
+    2.24,
+    2.6
    ],
    "reasons": [
     null,
@@ -1779,7 +2427,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.74,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1802,6 +2450,24 @@
     null,
     null,
     "under_30"
+   ],
+   "values": [
+    1.17,
+    1.17,
+    1.22,
+    null,
+    null,
+    null,
+    1.59,
+    1.6,
+    2.02,
+    1.34,
+    1.36,
+    null,
+    null,
+    null,
+    null,
+    2.03
    ],
    "reasons": [
     null,
@@ -1828,7 +2494,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.99,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1851,6 +2517,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.26,
+    null,
+    1.91,
+    2.36,
+    null,
+    2.55,
+    3.74,
+    2.4,
+    1.95,
+    2.26,
+    2.31,
+    1.9,
+    2.41,
+    null,
+    2.45,
+    2.09
    ],
    "reasons": [
     null,
@@ -1877,7 +2561,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.12,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1900,6 +2584,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    2.27,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1.85,
+    1.27
    ],
    "reasons": [
     "fewer than 20 valid pixels",
@@ -1926,7 +2628,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.76,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1949,6 +2651,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.2,
+    1.41,
+    1.57,
+    1.24,
+    null,
+    1.13,
+    1.37,
+    1.41,
+    1.52,
+    1.19,
+    1.18,
+    1.11,
+    1.08,
+    null,
+    1.9,
+    1.79
    ],
    "reasons": [
     null,
@@ -1975,7 +2695,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.28,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -1998,6 +2718,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.25,
+    1.7,
+    1.48,
+    null,
+    null,
+    1.25,
+    2.02,
+    2.07,
+    2.2,
+    1.56,
+    1.67,
+    null,
+    2.18,
+    null,
+    1.35,
+    2.9
    ],
    "reasons": [
     null,
@@ -2024,7 +2762,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.1,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2047,6 +2785,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    1.62,
+    1.72,
+    2.72,
+    null,
+    2.63,
+    2.99,
+    2.57,
+    2.4,
+    2.71,
+    2.33,
+    2.35,
+    2.45,
+    null,
+    1.97,
+    2.16
    ],
    "reasons": [
     "glint share above 0.5",
@@ -2073,7 +2829,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.09,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2096,6 +2852,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.61,
+    1.63,
+    1.92,
+    2.34,
+    null,
+    2.12,
+    3.05,
+    2.64,
+    2.7,
+    2.35,
+    2.29,
+    1.58,
+    1.87,
+    null,
+    1.94,
+    2.07
    ],
    "reasons": [
     null,
@@ -2122,7 +2896,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.01,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2145,6 +2919,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    2.16,
+    2.1,
+    2.12,
+    1.45,
+    null,
+    1.52,
+    1.59,
+    1.44,
+    1.55,
+    1.34,
+    1.7,
+    1.37,
+    1.31,
+    null,
+    1.04,
+    1.08
    ],
    "reasons": [
     null,
@@ -2171,7 +2963,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.8,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2194,6 +2986,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.23,
+    1.78,
+    1.13,
+    1.63,
+    null,
+    1.33,
+    1.8,
+    1.63,
+    1.81,
+    1.74,
+    1.29,
+    1.68,
+    1.94,
+    null,
+    2.34,
+    1.96
    ],
    "reasons": [
     null,
@@ -2220,7 +3030,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.96,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2243,6 +3053,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.34,
+    1.51,
+    1.15,
+    1.5,
+    null,
+    1.62,
+    2.24,
+    1.7,
+    2.34,
+    1.56,
+    1.6,
+    1.77,
+    1.48,
+    null,
+    2.45,
+    1.36
    ],
    "reasons": [
     null,
@@ -2269,7 +3097,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.18,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2292,6 +3120,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    1.35,
+    null,
+    1.58,
+    null,
+    1.35,
+    1.47,
+    null,
+    1.65,
+    1.29,
+    1.35,
+    1.39,
+    null,
+    null,
+    1.22,
+    1.28
    ],
    "reasons": [
     "failed water-B11 check",
@@ -2318,7 +3164,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.23,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2341,6 +3187,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.77,
+    1.26,
+    1.41,
+    1.54,
+    null,
+    1.38,
+    1.37,
+    null,
+    2.23,
+    1.51,
+    1.32,
+    1.69,
+    1.72,
+    null,
+    1.18,
+    1.23
    ],
    "reasons": [
     null,
@@ -2367,7 +3231,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.07,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2390,6 +3254,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    1.52,
+    null,
+    1.48,
+    1.45,
+    1.68,
+    1.63,
+    1.49,
+    1.64,
+    1.74,
+    null,
+    null,
+    2.49,
+    2.09
    ],
    "reasons": [
     "log_B04/B02 outside the training range",
@@ -2440,6 +3322,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "failed water-B11 check",
     "failed water-B11 check",
@@ -2465,7 +3365,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.25,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2488,6 +3388,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    2.24,
+    1.35,
+    1.28,
+    1.1,
+    null,
+    1.2,
+    1.3,
+    1.28,
+    1.41,
+    1.12,
+    1.13,
+    1.69,
+    1.19,
+    null,
+    1.85,
+    1.2
    ],
    "reasons": [
     null,
@@ -2514,7 +3432,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.23,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2537,6 +3455,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.36,
+    1.32,
+    1.55,
+    1.37,
+    null,
+    1.55,
+    1.54,
+    1.59,
+    2.04,
+    1.79,
+    1.66,
+    1.82,
+    1.55,
+    null,
+    1.16,
+    1.35
    ],
    "reasons": [
     null,
@@ -2563,7 +3499,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.19,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2586,6 +3522,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.97,
+    1.34,
+    1.25,
+    1.15,
+    null,
+    1.24,
+    1.47,
+    1.39,
+    1.53,
+    null,
+    1.13,
+    1.23,
+    1.09,
+    null,
+    1.36,
+    1.28
    ],
    "reasons": [
     null,
@@ -2636,6 +3590,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "failed water-B11 check",
     "failed water-B11 check",
@@ -2661,7 +3633,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.45,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2684,6 +3656,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.47,
+    1.24,
+    1.3,
+    1.33,
+    null,
+    1.63,
+    1.63,
+    1.3,
+    1.59,
+    1.48,
+    1.2,
+    1.37,
+    1.95,
+    null,
+    1.14,
+    1.65
    ],
    "reasons": [
     null,
@@ -2734,6 +3724,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "failed water-B11 check",
     "failed water-B11 check",
@@ -2759,7 +3767,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.67,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2782,6 +3790,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.0,
+    1.26,
+    1.15,
+    1.13,
+    null,
+    1.32,
+    1.46,
+    1.25,
+    1.57,
+    1.35,
+    1.08,
+    1.6,
+    1.5,
+    null,
+    1.88,
+    1.76
    ],
    "reasons": [
     null,
@@ -2808,7 +3834,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.97,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2831,6 +3857,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.72,
+    1.37,
+    null,
+    1.79,
+    null,
+    1.43,
+    1.31,
+    1.4,
+    1.83,
+    1.32,
+    1.35,
+    1.91,
+    1.5,
+    null,
+    2.38,
+    2.07
    ],
    "reasons": [
     null,
@@ -2881,6 +3925,24 @@
     null,
     null
    ],
+   "values": [
+    1.38,
+    1.09,
+    1.11,
+    1.12,
+    null,
+    1.06,
+    1.26,
+    1.32,
+    1.78,
+    1.2,
+    1.2,
+    1.43,
+    1.44,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     null,
     null,
@@ -2906,7 +3968,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.21,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2929,6 +3991,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    2.03,
+    1.29,
+    1.97,
+    1.94,
+    null,
+    1.51,
+    1.34,
+    1.69,
+    2.21,
+    1.58,
+    1.31,
+    1.71,
+    1.21,
+    null,
+    1.42,
+    1.29
    ],
    "reasons": [
     null,
@@ -2955,7 +4035,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.24,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -2978,6 +4058,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.57,
+    1.57,
+    1.65,
+    1.65,
+    null,
+    1.65,
+    1.75,
+    1.54,
+    1.98,
+    1.64,
+    1.28,
+    1.39,
+    1.57,
+    null,
+    1.83,
+    1.24
    ],
    "reasons": [
     null,
@@ -3004,7 +4102,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.94,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3027,6 +4125,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.6,
+    1.45,
+    null,
+    1.69,
+    null,
+    1.72,
+    1.65,
+    1.72,
+    2.19,
+    1.72,
+    1.45,
+    1.44,
+    1.38,
+    null,
+    1.64,
+    1.85
    ],
    "reasons": [
     null,
@@ -3053,7 +4169,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.06,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3076,6 +4192,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    2.12,
+    1.93,
+    2.28,
+    2.4,
+    null,
+    2.16,
+    2.09,
+    2.59,
+    2.8,
+    1.89,
+    1.38,
+    1.47,
+    1.83,
+    null,
+    2.33,
+    2.06
    ],
    "reasons": [
     null,
@@ -3102,7 +4236,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.78,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3125,6 +4259,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.72,
+    1.28,
+    1.76,
+    1.58,
+    null,
+    1.38,
+    1.67,
+    1.47,
+    1.55,
+    1.53,
+    1.29,
+    1.4,
+    1.09,
+    null,
+    2.25,
+    1.88
    ],
    "reasons": [
     null,
@@ -3151,7 +4303,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.32,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3174,6 +4326,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.72,
+    1.35,
+    1.93,
+    1.87,
+    null,
+    1.51,
+    1.89,
+    1.75,
+    1.78,
+    1.57,
+    1.42,
+    1.46,
+    1.8,
+    null,
+    1.13,
+    1.28
    ],
    "reasons": [
     null,
@@ -3200,7 +4370,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.96,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3223,6 +4393,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    1.7,
+    null,
+    1.81,
+    1.73,
+    1.84,
+    2.69,
+    1.52,
+    1.46,
+    1.44,
+    1.5,
+    null,
+    2.32,
+    2.04
    ],
    "reasons": [
     "log_B04/B02 outside the training range",
@@ -3249,7 +4437,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.3,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3272,6 +4460,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.9,
+    2.13,
+    1.93,
+    1.45,
+    null,
+    1.62,
+    1.64,
+    1.91,
+    2.13,
+    1.55,
+    1.73,
+    null,
+    null,
+    null,
+    1.2,
+    1.3
    ],
    "reasons": [
     null,
@@ -3298,7 +4504,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.3,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3321,6 +4527,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.03,
+    1.53,
+    1.7,
+    1.26,
+    null,
+    1.31,
+    1.34,
+    1.24,
+    1.12,
+    1.31,
+    2.16,
+    1.5,
+    1.16,
+    null,
+    1.19,
+    1.36
    ],
    "reasons": [
     null,
@@ -3354,6 +4578,24 @@
     "reason": "B8A-B11 outside the training range"
    },
    "classes": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "values": [
     null,
     null,
     null,
@@ -3420,6 +4662,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    1.77,
+    1.3,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "B8A-B11 outside the training range",
     null,
@@ -3452,6 +4712,24 @@
     "reason": "B8A-B11 outside the training range"
    },
    "classes": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
+   "values": [
     null,
     null,
     null,
@@ -3518,6 +4796,24 @@
     null,
     null
    ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     "B8A-B11 outside the training range",
     "B8A-B11 outside the training range",
@@ -3567,6 +4863,24 @@
     null,
     null
    ],
+   "values": [
+    2.01,
+    1.61,
+    null,
+    null,
+    null,
+    1.66,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     null,
     null,
@@ -3592,7 +4906,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.86,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3615,6 +4929,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    1.15,
+    null,
+    1.23,
+    1.25,
+    1.47,
+    1.96,
+    1.65,
+    1.55,
+    1.06,
+    1.77,
+    null,
+    2.2,
+    1.86
    ],
    "reasons": [
     "log_B8A/B04 outside the training range",
@@ -3641,7 +4973,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.95,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3664,6 +4996,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    2.01,
+    1.42,
+    1.6,
+    1.95,
+    null,
+    1.51,
+    1.65,
+    1.58,
+    1.91,
+    1.59,
+    1.62,
+    1.55,
+    1.56,
+    null,
+    2.26,
+    1.95
    ],
    "reasons": [
     null,
@@ -3690,7 +5040,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.9,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3713,6 +5063,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    1.33,
+    null,
+    1.06,
+    1.12,
+    1.08,
+    1.57,
+    1.51,
+    1.44,
+    1.83,
+    1.09,
+    null,
+    1.86,
+    1.72
    ],
    "reasons": [
     "log_B04/B02 outside the training range",
@@ -3739,7 +5107,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.17,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3762,6 +5130,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.56,
+    1.57,
+    1.35,
+    1.63,
+    null,
+    1.67,
+    1.92,
+    1.63,
+    1.77,
+    1.74,
+    1.39,
+    1.49,
+    1.62,
+    null,
+    1.3,
+    1.23
    ],
    "reasons": [
     null,
@@ -3788,7 +5174,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 0.99,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3811,6 +5197,24 @@
     null,
     null,
     "under_30"
+   ],
+   "values": [
+    1.59,
+    1.26,
+    1.37,
+    1.67,
+    null,
+    1.88,
+    1.67,
+    1.7,
+    2.05,
+    1.52,
+    null,
+    0.93,
+    0.92,
+    null,
+    null,
+    1.04
    ],
    "reasons": [
     null,
@@ -3837,7 +5241,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.34,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3860,6 +5264,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    1.46,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1.31,
+    1.2,
+    1.2,
+    2.52,
+    null,
+    1.28,
+    1.41
    ],
    "reasons": [
     "log_B04/B02 outside the training range",
@@ -3886,7 +5308,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.55,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3909,6 +5331,24 @@
     null,
     null,
     "under_30"
+   ],
+   "values": [
+    1.22,
+    1.15,
+    1.54,
+    0.93,
+    null,
+    1.01,
+    1.19,
+    1.08,
+    1.24,
+    0.99,
+    0.91,
+    1.71,
+    0.98,
+    null,
+    null,
+    1.68
    ],
    "reasons": [
     null,
@@ -3935,7 +5375,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.36,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -3958,6 +5398,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.34,
+    1.65,
+    1.4,
+    1.59,
+    null,
+    1.52,
+    1.9,
+    1.67,
+    1.9,
+    1.71,
+    1.46,
+    1.36,
+    1.23,
+    null,
+    1.23,
+    1.45
    ],
    "reasons": [
     null,
@@ -3984,7 +5442,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.49,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4007,6 +5465,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.87,
+    null,
+    null,
+    1.05,
+    null,
+    1.41,
+    1.67,
+    1.2,
+    1.43,
+    1.21,
+    0.97,
+    0.98,
+    1.03,
+    null,
+    1.75,
+    1.62
    ],
    "reasons": [
     null,
@@ -4033,7 +5509,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.99,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4056,6 +5532,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    1.31,
+    null,
+    1.13,
+    1.18,
+    1.34,
+    1.82,
+    1.17,
+    1.24,
+    1.54,
+    1.36,
+    null,
+    2.45,
+    2.04
    ],
    "reasons": [
     "log_B04/B02 outside the training range",
@@ -4082,7 +5576,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.03,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4105,6 +5599,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    1.75,
+    1.64,
+    null,
+    1.47,
+    1.61,
+    1.71,
+    1.99,
+    1.47,
+    null,
+    null,
+    1.69,
+    null,
+    2.49,
+    2.13
    ],
    "reasons": [
     "log_B04/B02 outside the training range",
@@ -4131,7 +5643,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.28,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4154,6 +5666,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    1.42,
+    1.58,
+    1.76,
+    1.96,
+    1.49,
+    null,
+    null,
+    1.19,
+    null,
+    2.12,
+    1.28
    ],
    "reasons": [
     "log_B04/B02 outside the training range",
@@ -4180,7 +5710,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.09,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4203,6 +5733,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.23,
+    1.59,
+    1.62,
+    1.05,
+    null,
+    1.07,
+    1.19,
+    1.37,
+    1.64,
+    1.06,
+    0.97,
+    null,
+    null,
+    null,
+    0.98,
+    1.15
    ],
    "reasons": [
     null,
@@ -4229,7 +5777,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.96,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4252,6 +5800,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.64,
+    1.16,
+    null,
+    1.21,
+    null,
+    1.38,
+    1.41,
+    1.37,
+    1.69,
+    1.25,
+    1.16,
+    1.2,
+    1.07,
+    null,
+    2.36,
+    1.99
    ],
    "reasons": [
     null,
@@ -4278,7 +5844,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.12,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4301,6 +5867,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.6,
+    1.73,
+    1.7,
+    1.01,
+    null,
+    1.24,
+    1.26,
+    1.2,
+    1.43,
+    1.32,
+    1.13,
+    0.99,
+    0.96,
+    null,
+    1.46,
+    1.81
    ],
    "reasons": [
     null,
@@ -4327,7 +5911,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.24,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4350,6 +5934,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.38,
+    1.48,
+    1.57,
+    1.33,
+    null,
+    1.33,
+    1.54,
+    1.42,
+    1.6,
+    1.44,
+    1.38,
+    1.18,
+    1.04,
+    null,
+    1.19,
+    1.32
    ],
    "reasons": [
     null,
@@ -4376,7 +5978,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.65,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4399,6 +6001,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.42,
+    1.24,
+    1.37,
+    1.25,
+    null,
+    1.32,
+    1.43,
+    1.35,
+    1.46,
+    1.27,
+    1.05,
+    1.66,
+    1.83,
+    null,
+    1.12,
+    1.6
    ],
    "reasons": [
     null,
@@ -4425,7 +6045,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.68,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4448,6 +6068,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.51,
+    2.08,
+    1.53,
+    1.28,
+    null,
+    1.49,
+    1.33,
+    1.18,
+    1.59,
+    1.33,
+    1.25,
+    1.47,
+    1.42,
+    null,
+    1.44,
+    1.62
    ],
    "reasons": [
     null,
@@ -4498,6 +6136,24 @@
     null,
     null
    ],
+   "values": [
+    0.96,
+    2.09,
+    2.23,
+    1.15,
+    null,
+    1.04,
+    1.64,
+    1.17,
+    1.2,
+    1.21,
+    0.87,
+    1.17,
+    0.98,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     null,
     null,
@@ -4523,7 +6179,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.28,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4546,6 +6202,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.25,
+    1.91,
+    2.1,
+    1.27,
+    null,
+    1.31,
+    1.21,
+    1.17,
+    1.57,
+    1.12,
+    1.09,
+    0.98,
+    1.27,
+    null,
+    2.29,
+    1.29
    ],
    "reasons": [
     null,
@@ -4572,7 +6246,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.32,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4595,6 +6269,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.37,
+    1.4,
+    1.6,
+    1.29,
+    null,
+    1.22,
+    1.53,
+    1.32,
+    1.53,
+    1.26,
+    1.11,
+    0.98,
+    1.0,
+    null,
+    1.23,
+    1.31
    ],
    "reasons": [
     null,
@@ -4621,7 +6313,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.3,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4644,6 +6336,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.51,
+    1.37,
+    1.42,
+    1.56,
+    null,
+    1.01,
+    1.13,
+    1.56,
+    1.75,
+    1.5,
+    0.94,
+    1.11,
+    1.02,
+    null,
+    1.03,
+    1.3
    ],
    "reasons": [
     null,
@@ -4670,7 +6380,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.44,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4693,6 +6403,24 @@
     null,
     null,
     "under_30"
+   ],
+   "values": [
+    1.49,
+    1.34,
+    1.4,
+    1.63,
+    null,
+    1.26,
+    1.56,
+    1.49,
+    1.71,
+    null,
+    null,
+    1.35,
+    null,
+    null,
+    null,
+    1.44
    ],
    "reasons": [
     null,
@@ -4719,7 +6447,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.12,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4742,6 +6470,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.56,
+    1.48,
+    1.56,
+    1.57,
+    null,
+    1.31,
+    1.57,
+    1.57,
+    1.41,
+    1.41,
+    1.43,
+    1.38,
+    1.49,
+    null,
+    1.53,
+    2.41
    ],
    "reasons": [
     null,
@@ -4792,6 +6538,24 @@
     null,
     null
    ],
+   "values": [
+    1.35,
+    1.03,
+    1.12,
+    1.13,
+    null,
+    1.08,
+    1.13,
+    1.35,
+    1.63,
+    1.15,
+    1.17,
+    null,
+    1.65,
+    null,
+    null,
+    null
+   ],
    "reasons": [
     null,
     null,
@@ -4817,7 +6581,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.14,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4840,6 +6604,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.25,
+    1.16,
+    1.77,
+    1.07,
+    null,
+    1.1,
+    1.09,
+    1.11,
+    1.24,
+    1.21,
+    1.07,
+    1.18,
+    1.25,
+    null,
+    1.17,
+    1.97
    ],
    "reasons": [
     null,
@@ -4866,7 +6648,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.58,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4889,6 +6671,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.22,
+    1.52,
+    1.04,
+    1.09,
+    null,
+    1.06,
+    1.17,
+    1.12,
+    1.32,
+    1.17,
+    0.98,
+    0.96,
+    1.06,
+    null,
+    1.26,
+    1.62
    ],
    "reasons": [
     null,
@@ -4915,7 +6715,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.88,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4938,6 +6738,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.46,
+    1.32,
+    1.43,
+    1.18,
+    null,
+    1.27,
+    1.31,
+    1.05,
+    1.46,
+    1.62,
+    1.45,
+    1.16,
+    1.43,
+    null,
+    1.22,
+    2.43
    ],
    "reasons": [
     null,
@@ -4964,7 +6782,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.37,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -4987,6 +6805,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.07,
+    1.19,
+    1.27,
+    1.02,
+    null,
+    1.06,
+    1.3,
+    1.0,
+    1.23,
+    1.09,
+    1.08,
+    1.02,
+    0.98,
+    null,
+    1.01,
+    1.6
    ],
    "reasons": [
     null,
@@ -5013,7 +6849,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.42,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5036,6 +6872,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    1.34,
+    null,
+    1.27,
+    1.91,
+    1.57,
+    1.4,
+    1.56,
+    2.2,
+    3.93,
+    3.71,
+    null,
+    1.65,
+    1.54
    ],
    "reasons": [
     "B8A-B11 outside the training range",
@@ -5062,7 +6916,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.39,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5085,6 +6939,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.08,
+    1.71,
+    1.21,
+    1.07,
+    null,
+    1.03,
+    1.25,
+    1.02,
+    1.18,
+    0.95,
+    1.5,
+    1.32,
+    1.56,
+    null,
+    1.3,
+    1.56
    ],
    "reasons": [
     null,
@@ -5111,7 +6983,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.39,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5134,6 +7006,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.25,
+    1.24,
+    1.15,
+    1.09,
+    null,
+    1.1,
+    1.19,
+    0.9,
+    1.39,
+    1.06,
+    1.09,
+    1.1,
+    1.25,
+    null,
+    1.04,
+    1.29
    ],
    "reasons": [
     null,
@@ -5160,7 +7050,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.39,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5183,6 +7073,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.3,
+    1.25,
+    1.34,
+    1.22,
+    null,
+    1.13,
+    1.14,
+    1.16,
+    1.49,
+    1.18,
+    1.11,
+    1.13,
+    1.27,
+    null,
+    1.11,
+    1.81
    ],
    "reasons": [
     null,
@@ -5209,7 +7117,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.05,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5232,6 +7140,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.54,
+    1.8,
+    1.89,
+    1.36,
+    null,
+    1.27,
+    1.37,
+    1.2,
+    1.58,
+    1.32,
+    null,
+    1.1,
+    1.79,
+    null,
+    1.05,
+    1.11
    ],
    "reasons": [
     null,
@@ -5258,7 +7184,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.4,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5281,6 +7207,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.33,
+    2.21,
+    1.85,
+    1.51,
+    null,
+    1.42,
+    1.41,
+    1.32,
+    1.19,
+    1.6,
+    1.58,
+    1.74,
+    1.54,
+    null,
+    1.38,
+    1.35
    ],
    "reasons": [
     null,
@@ -5307,7 +7251,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.4,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5330,6 +7274,24 @@
     null,
     null,
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1.8,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    1.47
    ],
    "reasons": [
     "log_B07/B04 outside the training range",
@@ -5356,7 +7318,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.93,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5379,6 +7341,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.21,
+    1.63,
+    2.13,
+    1.44,
+    null,
+    1.47,
+    2.05,
+    1.57,
+    1.45,
+    2.0,
+    1.74,
+    1.56,
+    2.49,
+    null,
+    1.46,
+    1.81
    ],
    "reasons": [
     null,
@@ -5405,7 +7385,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.37,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5428,6 +7408,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.05,
+    1.09,
+    1.26,
+    1.16,
+    null,
+    1.07,
+    1.07,
+    1.09,
+    1.51,
+    1.04,
+    1.08,
+    1.11,
+    0.99,
+    null,
+    1.0,
+    1.24
    ],
    "reasons": [
     null,
@@ -5454,7 +7452,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.29,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5477,6 +7475,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.3,
+    1.19,
+    1.35,
+    1.1,
+    null,
+    1.16,
+    1.16,
+    1.15,
+    1.41,
+    1.2,
+    1.03,
+    1.07,
+    1.15,
+    null,
+    1.24,
+    1.41
    ],
    "reasons": [
     null,
@@ -5503,7 +7519,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.12,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5526,6 +7542,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.44,
+    1.62,
+    1.84,
+    null,
+    null,
+    null,
+    null,
+    1.09,
+    null,
+    1.05,
+    0.93,
+    1.89,
+    2.24,
+    null,
+    1.08,
+    1.13
    ],
    "reasons": [
     null,
@@ -5552,7 +7586,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.45,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5575,6 +7609,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.11,
+    0.9,
+    0.97,
+    1.02,
+    null,
+    1.08,
+    1.21,
+    1.35,
+    1.51,
+    1.1,
+    0.93,
+    1.27,
+    1.1,
+    null,
+    1.35,
+    1.61
    ],
    "reasons": [
     null,
@@ -5601,7 +7653,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.02,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5624,6 +7676,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.22,
+    1.17,
+    1.09,
+    1.43,
+    null,
+    1.34,
+    1.39,
+    1.12,
+    1.4,
+    1.28,
+    1.42,
+    1.31,
+    1.44,
+    null,
+    1.23,
+    2.05
    ],
    "reasons": [
     null,
@@ -5650,7 +7720,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.52,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5673,6 +7743,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    null,
+    null,
+    1.21,
+    null,
+    1.1,
+    1.25,
+    1.2,
+    1.36,
+    1.12,
+    1.69,
+    2.22,
+    2.29,
+    null,
+    1.62,
+    1.51
    ],
    "reasons": [
     "log_B8A/B04 outside the training range",
@@ -5699,7 +7787,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.06,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5722,6 +7810,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.34,
+    1.46,
+    1.27,
+    1.28,
+    null,
+    1.43,
+    2.13,
+    1.36,
+    1.6,
+    1.37,
+    1.6,
+    1.51,
+    1.26,
+    null,
+    1.18,
+    1.21
    ],
    "reasons": [
     null,
@@ -5748,7 +7854,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.15,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5771,6 +7877,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.23,
+    1.12,
+    1.09,
+    1.1,
+    null,
+    1.12,
+    1.29,
+    1.12,
+    1.29,
+    1.13,
+    1.04,
+    1.03,
+    1.11,
+    null,
+    1.12,
+    1.23
    ],
    "reasons": [
     null,
@@ -5797,7 +7921,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.24,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5820,6 +7944,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.79,
+    3.06,
+    2.66,
+    1.3,
+    null,
+    1.7,
+    2.25,
+    1.36,
+    1.36,
+    1.64,
+    2.3,
+    3.48,
+    2.68,
+    null,
+    1.72,
+    2.32
    ],
    "reasons": [
     null,
@@ -5846,7 +7988,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.14,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5869,6 +8011,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.36,
+    1.13,
+    1.15,
+    1.17,
+    null,
+    1.15,
+    1.7,
+    1.22,
+    1.28,
+    1.76,
+    1.49,
+    2.14,
+    2.63,
+    null,
+    1.31,
+    1.2
    ],
    "reasons": [
     null,
@@ -5919,6 +8079,24 @@
     "under_30",
     "under_30"
    ],
+   "values": [
+    1.31,
+    1.08,
+    1.19,
+    1.16,
+    null,
+    1.07,
+    1.09,
+    1.13,
+    1.25,
+    1.03,
+    1.19,
+    1.27,
+    null,
+    null,
+    1.29,
+    1.41
+   ],
    "reasons": [
     null,
     null,
@@ -5944,7 +8122,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.12,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -5967,6 +8145,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.13,
+    1.06,
+    1.08,
+    1.1,
+    null,
+    1.04,
+    1.24,
+    1.18,
+    1.13,
+    1.05,
+    2.13,
+    1.92,
+    1.46,
+    null,
+    0.93,
+    1.08
    ],
    "reasons": [
     null,
@@ -5993,7 +8189,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.03,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6016,6 +8212,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.18,
+    1.01,
+    1.04,
+    1.06,
+    null,
+    1.02,
+    1.11,
+    1.0,
+    1.21,
+    1.01,
+    1.1,
+    1.03,
+    1.07,
+    null,
+    1.0,
+    1.11
    ],
    "reasons": [
     null,
@@ -6042,7 +8256,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 3.34,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6065,6 +8279,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    2.3,
+    2.85,
+    3.63,
+    1.62,
+    null,
+    1.61,
+    2.41,
+    1.59,
+    1.55,
+    1.6,
+    null,
+    1.54,
+    1.56,
+    null,
+    3.29,
+    4.17
    ],
    "reasons": [
     null,
@@ -6091,7 +8323,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.12,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6114,6 +8346,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.72,
+    1.82,
+    2.02,
+    1.76,
+    null,
+    1.54,
+    2.13,
+    1.67,
+    1.44,
+    1.49,
+    1.75,
+    1.4,
+    1.68,
+    null,
+    1.07,
+    1.47
    ],
    "reasons": [
     null,
@@ -6140,7 +8390,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.44,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6163,6 +8413,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.55,
+    null,
+    null,
+    1.61,
+    null,
+    1.59,
+    2.38,
+    1.61,
+    1.55,
+    1.61,
+    1.61,
+    1.54,
+    1.61,
+    null,
+    1.67,
+    1.55
    ],
    "reasons": [
     null,
@@ -6189,7 +8457,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.47,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6212,6 +8480,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    null,
+    1.44,
+    2.12,
+    1.59,
+    null,
+    1.61,
+    2.41,
+    1.61,
+    1.54,
+    1.61,
+    1.59,
+    1.56,
+    1.61,
+    null,
+    1.67,
+    1.55
    ],
    "reasons": [
     "log_B8A/B04 outside the training range",
@@ -6238,7 +8524,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.1,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6261,6 +8547,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.52,
+    1.63,
+    1.67,
+    1.61,
+    null,
+    1.51,
+    2.37,
+    1.64,
+    1.66,
+    1.93,
+    1.63,
+    1.38,
+    1.12,
+    null,
+    1.47,
+    1.22
    ],
    "reasons": [
     null,
@@ -6287,7 +8591,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.51,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6310,6 +8614,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.19,
+    1.56,
+    1.89,
+    null,
+    null,
+    1.18,
+    1.38,
+    1.52,
+    1.59,
+    2.03,
+    1.64,
+    null,
+    1.58,
+    null,
+    1.52,
+    1.59
    ],
    "reasons": [
     null,
@@ -6336,7 +8658,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.62,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6359,6 +8681,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.35,
+    1.4,
+    1.61,
+    1.28,
+    null,
+    1.65,
+    2.53,
+    1.8,
+    1.97,
+    2.26,
+    1.75,
+    2.26,
+    1.76,
+    null,
+    1.34,
+    1.54
    ],
    "reasons": [
     null,
@@ -6385,7 +8725,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.46,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6408,6 +8748,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.41,
+    1.41,
+    1.51,
+    1.42,
+    null,
+    1.36,
+    1.52,
+    1.44,
+    1.54,
+    1.46,
+    1.29,
+    1.3,
+    1.3,
+    null,
+    1.46,
+    2.1
    ],
    "reasons": [
     null,
@@ -6434,7 +8792,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.05,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6457,6 +8815,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.35,
+    1.71,
+    1.52,
+    1.29,
+    null,
+    1.46,
+    2.21,
+    1.69,
+    1.59,
+    1.86,
+    1.76,
+    1.81,
+    1.57,
+    null,
+    1.68,
+    2.32
    ],
    "reasons": [
     null,
@@ -6483,7 +8859,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.35,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6506,6 +8882,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.53,
+    1.69,
+    1.74,
+    1.97,
+    null,
+    1.71,
+    2.45,
+    2.36,
+    2.03,
+    2.38,
+    1.84,
+    1.85,
+    1.66,
+    null,
+    1.74,
+    1.5
    ],
    "reasons": [
     null,
@@ -6532,7 +8926,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.52,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6555,6 +8949,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.63,
+    1.32,
+    1.44,
+    1.53,
+    null,
+    1.42,
+    1.96,
+    1.47,
+    1.7,
+    1.48,
+    1.26,
+    1.3,
+    1.32,
+    null,
+    1.35,
+    1.56
    ],
    "reasons": [
     null,
@@ -6581,7 +8993,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.2,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6604,6 +9016,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.23,
+    1.19,
+    1.12,
+    1.3,
+    null,
+    1.15,
+    1.42,
+    1.39,
+    1.36,
+    1.23,
+    1.13,
+    1.27,
+    1.17,
+    null,
+    1.1,
+    1.32
    ],
    "reasons": [
     null,
@@ -6630,7 +9060,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 2.07,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6653,6 +9083,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.38,
+    1.13,
+    1.31,
+    1.69,
+    null,
+    1.17,
+    1.52,
+    1.37,
+    1.35,
+    1.53,
+    1.32,
+    1.7,
+    1.94,
+    null,
+    1.71,
+    1.98
    ],
    "reasons": [
     null,
@@ -6679,7 +9127,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.42,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6702,6 +9150,24 @@
     null,
     null,
     "under_30"
+   ],
+   "values": [
+    1.37,
+    1.39,
+    1.31,
+    1.34,
+    null,
+    1.22,
+    1.29,
+    1.57,
+    1.24,
+    1.43,
+    1.28,
+    2.09,
+    1.37,
+    null,
+    null,
+    1.49
    ],
    "reasons": [
     null,
@@ -6728,7 +9194,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.81,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6751,6 +9217,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    2.26,
+    2.54,
+    2.54,
+    2.53,
+    null,
+    2.14,
+    2.62,
+    2.26,
+    2.07,
+    3.6,
+    3.02,
+    2.14,
+    2.18,
+    null,
+    2.42,
+    1.56
    ],
    "reasons": [
     null,
@@ -6777,7 +9261,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 3.09,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6800,6 +9284,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.57,
+    1.9,
+    1.96,
+    2.65,
+    null,
+    2.06,
+    2.56,
+    2.37,
+    2.18,
+    3.14,
+    2.76,
+    2.94,
+    2.59,
+    null,
+    3.46,
+    3.31
    ],
    "reasons": [
     null,
@@ -6826,7 +9328,7 @@
    "phase": "unseen",
    "station": {
     "level": "unvalidated",
-    "value": null,
+    "value": 1.55,
     "low": null,
     "high": null,
     "fnuClass": "under_30",
@@ -6849,6 +9351,24 @@
     null,
     "under_30",
     "under_30"
+   ],
+   "values": [
+    1.6,
+    1.33,
+    1.41,
+    1.68,
+    null,
+    1.19,
+    1.24,
+    1.3,
+    1.33,
+    1.28,
+    1.39,
+    null,
+    1.58,
+    null,
+    1.41,
+    1.9
    ],
    "reasons": [
     null,
