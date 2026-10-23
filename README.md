@@ -145,9 +145,11 @@ signed. The app makes that useful in two actions, in its **Proof** panel:
   with its fingerprint), the sealed records, their record lists, the posts on Ethereum and Bitcoin,
   the signatures, the model sheets and a manifest whose fingerprint you can cite.
 - **Check a file** takes a RiverEtch file someone sent you (that zip, a CSV or one record) and
-  reports on the whole file: how many rows are unchanged, on Ethereum, on Bitcoin, or waiting for
-  the next post, and which cells changed, with the fixed value. It trusts nothing inside the file:
-  it reads Ethereum and checks Bitcoin itself. Nothing is uploaded.
+  reports on the whole file in a few seconds, with its progress on the button: how many rows are
+  unchanged, on Ethereum, on Bitcoin, or waiting for the next post, which cells changed (with the
+  fixed value) and which rows were deleted. It also reads a zip made again from its folder, and the
+  records inside it. It trusts nothing inside the file: it reads Ethereum and checks Bitcoin itself.
+  Nothing is uploaded.
 
 **Check this reading**, on the reading card, checks the one reading shown and says it in one
 sentence ("Same as when it was fixed on 21 Oct 2026. On Ethereum and on Bitcoin."), with its steps
@@ -244,7 +246,9 @@ recorded both. These are the USGS stations' own daily records, not satellite est
 Continued warming is projected to make wet and dry extremes more severe
 ([IPCC AR6 WGI, SPM B.3.1](https://www.ipcc.ch/report/ar6/wg1/chapter/summary-for-policymakers/)).
 Those are the years an agency most needs to read a river, between its stations and beyond them.
-Each case's **Climate** tab shows its station's whole record, year by year.
+Each case's **Climate** tab shows its station's whole record, year by year, and **This year's flow**:
+the year day by day against the river's usual flow for each day, with the satellite passes marked.
+It shows how unusual a day was, not why.
 
 ## Quick start
 
