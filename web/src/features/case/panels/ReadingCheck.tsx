@@ -3,15 +3,9 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { subjectLabel, type LedgerKind } from "../../chain/ledger.ts";
 import { useLedgerAnchor, type ChainCheck } from "../../chain/useLedgerAnchor.ts";
-import {
-  checkBitcoin,
-  checkSignature,
-  coveringProof,
-  explorerHeader,
-  type BitcoinWitness,
-  type SignatureWitness,
-} from "../../chain/witness.ts";
-import { loadProof, loadSignatures, loadStatus, loadText } from "../../reaches/data.ts";
+import { witnessesOf } from "../../chain/recordWitnesses.ts";
+import type { BitcoinWitness, SignatureWitness } from "../../chain/witness.ts";
+import { loadText } from "../../reaches/data.ts";
 import type {
   ObservationRecord,
   ReachData,
@@ -100,36 +94,6 @@ function useAlongFile(
     : found?.sha === pass.recordSha256
       ? found.file
       : null;
-}
-
-// The two witnesses beside the post on Ethereum, from the daily run's published files.
-async function witnesses(
-  label: string,
-  position: number,
-  hashes: readonly string[],
-): Promise<{ bitcoin: BitcoinWitness; signature: SignatureWitness }> {
-  const status = await loadStatus();
-  if (status === null || position < 0) {
-    return { bitcoin: { state: "unavailable" }, signature: { state: "unavailable" } };
-  }
-  const entry = coveringProof(status.proofs ?? [], label, position);
-  const bytes = entry === null ? null : await loadProof(entry.file);
-  const bitcoin: BitcoinWitness =
-    entry === null
-      ? { state: "none" }
-      : bytes === null
-        ? { state: "unavailable" }
-        : await checkBitcoin(entry, bytes, hashes, (h) => explorerHeader(h)).catch(
-            (): BitcoinWitness => ({ state: "mismatch" }),
-          );
-  const signature = checkSignature(
-    await loadSignatures(),
-    __ML_DSA_PUBLIC_KEY__,
-    label,
-    position,
-    hashes,
-  );
-  return { bitcoin, signature };
 }
 
 const short = (hash: string, size = 12) => (hash.length > size ? `${hash.slice(0, size)}…` : hash);
@@ -284,7 +248,7 @@ export function ReadingCheck({ reach, row, thermal = null, spot = null }: Readin
       const chain = anchor.configured
         ? await anchor.check(source.kind, result.position, hashes)
         : null;
-      const { bitcoin, signature } = await witnesses(
+      const { bitcoin, signature } = await witnessesOf(
         subjectLabel(reach.info.site, source.kind),
         result.position,
         hashes,

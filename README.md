@@ -115,6 +115,19 @@ map and true-colour image are drawn once, by the same code as 2026's, after thei
 [preregistration](docs/water-quality/preregistration-archive-maps.md) is anchored, and published on
 the `data` branch only; a pass without them is painted as its classes on the river's 2026 outline.
 
+**The river's daily flow, sealed and checked against its source.** The Climate tab's daily flow
+comes from a station (USGS, at Belle Chasse, on the Platte and at Vicksburg for St. Joseph) or, for
+the Fırat, from the GloFAS flood model: RiverEtch does not measure it. Every daily run fetches the
+whole record again and seals each calendar year that changed, exactly as its source published it,
+in the reach's own record list, timestamped on Bitcoin, signed and posted on Ethereum like the
+readings ([preregistration](docs/water-quality/preregistration-daily-record.md)). The tab's
+**This year's flow** shows the year day by day against the river's usual flow for each day (the
+median and the 10th-to-90th percentile range of the record's complete years), with each satellite
+pass on its day; it says how unusual a day was, not why. **Check this record** checks the year's
+seal and its posts; **Compare with USGS now** fetches the same year from its source in your browser
+and says which days it has revised since (provisional values are expected to change). The daily
+flow can also be exported with proof, one row per day, and checked with **Check a file**.
+
 - **Fixed before any stretch was read.** The windows, the model and the labels were frozen and
   anchored on Ethereum first ([preregistration](docs/water-quality/preregistration-along-river.md)).
 - **Sealed like every record.** Each pass along the river is a record in the reach's own ledger

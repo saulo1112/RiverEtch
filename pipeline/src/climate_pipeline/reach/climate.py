@@ -16,6 +16,12 @@ with a provisional value is labelled. For the demo reaches it also counts each y
 (low-flow, high-flow, warm-water) as rule v1 defines them (``reach/extremes.py``). These are the
 gauge's own measurements: nothing here comes from a satellite, and nothing states a trend or a
 cause.
+
+Once preregistration-daily-record.md is anchored it also writes the river's **usual flow** for each
+calendar day (``discharge.typical``): over the complete years up to 2025, the values from 3 days
+before to 3 days after that day (29 February as 28 February), their median and their 10th and 90th
+percentiles; and the **latest day** against it (``discharge.latest``): its flow and the share of
+those values that were higher.
 """
 
 from __future__ import annotations
@@ -30,6 +36,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+import numpy as np
 
 from climate_pipeline.quality.config import load_quality_config
 from climate_pipeline.reach import run as reach_run
@@ -43,6 +50,12 @@ LOW_WINDOW = 7
 SUMMER = (6, 7, 8, 9)
 FIRST_DAY = "1800-01-01"  # before any USGS daily value
 SNAPSHOT_COLUMNS = ("day", "parameter", "value", "approval")
+# The usual flow (preregistration-daily-record.md, section 4): reference years up to this one, a
+# window of this many days on each side of the day, and the percentiles of the usual range.
+REFERENCE_LAST = 2025
+BAND_HALF_DAYS = 3
+BAND_PERCENTILES = (10.0, 50.0, 90.0)
+LEAP = 2000  # a leap year: its 366 days index the calendar days (29 February is index 59)
 # A flood model's daily flow, already in m³/s (GloFAS v4 through the Open-Meteo flood API).
 MODELLED = "river_discharge"
 MODELLED_APPROVAL = "Modelled"
@@ -271,6 +284,103 @@ def summarise(snapshot: Mapping[str, Sequence[Daily]], station: Mapping[str, Any
     return out
 
 
+def calendar_index(day: date) -> int:
+    """A day's place in the calendar, 0 (1 January) to 365 (31 December); 29 February as 28.
+
+    Args:
+        day: The day.
+
+    Returns:
+        Its index in a leap year's days.
+    """
+    month_day = (day.month, 28) if (day.month, day.day) == (2, 29) else (day.month, day.day)
+    return (date(LEAP, *month_day) - date(LEAP, 1, 1)).days
+
+
+def _windows(values: Sequence[Daily], years: set[int]) -> list[list[float]]:
+    """For each calendar day, the reference years' values from 3 days before to 3 days after it."""
+    out: list[list[float]] = [[] for _ in range(366)]
+    for d in values:
+        if d.day.year not in years:
+            continue
+        # Each value once per calendar day it is near (29 February would count 28 February twice).
+        near = {calendar_index(d.day - timedelta(days=k))
+                for k in range(-BAND_HALF_DAYS, BAND_HALF_DAYS + 1)}  # fmt: skip
+        for index in near:
+            out[index].append(d.value)
+    out[calendar_index(date(LEAP, 2, 29)) + 1] = list(out[calendar_index(date(LEAP, 2, 28))])
+    return out
+
+
+def typical_flow(values: Sequence[Daily], complete: set[int], factor: float = FT3_TO_M3
+                 ) -> dict[str, Any] | None:  # fmt: skip
+    """The river's usual flow for each calendar day, over the complete years up to 2025.
+
+    Args:
+        values: Daily mean discharge, in day order.
+        complete: The record's complete years (as ``discharge_years`` ranks them).
+        factor: To m³/s.
+
+    Returns:
+        ``first``, ``last``, ``years``, ``windowDays`` and the 366 values of ``p10``, ``p50`` and
+        ``p90`` (index 0 is 1 January, 59 is 29 February, the same as 28 February), in m³/s;
+        None without a reference year.
+    """
+    years = {y for y in complete if y <= REFERENCE_LAST}
+    if not years:
+        return None
+    windows = _windows(values, years)
+    bands: dict[str, list[float | None]] = {"p10": [], "p50": [], "p90": []}
+    for window in windows:
+        cut = (np.percentile(window, BAND_PERCENTILES) if window
+               else [float("nan")] * len(BAND_PERCENTILES))  # fmt: skip
+        for key, value in zip(bands, cut, strict=True):
+            bands[key].append(round(float(value) * factor, 1) if np.isfinite(value) else None)
+    return {"first": min(years), "last": max(years), "years": len(years),
+            "windowDays": 2 * BAND_HALF_DAYS + 1, **bands}  # fmt: skip
+
+
+def latest_flow(values: Sequence[Daily], complete: set[int], factor: float = FT3_TO_M3
+                ) -> dict[str, Any] | None:  # fmt: skip
+    """The latest day's flow, and the share of its 7 days' reference values that were higher.
+
+    Args:
+        values: Daily mean discharge, in day order.
+        complete: The record's complete years.
+        factor: To m³/s.
+
+    Returns:
+        ``day``, ``value`` (m³/s), ``provisional``, ``higherShare`` (0 to 1) and ``values`` (how
+        many reference values); None without a value or a reference year.
+    """
+    years = {y for y in complete if y <= REFERENCE_LAST}
+    if not values or not years:
+        return None
+    last = values[-1]
+    window = _windows(values, years)[calendar_index(last.day)]
+    if not window:
+        return None
+    higher = sum(1 for v in window if v > last.value) / len(window)
+    return {"day": last.day.isoformat(), "value": round(last.value * factor, 1),
+            "provisional": last.provisional, "higherShare": round(higher, 2),
+            "values": len(window)}  # fmt: skip
+
+
+def add_usual_flow(doc: dict[str, Any], snapshot: Mapping[str, Sequence[Daily]]) -> None:
+    """Add the usual flow and the latest day to ``climate.json`` (section 4 of the file).
+
+    Args:
+        doc: ``climate.json``, changed in place.
+        snapshot: The snapshot's values per parameter.
+    """
+    modelled = MODELLED in snapshot
+    flow = list(snapshot.get(MODELLED if modelled else DISCHARGE, []))
+    factor = 1.0 if modelled else FT3_TO_M3
+    complete = {y["year"] for y in doc["discharge"]["years"] if y["complete"]}
+    doc["discharge"]["typical"] = typical_flow(flow, complete, factor)
+    doc["discharge"]["latest"] = latest_flow(flow, complete, factor)
+
+
 def unrank_lows(doc: dict[str, Any]) -> None:
     """Drop the 7-day low's ranks and say its spread instead (a model whose low barely moves).
 
@@ -355,6 +465,10 @@ def climate(cfg: ReachConfig, root: Path, site_id: str, until: date | None = Non
     doc = summarise(snapshot, station)
     if model is not None and not model.rank_lows:
         unrank_lows(doc)
+    from climate_pipeline.reach import along, daily_record
+
+    if along.anchored(root, daily_record.PREREGISTRATION):
+        add_usual_flow(doc, snapshot)
     from climate_pipeline.reach import extremes
     from climate_pipeline.reach.score import SCORED
 

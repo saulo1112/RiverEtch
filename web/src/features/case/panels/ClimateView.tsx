@@ -11,19 +11,25 @@ import {
   type ClimatePoint,
   type ExtremeKind,
 } from "../../reaches/climate.ts";
-import type { ClimateRecord } from "../../reaches/types.ts";
+import type { ClimateRecord, ReachData } from "../../reaches/types.ts";
 import { CASE_COPY, formatCelsius, formatDate, formatReading } from "../content.ts";
+import { FlowYear } from "./FlowYear.tsx";
 import { HelpTip } from "./HelpTip.tsx";
 import { useSize } from "./useSize.ts";
 
-/** What the climate tab shows: each year's extreme values, or its count of extreme days. */
-export type ClimateTabView = "values" | "days";
+/**
+ * What the climate tab shows: the year's flow day by day (preregistration-daily-record.md), each
+ * year's extreme values, or its count of extreme days.
+ */
+export type ClimateTabView = "flow" | "values" | "days";
 
 /** Props of {@link ClimateView}. */
 export interface ClimateViewProps {
   readonly climate: ClimateRecord;
   /** Extreme days where the record has them (default: the yearly values). */
   readonly view?: ClimateTabView;
+  /** The reach as the case shows it (the year's flow needs its year, passes and record). */
+  readonly reach?: ReachData;
 }
 
 // A chart draws one measure's values, or one kind's count of extreme days.
@@ -274,12 +280,16 @@ function stationLabel(climate: ClimateRecord): string {
  *
  * @param props - The view's props.
  * @param props.climate - The reach's climate context.
- * @param props.view - The yearly values, or the extreme days.
+ * @param props.view - The year's flow, the yearly values, or the extreme days.
+ * @param props.reach - The reach as the case shows it.
  * @returns The view.
  */
-export function ClimateView({ climate, view = "values" }: ClimateViewProps) {
+export function ClimateView({ climate, view = "values", reach }: ClimateViewProps) {
   const copy = CASE_COPY.climate;
   const [measure, setMeasure] = useState<ClimateMeasure>(() => defaultMeasure(climate));
+  if (view === "flow" && reach !== undefined && climate.discharge.typical != null) {
+    return <FlowYear reach={reach} climate={climate} />;
+  }
   if (view === "days" && climate.extremes !== undefined) {
     return <ExtremeDays climate={climate} />;
   }

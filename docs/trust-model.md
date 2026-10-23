@@ -216,6 +216,7 @@ under MIT.
 | A head's Bitcoin timestamp         | **Check this reading**; `uv run climate-pipeline ledger proofs`; or `ots verify`        |
 | A head's signature                 | **Check this reading**; `uv run climate-pipeline sign verify`                           |
 | A file someone sent you            | **Check a file** in the Proof panel: an export (.zip), a CSV or one record (JSON)       |
+| A year of the daily flow record    | **Check this record** (Climate tab); **Compare with USGS now** against its source       |
 | The anchoring log                  | `npx tsx scripts/anchor-log.ts` (from `contracts/`) rebuilds it from the contract state |
 | The frozen artifacts               | `uv run climate-pipeline ledger verify`                                                 |
 | Every result, to the last digit    | `uv run climate-pipeline quality verify` (CI runs it on every change)                   |
@@ -268,6 +269,12 @@ under MIT.
   the frozen artifacts, anchored at block 11973061) were drawn once by the "Earlier years' images"
   workflow (run 39877463322, 2026-10-23): all 1,392 listed passes, none missing or failed,
   published on the `data` branch only.
+- **The daily flow record is the source's, not ours.** Each year of the stations' (and the GloFAS
+  model's) daily flow is sealed as its source published it
+  ([preregistration-daily-record.md](water-quality/preregistration-daily-record.md)): the seal
+  proves what the source published on the day it was fetched, not that it is right, and a year the
+  source revises gets a new record beside the old one. The records start with the first daily run
+  after that file's line is anchored.
 - **Sepolia is a test network.** The posts live there; the Bitcoin timestamps and the signatures
   do not depend on it.
 

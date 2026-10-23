@@ -19,6 +19,7 @@ import { csvRows } from "./checkfile.ts";
 import {
   DATASETS,
   inPeriod,
+  dayRows,
   recordCells,
   rowsOf,
   type DatasetId,
@@ -123,7 +124,8 @@ async function recordGiven(textOfFile: string, file?: string): Promise<Given | n
     return null;
   }
   const dataset = datasetOfRecord(record);
-  const sceneId = stringOf(record, "sceneId");
+  // A daily flow record names itself by its recordId (a year, not a pass).
+  const sceneId = stringOf(record, "sceneId") || stringOf(record, "recordId");
   const stated = stringOf(record, "recordSha256");
   if (dataset === null || sceneId === "" || stated === "") {
     return null;
@@ -183,6 +185,9 @@ function datasetOfRecord(record: JsonValue): DatasetId | null {
   }
   if (record instanceof NumberText) {
     return null;
+  }
+  if (record.kind === "daily_record") {
+    return "dailyFlow";
   }
   const schema = typeof record.schema === "string" ? record.schema : "";
   if (schema.startsWith("riveretch.along-temperature")) {
@@ -414,6 +419,46 @@ export async function checkProofFile(
   const notFound: RowIssue[] = [];
   const counts = { unchanged: 0, ethereum: 0, bitcoin: 0, signed: 0 };
 
+  // A sealed record, read and its own fingerprint recomputed once, however many rows name it.
+  const sealedFiles = new Map<
+    string,
+    Promise<{
+      sealed: JsonValue | null;
+      intact: boolean;
+      days: Map<string, Record<string, string>>;
+    }>
+  >();
+  const sealedOf = (reach: ReachData, file: string) => {
+    const key = `${reach.base}${file}`;
+    let found = sealedFiles.get(key);
+    if (found === undefined) {
+      found = textOf(reach, file).then(async (sealedText) => {
+        const sealed = sealedText === null ? null : parseJson(sealedText);
+        if (sealed === null) {
+          return { sealed, intact: true, days: new Map<string, Record<string, string>>() };
+        }
+        const content = { ...(sealed as Record<string, JsonValue>) };
+        delete content.recordSha256;
+        const intact = (await sha256Hex(canonical(content))) === stringOf(sealed, "recordSha256");
+        const days = new Map(dayRows(sealed).map((cells) => [cells.date ?? "", cells]));
+        return { sealed, intact, days };
+      });
+      sealedFiles.set(key, found);
+    }
+    return found;
+  };
+  // Each daily flow record's days the file holds (by the record its rows name), to name the ones it
+  // no longer holds.
+  const heldDays = new Map<
+    string,
+    {
+      readonly g: Given;
+      readonly reach: ReachData;
+      readonly file: string;
+      readonly days: Set<string>;
+    }
+  >();
+
   // One row (or record file) against the site: what differs from its sealed record (null: the site
   // has no such reach or pass).
   const compare = async (g: Given) => {
@@ -426,8 +471,8 @@ export async function checkProofFile(
     // Its sealed record: the one its fingerprint names, else the pass's newest.
     const line = list.lines[position];
     const file = line === undefined ? pass.file : `${DATASETS[g.dataset].folder}${line.file}`;
-    const sealedText = file === null ? null : await textOf(list.reach, file);
-    const sealed = sealedText === null ? null : parseJson(sealedText);
+    const found = file === null ? null : await sealedOf(list.reach, file);
+    const sealed = found?.sealed ?? null;
     const where = g.file === undefined ? {} : { file: g.file };
     const changes: Change[] = [];
     if (position < 0) {
@@ -441,14 +486,28 @@ export async function checkProofFile(
     if (g.selfSha256 !== null && g.selfSha256 !== g.recordSha256) {
       changes.push({ column: "(content)", sealed: g.recordSha256, given: g.selfSha256, ...where });
     }
-    if (sealed !== null) {
+    if (sealed !== null && found !== null) {
       // The published record itself must still match its fingerprint.
-      const content = { ...(sealed as Record<string, JsonValue>) };
-      delete content.recordSha256;
-      if ((await sha256Hex(canonical(content))) !== stringOf(sealed, "recordSha256")) {
+      if (!found.intact) {
         changes.push({ column: "(published record)", sealed: "", given: "" });
       }
-      const expected = recordCells(g.dataset, sealed);
+      // A daily flow row is that day of its record (a day the record does not hold is changed).
+      const day = g.dataset === "dailyFlow" && g.selfSha256 === null ? (g.cells.date ?? "") : null;
+      if (day !== null && file !== null) {
+        const heldKey = `${keyOf(g)}|${file}`;
+        const held = heldDays.get(heldKey) ?? {
+          g,
+          reach: list.reach,
+          file,
+          days: new Set<string>(),
+        };
+        held.days.add(day);
+        heldDays.set(heldKey, held);
+        if (!found.days.has(day)) {
+          changes.push({ column: "date", sealed: "", given: day, ...where });
+        }
+      }
+      const expected = day === null ? recordCells(g.dataset, sealed) : (found.days.get(day) ?? {});
       for (const [column, value] of Object.entries(expected)) {
         if (column in g.cells && !sameCell(value, g.cells[column] ?? "")) {
           changes.push({ column, sealed: value, given: g.cells[column] ?? "", ...where });
@@ -518,7 +577,9 @@ export async function checkProofFile(
   }
 
   for (const g of given) {
+    // A record file's changes go on its reading's first row only (a daily record has many rows).
     const record = inRecords.get(keyOf(g));
+    inRecords.delete(keyOf(g));
     const issue = (changes: RowIssue["changes"]): RowIssue => ({
       reach: g.reach,
       dataset: g.dataset,
@@ -573,8 +634,23 @@ export async function checkProofFile(
   }
 
   // An export's period, by reach and dataset: rows sealed by the time of the export that the file
-  // no longer holds.
+  // no longer holds; and each daily flow record's days that the file no longer holds.
   const missing: RowIssue[] = [];
+  for (const { g, reach, file, days } of heldDays.values()) {
+    const found = await sealedOf(reach, file);
+    for (const day of found.days.keys()) {
+      if (!days.has(day)) {
+        missing.push({
+          reach: g.reach,
+          dataset: g.dataset,
+          sceneId: g.sceneId,
+          date: day,
+          row: 0,
+          changes: [],
+        });
+      }
+    }
+  }
   const period = field(manifest, "period");
   const from = stringOrNull(period, "from");
   const to = stringOrNull(period, "to");

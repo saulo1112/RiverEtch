@@ -6,7 +6,8 @@
 import { sha256Hex } from "../reaches/canonical.ts";
 
 /** The ledgers a reach keeps. */
-export type LedgerKind = "observations" | "water-temperature" | "along" | "along-temperature";
+export type LedgerKind =
+  "observations" | "water-temperature" | "along" | "along-temperature" | "daily-record";
 
 /**
  * Where a reach's ledger of a kind lives, in its folder.

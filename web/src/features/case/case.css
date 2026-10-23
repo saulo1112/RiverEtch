@@ -3552,6 +3552,162 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   font-weight: 500;
 }
 
+/* The year's flow (preregistration-daily-record.md): the station's colour for its line and its
+   usual range, the satellite's for its passes; a key line above the chart, never colour alone. */
+/* The flow view's left column is a little wider: its sentence and its two checks fit. */
+.case-climate.case-flow {
+  grid-template-columns: minmax(220px, 310px) minmax(0, 1fr);
+}
+
+.case-flow__fact {
+  gap: 2px;
+  padding-block: 4px;
+  cursor: default;
+}
+
+.case-flow__fact:hover {
+  background: transparent;
+}
+
+.case-flow__sentence {
+  color: var(--text-2);
+  font-size: var(--type-micro);
+  line-height: 1.4;
+  text-wrap: pretty;
+}
+
+.case-flow__sentence .case-help,
+.case-flow__record .case-help {
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
+/* The record and its two checks in one wrapping row; the result, and a "?"'s text, on their own. */
+.case-flow__record {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  align-items: center;
+  margin: 2px 0 0;
+  padding-inline: 9px;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+  line-height: 1.4;
+}
+
+.case-flow__record .case-check-link {
+  font-size: var(--type-micro);
+}
+
+.case-flow__changed,
+.case-flow__result {
+  flex-basis: 100%;
+}
+
+.case-flow__result {
+  color: var(--text-2);
+}
+
+.case-flow__result:empty {
+  display: none;
+}
+
+.case-flow__plot {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 0;
+}
+
+.case-flow__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin: 0 0 2px;
+  padding-left: 48px;
+  color: var(--text-3);
+  font-size: var(--type-micro);
+}
+
+.case-flow__key {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.case-flow__key::before {
+  content: "";
+  flex: none;
+}
+
+.case-flow__key--line::before {
+  width: 14px;
+  height: 2px;
+  border-radius: 1px;
+  background: #f5b942;
+}
+
+.case-flow__key--band::before {
+  width: 14px;
+  height: 8px;
+  border-radius: 2px;
+  background: rgb(245 185 66 / 0.2);
+}
+
+.case-flow__key--median::before {
+  width: 14px;
+  border-top: 1.5px dashed rgb(245 185 66 / 0.65);
+}
+
+.case-flow__key--pass::before {
+  width: 8px;
+  height: 8px;
+  border: 1.5px solid #0a1122;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.case-flow__band {
+  fill: rgb(245 185 66 / 0.16);
+}
+
+.case-flow__median {
+  fill: none;
+  stroke: rgb(245 185 66 / 0.6);
+  stroke-dasharray: 4 3;
+  stroke-width: 1.25;
+}
+
+.case-flow__line {
+  fill: none;
+  stroke: #f5b942;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.case-flow__pass {
+  fill: var(--accent);
+  stroke: #0a1122;
+  stroke-width: 1.5;
+}
+
+.case-flow__threshold {
+  stroke: rgb(244 248 255 / 0.32);
+  stroke-dasharray: 2 4;
+  stroke-width: 1;
+}
+
+.case-flow__threshold-label {
+  fill: var(--text-3);
+  font-size: var(--type-micro);
+}
+
+.case-flow__cursor {
+  stroke: rgb(244 248 255 / 0.35);
+  stroke-width: 1;
+}
+
 .case-profile__unusable {
   fill: rgb(150 162 186 / 0.12);
 }
@@ -4832,6 +4988,24 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   .case-climate__fact-what,
   .case-climate__since {
     display: none;
+  }
+
+  /* The year's flow: its sentence and record stack above the chart, which keeps a height. */
+  .case-flow .case-climate__facts {
+    flex-direction: column;
+    overflow-x: visible;
+  }
+
+  .case-flow .case-climate__fact {
+    white-space: normal;
+  }
+
+  .case-flow__plot {
+    grid-template-rows: auto 130px;
+  }
+
+  .case-flow__legend {
+    padding-left: 0;
   }
 
   .case-pass {

@@ -23,6 +23,8 @@ export interface VerifyDialogProps {
   readonly details?: readonly RecordDetail[];
   /** The record file, to download (null: none). */
   readonly download?: string | null;
+  /** The dialog's title (default: checking the reading). */
+  readonly title?: string;
   /** The dialog closed. */
   readonly onClose: () => void;
 }
@@ -236,6 +238,7 @@ export function VerifyDialog({
   fixedOn = null,
   details = [],
   download = null,
+  title,
   onClose,
 }: VerifyDialogProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -277,7 +280,7 @@ export function VerifyDialog({
         <div className="case-proof__body" data-sealed={result.sealed}>
           <div className="case-proof__head">
             <h2 className="case-proof__title" id={titleId}>
-              {verify.title}
+              {title ?? verify.title}
             </h2>
             <button
               type="button"

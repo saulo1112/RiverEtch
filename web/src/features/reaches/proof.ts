@@ -23,7 +23,7 @@ import { makeZip, type ZipEntry } from "./zip.ts";
 export const SITE_URL = "https://river-etch.vercel.app";
 
 /** A dataset a reach can export. */
-export type DatasetId = "turbidity" | "temperature" | "along" | "alongTemperature";
+export type DatasetId = "turbidity" | "temperature" | "along" | "alongTemperature" | "dailyFlow";
 
 /** Where a dataset's records live, and how its CSV is named. */
 export const DATASETS: Readonly<
@@ -37,6 +37,8 @@ export const DATASETS: Readonly<
     folder: "along-temperature/",
     csv: "temperature-along-the-river.csv",
   },
+  // The station's (or model's) daily flow, one row per day (preregistration-daily-record.md).
+  dailyFlow: { kind: "daily-record", folder: "daily-record/", csv: "daily-flow.csv" },
 };
 
 /** The datasets, in the order they are offered. */
@@ -45,6 +47,7 @@ export const DATASET_IDS: readonly DatasetId[] = [
   "temperature",
   "along",
   "alongTemperature",
+  "dailyFlow",
 ];
 
 /** One sealed reading a dataset holds: its pass and fingerprint, and its record's file. */
@@ -65,6 +68,16 @@ export interface ProofRow {
  */
 export function rowsOf(reach: ReachData, dataset: DatasetId): ProofRow[] {
   const folder = DATASETS[dataset].folder;
+  if (dataset === "dailyFlow") {
+    return (reach.dailyRecord ?? [])
+      .map((r) => ({
+        sceneId: r.recordId,
+        date: r.date,
+        recordSha256: r.recordSha256,
+        file: `${folder}${r.file}`,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date) || a.sceneId.localeCompare(b.sceneId));
+  }
   const rows: ProofRow[] =
     dataset === "turbidity"
       ? reach.series.map((r) => ({ ...r, file: r.file }))
@@ -124,6 +137,10 @@ const field = (o: JsonValue | undefined, key: string): JsonValue | undefined =>
  * @returns Column name to cell.
  */
 export function recordCells(dataset: DatasetId, record: JsonValue): Record<string, string> {
+  if (dataset === "dailyFlow") {
+    // A whole year: its days are its rows (dayRows); the record itself, by its last day.
+    return { date: text(field(record, "date")) };
+  }
   if (dataset === "turbidity") {
     const estimates = field(record, "estimates");
     const e = Array.isArray(estimates)
@@ -163,6 +180,38 @@ export function recordCells(dataset: DatasetId, record: JsonValue): Record<strin
     out[text(field(w, "id"))] = text(field(w, key));
   }
   return out;
+}
+
+// A daily record's series as columns: "discharge", "discharge_unit", "discharge_status", ...
+const columnOf = (name: string) => name.trim().replace(/\s+/g, "_");
+
+/**
+ * A daily flow record's days as CSV rows: the day, then each series' value, unit and status as the
+ * source published them.
+ *
+ * @param record - A sealed daily record.
+ * @returns One cell map per day, in day order.
+ */
+export function dayRows(record: JsonValue): Record<string, string>[] {
+  const series = field(record, "series");
+  const days = new Map<string, Record<string, string>>();
+  for (const s of Array.isArray(series) ? series : []) {
+    const column = columnOf(text(field(s, "name")));
+    const unit = text(field(s, "unit"));
+    const values = field(s, "days");
+    for (const day of Array.isArray(values) ? values : []) {
+      if (!Array.isArray(day)) {
+        continue;
+      }
+      const date = text(day[0]);
+      const row = days.get(date) ?? { date };
+      row[column] = text(day[1]);
+      row[`${column}_unit`] = unit;
+      row[`${column}_status`] = text(day[2]);
+      days.set(date, row);
+    }
+  }
+  return [...days.values()].sort((a, b) => (a.date ?? "").localeCompare(b.date ?? ""));
 }
 
 // One CSV cell, quoted when it must be.
@@ -404,12 +453,18 @@ export async function buildExport(
       const recordText = file === null ? null : await io.text(part.reach, file);
       return { row, file, recordText };
     });
-    const withCells = rows.map(({ row, file, recordText }) => {
+    const withCells = rows.flatMap(({ row, file, recordText }) => {
       const record = recordText === null ? null : parseJson(recordText);
       if (file !== null && recordText !== null) {
         files.push({ name: `records/${site}/${file}`, data: utf8(recordText) });
       }
-      return { row, cells: record === null ? {} : recordCells(part.dataset, record) };
+      if (record === null) {
+        return [{ row, cells: {} }];
+      }
+      // A daily flow record: one row per day.
+      return part.dataset === "dailyFlow"
+        ? dayRows(record).map((cells) => ({ row, cells }))
+        : [{ row, cells: recordCells(part.dataset, record) }];
     });
     files.push({ name: `data/${site}/${csv}`, data: utf8(csvOf(part.dataset, site, withCells)) });
     files.push({
@@ -537,6 +592,9 @@ function fileFromLedger(ledger: string, sha: string, folder: string): Promise<st
 // The model sheets a part's records were made with.
 function cardPaths(part: ExportPart): string[] {
   const cards = part.reach.info.cards;
+  if (part.dataset === "dailyFlow") {
+    return []; // the source's own values: no model
+  }
   if (part.dataset === "turbidity") {
     return cards.turbidity === undefined ? [] : [cards.turbidity];
   }
@@ -555,7 +613,7 @@ function cardPaths(part: ExportPart): string[] {
  */
 export function readMeText(exportedUtc: string, manifestSha256: string): string {
   return [
-    "This is a RiverEtch export: river readings taken from free satellite images, with the proof that each one has not changed since it was fixed. Every row of the CSV files carries its fingerprint (recordSha256). The records, their record lists, the posts on Ethereum and Bitcoin, the quantum-safe signatures and the model sheets that cover those rows are included.",
+    "This is a RiverEtch export: river readings taken from free satellite images, with the proof that each one has not changed since it was fixed. Every row of the CSV files carries its fingerprint (recordSha256). The records, their record lists, the posts on Ethereum and Bitcoin, the quantum-safe signatures and the model sheets that cover those rows are included. A daily-flow.csv, where there is one, holds the station's (or flood model's) own daily values as its source published them, one row per day: they are not satellite readings, and their fingerprint proves what the source published, not that it is right.",
     "",
     `To check it, open ${SITE_URL}, open any river, and choose "Check a file" in the Proof panel, then pick this zip. Your browser recomputes every fingerprint, reads Ethereum and checks the Bitcoin timestamps again: it does not trust the proofs inside this zip, and nothing is uploaded. A fingerprint proves a reading was not changed after its date; it does not prove the reading is right.`,
     "",

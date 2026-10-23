@@ -11,6 +11,7 @@ import type {
   AlongPlan,
   AlongTemperaturePass,
   ClimateRecord,
+  DailyRecordRow,
   MapsIndex,
   ModelCard,
   Outcome,
@@ -122,6 +123,8 @@ export function loadReach(id: string): Promise<ReachData> {
         // has none yet.
         archiveIndex(base, id),
       ]);
+    // The daily flow record, year by year (preregistration-daily-record.md): the daily run's.
+    const dailyRecord = await fetchJson<DailyRecordRow[]>(`${base}daily-record/series.json`);
     if (info === null || series === null) {
       throw new Error(`${id}: the reach's files could not be loaded`);
     }
@@ -161,6 +164,7 @@ export function loadReach(id: string): Promise<ReachData> {
       along: plan === null || along === null ? null : { plan, passes: along },
       alongTemperature: plan === null ? null : alongTemperature,
       archiveYears: years,
+      dailyRecord,
     };
   })();
   loads.set(id, pending);

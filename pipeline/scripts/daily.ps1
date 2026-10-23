@@ -88,9 +88,15 @@ foreach ($site in $demo + $ungauged) {
     Step "reach examples --site $site --all-records" | Out-Null
 }
 Step "reach examples --site missouri-hermann" | Out-Null
-# Each climate.json from its committed daily snapshot (fetching nothing), so its count of the year's
-# passes follows the published series: the demo reaches, St. Joseph's station upstream and the
-# Firat's modelled flow.
+# Each reach's daily flow record fetched again, each year that changed sealed, and the fresh
+# snapshot written (preregistration-daily-record.md; it refuses to run until that file's line is
+# anchored, and rebuilds the snapshot from the sealed records when the source cannot be reached).
+foreach ($site in $demo + @("mississippi-st-joseph", "firat-birecik")) {
+    Step "reach daily-record --site $site" | Out-Null
+}
+# Each climate.json from that snapshot (fetching nothing), so its count of the year's passes follows
+# the published series: the demo reaches, St. Joseph's station upstream and the Firat's modelled
+# flow.
 foreach ($site in $demo + @("mississippi-st-joseph", "firat-birecik")) {
     Step "reach climate --site $site --snapshot" | Out-Null
 }

@@ -264,7 +264,7 @@ export const CASE_COPY = {
     checkPurpose: "Got a RiverEtch file from someone? See if it matches the record.",
     checking: "Checking the file…",
     checkingRows: (done: number, total: number) =>
-      `Checking ${String(done)} of ${String(total)} ${total === 1 ? "row" : "rows"}…`,
+      `Checking ${String(done)} of ${String(total)} ${total === 1 ? "record" : "records"}…`,
     checkingChain: "Checking Ethereum and Bitcoin…",
     accepts:
       "An export (.zip), a table (CSV) or one record (JSON). Checked in your browser; nothing is uploaded.",
@@ -309,6 +309,7 @@ export const CASE_COPY = {
       temperature: "Water temperature",
       along: "Turbidity along the river",
       alongTemperature: "Temperature along the river",
+      dailyFlow: "Daily flow record",
     },
     shape: "Reach shape (GeoJSON)",
     period: "Period",
@@ -624,7 +625,82 @@ export const CASE_COPY = {
     table: "Every year of the station's record",
     tableModel: "Every year of the modelled record",
     // Extreme days (rule v1, docs/water-quality/prospective.md): counts and ranks from the gauge.
-    views: { label: "What the climate tab shows", values: "Yearly extremes", days: "Extreme days" },
+    views: {
+      label: "What the climate tab shows",
+      flow: "This year's flow",
+      values: "Yearly extremes",
+      days: "Extreme days",
+    },
+    // The year's flow, day by day, and its sealed daily record (preregistration-daily-record.md).
+    flow: {
+      lead: "Below, the river's flow day by day, against its usual flow for each day of the year. It shows how unusual a day was, not why: rain, upstream use, dams or a changing climate.",
+      chart: (year: string, station: string) =>
+        `Daily flow in ${year} at ${station}, against the usual flow for each day`,
+      chartModel: (year: string, model: string) =>
+        `Daily flow in ${year} in the ${model}, against the usual flow for each day`,
+      legendUsual: (first: number, last: number) => `Usual range, ${String(first)}–${String(last)}`,
+      legendMedian: "Median",
+      legendPass: "Satellite pass",
+      lowLine: "low-flow line",
+      highLine: "high-flow line",
+      latestWhat: "Latest day",
+      latest: (date: string, value: string) => `${date} · ${value} m³/s`,
+      higher: (first: number, last: number, percent: number) =>
+        `On the same days of ${String(first)}–${String(last)}, it ran higher ${String(percent)}% of the time.`,
+      provisional: "provisional",
+      modelled: "modelled",
+      yearWhat: (year: number) => `In ${String(year)}`,
+      yearCounts: (below: number, above: number) =>
+        `${String(below)} days below the usual range, ${String(above)} above it`,
+      position: {
+        below: "Below the usual range",
+        within: "Within the usual range",
+        above: "Above the usual range",
+      },
+      usualTip: (median: string, low: string, high: string) =>
+        `Usually ${median} m³/s (${low} to ${high})`,
+      usualHelpLabel: "About the usual flow",
+      usualHelp: (first: number, last: number, years: number) =>
+        `For each day of the year: the flow of the 7 days around it in the ${String(years)} complete years from ${String(first)} to ${String(last)}. The middle line is their median; the usual range holds 8 values in 10 (from the 10th to the 90th percentile).`,
+      table: "The year's flow by month, against the usual flow",
+      tableMonth: "Month",
+      tableMean: "Mean flow (m³/s)",
+      tableUsual: "Usual median (m³/s)",
+      months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+      source: { usgs: "USGS", glofas: "GloFAS" },
+      record: (source: string, date: string) => `${source} daily record, fixed on ${date}`,
+      recordChanged: (n: number) =>
+        `Sealed ${String(n)} times: its source changed it after the first.`,
+      recordHelpLabel: "What does this record prove?",
+      recordHelp:
+        "Every day of this year, exactly as its source published it, is fingerprinted, timestamped on Bitcoin, signed and posted on Ethereum, so any later change would show. It proves what the source published that day, not that the values are right. When the source changes a value (USGS checks its provisional ones), a new record is sealed beside the old one.",
+      check: "Check this record",
+      checkTitle: "Checking the daily record",
+      compare: (source: string) => `Compare with ${source} now`,
+      comparing: "Comparing…",
+      compareSame: (source: string, same: number, checked: number) =>
+        `${source} publishes the same value for ${String(same)} of ${String(checked)} days.`,
+      compareRevised: (n: number) =>
+        `${String(n)} ${n === 1 ? "was" : "were"} revised since (provisional values change as they are checked).`,
+      compareGone: (n: number) => `${String(n)} no longer published.`,
+      compareNewer: (n: number) => `${String(n)} newer ${n === 1 ? "day" : "days"} since.`,
+      compareFilled: (n: number) => `${String(n)} ${n === 1 ? "day" : "days"} added in between.`,
+      compareFailed: (source: string) => `${source} could not be reached. Try again later.`,
+      none: "This year's daily record is not sealed yet: the next daily run seals it.",
+      loading: "Loading the year's daily record…",
+      detail: {
+        source: "Source",
+        station: "Station",
+        model: "Model cell",
+        year: "Year",
+        days: "Days",
+        lastDay: "Last day",
+        fetched: "Fetched (UTC)",
+        replaces: "Replaces",
+        first: "the year's first record",
+        query: "Query",
+      },
+    },
     kinds: { low: "Low-flow days", high: "High-flow days", warm: "Warm-water days" },
     kindWords: { low: "low-flow days", high: "high-flow days", warm: "warm-water days" },
     mostIn: (kind: string, years: number, what: "years" | "summers") =>

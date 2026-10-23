@@ -269,3 +269,156 @@ void test("a lone record file is checked against the site's sealed record", asyn
   );
   assert.equal(changed?.changed.length, 1);
 });
+
+// A reach's daily flow record (preregistration-daily-record.md): one sealed year of three days.
+async function flowFixture() {
+  const site = "x-river";
+  const content = {
+    schemaVersion: 1,
+    kind: "daily_record",
+    reachId: site,
+    recordId: `${site}:daily-record:2026`,
+    year: 2026,
+    date: "2026-10-03",
+    source: { kind: "usgs", stationId: "USGS-1", name: "A station", measured: true, url: "u" },
+    series: [
+      {
+        parameter: "00060",
+        name: "discharge",
+        unit: "ft³/s",
+        days: [
+          ["2026-10-01", 1000.0, "Approved"],
+          ["2026-10-02", 2000.5, "Provisional"],
+          ["2026-10-03", 3000.0, "Provisional"],
+        ],
+      },
+    ],
+    fetchedUtc: "2026-10-04T00:10:00+00:00",
+    replaces: null,
+    provenance: { api: "a", query: {}, codeCommit: "c" },
+  };
+  const text = JSON.stringify(content)
+    .replace('"days":[["2026-10-01",1000,', '"days":[["2026-10-01",1000.0,')
+    .replace('3000,"Provisional"]', '3000.0,"Provisional"]');
+  const seal = await sha256Hex(canonical(parseJson(text)));
+  const record = `${text.slice(0, -1)},"recordSha256":"${seal}"}`;
+  const file = "records/2026_20261004T001000Z.json";
+  const line = JSON.stringify({
+    createdUtc: "2026-10-04T00:10:00+00:00",
+    date: "2026-10-03",
+    file,
+    previousLineSha256: null,
+    recordSha256: seal,
+    sceneId: `${site}:daily-record:2026`,
+  });
+  const files = new Map([
+    [`daily-record/${file}`, record],
+    ["daily-record/ledger.jsonl", `${line}\n`],
+  ]);
+  const reach = {
+    base: "/x/",
+    info: { site, cards: {} },
+    series: [],
+    thermal: null,
+    along: null,
+    alongTemperature: null,
+    dailyRecord: [
+      {
+        year: 2026,
+        recordId: `${site}:daily-record:2026`,
+        file,
+        recordSha256: seal,
+        date: "2026-10-03",
+        fetchedUtc: "2026-10-04T00:10:00+00:00",
+        records: 1,
+        days: 3,
+      },
+    ],
+  } as unknown as ReachData;
+  const io = (): CheckIo & ProofIo => ({
+    text: (_r, path) => Promise.resolve(files.get(path) ?? null),
+    anchors: () => Promise.resolve([]),
+    proofs: () => Promise.resolve([]),
+    proof: () => Promise.resolve(null),
+    signatures: () => Promise.resolve([]),
+    reach: (id) => Promise.resolve(id === site ? reach : null),
+    header: () => Promise.resolve(null),
+    publicKey: "",
+  });
+  const meta = {
+    exportedUtc: "2026-10-22T12:00:00Z",
+    appVersion: "0",
+    appCommit: "a",
+    publicKey: "00",
+    cards: {},
+  };
+  const plan = await planExport([reach], ["dailyFlow"], null, null, io());
+  const exported = await buildExport(plan, false, io(), meta);
+  return { io, exported, file };
+}
+
+void test("the daily flow exports one row per day, each checked against that day of its record", async () => {
+  const { io, exported } = await flowFixture();
+  const files = await readZip(exported.zip);
+  const csv = dec.decode(files.get("data/x-river/daily-flow.csv"));
+  const lines = csv.trim().split("\n");
+  assert.equal(lines.length, 4, "a header and three days");
+  assert.match(
+    lines[0] ?? "",
+    /^dataset,reach,sceneId,date,discharge,discharge_unit,discharge_status,recordSha256$/,
+  );
+  assert.match(
+    lines[2] ?? "",
+    /^dailyFlow,x-river,x-river:daily-record:2026,2026-10-02,2000\.5,ft³\/s,Provisional,/,
+  );
+  const same = await checkProofFile(exported.zip, io());
+  assert.ok(same !== null);
+  assert.equal(same.rows, 3);
+  assert.equal(same.unchanged, 3);
+  assert.deepEqual([same.changed, same.missing], [[], []]);
+
+  // One day's value changed, and another day deleted from the table.
+  const changedZip = (() => {
+    const entries = [...files].map(([n, data]) => ({
+      name: n,
+      data:
+        n === "data/x-river/daily-flow.csv"
+          ? enc.encode(
+              dec
+                .decode(data)
+                .replace(",2026-10-02,2000.5,", ",2026-10-02,2200.5,")
+                .split("\n")
+                .filter((l) => !l.includes(",2026-10-03,"))
+                .join("\n"),
+            )
+          : data,
+    }));
+    return makeZip(entries);
+  })();
+  const report = await checkProofFile(changedZip, io());
+  assert.ok(report !== null);
+  assert.equal(report.rows, 2);
+  assert.equal(report.changed.length, 1);
+  assert.deepEqual(report.changed[0]?.changes, [
+    { column: "discharge", sealed: "2000.5", given: "2200.5" },
+  ]);
+  assert.deepEqual(
+    report.missing.map((m) => m.date),
+    ["2026-10-03"],
+    "a day deleted from the file is missing",
+  );
+});
+
+void test("a daily record edited inside the zip shows once, on its first day", async () => {
+  const { io, exported, file } = await flowFixture();
+  const zip = await edited(exported.zip, `records/x-river/daily-record/${file}`, (t) =>
+    t.replace('"2026-10-02",2000.5', '"2026-10-02",2500.5'),
+  );
+  const report = await checkProofFile(zip, io());
+  assert.ok(report !== null);
+  assert.equal(report.changed.length, 1, "not once per day");
+  const first = report.changed[0];
+  assert.equal(first?.row, 1);
+  assert.ok(first.changes.some((c) => c.column === "(content)"));
+  assert.equal(report.unchanged, 2);
+});

@@ -294,21 +294,27 @@ function Caption({
         )}
       </span>
     );
-    if (reach.climate?.extremes === undefined) {
+    // The year's flow first, where the usual flow is written (preregistration-daily-record.md).
+    const flow = reach.climate?.discharge.typical != null;
+    const views: { id: ClimateTabView; label: string }[] = [
+      ...(flow ? [{ id: "flow" as const, label: climate.views.flow }] : []),
+      { id: "values", label: climate.views.values },
+      ...(reach.climate?.extremes === undefined
+        ? []
+        : [{ id: "days" as const, label: climate.views.days }]),
+    ];
+    if (views.length < 2) {
       return <p className="case-timeline__caption">{lead}</p>;
     }
     return (
       <div className="case-timeline__caption case-timeline__switch">
         <Switch
           label={climate.views.label}
-          views={[
-            { id: "values", label: climate.views.values },
-            { id: "days", label: climate.views.days },
-          ]}
-          value={climateView}
+          views={views}
+          value={views.some((v) => v.id === climateView) ? climateView : "values"}
           onChange={onClimateView}
         />
-        {lead}
+        {climateView === "flow" && flow ? <span>{climate.flow.lead}</span> : lead}
       </div>
     );
   }
@@ -395,7 +401,10 @@ export function Timeline(props: TimelineProps) {
   const { reach, selected, tab, playing } = props;
   const { play, tabs } = CASE_COPY;
   const [passView, setPassView] = useState<PassView>("stats");
-  const [climateView, setClimateView] = useState<ClimateTabView>("values");
+  // The year's flow first where the reach has its usual flow, else the yearly values.
+  const [climateView, setClimateView] = useState<ClimateTabView>(() =>
+    reach.climate?.discharge.typical != null ? "flow" : "values",
+  );
   const [variable, setVariable] = useState<AlongVariable>("turbidity");
   const { spot } = props;
   const alongTemperature = variable === "temperature" && hasAlongTemperature(reach);
@@ -527,7 +536,7 @@ export function Timeline(props: TimelineProps) {
               onSelect={props.onThermalSelect}
             />
           ) : tab === "climate" && reach.climate !== null ? (
-            <ClimateView climate={reach.climate} view={climateView} />
+            <ClimateView climate={reach.climate} view={climateView} reach={reach} />
           ) : tab === "scoreboard" ? (
             <ScoreboardView reach={reach} t0={__PROSPECTIVE_T0__} />
           ) : tab === "along" ? (

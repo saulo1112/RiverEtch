@@ -57,8 +57,8 @@ const ANCHOR = new Interface(LEDGER_ANCHOR_ABI);
 /**
  * Every ledger that can be anchored: each demo reach's observations, water temperatures and
  * outcomes, each ungauged reach's observations, each reach's classes along the river, each demo
- * reach's water-temperature classes along the river, and the project's frozen artifacts. A ledger
- * whose file does not exist yet is skipped by the callers.
+ * reach's water-temperature classes along the river, each reach's daily flow record, and the
+ * project's frozen artifacts. A ledger whose file does not exist yet is skipped by the callers.
  *
  * @returns The ledgers, in a stable order.
  */
@@ -102,6 +102,13 @@ export function ledgers(): LedgerFile[] {
     out.push({
       label: `terrachain:${reach}:along-temperature`,
       path: new URL(`${reach}/examples/along-temperature/ledger.jsonl`, REACHES),
+    });
+  }
+  // Each reach's daily flow record, year by year (preregistration-daily-record.md).
+  for (const reach of [...REACHES_ANCHORED, ...REACHES_UNGAUGED]) {
+    out.push({
+      label: `terrachain:${reach}:daily-record`,
+      path: new URL(`${reach}/examples/daily-record/ledger.jsonl`, REACHES),
     });
   }
   return out;

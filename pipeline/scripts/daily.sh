@@ -63,9 +63,15 @@ for site in "${demo[@]}" "${ungauged[@]}"; do
   step reach examples --site "$site" --all-records
 done
 step reach examples --site missouri-hermann
-# Each climate.json from its committed daily snapshot (fetching nothing), so its count of the year's
-# passes follows the published series: the demo reaches, St. Joseph's station upstream and the
-# Fırat's modelled flow.
+# Each reach's daily flow record fetched again, each year that changed sealed, and the fresh
+# snapshot written (preregistration-daily-record.md; it refuses to run until that file's line is
+# anchored, and rebuilds the snapshot from the sealed records when the source cannot be reached).
+for site in "${demo[@]}" mississippi-st-joseph firat-birecik; do
+  step reach daily-record --site "$site"
+done
+# Each climate.json from that snapshot (fetching nothing), so its count of the year's passes follows
+# the published series: the demo reaches, St. Joseph's station upstream and the Fırat's modelled
+# flow.
 for site in "${demo[@]}" mississippi-st-joseph firat-birecik; do
   step reach climate --site "$site" --snapshot
 done

@@ -123,6 +123,13 @@ flowchart LR
   true-colour image with `reach render`'s code, for the `data` branch only
   ([preregistration](water-quality/preregistration-archive-maps.md)); a pass without its own is
   painted on the river's 2026 outline.
+- **The daily flow record.** `reach daily-record` fetches each reach's whole daily flow record (the
+  USGS station's, or the GloFAS model's for the Fırat) every day and seals each calendar year that
+  changed in `terrachain:<reach>:daily-record` (`examples/daily-record/`), with the record it
+  replaces; it also writes the snapshot `reach climate` reads, which then adds the river's usual flow
+  for each calendar day to `climate.json`
+  ([preregistration](water-quality/preregistration-daily-record.md)). The web app's Climate tab
+  checks a year's record like a reading, and compares it with its source in the browser.
 - **The reading spot.** The web app's reading spot moves to any window of the plan; away from
   the start it shows that window's classes from the along-river records, never a value. Where
   there is no estimate, the app says "No reading"; the record keeps the reason.

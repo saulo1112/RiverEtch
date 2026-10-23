@@ -453,6 +453,10 @@ export interface ClimateRecord {
     readonly lowsRanked?: boolean;
     /** Why not, with the spread. */
     readonly lowsNote?: string;
+    /** The river's usual flow for each calendar day (preregistration-daily-record.md, section 4). */
+    readonly typical?: UsualFlow | null;
+    /** The latest day against it. */
+    readonly latest?: LatestFlow | null;
   };
   readonly temperature: {
     readonly unit: string;
@@ -462,6 +466,83 @@ export interface ClimateRecord {
   } | null;
   /** The demo reaches' extreme days (rule v1, docs/water-quality/prospective.md, section 5). */
   readonly extremes?: ClimateExtremes;
+}
+
+/**
+ * The river's usual flow for each calendar day (index 0: 1 January; 59: 29 February, as 28
+ * February; 365: 31 December), in m³/s: over the complete years `first` to `last`, the values of
+ * the `windowDays` days around that day, their median and their 10th and 90th percentiles.
+ */
+export interface UsualFlow {
+  readonly first: number;
+  readonly last: number;
+  readonly years: number;
+  readonly windowDays: number;
+  readonly p10: readonly (number | null)[];
+  readonly p50: readonly (number | null)[];
+  readonly p90: readonly (number | null)[];
+}
+
+/** The record's latest day against the usual flow: the share of its days' values that were higher. */
+export interface LatestFlow {
+  readonly day: string;
+  /** m³/s. */
+  readonly value: number;
+  readonly provisional: boolean;
+  /** 0 to 1. */
+  readonly higherShare: number;
+  /** How many reference values. */
+  readonly values: number;
+}
+
+/** One year of a reach's daily flow record, as `daily-record/series.json` lists it. */
+export interface DailyRecordRow {
+  readonly year: number;
+  readonly recordId: string;
+  /** In the reach's `daily-record/` folder. */
+  readonly file: string;
+  readonly recordSha256: string;
+  /** The year's last day with a value. */
+  readonly date: string;
+  readonly fetchedUtc: string;
+  /** How many records the year has had (more than 1: its source changed it). */
+  readonly records: number;
+  readonly days: number;
+}
+
+/** A sealed daily record: one calendar year as its source published it (preregistration-daily-record.md). */
+export interface DailyRecord {
+  readonly schemaVersion: 1;
+  readonly kind: "daily_record";
+  readonly reachId: string;
+  readonly recordId: string;
+  readonly year: number;
+  readonly date: string;
+  readonly source: {
+    readonly kind: "usgs" | "glofas";
+    readonly stationId: string;
+    readonly name: string;
+    readonly measured: boolean;
+    readonly url: string;
+  };
+  readonly series: readonly {
+    /** USGS's code (00060 discharge, 00010 water temperature) or GloFAS's river_discharge. */
+    readonly parameter: string;
+    readonly name: string;
+    /** As the source publishes it (ft³/s, °C, m³/s). */
+    readonly unit: string;
+    /** [day, value, status]. */
+    readonly days: readonly (readonly [string, number, string])[];
+  }[];
+  readonly fetchedUtc: string;
+  /** The recordSha256 of the year's previous record (null: the first). */
+  readonly replaces: string | null;
+  readonly provenance: {
+    readonly api: string;
+    readonly query: Readonly<Record<string, string>>;
+    readonly codeCommit: string;
+  };
+  readonly recordSha256: string;
 }
 
 /** One calendar year's extreme days (null: not measured that year, or no satellite record). */
@@ -632,6 +713,8 @@ export interface ReachData {
   readonly alongTemperature?: readonly AlongTemperaturePass[] | null;
   /** The earlier years it has (preregistration-archive.md; absent or null: none). */
   readonly archiveYears?: readonly number[] | null;
+  /** Its daily flow record, year by year (preregistration-daily-record.md; absent or null: none). */
+  readonly dailyRecord?: readonly DailyRecordRow[] | null;
   /** Set when this is an earlier year, recomputed and not sealed (absent: the sealed year). */
   readonly archive?: ArchiveInfo | null;
 }

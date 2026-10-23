@@ -172,7 +172,7 @@ def _parser() -> argparse.ArgumentParser:
         choices=("baseline", "run", "reread", "check", "examples", "render", "thermal",
                  "context", "climate", "score", "verify", "along-plan", "along",
                  "along-temperature", "history", "archive", "archive-temperature",
-                 "archive-index", "archive-maps"),
+                 "archive-index", "archive-maps", "daily-record"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); reread: "
         "the passes whose record names an earlier card, read again with the current one "
@@ -194,6 +194,9 @@ def _parser() -> argparse.ArgumentParser:
         "(preregistration-archive.md; --year to read one); archive-index: list the years written; "
         "archive-maps: each earlier pass's NDTI map and true-colour image, beside the examples, "
         "for the data branch only (preregistration-archive-maps.md; --year to draw one); "
+        "daily-record: the station's (or model's) whole daily flow record fetched again, each year "
+        "that changed sealed in the reach's daily-record list, and the fresh snapshot "
+        "(preregistration-daily-record.md); "
         "history: the station "
         "window's earlier passes read by the reach's card, beside the examples (web)",
     )  # fmt: skip
@@ -734,10 +737,11 @@ def reach(args: argparse.Namespace) -> int:
     if args.action == "verify":
         failed = 0
         for site in sites:
-            from climate_pipeline.reach import along, along_temperature
+            from climate_pipeline.reach import along, along_temperature, daily_record
 
             problems = [*reach_run.verify_outputs(cfg, root, site), *along.verify(cfg, root, site),
-                        *along_temperature.verify(cfg, root, site)]  # fmt: skip
+                        *along_temperature.verify(cfg, root, site),
+                        *daily_record.verify(root, site)]  # fmt: skip
             for line in problems:
                 print(f"{site}: {line}")
             print(f"{site}: " + ("verified" if not problems else f"{len(problems)} problems"))
@@ -813,6 +817,20 @@ def reach(args: argparse.Namespace) -> int:
             except reach_run.ReachError as error:
                 print(f"{site}: {error}")
         return 0
+    if args.action == "daily-record":
+        from climate_pipeline.reach import daily_record
+
+        codes = []
+        for site in sites:
+            try:
+                year = daily_record.run(cfg, root, site, args.until)
+                print(f"{site}: {len(year['sealed'])} years sealed, {year['unchanged']} unchanged, "
+                      f"through {year['through']}")  # fmt: skip
+                codes.append(0)
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+                codes.append(1)
+        return max(codes, default=0)
     if args.action == "climate":
         from climate_pipeline.reach.climate import climate
 
