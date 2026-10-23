@@ -1,0 +1,742 @@
+[
+ {
+  "year": 1953,
+  "recordId": "platte-louisville:daily-record:1953",
+  "file": "records/1953_20261023T045249Z.json",
+  "recordSha256": "f6a1de5ddd10f1550ffea2d2c9d63b5ab8712b1bf229476737e1f5027e9e5549",
+  "date": "1953-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 214
+ },
+ {
+  "year": 1954,
+  "recordId": "platte-louisville:daily-record:1954",
+  "file": "records/1954_20261023T045249Z.json",
+  "recordSha256": "d71a3adf0a9fd06e21de111a338a4ee2c02de2f0c58adfd82efd49a615504198",
+  "date": "1954-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1955,
+  "recordId": "platte-louisville:daily-record:1955",
+  "file": "records/1955_20261023T045249Z.json",
+  "recordSha256": "02be5334810f0e117477752695c665630ca886bc60bcb2defd73f7ef7e9e31c2",
+  "date": "1955-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1956,
+  "recordId": "platte-louisville:daily-record:1956",
+  "file": "records/1956_20261023T045249Z.json",
+  "recordSha256": "99b521f43e0e32ab099dacc334757a866888b3b08b502be302986912800b4196",
+  "date": "1956-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1957,
+  "recordId": "platte-louisville:daily-record:1957",
+  "file": "records/1957_20261023T045249Z.json",
+  "recordSha256": "e85db3e58ba5a93ae627ac0c5055495df64af64b45d494f32d92d7b767ae70eb",
+  "date": "1957-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1958,
+  "recordId": "platte-louisville:daily-record:1958",
+  "file": "records/1958_20261023T045249Z.json",
+  "recordSha256": "12442835f7c695730b8e77444bd53011be4a60d343eed843a38986eadc43fb57",
+  "date": "1958-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1959,
+  "recordId": "platte-louisville:daily-record:1959",
+  "file": "records/1959_20261023T045249Z.json",
+  "recordSha256": "da5ae2088a74d3f595f219bac01990cb33f46ba1a17d7bf245ff4925ae3e1e1b",
+  "date": "1959-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1960,
+  "recordId": "platte-louisville:daily-record:1960",
+  "file": "records/1960_20261023T045249Z.json",
+  "recordSha256": "fc1b19ee0c6cea863b6a425fcb7f505af360ce20952303cebf8df8afae6ac888",
+  "date": "1960-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1961,
+  "recordId": "platte-louisville:daily-record:1961",
+  "file": "records/1961_20261023T045249Z.json",
+  "recordSha256": "d42e47f6c5cf67c1cc9ba019c5b16e2222f172d4909213a48287142c8779adcf",
+  "date": "1961-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1962,
+  "recordId": "platte-louisville:daily-record:1962",
+  "file": "records/1962_20261023T045249Z.json",
+  "recordSha256": "abeabf68ae8d7f3c3284ab6e68c72630825838b21abfed3ace7acc144b291a19",
+  "date": "1962-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1963,
+  "recordId": "platte-louisville:daily-record:1963",
+  "file": "records/1963_20261023T045249Z.json",
+  "recordSha256": "4e18c3180e68aa22fa6111e24e562401e8f13ce6cc4b520425c64c8c46fcf321",
+  "date": "1963-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1964,
+  "recordId": "platte-louisville:daily-record:1964",
+  "file": "records/1964_20261023T045249Z.json",
+  "recordSha256": "b815599a8dd6363966c6af79bd77716c9150ebbec3839f5b9067323301668161",
+  "date": "1964-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1965,
+  "recordId": "platte-louisville:daily-record:1965",
+  "file": "records/1965_20261023T045249Z.json",
+  "recordSha256": "1713ac292b2f343b0e154877a232152c2d4c272ce25beb8a238cae09f11d446f",
+  "date": "1965-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1966,
+  "recordId": "platte-louisville:daily-record:1966",
+  "file": "records/1966_20261023T045249Z.json",
+  "recordSha256": "4e270c8b37d46f8129745122f5261defc63c33e71e68b7219c3e66b24a6e7d36",
+  "date": "1966-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1967,
+  "recordId": "platte-louisville:daily-record:1967",
+  "file": "records/1967_20261023T045249Z.json",
+  "recordSha256": "f124f17d36f7de017cdf3714bb154857dfaa821fd96e9de2c4130611c5406b8c",
+  "date": "1967-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1968,
+  "recordId": "platte-louisville:daily-record:1968",
+  "file": "records/1968_20261023T045249Z.json",
+  "recordSha256": "a3b37ff75d581f510ea725495ccd14c434720e85a12ba63a52cf8ae1e0ba6c38",
+  "date": "1968-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1969,
+  "recordId": "platte-louisville:daily-record:1969",
+  "file": "records/1969_20261023T045249Z.json",
+  "recordSha256": "c910128589853473106d1baca13b230e3d84c624f9023122ed3e0a18fd3d0270",
+  "date": "1969-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1970,
+  "recordId": "platte-louisville:daily-record:1970",
+  "file": "records/1970_20261023T045249Z.json",
+  "recordSha256": "e3f6b92fd578e51f1ede688cfc86953444bfbe792f5fe32cfa7e0aee73d6e121",
+  "date": "1970-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1971,
+  "recordId": "platte-louisville:daily-record:1971",
+  "file": "records/1971_20261023T045249Z.json",
+  "recordSha256": "4ead8b1796c8bcbeca78db398616e7e5ef853d38ba4d0e53abd521aae71f1210",
+  "date": "1971-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1972,
+  "recordId": "platte-louisville:daily-record:1972",
+  "file": "records/1972_20261023T045249Z.json",
+  "recordSha256": "d116d21edbb592750238173258633dc30c165441f366574975670daba71c3f5d",
+  "date": "1972-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1973,
+  "recordId": "platte-louisville:daily-record:1973",
+  "file": "records/1973_20261023T045249Z.json",
+  "recordSha256": "290431ac79513c3a270e186c6338f6d9b5a28b60450962f0ef9e0f58e9e4586c",
+  "date": "1973-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1974,
+  "recordId": "platte-louisville:daily-record:1974",
+  "file": "records/1974_20261023T045249Z.json",
+  "recordSha256": "cfaf02464a0b3f8e512098f0f88e8a164fa7137b8b5d66f6b8ebabc55dd804ea",
+  "date": "1974-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1975,
+  "recordId": "platte-louisville:daily-record:1975",
+  "file": "records/1975_20261023T045249Z.json",
+  "recordSha256": "790b1ad51a90b1fa67d22c3bab5f5faad74669f732d1d94092119655e668c519",
+  "date": "1975-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1976,
+  "recordId": "platte-louisville:daily-record:1976",
+  "file": "records/1976_20261023T045249Z.json",
+  "recordSha256": "0f029043407dd9925188c75f5fa5dfaa0943df7a5ade9b9b2f925a99e2fb589c",
+  "date": "1976-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1977,
+  "recordId": "platte-louisville:daily-record:1977",
+  "file": "records/1977_20261023T045249Z.json",
+  "recordSha256": "67e7f09727ce09d26f81ee9b50f537f09d3a11a1ed1bd414b5b95e8a066678d9",
+  "date": "1977-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1978,
+  "recordId": "platte-louisville:daily-record:1978",
+  "file": "records/1978_20261023T045249Z.json",
+  "recordSha256": "65f7a7020e3ee6402c70d7cc3744bd87fc0735b67f14e0dcc0c32c07b7400bf6",
+  "date": "1978-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1979,
+  "recordId": "platte-louisville:daily-record:1979",
+  "file": "records/1979_20261023T045249Z.json",
+  "recordSha256": "3dd2ea4759ccc16586fdc3e450320f8f326860048e524469bd1fba0bdc415e67",
+  "date": "1979-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1980,
+  "recordId": "platte-louisville:daily-record:1980",
+  "file": "records/1980_20261023T045249Z.json",
+  "recordSha256": "0b22328bf53447a5a40d5c3ae18bc4e19e05dbeba6178663a103ea75ff11b9f5",
+  "date": "1980-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1981,
+  "recordId": "platte-louisville:daily-record:1981",
+  "file": "records/1981_20261023T045249Z.json",
+  "recordSha256": "50905104eb76fb20b18ee2654990ec8aff0f01409c92146a62c24818c1a5c668",
+  "date": "1981-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1982,
+  "recordId": "platte-louisville:daily-record:1982",
+  "file": "records/1982_20261023T045249Z.json",
+  "recordSha256": "270a27bcc80a7e06cacd13c480ac91093d263aa5bf1942cbdebdf4b85e34367c",
+  "date": "1982-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1983,
+  "recordId": "platte-louisville:daily-record:1983",
+  "file": "records/1983_20261023T045249Z.json",
+  "recordSha256": "28e90cdf37521f43d202bd8b1f517875823fd6b93eeaab133b16e318411f89d7",
+  "date": "1983-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1984,
+  "recordId": "platte-louisville:daily-record:1984",
+  "file": "records/1984_20261023T045249Z.json",
+  "recordSha256": "145d3a70dfc7d4db6a502bb63441339812ea9aba5a8e3a5c4ae0f4a330547e46",
+  "date": "1984-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1985,
+  "recordId": "platte-louisville:daily-record:1985",
+  "file": "records/1985_20261023T045249Z.json",
+  "recordSha256": "96e2eae255ef0891a481f822f416d7f1ffd26b20f203d15ee356bffe55df9d49",
+  "date": "1985-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1986,
+  "recordId": "platte-louisville:daily-record:1986",
+  "file": "records/1986_20261023T045249Z.json",
+  "recordSha256": "8d6763a0a3c8bc7cfffd88cb889dfd4625bb88262ddcbccafc55bb2fb2295291",
+  "date": "1986-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1987,
+  "recordId": "platte-louisville:daily-record:1987",
+  "file": "records/1987_20261023T045249Z.json",
+  "recordSha256": "c9d5af8c9272aa9620593a86aef12998320d5eef4742f8e87a7f1d781bb41724",
+  "date": "1987-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1988,
+  "recordId": "platte-louisville:daily-record:1988",
+  "file": "records/1988_20261023T045249Z.json",
+  "recordSha256": "fd3892f39d2e4de1c582ea801f5c91f8bbf321986709086ecf5b012900937b2b",
+  "date": "1988-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1989,
+  "recordId": "platte-louisville:daily-record:1989",
+  "file": "records/1989_20261023T045249Z.json",
+  "recordSha256": "45705a54f4333b9003692a555755e1a41e833d2fd559efb44915b1f6be40a73a",
+  "date": "1989-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1990,
+  "recordId": "platte-louisville:daily-record:1990",
+  "file": "records/1990_20261023T045249Z.json",
+  "recordSha256": "283d9c1a5ca1aa186d4a366525039d0dfa7b184900a62a7d4fb11f2080424de5",
+  "date": "1990-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1991,
+  "recordId": "platte-louisville:daily-record:1991",
+  "file": "records/1991_20261023T045249Z.json",
+  "recordSha256": "da934c24e18276e1e8adcf9a2b51a554a8baf4961bb69d33595d866ea23f0e64",
+  "date": "1991-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1992,
+  "recordId": "platte-louisville:daily-record:1992",
+  "file": "records/1992_20261023T045249Z.json",
+  "recordSha256": "7d56caaca0c3ce869c014346ac04122077a357b6b7194aa1d9491c4b516f5907",
+  "date": "1992-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1993,
+  "recordId": "platte-louisville:daily-record:1993",
+  "file": "records/1993_20261023T045249Z.json",
+  "recordSha256": "1243c30f04ce0bf22e79fdb1e1dbd5551679d671ecc0f51cdc0e3cfbc57ca2c3",
+  "date": "1993-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1994,
+  "recordId": "platte-louisville:daily-record:1994",
+  "file": "records/1994_20261023T045249Z.json",
+  "recordSha256": "99ecbc06b661ef269a93b932c8b9319c94a4e78045892e7d766594ecfc9897fa",
+  "date": "1994-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1995,
+  "recordId": "platte-louisville:daily-record:1995",
+  "file": "records/1995_20261023T045249Z.json",
+  "recordSha256": "acb7aee4483a50d2f9c3ecde13fa2455d651c90598ed06dbc54f917053c07e99",
+  "date": "1995-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1996,
+  "recordId": "platte-louisville:daily-record:1996",
+  "file": "records/1996_20261023T045249Z.json",
+  "recordSha256": "3fe5a3ff93895e5fb1792dfa377652bd3579875b07353a54fc12a96daeb84cb2",
+  "date": "1996-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 1997,
+  "recordId": "platte-louisville:daily-record:1997",
+  "file": "records/1997_20261023T045249Z.json",
+  "recordSha256": "0b315a09523f9423e80b3f0c8e9a6c7295505b08592588c571e674a770c536b8",
+  "date": "1997-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1998,
+  "recordId": "platte-louisville:daily-record:1998",
+  "file": "records/1998_20261023T045249Z.json",
+  "recordSha256": "3da0345f7cd74d3e0458d288330002212bbb98e9b2b5b82cf107011b0c57b25c",
+  "date": "1998-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1999,
+  "recordId": "platte-louisville:daily-record:1999",
+  "file": "records/1999_20261023T045249Z.json",
+  "recordSha256": "1b465a012b8431079afad3648e707b292929320f4ce0b0780059b2d593dd397d",
+  "date": "1999-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2000,
+  "recordId": "platte-louisville:daily-record:2000",
+  "file": "records/2000_20261023T045249Z.json",
+  "recordSha256": "3b2d5944ac128a4679f84fb469bc1978b81e04bf7f954846a7ea1db60fb0e096",
+  "date": "2000-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2001,
+  "recordId": "platte-louisville:daily-record:2001",
+  "file": "records/2001_20261023T045249Z.json",
+  "recordSha256": "1d0223159656059ec63a4b08c4053359f1a89b20b8bf8e580bda3cb9dcd61d12",
+  "date": "2001-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2002,
+  "recordId": "platte-louisville:daily-record:2002",
+  "file": "records/2002_20261023T045249Z.json",
+  "recordSha256": "d6eee3ce51e8f640f85a8dd2344aa0286f26a5008f5482dfb711926a7ec6b98c",
+  "date": "2002-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2003,
+  "recordId": "platte-louisville:daily-record:2003",
+  "file": "records/2003_20261023T045249Z.json",
+  "recordSha256": "b54e2c9d27f3d1664049f24b1931078443c06bd89fd260450f67c75f3e105911",
+  "date": "2003-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2004,
+  "recordId": "platte-louisville:daily-record:2004",
+  "file": "records/2004_20261023T045249Z.json",
+  "recordSha256": "1d14ffef1c57c34850eeadbbecdeb383d9f6d4ed1984cca4edfba507c8dbd050",
+  "date": "2004-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2005,
+  "recordId": "platte-louisville:daily-record:2005",
+  "file": "records/2005_20261023T045249Z.json",
+  "recordSha256": "a98a7a604ef075b52974e10079eed53dd6f851fdc2cb706707874a13b25fa246",
+  "date": "2005-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2006,
+  "recordId": "platte-louisville:daily-record:2006",
+  "file": "records/2006_20261023T045249Z.json",
+  "recordSha256": "3837b273278684ecc7827da75fb9ec4822192d1a257c3c360dfae409674e1df3",
+  "date": "2006-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2007,
+  "recordId": "platte-louisville:daily-record:2007",
+  "file": "records/2007_20261023T045249Z.json",
+  "recordSha256": "3c8fc5f5678837c4710878e07603fc0c9c748a9f18562b693e11af859e94f53c",
+  "date": "2007-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2008,
+  "recordId": "platte-louisville:daily-record:2008",
+  "file": "records/2008_20261023T045249Z.json",
+  "recordSha256": "222475179882f118a34672582a786b013286ca720edd4ccc5ef3f961de2a7189",
+  "date": "2008-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2009,
+  "recordId": "platte-louisville:daily-record:2009",
+  "file": "records/2009_20261023T045249Z.json",
+  "recordSha256": "1fc4eb1d589c39f6abe5738bc228ba5d2d4876463dc4a598ba779f460b61f6ec",
+  "date": "2009-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2010,
+  "recordId": "platte-louisville:daily-record:2010",
+  "file": "records/2010_20261023T045249Z.json",
+  "recordSha256": "2fc94adba317d77164b4c01947e6eb098e67878ee6b360823ed8ebe70a5164b5",
+  "date": "2010-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2011,
+  "recordId": "platte-louisville:daily-record:2011",
+  "file": "records/2011_20261023T045249Z.json",
+  "recordSha256": "1fc77822e0750f2080fe14c4321dbed095cd02d23eae3c966762584fcf5c263a",
+  "date": "2011-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2012,
+  "recordId": "platte-louisville:daily-record:2012",
+  "file": "records/2012_20261023T045249Z.json",
+  "recordSha256": "b0c3beb8dd8cc5d62ca694e04c6c406bff9aa9d51a95ed66d01db9919575ef0e",
+  "date": "2012-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2013,
+  "recordId": "platte-louisville:daily-record:2013",
+  "file": "records/2013_20261023T045249Z.json",
+  "recordSha256": "8f21cef2ef2fa962d7f81636054049253806b996e6abf9fcf9fdf81223c7ce2d",
+  "date": "2013-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2014,
+  "recordId": "platte-louisville:daily-record:2014",
+  "file": "records/2014_20261023T045249Z.json",
+  "recordSha256": "e7e7e2823db79378d0eaa6c2c95f494700fbf649bb1e3a14931ea6f66d884afe",
+  "date": "2014-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2015,
+  "recordId": "platte-louisville:daily-record:2015",
+  "file": "records/2015_20261023T045249Z.json",
+  "recordSha256": "67de2c93455bf19c08d5bb6a833e35164f7efbe1224eef23c5d5493d7da39046",
+  "date": "2015-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2016,
+  "recordId": "platte-louisville:daily-record:2016",
+  "file": "records/2016_20261023T045249Z.json",
+  "recordSha256": "588c3952ddc7a3c82b92db1ac45c854e2d467c19b3a7f78f7a7756db543838c0",
+  "date": "2016-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2017,
+  "recordId": "platte-louisville:daily-record:2017",
+  "file": "records/2017_20261023T045249Z.json",
+  "recordSha256": "46479d6901081ba83fc06bc3595a6455844741d731ac1546a31aefa18be4a5c5",
+  "date": "2017-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2018,
+  "recordId": "platte-louisville:daily-record:2018",
+  "file": "records/2018_20261023T045249Z.json",
+  "recordSha256": "1149801eb8a303bd3f14446a1b92d81c0000a5da17685e0ca7b89ed0f0a24294",
+  "date": "2018-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2019,
+  "recordId": "platte-louisville:daily-record:2019",
+  "file": "records/2019_20261023T045249Z.json",
+  "recordSha256": "ed143c94559ab5d949cfe1c48f8482db3701331789ff2c80463d8e397ab927f2",
+  "date": "2019-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2020,
+  "recordId": "platte-louisville:daily-record:2020",
+  "file": "records/2020_20261023T045249Z.json",
+  "recordSha256": "34a768164ccb40e7ca545605a929dbcfaba8db50844a126d8bad19dfb51b6ad6",
+  "date": "2020-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2021,
+  "recordId": "platte-louisville:daily-record:2021",
+  "file": "records/2021_20261023T045249Z.json",
+  "recordSha256": "76b127925c94bfcd0ba7ee531821e30abcdcdce4803668288ada5009371d4cbb",
+  "date": "2021-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2022,
+  "recordId": "platte-louisville:daily-record:2022",
+  "file": "records/2022_20261023T045249Z.json",
+  "recordSha256": "315dd54e256dac5265cb955b7c526a2433750cdf34ab6c09d79df1a87fff41d9",
+  "date": "2022-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2023,
+  "recordId": "platte-louisville:daily-record:2023",
+  "file": "records/2023_20261023T045249Z.json",
+  "recordSha256": "cddfccbe1d985ed88d8bba5936f9e6f08394ebc426a7f647fd392aa2795c16fd",
+  "date": "2023-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2024,
+  "recordId": "platte-louisville:daily-record:2024",
+  "file": "records/2024_20261023T045249Z.json",
+  "recordSha256": "d763d6b1cba51ccf88bddd110c0d1094a2bc4b4004c0e848aa209075776e2d63",
+  "date": "2024-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2025,
+  "recordId": "platte-louisville:daily-record:2025",
+  "file": "records/2025_20261023T045249Z.json",
+  "recordSha256": "b403a0c9cab1182d6538a9460458bb354ec276a7abb1c2b70dd00a8333bbc1f7",
+  "date": "2025-12-31",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2026,
+  "recordId": "platte-louisville:daily-record:2026",
+  "file": "records/2026_20261023T045249Z.json",
+  "recordSha256": "097588ed185b4377900c11e5efbb99f90f908a6c0a93f76d7bf0cb5078d684a2",
+  "date": "2026-10-21",
+  "fetchedUtc": "2026-10-23T04:52:49+00:00",
+  "records": 1,
+  "days": 294
+ }
+]

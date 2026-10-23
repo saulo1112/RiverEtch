@@ -1,0 +1,192 @@
+[
+ {
+  "year": 2008,
+  "recordId": "mississippi-belle-chasse:daily-record:2008",
+  "file": "records/2008_20261023T045247Z.json",
+  "recordSha256": "3e918c5d655c7af7155d038237d4752f152e539d676eb853630a39233b262940",
+  "date": "2008-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 64
+ },
+ {
+  "year": 2009,
+  "recordId": "mississippi-belle-chasse:daily-record:2009",
+  "file": "records/2009_20261023T045247Z.json",
+  "recordSha256": "6837c903f5a3482b141892fb9f060fe0ca877a55ddbc96672adb205674807d4d",
+  "date": "2009-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2010,
+  "recordId": "mississippi-belle-chasse:daily-record:2010",
+  "file": "records/2010_20261023T045247Z.json",
+  "recordSha256": "6a76bf7ab039aa469f035c3640926a84095d708b8e463a71b4cf30a0e42758f9",
+  "date": "2010-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2011,
+  "recordId": "mississippi-belle-chasse:daily-record:2011",
+  "file": "records/2011_20261023T045247Z.json",
+  "recordSha256": "510aa27e66f7986022ca179ee8b369a0972db41a2cf425a1b2133fa6b9b04f3b",
+  "date": "2011-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 355
+ },
+ {
+  "year": 2012,
+  "recordId": "mississippi-belle-chasse:daily-record:2012",
+  "file": "records/2012_20261023T045247Z.json",
+  "recordSha256": "0ab0f292bc1f2dadede3416145dc4edbd12512bb5357796e1f00e3b1c3573a15",
+  "date": "2012-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2013,
+  "recordId": "mississippi-belle-chasse:daily-record:2013",
+  "file": "records/2013_20261023T045247Z.json",
+  "recordSha256": "106e2126cc394a052248400720011e32d98cba7374680ee12da2c4e63cc17538",
+  "date": "2013-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 361
+ },
+ {
+  "year": 2014,
+  "recordId": "mississippi-belle-chasse:daily-record:2014",
+  "file": "records/2014_20261023T045247Z.json",
+  "recordSha256": "b60ee2ab073b85cdb7a57a7c7b43958f647faacf57bf8fa3101ef5a52fe63f61",
+  "date": "2014-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2015,
+  "recordId": "mississippi-belle-chasse:daily-record:2015",
+  "file": "records/2015_20261023T045247Z.json",
+  "recordSha256": "5d9179d1eda3518d2af8cdbaece2eed2296855b920647b8521890bdd677a640e",
+  "date": "2015-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2016,
+  "recordId": "mississippi-belle-chasse:daily-record:2016",
+  "file": "records/2016_20261023T045247Z.json",
+  "recordSha256": "b66addd84e711c6512937ff14e44b710bdd03859c623f4a23a6bd4f760f258bc",
+  "date": "2016-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 350
+ },
+ {
+  "year": 2017,
+  "recordId": "mississippi-belle-chasse:daily-record:2017",
+  "file": "records/2017_20261023T045247Z.json",
+  "recordSha256": "95f44c32043473e85feec2675d15fbc544e8b5c59a2401f267865988794a4f56",
+  "date": "2017-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 364
+ },
+ {
+  "year": 2018,
+  "recordId": "mississippi-belle-chasse:daily-record:2018",
+  "file": "records/2018_20261023T045247Z.json",
+  "recordSha256": "30cf86a347e8319e34ea992a24ca910e5497dfe3e91225e9c41ae8d6d7884a74",
+  "date": "2018-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 364
+ },
+ {
+  "year": 2019,
+  "recordId": "mississippi-belle-chasse:daily-record:2019",
+  "file": "records/2019_20261023T045247Z.json",
+  "recordSha256": "fc1d48848898ac613e34542331cb93823be5a2ced4d323f27f504b576584d907",
+  "date": "2019-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 363
+ },
+ {
+  "year": 2020,
+  "recordId": "mississippi-belle-chasse:daily-record:2020",
+  "file": "records/2020_20261023T045247Z.json",
+  "recordSha256": "5f5d7cb41ce30f6e227843c2be45022ec7110cb550d5e49db078f519808a9838",
+  "date": "2020-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2021,
+  "recordId": "mississippi-belle-chasse:daily-record:2021",
+  "file": "records/2021_20261023T045247Z.json",
+  "recordSha256": "6038bfd4d0110bd9821cecc9a10a288db38b07addbfc7d2badee2e50f973e7c5",
+  "date": "2021-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2022,
+  "recordId": "mississippi-belle-chasse:daily-record:2022",
+  "file": "records/2022_20261023T045247Z.json",
+  "recordSha256": "8b6b62a710f5237cb86f7a76c0407706745e67e42f0526b6ebbe6e6b9858d642",
+  "date": "2022-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 364
+ },
+ {
+  "year": 2023,
+  "recordId": "mississippi-belle-chasse:daily-record:2023",
+  "file": "records/2023_20261023T045247Z.json",
+  "recordSha256": "21acf6ec69af6155dcfde5bfa0547680eed352b4225083900d08a6475fdc2ea4",
+  "date": "2023-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 363
+ },
+ {
+  "year": 2024,
+  "recordId": "mississippi-belle-chasse:daily-record:2024",
+  "file": "records/2024_20261023T045247Z.json",
+  "recordSha256": "2a8c854d883b73c88eecc92c518da18f60afc05341df379afe4855df853bfc01",
+  "date": "2024-12-31",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 330
+ },
+ {
+  "year": 2025,
+  "recordId": "mississippi-belle-chasse:daily-record:2025",
+  "file": "records/2025_20261023T045247Z.json",
+  "recordSha256": "d2f3765d8ae4b0d94b40cbdefe964bfe4d26b6500485b7c4ed042cea4c6d03d2",
+  "date": "2025-07-15",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 179
+ },
+ {
+  "year": 2026,
+  "recordId": "mississippi-belle-chasse:daily-record:2026",
+  "file": "records/2026_20261023T045247Z.json",
+  "recordSha256": "0551a2a9346e70863065e7e9482c39fd8bfc6ad1ab9a931192345e20f7c85c02",
+  "date": "2026-10-20",
+  "fetchedUtc": "2026-10-23T04:52:47+00:00",
+  "records": 1,
+  "days": 227
+ }
+]

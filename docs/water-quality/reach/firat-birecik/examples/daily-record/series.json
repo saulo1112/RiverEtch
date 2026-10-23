@@ -1,0 +1,302 @@
+[
+ {
+  "year": 1997,
+  "recordId": "firat-birecik:daily-record:1997",
+  "file": "records/1997_20261023T050627Z.json",
+  "recordSha256": "94bf604db1a1bfc13b4b8b1aae9c96d986f873ea6176d50783b0b7cd9abb31bc",
+  "date": "1997-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1998,
+  "recordId": "firat-birecik:daily-record:1998",
+  "file": "records/1998_20261023T050627Z.json",
+  "recordSha256": "fa35b897841e9ddd2d1b6d42e85eb92685a5d478024cae3999f4fd225df3f86c",
+  "date": "1998-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 1999,
+  "recordId": "firat-birecik:daily-record:1999",
+  "file": "records/1999_20261023T050627Z.json",
+  "recordSha256": "a0250b8c499cbdfb406b8b499820275e99708ccb41e6d83d1e42d07db9da96ac",
+  "date": "1999-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2000,
+  "recordId": "firat-birecik:daily-record:2000",
+  "file": "records/2000_20261023T050627Z.json",
+  "recordSha256": "a2c8e99719a7e3bedb2ce659f77c33133279e3bfdd5a4d38ef2e60dbe2ef93c6",
+  "date": "2000-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2001,
+  "recordId": "firat-birecik:daily-record:2001",
+  "file": "records/2001_20261023T050627Z.json",
+  "recordSha256": "20aeb7b62967a3c67c173f896ec2e7eeadd748064cc99bec3747471be3c29a0b",
+  "date": "2001-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2002,
+  "recordId": "firat-birecik:daily-record:2002",
+  "file": "records/2002_20261023T050627Z.json",
+  "recordSha256": "7ac6106cd4bfac82ba7349bb4e1e066720a436f56684c8f6329d8a4343792676",
+  "date": "2002-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2003,
+  "recordId": "firat-birecik:daily-record:2003",
+  "file": "records/2003_20261023T050627Z.json",
+  "recordSha256": "584375e55f4f4402136ae5473ff49df89134cee5f5df430a62b6811f808d3bbe",
+  "date": "2003-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2004,
+  "recordId": "firat-birecik:daily-record:2004",
+  "file": "records/2004_20261023T050627Z.json",
+  "recordSha256": "07a3d75af01dc5828c917b0ba1f6f50283bd41832757af1af278aae67ab61d32",
+  "date": "2004-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2005,
+  "recordId": "firat-birecik:daily-record:2005",
+  "file": "records/2005_20261023T050627Z.json",
+  "recordSha256": "00a35e1839abe20e1c61ab7e3d1d3f3bce1d6a48160a0e91a0169a5437e9c7ae",
+  "date": "2005-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2006,
+  "recordId": "firat-birecik:daily-record:2006",
+  "file": "records/2006_20261023T050627Z.json",
+  "recordSha256": "741d8ca0d94e32445d3ad9f23798f6e481742c34198f92a1488ba1e00ce755a4",
+  "date": "2006-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2007,
+  "recordId": "firat-birecik:daily-record:2007",
+  "file": "records/2007_20261023T050627Z.json",
+  "recordSha256": "19336042956867aaee18445f2bfcd75ecc3136fa91eb0b212ba6bb441588afe8",
+  "date": "2007-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2008,
+  "recordId": "firat-birecik:daily-record:2008",
+  "file": "records/2008_20261023T050627Z.json",
+  "recordSha256": "5f2b0f4e209b7be3c324cadab6b58c577a8933a427bf37ddfae273b93c04a6aa",
+  "date": "2008-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2009,
+  "recordId": "firat-birecik:daily-record:2009",
+  "file": "records/2009_20261023T050627Z.json",
+  "recordSha256": "37b95802e3891796f1618112341880b8d36658b4829900c0a1df7a240584d529",
+  "date": "2009-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2010,
+  "recordId": "firat-birecik:daily-record:2010",
+  "file": "records/2010_20261023T050627Z.json",
+  "recordSha256": "d097e61ff63e00836186ca2113d193519c305780f7e106fb910a08485fd3ed22",
+  "date": "2010-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2011,
+  "recordId": "firat-birecik:daily-record:2011",
+  "file": "records/2011_20261023T050627Z.json",
+  "recordSha256": "653e8db2d4ff7972b129e882dbb4b0edeb62df1e366998135489d127d1386e39",
+  "date": "2011-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2012,
+  "recordId": "firat-birecik:daily-record:2012",
+  "file": "records/2012_20261023T050627Z.json",
+  "recordSha256": "6b9d3ff1b782926dc1008f82ddcd54961ff0811a42149b8e03f0bff2986450e4",
+  "date": "2012-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2013,
+  "recordId": "firat-birecik:daily-record:2013",
+  "file": "records/2013_20261023T050627Z.json",
+  "recordSha256": "06ec0cc09d8313adf34e9abb4dda6bfb124ec107c4c0fec7541f283a2dcab726",
+  "date": "2013-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2014,
+  "recordId": "firat-birecik:daily-record:2014",
+  "file": "records/2014_20261023T050627Z.json",
+  "recordSha256": "e557e525cd137cbbccc99668b9aa17941145c1465f9ce6b4b7c0d3134fcda744",
+  "date": "2014-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2015,
+  "recordId": "firat-birecik:daily-record:2015",
+  "file": "records/2015_20261023T050627Z.json",
+  "recordSha256": "ea1e10d2a79cd3e12bb1f08529f418786a5700394b240327db5c8e3deab4ba6a",
+  "date": "2015-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2016,
+  "recordId": "firat-birecik:daily-record:2016",
+  "file": "records/2016_20261023T050627Z.json",
+  "recordSha256": "bb6aa8afe21e9db53cc3ed5c55f0beb347fff5fa2f500a9a17c284b28344d691",
+  "date": "2016-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2017,
+  "recordId": "firat-birecik:daily-record:2017",
+  "file": "records/2017_20261023T050627Z.json",
+  "recordSha256": "abe6d446714e92031917ce5c2f69a2dcaac353ab7292881703bdd49e4e543f8e",
+  "date": "2017-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2018,
+  "recordId": "firat-birecik:daily-record:2018",
+  "file": "records/2018_20261023T050627Z.json",
+  "recordSha256": "0d7d24f6ff59117ccf07d364ac3f305e21b40ed5165f769fec6d6d06451f1981",
+  "date": "2018-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2019,
+  "recordId": "firat-birecik:daily-record:2019",
+  "file": "records/2019_20261023T050627Z.json",
+  "recordSha256": "663f0d2b6f18aa9689401bd64c319ef2735e87ac55c85f3c410bc997df65f26c",
+  "date": "2019-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2020,
+  "recordId": "firat-birecik:daily-record:2020",
+  "file": "records/2020_20261023T050627Z.json",
+  "recordSha256": "b8a5c12db9a80a2fdd846dde8f1a1552ff8eaa641071cc35ddcedfcbab864c77",
+  "date": "2020-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2021,
+  "recordId": "firat-birecik:daily-record:2021",
+  "file": "records/2021_20261023T050627Z.json",
+  "recordSha256": "25a2764c04c97098f92e570d9d22a1b18aef875a5fde37e384bb8d92f365ee37",
+  "date": "2021-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2022,
+  "recordId": "firat-birecik:daily-record:2022",
+  "file": "records/2022_20261023T050627Z.json",
+  "recordSha256": "51c9df202bcf2bdea924736cb401d9f170c3ef0f4dcd95666ec8cbeda4109349",
+  "date": "2022-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2023,
+  "recordId": "firat-birecik:daily-record:2023",
+  "file": "records/2023_20261023T050627Z.json",
+  "recordSha256": "fb5e81377471d648ed875ad6a7a9035953afafd91bf1d32e89c5c376f50a8f9d",
+  "date": "2023-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2024,
+  "recordId": "firat-birecik:daily-record:2024",
+  "file": "records/2024_20261023T050627Z.json",
+  "recordSha256": "507d58a2f7e21e881d46e549438a20e9b83138216b9c805223abaf1796b2b72c",
+  "date": "2024-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2025,
+  "recordId": "firat-birecik:daily-record:2025",
+  "file": "records/2025_20261023T050627Z.json",
+  "recordSha256": "610bb6ebadcdcb4931dd9b94ade1217d8c0cd0310db267a91c4433cbecbb9fed",
+  "date": "2025-12-31",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2026,
+  "recordId": "firat-birecik:daily-record:2026",
+  "file": "records/2026_20261023T050627Z.json",
+  "recordSha256": "12f5cf0a067d121f3c249b9e60b6c587f53325cd7ddc13e8e2093414d880ed4a",
+  "date": "2026-10-22",
+  "fetchedUtc": "2026-10-23T05:06:27+00:00",
+  "records": 1,
+  "days": 295
+ }
+]

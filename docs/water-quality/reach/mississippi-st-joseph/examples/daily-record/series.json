@@ -1,0 +1,192 @@
+[
+ {
+  "year": 2008,
+  "recordId": "mississippi-st-joseph:daily-record:2008",
+  "file": "records/2008_20261023T050050Z.json",
+  "recordSha256": "e42fb18ad6ed19352f74fa9dcdc336db3f0e0af2a461eae656aa19e16938f128",
+  "date": "2008-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2009,
+  "recordId": "mississippi-st-joseph:daily-record:2009",
+  "file": "records/2009_20261023T050050Z.json",
+  "recordSha256": "5fce5122c2f0ee378578d84bb4ef878fbdddb8ebc14b5e8c341812ebe2ae50b5",
+  "date": "2009-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2010,
+  "recordId": "mississippi-st-joseph:daily-record:2010",
+  "file": "records/2010_20261023T050050Z.json",
+  "recordSha256": "24b191031dd4c7bbd3bf90950d9a2eb952f12980abcf33966e3b1f2b3160503a",
+  "date": "2010-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2011,
+  "recordId": "mississippi-st-joseph:daily-record:2011",
+  "file": "records/2011_20261023T050050Z.json",
+  "recordSha256": "e46d9a5645d906959cc0100e8827128b5ae92afe0638a206106bd1f8b828659d",
+  "date": "2011-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2012,
+  "recordId": "mississippi-st-joseph:daily-record:2012",
+  "file": "records/2012_20261023T050050Z.json",
+  "recordSha256": "5cd30c48cbfc0f48a639fb576f89c7fe349fd6581a5c0553d1ba33b790711eb4",
+  "date": "2012-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2013,
+  "recordId": "mississippi-st-joseph:daily-record:2013",
+  "file": "records/2013_20261023T050050Z.json",
+  "recordSha256": "a4b5e215e5c0ca5681d15be650feb43d2a2e6a434bcf860a99c7e4d3a5995dd0",
+  "date": "2013-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2014,
+  "recordId": "mississippi-st-joseph:daily-record:2014",
+  "file": "records/2014_20261023T050050Z.json",
+  "recordSha256": "e82c704a50d8316012c4ae9befb1d3b39a11fa6c94d496113f6eca5e7b513b8e",
+  "date": "2014-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2015,
+  "recordId": "mississippi-st-joseph:daily-record:2015",
+  "file": "records/2015_20261023T050050Z.json",
+  "recordSha256": "a4adc8cddf0684ca6ea183ab7a8aad9476ef7ade3089c118ae7520528e29ab6d",
+  "date": "2015-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2016,
+  "recordId": "mississippi-st-joseph:daily-record:2016",
+  "file": "records/2016_20261023T050050Z.json",
+  "recordSha256": "51d77e5e35bd660ce70074b5e74de841ca9f703e46f6c06f527d8f27cefe9c5a",
+  "date": "2016-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2017,
+  "recordId": "mississippi-st-joseph:daily-record:2017",
+  "file": "records/2017_20261023T050050Z.json",
+  "recordSha256": "6d88adcd8f8efdfc8fe840ea7ac18a8390c2ef0f7a822d1c2ddaf6c115d06954",
+  "date": "2017-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2018,
+  "recordId": "mississippi-st-joseph:daily-record:2018",
+  "file": "records/2018_20261023T050050Z.json",
+  "recordSha256": "a4c41e123792b20dc15cee69daae2f68d46da3844b2562035c0e2ed5934fc04d",
+  "date": "2018-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2019,
+  "recordId": "mississippi-st-joseph:daily-record:2019",
+  "file": "records/2019_20261023T050050Z.json",
+  "recordSha256": "e061ed961714d8299a5c1cbe4abc96e3d26247761529070ab69488c5c3225a87",
+  "date": "2019-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2020,
+  "recordId": "mississippi-st-joseph:daily-record:2020",
+  "file": "records/2020_20261023T050050Z.json",
+  "recordSha256": "820a4b20b8b3de829b2676ce9aa6d2b8aa0c5f71ed4e39a5a024bde5311fcc13",
+  "date": "2020-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2021,
+  "recordId": "mississippi-st-joseph:daily-record:2021",
+  "file": "records/2021_20261023T050050Z.json",
+  "recordSha256": "080468164b153c1b96cfa2693a649c9bd3520d6bc17805df72807da2bbaa01b1",
+  "date": "2021-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2022,
+  "recordId": "mississippi-st-joseph:daily-record:2022",
+  "file": "records/2022_20261023T050050Z.json",
+  "recordSha256": "aca08e08f8800ef81e6623c0bdaa97d243af086e4725f96b06bfcef7ae001981",
+  "date": "2022-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2023,
+  "recordId": "mississippi-st-joseph:daily-record:2023",
+  "file": "records/2023_20261023T050050Z.json",
+  "recordSha256": "78156827b0356a0940312707a79737bca84d6374c49b94974ed70a66c6fecb47",
+  "date": "2023-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2024,
+  "recordId": "mississippi-st-joseph:daily-record:2024",
+  "file": "records/2024_20261023T050050Z.json",
+  "recordSha256": "9c3e4504990f8184bb994d453f03b4a6b5ed889c8fe50fbf8f691ad763e227c8",
+  "date": "2024-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 366
+ },
+ {
+  "year": 2025,
+  "recordId": "mississippi-st-joseph:daily-record:2025",
+  "file": "records/2025_20261023T050050Z.json",
+  "recordSha256": "5fda85fd140922e1b520526fcce86349c99c9b012b972bfb2582220865f07e56",
+  "date": "2025-12-31",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 365
+ },
+ {
+  "year": 2026,
+  "recordId": "mississippi-st-joseph:daily-record:2026",
+  "file": "records/2026_20261023T050050Z.json",
+  "recordSha256": "abf3ee88582e32d68bf1a56f67af0fb20598c71db74144cbb835aa499308848d",
+  "date": "2026-10-21",
+  "fetchedUtc": "2026-10-23T05:00:50+00:00",
+  "records": 1,
+  "days": 291
+ }
+]
