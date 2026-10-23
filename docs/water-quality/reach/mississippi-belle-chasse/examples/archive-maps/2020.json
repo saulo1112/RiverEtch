@@ -1,0 +1,289 @@
+{
+ "schema": "riveretch.archive-maps.v1",
+ "reach": "mississippi-belle-chasse",
+ "year": 2020,
+ "codeCommit": "618dd3f35065c9346ce195d4accbc265e39c3ca0",
+ "width": 968,
+ "height": 1052,
+ "corners": [
+  [
+   -90.001342,
+   29.944633
+  ],
+  [
+   -89.901165,
+   29.946879
+  ],
+  [
+   -89.898417,
+   29.85206
+  ],
+  [
+   -89.9985,
+   29.849824
+  ]
+ ],
+ "maps": [
+  {
+   "key": "sentinel-2a_2020-01-06_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-01-06_R126",
+   "date": "2020-01-06",
+   "file": "archive-maps/2020/sentinel-2a_2020-01-06_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-01-06_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-01-08_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-01-08_R083",
+   "date": "2020-01-08",
+   "file": "archive-maps/2020/sentinel-2b_2020-01-08_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-01-08_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-01-21_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-01-21_R126",
+   "date": "2020-01-21",
+   "file": "archive-maps/2020/sentinel-2b_2020-01-21_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-01-21_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-02-02_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-02-02_R083",
+   "date": "2020-02-02",
+   "file": "archive-maps/2020/sentinel-2a_2020-02-02_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-02-02_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-02-07_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-02-07_R083",
+   "date": "2020-02-07",
+   "file": "archive-maps/2020/sentinel-2b_2020-02-07_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-02-07_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-02-15_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-02-15_R126",
+   "date": "2020-02-15",
+   "file": "archive-maps/2020/sentinel-2a_2020-02-15_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-02-15_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-02-22_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-02-22_R083",
+   "date": "2020-02-22",
+   "file": "archive-maps/2020/sentinel-2a_2020-02-22_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-02-22_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-02-27_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-02-27_R083",
+   "date": "2020-02-27",
+   "file": "archive-maps/2020/sentinel-2b_2020-02-27_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-02-27_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-03-26_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-03-26_R126",
+   "date": "2020-03-26",
+   "file": "archive-maps/2020/sentinel-2a_2020-03-26_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-03-26_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-04-27_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-04-27_R083",
+   "date": "2020-04-27",
+   "file": "archive-maps/2020/sentinel-2b_2020-04-27_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-04-27_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-05-02_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-05-02_R083",
+   "date": "2020-05-02",
+   "file": "archive-maps/2020/sentinel-2a_2020-05-02_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-05-02_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-05-07_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-05-07_R083",
+   "date": "2020-05-07",
+   "file": "archive-maps/2020/sentinel-2b_2020-05-07_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-05-07_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-05-10_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-05-10_R126",
+   "date": "2020-05-10",
+   "file": "archive-maps/2020/sentinel-2b_2020-05-10_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-05-10_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-05-12_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-05-12_R083",
+   "date": "2020-05-12",
+   "file": "archive-maps/2020/sentinel-2a_2020-05-12_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-05-12_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-06-16_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-06-16_R083",
+   "date": "2020-06-16",
+   "file": "archive-maps/2020/sentinel-2b_2020-06-16_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-06-16_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-09-07_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-09-07_R126",
+   "date": "2020-09-07",
+   "file": "archive-maps/2020/sentinel-2b_2020-09-07_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-09-07_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-09-17_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-09-17_R126",
+   "date": "2020-09-17",
+   "file": "archive-maps/2020/sentinel-2b_2020-09-17_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-09-17_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-09-24_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-09-24_R083",
+   "date": "2020-09-24",
+   "file": "archive-maps/2020/sentinel-2b_2020-09-24_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-09-24_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-09-27_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-09-27_R126",
+   "date": "2020-09-27",
+   "file": "archive-maps/2020/sentinel-2b_2020-09-27_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-09-27_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-09-29_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-09-29_R083",
+   "date": "2020-09-29",
+   "file": "archive-maps/2020/sentinel-2a_2020-09-29_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-09-29_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-10-02_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-10-02_R126",
+   "date": "2020-10-02",
+   "file": "archive-maps/2020/sentinel-2a_2020-10-02_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-10-02_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-10-12_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-10-12_R126",
+   "date": "2020-10-12",
+   "file": "archive-maps/2020/sentinel-2a_2020-10-12_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-10-12_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-10-14_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-10-14_R083",
+   "date": "2020-10-14",
+   "file": "archive-maps/2020/sentinel-2b_2020-10-14_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-10-14_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-10-17_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-10-17_R126",
+   "date": "2020-10-17",
+   "file": "archive-maps/2020/sentinel-2b_2020-10-17_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-10-17_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-10-29_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-10-29_R083",
+   "date": "2020-10-29",
+   "file": "archive-maps/2020/sentinel-2a_2020-10-29_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-10-29_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-11-01_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-11-01_R126",
+   "date": "2020-11-01",
+   "file": "archive-maps/2020/sentinel-2a_2020-11-01_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-11-01_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-11-03_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-11-03_R083",
+   "date": "2020-11-03",
+   "file": "archive-maps/2020/sentinel-2b_2020-11-03_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-11-03_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-11-13_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-11-13_R083",
+   "date": "2020-11-13",
+   "file": "archive-maps/2020/sentinel-2b_2020-11-13_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-11-13_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-11-18_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-11-18_R083",
+   "date": "2020-11-18",
+   "file": "archive-maps/2020/sentinel-2a_2020-11-18_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-11-18_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-11-21_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-11-21_R126",
+   "date": "2020-11-21",
+   "file": "archive-maps/2020/sentinel-2a_2020-11-21_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-11-21_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-11-23_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-11-23_R083",
+   "date": "2020-11-23",
+   "file": "archive-maps/2020/sentinel-2b_2020-11-23_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-11-23_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-12-01_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-12-01_R126",
+   "date": "2020-12-01",
+   "file": "archive-maps/2020/sentinel-2a_2020-12-01_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-12-01_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-12-08_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-12-08_R083",
+   "date": "2020-12-08",
+   "file": "archive-maps/2020/sentinel-2a_2020-12-08_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-12-08_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-12-18_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-12-18_R083",
+   "date": "2020-12-18",
+   "file": "archive-maps/2020/sentinel-2a_2020-12-18_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-12-18_R083.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-12-21_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-12-21_R126",
+   "date": "2020-12-21",
+   "file": "archive-maps/2020/sentinel-2a_2020-12-21_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-12-21_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2020-12-26_R126",
+   "sceneId": "mississippi-belle-chasse:sentinel-2b_2020-12-26_R126",
+   "date": "2020-12-26",
+   "file": "archive-maps/2020/sentinel-2b_2020-12-26_R126.png",
+   "trueColor": "archive-maps/2020/sentinel-2b_2020-12-26_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2020-12-28_R083",
+   "sceneId": "mississippi-belle-chasse:sentinel-2a_2020-12-28_R083",
+   "date": "2020-12-28",
+   "file": "archive-maps/2020/sentinel-2a_2020-12-28_R083.png",
+   "trueColor": "archive-maps/2020/sentinel-2a_2020-12-28_R083.rgb.webp"
+  }
+ ],
+ "missing": [],
+ "failed": {}
+}

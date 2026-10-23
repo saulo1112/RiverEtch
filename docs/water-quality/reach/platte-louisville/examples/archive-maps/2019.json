@@ -1,0 +1,233 @@
+{
+ "schema": "riveretch.archive-maps.v1",
+ "reach": "platte-louisville",
+ "year": 2019,
+ "codeCommit": "618dd3f35065c9346ce195d4accbc265e39c3ca0",
+ "width": 1880,
+ "height": 742,
+ "corners": [
+  [
+   -96.162734,
+   41.07534
+  ],
+  [
+   -95.939246,
+   41.069615
+  ],
+  [
+   -95.942339,
+   41.00287
+  ],
+  [
+   -96.165602,
+   41.008581
+  ]
+ ],
+ "maps": [
+  {
+   "key": "sentinel-2b_2019-02-04_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-02-04_R112",
+   "date": "2019-02-04",
+   "file": "archive-maps/2019/sentinel-2b_2019-02-04_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-02-04_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-03-16_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-03-16_R112",
+   "date": "2019-03-16",
+   "file": "archive-maps/2019/sentinel-2b_2019-03-16_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-03-16_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-03-21_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-03-21_R112",
+   "date": "2019-03-21",
+   "file": "archive-maps/2019/sentinel-2a_2019-03-21_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-03-21_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-03-26_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-03-26_R112",
+   "date": "2019-03-26",
+   "file": "archive-maps/2019/sentinel-2b_2019-03-26_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-03-26_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-03-31_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-03-31_R112",
+   "date": "2019-03-31",
+   "file": "archive-maps/2019/sentinel-2a_2019-03-31_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-03-31_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-04-15_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-04-15_R112",
+   "date": "2019-04-15",
+   "file": "archive-maps/2019/sentinel-2b_2019-04-15_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-04-15_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-04-20_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-04-20_R112",
+   "date": "2019-04-20",
+   "file": "archive-maps/2019/sentinel-2a_2019-04-20_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-04-20_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-05-05_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-05-05_R112",
+   "date": "2019-05-05",
+   "file": "archive-maps/2019/sentinel-2b_2019-05-05_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-05-05_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-05-15_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-05-15_R112",
+   "date": "2019-05-15",
+   "file": "archive-maps/2019/sentinel-2b_2019-05-15_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-05-15_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-06-24_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-06-24_R112",
+   "date": "2019-06-24",
+   "file": "archive-maps/2019/sentinel-2b_2019-06-24_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-06-24_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-06-29_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-06-29_R112",
+   "date": "2019-06-29",
+   "file": "archive-maps/2019/sentinel-2a_2019-06-29_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-06-29_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-07-09_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-07-09_R112",
+   "date": "2019-07-09",
+   "file": "archive-maps/2019/sentinel-2a_2019-07-09_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-07-09_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-07-14_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-07-14_R112",
+   "date": "2019-07-14",
+   "file": "archive-maps/2019/sentinel-2b_2019-07-14_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-07-14_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-07-19_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-07-19_R112",
+   "date": "2019-07-19",
+   "file": "archive-maps/2019/sentinel-2a_2019-07-19_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-07-19_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-07-24_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-07-24_R112",
+   "date": "2019-07-24",
+   "file": "archive-maps/2019/sentinel-2b_2019-07-24_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-07-24_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-07-29_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-07-29_R112",
+   "date": "2019-07-29",
+   "file": "archive-maps/2019/sentinel-2a_2019-07-29_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-07-29_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-08-08_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-08-08_R112",
+   "date": "2019-08-08",
+   "file": "archive-maps/2019/sentinel-2a_2019-08-08_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-08-08_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-08-13_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-08-13_R112",
+   "date": "2019-08-13",
+   "file": "archive-maps/2019/sentinel-2b_2019-08-13_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-08-13_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-08-28_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-08-28_R112",
+   "date": "2019-08-28",
+   "file": "archive-maps/2019/sentinel-2a_2019-08-28_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-08-28_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-09-17_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-09-17_R112",
+   "date": "2019-09-17",
+   "file": "archive-maps/2019/sentinel-2a_2019-09-17_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-09-17_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-10-07_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-10-07_R112",
+   "date": "2019-10-07",
+   "file": "archive-maps/2019/sentinel-2a_2019-10-07_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-10-07_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-10-12_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-10-12_R112",
+   "date": "2019-10-12",
+   "file": "archive-maps/2019/sentinel-2b_2019-10-12_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-10-12_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-10-17_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-10-17_R112",
+   "date": "2019-10-17",
+   "file": "archive-maps/2019/sentinel-2a_2019-10-17_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-10-17_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-10-22_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-10-22_R112",
+   "date": "2019-10-22",
+   "file": "archive-maps/2019/sentinel-2b_2019-10-22_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-10-22_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-11-06_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-11-06_R112",
+   "date": "2019-11-06",
+   "file": "archive-maps/2019/sentinel-2a_2019-11-06_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-11-06_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-11-16_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-11-16_R112",
+   "date": "2019-11-16",
+   "file": "archive-maps/2019/sentinel-2a_2019-11-16_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-11-16_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-12-06_R112",
+   "sceneId": "platte-louisville:sentinel-2a_2019-12-06_R112",
+   "date": "2019-12-06",
+   "file": "archive-maps/2019/sentinel-2a_2019-12-06_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-12-06_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-12-11_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-12-11_R112",
+   "date": "2019-12-11",
+   "file": "archive-maps/2019/sentinel-2b_2019-12-11_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-12-11_R112.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-12-21_R112",
+   "sceneId": "platte-louisville:sentinel-2b_2019-12-21_R112",
+   "date": "2019-12-21",
+   "file": "archive-maps/2019/sentinel-2b_2019-12-21_R112.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-12-21_R112.rgb.webp"
+  }
+ ],
+ "missing": [],
+ "failed": {}
+}

@@ -1,0 +1,240 @@
+{
+ "schema": "riveretch.archive-maps.v1",
+ "reach": "mississippi-st-joseph",
+ "year": 2019,
+ "codeCommit": "618dd3f35065c9346ce195d4accbc265e39c3ca0",
+ "width": 1158,
+ "height": 1242,
+ "corners": [
+  [
+   -91.363589,
+   31.878897
+  ],
+  [
+   -91.241207,
+   31.877263
+  ],
+  [
+   -91.243329,
+   31.765261
+  ],
+  [
+   -91.365564,
+   31.766889
+  ]
+ ],
+ "maps": [
+  {
+   "key": "sentinel-2a_2019-01-01_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-01-01_R126",
+   "date": "2019-01-01",
+   "file": "archive-maps/2019/sentinel-2a_2019-01-01_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-01-01_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-01-06_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-01-06_R126",
+   "date": "2019-01-06",
+   "file": "archive-maps/2019/sentinel-2b_2019-01-06_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-01-06_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-01-11_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-01-11_R126",
+   "date": "2019-01-11",
+   "file": "archive-maps/2019/sentinel-2a_2019-01-11_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-01-11_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-01-21_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-01-21_R126",
+   "date": "2019-01-21",
+   "file": "archive-maps/2019/sentinel-2a_2019-01-21_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-01-21_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-01-26_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-01-26_R126",
+   "date": "2019-01-26",
+   "file": "archive-maps/2019/sentinel-2b_2019-01-26_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-01-26_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-01-31_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-01-31_R126",
+   "date": "2019-01-31",
+   "file": "archive-maps/2019/sentinel-2a_2019-01-31_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-01-31_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-03-22_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-03-22_R126",
+   "date": "2019-03-22",
+   "file": "archive-maps/2019/sentinel-2a_2019-03-22_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-03-22_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-03-27_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-03-27_R126",
+   "date": "2019-03-27",
+   "file": "archive-maps/2019/sentinel-2b_2019-03-27_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-03-27_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-04-16_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-04-16_R126",
+   "date": "2019-04-16",
+   "file": "archive-maps/2019/sentinel-2b_2019-04-16_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-04-16_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-04-21_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-04-21_R126",
+   "date": "2019-04-21",
+   "file": "archive-maps/2019/sentinel-2a_2019-04-21_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-04-21_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-04-26_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-04-26_R126",
+   "date": "2019-04-26",
+   "file": "archive-maps/2019/sentinel-2b_2019-04-26_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-04-26_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-05-06_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-05-06_R126",
+   "date": "2019-05-06",
+   "file": "archive-maps/2019/sentinel-2b_2019-05-06_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-05-06_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-05-16_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-05-16_R126",
+   "date": "2019-05-16",
+   "file": "archive-maps/2019/sentinel-2b_2019-05-16_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-05-16_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-05-21_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-05-21_R126",
+   "date": "2019-05-21",
+   "file": "archive-maps/2019/sentinel-2a_2019-05-21_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-05-21_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-05-26_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-05-26_R126",
+   "date": "2019-05-26",
+   "file": "archive-maps/2019/sentinel-2b_2019-05-26_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-05-26_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-07-05_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-07-05_R126",
+   "date": "2019-07-05",
+   "file": "archive-maps/2019/sentinel-2b_2019-07-05_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-07-05_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-07-20_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-07-20_R126",
+   "date": "2019-07-20",
+   "file": "archive-maps/2019/sentinel-2a_2019-07-20_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-07-20_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-07-25_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-07-25_R126",
+   "date": "2019-07-25",
+   "file": "archive-maps/2019/sentinel-2b_2019-07-25_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-07-25_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-08-14_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-08-14_R126",
+   "date": "2019-08-14",
+   "file": "archive-maps/2019/sentinel-2b_2019-08-14_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-08-14_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-08-19_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-08-19_R126",
+   "date": "2019-08-19",
+   "file": "archive-maps/2019/sentinel-2a_2019-08-19_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-08-19_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-08-29_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-08-29_R126",
+   "date": "2019-08-29",
+   "file": "archive-maps/2019/sentinel-2a_2019-08-29_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-08-29_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-09-03_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-09-03_R126",
+   "date": "2019-09-03",
+   "file": "archive-maps/2019/sentinel-2b_2019-09-03_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-09-03_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-09-08_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-09-08_R126",
+   "date": "2019-09-08",
+   "file": "archive-maps/2019/sentinel-2a_2019-09-08_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-09-08_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-09-13_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-09-13_R126",
+   "date": "2019-09-13",
+   "file": "archive-maps/2019/sentinel-2b_2019-09-13_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-09-13_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-09-18_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-09-18_R126",
+   "date": "2019-09-18",
+   "file": "archive-maps/2019/sentinel-2a_2019-09-18_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-09-18_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-09-28_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-09-28_R126",
+   "date": "2019-09-28",
+   "file": "archive-maps/2019/sentinel-2a_2019-09-28_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-09-28_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-10-23_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-10-23_R126",
+   "date": "2019-10-23",
+   "file": "archive-maps/2019/sentinel-2b_2019-10-23_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-10-23_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-11-02_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-11-02_R126",
+   "date": "2019-11-02",
+   "file": "archive-maps/2019/sentinel-2b_2019-11-02_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-11-02_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2019-11-27_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2a_2019-11-27_R126",
+   "date": "2019-11-27",
+   "file": "archive-maps/2019/sentinel-2a_2019-11-27_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2a_2019-11-27_R126.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2019-12-02_R126",
+   "sceneId": "mississippi-st-joseph:sentinel-2b_2019-12-02_R126",
+   "date": "2019-12-02",
+   "file": "archive-maps/2019/sentinel-2b_2019-12-02_R126.png",
+   "trueColor": "archive-maps/2019/sentinel-2b_2019-12-02_R126.rgb.webp"
+  }
+ ],
+ "missing": [],
+ "failed": {}
+}

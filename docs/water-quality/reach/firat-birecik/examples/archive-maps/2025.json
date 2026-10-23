@@ -1,0 +1,1010 @@
+{
+ "schema": "riveretch.archive-maps.v1",
+ "reach": "firat-birecik",
+ "year": 2025,
+ "codeCommit": "618dd3f35065c9346ce195d4accbc265e39c3ca0",
+ "width": 702,
+ "height": 446,
+ "corners": [
+  [
+   37.906067,
+   37.059207
+  ],
+  [
+   37.985012,
+   37.059909
+  ],
+  [
+   37.985547,
+   37.019711
+  ],
+  [
+   37.906643,
+   37.01901
+  ]
+ ],
+ "maps": [
+  {
+   "key": "sentinel-2b_2025-01-01_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-01-01_R078",
+   "date": "2025-01-01",
+   "file": "archive-maps/2025/sentinel-2b_2025-01-01_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-01-01_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-01-06_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-01-06_R078",
+   "date": "2025-01-06",
+   "file": "archive-maps/2025/sentinel-2a_2025-01-06_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-01-06_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-01-09_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-01-09_R121",
+   "date": "2025-01-09",
+   "file": "archive-maps/2025/sentinel-2a_2025-01-09_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-01-09_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-01-11_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-01-11_R078",
+   "date": "2025-01-11",
+   "file": "archive-maps/2025/sentinel-2b_2025-01-11_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-01-11_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-01-16_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-01-16_R078",
+   "date": "2025-01-16",
+   "file": "archive-maps/2025/sentinel-2a_2025-01-16_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-01-16_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-01-19_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-01-19_R121",
+   "date": "2025-01-19",
+   "file": "archive-maps/2025/sentinel-2a_2025-01-19_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-01-19_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-01-21_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-01-21_R078",
+   "date": "2025-01-21",
+   "file": "archive-maps/2025/sentinel-2b_2025-01-21_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-01-21_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-01-26_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-01-26_R078",
+   "date": "2025-01-26",
+   "file": "archive-maps/2025/sentinel-2c_2025-01-26_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-01-26_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-01-29_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-01-29_R121",
+   "date": "2025-01-29",
+   "file": "archive-maps/2025/sentinel-2c_2025-01-29_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-01-29_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-01-31_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-01-31_R078",
+   "date": "2025-01-31",
+   "file": "archive-maps/2025/sentinel-2b_2025-01-31_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-01-31_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-02-15_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-02-15_R078",
+   "date": "2025-02-15",
+   "file": "archive-maps/2025/sentinel-2c_2025-02-15_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-02-15_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-02-28_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-02-28_R121",
+   "date": "2025-02-28",
+   "file": "archive-maps/2025/sentinel-2c_2025-02-28_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-02-28_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-03-02_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-03-02_R078",
+   "date": "2025-03-02",
+   "file": "archive-maps/2025/sentinel-2b_2025-03-02_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-03-02_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-03-05_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-03-05_R121",
+   "date": "2025-03-05",
+   "file": "archive-maps/2025/sentinel-2b_2025-03-05_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-03-05_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-03-07_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-03-07_R078",
+   "date": "2025-03-07",
+   "file": "archive-maps/2025/sentinel-2c_2025-03-07_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-03-07_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-03-10_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-03-10_R121",
+   "date": "2025-03-10",
+   "file": "archive-maps/2025/sentinel-2c_2025-03-10_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-03-10_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-03-12_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-03-12_R078",
+   "date": "2025-03-12",
+   "file": "archive-maps/2025/sentinel-2b_2025-03-12_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-03-12_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-03-15_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-03-15_R121",
+   "date": "2025-03-15",
+   "file": "archive-maps/2025/sentinel-2b_2025-03-15_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-03-15_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-03-19_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-03-19_R078",
+   "date": "2025-03-19",
+   "file": "archive-maps/2025/sentinel-2a_2025-03-19_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-03-19_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-03-22_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-03-22_R121",
+   "date": "2025-03-22",
+   "file": "archive-maps/2025/sentinel-2a_2025-03-22_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-03-22_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-03-22_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-03-22_R078",
+   "date": "2025-03-22",
+   "file": "archive-maps/2025/sentinel-2b_2025-03-22_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-03-22_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-04-04_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-04-04_R121",
+   "date": "2025-04-04",
+   "file": "archive-maps/2025/sentinel-2b_2025-04-04_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-04-04_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-04-18_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-04-18_R078",
+   "date": "2025-04-18",
+   "file": "archive-maps/2025/sentinel-2a_2025-04-18_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-04-18_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-04-19_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-04-19_R121",
+   "date": "2025-04-19",
+   "file": "archive-maps/2025/sentinel-2c_2025-04-19_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-04-19_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-04-21_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-04-21_R121",
+   "date": "2025-04-21",
+   "file": "archive-maps/2025/sentinel-2a_2025-04-21_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-04-21_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-04-21_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-04-21_R078",
+   "date": "2025-04-21",
+   "file": "archive-maps/2025/sentinel-2b_2025-04-21_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-04-21_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-04-28_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-04-28_R078",
+   "date": "2025-04-28",
+   "file": "archive-maps/2025/sentinel-2a_2025-04-28_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-04-28_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-05-04_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-05-04_R121",
+   "date": "2025-05-04",
+   "file": "archive-maps/2025/sentinel-2b_2025-05-04_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-05-04_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-05-06_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-05-06_R078",
+   "date": "2025-05-06",
+   "file": "archive-maps/2025/sentinel-2c_2025-05-06_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-05-06_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-05-09_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-05-09_R121",
+   "date": "2025-05-09",
+   "file": "archive-maps/2025/sentinel-2c_2025-05-09_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-05-09_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-05-14_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-05-14_R121",
+   "date": "2025-05-14",
+   "file": "archive-maps/2025/sentinel-2b_2025-05-14_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-05-14_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-05-16_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-05-16_R078",
+   "date": "2025-05-16",
+   "file": "archive-maps/2025/sentinel-2c_2025-05-16_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-05-16_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-05-21_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-05-21_R121",
+   "date": "2025-05-21",
+   "file": "archive-maps/2025/sentinel-2a_2025-05-21_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-05-21_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-05-21_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-05-21_R078",
+   "date": "2025-05-21",
+   "file": "archive-maps/2025/sentinel-2b_2025-05-21_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-05-21_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-05-24_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-05-24_R121",
+   "date": "2025-05-24",
+   "file": "archive-maps/2025/sentinel-2b_2025-05-24_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-05-24_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-05-28_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-05-28_R078",
+   "date": "2025-05-28",
+   "file": "archive-maps/2025/sentinel-2a_2025-05-28_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-05-28_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-05-31_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-05-31_R121",
+   "date": "2025-05-31",
+   "file": "archive-maps/2025/sentinel-2a_2025-05-31_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-05-31_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-05-31_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-05-31_R078",
+   "date": "2025-05-31",
+   "file": "archive-maps/2025/sentinel-2b_2025-05-31_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-05-31_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-06-03_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-06-03_R121",
+   "date": "2025-06-03",
+   "file": "archive-maps/2025/sentinel-2b_2025-06-03_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-06-03_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-06-05_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-06-05_R078",
+   "date": "2025-06-05",
+   "file": "archive-maps/2025/sentinel-2c_2025-06-05_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-06-05_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-06-08_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-06-08_R121",
+   "date": "2025-06-08",
+   "file": "archive-maps/2025/sentinel-2c_2025-06-08_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-06-08_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-06-10_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-06-10_R121",
+   "date": "2025-06-10",
+   "file": "archive-maps/2025/sentinel-2a_2025-06-10_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-06-10_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-06-10_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-06-10_R078",
+   "date": "2025-06-10",
+   "file": "archive-maps/2025/sentinel-2b_2025-06-10_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-06-10_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-06-13_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-06-13_R121",
+   "date": "2025-06-13",
+   "file": "archive-maps/2025/sentinel-2b_2025-06-13_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-06-13_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-06-15_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-06-15_R078",
+   "date": "2025-06-15",
+   "file": "archive-maps/2025/sentinel-2c_2025-06-15_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-06-15_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-06-17_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-06-17_R078",
+   "date": "2025-06-17",
+   "file": "archive-maps/2025/sentinel-2a_2025-06-17_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-06-17_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-06-18_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-06-18_R121",
+   "date": "2025-06-18",
+   "file": "archive-maps/2025/sentinel-2c_2025-06-18_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-06-18_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-06-20_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-06-20_R121",
+   "date": "2025-06-20",
+   "file": "archive-maps/2025/sentinel-2a_2025-06-20_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-06-20_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-06-20_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-06-20_R078",
+   "date": "2025-06-20",
+   "file": "archive-maps/2025/sentinel-2b_2025-06-20_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-06-20_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-06-23_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-06-23_R121",
+   "date": "2025-06-23",
+   "file": "archive-maps/2025/sentinel-2b_2025-06-23_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-06-23_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-06-25_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-06-25_R078",
+   "date": "2025-06-25",
+   "file": "archive-maps/2025/sentinel-2c_2025-06-25_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-06-25_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-06-27_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-06-27_R078",
+   "date": "2025-06-27",
+   "file": "archive-maps/2025/sentinel-2a_2025-06-27_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-06-27_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-06-28_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-06-28_R121",
+   "date": "2025-06-28",
+   "file": "archive-maps/2025/sentinel-2c_2025-06-28_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-06-28_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-06-30_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-06-30_R121",
+   "date": "2025-06-30",
+   "file": "archive-maps/2025/sentinel-2a_2025-06-30_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-06-30_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-06-30_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-06-30_R078",
+   "date": "2025-06-30",
+   "file": "archive-maps/2025/sentinel-2b_2025-06-30_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-06-30_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-07-03_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-07-03_R121",
+   "date": "2025-07-03",
+   "file": "archive-maps/2025/sentinel-2b_2025-07-03_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-07-03_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-07-05_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-07-05_R078",
+   "date": "2025-07-05",
+   "file": "archive-maps/2025/sentinel-2c_2025-07-05_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-07-05_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-07-07_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-07-07_R078",
+   "date": "2025-07-07",
+   "file": "archive-maps/2025/sentinel-2a_2025-07-07_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-07-07_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-07-08_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-07-08_R121",
+   "date": "2025-07-08",
+   "file": "archive-maps/2025/sentinel-2c_2025-07-08_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-07-08_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-07-10_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-07-10_R121",
+   "date": "2025-07-10",
+   "file": "archive-maps/2025/sentinel-2a_2025-07-10_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-07-10_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-07-10_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-07-10_R078",
+   "date": "2025-07-10",
+   "file": "archive-maps/2025/sentinel-2b_2025-07-10_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-07-10_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-07-13_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-07-13_R121",
+   "date": "2025-07-13",
+   "file": "archive-maps/2025/sentinel-2b_2025-07-13_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-07-13_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-07-17_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-07-17_R078",
+   "date": "2025-07-17",
+   "file": "archive-maps/2025/sentinel-2a_2025-07-17_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-07-17_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-07-18_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-07-18_R121",
+   "date": "2025-07-18",
+   "file": "archive-maps/2025/sentinel-2c_2025-07-18_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-07-18_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-07-20_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-07-20_R121",
+   "date": "2025-07-20",
+   "file": "archive-maps/2025/sentinel-2a_2025-07-20_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-07-20_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-07-20_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-07-20_R078",
+   "date": "2025-07-20",
+   "file": "archive-maps/2025/sentinel-2b_2025-07-20_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-07-20_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-07-23_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-07-23_R121",
+   "date": "2025-07-23",
+   "file": "archive-maps/2025/sentinel-2b_2025-07-23_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-07-23_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-07-25_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-07-25_R078",
+   "date": "2025-07-25",
+   "file": "archive-maps/2025/sentinel-2c_2025-07-25_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-07-25_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-07-27_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-07-27_R078",
+   "date": "2025-07-27",
+   "file": "archive-maps/2025/sentinel-2a_2025-07-27_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-07-27_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-07-28_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-07-28_R121",
+   "date": "2025-07-28",
+   "file": "archive-maps/2025/sentinel-2c_2025-07-28_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-07-28_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-07-30_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-07-30_R121",
+   "date": "2025-07-30",
+   "file": "archive-maps/2025/sentinel-2a_2025-07-30_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-07-30_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-07-30_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-07-30_R078",
+   "date": "2025-07-30",
+   "file": "archive-maps/2025/sentinel-2b_2025-07-30_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-07-30_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-08-02_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-08-02_R121",
+   "date": "2025-08-02",
+   "file": "archive-maps/2025/sentinel-2b_2025-08-02_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-08-02_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-08-04_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-08-04_R078",
+   "date": "2025-08-04",
+   "file": "archive-maps/2025/sentinel-2c_2025-08-04_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-08-04_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-08-06_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-08-06_R078",
+   "date": "2025-08-06",
+   "file": "archive-maps/2025/sentinel-2a_2025-08-06_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-08-06_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-08-07_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-08-07_R121",
+   "date": "2025-08-07",
+   "file": "archive-maps/2025/sentinel-2c_2025-08-07_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-08-07_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-08-09_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-08-09_R121",
+   "date": "2025-08-09",
+   "file": "archive-maps/2025/sentinel-2a_2025-08-09_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-08-09_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-08-09_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-08-09_R078",
+   "date": "2025-08-09",
+   "file": "archive-maps/2025/sentinel-2b_2025-08-09_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-08-09_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-08-12_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-08-12_R121",
+   "date": "2025-08-12",
+   "file": "archive-maps/2025/sentinel-2b_2025-08-12_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-08-12_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-08-14_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-08-14_R078",
+   "date": "2025-08-14",
+   "file": "archive-maps/2025/sentinel-2c_2025-08-14_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-08-14_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-08-16_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-08-16_R078",
+   "date": "2025-08-16",
+   "file": "archive-maps/2025/sentinel-2a_2025-08-16_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-08-16_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-08-17_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-08-17_R121",
+   "date": "2025-08-17",
+   "file": "archive-maps/2025/sentinel-2c_2025-08-17_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-08-17_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-08-19_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-08-19_R121",
+   "date": "2025-08-19",
+   "file": "archive-maps/2025/sentinel-2a_2025-08-19_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-08-19_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-08-19_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-08-19_R078",
+   "date": "2025-08-19",
+   "file": "archive-maps/2025/sentinel-2b_2025-08-19_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-08-19_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-08-22_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-08-22_R121",
+   "date": "2025-08-22",
+   "file": "archive-maps/2025/sentinel-2b_2025-08-22_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-08-22_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-08-24_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-08-24_R078",
+   "date": "2025-08-24",
+   "file": "archive-maps/2025/sentinel-2c_2025-08-24_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-08-24_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-08-26_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-08-26_R078",
+   "date": "2025-08-26",
+   "file": "archive-maps/2025/sentinel-2a_2025-08-26_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-08-26_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-08-27_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-08-27_R121",
+   "date": "2025-08-27",
+   "file": "archive-maps/2025/sentinel-2c_2025-08-27_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-08-27_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-08-29_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-08-29_R121",
+   "date": "2025-08-29",
+   "file": "archive-maps/2025/sentinel-2a_2025-08-29_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-08-29_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-08-29_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-08-29_R078",
+   "date": "2025-08-29",
+   "file": "archive-maps/2025/sentinel-2b_2025-08-29_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-08-29_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-09-01_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-09-01_R121",
+   "date": "2025-09-01",
+   "file": "archive-maps/2025/sentinel-2b_2025-09-01_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-09-01_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-09-03_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-09-03_R078",
+   "date": "2025-09-03",
+   "file": "archive-maps/2025/sentinel-2c_2025-09-03_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-09-03_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-09-05_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-09-05_R078",
+   "date": "2025-09-05",
+   "file": "archive-maps/2025/sentinel-2a_2025-09-05_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-09-05_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-09-06_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-09-06_R121",
+   "date": "2025-09-06",
+   "file": "archive-maps/2025/sentinel-2c_2025-09-06_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-09-06_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-09-08_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-09-08_R121",
+   "date": "2025-09-08",
+   "file": "archive-maps/2025/sentinel-2a_2025-09-08_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-09-08_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-09-08_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-09-08_R078",
+   "date": "2025-09-08",
+   "file": "archive-maps/2025/sentinel-2b_2025-09-08_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-09-08_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-09-11_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-09-11_R121",
+   "date": "2025-09-11",
+   "file": "archive-maps/2025/sentinel-2b_2025-09-11_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-09-11_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-09-13_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-09-13_R078",
+   "date": "2025-09-13",
+   "file": "archive-maps/2025/sentinel-2c_2025-09-13_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-09-13_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-09-15_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-09-15_R078",
+   "date": "2025-09-15",
+   "file": "archive-maps/2025/sentinel-2a_2025-09-15_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-09-15_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-09-16_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-09-16_R121",
+   "date": "2025-09-16",
+   "file": "archive-maps/2025/sentinel-2c_2025-09-16_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-09-16_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-09-21_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-09-21_R121",
+   "date": "2025-09-21",
+   "file": "archive-maps/2025/sentinel-2b_2025-09-21_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-09-21_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-09-23_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-09-23_R078",
+   "date": "2025-09-23",
+   "file": "archive-maps/2025/sentinel-2c_2025-09-23_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-09-23_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-09-25_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-09-25_R078",
+   "date": "2025-09-25",
+   "file": "archive-maps/2025/sentinel-2a_2025-09-25_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-09-25_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-09-26_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-09-26_R121",
+   "date": "2025-09-26",
+   "file": "archive-maps/2025/sentinel-2c_2025-09-26_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-09-26_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-09-28_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-09-28_R121",
+   "date": "2025-09-28",
+   "file": "archive-maps/2025/sentinel-2a_2025-09-28_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-09-28_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-09-28_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-09-28_R078",
+   "date": "2025-09-28",
+   "file": "archive-maps/2025/sentinel-2b_2025-09-28_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-09-28_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-10-01_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-10-01_R121",
+   "date": "2025-10-01",
+   "file": "archive-maps/2025/sentinel-2b_2025-10-01_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-10-01_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-10-03_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-10-03_R078",
+   "date": "2025-10-03",
+   "file": "archive-maps/2025/sentinel-2c_2025-10-03_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-10-03_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-10-05_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-10-05_R078",
+   "date": "2025-10-05",
+   "file": "archive-maps/2025/sentinel-2a_2025-10-05_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-10-05_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-10-06_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-10-06_R121",
+   "date": "2025-10-06",
+   "file": "archive-maps/2025/sentinel-2c_2025-10-06_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-10-06_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-10-08_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-10-08_R121",
+   "date": "2025-10-08",
+   "file": "archive-maps/2025/sentinel-2a_2025-10-08_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-10-08_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-10-08_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-10-08_R078",
+   "date": "2025-10-08",
+   "file": "archive-maps/2025/sentinel-2b_2025-10-08_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-10-08_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-10-11_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-10-11_R121",
+   "date": "2025-10-11",
+   "file": "archive-maps/2025/sentinel-2b_2025-10-11_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-10-11_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-10-13_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-10-13_R078",
+   "date": "2025-10-13",
+   "file": "archive-maps/2025/sentinel-2c_2025-10-13_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-10-13_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-10-15_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-10-15_R078",
+   "date": "2025-10-15",
+   "file": "archive-maps/2025/sentinel-2a_2025-10-15_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-10-15_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-10-16_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-10-16_R121",
+   "date": "2025-10-16",
+   "file": "archive-maps/2025/sentinel-2c_2025-10-16_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-10-16_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-10-18_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-10-18_R121",
+   "date": "2025-10-18",
+   "file": "archive-maps/2025/sentinel-2a_2025-10-18_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-10-18_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-10-18_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-10-18_R078",
+   "date": "2025-10-18",
+   "file": "archive-maps/2025/sentinel-2b_2025-10-18_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-10-18_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-10-23_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-10-23_R078",
+   "date": "2025-10-23",
+   "file": "archive-maps/2025/sentinel-2c_2025-10-23_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-10-23_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-10-28_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-10-28_R121",
+   "date": "2025-10-28",
+   "file": "archive-maps/2025/sentinel-2a_2025-10-28_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-10-28_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-10-28_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-10-28_R078",
+   "date": "2025-10-28",
+   "file": "archive-maps/2025/sentinel-2b_2025-10-28_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-10-28_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-10-31_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-10-31_R121",
+   "date": "2025-10-31",
+   "file": "archive-maps/2025/sentinel-2b_2025-10-31_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-10-31_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-11-02_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-11-02_R078",
+   "date": "2025-11-02",
+   "file": "archive-maps/2025/sentinel-2c_2025-11-02_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-11-02_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-11-04_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-11-04_R078",
+   "date": "2025-11-04",
+   "file": "archive-maps/2025/sentinel-2a_2025-11-04_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-11-04_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-11-05_R121",
+   "sceneId": "firat-birecik:sentinel-2c_2025-11-05_R121",
+   "date": "2025-11-05",
+   "file": "archive-maps/2025/sentinel-2c_2025-11-05_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-11-05_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-11-07_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-11-07_R121",
+   "date": "2025-11-07",
+   "file": "archive-maps/2025/sentinel-2a_2025-11-07_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-11-07_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-11-07_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-11-07_R078",
+   "date": "2025-11-07",
+   "file": "archive-maps/2025/sentinel-2b_2025-11-07_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-11-07_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-11-10_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-11-10_R121",
+   "date": "2025-11-10",
+   "file": "archive-maps/2025/sentinel-2b_2025-11-10_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-11-10_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-11-12_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-11-12_R078",
+   "date": "2025-11-12",
+   "file": "archive-maps/2025/sentinel-2c_2025-11-12_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-11-12_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-11-17_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-11-17_R121",
+   "date": "2025-11-17",
+   "file": "archive-maps/2025/sentinel-2a_2025-11-17_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-11-17_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-11-17_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-11-17_R078",
+   "date": "2025-11-17",
+   "file": "archive-maps/2025/sentinel-2b_2025-11-17_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-11-17_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-11-20_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-11-20_R121",
+   "date": "2025-11-20",
+   "file": "archive-maps/2025/sentinel-2b_2025-11-20_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-11-20_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-11-27_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-11-27_R121",
+   "date": "2025-11-27",
+   "file": "archive-maps/2025/sentinel-2a_2025-11-27_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-11-27_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-11-27_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-11-27_R078",
+   "date": "2025-11-27",
+   "file": "archive-maps/2025/sentinel-2b_2025-11-27_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-11-27_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-12-02_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-12-02_R078",
+   "date": "2025-12-02",
+   "file": "archive-maps/2025/sentinel-2c_2025-12-02_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-12-02_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-12-17_R121",
+   "sceneId": "firat-birecik:sentinel-2a_2025-12-17_R121",
+   "date": "2025-12-17",
+   "file": "archive-maps/2025/sentinel-2a_2025-12-17_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-12-17_R121.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-12-17_R078",
+   "sceneId": "firat-birecik:sentinel-2b_2025-12-17_R078",
+   "date": "2025-12-17",
+   "file": "archive-maps/2025/sentinel-2b_2025-12-17_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-12-17_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2c_2025-12-22_R078",
+   "sceneId": "firat-birecik:sentinel-2c_2025-12-22_R078",
+   "date": "2025-12-22",
+   "file": "archive-maps/2025/sentinel-2c_2025-12-22_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2c_2025-12-22_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2a_2025-12-24_R078",
+   "sceneId": "firat-birecik:sentinel-2a_2025-12-24_R078",
+   "date": "2025-12-24",
+   "file": "archive-maps/2025/sentinel-2a_2025-12-24_R078.png",
+   "trueColor": "archive-maps/2025/sentinel-2a_2025-12-24_R078.rgb.webp"
+  },
+  {
+   "key": "sentinel-2b_2025-12-30_R121",
+   "sceneId": "firat-birecik:sentinel-2b_2025-12-30_R121",
+   "date": "2025-12-30",
+   "file": "archive-maps/2025/sentinel-2b_2025-12-30_R121.png",
+   "trueColor": "archive-maps/2025/sentinel-2b_2025-12-30_R121.rgb.webp"
+  }
+ ],
+ "missing": [],
+ "failed": {}
+}
