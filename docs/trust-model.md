@@ -261,8 +261,9 @@ under MIT.
   ([preregistration-archive.md](water-quality/preregistration-archive.md)) and labelled
   "Recomputed, not sealed"; they are not part of any export with proof. Their images
   ([preregistration-archive-maps.md](water-quality/preregistration-archive-maps.md), line 29 of
-  the frozen artifacts) are drawn only once that line is anchored; until then an earlier pass is
-  painted as its classes on the river's 2026 outline.
+  the frozen artifacts, anchored at block 11973061) were drawn once by the "Earlier years' images"
+  workflow (run 39877463322, 2026-10-23): all 1,392 listed passes, none missing or failed,
+  published on the `data` branch only.
 - **Sepolia is a test network.** The posts live there; the Bitcoin timestamps and the signatures
   do not depend on it.
 
