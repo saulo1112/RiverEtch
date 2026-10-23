@@ -1,7 +1,7 @@
 {
-  "updatedUtc": "2026-10-22T18:13:52+00:00",
+  "updatedUtc": "2026-10-23T03:10:07+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39825493957",
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39892088032",
     "ok": true,
     "steps": [
       {
@@ -126,7 +126,7 @@
       }
     ]
   },
-  "lastSuccessUtc": "2026-10-22T18:13:52+00:00",
+  "lastSuccessUtc": "2026-10-23T03:10:07+00:00",
   "lastSealed": {
     "reach": "mississippi-belle-chasse",
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-21_R126",
@@ -134,17 +134,17 @@
   },
   "lastAnchor": {
     "label": "terrachain:riveretch:frozen-artifacts",
-    "lines": 28,
-    "block": 11970970,
-    "timestampUtc": "2026-10-22T17:16:24Z",
-    "tx": "0x4c7522faec9564ac6259f1b510006e828e67e010df6aa4e919b435b146248c98"
+    "lines": 29,
+    "block": 11973061,
+    "timestampUtc": "2026-10-23T00:18:48Z",
+    "tx": "0x08bd493c15f3363d9a7debb5fefb9fa7dfdca4aecc31351aea8f7785317a7fe8"
   },
   "lastBitcoin": {
-    "file": "docs/ledgers/ots/terrachain_firat-birecik_along.93.ots",
-    "height": 972585,
-    "blockTime": "2026-10-22T07:32:36+00:00"
+    "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_along-temperature.19.ots",
+    "height": 972643,
+    "blockTime": "2026-10-22T18:27:55+00:00"
   },
-  "pendingBitcoin": 3,
+  "pendingBitcoin": 1,
   "proofs": [
     {
       "label": "terrachain:firat-birecik:along",
@@ -174,7 +174,7 @@
       "label": "terrachain:mississippi-belle-chasse:along-temperature",
       "lines": 19,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_along-temperature.19.ots",
-      "height": null
+      "height": 972643
     },
     {
       "label": "terrachain:mississippi-belle-chasse:observations",
@@ -252,7 +252,7 @@
       "label": "terrachain:platte-louisville:along-temperature",
       "lines": 16,
       "file": "docs/ledgers/ots/terrachain_platte-louisville_along-temperature.16.ots",
-      "height": null
+      "height": 972643
     },
     {
       "label": "terrachain:platte-louisville:observations",
@@ -318,6 +318,12 @@
       "label": "terrachain:riveretch:frozen-artifacts",
       "lines": 28,
       "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.28.ots",
+      "height": 972643
+    },
+    {
+      "label": "terrachain:riveretch:frozen-artifacts",
+      "lines": 29,
+      "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.29.ots",
       "height": null
     }
   ],

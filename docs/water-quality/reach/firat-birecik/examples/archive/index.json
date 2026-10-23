@@ -1,0 +1,40 @@
+{
+ "schema": "riveretch.archive.v1",
+ "years": [
+  {
+   "year": 2019,
+   "passes": 85,
+   "failed": 0
+  },
+  {
+   "year": 2020,
+   "passes": 101,
+   "failed": 0
+  },
+  {
+   "year": 2021,
+   "passes": 96,
+   "failed": 0
+  },
+  {
+   "year": 2022,
+   "passes": 97,
+   "failed": 0
+  },
+  {
+   "year": 2023,
+   "passes": 97,
+   "failed": 0
+  },
+  {
+   "year": 2024,
+   "passes": 90,
+   "failed": 0
+  },
+  {
+   "year": 2025,
+   "passes": 140,
+   "failed": 0
+  }
+ ]
+}
