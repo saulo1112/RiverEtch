@@ -2,8 +2,8 @@
   {
     "date": "2026-01-03",
     "sceneId": "firat-birecik:sentinel-2a_2026-01-03_R078",
-    "file": "records/2026-01-03_sentinel-2a_2026-01-03_R078.json",
-    "recordSha256": "6d27bd3c9e5577cafd8a24228a35fc7f044eabc132b52eedb22f7b8fb2533e05",
+    "file": "records/2026-01-03_sentinel-2a_2026-01-03_R078.5f6dbcc96c57.json",
+    "recordSha256": "5f6dbcc96c57c7717eadca1eb738bbb14bcfbadabb6bf91bfb754979ec16bd9b",
     "indices": {
       "ndti": {
         "upstream": -0.4252,
@@ -46,19 +46,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.05,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "6d27bd3c9e5577cafd8a24228a35fc7f044eabc132b52eedb22f7b8fb2533e05"
   },
   {
     "date": "2026-01-04",
     "sceneId": "firat-birecik:sentinel-2c_2026-01-04_R121",
-    "file": "records/2026-01-04_sentinel-2c_2026-01-04_R121.json",
-    "recordSha256": "cf1d4570eb9103e42980cc8251c88f27299d289b5106022183f84e87fedeb85f",
+    "file": "records/2026-01-04_sentinel-2c_2026-01-04_R121.1607d190ee87.json",
+    "recordSha256": "1607d190ee87f1ff1b6b2c7aaed28d589ac4603fdec6a2b8946f25f63750a8bc",
     "indices": {
       "ndti": {
         "upstream": -0.1781,
@@ -101,19 +102,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.13,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "cf1d4570eb9103e42980cc8251c88f27299d289b5106022183f84e87fedeb85f"
   },
   {
     "date": "2026-01-16",
     "sceneId": "firat-birecik:sentinel-2b_2026-01-16_R078",
-    "file": "records/2026-01-16_sentinel-2b_2026-01-16_R078.json",
-    "recordSha256": "1d51a8877145602660276885805cb25ebb2b0c64a6196b384d35a3e2577571d8",
+    "file": "records/2026-01-16_sentinel-2b_2026-01-16_R078.eac900b3f160.json",
+    "recordSha256": "eac900b3f160444253d7b7adfafd20cc4464ca659b9b91ad082d1f4b0066b2a6",
     "indices": {
       "ndti": {
         "upstream": -0.1442,
@@ -156,19 +158,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.8,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "1d51a8877145602660276885805cb25ebb2b0c64a6196b384d35a3e2577571d8"
   },
   {
     "date": "2026-01-19",
     "sceneId": "firat-birecik:sentinel-2b_2026-01-19_R121",
-    "file": "records/2026-01-19_sentinel-2b_2026-01-19_R121.json",
-    "recordSha256": "856f0087457933a72cd250d1379f638549d6154b97ad776d2e3e4819f89f7523",
+    "file": "records/2026-01-19_sentinel-2b_2026-01-19_R121.74f0666d7515.json",
+    "recordSha256": "74f0666d7515f13ee9ade85c2d092a3a90600937ed518240eb5fe7a1f422f397",
     "indices": {
       "ndti": {
         "upstream": -0.2772,
@@ -211,19 +214,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.38,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "856f0087457933a72cd250d1379f638549d6154b97ad776d2e3e4819f89f7523"
   },
   {
     "date": "2026-01-26",
     "sceneId": "firat-birecik:sentinel-2b_2026-01-26_R078",
-    "file": "records/2026-01-26_sentinel-2b_2026-01-26_R078.json",
-    "recordSha256": "0cdce47eb5532794e681835df8736f213e9ccdba6d300d6ae0550a4d9d3e68fc",
+    "file": "records/2026-01-26_sentinel-2b_2026-01-26_R078.8e88cc8f2fb2.json",
+    "recordSha256": "8e88cc8f2fb289361a2d9851e81d01468e200ef5166d88cf07b1404abe4df698",
     "indices": {
       "ndti": {
         "upstream": -0.2473,
@@ -266,19 +270,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.63,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "0cdce47eb5532794e681835df8736f213e9ccdba6d300d6ae0550a4d9d3e68fc"
   },
   {
     "date": "2026-01-29",
     "sceneId": "firat-birecik:sentinel-2b_2026-01-29_R121",
-    "file": "records/2026-01-29_sentinel-2b_2026-01-29_R121.json",
-    "recordSha256": "00e1ceac4f611c3102bbb92bbfa36c79349e393f348b2b7bc51c19ace2b46197",
+    "file": "records/2026-01-29_sentinel-2b_2026-01-29_R121.eb75e3ce8ec9.json",
+    "recordSha256": "eb75e3ce8ec931bc7d1a6f4a68c17efd1d218aa27dab75d91d406a527fea455a",
     "indices": {
       "ndti": {
         "upstream": -0.1974,
@@ -321,19 +326,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.52,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "00e1ceac4f611c3102bbb92bbfa36c79349e393f348b2b7bc51c19ace2b46197"
   },
   {
     "date": "2026-02-05",
     "sceneId": "firat-birecik:sentinel-2b_2026-02-05_R078",
-    "file": "records/2026-02-05_sentinel-2b_2026-02-05_R078.json",
-    "recordSha256": "8cf3efd89222f71d385f75f5be86d7d718dba7a6426fc021a5f0becada0eee51",
+    "file": "records/2026-02-05_sentinel-2b_2026-02-05_R078.80ed7e38e95e.json",
+    "recordSha256": "80ed7e38e95ea05827cd86e667b5982e9f11fc67e43823fe133a60ac9f6474eb",
     "indices": {
       "ndti": {
         "upstream": -0.3162,
@@ -376,19 +382,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.49,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "8cf3efd89222f71d385f75f5be86d7d718dba7a6426fc021a5f0becada0eee51"
   },
   {
     "date": "2026-02-15",
     "sceneId": "firat-birecik:sentinel-2b_2026-02-15_R078",
-    "file": "records/2026-02-15_sentinel-2b_2026-02-15_R078.json",
-    "recordSha256": "13fc317cd7acfebb7ca9605a8e3341f07c33e0941f79b8288bb48fc68dbcce7a",
+    "file": "records/2026-02-15_sentinel-2b_2026-02-15_R078.017fc0b74d2b.json",
+    "recordSha256": "017fc0b74d2bfbb28d702e266c0d560518b545f8acfd6a6018068e12083fd656",
     "indices": {
       "ndti": {
         "upstream": -0.1806,
@@ -431,19 +438,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.23,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "13fc317cd7acfebb7ca9605a8e3341f07c33e0941f79b8288bb48fc68dbcce7a"
   },
   {
     "date": "2026-02-20",
     "sceneId": "firat-birecik:sentinel-2c_2026-02-20_R078",
-    "file": "records/2026-02-20_sentinel-2c_2026-02-20_R078.json",
-    "recordSha256": "33499856ea49f574c65da4eb86a58706a2dda95ac38131fb4305707bcfddacc4",
+    "file": "records/2026-02-20_sentinel-2c_2026-02-20_R078.af887c8d1568.json",
+    "recordSha256": "af887c8d15681109da7fe5e16bbaf927cba7faea63290faf437497eaa19b1dc4",
     "indices": {
       "ndti": {
         "upstream": -0.4802,
@@ -486,19 +494,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.6,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "33499856ea49f574c65da4eb86a58706a2dda95ac38131fb4305707bcfddacc4"
   },
   {
     "date": "2026-03-02",
     "sceneId": "firat-birecik:sentinel-2c_2026-03-02_R078",
-    "file": "records/2026-03-02_sentinel-2c_2026-03-02_R078.json",
-    "recordSha256": "489fdcb00f9b42e1f0f0acb83e5bc5c29de4c156f74f17369037a3c0a1977506",
+    "file": "records/2026-03-02_sentinel-2c_2026-03-02_R078.95907f807096.json",
+    "recordSha256": "95907f8070967b2cb899eb658c27e7c9cb12e17e731b83357b6cd992703571cb",
     "indices": {
       "ndti": {
         "upstream": -0.3543,
@@ -541,19 +550,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.19,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "489fdcb00f9b42e1f0f0acb83e5bc5c29de4c156f74f17369037a3c0a1977506"
   },
   {
     "date": "2026-03-05",
     "sceneId": "firat-birecik:sentinel-2c_2026-03-05_R121",
-    "file": "records/2026-03-05_sentinel-2c_2026-03-05_R121.json",
-    "recordSha256": "945eb6cd418fdbb1420a95f4536f5e70c23552d508033c9d48b9d545c5514bc8",
+    "file": "records/2026-03-05_sentinel-2c_2026-03-05_R121.006597bb46eb.json",
+    "recordSha256": "006597bb46eb6c735904bdab2b5a03520f376b6757d92797d6b3b0f6bda8840a",
     "indices": {
       "ndti": {
         "upstream": -0.7324,
@@ -596,13 +606,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.13,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "945eb6cd418fdbb1420a95f4536f5e70c23552d508033c9d48b9d545c5514bc8"
   },
   {
     "date": "2026-03-27",
@@ -663,8 +674,8 @@
   {
     "date": "2026-03-27",
     "sceneId": "firat-birecik:sentinel-2b_2026-03-27_R078",
-    "file": "records/2026-03-27_sentinel-2b_2026-03-27_R078.json",
-    "recordSha256": "cbcd9a71eb0fecc8ee407c492b747d5da4b9c7cf1e148476375bb8b3fa255b38",
+    "file": "records/2026-03-27_sentinel-2b_2026-03-27_R078.909f49b7b4c4.json",
+    "recordSha256": "909f49b7b4c4ef0c31a8752c22bf79c76b5dd23ab23b1db145728d6ae8c76f77",
     "indices": {
       "ndti": {
         "upstream": -0.9302,
@@ -707,19 +718,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.35,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "cbcd9a71eb0fecc8ee407c492b747d5da4b9c7cf1e148476375bb8b3fa255b38"
   },
   {
     "date": "2026-04-01",
     "sceneId": "firat-birecik:sentinel-2c_2026-04-01_R078",
-    "file": "records/2026-04-01_sentinel-2c_2026-04-01_R078.json",
-    "recordSha256": "a657da69d2e4dc89f994b963073f8264b0e36edb8d3c51a7d10d67c43d511bb2",
+    "file": "records/2026-04-01_sentinel-2c_2026-04-01_R078.932d4e541e21.json",
+    "recordSha256": "932d4e541e2119f08c553f60c3ee8b2278385caa68321c790670ea092059b326",
     "indices": {
       "ndti": {
         "upstream": -0.3794,
@@ -762,13 +774,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.54,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "a657da69d2e4dc89f994b963073f8264b0e36edb8d3c51a7d10d67c43d511bb2"
   },
   {
     "date": "2026-04-04",
@@ -827,8 +840,8 @@
   {
     "date": "2026-04-06",
     "sceneId": "firat-birecik:sentinel-2a_2026-04-06_R121",
-    "file": "records/2026-04-06_sentinel-2a_2026-04-06_R121.json",
-    "recordSha256": "e3959fe14992f2ac50bd6d9afe7497cec975e10aa045c48ff5a9aa2a86c793c0",
+    "file": "records/2026-04-06_sentinel-2a_2026-04-06_R121.bb4ef87eeaa4.json",
+    "recordSha256": "bb4ef87eeaa4484eb6b81eeedc6e66754bb3f485e61fa0054c1c66cebc3309e5",
     "indices": {
       "ndti": {
         "upstream": -0.9846,
@@ -871,19 +884,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.16,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "e3959fe14992f2ac50bd6d9afe7497cec975e10aa045c48ff5a9aa2a86c793c0"
   },
   {
     "date": "2026-04-06",
     "sceneId": "firat-birecik:sentinel-2b_2026-04-06_R078",
-    "file": "records/2026-04-06_sentinel-2b_2026-04-06_R078.json",
-    "recordSha256": "3879a373da764eecbb234e57a13748056d2ba1f35501ad55f8c3473a67e6e44c",
+    "file": "records/2026-04-06_sentinel-2b_2026-04-06_R078.41ab9477b3db.json",
+    "recordSha256": "41ab9477b3dba16f56266acf8184acbd1bfbd4418f7aa51f2f3379374dcf2b38",
     "indices": {
       "ndti": {
         "upstream": -0.9879,
@@ -926,19 +940,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.97,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "3879a373da764eecbb234e57a13748056d2ba1f35501ad55f8c3473a67e6e44c"
   },
   {
     "date": "2026-04-13",
     "sceneId": "firat-birecik:sentinel-2a_2026-04-13_R078",
-    "file": "records/2026-04-13_sentinel-2a_2026-04-13_R078.json",
-    "recordSha256": "96c67f213b3aad3a8a613b6e236c8529fa1c1eb5761fefbe46f8a7de5989b8e8",
+    "file": "records/2026-04-13_sentinel-2a_2026-04-13_R078.3d78182f5909.json",
+    "recordSha256": "3d78182f59097a949f19570a3b7b65e42303e053e63a401d9af8a4a138daa805",
     "indices": {
       "ndti": {
         "upstream": -0.9848,
@@ -981,13 +996,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.21,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "96c67f213b3aad3a8a613b6e236c8529fa1c1eb5761fefbe46f8a7de5989b8e8"
   },
   {
     "date": "2026-04-14",
@@ -1046,8 +1062,8 @@
   {
     "date": "2026-04-23",
     "sceneId": "firat-birecik:sentinel-2a_2026-04-23_R078",
-    "file": "records/2026-04-23_sentinel-2a_2026-04-23_R078.json",
-    "recordSha256": "4b9e9b6321b0ad279d522f4bf83df31b6ee9958294774be9668b21da2d300ff1",
+    "file": "records/2026-04-23_sentinel-2a_2026-04-23_R078.facc00a32a27.json",
+    "recordSha256": "facc00a32a2708fef27a69363e9ba58675d32a074f966b9f67f14c950e9950da",
     "indices": {
       "ndti": {
         "upstream": -0.9868,
@@ -1090,13 +1106,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.99,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "4b9e9b6321b0ad279d522f4bf83df31b6ee9958294774be9668b21da2d300ff1"
   },
   {
     "date": "2026-04-24",
@@ -1155,8 +1172,8 @@
   {
     "date": "2026-04-29",
     "sceneId": "firat-birecik:sentinel-2b_2026-04-29_R121",
-    "file": "records/2026-04-29_sentinel-2b_2026-04-29_R121.json",
-    "recordSha256": "bd1abf36784cf76252942aa562ad9f69009e85c1d26a8bae359efca11ef5a5fb",
+    "file": "records/2026-04-29_sentinel-2b_2026-04-29_R121.12b71c86383b.json",
+    "recordSha256": "12b71c86383b852729ecb17b176ab9cafbca777ed3bcdd4d2c12962c70c0ceac",
     "indices": {
       "ndti": {
         "upstream": -0.9609,
@@ -1201,13 +1218,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.32,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "bd1abf36784cf76252942aa562ad9f69009e85c1d26a8bae359efca11ef5a5fb"
   },
   {
     "date": "2026-05-06",
@@ -1266,8 +1284,8 @@
   {
     "date": "2026-05-06",
     "sceneId": "firat-birecik:sentinel-2b_2026-05-06_R078",
-    "file": "records/2026-05-06_sentinel-2b_2026-05-06_R078.json",
-    "recordSha256": "0665f0d59c35b352fedff178a4ad3d9c9f38b7354af784bd34db2c52459ca611",
+    "file": "records/2026-05-06_sentinel-2b_2026-05-06_R078.015fde149200.json",
+    "recordSha256": "015fde1492005b059348ecf95d6ef5ce936081766c37e7f5f8e6edbfdd035605",
     "indices": {
       "ndti": {
         "upstream": -0.4551,
@@ -1310,13 +1328,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 3.8,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "0665f0d59c35b352fedff178a4ad3d9c9f38b7354af784bd34db2c52459ca611"
   },
   {
     "date": "2026-05-09",
@@ -1431,8 +1450,8 @@
   {
     "date": "2026-05-13",
     "sceneId": "firat-birecik:sentinel-2a_2026-05-13_R078",
-    "file": "records/2026-05-13_sentinel-2a_2026-05-13_R078.json",
-    "recordSha256": "00c3db0973167eaa70b9e80eabe26d7f2aec9e17ac92b85ce69ae61f83db14c6",
+    "file": "records/2026-05-13_sentinel-2a_2026-05-13_R078.2a458b5059cc.json",
+    "recordSha256": "2a458b5059cc4d8479975ab2ad93ca49ad0e3e1679ae81fec629c354c2bad2d0",
     "indices": {
       "ndti": {
         "upstream": -0.1068,
@@ -1475,19 +1494,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 3.59,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "00c3db0973167eaa70b9e80eabe26d7f2aec9e17ac92b85ce69ae61f83db14c6"
   },
   {
     "date": "2026-05-16",
     "sceneId": "firat-birecik:sentinel-2a_2026-05-16_R121",
-    "file": "records/2026-05-16_sentinel-2a_2026-05-16_R121.json",
-    "recordSha256": "4232c8d13784003d21aac135550c76ef838622162bafc336972fa768e72449d7",
+    "file": "records/2026-05-16_sentinel-2a_2026-05-16_R121.4bd66a2fff4c.json",
+    "recordSha256": "4bd66a2fff4cad2b41c2b14c4a9ff2141feb84e7b4b514e2af9dc51ac1d2a2d4",
     "indices": {
       "ndti": {
         "upstream": -0.2,
@@ -1530,13 +1550,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.81,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "4232c8d13784003d21aac135550c76ef838622162bafc336972fa768e72449d7"
   },
   {
     "date": "2026-05-16",
@@ -1651,8 +1672,8 @@
   {
     "date": "2026-05-26",
     "sceneId": "firat-birecik:sentinel-2b_2026-05-26_R078",
-    "file": "records/2026-05-26_sentinel-2b_2026-05-26_R078.json",
-    "recordSha256": "b9748e26a47e37ddf84fe4fce980bdecc1bf47f72b7e6f530bae4777fd80ad3b",
+    "file": "records/2026-05-26_sentinel-2b_2026-05-26_R078.b68adcdfadcf.json",
+    "recordSha256": "b68adcdfadcf59fcbfa26a46ab38fa27902a7faef453f8015dc443dcf500ca99",
     "indices": {
       "ndti": {
         "upstream": -0.5868,
@@ -1695,19 +1716,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 3.34,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "b9748e26a47e37ddf84fe4fce980bdecc1bf47f72b7e6f530bae4777fd80ad3b"
   },
   {
     "date": "2026-05-31",
     "sceneId": "firat-birecik:sentinel-2c_2026-05-31_R078",
-    "file": "records/2026-05-31_sentinel-2c_2026-05-31_R078.json",
-    "recordSha256": "9497257fca6b4bbbf5492b768099e00adf17f064a09c0f14e5dedd52994fbe3f",
+    "file": "records/2026-05-31_sentinel-2c_2026-05-31_R078.1ed97d2914bc.json",
+    "recordSha256": "1ed97d2914bc6974b997ca6f358c722a0b6a4ee552483466023d440ced7a71ac",
     "indices": {
       "ndti": {
         "upstream": -0.5238,
@@ -1750,19 +1772,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.69,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "9497257fca6b4bbbf5492b768099e00adf17f064a09c0f14e5dedd52994fbe3f"
   },
   {
     "date": "2026-06-02",
     "sceneId": "firat-birecik:sentinel-2a_2026-06-02_R078",
-    "file": "records/2026-06-02_sentinel-2a_2026-06-02_R078.json",
-    "recordSha256": "fb53c94a03ab98d1aa440e73df61708964ce4ffb8bffd54ca72b3470ebb60ef3",
+    "file": "records/2026-06-02_sentinel-2a_2026-06-02_R078.25f1f7f26d0f.json",
+    "recordSha256": "25f1f7f26d0fa2cb29b1bad1d3e540fde0aadb99214c5ccfa9f8aa47751bbcd9",
     "indices": {
       "ndti": {
         "upstream": -0.7023,
@@ -1805,13 +1828,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.24,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "fb53c94a03ab98d1aa440e73df61708964ce4ffb8bffd54ca72b3470ebb60ef3"
   },
   {
     "date": "2026-06-05",
@@ -1924,8 +1948,8 @@
   {
     "date": "2026-06-08",
     "sceneId": "firat-birecik:sentinel-2b_2026-06-08_R121",
-    "file": "records/2026-06-08_sentinel-2b_2026-06-08_R121.json",
-    "recordSha256": "d318bf7fa412acc84be8c831cb38338665d8f58109a19c4dcfef08939445f461",
+    "file": "records/2026-06-08_sentinel-2b_2026-06-08_R121.6a11bd03c406.json",
+    "recordSha256": "6a11bd03c4060f0f89089922797a195182534aea427c60c87e9f7678fb1fac55",
     "indices": {
       "ndti": {
         "upstream": -0.305,
@@ -1968,19 +1992,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.65,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "d318bf7fa412acc84be8c831cb38338665d8f58109a19c4dcfef08939445f461"
   },
   {
     "date": "2026-06-10",
     "sceneId": "firat-birecik:sentinel-2c_2026-06-10_R078",
-    "file": "records/2026-06-10_sentinel-2c_2026-06-10_R078.json",
-    "recordSha256": "6d8dae52673e678428745081057212020087203056d6e2e554f8c1c9abb61d94",
+    "file": "records/2026-06-10_sentinel-2c_2026-06-10_R078.c112799d17c0.json",
+    "recordSha256": "c112799d17c0a218fe6dc5eec0a3fe3d24dadb56f13904bc30acff94e1e9dd38",
     "indices": {
       "ndti": {
         "upstream": -0.2867,
@@ -2023,19 +2048,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.67,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "6d8dae52673e678428745081057212020087203056d6e2e554f8c1c9abb61d94"
   },
   {
     "date": "2026-06-12",
     "sceneId": "firat-birecik:sentinel-2a_2026-06-12_R078",
-    "file": "records/2026-06-12_sentinel-2a_2026-06-12_R078.json",
-    "recordSha256": "5c92861045c8149cf1edec5cb17ca0fb7899c09b871b69c705a0a27fba62bd8a",
+    "file": "records/2026-06-12_sentinel-2a_2026-06-12_R078.1688c31e5cc7.json",
+    "recordSha256": "1688c31e5cc76bbe745e345271c38b2b1e2feb4a87867bcab28741728207f7ad",
     "indices": {
       "ndti": {
         "upstream": -0.4244,
@@ -2078,19 +2104,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.52,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "5c92861045c8149cf1edec5cb17ca0fb7899c09b871b69c705a0a27fba62bd8a"
   },
   {
     "date": "2026-06-13",
     "sceneId": "firat-birecik:sentinel-2c_2026-06-13_R121",
-    "file": "records/2026-06-13_sentinel-2c_2026-06-13_R121.json",
-    "recordSha256": "e82a6c91ddde011224b2f5c281205e7843cba846445b609f42aeb0562e890f95",
+    "file": "records/2026-06-13_sentinel-2c_2026-06-13_R121.9e62709cd380.json",
+    "recordSha256": "9e62709cd380e884340cbe535fdf614cbe5ac471ff7bfa6aef3bfc977e3a14ce",
     "indices": {
       "ndti": {
         "upstream": -0.8448,
@@ -2135,19 +2162,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.84,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "e82a6c91ddde011224b2f5c281205e7843cba846445b609f42aeb0562e890f95"
   },
   {
     "date": "2026-06-15",
     "sceneId": "firat-birecik:sentinel-2a_2026-06-15_R121",
-    "file": "records/2026-06-15_sentinel-2a_2026-06-15_R121.json",
-    "recordSha256": "8b4ab39cf51723489a27d8948fcbd1a9759ccc88ae0152fe6ddad3e07f4c26a0",
+    "file": "records/2026-06-15_sentinel-2a_2026-06-15_R121.1f30b0ca7721.json",
+    "recordSha256": "1f30b0ca772159f59f943f590bd8e4ebde15546978d7cac4beb5e126b2f04a66",
     "indices": {
       "ndti": {
         "upstream": -0.6173,
@@ -2192,19 +2220,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.48,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "8b4ab39cf51723489a27d8948fcbd1a9759ccc88ae0152fe6ddad3e07f4c26a0"
   },
   {
     "date": "2026-06-15",
     "sceneId": "firat-birecik:sentinel-2b_2026-06-15_R078",
-    "file": "records/2026-06-15_sentinel-2b_2026-06-15_R078.json",
-    "recordSha256": "be471c492b665930e8c5c8ca5e07f613d2b74a0c1f79ca71c827e5e889716890",
+    "file": "records/2026-06-15_sentinel-2b_2026-06-15_R078.80464bffb8bc.json",
+    "recordSha256": "80464bffb8bc9a95726cb22b51e5c8d747f5e41cf0a9cf90ae1a47b286315a9c",
     "indices": {
       "ndti": {
         "upstream": -0.6237,
@@ -2247,13 +2276,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.19,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "be471c492b665930e8c5c8ca5e07f613d2b74a0c1f79ca71c827e5e889716890"
   },
   {
     "date": "2026-06-18",
@@ -2312,8 +2342,8 @@
   {
     "date": "2026-06-20",
     "sceneId": "firat-birecik:sentinel-2c_2026-06-20_R078",
-    "file": "records/2026-06-20_sentinel-2c_2026-06-20_R078.json",
-    "recordSha256": "6ff545e59b58ef4321c40d7e918dc55448cad22e1d9694cbd357a4a1da4389fe",
+    "file": "records/2026-06-20_sentinel-2c_2026-06-20_R078.94a05fccf423.json",
+    "recordSha256": "94a05fccf42302e2a7dd9f3bbd420a488ef833caf263ba8e1f0754c41ac89a92",
     "indices": {
       "ndti": {
         "upstream": -0.3901,
@@ -2356,19 +2386,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.62,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "6ff545e59b58ef4321c40d7e918dc55448cad22e1d9694cbd357a4a1da4389fe"
   },
   {
     "date": "2026-06-22",
     "sceneId": "firat-birecik:sentinel-2a_2026-06-22_R078",
-    "file": "records/2026-06-22_sentinel-2a_2026-06-22_R078.json",
-    "recordSha256": "b968ba0f5d67f2f5e8d768edd7848c6b51d428dbde4551e58c657573421ea368",
+    "file": "records/2026-06-22_sentinel-2a_2026-06-22_R078.40d5012b3af4.json",
+    "recordSha256": "40d5012b3af4053606f8ea7633b337859ecc892a4a2341fadca05007a70df103",
     "indices": {
       "ndti": {
         "upstream": -0.246,
@@ -2411,19 +2442,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.17,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "b968ba0f5d67f2f5e8d768edd7848c6b51d428dbde4551e58c657573421ea368"
   },
   {
     "date": "2026-06-25",
     "sceneId": "firat-birecik:sentinel-2a_2026-06-25_R121",
-    "file": "records/2026-06-25_sentinel-2a_2026-06-25_R121.json",
-    "recordSha256": "118bc5e5a227e29114ccf5610b1f3208d9777ba49f6f2946749aca87e4cee188",
+    "file": "records/2026-06-25_sentinel-2a_2026-06-25_R121.ae5c5005e15e.json",
+    "recordSha256": "ae5c5005e15e2e1521dfd00e2311fb32acc7e6bd6db2d1eea2750bbfa4c078a1",
     "indices": {
       "ndti": {
         "upstream": -0.2625,
@@ -2466,19 +2498,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.86,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "118bc5e5a227e29114ccf5610b1f3208d9777ba49f6f2946749aca87e4cee188"
   },
   {
     "date": "2026-06-25",
     "sceneId": "firat-birecik:sentinel-2b_2026-06-25_R078",
-    "file": "records/2026-06-25_sentinel-2b_2026-06-25_R078.json",
-    "recordSha256": "bacfad5163cc1e28041d916c4c3a55f99759a1cad98db77b4557e1f5979f1f86",
+    "file": "records/2026-06-25_sentinel-2b_2026-06-25_R078.831e5a1df57f.json",
+    "recordSha256": "831e5a1df57fa3f5336c443a49b5dfd6a7143c432749fc34e23a6c1148829a17",
     "indices": {
       "ndti": {
         "upstream": -0.3917,
@@ -2521,19 +2554,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.86,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "bacfad5163cc1e28041d916c4c3a55f99759a1cad98db77b4557e1f5979f1f86"
   },
   {
     "date": "2026-06-30",
     "sceneId": "firat-birecik:sentinel-2c_2026-06-30_R078",
-    "file": "records/2026-06-30_sentinel-2c_2026-06-30_R078.json",
-    "recordSha256": "20ad391ea123f43f5b392fd885f0d990774f63e85aff584dbe677bf51be596e4",
+    "file": "records/2026-06-30_sentinel-2c_2026-06-30_R078.76fce8aa64be.json",
+    "recordSha256": "76fce8aa64beb8fc72f31b89d8542db62190715c53947a69d3403abd32fa6069",
     "indices": {
       "ndti": {
         "upstream": -0.4251,
@@ -2576,19 +2610,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.06,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "20ad391ea123f43f5b392fd885f0d990774f63e85aff584dbe677bf51be596e4"
   },
   {
     "date": "2026-07-02",
     "sceneId": "firat-birecik:sentinel-2a_2026-07-02_R078",
-    "file": "records/2026-07-02_sentinel-2a_2026-07-02_R078.json",
-    "recordSha256": "a34927e355c0f634f037c8faedc3be030f45f99c24565a3386b0bda55ba1cc4a",
+    "file": "records/2026-07-02_sentinel-2a_2026-07-02_R078.aa412fb51fa4.json",
+    "recordSha256": "aa412fb51fa4d74647207f4f71c627b276613614446701b878d4cc529c029882",
     "indices": {
       "ndti": {
         "upstream": -0.3562,
@@ -2631,19 +2666,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.06,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "a34927e355c0f634f037c8faedc3be030f45f99c24565a3386b0bda55ba1cc4a"
   },
   {
     "date": "2026-07-03",
     "sceneId": "firat-birecik:sentinel-2c_2026-07-03_R121",
-    "file": "records/2026-07-03_sentinel-2c_2026-07-03_R121.json",
-    "recordSha256": "b4385ff532ce9a87d9b25e2ff281e986dd35ae2064b4d1f867493ff22f3803eb",
+    "file": "records/2026-07-03_sentinel-2c_2026-07-03_R121.178a792162cb.json",
+    "recordSha256": "178a792162cb289020026a87e347a885b5b5e70bff03b262dfc520e77befb005",
     "indices": {
       "ndti": {
         "upstream": -0.3522,
@@ -2686,19 +2722,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.14,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "b4385ff532ce9a87d9b25e2ff281e986dd35ae2064b4d1f867493ff22f3803eb"
   },
   {
     "date": "2026-07-05",
     "sceneId": "firat-birecik:sentinel-2a_2026-07-05_R121",
-    "file": "records/2026-07-05_sentinel-2a_2026-07-05_R121.json",
-    "recordSha256": "668447c3f8baf09cf5d4f4081a4d9c3c69cdd4846163fba1aed785bd3deb2928",
+    "file": "records/2026-07-05_sentinel-2a_2026-07-05_R121.4676afe7f166.json",
+    "recordSha256": "4676afe7f166c7f1c5ecbc39810563eed00791e0bee2cbbed19f8d24f91c4ac4",
     "indices": {
       "ndti": {
         "upstream": -0.2545,
@@ -2741,19 +2778,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.16,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "668447c3f8baf09cf5d4f4081a4d9c3c69cdd4846163fba1aed785bd3deb2928"
   },
   {
     "date": "2026-07-05",
     "sceneId": "firat-birecik:sentinel-2b_2026-07-05_R078",
-    "file": "records/2026-07-05_sentinel-2b_2026-07-05_R078.json",
-    "recordSha256": "f687335240df9ec83b33c9bd15be7c3e31473474ed14dc7ff5cedfc8345843a2",
+    "file": "records/2026-07-05_sentinel-2b_2026-07-05_R078.471a50d4baaf.json",
+    "recordSha256": "471a50d4baaf74d1f36e18cdecde03087527e915ed633f22ec23ac6e9d776ed5",
     "indices": {
       "ndti": {
         "upstream": -0.5198,
@@ -2796,19 +2834,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.98,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "f687335240df9ec83b33c9bd15be7c3e31473474ed14dc7ff5cedfc8345843a2"
   },
   {
     "date": "2026-07-08",
     "sceneId": "firat-birecik:sentinel-2b_2026-07-08_R121",
-    "file": "records/2026-07-08_sentinel-2b_2026-07-08_R121.json",
-    "recordSha256": "128d6179556d8bcd81816cf91edc2aaa344bea2de523ead8da41410fe10b7bc5",
+    "file": "records/2026-07-08_sentinel-2b_2026-07-08_R121.b445a182ab11.json",
+    "recordSha256": "b445a182ab11338a48f8a4009657c4f27b0bc8d6898804a07fea2b09777109d7",
     "indices": {
       "ndti": {
         "upstream": -0.2014,
@@ -2851,19 +2890,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.09,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "128d6179556d8bcd81816cf91edc2aaa344bea2de523ead8da41410fe10b7bc5"
   },
   {
     "date": "2026-07-10",
     "sceneId": "firat-birecik:sentinel-2c_2026-07-10_R078",
-    "file": "records/2026-07-10_sentinel-2c_2026-07-10_R078.json",
-    "recordSha256": "92f21a406aad4a3b7c69b38588948e1bdc701ca2a25d72a471a701a411eb1435",
+    "file": "records/2026-07-10_sentinel-2c_2026-07-10_R078.c57d191a7662.json",
+    "recordSha256": "c57d191a766264cb72c48ff1581734c5ee39755965c548a5d8dada3bc9c560ee",
     "indices": {
       "ndti": {
         "upstream": -0.3884,
@@ -2906,19 +2946,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.84,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "92f21a406aad4a3b7c69b38588948e1bdc701ca2a25d72a471a701a411eb1435"
   },
   {
     "date": "2026-07-12",
     "sceneId": "firat-birecik:sentinel-2a_2026-07-12_R078",
-    "file": "records/2026-07-12_sentinel-2a_2026-07-12_R078.json",
-    "recordSha256": "7107a8247ea16827802fd64649473a8a01fec4a09cdd4d988efd9844f1d1d72e",
+    "file": "records/2026-07-12_sentinel-2a_2026-07-12_R078.acf7c5432ed8.json",
+    "recordSha256": "acf7c5432ed894d1bcd642e75bf3d67b187aa89c98e8d754a8092a1fe0878215",
     "indices": {
       "ndti": {
         "upstream": -0.3765,
@@ -2961,19 +3002,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.99,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "7107a8247ea16827802fd64649473a8a01fec4a09cdd4d988efd9844f1d1d72e"
   },
   {
     "date": "2026-07-13",
     "sceneId": "firat-birecik:sentinel-2c_2026-07-13_R121",
-    "file": "records/2026-07-13_sentinel-2c_2026-07-13_R121.json",
-    "recordSha256": "4fae5019b7b5257b083177a3356fe8a63402224f59d1c3f7c174a287386ea334",
+    "file": "records/2026-07-13_sentinel-2c_2026-07-13_R121.ba5827eaa201.json",
+    "recordSha256": "ba5827eaa201fc957c67dc487d1093968f701e073b1e434b43b4100ee37e526c",
     "indices": {
       "ndti": {
         "upstream": -0.4872,
@@ -3016,19 +3058,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.17,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "4fae5019b7b5257b083177a3356fe8a63402224f59d1c3f7c174a287386ea334"
   },
   {
     "date": "2026-07-15",
     "sceneId": "firat-birecik:sentinel-2a_2026-07-15_R121",
-    "file": "records/2026-07-15_sentinel-2a_2026-07-15_R121.json",
-    "recordSha256": "c006afe66491d220e5e5ea419930ddfcc192de457f726f18f2262b6703c18c12",
+    "file": "records/2026-07-15_sentinel-2a_2026-07-15_R121.4c7e46614b10.json",
+    "recordSha256": "4c7e46614b103ac0e279c0ac9eedb198e880c4324746348a22d1cf207927d4ac",
     "indices": {
       "ndti": {
         "upstream": -0.2639,
@@ -3071,19 +3114,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.28,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "c006afe66491d220e5e5ea419930ddfcc192de457f726f18f2262b6703c18c12"
   },
   {
     "date": "2026-07-15",
     "sceneId": "firat-birecik:sentinel-2b_2026-07-15_R078",
-    "file": "records/2026-07-15_sentinel-2b_2026-07-15_R078.json",
-    "recordSha256": "d33477ec238ca27fb867e0cd05e2c7d1ea45a8b8987c0be02bfba5b1328816cd",
+    "file": "records/2026-07-15_sentinel-2b_2026-07-15_R078.550a962419b0.json",
+    "recordSha256": "550a962419b048067644b906319ad24a6e0bc24332cd201fdf507cf92f689bd9",
     "indices": {
       "ndti": {
         "upstream": -0.3887,
@@ -3126,19 +3170,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.66,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "d33477ec238ca27fb867e0cd05e2c7d1ea45a8b8987c0be02bfba5b1328816cd"
   },
   {
     "date": "2026-07-18",
     "sceneId": "firat-birecik:sentinel-2b_2026-07-18_R121",
-    "file": "records/2026-07-18_sentinel-2b_2026-07-18_R121.json",
-    "recordSha256": "c1e7b5299cde084d97270548c6bc165c6bd18c5d5db5a345b1e84ab39b5d1e7d",
+    "file": "records/2026-07-18_sentinel-2b_2026-07-18_R121.8c4df3ee4b05.json",
+    "recordSha256": "8c4df3ee4b05f4c0a1980de41f3802f6f8206e40037d181270df49e7b9fdb45a",
     "indices": {
       "ndti": {
         "upstream": -0.2531,
@@ -3181,19 +3226,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.22,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "c1e7b5299cde084d97270548c6bc165c6bd18c5d5db5a345b1e84ab39b5d1e7d"
   },
   {
     "date": "2026-07-20",
     "sceneId": "firat-birecik:sentinel-2c_2026-07-20_R078",
-    "file": "records/2026-07-20_sentinel-2c_2026-07-20_R078.json",
-    "recordSha256": "05c1df8cb7fa0289ea1d652823a1b51dc33788c3e08bf292ecfd7394f96db24c",
+    "file": "records/2026-07-20_sentinel-2c_2026-07-20_R078.50912ff025fe.json",
+    "recordSha256": "50912ff025fea9ba9956f5a08c9413c617095ed45213eefefc599a55edeafde5",
     "indices": {
       "ndti": {
         "upstream": -0.314,
@@ -3236,19 +3282,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.01,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "05c1df8cb7fa0289ea1d652823a1b51dc33788c3e08bf292ecfd7394f96db24c"
   },
   {
     "date": "2026-07-22",
     "sceneId": "firat-birecik:sentinel-2a_2026-07-22_R078",
-    "file": "records/2026-07-22_sentinel-2a_2026-07-22_R078.json",
-    "recordSha256": "297695b52742656048dbdac12195ad94bb72d57869c3ce941df2df74489edc4a",
+    "file": "records/2026-07-22_sentinel-2a_2026-07-22_R078.6c56c88d4a90.json",
+    "recordSha256": "6c56c88d4a90cb5a3b4e2c81469a37a033d65f3fd09972cbe8dea81c174e2a53",
     "indices": {
       "ndti": {
         "upstream": -0.4942,
@@ -3291,19 +3338,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.28,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "297695b52742656048dbdac12195ad94bb72d57869c3ce941df2df74489edc4a"
   },
   {
     "date": "2026-07-28",
     "sceneId": "firat-birecik:sentinel-2b_2026-07-28_R121",
-    "file": "records/2026-07-28_sentinel-2b_2026-07-28_R121.json",
-    "recordSha256": "8220651bc96308dd57e24abb25cf031f7d6cd72b938d009a22cec2167dd624c4",
+    "file": "records/2026-07-28_sentinel-2b_2026-07-28_R121.de92133d286d.json",
+    "recordSha256": "de92133d286d2d76e28dce69efa2b50bd89d0dabf6eee51cef2470ee1e6d4bdd",
     "indices": {
       "ndti": {
         "upstream": -0.981,
@@ -3348,19 +3396,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.2,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "8220651bc96308dd57e24abb25cf031f7d6cd72b938d009a22cec2167dd624c4"
   },
   {
     "date": "2026-07-30",
     "sceneId": "firat-birecik:sentinel-2c_2026-07-30_R078",
-    "file": "records/2026-07-30_sentinel-2c_2026-07-30_R078.json",
-    "recordSha256": "904e1c686b3d4f3982173c628ff7171f4e4a646f75723d32851795ef94886e8e",
+    "file": "records/2026-07-30_sentinel-2c_2026-07-30_R078.32b50ba89e61.json",
+    "recordSha256": "32b50ba89e61ee4aaef8d9487a012f97dcc5bfc0361e742bc2b819bf043ea3cf",
     "indices": {
       "ndti": {
         "upstream": -0.1802,
@@ -3403,19 +3452,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.25,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "904e1c686b3d4f3982173c628ff7171f4e4a646f75723d32851795ef94886e8e"
   },
   {
     "date": "2026-08-01",
     "sceneId": "firat-birecik:sentinel-2a_2026-08-01_R078",
-    "file": "records/2026-08-01_sentinel-2a_2026-08-01_R078.json",
-    "recordSha256": "83916238138e3e1287cbdc9906b382679a2883286ae48bfcd2f0121c2e874028",
+    "file": "records/2026-08-01_sentinel-2a_2026-08-01_R078.e0cb11208bad.json",
+    "recordSha256": "e0cb11208bad281b0d73d942dcd76d545caf441b07a37a7f84718808f43be68b",
     "indices": {
       "ndti": {
         "upstream": -0.4567,
@@ -3458,19 +3508,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.07,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "83916238138e3e1287cbdc9906b382679a2883286ae48bfcd2f0121c2e874028"
   },
   {
     "date": "2026-08-02",
     "sceneId": "firat-birecik:sentinel-2c_2026-08-02_R121",
-    "file": "records/2026-08-02_sentinel-2c_2026-08-02_R121.json",
-    "recordSha256": "8f4a0f5662c0af7c6463a7c5cdbdc0230accf31e3e8de048cf6896620e3ab908",
+    "file": "records/2026-08-02_sentinel-2c_2026-08-02_R121.c9e3a2584723.json",
+    "recordSha256": "c9e3a258472366dfb961cdca54680a5098b41f69853f34688400172537f31c3a",
     "indices": {
       "ndti": {
         "upstream": -0.1014,
@@ -3513,19 +3564,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.6,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "8f4a0f5662c0af7c6463a7c5cdbdc0230accf31e3e8de048cf6896620e3ab908"
   },
   {
     "date": "2026-08-04",
     "sceneId": "firat-birecik:sentinel-2a_2026-08-04_R121",
-    "file": "records/2026-08-04_sentinel-2a_2026-08-04_R121.json",
-    "recordSha256": "c447bdf1fa7699c63ccb0f591289c7db3400b58b26c2cc92f6f770e502e85a2c",
+    "file": "records/2026-08-04_sentinel-2a_2026-08-04_R121.1f0739adefd7.json",
+    "recordSha256": "1f0739adefd7290199c9629c208caf234f0457c2dbc4c68719a9c7ae1a470801",
     "indices": {
       "ndti": {
         "upstream": -0.6686,
@@ -3568,19 +3620,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.43,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "c447bdf1fa7699c63ccb0f591289c7db3400b58b26c2cc92f6f770e502e85a2c"
   },
   {
     "date": "2026-08-04",
     "sceneId": "firat-birecik:sentinel-2b_2026-08-04_R078",
-    "file": "records/2026-08-04_sentinel-2b_2026-08-04_R078.json",
-    "recordSha256": "4aa08021d5a48bbdab1ebf0ec4aaeb0a1ad274296557c9251ff41713c4e195e6",
+    "file": "records/2026-08-04_sentinel-2b_2026-08-04_R078.534a6b659136.json",
+    "recordSha256": "534a6b659136b795ec7f78d19c543103eaee2bfe48bb145dd153ebbe3527a764",
     "indices": {
       "ndti": {
         "upstream": -0.4364,
@@ -3623,13 +3676,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.06,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "4aa08021d5a48bbdab1ebf0ec4aaeb0a1ad274296557c9251ff41713c4e195e6"
   },
   {
     "date": "2026-08-07",
@@ -3742,8 +3796,8 @@
   {
     "date": "2026-08-11",
     "sceneId": "firat-birecik:sentinel-2a_2026-08-11_R078",
-    "file": "records/2026-08-11_sentinel-2a_2026-08-11_R078.json",
-    "recordSha256": "221c749bdb6d8a71721e06949a85dc4f3bcb5782a234713b3e0dbc83330c0bef",
+    "file": "records/2026-08-11_sentinel-2a_2026-08-11_R078.c1f15aab6bfd.json",
+    "recordSha256": "c1f15aab6bfd577ddb6333aedbd9106b2fe334708a9d573fe466344a88648631",
     "indices": {
       "ndti": {
         "upstream": -0.4099,
@@ -3786,13 +3840,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.92,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "221c749bdb6d8a71721e06949a85dc4f3bcb5782a234713b3e0dbc83330c0bef"
   },
   {
     "date": "2026-08-12",
@@ -3851,8 +3906,8 @@
   {
     "date": "2026-08-14",
     "sceneId": "firat-birecik:sentinel-2a_2026-08-14_R121",
-    "file": "records/2026-08-14_sentinel-2a_2026-08-14_R121.json",
-    "recordSha256": "a0886e9a360e177f08d04f8d633f8e04c7739fb56b0d2a447885cb2c35fb22c0",
+    "file": "records/2026-08-14_sentinel-2a_2026-08-14_R121.23dbf9b214b3.json",
+    "recordSha256": "23dbf9b214b3aa0b4e0a0114e6b156e69068912283c2b6c40be49ce4dfb2650a",
     "indices": {
       "ndti": {
         "upstream": -0.2664,
@@ -3895,19 +3950,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 0.99,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "a0886e9a360e177f08d04f8d633f8e04c7739fb56b0d2a447885cb2c35fb22c0"
   },
   {
     "date": "2026-08-14",
     "sceneId": "firat-birecik:sentinel-2b_2026-08-14_R078",
-    "file": "records/2026-08-14_sentinel-2b_2026-08-14_R078.json",
-    "recordSha256": "cbd563535009ba3169a60ced1b5717bcfd50b8b524ea839a43e4eba687785714",
+    "file": "records/2026-08-14_sentinel-2b_2026-08-14_R078.bcc13c6c5499.json",
+    "recordSha256": "bcc13c6c54998b4e56538ceb3c4f07f3d8cbf9603ca9e2566443bc32c9fbff36",
     "indices": {
       "ndti": {
         "upstream": -0.3397,
@@ -3950,13 +4006,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.73,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "cbd563535009ba3169a60ced1b5717bcfd50b8b524ea839a43e4eba687785714"
   },
   {
     "date": "2026-08-17",
@@ -4073,8 +4130,8 @@
   {
     "date": "2026-08-21",
     "sceneId": "firat-birecik:sentinel-2a_2026-08-21_R078",
-    "file": "records/2026-08-21_sentinel-2a_2026-08-21_R078.json",
-    "recordSha256": "4e74ab139e1579e6301885ea9471b9ccbe6f259b71dfd198495bde856949538b",
+    "file": "records/2026-08-21_sentinel-2a_2026-08-21_R078.362a16fe3dcd.json",
+    "recordSha256": "362a16fe3dcd2667179764d75527b8da896b3ddf57d989ddc0a6819d8d720ecc",
     "indices": {
       "ndti": {
         "upstream": -0.6593,
@@ -4117,19 +4174,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.25,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "4e74ab139e1579e6301885ea9471b9ccbe6f259b71dfd198495bde856949538b"
   },
   {
     "date": "2026-08-22",
     "sceneId": "firat-birecik:sentinel-2c_2026-08-22_R121",
-    "file": "records/2026-08-22_sentinel-2c_2026-08-22_R121.json",
-    "recordSha256": "4a51c4308c8ca2d27bf32ccd2ff5cf6ddba584551f6eff0b98ce5e3cdc4f7650",
+    "file": "records/2026-08-22_sentinel-2c_2026-08-22_R121.be6b19a7cdf3.json",
+    "recordSha256": "be6b19a7cdf33fac39aef0a4509ee785ee2cbe1966d96f5dec596888c83edfe4",
     "indices": {
       "ndti": {
         "upstream": -0.2271,
@@ -4172,13 +4230,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.0,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "4a51c4308c8ca2d27bf32ccd2ff5cf6ddba584551f6eff0b98ce5e3cdc4f7650"
   },
   {
     "date": "2026-08-24",
@@ -4237,8 +4296,8 @@
   {
     "date": "2026-08-24",
     "sceneId": "firat-birecik:sentinel-2b_2026-08-24_R078",
-    "file": "records/2026-08-24_sentinel-2b_2026-08-24_R078.json",
-    "recordSha256": "bd74181e31c6d08c542f5f7d36581e309c14d2d3a44662f4d0d543e8ee414172",
+    "file": "records/2026-08-24_sentinel-2b_2026-08-24_R078.1c210b8456ee.json",
+    "recordSha256": "1c210b8456eec2e4b436cf2c02a9f924fb6a0d2c08b6510bd4e85008d3d8f03b",
     "indices": {
       "ndti": {
         "upstream": -0.2933,
@@ -4281,19 +4340,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.76,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "bd74181e31c6d08c542f5f7d36581e309c14d2d3a44662f4d0d543e8ee414172"
   },
   {
     "date": "2026-08-27",
     "sceneId": "firat-birecik:sentinel-2b_2026-08-27_R121",
-    "file": "records/2026-08-27_sentinel-2b_2026-08-27_R121.json",
-    "recordSha256": "48be526abdfd4fc9caad6708c3690545f90cace835c4041571f348aeb52c782f",
+    "file": "records/2026-08-27_sentinel-2b_2026-08-27_R121.04f7ee90cb19.json",
+    "recordSha256": "04f7ee90cb19e375a8dce21ad3b818b3f0a47e27eaea8f8bdb4245aa236a573f",
     "indices": {
       "ndti": {
         "upstream": -0.3641,
@@ -4336,19 +4396,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.19,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "48be526abdfd4fc9caad6708c3690545f90cace835c4041571f348aeb52c782f"
   },
   {
     "date": "2026-08-31",
     "sceneId": "firat-birecik:sentinel-2a_2026-08-31_R078",
-    "file": "records/2026-08-31_sentinel-2a_2026-08-31_R078.json",
-    "recordSha256": "9920917e5099be959dbdf6d490b537fc37f6ab99e92346f95a9eff59bd4811ea",
+    "file": "records/2026-08-31_sentinel-2a_2026-08-31_R078.3fed0ecf387a.json",
+    "recordSha256": "3fed0ecf387aaf2120af79769a237cbaef552a22614a7f76fa076ce83abd554e",
     "indices": {
       "ndti": {
         "upstream": -0.269,
@@ -4391,19 +4452,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.1,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "9920917e5099be959dbdf6d490b537fc37f6ab99e92346f95a9eff59bd4811ea"
   },
   {
     "date": "2026-09-01",
     "sceneId": "firat-birecik:sentinel-2c_2026-09-01_R121",
-    "file": "records/2026-09-01_sentinel-2c_2026-09-01_R121.json",
-    "recordSha256": "940f6a6e8110e50b0b19c4e26aa3723276fb3e7de6702ac31f61cfc5c826d57a",
+    "file": "records/2026-09-01_sentinel-2c_2026-09-01_R121.6460bae1a6d4.json",
+    "recordSha256": "6460bae1a6d4b01f5e14803a108abda6b62a8c19604e614a4d450be3ed94500c",
     "indices": {
       "ndti": {
         "upstream": -0.1873,
@@ -4446,19 +4508,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 0.97,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "940f6a6e8110e50b0b19c4e26aa3723276fb3e7de6702ac31f61cfc5c826d57a"
   },
   {
     "date": "2026-09-03",
     "sceneId": "firat-birecik:sentinel-2a_2026-09-03_R121",
-    "file": "records/2026-09-03_sentinel-2a_2026-09-03_R121.json",
-    "recordSha256": "7430f5a91651500a48f12b0cd591a0fdc3ca3142352f309f6cd179249534d582",
+    "file": "records/2026-09-03_sentinel-2a_2026-09-03_R121.a6d1a892d37c.json",
+    "recordSha256": "a6d1a892d37ce0d2b3f7245502c0a3efc3d8249233bcad8ca796802b534271b3",
     "indices": {
       "ndti": {
         "upstream": -0.3,
@@ -4501,19 +4564,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.66,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "7430f5a91651500a48f12b0cd591a0fdc3ca3142352f309f6cd179249534d582"
   },
   {
     "date": "2026-09-03",
     "sceneId": "firat-birecik:sentinel-2b_2026-09-03_R078",
-    "file": "records/2026-09-03_sentinel-2b_2026-09-03_R078.json",
-    "recordSha256": "11d4b7041bdac0de79cafec12835ed13117fe6fe15ab5a7d40e07dc3ae909a01",
+    "file": "records/2026-09-03_sentinel-2b_2026-09-03_R078.a14c3e4e5b61.json",
+    "recordSha256": "a14c3e4e5b6108fcadac2a24d1a15b9f1fdc29d250fc776c78d041ad8ed41b4f",
     "indices": {
       "ndti": {
         "upstream": -0.2732,
@@ -4556,19 +4620,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.41,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "11d4b7041bdac0de79cafec12835ed13117fe6fe15ab5a7d40e07dc3ae909a01"
   },
   {
     "date": "2026-09-08",
     "sceneId": "firat-birecik:sentinel-2c_2026-09-08_R078",
-    "file": "records/2026-09-08_sentinel-2c_2026-09-08_R078.json",
-    "recordSha256": "f817d9716e2c5543196bc1297fbe7b206a0467c17bc5eae0b92975dfac90fd92",
+    "file": "records/2026-09-08_sentinel-2c_2026-09-08_R078.27c347c57f83.json",
+    "recordSha256": "27c347c57f8313aa58d4baf462045b62d1659dc235971438e38855455c929ac8",
     "indices": {
       "ndti": {
         "upstream": -0.3249,
@@ -4611,19 +4676,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.26,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "f817d9716e2c5543196bc1297fbe7b206a0467c17bc5eae0b92975dfac90fd92"
   },
   {
     "date": "2026-09-10",
     "sceneId": "firat-birecik:sentinel-2a_2026-09-10_R078",
-    "file": "records/2026-09-10_sentinel-2a_2026-09-10_R078.json",
-    "recordSha256": "12b7163576fec67443509ee12c29ea077bc34b1200e80f624e76460594a49b07",
+    "file": "records/2026-09-10_sentinel-2a_2026-09-10_R078.9217b80eff25.json",
+    "recordSha256": "9217b80eff25d9d3eb36db15954540b2584c3d7732106fc044c5be554a0976c9",
     "indices": {
       "ndti": {
         "upstream": -0.2308,
@@ -4666,19 +4732,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.09,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "12b7163576fec67443509ee12c29ea077bc34b1200e80f624e76460594a49b07"
   },
   {
     "date": "2026-09-11",
     "sceneId": "firat-birecik:sentinel-2c_2026-09-11_R121",
-    "file": "records/2026-09-11_sentinel-2c_2026-09-11_R121.json",
-    "recordSha256": "5df470e63b68a52f9278549ac57caba9bef38122fdef88b0755b9b47e0045908",
+    "file": "records/2026-09-11_sentinel-2c_2026-09-11_R121.1ef550e10729.json",
+    "recordSha256": "1ef550e1072983f0243aaf4a1fe43359526a6d0aec1340f716cb447c7174c476",
     "indices": {
       "ndti": {
         "upstream": -0.3136,
@@ -4721,19 +4788,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.8,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "5df470e63b68a52f9278549ac57caba9bef38122fdef88b0755b9b47e0045908"
   },
   {
     "date": "2026-09-13",
     "sceneId": "firat-birecik:sentinel-2a_2026-09-13_R121",
-    "file": "records/2026-09-13_sentinel-2a_2026-09-13_R121.json",
-    "recordSha256": "3314f07af2efc166abc20337fd5def7933c79ff763fcee96cd195b5aeaecb4b4",
+    "file": "records/2026-09-13_sentinel-2a_2026-09-13_R121.8fdcf70e5426.json",
+    "recordSha256": "8fdcf70e54267da4a0c3540f14f8cf9b6d4930a96839799254e8ab42213d6c65",
     "indices": {
       "ndti": {
         "upstream": -0.1243,
@@ -4776,19 +4844,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 2.35,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "3314f07af2efc166abc20337fd5def7933c79ff763fcee96cd195b5aeaecb4b4"
   },
   {
     "date": "2026-09-13",
     "sceneId": "firat-birecik:sentinel-2b_2026-09-13_R078",
-    "file": "records/2026-09-13_sentinel-2b_2026-09-13_R078.json",
-    "recordSha256": "45440d56b0a78450a51365ef10993bcf9ff11386d52edb3997888ce157911bf9",
+    "file": "records/2026-09-13_sentinel-2b_2026-09-13_R078.a59cbfa79b7e.json",
+    "recordSha256": "a59cbfa79b7efc69d88365f89a0de5e8dd4b8ba3a4dcafeeea4837f2bb10fa08",
     "indices": {
       "ndti": {
         "upstream": -0.1528,
@@ -4831,19 +4900,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.52,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "45440d56b0a78450a51365ef10993bcf9ff11386d52edb3997888ce157911bf9"
   },
   {
     "date": "2026-09-16",
     "sceneId": "firat-birecik:sentinel-2b_2026-09-16_R121",
-    "file": "records/2026-09-16_sentinel-2b_2026-09-16_R121.json",
-    "recordSha256": "287cba16d7225a7c20edca0c00931f3d89bc74b305aac2c4424415dc9502ca9e",
+    "file": "records/2026-09-16_sentinel-2b_2026-09-16_R121.04359b87e0f4.json",
+    "recordSha256": "04359b87e0f4117980727b7760012f8c72c9169b4b110f95b9f85587a6c9acf0",
     "indices": {
       "ndti": {
         "upstream": -0.2538,
@@ -4886,19 +4956,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.54,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "287cba16d7225a7c20edca0c00931f3d89bc74b305aac2c4424415dc9502ca9e"
   },
   {
     "date": "2026-09-21",
     "sceneId": "firat-birecik:sentinel-2c_2026-09-21_R121",
-    "file": "records/2026-09-21_sentinel-2c_2026-09-21_R121.json",
-    "recordSha256": "06ba32e750d18371acb5ff0a7db0b1bdfe6b5d45e3a579f313571254615c33de",
+    "file": "records/2026-09-21_sentinel-2c_2026-09-21_R121.9f86cf4c8f6c.json",
+    "recordSha256": "9f86cf4c8f6cbb2fbef654bf3307bd4733a43efc23e43c0057c7e39d1e3352f1",
     "indices": {
       "ndti": {
         "upstream": -0.1711,
@@ -4941,19 +5012,20 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.43,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "06ba32e750d18371acb5ff0a7db0b1bdfe6b5d45e3a579f313571254615c33de"
   },
   {
     "date": "2026-09-28",
     "sceneId": "firat-birecik:sentinel-2c_2026-09-28_R078",
-    "file": "records/2026-09-28_sentinel-2c_2026-09-28_R078.json",
-    "recordSha256": "a3205c92e43fe4ac7ce068fe6dd62e6eedd6542a4cd860b9b55c24655f2da2c7",
+    "file": "records/2026-09-28_sentinel-2c_2026-09-28_R078.836fde33222b.json",
+    "recordSha256": "836fde33222bb9a2385f987d74e0ed19d3725acaf815380aaff432f0d9933e03",
     "indices": {
       "ndti": {
         "upstream": -0.4574,
@@ -4996,13 +5068,14 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.53,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,
         "fnuClass": "under_30"
       }
-    ]
+    ],
+    "supersedes": "a3205c92e43fe4ac7ce068fe6dd62e6eedd6542a4cd860b9b55c24655f2da2c7"
   },
   {
     "date": "2026-10-10",
@@ -5061,8 +5134,8 @@
   {
     "date": "2026-10-20",
     "sceneId": "firat-birecik:sentinel-2a_2026-10-20_R078",
-    "file": "records/2026-10-20_sentinel-2a_2026-10-20_R078.json",
-    "recordSha256": "01d171176260a62eb62bc52317884b6aedfecf74e832e86c82375e1b74b6ba8c",
+    "file": "records/2026-10-20_sentinel-2a_2026-10-20_R078.8afe2f5093da.json",
+    "recordSha256": "8afe2f5093daee0b87b4e05cc7aa96eedb93a3c9589c478b95cdc31ae304e87b",
     "indices": {
       "ndti": {
         "upstream": -0.2742,
@@ -5105,7 +5178,118 @@
         "target": "turbidity",
         "unit": "FNU",
         "level": "unvalidated",
-        "value": null,
+        "value": 1.26,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ],
+    "supersedes": "01d171176260a62eb62bc52317884b6aedfecf74e832e86c82375e1b74b6ba8c"
+  },
+  {
+    "date": "2026-10-23",
+    "sceneId": "firat-birecik:sentinel-2a_2026-10-23_R121",
+    "file": "records/2026-10-23_sentinel-2a_2026-10-23_R121.json",
+    "recordSha256": "25dfb788addb8724adaf6450c4489917717295bd2db6a78e4c5198971e1c23e2",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1905,
+        "downstream": -0.1619,
+        "reach": -0.1762,
+        "delta": 0.0286,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.87,
+          "downstream": 1.19,
+          "delta": 0.36
+        }
+      },
+      "nirRed": {
+        "upstream": 1.0222,
+        "downstream": 0.9789,
+        "reach": 1.0006,
+        "delta": -0.0433,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.07,
+          "downstream": -0.03,
+          "delta": 0.08
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": 1.37,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
+  },
+  {
+    "date": "2026-10-23",
+    "sceneId": "firat-birecik:sentinel-2b_2026-10-23_R078",
+    "file": "records/2026-10-23_sentinel-2b_2026-10-23_R078.json",
+    "recordSha256": "f6a6187816c9119135c6f6f5bd06f2212e791b0ffd7eaf1dc97c3274ab3f8352",
+    "indices": {
+      "ndti": {
+        "upstream": -0.3084,
+        "downstream": -0.2872,
+        "reach": -0.2978,
+        "delta": 0.0212,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.43,
+          "downstream": 0.7,
+          "delta": 0.31
+        }
+      },
+      "nirRed": {
+        "upstream": 1.0625,
+        "downstream": 0.9518,
+        "reach": 1.0072,
+        "delta": -0.1107,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 0.19,
+          "downstream": -0.07,
+          "delta": -0.08
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": 1.52,
         "interval": null,
         "relativeClass": null,
         "abstainReason": null,

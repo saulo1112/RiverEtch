@@ -1,0 +1,206 @@
+{
+  "schema": "riveretch.along-river.v2",
+  "reach": "mississippi-belle-chasse",
+  "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-03-25_R126",
+  "date": "2026-03-25",
+  "observationRecordSha256": "ab2a02068ab19c74f7595937172132c459ed486325eed5d21903107db43043af",
+  "planSha256": "efe40180c42cecc9623d90a73457112c19445f23e343d9be5b8129b6c9a9e2b6",
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "transfer_test_ungauged",
+  "items": [
+    {
+      "id": "S2C_15RYP_20260325_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2C_16RBU_20260325_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w02",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w03",
+      "fnuClass": "50_to_100",
+      "fnuValue": 99.64
+    },
+    {
+      "id": "w04",
+      "fnuClass": "100_and_over",
+      "fnuValue": 101.22
+    },
+    {
+      "id": "w05",
+      "fnuClass": "50_to_100",
+      "fnuValue": 98.39
+    },
+    {
+      "id": "w06",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w08",
+      "fnuClass": "50_to_100",
+      "fnuValue": 72.34
+    },
+    {
+      "id": "w09",
+      "fnuClass": "50_to_100",
+      "fnuValue": 65.62
+    },
+    {
+      "id": "w10",
+      "fnuClass": "30_to_50",
+      "fnuValue": 48.87
+    },
+    {
+      "id": "w11",
+      "fnuClass": "30_to_50",
+      "fnuValue": 41.97
+    },
+    {
+      "id": "w12",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w14",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w16",
+      "fnuClass": "under_30",
+      "fnuValue": 20.77
+    },
+    {
+      "id": "w17",
+      "fnuClass": "30_to_50",
+      "fnuValue": 42.51
+    },
+    {
+      "id": "w18",
+      "fnuClass": "30_to_50",
+      "fnuValue": 39.69
+    },
+    {
+      "id": "w19",
+      "fnuClass": "50_to_100",
+      "fnuValue": 63.48
+    },
+    {
+      "id": "w20",
+      "fnuClass": "50_to_100",
+      "fnuValue": 56.52
+    },
+    {
+      "id": "w21",
+      "fnuClass": "50_to_100",
+      "fnuValue": 55.91
+    },
+    {
+      "id": "w22",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w23",
+      "fnuClass": "50_to_100",
+      "fnuValue": 66.73
+    },
+    {
+      "id": "w24",
+      "fnuClass": "50_to_100",
+      "fnuValue": 71.64
+    },
+    {
+      "id": "w25",
+      "fnuClass": "30_to_50",
+      "fnuValue": 44.29
+    },
+    {
+      "id": "w26",
+      "fnuClass": "50_to_100",
+      "fnuValue": 50.91
+    },
+    {
+      "id": "w27",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w28",
+      "fnuClass": "30_to_50",
+      "fnuValue": 38.96
+    },
+    {
+      "id": "w29",
+      "fnuClass": "under_30",
+      "fnuValue": 23.74
+    },
+    {
+      "id": "w30",
+      "fnuClass": "50_to_100",
+      "fnuValue": 62.11
+    },
+    {
+      "id": "w31",
+      "fnuClass": "50_to_100",
+      "fnuValue": 67.98
+    },
+    {
+      "id": "w32",
+      "fnuClass": "50_to_100",
+      "fnuValue": 59.08
+    },
+    {
+      "id": "w33",
+      "fnuClass": "30_to_50",
+      "fnuValue": 47.18
+    },
+    {
+      "id": "w34",
+      "fnuClass": "50_to_100",
+      "fnuValue": 62.09
+    },
+    {
+      "id": "w35",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w36",
+      "fnuClass": "50_to_100",
+      "fnuValue": 60.75
+    },
+    {
+      "id": "w37",
+      "fnuClass": "30_to_50",
+      "fnuValue": 49.09
+    },
+    {
+      "id": "w38",
+      "fnuClass": "50_to_100",
+      "fnuValue": 67.42
+    }
+  ],
+  "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+  "replaces": "cd580199f53ad40ef2cbc533b5b5e1b4421e25d32966d22ad6fe479125ece075",
+  "recordSha256": "c58fa5d54393fb2974fb1f403dc394ace9abe5f8144a0777b1ec0acbf5c5edfd"
+}

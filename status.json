@@ -1,7 +1,7 @@
 {
-  "updatedUtc": "2026-10-23T05:07:06+00:00",
+  "updatedUtc": "2026-10-23T19:02:08+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39901177301",
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/39993743902",
     "ok": true,
     "steps": [
       {
@@ -142,25 +142,25 @@
       }
     ]
   },
-  "lastSuccessUtc": "2026-10-23T05:07:06+00:00",
+  "lastSuccessUtc": "2026-10-23T19:02:08+00:00",
   "lastSealed": {
-    "reach": "mississippi-belle-chasse",
-    "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-21_R126",
-    "date": "2026-10-21"
+    "reach": "firat-birecik",
+    "sceneId": "firat-birecik:sentinel-2b_2026-10-23_R078",
+    "date": "2026-10-23"
   },
   "lastAnchor": {
     "label": "terrachain:riveretch:frozen-artifacts",
-    "lines": 30,
-    "block": 11974261,
-    "timestampUtc": "2026-10-23T04:23:24Z",
-    "tx": "0xda8d7f2a22d72b049573331ee2be6b4224bd14ec8450f8e043570676ef1d7a92"
+    "lines": 31,
+    "block": 11978094,
+    "timestampUtc": "2026-10-23T17:15:12Z",
+    "tx": "0x72636783d953428cbb63f689ea4d2f1b536b304f463cd0f79a60e31b9c194b16"
   },
   "lastBitcoin": {
-    "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.29.ots",
-    "height": 972700,
-    "blockTime": "2026-10-23T03:12:20+00:00"
+    "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.30.ots",
+    "height": 972716,
+    "blockTime": "2026-10-23T05:24:13+00:00"
   },
-  "pendingBitcoin": 5,
+  "pendingBitcoin": 10,
   "proofs": [
     {
       "label": "terrachain:firat-birecik:along",
@@ -169,10 +169,16 @@
       "height": 972585
     },
     {
+      "label": "terrachain:firat-birecik:along",
+      "lines": 188,
+      "file": "docs/ledgers/ots/terrachain_firat-birecik_along.188.ots",
+      "height": null
+    },
+    {
       "label": "terrachain:firat-birecik:daily-record",
       "lines": 30,
       "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.30.ots",
-      "height": null
+      "height": 972716
     },
     {
       "label": "terrachain:firat-birecik:observations",
@@ -187,10 +193,22 @@
       "height": 972412
     },
     {
+      "label": "terrachain:firat-birecik:observations",
+      "lines": 169,
+      "file": "docs/ledgers/ots/terrachain_firat-birecik_observations.169.ots",
+      "height": null
+    },
+    {
       "label": "terrachain:mississippi-belle-chasse:along",
       "lines": 38,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_along.38.ots",
       "height": 972585
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:along",
+      "lines": 76,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_along.76.ots",
+      "height": null
     },
     {
       "label": "terrachain:mississippi-belle-chasse:along-temperature",
@@ -202,6 +220,12 @@
       "label": "terrachain:mississippi-belle-chasse:daily-record",
       "lines": 19,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.19.ots",
+      "height": 972716
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:daily-record",
+      "lines": 20,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.20.ots",
       "height": null
     },
     {
@@ -253,9 +277,21 @@
       "height": 972585
     },
     {
+      "label": "terrachain:mississippi-st-joseph:along",
+      "lines": 46,
+      "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_along.46.ots",
+      "height": null
+    },
+    {
       "label": "terrachain:mississippi-st-joseph:daily-record",
       "lines": 19,
       "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_daily-record.19.ots",
+      "height": 972716
+    },
+    {
+      "label": "terrachain:mississippi-st-joseph:daily-record",
+      "lines": 20,
+      "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_daily-record.20.ots",
       "height": null
     },
     {
@@ -277,10 +313,22 @@
       "height": 972558
     },
     {
+      "label": "terrachain:mississippi-st-joseph:observations",
+      "lines": 66,
+      "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_observations.66.ots",
+      "height": null
+    },
+    {
       "label": "terrachain:platte-louisville:along",
       "lines": 18,
       "file": "docs/ledgers/ots/terrachain_platte-louisville_along.18.ots",
       "height": 972585
+    },
+    {
+      "label": "terrachain:platte-louisville:along",
+      "lines": 36,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_along.36.ots",
+      "height": null
     },
     {
       "label": "terrachain:platte-louisville:along-temperature",
@@ -292,6 +340,12 @@
       "label": "terrachain:platte-louisville:daily-record",
       "lines": 74,
       "file": "docs/ledgers/ots/terrachain_platte-louisville_daily-record.74.ots",
+      "height": 972716
+    },
+    {
+      "label": "terrachain:platte-louisville:daily-record",
+      "lines": 94,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_daily-record.94.ots",
       "height": null
     },
     {
@@ -370,6 +424,12 @@
       "label": "terrachain:riveretch:frozen-artifacts",
       "lines": 30,
       "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.30.ots",
+      "height": 972716
+    },
+    {
+      "label": "terrachain:riveretch:frozen-artifacts",
+      "lines": 31,
+      "file": "docs/ledgers/ots/terrachain_riveretch_frozen-artifacts.31.ots",
       "height": null
     }
   ],

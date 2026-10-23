@@ -1,0 +1,154 @@
+{
+  "schema": "riveretch.along-river.v2",
+  "reach": "mississippi-st-joseph",
+  "sceneId": "mississippi-st-joseph:sentinel-2b_2026-03-20_R126",
+  "date": "2026-03-20",
+  "observationRecordSha256": "691c9489e99ed11eb0cbd75df86119072fabf36eedc2d1c4abe61b1ca24379d5",
+  "planSha256": "13a507f4b0e66abd2ca4b13fbc8b231c4478d26743c9c01cc4e07bfb8deb6525",
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "transfer_test_ungauged",
+  "items": [
+    {
+      "id": "S2B_15SXR_20260320_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "100_and_over",
+      "fnuValue": 125.55
+    },
+    {
+      "id": "w02",
+      "fnuClass": "100_and_over",
+      "fnuValue": 130.03
+    },
+    {
+      "id": "w03",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w05",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w07",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w08",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w09",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w10",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w13",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w14",
+      "fnuClass": "100_and_over",
+      "fnuValue": 134.49
+    },
+    {
+      "id": "w15",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w17",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w18",
+      "fnuClass": "100_and_over",
+      "fnuValue": 128.05
+    },
+    {
+      "id": "w19",
+      "fnuClass": "100_and_over",
+      "fnuValue": 120.14
+    },
+    {
+      "id": "w20",
+      "fnuClass": "100_and_over",
+      "fnuValue": 122.26
+    },
+    {
+      "id": "w21",
+      "fnuClass": "100_and_over",
+      "fnuValue": 117.75
+    },
+    {
+      "id": "w22",
+      "fnuClass": "100_and_over",
+      "fnuValue": 112.0
+    },
+    {
+      "id": "w23",
+      "fnuClass": "50_to_100",
+      "fnuValue": 99.4
+    },
+    {
+      "id": "w24",
+      "fnuClass": "50_to_100",
+      "fnuValue": 99.54
+    },
+    {
+      "id": "w25",
+      "fnuClass": "50_to_100",
+      "fnuValue": 98.13
+    },
+    {
+      "id": "w26",
+      "fnuClass": "50_to_100",
+      "fnuValue": 93.08
+    },
+    {
+      "id": "w27",
+      "fnuClass": "100_and_over",
+      "fnuValue": 101.18
+    },
+    {
+      "id": "w28",
+      "fnuClass": "50_to_100",
+      "fnuValue": 92.22
+    },
+    {
+      "id": "w29",
+      "fnuClass": "100_and_over",
+      "fnuValue": 103.99
+    }
+  ],
+  "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+  "replaces": "62a31fac7c28f8cf190721b5ff76a70e67cd4e19bd9647cfa2e0efe6d05b3905",
+  "recordSha256": "9bc85a580b201622e307858299ba99ffac0131b531dc807567ea56852c33db9e"
+}

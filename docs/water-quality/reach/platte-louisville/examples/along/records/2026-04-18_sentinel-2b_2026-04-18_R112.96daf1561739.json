@@ -1,0 +1,194 @@
+{
+  "schema": "riveretch.along-river.v2",
+  "reach": "platte-louisville",
+  "sceneId": "platte-louisville:sentinel-2b_2026-04-18_R112",
+  "date": "2026-04-18",
+  "observationRecordSha256": "8b4005798fe36a5ee3b1bae8d2388cdb43b92601302202fc800b386931c8faa4",
+  "planSha256": "b8dd8664e8d651c8a5a0acaf7b491ed4d4970b1eeb327c80307e19f19cca70b3",
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "transfer_test_ungauged",
+  "items": [
+    {
+      "id": "S2B_14TQL_20260418_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2B_15TTF_20260418_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "under_30",
+      "fnuValue": 28.46
+    },
+    {
+      "id": "w02",
+      "fnuClass": "30_to_50",
+      "fnuValue": 34.47
+    },
+    {
+      "id": "w03",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "core_share outside the training range"
+    },
+    {
+      "id": "w05",
+      "fnuClass": "30_to_50",
+      "fnuValue": 34.57
+    },
+    {
+      "id": "w06",
+      "fnuClass": "30_to_50",
+      "fnuValue": 37.17
+    },
+    {
+      "id": "w07",
+      "fnuClass": "30_to_50",
+      "fnuValue": 41.35
+    },
+    {
+      "id": "w08",
+      "fnuClass": "30_to_50",
+      "fnuValue": 33.06
+    },
+    {
+      "id": "w09",
+      "fnuClass": "30_to_50",
+      "fnuValue": 30.71
+    },
+    {
+      "id": "w10",
+      "fnuClass": "30_to_50",
+      "fnuValue": 31.1
+    },
+    {
+      "id": "w11",
+      "fnuClass": "30_to_50",
+      "fnuValue": 36.04
+    },
+    {
+      "id": "w12",
+      "fnuClass": "30_to_50",
+      "fnuValue": 35.37
+    },
+    {
+      "id": "w13",
+      "fnuClass": "30_to_50",
+      "fnuValue": 33.84
+    },
+    {
+      "id": "w14",
+      "fnuClass": "30_to_50",
+      "fnuValue": 37.08
+    },
+    {
+      "id": "w15",
+      "fnuClass": "30_to_50",
+      "fnuValue": 30.26
+    },
+    {
+      "id": "w16",
+      "fnuClass": "30_to_50",
+      "fnuValue": 34.22
+    },
+    {
+      "id": "w17",
+      "fnuClass": "30_to_50",
+      "fnuValue": 33.33
+    },
+    {
+      "id": "w18",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w19",
+      "abstainReason": "core_share outside the training range"
+    },
+    {
+      "id": "w20",
+      "abstainReason": "core_share outside the training range"
+    },
+    {
+      "id": "w21",
+      "fnuClass": "30_to_50",
+      "fnuValue": 42.96
+    },
+    {
+      "id": "w22",
+      "fnuClass": "30_to_50",
+      "fnuValue": 30.71
+    },
+    {
+      "id": "w23",
+      "fnuClass": "under_30",
+      "fnuValue": 29.77
+    },
+    {
+      "id": "w24",
+      "fnuClass": "30_to_50",
+      "fnuValue": 30.31
+    },
+    {
+      "id": "w25",
+      "fnuClass": "under_30",
+      "fnuValue": 28.94
+    },
+    {
+      "id": "w26",
+      "fnuClass": "30_to_50",
+      "fnuValue": 32.43
+    },
+    {
+      "id": "w27",
+      "fnuClass": "30_to_50",
+      "fnuValue": 31.47
+    },
+    {
+      "id": "w28",
+      "fnuClass": "30_to_50",
+      "fnuValue": 34.09
+    },
+    {
+      "id": "w29",
+      "fnuClass": "under_30",
+      "fnuValue": 27.02
+    },
+    {
+      "id": "w30",
+      "abstainReason": "log_B05/B04 outside the training range"
+    },
+    {
+      "id": "w31",
+      "abstainReason": "core_share outside the training range"
+    },
+    {
+      "id": "w32",
+      "fnuClass": "under_30",
+      "fnuValue": 24.19
+    },
+    {
+      "id": "w33",
+      "fnuClass": "30_to_50",
+      "fnuValue": 35.93
+    },
+    {
+      "id": "w34",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w35",
+      "fnuClass": "under_30",
+      "fnuValue": 29.84
+    }
+  ],
+  "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+  "replaces": "f6dd43916d9929278caa3f3e080790bcac7014c872c07618540a6607b4ce35a3",
+  "recordSha256": "96daf156173974117f38b940a7ac2858bd28e3a02c18ac20eddf4bae8e0c3401"
+}

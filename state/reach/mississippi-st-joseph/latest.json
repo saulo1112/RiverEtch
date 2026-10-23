@@ -48,7 +48,7 @@
       "target": "turbidity",
       "unit": "FNU",
       "level": "unvalidated",
-      "value": null,
+      "value": 79.94,
       "interval": null,
       "relativeClass": null,
       "fnuClass": "50_to_100",
@@ -90,7 +90,7 @@
         "retrievedUtc": null
       }
     ],
-    "codeCommit": "f53129ba465233b15482732bc64f7ce78c6e066e",
+    "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
     "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
     "boaOffsetApplied": [
       true
@@ -99,5 +99,6 @@
       "05.13"
     ]
   },
-  "recordSha256": "b4b33bbee5aa634b35594f761a52636ceaf7506ff31cd8c98a22dbae2db75c59"
+  "recordSha256": "9f3d23908bc18491cc61176200ecaaaa1707717a0158bab62e17de8686784809",
+  "supersedes": "b4b33bbee5aa634b35594f761a52636ceaf7506ff31cd8c98a22dbae2db75c59"
 }

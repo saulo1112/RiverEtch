@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 2,
+  "reachId": "mississippi-st-joseph",
+  "date": "2026-09-23",
+  "sceneId": "mississippi-st-joseph:sentinel-2a_2026-09-23_R126",
+  "stacItemIds": [
+    "S2A_15SXR_20260923_0_L2A"
+  ],
+  "indices": {
+    "ndti": {
+      "upstream": -0.0578,
+      "downstream": -0.0569,
+      "reach": -0.0574,
+      "delta": 0.0008,
+      "zScore": {
+        "rule": "D0",
+        "upstream": -1.6,
+        "downstream": -1.71,
+        "delta": 0.23
+      }
+    },
+    "nirRed": {
+      "upstream": 0.3408,
+      "downstream": 0.3138,
+      "reach": 0.3273,
+      "delta": -0.027,
+      "zScore": {
+        "rule": "D0",
+        "upstream": -0.3,
+        "downstream": -0.35,
+        "delta": -0.47
+      }
+    }
+  },
+  "verdict": {
+    "rule": "D0",
+    "threshold": 3.0,
+    "anomalous": false,
+    "signals": []
+  },
+  "rain": {
+    "point": false,
+    "catchment": null,
+    "union": "unknown"
+  },
+  "estimates": [
+    {
+      "target": "turbidity",
+      "unit": "FNU",
+      "level": "unvalidated",
+      "value": 19.93,
+      "interval": null,
+      "relativeClass": null,
+      "fnuClass": "under_30",
+      "modelId": "A4:turbidity:core:transfer-all",
+      "modelVersion": "1",
+      "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+      "validRange": null,
+      "rangeMdsa": null,
+      "abstainReason": null,
+      "basis": "transfer_test_ungauged",
+      "atmosphericCorrection": {
+        "processor": "sen2cor",
+        "collection": "sentinel-2-l2a",
+        "processingBaseline": [
+          "05.13"
+        ]
+      }
+    }
+  ],
+  "climateContext": {
+    "status": "not_run",
+    "signal": null,
+    "modelId": null,
+    "expected": null,
+    "residual": null,
+    "residualZ": null,
+    "label": "not_evaluated",
+    "rule": "climate context not run",
+    "dischargePercentile": null,
+    "ensoPhase": null
+  },
+  "provenance": {
+    "collection": "sentinel-2-l2a",
+    "stacItems": [
+      {
+        "id": "S2A_15SXR_20260923_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/S/XR/2026/9/S2A_15SXR_20260923_0_L2A/S2A_15SXR_20260923_0_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      }
+    ],
+    "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+    "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
+    "boaOffsetApplied": [
+      true
+    ],
+    "processingBaseline": [
+      "05.13"
+    ]
+  },
+  "recordSha256": "181a786cb2b262cc67fd2bac64685127217f40a0efb8092cb12f1e03a22a2330",
+  "supersedes": "8754e7b05dc50ca0b0915c5a1b91f64df73faa821934d66a98d0cbd534a15ca2"
+}

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 2,
+  "reachId": "firat-birecik",
+  "date": "2026-08-04",
+  "sceneId": "firat-birecik:sentinel-2a_2026-08-04_R121",
+  "stacItemIds": [
+    "S2A_37SCA_20260804_1_L2A",
+    "S2A_37SCB_20260804_1_L2A",
+    "S2A_37SDA_20260804_1_L2A",
+    "S2A_37SDB_20260804_1_L2A"
+  ],
+  "indices": {
+    "ndti": {
+      "upstream": -0.6686,
+      "downstream": -0.4381,
+      "reach": -0.5533,
+      "delta": 0.2305,
+      "zScore": {
+        "rule": "D0",
+        "upstream": -0.94,
+        "downstream": 0.1,
+        "delta": 1.71
+      }
+    },
+    "nirRed": {
+      "upstream": 1.0455,
+      "downstream": 2.0179,
+      "reach": 1.5317,
+      "delta": 0.9724,
+      "zScore": {
+        "rule": "D0",
+        "upstream": 0.14,
+        "downstream": 1.53,
+        "delta": 2.55
+      }
+    }
+  },
+  "verdict": {
+    "rule": "D0",
+    "threshold": 3.0,
+    "anomalous": false,
+    "signals": []
+  },
+  "rain": {
+    "point": false,
+    "catchment": null,
+    "union": "unknown"
+  },
+  "estimates": [
+    {
+      "target": "turbidity",
+      "unit": "FNU",
+      "level": "unvalidated",
+      "value": 1.43,
+      "interval": null,
+      "relativeClass": null,
+      "fnuClass": "under_30",
+      "modelId": "A4:turbidity:core:transfer-all",
+      "modelVersion": "1",
+      "modelCardSha256": "bfd24b6b5205785daad77cea9cd8f899c0d97f706ad90cc31949382a6762e197",
+      "validRange": null,
+      "rangeMdsa": null,
+      "abstainReason": null,
+      "basis": "outside_tested_region",
+      "atmosphericCorrection": {
+        "processor": "sen2cor",
+        "collection": "sentinel-2-l2a",
+        "processingBaseline": [
+          "05.12",
+          "05.12",
+          "05.12",
+          "05.12"
+        ]
+      }
+    }
+  ],
+  "climateContext": {
+    "status": "not_run",
+    "signal": null,
+    "modelId": null,
+    "expected": null,
+    "residual": null,
+    "residualZ": null,
+    "label": "not_evaluated",
+    "rule": "climate context not run",
+    "dischargePercentile": null,
+    "ensoPhase": null
+  },
+  "provenance": {
+    "collection": "sentinel-2-l2a",
+    "stacItems": [
+      {
+        "id": "S2A_37SCA_20260804_1_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CA/2026/8/S2A_37SCA_20260804_1_L2A/S2A_37SCA_20260804_1_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      },
+      {
+        "id": "S2A_37SCB_20260804_1_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CB/2026/8/S2A_37SCB_20260804_1_L2A/S2A_37SCB_20260804_1_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      },
+      {
+        "id": "S2A_37SDA_20260804_1_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DA/2026/8/S2A_37SDA_20260804_1_L2A/S2A_37SDA_20260804_1_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      },
+      {
+        "id": "S2A_37SDB_20260804_1_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DB/2026/8/S2A_37SDB_20260804_1_L2A/S2A_37SDB_20260804_1_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      }
+    ],
+    "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+    "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
+    "boaOffsetApplied": [
+      true,
+      true,
+      true,
+      true
+    ],
+    "processingBaseline": [
+      "05.12",
+      "05.12",
+      "05.12",
+      "05.12"
+    ]
+  },
+  "recordSha256": "1f0739adefd7290199c9629c208caf234f0457c2dbc4c68719a9c7ae1a470801",
+  "supersedes": "c447bdf1fa7699c63ccb0f591289c7db3400b58b26c2cc92f6f770e502e85a2c"
+}

@@ -1,0 +1,106 @@
+{
+  "schema": "riveretch.along-river.v2",
+  "reach": "firat-birecik",
+  "sceneId": "firat-birecik:sentinel-2c_2026-04-04_R121",
+  "date": "2026-04-04",
+  "observationRecordSha256": "d5c67cd241995dfd9bbe9e0ae3f586ce2aba807e25acf31d08eeec7276d19d7d",
+  "planSha256": "6e3ba6c35130e6ee55e7f90e5b5dfb2329548c1e85097e3b1dfe4d54f79a253b",
+  "card": "docs/water-quality/ungauged/firat-birecik/turbidity-4.json",
+  "modelCardSha256": "bfd24b6b5205785daad77cea9cd8f899c0d97f706ad90cc31949382a6762e197",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "outside_tested_region",
+  "items": [
+    {
+      "id": "S2C_37SCA_20260404_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2C_37SCB_20260404_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2C_37SDA_20260404_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2C_37SDB_20260404_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "under_30",
+      "fnuValue": 0.95
+    },
+    {
+      "id": "w02",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w03",
+      "fnuClass": "under_30",
+      "fnuValue": 1.4
+    },
+    {
+      "id": "w04",
+      "fnuClass": "under_30",
+      "fnuValue": 1.44
+    },
+    {
+      "id": "w05",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w06",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w07",
+      "fnuClass": "under_30",
+      "fnuValue": 2.4
+    },
+    {
+      "id": "w08",
+      "fnuClass": "under_30",
+      "fnuValue": 1.89
+    },
+    {
+      "id": "w09",
+      "fnuClass": "under_30",
+      "fnuValue": 1.82
+    },
+    {
+      "id": "w10",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w11",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w12",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w13",
+      "fnuClass": "under_30",
+      "fnuValue": 2.61
+    },
+    {
+      "id": "w14",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w15",
+      "abstainReason": "glint share above 0.5"
+    },
+    {
+      "id": "w16",
+      "abstainReason": "glint share above 0.5"
+    }
+  ],
+  "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+  "replaces": "def9b9fe278044e8956869c87858d5de67b8fed24ba1bf85dff49ce0ee03e835",
+  "recordSha256": "5ab35f92cbdc38cc9aaf4975bd3314cb303cec7fce4589bb3dd20df95a66fdcf"
+}

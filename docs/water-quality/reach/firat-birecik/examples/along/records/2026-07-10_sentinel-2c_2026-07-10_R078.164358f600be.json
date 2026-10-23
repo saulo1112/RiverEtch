@@ -1,0 +1,110 @@
+{
+  "schema": "riveretch.along-river.v2",
+  "reach": "firat-birecik",
+  "sceneId": "firat-birecik:sentinel-2c_2026-07-10_R078",
+  "date": "2026-07-10",
+  "observationRecordSha256": "c57d191a766264cb72c48ff1581734c5ee39755965c548a5d8dada3bc9c560ee",
+  "planSha256": "6e3ba6c35130e6ee55e7f90e5b5dfb2329548c1e85097e3b1dfe4d54f79a253b",
+  "card": "docs/water-quality/ungauged/firat-birecik/turbidity-4.json",
+  "modelCardSha256": "bfd24b6b5205785daad77cea9cd8f899c0d97f706ad90cc31949382a6762e197",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "outside_tested_region",
+  "items": [
+    {
+      "id": "S2C_37SCA_20260710_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2C_37SCB_20260710_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2C_37SDA_20260710_0_L2A",
+      "processingBaseline": "05.12"
+    },
+    {
+      "id": "S2C_37SDB_20260710_0_L2A",
+      "processingBaseline": "05.12"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w02",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w03",
+      "abstainReason": "log_B04/B02 outside the training range"
+    },
+    {
+      "id": "w04",
+      "fnuClass": "under_30",
+      "fnuValue": 1.16
+    },
+    {
+      "id": "w05",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w06",
+      "fnuClass": "under_30",
+      "fnuValue": 1.4
+    },
+    {
+      "id": "w07",
+      "fnuClass": "under_30",
+      "fnuValue": 1.5
+    },
+    {
+      "id": "w08",
+      "fnuClass": "under_30",
+      "fnuValue": 2.04
+    },
+    {
+      "id": "w09",
+      "fnuClass": "under_30",
+      "fnuValue": 1.99
+    },
+    {
+      "id": "w10",
+      "fnuClass": "under_30",
+      "fnuValue": 1.89
+    },
+    {
+      "id": "w11",
+      "fnuClass": "under_30",
+      "fnuValue": 1.71
+    },
+    {
+      "id": "w12",
+      "fnuClass": "under_30",
+      "fnuValue": 1.95
+    },
+    {
+      "id": "w13",
+      "fnuClass": "under_30",
+      "fnuValue": 1.1
+    },
+    {
+      "id": "w14",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w15",
+      "fnuClass": "under_30",
+      "fnuValue": 1.92
+    },
+    {
+      "id": "w16",
+      "fnuClass": "under_30",
+      "fnuValue": 1.96
+    }
+  ],
+  "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+  "replaces": "946bdc1c61e4584816602eda694902805e19c3dfc25b8b7314bfc786d6f4ceb6",
+  "recordSha256": "164358f600be19fb895259301ac88abc13380d9ffd6aa54ca5545012b7c2d068"
+}

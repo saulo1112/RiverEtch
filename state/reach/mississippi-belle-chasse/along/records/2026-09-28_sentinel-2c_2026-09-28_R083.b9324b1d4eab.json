@@ -1,0 +1,215 @@
+{
+  "schema": "riveretch.along-river.v2",
+  "reach": "mississippi-belle-chasse",
+  "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-09-28_R083",
+  "date": "2026-09-28",
+  "observationRecordSha256": "582d91e8b2106056858dd4c18e9c45e375e9429b454d45345f8fe65a80eab1d9",
+  "planSha256": "efe40180c42cecc9623d90a73457112c19445f23e343d9be5b8129b6c9a9e2b6",
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "transfer_test_ungauged",
+  "items": [
+    {
+      "id": "S2C_15RYP_20260928_0_L2A",
+      "processingBaseline": "05.13"
+    },
+    {
+      "id": "S2C_16RBU_20260928_0_L2A",
+      "processingBaseline": "05.13"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "under_30",
+      "fnuValue": 7.27
+    },
+    {
+      "id": "w02",
+      "fnuClass": "under_30",
+      "fnuValue": 7.22
+    },
+    {
+      "id": "w03",
+      "fnuClass": "under_30",
+      "fnuValue": 11.89
+    },
+    {
+      "id": "w04",
+      "fnuClass": "under_30",
+      "fnuValue": 11.49
+    },
+    {
+      "id": "w05",
+      "fnuClass": "under_30",
+      "fnuValue": 11.15
+    },
+    {
+      "id": "w06",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w07",
+      "fnuClass": "under_30",
+      "fnuValue": 12.02
+    },
+    {
+      "id": "w08",
+      "fnuClass": "under_30",
+      "fnuValue": 6.3
+    },
+    {
+      "id": "w09",
+      "fnuClass": "under_30",
+      "fnuValue": 6.94
+    },
+    {
+      "id": "w10",
+      "fnuClass": "under_30",
+      "fnuValue": 7.46
+    },
+    {
+      "id": "w11",
+      "fnuClass": "under_30",
+      "fnuValue": 4.33
+    },
+    {
+      "id": "w12",
+      "fnuClass": "under_30",
+      "fnuValue": 7.4
+    },
+    {
+      "id": "w13",
+      "fnuClass": "under_30",
+      "fnuValue": 7.57
+    },
+    {
+      "id": "w14",
+      "fnuClass": "under_30",
+      "fnuValue": 5.51
+    },
+    {
+      "id": "w15",
+      "fnuClass": "under_30",
+      "fnuValue": 5.08
+    },
+    {
+      "id": "w16",
+      "fnuClass": "under_30",
+      "fnuValue": 5.08
+    },
+    {
+      "id": "w17",
+      "fnuClass": "under_30",
+      "fnuValue": 7.59
+    },
+    {
+      "id": "w18",
+      "fnuClass": "under_30",
+      "fnuValue": 7.1
+    },
+    {
+      "id": "w19",
+      "fnuClass": "under_30",
+      "fnuValue": 4.67
+    },
+    {
+      "id": "w20",
+      "fnuClass": "under_30",
+      "fnuValue": 5.47
+    },
+    {
+      "id": "w21",
+      "fnuClass": "under_30",
+      "fnuValue": 7.39
+    },
+    {
+      "id": "w22",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w23",
+      "fnuClass": "under_30",
+      "fnuValue": 9.82
+    },
+    {
+      "id": "w24",
+      "fnuClass": "under_30",
+      "fnuValue": 8.46
+    },
+    {
+      "id": "w25",
+      "fnuClass": "under_30",
+      "fnuValue": 8.0
+    },
+    {
+      "id": "w26",
+      "fnuClass": "under_30",
+      "fnuValue": 6.62
+    },
+    {
+      "id": "w27",
+      "fnuClass": "under_30",
+      "fnuValue": 4.53
+    },
+    {
+      "id": "w28",
+      "fnuClass": "under_30",
+      "fnuValue": 3.31
+    },
+    {
+      "id": "w29",
+      "fnuClass": "under_30",
+      "fnuValue": 3.18
+    },
+    {
+      "id": "w30",
+      "fnuClass": "under_30",
+      "fnuValue": 4.2
+    },
+    {
+      "id": "w31",
+      "fnuClass": "under_30",
+      "fnuValue": 5.66
+    },
+    {
+      "id": "w32",
+      "fnuClass": "under_30",
+      "fnuValue": 6.0
+    },
+    {
+      "id": "w33",
+      "fnuClass": "under_30",
+      "fnuValue": 5.57
+    },
+    {
+      "id": "w34",
+      "fnuClass": "under_30",
+      "fnuValue": 7.77
+    },
+    {
+      "id": "w35",
+      "fnuClass": "under_30",
+      "fnuValue": 9.56
+    },
+    {
+      "id": "w36",
+      "fnuClass": "under_30",
+      "fnuValue": 4.02
+    },
+    {
+      "id": "w37",
+      "fnuClass": "under_30",
+      "fnuValue": 9.59
+    },
+    {
+      "id": "w38",
+      "fnuClass": "under_30",
+      "fnuValue": 11.1
+    }
+  ],
+  "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+  "replaces": "b5adb75f43eab0e45c10bed24a9539b1dffefe871bfa90299760c161d7e6d76b",
+  "recordSha256": "b9324b1d4eabdc7f6af47f35b73d5e34f39c11724cac2c023b5b4b878e898156"
+}
