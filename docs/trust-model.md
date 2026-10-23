@@ -234,6 +234,10 @@ under MIT.
   Bitcoin timestamp and the signature as the single-reading check does. The posts listed inside a
   zip are only compared with Ethereum, never used; when Ethereum cannot be read, the report says
   "not checked against Ethereum (offline)" and shows no pass.
+- Inside a zip, each sealed record (`records/`) is checked as a lone record file is, and a change
+  is reported on its reading's row. A zip made again from the export's folder (as Windows and macOS
+  do) is read from inside that folder, and a file in which no RiverEtch row is found is never a
+  pass.
 - Each board is counted apart (on Ethereum, on Bitcoin, waiting for the next post), never merged
   into one number. A changed cell is reported with its row, its column and the fixed value; a row
   of the export's period that the file no longer holds is reported missing.

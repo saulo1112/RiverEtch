@@ -35,12 +35,19 @@ export interface RowIssue {
   readonly date: string;
   /** Its row in the file (1: the first after the header; 0: none, a missing row). */
   readonly row: number;
-  /** Each value that differs: its column, the sealed value and the file's. */
-  readonly changes: readonly {
-    readonly column: string;
-    readonly sealed: string;
-    readonly given: string;
-  }[];
+  /** The record file inside a zip that differs from the sealed record (none: the row only). */
+  readonly file?: string;
+  /** Each value that differs: its column, the sealed value and the file's (and where, in a zip). */
+  readonly changes: readonly Change[];
+}
+
+/** One value that differs from the sealed record. */
+export interface Change {
+  readonly column: string;
+  readonly sealed: string;
+  readonly given: string;
+  /** The record file inside a zip it was read from (none: the row). */
+  readonly file?: string;
 }
 
 /** What a check found over a whole file. */
@@ -86,6 +93,7 @@ export const NOTES = {
     `${path} is not the file the export's own list describes: it was changed after the export.`,
   brokenList: (what: string) =>
     `The published record list of ${what} is broken: its posts cannot be checked.`,
+  unreadableRecord: (path: string) => `${path} could not be read as a RiverEtch record.`,
 } as const;
 
 /** One row of the file to check: where it says it comes from, and its values. */
@@ -98,6 +106,63 @@ interface Given {
   readonly cells: Record<string, string>;
   /** A record file checked whole: its content's own fingerprint (null: a CSV row). */
   readonly selfSha256: string | null;
+  /** A record file inside a zip: its path there. */
+  readonly file?: string;
+}
+
+const keyOf = (g: Pick<Given, "reach" | "dataset" | "sceneId">) =>
+  `${g.reach}|${g.dataset}|${g.sceneId}`;
+
+// A record file as a row to check: its own fingerprint is recomputed (null: not a record).
+async function recordGiven(textOfFile: string, file?: string): Promise<Given | null> {
+  let record: JsonValue;
+  try {
+    record = parseJson(textOfFile.replace(/^\uFEFF/, "").trim());
+  } catch {
+    return null;
+  }
+  const dataset = datasetOfRecord(record);
+  const sceneId = stringOf(record, "sceneId");
+  const stated = stringOf(record, "recordSha256");
+  if (dataset === null || sceneId === "" || stated === "") {
+    return null;
+  }
+  const content = { ...(record as Record<string, JsonValue>) };
+  delete content.recordSha256;
+  return {
+    reach: sceneId.split(":")[0] ?? "",
+    dataset,
+    sceneId,
+    recordSha256: stated,
+    row: file === undefined ? 1 : 0,
+    cells: recordCells(dataset, record),
+    selfSha256: await sha256Hex(canonical(content)),
+    ...(file === undefined ? {} : { file }),
+  };
+}
+
+// A zip made again from the export's folder (Windows "Send to > Compressed folder", macOS
+// "Compress") holds every file under that folder: the export is read from where its manifest is
+// (or from the one folder everything is in), and files outside it (e.g. __MACOSX/) are left out.
+function exportRoot(files: Map<string, Uint8Array>): Map<string, Uint8Array> {
+  const named = new Map([...files].map(([n, d]) => [n.replace(/\\/g, "/"), d]));
+  const names = [...named.keys()].filter((n) => !n.startsWith("__MACOSX/"));
+  const manifest = names
+    .filter((n) => n === "manifest.json" || n.endsWith("/manifest.json"))
+    .sort((a, b) => a.split("/").length - b.split("/").length)[0];
+  const tops = new Set(names.map((n) => (n.includes("/") ? (n.split("/")[0] ?? "") : "")));
+  const [only] = [...tops];
+  const root =
+    manifest !== undefined
+      ? manifest.slice(0, -"manifest.json".length)
+      : tops.size === 1 && only !== undefined && only !== ""
+        ? `${only}/`
+        : "";
+  return new Map(
+    [...named]
+      .filter(([n]) => n.startsWith(root) && !n.startsWith("__MACOSX/"))
+      .map(([n, d]) => [n.slice(root.length), d]),
+  );
 }
 
 // A cell is the sealed value when its text is, or when both are the same number (a spreadsheet
@@ -185,11 +250,13 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
   let manifest: JsonValue | null = null;
   let zipAnchors: JsonValue | null = null;
   let manifestSha256: string | null = null;
+  // The sealed records inside a zip, checked with their readings' rows.
+  const records: Given[] = [];
   if (bytes[0] === 0x50 && bytes[1] === 0x4b) {
     kind = "zip";
     let files: Map<string, Uint8Array>;
     try {
-      files = await readZip(bytes);
+      files = exportRoot(await readZip(bytes));
     } catch {
       return null;
     }
@@ -212,37 +279,27 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
     for (const [name, data] of files) {
       if (name.startsWith("data/") && name.endsWith(".csv")) {
         given.push(...csvGiven(new TextDecoder().decode(data), null));
+      } else if (name.startsWith("records/") && name.endsWith(".json")) {
+        const record = await recordGiven(new TextDecoder().decode(data), name);
+        if (record === null) {
+          notes.push(NOTES.unreadableRecord(name));
+        } else {
+          records.push(record);
+        }
       }
+    }
+    if (given.length === 0 && records.length === 0) {
+      return null;
     }
   } else {
     const textOfFile = new TextDecoder().decode(bytes).replace(/^\uFEFF/, "");
     if (textOfFile.trimStart().startsWith("{")) {
       kind = "record";
-      let record: JsonValue;
-      try {
-        record = parseJson(textOfFile.trim());
-      } catch {
+      const record = await recordGiven(textOfFile);
+      if (record === null) {
         return null;
       }
-      const dataset = datasetOfRecord(record);
-      const sceneId = stringOf(record, "sceneId");
-      const stated = stringOf(record, "recordSha256");
-      if (dataset === null || sceneId === "" || stated === "") {
-        return null;
-      }
-      const content = { ...(record as Record<string, JsonValue>) };
-      delete content.recordSha256;
-      given = [
-        {
-          reach: sceneId.split(":")[0] ?? "",
-          dataset,
-          sceneId,
-          recordSha256: stated,
-          row: 1,
-          cells: recordCells(dataset, record),
-          selfSha256: await sha256Hex(canonical(content)),
-        },
-      ];
+      given = [record];
     } else {
       kind = "csv";
       given = csvGiven(textOfFile, null);
@@ -298,20 +355,13 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
   const notFound: RowIssue[] = [];
   const counts = { unchanged: 0, ethereum: 0, bitcoin: 0, signed: 0 };
 
-  for (const g of given) {
-    const issue = (changes: RowIssue["changes"]): RowIssue => ({
-      reach: g.reach,
-      dataset: g.dataset,
-      sceneId: g.sceneId,
-      date: g.cells.date ?? "",
-      row: g.row,
-      changes,
-    });
+  // One row (or record file) against the site: what differs from its sealed record (null: the site
+  // has no such reach or pass).
+  const compare = async (g: Given) => {
     const list = await listing(g.reach, g.dataset);
     const pass = list?.rows.find((r) => r.sceneId === g.sceneId);
     if (list === null || pass === undefined) {
-      notFound.push(issue([]));
-      continue;
+      return null;
     }
     const position = list.lines.findIndex((l) => l.recordSha256 === g.recordSha256);
     // Its sealed record: the one its fingerprint names, else the pass's newest.
@@ -319,12 +369,18 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
     const file = line === undefined ? pass.file : `${DATASETS[g.dataset].folder}${line.file}`;
     const sealedText = file === null ? null : await io.text(list.reach, file);
     const sealed = sealedText === null ? null : parseJson(sealedText);
-    const changes: { column: string; sealed: string; given: string }[] = [];
+    const where = g.file === undefined ? {} : { file: g.file };
+    const changes: Change[] = [];
     if (position < 0) {
-      changes.push({ column: "recordSha256", sealed: pass.recordSha256, given: g.recordSha256 });
+      changes.push({
+        column: "recordSha256",
+        sealed: pass.recordSha256,
+        given: g.recordSha256,
+        ...where,
+      });
     }
     if (g.selfSha256 !== null && g.selfSha256 !== g.recordSha256) {
-      changes.push({ column: "(content)", sealed: g.recordSha256, given: g.selfSha256 });
+      changes.push({ column: "(content)", sealed: g.recordSha256, given: g.selfSha256, ...where });
     }
     if (sealed !== null) {
       // The published record itself must still match its fingerprint.
@@ -336,10 +392,65 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
       const expected = recordCells(g.dataset, sealed);
       for (const [column, value] of Object.entries(expected)) {
         if (column in g.cells && !sameCell(value, g.cells[column] ?? "")) {
-          changes.push({ column, sealed: value, given: g.cells[column] ?? "" });
+          changes.push({ column, sealed: value, given: g.cells[column] ?? "", ...where });
         }
       }
     }
+    return { list, position, sealed, changes };
+  };
+
+  // A record inside a zip is checked as a lone record file is, and what differs is reported on its
+  // reading's row. The tables are the export's readings: a record whose row was deleted does not
+  // stand in for it (the row is missing), and is reported on its own only when it differs. A zip
+  // with no table left has its records as its rows.
+  const inRecords = new Map<string, { readonly file: string; readonly changes: Change[] }>();
+  if (given.length === 0) {
+    given = records;
+  } else {
+    const rowKeys = new Set(given.map(keyOf));
+    for (const r of records) {
+      const result = await compare(r);
+      if (result === null || result.changes.length === 0 || r.file === undefined) {
+        continue;
+      }
+      if (rowKeys.has(keyOf(r))) {
+        inRecords.set(keyOf(r), { file: r.file, changes: result.changes });
+      } else {
+        changed.push({
+          reach: r.reach,
+          dataset: r.dataset,
+          sceneId: r.sceneId,
+          date: r.cells.date ?? "",
+          row: 0,
+          file: r.file,
+          changes: result.changes,
+        });
+      }
+    }
+  }
+
+  for (const g of given) {
+    const record = inRecords.get(keyOf(g));
+    const issue = (changes: RowIssue["changes"]): RowIssue => ({
+      reach: g.reach,
+      dataset: g.dataset,
+      sceneId: g.sceneId,
+      date: g.cells.date ?? "",
+      row: g.row,
+      ...(record === undefined
+        ? g.file === undefined
+          ? {}
+          : { file: g.file }
+        : { file: record.file }),
+      changes,
+    });
+    const result = await compare(g);
+    if (result === null) {
+      notFound.push(issue([]));
+      continue;
+    }
+    const { list, position, sealed } = result;
+    const changes = [...result.changes, ...(record?.changes ?? [])];
     if (changes.length > 0 || sealed === null) {
       changed.push(issue(changes));
       continue;

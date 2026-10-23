@@ -144,6 +144,64 @@ void test("one changed cell is reported with its row, its column and the sealed 
   assert.ok(report.notes.includes(NOTES.manifest("data/x-river/turbidity.csv")));
 });
 
+// The export's folder zipped again (Windows "Send to > Compressed folder", macOS "Compress"): every
+// file sits under that folder, and a spreadsheet saved the CSV with CRLF.
+async function rezipped(zip: Uint8Array, change: (name: string, text: string) => string) {
+  const files = await readZip(zip);
+  return makeZip(
+    [...files].map(([n, data]) => ({
+      name: `riveretch-x-river-2026-10-22/${n}`,
+      data: enc.encode(change(n, dec.decode(data))),
+    })),
+  );
+}
+
+void test("a zip made again from the export's folder is read from inside that folder", async () => {
+  const { exported, io } = await fixture();
+  const zip = await rezipped(exported.zip, (n, t) =>
+    n === "data/x-river/turbidity.csv" ? t.replace(",30.04,", ",3.04,").replace(/\n/g, "\r\n") : t,
+  );
+  const report = await checkProofFile(zip, io());
+  assert.ok(report !== null);
+  assert.equal(report.rows, 3);
+  assert.equal(report.changed.length, 1);
+  assert.deepEqual(report.changed[0]?.changes, [
+    { column: "turbidity_fnu", sealed: "30.04", given: "3.04" },
+  ]);
+  assert.equal(report.manifestSha256, exported.manifestSha256);
+  assert.ok(report.notes.includes(NOTES.manifest("data/x-river/turbidity.csv")));
+});
+
+void test("a record changed inside a zip is reported on its reading's row", async () => {
+  const { exported, io } = await fixture();
+  const files = await readZip(exported.zip);
+  const recordName = [...files.keys()].find((n) => n.startsWith("records/") && n.includes("_s1"));
+  assert.ok(recordName !== undefined, "the export holds the sealed records");
+  const zip = await edited(exported.zip, recordName, (t) =>
+    t.replace('"upstream":0.02', '"upstream":0.05'),
+  );
+  const report = await checkProofFile(zip, io());
+  assert.ok(report !== null);
+  assert.equal(report.rows, 3, "a record file is not a row of its own");
+  assert.equal(report.changed.length, 1);
+  const issue = report.changed[0];
+  assert.equal(issue?.row, 2);
+  assert.equal(issue.file, recordName);
+  assert.ok(issue.changes.some((c) => c.column === "(content)" && c.file === recordName));
+  assert.ok(
+    issue.changes.some(
+      (c) => c.column === "ndti_upstream" && c.sealed === "0.02" && c.given === "0.05",
+    ),
+  );
+  assert.equal(report.unchanged, 2);
+});
+
+void test("a zip without a RiverEtch row is not a RiverEtch file, never a pass", async () => {
+  const { io } = await fixture();
+  const zip = makeZip([{ name: "notes/a.txt", data: enc.encode("hello") }]);
+  assert.equal(await checkProofFile(zip, io()), null);
+});
+
 void test("a deleted row is reported missing", async () => {
   const { exported, io } = await fixture();
   const zip = await edited(exported.zip, "data/x-river/turbidity.csv", (t) =>

@@ -76,10 +76,14 @@ function verdict(report: FileReport): string {
     copy.notFound(report.notFound.length),
     ...(report.missing.length > 0 ? [copy.missing(report.missing.length)] : []),
   ];
-  return parts.join(" · ");
+  const wrong = report.changed.length + report.notFound.length + report.missing.length > 0;
+  return `${wrong ? `${copy.mismatch} ` : ""}${parts.join(" · ")}`;
 }
 
 const LIST = 6;
+
+// A path's last part (a record file inside a zip).
+const fileName = (path: string) => path.split("/").at(-1) ?? path;
 
 // A list of rows with what is wrong with each, the first few.
 function Issues({
@@ -98,17 +102,28 @@ function Issues({
       <p className="case-report__title">{title}</p>
       <ul className="case-report__list">
         {issues.slice(0, LIST).map((issue) => (
-          <li key={`${issue.reach}-${issue.dataset}-${issue.sceneId}-${String(issue.row)}`}>
+          <li
+            key={`${issue.reach}-${issue.dataset}-${issue.sceneId}-${String(issue.row)}-${issue.file ?? ""}`}
+          >
             {issue.row > 0
               ? copy.row(issue.row, issue.date === "" ? "" : formatDate(issue.date, true))
-              : copy.missingRow(formatDate(issue.date, true), issue.reach)}
+              : issue.file !== undefined
+                ? copy.recordRow(
+                    fileName(issue.file),
+                    issue.date === "" ? "" : formatDate(issue.date, true),
+                  )
+                : copy.missingRow(formatDate(issue.date, true), issue.reach)}
             {issue.changes.length === 0 ? null : (
               <ul>
                 {issue.changes.map((c) => (
-                  <li key={c.column}>
-                    {c.column.startsWith("(")
-                      ? copy.whole
-                      : copy.change(c.column, c.sealed, c.given)}
+                  <li key={`${c.file ?? ""}|${c.column}`}>
+                    {c.file === undefined
+                      ? c.column.startsWith("(")
+                        ? copy.whole
+                        : copy.change(c.column, c.sealed, c.given)
+                      : c.column.startsWith("(")
+                        ? copy.recordChanged(fileName(c.file))
+                        : copy.inRecord(fileName(c.file), copy.change(c.column, c.sealed, c.given))}
                   </li>
                 ))}
               </ul>
@@ -125,7 +140,9 @@ function Issues({
 // tick only when nothing is wrong and Ethereum was read.
 function Report({ report }: { readonly report: FileReport }) {
   const copy = CASE_COPY.proof;
-  const wrong = report.changed.length + report.notFound.length + report.missing.length > 0;
+  // Never a pass for a file in which nothing was checked.
+  const wrong =
+    report.rows === 0 || report.changed.length + report.notFound.length + report.missing.length > 0;
   const offline = report.ethereum === null;
   const state = wrong ? "false" : offline ? "pending" : "true";
   return (
