@@ -82,12 +82,12 @@ flowchart TD
   Q -->|"No, and outside the United States:<br/>the Euphrates at Birecik, Türkiye"| C["A class only;<br/>its error there<br/>has not been measured"]
 ```
 
-![A river with a station: the Mississippi at Belle Chasse. The map shows the reach in 3D; the panel reads 32.9 FNU with an expected range of 22.6 to 47.9 FNU, labelled Validated, sealed and anchored; at the bottom, the satellite's readings beside the station's own flow and water level](docs/img/case-gauged.jpg)
+![A river with a station: the Mississippi at Belle Chasse. The map shows the reach in 3D, painted by turbidity class stretch by stretch, with the orange reading spot at the station; the panel reads 30.0 FNU with an expected range of 20.6 to 43.7 FNU, labelled Validated, fingerprinted and posted on Ethereum; at the bottom, the satellite's readings beside the station's own flow and water level](docs/img/case-gauged.jpg)
 
 _With a station (Mississippi at Belle Chasse): a value, its expected range, and the station's own
 measurements beside it._
 
-![A river with no station: the Mississippi above Natchez. The panel reads "30 to 50 FNU", a class, labelled "Unvalidated: expected error from the transfer test"; the chart notes that in 160 of 298 test passes on rivers the model never saw, the class matched the station](docs/img/case-ungauged.jpg)
+![A river with no station: the Mississippi above Natchez. The panel reads "50 to 100 FNU", a class, labelled "Satellite only"; the chart notes that in 160 of 298 test passes on rivers the model never saw, the class matched the station](docs/img/case-ungauged.jpg)
 
 _With no station (Mississippi above Natchez): a class, and how often that class was right on
 rivers the model never saw._

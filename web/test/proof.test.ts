@@ -422,3 +422,24 @@ void test("a daily record edited inside the zip shows once, on its first day", a
   assert.ok(first.changes.some((c) => c.column === "(content)"));
   assert.equal(report.unchanged, 2);
 });
+
+void test("a column deleted from a table is reported, not passed", async () => {
+  const { exported, io } = await fixture();
+  const zip = await edited(exported.zip, "data/x-river/turbidity.csv", (text) =>
+    text
+      .split("\n")
+      .map((line) => {
+        const cells = line.split(",");
+        cells.splice(5, 1); // turbidity_fnu
+        return cells.join(",");
+      })
+      .join("\n"),
+  );
+  const report = await checkProofFile(zip, io());
+  assert.ok(report !== null);
+  assert.equal(report.changed.length, 3, "every row lost its value");
+  assert.deepEqual(report.changed[0]?.changes, [
+    { column: "turbidity_fnu", sealed: "12.5", given: "" },
+  ]);
+  assert.ok(report.notes.includes(NOTES.columnMissing("turbidity_fnu")));
+});

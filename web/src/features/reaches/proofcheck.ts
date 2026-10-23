@@ -95,6 +95,8 @@ export const NOTES = {
     `${path} is not the file the export's own list describes: it was changed after the export.`,
   brokenList: (what: string) =>
     `The published record list of ${what} is broken: its posts cannot be checked.`,
+  columnMissing: (column: string) =>
+    `The column "${column}" is missing from the file: a column cannot be deleted without changing the readings.`,
   unreadableRecord: (path: string) => `${path} could not be read as a RiverEtch record.`,
 } as const;
 
@@ -508,8 +510,13 @@ export async function checkProofFile(
         }
       }
       const expected = day === null ? recordCells(g.dataset, sealed) : (found.days.get(day) ?? {});
+      // A CSV row holds every column its export wrote: a column that is gone was deleted.
+      const fromTable = g.selfSha256 === null && g.file === undefined;
       for (const [column, value] of Object.entries(expected)) {
-        if (column in g.cells && !sameCell(value, g.cells[column] ?? "")) {
+        if (fromTable && !(column in g.cells)) {
+          notes.push(NOTES.columnMissing(column));
+          changes.push({ column, sealed: value, given: "", ...where });
+        } else if (column in g.cells && !sameCell(value, g.cells[column] ?? "")) {
           changes.push({ column, sealed: value, given: g.cells[column] ?? "", ...where });
         }
       }
