@@ -13,7 +13,7 @@ export interface LegendProps {
   readonly movable?: boolean;
   /** The reading spot has moved away from the start (the station is then marked on its own). */
   readonly moved?: boolean;
-  /** An earlier year is shown: its classes on the river's 2026 outline (preregistration-archive.md). */
+  /** An earlier pass with no image of its own: its classes on the river's 2026 outline. */
   readonly archived?: boolean;
 }
 

@@ -124,6 +124,11 @@ function reachData(): Plugin {
         }
         for (const file of listFiles(folder)) {
           const name = relative(folder, file).split(sep).join("/");
+          // The earlier years' images live on the data branch only, never in the build
+          // (preregistration-archive-maps.md, section 3).
+          if (name.startsWith("archive-maps/")) {
+            continue;
+          }
           this.emitFile({
             type: "asset",
             fileName: `data/reaches/${site}/${name}`,

@@ -110,7 +110,10 @@ window shows a value with a unit.
 **Earlier years.** The calendar also opens 2019 to 2025. Those years are read again with the same
 frozen models, along the river and at the station, and every panel labels them "Recomputed, not
 sealed": a pass read after the fact is not a record
-([preregistration](docs/water-quality/preregistration-archive.md)).
+([preregistration](docs/water-quality/preregistration-archive.md)). Each earlier pass's own NDTI
+map and true-colour image are drawn once, by the same code as 2026's, after their own
+[preregistration](docs/water-quality/preregistration-archive-maps.md) is anchored, and published on
+the `data` branch only; a pass without them is painted as its classes on the river's 2026 outline.
 
 - **Fixed before any stretch was read.** The windows, the model and the labels were frozen and
   anchored on Ethereum first ([preregistration](docs/water-quality/preregistration-along-river.md)).

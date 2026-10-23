@@ -22,7 +22,8 @@ import {
 import { canonical, parseJson, sha256Hex } from "../src/features/reaches/canonical.ts";
 import { editable, verifyRecord } from "../src/features/reaches/verify.ts";
 import { Colorizer } from "../src/features/reaches/colorize.ts";
-import { archiveReach, caseYears, yearPhases } from "../src/features/reaches/archive.ts";
+import { archiveReach, caseYears, yearMaps, yearPhases } from "../src/features/reaches/archive.ts";
+import { mapFile, photoFile } from "../src/features/reaches/scene.ts";
 import type { AlongData, AlongPlan, ReachData, SeriesRow } from "../src/features/reaches/types.ts";
 
 // Belle Chasse's frozen plan: the windows the pipeline reads along the river.
@@ -152,6 +153,77 @@ void test("an earlier year becomes a reach the case shows, recomputed and never 
   assert.equal(earlier.archive.outline, "maps/k.png");
   assert.deepEqual(yearPhases(earlier), ["training"]);
   assert.deepEqual(caseYears(reach), [2026, 2025, 2019]);
+});
+
+// The earlier years' images (preregistration-archive-maps.md): a pass's own, only on the reach's
+// own frame; without them, nothing points at an image.
+void test("an earlier pass shows its own images only when they lie on the reach's frame", () => {
+  const corners = [
+    [0, 1],
+    [1, 1],
+    [1, 0],
+    [0, 0],
+  ] as const;
+  const reach = {
+    base: "/r/",
+    info: { site: "x" },
+    card: null,
+    series: [{ date: "2026-10-20", sceneId: "x:now" }],
+    maps: {
+      width: 2,
+      height: 2,
+      corners,
+      encoding: { r: { ndti: [-0.3, 0.3], bytes: [1, 255] }, b: {} },
+      maps: [{ key: "now", sceneId: "x:now", date: "2026-10-20", file: "maps/now.png" }],
+    },
+    along: null,
+    thermal: null,
+    checks: [],
+    context: [],
+    outcomes: [],
+  } as unknown as ReachData;
+  const year = {
+    year: 2019,
+    codeCommit: "c",
+    passes: [
+      {
+        sceneId: "x:a",
+        date: "2019-05-01",
+        phase: "training" as const,
+        station: null,
+        classes: [],
+        reasons: [],
+      },
+    ],
+  };
+  const images = {
+    year: 2019,
+    width: 2,
+    height: 2,
+    corners: corners.map(([lon, lat]) => [lon + 1e-7, lat] as const),
+    maps: [
+      {
+        key: "a",
+        sceneId: "x:a",
+        date: "2019-05-01",
+        file: "archive-maps/2019/a.png",
+        trueColor: "archive-maps/2019/a.rgb.webp",
+      },
+    ],
+  };
+  const earlier = archiveReach(reach, year, null, "maps/now.png", images);
+  const row = earlier.series[0];
+  assert.ok(row !== undefined);
+  assert.equal(mapFile(earlier, row), "archive-maps/2019/a.png");
+  assert.equal(photoFile(earlier, row), "archive-maps/2019/a.rgb.webp");
+  assert.equal(earlier.maps?.width, 2, "the reach's own frame and encoding");
+  // Another frame, or no images published: no image of its own, never the 2026 one.
+  for (const other of [{ ...images, width: 3 }, null]) {
+    const shown = archiveReach(reach, year, null, "maps/now.png", other);
+    assert.deepEqual(yearMaps(reach, other)?.maps, []);
+    assert.equal(mapFile(shown, row), null);
+    assert.equal(photoFile(shown, row), null);
+  }
 });
 
 // The reading spot that moves (preregistration-along-temperature.md, section 3).

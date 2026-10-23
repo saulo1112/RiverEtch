@@ -4,7 +4,7 @@
 // see vite.config.ts). The data say which they came from.
 import type { HeadSignature } from "../chain/mldsa.ts";
 import type { ProofEntry } from "../chain/witness.ts";
-import type { ArchivePass, ArchiveTemperaturePass, ArchiveYear } from "./archive.ts";
+import type { ArchiveMaps, ArchivePass, ArchiveTemperaturePass, ArchiveYear } from "./archive.ts";
 import { parseChecks, parseContext, parseThermalChecks } from "./checks.ts";
 import type {
   AlongPass,
@@ -184,16 +184,20 @@ async function archiveIndex(base: string, id: string): Promise<number[] | null> 
 
 /**
  * One earlier year of a reach (preregistration-archive.md): its Sentinel-2 file and, on a reach
- * with water temperature, its Landsat file; from the reach's folder or its snapshot.
+ * with water temperature, its Landsat file, from the reach's folder or its snapshot; and its
+ * passes' images (preregistration-archive-maps.md), from the reach's folder only: they live on
+ * the data branch, never in the snapshot.
  *
  * @param reach - The reach.
  * @param year - The year.
- * @returns The two files (null where missing).
+ * @returns The three files (null where missing).
  */
 export async function loadArchive(
   reach: ReachData,
   year: number,
-): Promise<[ArchiveYear<ArchivePass> | null, ArchiveYear<ArchiveTemperaturePass> | null]> {
+): Promise<
+  [ArchiveYear<ArchivePass> | null, ArchiveYear<ArchiveTemperaturePass> | null, ArchiveMaps | null]
+> {
   const one = async <T>(path: string): Promise<T | null> =>
     (await fetchJson<T>(`${reach.base}${path}`)) ??
     (reach.base === reachBase(reach.info.site)
@@ -204,6 +208,7 @@ export async function loadArchive(
     reach.thermal === null
       ? Promise.resolve(null)
       : one<ArchiveYear<ArchiveTemperaturePass>>(`archive-temperature/${String(year)}.json`),
+    fetchJson<ArchiveMaps>(`${reach.base}archive-maps/${String(year)}.json`),
   ]);
 }
 

@@ -119,7 +119,10 @@ flowchart LR
   sealed records (2019 to 2025) once, with the same frozen models and code paths, along the river
   and at the station; the results are written per reach and year beside the examples, recomputed
   and never sealed ([preregistration](water-quality/preregistration-archive.md)). The app's
-  calendar chooses the year; an earlier year is painted on the river's 2026 outline.
+  calendar chooses the year. `reach archive-maps` draws each earlier pass's NDTI map and
+  true-colour image with `reach render`'s code, for the `data` branch only
+  ([preregistration](water-quality/preregistration-archive-maps.md)); a pass without its own is
+  painted on the river's 2026 outline.
 - **The reading spot.** The web app's reading spot moves to any window of the plan; away from
   the start it shows that window's classes from the along-river records, never a value. Where
   there is no estimate, the app says "No reading"; the record keeps the reason.

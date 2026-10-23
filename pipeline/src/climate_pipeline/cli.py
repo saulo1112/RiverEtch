@@ -172,7 +172,7 @@ def _parser() -> argparse.ArgumentParser:
         choices=("baseline", "run", "reread", "check", "examples", "render", "thermal",
                  "context", "climate", "score", "verify", "along-plan", "along",
                  "along-temperature", "history", "archive", "archive-temperature",
-                 "archive-index"),
+                 "archive-index", "archive-maps"),
         help="baseline: NIR/red and the station windows on the frozen scenes, once; run: records "
         "of the scenes after the baseline (exit 0 done, 2 partial, 3 a cap stopped it); reread: "
         "the passes whose record names an earlier card, read again with the current one "
@@ -192,6 +192,8 @@ def _parser() -> argparse.ArgumentParser:
         "), sealed in its own ledger, beside the examples; archive, archive-temperature: the "
         "earlier years 2019-2025 along the river and at the station, recomputed, not sealed "
         "(preregistration-archive.md; --year to read one); archive-index: list the years written; "
+        "archive-maps: each earlier pass's NDTI map and true-colour image, beside the examples, "
+        "for the data branch only (preregistration-archive-maps.md; --year to draw one); "
         "history: the station "
         "window's earlier passes read by the reach's card, beside the examples (web)",
     )  # fmt: skip
@@ -221,7 +223,8 @@ def _parser() -> argparse.ArgumentParser:
     reach.add_argument("--workers", type=int, default=8)
     reach.add_argument(
         "--year", type=int, action="append", default=None,
-        help="archive, archive-temperature: one year to read (repeatable; default 2019 to 2025)",
+        help="archive, archive-temperature, archive-maps: one year (repeatable; default 2019 to "
+        "2025)",
     )  # fmt: skip
     reach.add_argument(
         "--config", type=Path, default=Path("pipeline/reach.yaml"),
@@ -740,6 +743,20 @@ def reach(args: argparse.Namespace) -> int:
             print(f"{site}: " + ("verified" if not problems else f"{len(problems)} problems"))
             failed += bool(problems)
         return 1 if failed else 0
+    if args.action == "archive-maps":
+        from climate_pipeline.reach import archive, archive_maps
+
+        years = tuple(args.year) if args.year else archive.YEARS
+        codes = []
+        for site in sites:
+            try:
+                drawn = archive_maps.run(cfg, root, site, root / args.cache, args.workers, years)
+                print(f"{site}: {drawn.read} passes drawn, {len(drawn.failed)} failed")
+                codes.append(drawn.exit_code)
+            except reach_run.ReachError as error:
+                print(f"{site}: {error}")
+                codes.append(1)
+        return max(codes, default=0)
     if args.action in ("archive", "archive-temperature", "archive-index"):
         from climate_pipeline.reach import archive
 

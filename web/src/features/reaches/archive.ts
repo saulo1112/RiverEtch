@@ -3,13 +3,16 @@
 // the public images with the frozen models, never sealed. An earlier year becomes a reach the case
 // view shows like its sealed year: the start's estimate as its series, the classes along the river
 // as its along-river passes, the station's water temperature as its temperature series; with what
-// each pass was to the model, and no record, map image, check or station reading of its own.
+// each pass was to the model, and no record, check or station reading of its own. Its passes' images
+// (`archive-maps/<year>.json`, preregistration-archive-maps.md) live on the data branch only: a pass
+// without one is painted as its classes on a 2026 pass's water outline.
 import type {
   AlongTemperaturePass,
   ArchivePhase,
   Estimate,
   FnuClass,
   Level,
+  MapsIndex,
   ReachData,
   SeriesRow,
   TemperatureClass,
@@ -57,7 +60,45 @@ export interface ArchiveYear<P> {
   readonly passes: readonly P[];
 }
 
+/** An earlier year's images (`archive-maps/<year>.json`, preregistration-archive-maps.md). */
+export interface ArchiveMaps {
+  readonly year: number;
+  readonly width: number;
+  readonly height: number;
+  readonly corners: readonly (readonly [number, number])[];
+  readonly maps: MapsIndex["maps"];
+}
+
 const NO_INDEX = { upstream: null, downstream: null, reach: null, delta: null };
+
+// The same corner, to the 6 decimals both files are written with.
+const sameCorner = (a: readonly number[] | undefined, b: readonly number[] | undefined) =>
+  a !== undefined &&
+  b !== undefined &&
+  Math.abs((a[0] ?? NaN) - (b[0] ?? NaN)) < 1e-6 &&
+  Math.abs((a[1] ?? NaN) - (b[1] ?? NaN)) < 1e-6;
+
+/**
+ * An earlier year's images as the reach's maps index: only when they lie on the reach's own frame
+ * (its 2026 maps' size and corners), so each lies exactly where a 2026 one does.
+ *
+ * @param reach - The reach (its sealed year).
+ * @param maps - The year's images (null: none published).
+ * @returns The index, its entries the year's passes (empty: no image of its own for any pass).
+ */
+export function yearMaps(reach: ReachData, maps: ArchiveMaps | null): MapsIndex | null {
+  const own = reach.maps;
+  if (own === null) {
+    return null;
+  }
+  const fits =
+    maps !== null &&
+    maps.width === own.width &&
+    maps.height === own.height &&
+    maps.corners.length === 4 &&
+    maps.corners.every((c, k) => sameCorner(c, own.corners[k]));
+  return { ...own, maps: fits ? maps.maps : [] };
+}
 
 /**
  * An earlier year as a reach the case view can show.
@@ -66,6 +107,7 @@ const NO_INDEX = { upstream: null, downstream: null, reach: null, delta: null };
  * @param year - The year's Sentinel-2 file.
  * @param temperature - The year's Landsat file (null: none, or a reach without one).
  * @param outline - The 2026 map whose water outline the classes are painted on.
+ * @param maps - The year's images (null: none published).
  * @returns The reach, its year's passes in place of its records.
  */
 export function archiveReach(
@@ -73,6 +115,7 @@ export function archiveReach(
   year: ArchiveYear<ArchivePass>,
   temperature: ArchiveYear<ArchiveTemperaturePass> | null,
   outline: string | null,
+  maps: ArchiveMaps | null = null,
 ): ReachData {
   const unit = reach.card?.unit ?? "FNU";
   const series: SeriesRow[] = year.passes.map((p) => {
@@ -132,6 +175,7 @@ export function archiveReach(
   return {
     ...reach,
     series,
+    maps: yearMaps(reach, maps),
     checks: [],
     context: [],
     outcomes: [],

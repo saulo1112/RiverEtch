@@ -26,7 +26,7 @@ export interface MapToolbarProps {
   readonly onTerrain3d: (on: boolean) => void;
   /** Two passes are compared (the button then turns it off). */
   readonly comparing: boolean;
-  /** An earlier year is on one side: both sides show their classes, nothing else. */
+  /** An earlier pass with no image of its own is shown (on either side): only classes. */
   readonly classesOnly?: boolean;
   /** The years Compare's calendar can show, newest first (one: no year control). */
   readonly compareYears: readonly number[];
@@ -43,10 +43,6 @@ export interface MapToolbarProps {
   /** Opens "Export with proof". */
   readonly onExport: () => void;
 }
-
-// An earlier year (preregistration-archive.md) keeps no image of its passes: no NDTI, no true
-// colour; its export is the year's file.
-const archived = (reach: ReachData) => reach.archive != null;
 
 const MODES: readonly { readonly id: LayerMode; readonly label: string }[] = [
   { id: "class", label: CASE_COPY.tools.classes },
@@ -178,7 +174,7 @@ function ComparePicker({
           }}
         />
       )}
-      {archived(props.reach) || props.compareYear !== props.compareYears[0] ? (
+      {props.classesOnly === true ? (
         <p className="case-tools__note">{tools.compareEarlier}</p>
       ) : null}
       <p className="case-tools__note">{tools.compareHint}</p>
@@ -196,7 +192,9 @@ function ComparePicker({
  */
 export function MapToolbar(props: MapToolbarProps) {
   const { reach, mode, overlays } = props;
-  const classesOnly = archived(reach) || props.classesOnly === true;
+  // An earlier pass with no image of its own (preregistration-archive-maps.md): no NDTI, no
+  // true colour.
+  const classesOnly = props.classesOnly === true;
   const { tools } = CASE_COPY;
   const opacityId = useId();
   const noteId = useId();

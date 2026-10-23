@@ -361,7 +361,8 @@ export const CASE_COPY = {
     compareWith: "Compare the selected pass with the one on…",
     compareStop: "Stop comparing",
     compareYear: "Which year to compare with",
-    compareEarlier: "An earlier year has only its classes, so both sides show turbidity classes.",
+    compareEarlier:
+      "An earlier pass without an image of its own has only its classes, so both sides show turbidity classes.",
     compareHint:
       "Drag the split on the map to sweep between the two passes. Click Compare again to stop.",
     export: "Export with proof",
@@ -413,7 +414,7 @@ export const CASE_COPY = {
       "Earlier years are read again from the public images with the same frozen models. They are not sealed records, so there is nothing to verify here. The year's file names the code and the models, so anyone can read the same passes again and compare.",
     download: (year: string) => `Download ${year} (JSON)`,
     mapNote:
-      "An earlier year: each stretch's class, painted on the river's 2026 outline. No image of the pass is kept.",
+      "This earlier pass has no image of its own: each stretch's class, painted on the river's 2026 outline.",
     quality: "Recomputed from the satellite, not sealed",
   },
   // Along the whole river (preregistration-along-river.md): a class for each stretch, pass by pass.

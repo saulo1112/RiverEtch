@@ -215,6 +215,13 @@ function passOf(side: ReachData, index: number | null) {
   return index === null ? null : alongPassOf(side, side.series[index]?.sceneId);
 }
 
+// An earlier pass with no image of its own (preregistration-archive-maps.md): only its classes,
+// painted on a 2026 pass's water outline.
+function imageless(side: ReachData, index: number | null) {
+  const row = index === null ? undefined : side.series[index];
+  return side.archive != null && (row === undefined || mapFile(side, row) === null);
+}
+
 /**
  * Full-viewport case view: the map of the reach, the case file, legend, record and timeline
  * panels, the map's tools, the wallet corner and the map attribution. It stays inert until it has
@@ -320,7 +327,7 @@ export function CaseView({
     }
     let live = true;
     loadArchive(reach, year)
-      .then(([sentinel, landsat]) => {
+      .then(([sentinel, landsat, images]) => {
         if (!live) {
           return;
         }
@@ -328,7 +335,7 @@ export function CaseView({
           setYear(null);
           return;
         }
-        const earlier = archiveReach(reach, sentinel, landsat, outline);
+        const earlier = archiveReach(reach, sentinel, landsat, outline, images);
         setArchived(earlier);
         setLoadedYears((loaded) => ({ ...loaded, [year]: earlier }));
         setSelected(defaultScene(earlier.series));
@@ -368,7 +375,7 @@ export function CaseView({
     }
     let live = true;
     loadArchive(reach, browseYear)
-      .then(([sentinel, landsat]) => {
+      .then(([sentinel, landsat, images]) => {
         if (!live) {
           return;
         }
@@ -376,7 +383,7 @@ export function CaseView({
           setCompareYear(null);
           return;
         }
-        const earlier = archiveReach(reach, sentinel, landsat, outline);
+        const earlier = archiveReach(reach, sentinel, landsat, outline, images);
         setLoadedYears((loaded) => ({ ...loaded, [browseYear]: earlier }));
       })
       .catch(() => {
@@ -393,9 +400,9 @@ export function CaseView({
   const row = shown.series[selected] ?? null;
   const thermalRow =
     thermalSelected === null ? null : (shown.thermal?.series[thermalSelected] ?? null);
-  const file =
-    row === null ? null : shown.archive != null ? shown.archive.outline : mapFile(reach, row);
-  const photo = row === null || shown.archive != null ? null : photoFile(reach, row);
+  // An earlier pass without an image of its own is painted on a 2026 pass's water outline.
+  const file = row === null ? null : (mapFile(shown, row) ?? shown.archive?.outline ?? null);
+  const photo = row === null ? null : photoFile(shown, row);
 
   // The selected pass's profile and statistics, once its map is decoded.
   const sceneData = scene !== null && scene.file === file ? scene.data : null;
@@ -571,10 +578,11 @@ export function CaseView({
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- spot follows spotIndex
   }, [reach, shown, row, file, photo, mapStatus, spotIndex]);
-  // An earlier year is painted on the whole outline of a 2026 pass.
+  // An earlier pass without an image of its own is painted on the whole outline of a 2026 pass.
+  const outlined = imageless(shown, selected);
   useEffect(() => {
-    handleRef.current?.setArchive(shown.archive != null);
-  }, [shown, mapStatus]);
+    handleRef.current?.setArchive(outlined);
+  }, [outlined, mapStatus]);
 
   // The reading spot on the map: its marker and window, and the station marked on its own.
   useEffect(() => {
@@ -607,15 +615,17 @@ export function CaseView({
   // Compare: a synchronised copy of the map, right of the split, showing the other pass. It closes
   // when the way back starts, so the flight out shows one map.
   const comparing = other !== null && mapStatus === "ready" && exit === null;
-  // An earlier year on either side: both sides show their classes.
-  const classesOnly = comparing && (shown.archive != null || compareReach?.archive != null);
+  // An earlier pass without an image of its own, on either side: both sides show their classes.
+  const classesOnly =
+    outlined ||
+    (comparing && compareReach !== null && imageless(compareReach, compareWith?.index ?? null));
   // The map's layers follow the toolbar; a pass with no classes along the river shows its NDTI;
-  // an earlier year shows only its classes (it keeps no image of its passes).
+  // an earlier pass without an image of its own shows only its classes.
   const sideMode = (side: ReachData, index: number | null): LayerMode => {
     if (mode === "none") {
       return "none";
     }
-    if (side.archive != null) {
+    if (imageless(side, index)) {
       return "class";
     }
     const wanted = classesOnly ? "class" : mode;
@@ -678,18 +688,16 @@ export function CaseView({
       compareHandle.current = null;
     };
   }, [comparing]);
-  // An earlier year's pass is painted as the year shown is: its classes on the 2026 outline.
+  // The compared pass is painted as the one shown is: its own images, or its classes on the 2026
+  // outline when it has none.
   useEffect(() => {
     const copy = compareHandle.current;
     if (copy === null || compareReach === null || other === null) {
       return;
     }
-    const earlier = compareReach.archive;
-    copy.setScene(
-      earlier == null ? mapFile(reach, other) : earlier.outline,
-      earlier == null ? photoFile(reach, other) : null,
-    );
-    copy.setArchive(earlier != null);
+    const own = mapFile(compareReach, other);
+    copy.setScene(own ?? compareReach.archive?.outline ?? null, photoFile(compareReach, other));
+    copy.setArchive(own === null && compareReach.archive != null);
     copy.setLayer(compareMode, opacity);
     copy.setClasses(
       compareReach.along == null
@@ -909,9 +917,7 @@ export function CaseView({
         hover={hover}
         reach={reach}
         stretchClass={
-          (shownMode !== "class" && shown.archive == null) ||
-          hover?.reading == null ||
-          shown.along == null
+          (shownMode !== "class" && !outlined) || hover?.reading == null || shown.along == null
             ? undefined
             : (passOf(shown, selected)?.classes[
                 windowAt(shown.along, hover.reading.place, length) ?? -1
@@ -1002,7 +1008,7 @@ export function CaseView({
             ungauged={isUngauged(reach)}
             movable={along !== null && start !== null}
             moved={spotIndex !== null}
-            archived={shown.archive != null}
+            archived={outlined}
           />
           {shown.archive != null ? (
             <ArchivePanel reach={shown} />

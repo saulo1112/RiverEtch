@@ -67,3 +67,6 @@ Thumbs.db
 /plans/
 docs/plans/
 docs/submission/
+
+# The earlier years' images (preregistration-archive-maps.md): published on the data branch only.
+docs/water-quality/reach/*/examples/archive-maps/

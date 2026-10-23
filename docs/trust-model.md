@@ -259,7 +259,10 @@ under MIT.
   theirs, and the app shows them as waiting, not as checked.
 - **Earlier years are not records.** 2019 to 2025 are read again with the same frozen models
   ([preregistration-archive.md](water-quality/preregistration-archive.md)) and labelled
-  "Recomputed, not sealed"; they are not part of any export with proof.
+  "Recomputed, not sealed"; they are not part of any export with proof. Their images
+  ([preregistration-archive-maps.md](water-quality/preregistration-archive-maps.md), line 29 of
+  the frozen artifacts) are drawn only once that line is anchored; until then an earlier pass is
+  painted as its classes on the river's 2026 outline.
 - **Sepolia is a test network.** The posts live there; the Bitcoin timestamps and the signatures
   do not depend on it.
 
