@@ -267,6 +267,7 @@ export const CASE_COPY = {
       "An export (.zip), a table (CSV) or one record (JSON). Checked in your browser; nothing is uploaded.",
     unreadable: "This is not a RiverEtch file.",
     failed: "The file could not be read.",
+    mismatch: "This file does not match the record.",
     rows: (n: number) => `${String(n)} ${n === 1 ? "row" : "rows"} checked`,
     ethereum: (n: number) => `${String(n)} unchanged and posted on Ethereum`,
     bitcoin: (n: number) => `${String(n)} unchanged and on Bitcoin`,
@@ -285,6 +286,10 @@ export const CASE_COPY = {
     change: (column: string, sealed: string, given: string) =>
       `${column}: fixed as ${sealed === "" ? "(empty)" : sealed}, in the file ${given === "" ? "(empty)" : given}`,
     whole: "the whole record",
+    recordRow: (name: string, date: string) =>
+      `The record ${name}${date === "" ? "" : ` (${date})`}`,
+    recordChanged: (name: string) => `Its record file ${name} was changed after it was fixed`,
+    inRecord: (name: string, change: string) => `In its record file ${name}, ${change}`,
     more: (n: number) => `and ${String(n)} more`,
     manifest: (sha: string) =>
       `This export's manifest fingerprint is ${sha}. It should be the one in the citation line of its READ-ME.`,
@@ -400,8 +405,12 @@ export const CASE_COPY = {
       after: "after the locked test",
       unseen: "a river the model never saw",
     },
-    helpLabel: "About earlier years",
-    help: "Read again in 2026 from the public satellite images, with the same frozen models as the sealed records. A pass read after the fact is not a record, so nothing here is sealed or anchored. Training years: the model learned from this period, so its passes do not test it. Locked test: passes the model never saw while it was built.",
+    // Why an earlier year is not sealed, in plain words (the calendar's year, the case file, the
+    // timeline and the right panel).
+    whyLabel: "Why is this not sealed?",
+    why: "RiverEtch seals a reading as soon as it reads a new satellite image: its fingerprint is posted that day, so any later change would show. The years before 2026 were read in 2026, years after their images were taken, so they could not be sealed on their own day. They use the same models and the same free images, and anyone can read them again and compare.",
+    helpLabel: "Why is this not sealed?",
+    help: "RiverEtch seals a reading as soon as it reads a new satellite image: its fingerprint is posted that day, so any later change would show. The years before 2026 were read in 2026, years after their images were taken, so they could not be sealed on their own day. They use the same models and the same free images, and anyone can read them again and compare. Each pass also says what it was to the model: its training years (it learned from them) or the locked test (passes it never saw while it was built).",
     year: "Year",
     yearLabel: "Which year the case shows",
     earlier: "Earlier year",

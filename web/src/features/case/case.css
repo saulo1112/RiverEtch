@@ -2590,11 +2590,29 @@ select.case-record__input {
    read again and not sealed, said in words under the number. */
 .case-calendar__years {
   display: flex;
+  flex-wrap: wrap;
+  gap: 2px 4px;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin-bottom: 8px;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--hairline);
+}
+
+/* The arrows at the ends; the year, and its "?" when it is not sealed, in the middle; the "?"'s
+   text on a line of its own under them. */
+.case-calendar__years > .case-calendar__nav:first-child {
+  margin-right: auto;
+}
+
+.case-calendar__years > .case-calendar__nav:last-child {
+  margin-left: auto;
+}
+
+.case-calendar__years > .case-help__text {
+  order: 1;
+  margin-bottom: 0;
+  text-align: left;
 }
 
 .case-calendar__year {

@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { CASE_COPY } from "../content.ts";
+import { HelpTip } from "./HelpTip.tsx";
 
 /** Props of {@link YearStep}. */
 export interface YearStepProps {
@@ -15,7 +16,8 @@ export interface YearStepProps {
 
 /**
  * The year above a calendar's month (the case file's date, and Compare): a step to an earlier or a
- * later year, and what that year is, sealed records or recomputed and not sealed.
+ * later year, and what that year is, sealed records or recomputed and not sealed (with a "?" that
+ * says why, in plain words; its text opens under the row).
  *
  * @param props - The step's props.
  * @param props.years - The years, newest first.
@@ -47,6 +49,7 @@ export function YearStep({ years, year, onYear, label }: YearStepProps) {
           {sealed ? copy.sealedYear : copy.label}
         </span>
       </p>
+      {sealed ? null : <HelpTip label={copy.whyLabel}>{copy.why}</HelpTip>}
       <button
         type="button"
         className="case-calendar__nav"
