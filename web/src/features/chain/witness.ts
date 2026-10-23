@@ -92,6 +92,23 @@ export async function checkBitcoin(
   return { state: "pending", lines: entry.lines };
 }
 
+// A head's signature, verified once per key: every row it covers asks again, and ML-DSA-65 is slow
+// in a browser. The answer depends only on the signature and the key, so it is kept.
+const verified = new WeakMap<HeadSignature, Map<string, boolean>>();
+function verifiedOnce(publicKeyHex: string, signature: HeadSignature): boolean {
+  let byKey = verified.get(signature);
+  if (byKey === undefined) {
+    byKey = new Map();
+    verified.set(signature, byKey);
+  }
+  let ok = byKey.get(publicKeyHex);
+  if (ok === undefined) {
+    ok = verifyHead(publicKeyHex, signature);
+    byKey.set(publicKeyHex, ok);
+  }
+  return ok;
+}
+
 /**
  * Checks the signature of a head that covers a record.
  *
@@ -117,7 +134,7 @@ export function checkSignature(
     return { state: "none" };
   }
   const ours = `0x${lineHashes[first.lines - 1] ?? ""}`;
-  if (first.head !== ours || !verifyHead(publicKeyHex, first)) {
+  if (first.head !== ours || !verifiedOnce(publicKeyHex, first)) {
     return { state: "invalid" };
   }
   return { state: "verified", lines: first.lines, signedAt: first.signedAt };

@@ -12,6 +12,7 @@ import {
   checkSignature,
   coveringProof,
   type BitcoinWitness,
+  type ProofEntry,
 } from "../chain/witness.ts";
 import { canonical, NumberText, parseJson, sha256Hex, type JsonValue } from "./canonical.ts";
 import { csvRows } from "./checkfile.ts";
@@ -236,14 +237,42 @@ interface Listing {
 
 const encoder = new TextEncoder();
 
+// How many of a file's rows are checked at once (each reads its sealed record from the site).
+const PARALLEL = 8;
+
+// Runs `work` on every item, at most `limit` at a time.
+async function eachLimit<T>(
+  items: readonly T[],
+  limit: number,
+  work: (item: T) => Promise<void>,
+): Promise<void> {
+  let next = 0;
+  const worker = async () => {
+    while (next < items.length) {
+      const item = items[next];
+      next += 1;
+      if (item !== undefined) {
+        await work(item);
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+}
+
 /**
  * Checks a file someone was sent: an export (.zip), a CSV or a record (JSON).
  *
  * @param bytes - The file.
  * @param io - The site's files, the chain, the explorers and the key.
+ * @param onProgress - Called as rows are compared (how many, of how many); then once more with
+ *   both equal, while the chain and Bitcoin are read.
  * @returns The report over the whole file (null: not a RiverEtch file).
  */
-export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<FileReport | null> {
+export async function checkProofFile(
+  bytes: Uint8Array,
+  io: CheckIo,
+  onProgress?: (done: number, total: number) => void,
+): Promise<FileReport | null> {
   const notes: string[] = [];
   let given: Given[] = [];
   let kind: FileReport["kind"];
@@ -309,47 +338,77 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
     }
   }
 
-  const listings = new Map<string, Listing | null>();
-  const listing = async (site: string, dataset: DatasetId): Promise<Listing | null> => {
-    const key = `${site}|${dataset}`;
-    if (!listings.has(key)) {
-      const reach = await io.reach(site);
-      if (reach === null) {
-        listings.set(key, null);
-      } else {
-        const ledger = (await io.text(reach, ledgerPath(DATASETS[dataset].kind))) ?? "";
-        const raw = ledger.split("\n").filter((l) => l.trim() !== "");
-        const lines = raw.map((l) => JSON.parse(l) as Line);
-        const hashes = await Promise.all(raw.map((l) => sha256Hex(l)));
-        const intact = lines.every(
-          (l, k) => l.previousLineSha256 === (k === 0 ? null : hashes[k - 1]),
-        );
-        if (!intact) {
-          notes.push(NOTES.brokenList(`${site} (${dataset})`));
-        }
-        listings.set(key, {
-          reach,
-          rows: rowsOf(reach, dataset),
-          label: subjectLabel(site, DATASETS[dataset].kind),
-          lines,
-          hashes,
-          intact,
-        });
-      }
+  // Each file of the site is read once per check, however many rows name it.
+  const texts = new Map<string, Promise<string | null>>();
+  const textOf = (reach: ReachData, path: string) => {
+    const key = `${reach.base}${path}`;
+    let text = texts.get(key);
+    if (text === undefined) {
+      text = io.text(reach, path);
+      texts.set(key, text);
     }
-    return listings.get(key) ?? null;
+    return text;
+  };
+  const listings = new Map<string, Promise<Listing | null>>();
+  const readListing = async (site: string, dataset: DatasetId): Promise<Listing | null> => {
+    const reach = await io.reach(site);
+    if (reach === null) {
+      return null;
+    }
+    const ledger = (await textOf(reach, ledgerPath(DATASETS[dataset].kind))) ?? "";
+    const raw = ledger.split("\n").filter((l) => l.trim() !== "");
+    const lines = raw.map((l) => JSON.parse(l) as Line);
+    const hashes = await Promise.all(raw.map((l) => sha256Hex(l)));
+    const intact = lines.every((l, k) => l.previousLineSha256 === (k === 0 ? null : hashes[k - 1]));
+    if (!intact) {
+      notes.push(NOTES.brokenList(`${site} (${dataset})`));
+    }
+    return {
+      reach,
+      rows: rowsOf(reach, dataset),
+      label: subjectLabel(site, DATASETS[dataset].kind),
+      lines,
+      hashes,
+      intact,
+    };
+  };
+  const listing = (site: string, dataset: DatasetId): Promise<Listing | null> => {
+    const key = `${site}|${dataset}`;
+    let found = listings.get(key);
+    if (found === undefined) {
+      found = readListing(site, dataset);
+      listings.set(key, found);
+    }
+    return found;
   };
 
-  const anchors = new Map<string, readonly ChainAnchor[] | null>();
-  const anchorsOf = async (label: string) => {
-    if (!anchors.has(label)) {
-      anchors.set(label, await io.anchors(label));
+  const anchors = new Map<string, Promise<readonly ChainAnchor[] | null>>();
+  const anchorsOf = (label: string) => {
+    let found = anchors.get(label);
+    if (found === undefined) {
+      found = io.anchors(label);
+      anchors.set(label, found);
     }
-    return anchors.get(label) ?? null;
+    return found;
   };
-  const proofs = await io.proofs();
-  const signatures = await io.signatures();
-  const bitcoin = new Map<string, BitcoinWitness>();
+  const [proofs, signatures] = await Promise.all([io.proofs(), io.signatures()]);
+  // Each Bitcoin timestamp is checked once, however many rows it covers.
+  const bitcoin = new Map<string, Promise<BitcoinWitness>>();
+  const bitcoinOf = (entry: ProofEntry, lineHashes: readonly string[]) => {
+    let found = bitcoin.get(entry.file);
+    if (found === undefined) {
+      found = io
+        .proof(entry.file)
+        .then((bytes) =>
+          bytes === null
+            ? { state: "unavailable" as const }
+            : checkBitcoin(entry, bytes, lineHashes, io.header),
+        )
+        .catch((): BitcoinWitness => ({ state: "mismatch" }));
+      bitcoin.set(entry.file, found);
+    }
+    return found;
+  };
   let offline = false;
   const changed: RowIssue[] = [];
   const notFound: RowIssue[] = [];
@@ -367,7 +426,7 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
     // Its sealed record: the one its fingerprint names, else the pass's newest.
     const line = list.lines[position];
     const file = line === undefined ? pass.file : `${DATASETS[g.dataset].folder}${line.file}`;
-    const sealedText = file === null ? null : await io.text(list.reach, file);
+    const sealedText = file === null ? null : await textOf(list.reach, file);
     const sealed = sealedText === null ? null : parseJson(sealedText);
     const where = g.file === undefined ? {} : { file: g.file };
     const changes: Change[] = [];
@@ -403,13 +462,42 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
   // reading's row. The tables are the export's readings: a record whose row was deleted does not
   // stand in for it (the row is missing), and is reported on its own only when it differs. A zip
   // with no table left has its records as its rows.
-  const inRecords = new Map<string, { readonly file: string; readonly changes: Change[] }>();
   if (given.length === 0) {
     given = records;
-  } else {
+  }
+  const compared = new Map<Given, Awaited<ReturnType<typeof compare>>>();
+  // By reading: a row and its record file (one sealed record) count once in the progress.
+  const readings = new Map<string, Given[]>();
+  for (const g of new Set([...given, ...records])) {
+    readings.set(keyOf(g), [...(readings.get(keyOf(g)) ?? []), g]);
+  }
+  let done = 0;
+  onProgress?.(0, readings.size);
+  await eachLimit([...readings.values()], PARALLEL, async (items) => {
+    for (const g of items) {
+      compared.set(g, await compare(g));
+    }
+    done += 1;
+    onProgress?.(done, readings.size);
+  });
+  // The record lists' posts on Ethereum and their Bitcoin timestamps, read at once.
+  const reads: Promise<unknown>[] = [];
+  for (const result of compared.values()) {
+    if (result?.list.intact === true) {
+      reads.push(anchorsOf(result.list.label));
+      const entry = coveringProof(proofs, result.list.label, result.position);
+      if (entry !== null) {
+        reads.push(bitcoinOf(entry, result.list.hashes));
+      }
+    }
+  }
+  await Promise.all(reads);
+
+  const inRecords = new Map<string, { readonly file: string; readonly changes: Change[] }>();
+  if (given !== records) {
     const rowKeys = new Set(given.map(keyOf));
     for (const r of records) {
-      const result = await compare(r);
+      const result = compared.get(r) ?? null;
       if (result === null || result.changes.length === 0 || r.file === undefined) {
         continue;
       }
@@ -444,7 +532,7 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
         : { file: record.file }),
       changes,
     });
-    const result = await compare(g);
+    const result = compared.get(g) ?? null;
     if (result === null) {
       notFound.push(issue([]));
       continue;
@@ -471,18 +559,7 @@ export async function checkProofFile(bytes: Uint8Array, io: CheckIo): Promise<Fi
     }
     const entry = coveringProof(proofs, list.label, position);
     if (entry !== null && list.intact) {
-      if (!bitcoin.has(entry.file)) {
-        const proofBytes = await io.proof(entry.file);
-        bitcoin.set(
-          entry.file,
-          proofBytes === null
-            ? { state: "unavailable" }
-            : await checkBitcoin(entry, proofBytes, lineHashes, io.header).catch(
-                (): BitcoinWitness => ({ state: "mismatch" }),
-              ),
-        );
-      }
-      if (bitcoin.get(entry.file)?.state === "confirmed") {
+      if ((await bitcoinOf(entry, lineHashes)).state === "confirmed") {
         counts.bitcoin += 1;
       }
     }

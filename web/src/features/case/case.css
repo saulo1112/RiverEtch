@@ -1514,6 +1514,50 @@ select.case-record__input {
   cursor: pointer;
 }
 
+/* A file being checked: the button stays legible (not greyed as disabled), a mark turns, and a
+   thin bar along its lower edge fills as the rows are compared. */
+.case-action__btn[aria-busy="true"] {
+  position: relative;
+  overflow: hidden;
+  border-color: rgb(34 211 238 / 0.45);
+  color: var(--text-1);
+  font-variant-numeric: tabular-nums;
+  cursor: progress;
+  opacity: 1;
+}
+
+.case-action__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: var(--done, 0%);
+  height: 2px;
+  background: var(--accent);
+  transition: width 180ms ease-out;
+}
+
+.case-action__spin {
+  flex: none;
+  color: var(--accent);
+  animation: case-spin 0.9s linear infinite;
+}
+
+@keyframes case-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case-action__spin {
+    animation: none;
+  }
+
+  .case-action__progress {
+    transition: none;
+  }
+}
+
 .case-action__purpose {
   margin: 0;
   color: var(--text-3);

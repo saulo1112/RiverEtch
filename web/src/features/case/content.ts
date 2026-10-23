@@ -263,6 +263,9 @@ export const CASE_COPY = {
     check: "Check a file",
     checkPurpose: "Got a RiverEtch file from someone? See if it matches the record.",
     checking: "Checking the file…",
+    checkingRows: (done: number, total: number) =>
+      `Checking ${String(done)} of ${String(total)} ${total === 1 ? "row" : "rows"}…`,
+    checkingChain: "Checking Ethereum and Bitcoin…",
     accepts:
       "An export (.zip), a table (CSV) or one record (JSON). Checked in your browser; nothing is uploaded.",
     unreadable: "This is not a RiverEtch file.",

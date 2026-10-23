@@ -1,5 +1,14 @@
-import { Anchor, Check, Clock, Download, ExternalLink, FileSearch, X } from "lucide-react";
-import { useId, useRef, useState } from "react";
+import {
+  Anchor,
+  Check,
+  Clock,
+  Download,
+  ExternalLink,
+  FileSearch,
+  LoaderCircle,
+  X,
+} from "lucide-react";
+import { useId, useRef, useState, type CSSProperties } from "react";
 
 import { explorerUrl } from "../../chain/config.ts";
 import { useLedgerAnchor, type AnchorOutcome } from "../../chain/useLedgerAnchor.ts";
@@ -195,9 +204,19 @@ export function ProofPanel({ reach, onExport }: ProofPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const hintId = useId();
   const [state, setState] = useState<
-    | { readonly step: "idle" | "running" | "failed" }
+    | { readonly step: "idle" | "failed" }
+    // While a file is checked: its rows compared so far, of how many (0 of 0: still opening it).
+    | { readonly step: "running"; readonly done: number; readonly total: number }
     | { readonly step: "done"; readonly report: FileReport | null }
   >({ step: "idle" });
+  const running = state.step === "running";
+  // What the button says while it works: opening the file, the rows, then the chain.
+  const progress =
+    state.step !== "running" || state.total === 0
+      ? copy.checking
+      : state.done < state.total
+        ? copy.checkingRows(state.done, state.total)
+        : copy.checkingChain;
   return (
     <section
       className="case-panel case-record case-glass"
@@ -231,11 +250,27 @@ export function ProofPanel({ reach, onExport }: ProofPanelProps) {
           type="button"
           className="case-btn case-btn--ghost case-action__btn"
           aria-describedby={hintId}
-          disabled={state.step === "running"}
+          aria-busy={running}
+          disabled={running}
           onClick={() => inputRef.current?.click()}
+          style={
+            state.step === "running" && state.total > 0
+              ? ({ "--done": `${String((100 * state.done) / state.total)}%` } as CSSProperties)
+              : undefined
+          }
         >
-          <FileSearch size={15} strokeWidth={1.9} aria-hidden="true" />
-          {state.step === "running" ? copy.checking : copy.check}
+          {running ? (
+            <LoaderCircle
+              className="case-action__spin"
+              size={15}
+              strokeWidth={1.9}
+              aria-hidden="true"
+            />
+          ) : (
+            <FileSearch size={15} strokeWidth={1.9} aria-hidden="true" />
+          )}
+          {running ? progress : copy.check}
+          {running ? <span className="case-action__progress" aria-hidden="true" /> : null}
         </button>
         <p className="case-action__purpose" id={hintId}>
           {copy.checkPurpose}
@@ -253,10 +288,14 @@ export function ProofPanel({ reach, onExport }: ProofPanelProps) {
             if (picked === undefined) {
               return;
             }
-            setState({ step: "running" });
+            setState({ step: "running", done: 0, total: 0 });
             picked
               .arrayBuffer()
-              .then((buffer) => checkProofFile(new Uint8Array(buffer), io))
+              .then((buffer) =>
+                checkProofFile(new Uint8Array(buffer), io, (done, total) => {
+                  setState({ step: "running", done, total });
+                }),
+              )
               .then((report) => {
                 setState({ step: "done", report });
               })
@@ -268,6 +307,7 @@ export function ProofPanel({ reach, onExport }: ProofPanelProps) {
       </div>
       <p className="case-record__hint">{copy.accepts}</p>
       <div className="case-verify" aria-live="polite">
+        {running ? <p className="case-visually-hidden">{copy.checking}</p> : null}
         {state.step === "failed" ? <p className="case-verify__note">{copy.failed}</p> : null}
         {state.step === "done" && state.report === null ? (
           <p className="case-verify__note">{copy.unreadable}</p>
