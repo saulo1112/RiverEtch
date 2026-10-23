@@ -1,8 +1,9 @@
 import { Compass, Minus, Plus } from "lucide-react";
 
-import type { FnuClass, ReachData } from "../../reaches/types.ts";
+import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
 import type { HoverInfo } from "../map.ts";
+import { primaryText, secondaryText, type TurbidityShown } from "../turbidity.ts";
 
 /** Props of {@link MapControls}. */
 export interface MapControlsProps {
@@ -80,8 +81,11 @@ export function MapControls({
 export interface InspectorProps {
   readonly hover: HoverInfo | null;
   readonly reach: ReachData;
-  /** On the Turbidity layer: the class of the stretch under the cursor (null: none; absent: other layers). */
-  readonly stretchClass?: FnuClass | null;
+  /**
+   * On the Turbidity layer: the stretch under the cursor, its value and its error or range (null:
+   * no reading; absent: other layers).
+   */
+  readonly stretch?: TurbidityShown | null;
 }
 
 /**
@@ -90,7 +94,7 @@ export interface InspectorProps {
  *
  * @returns The tooltip, or nothing.
  */
-export function Inspector({ hover, reach, stretchClass }: InspectorProps) {
+export function Inspector({ hover, reach, stretch }: InspectorProps) {
   if (hover?.reading == null) {
     return null;
   }
@@ -104,12 +108,17 @@ export function Inspector({ hover, reach, stretchClass }: InspectorProps) {
       style={{ left: `${String(hover.x + 16)}px`, top: `${String(hover.y + 16)}px` }}
       aria-hidden="true"
     >
-      {stretchClass === undefined ? null : (
-        <p className="case-inspector__value">
-          {stretchClass === null ? inspector.noClass : CASE_COPY.ungauged.classes[stretchClass]}
-        </p>
+      {stretch === undefined ? null : (
+        <>
+          <p className="case-inspector__value">
+            {stretch === null ? inspector.noClass : primaryText(stretch)}
+          </p>
+          {secondaryText(stretch) === null ? null : (
+            <p className="case-inspector__detail">{secondaryText(stretch)}</p>
+          )}
+        </>
       )}
-      {stretchClass !== undefined ? null : reading.ndti === null ? (
+      {stretch !== undefined ? null : reading.ndti === null ? (
         <p className="case-inspector__value case-inspector__value--off">{inspector.unusable}</p>
       ) : (
         <p className="case-inspector__value">

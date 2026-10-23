@@ -186,9 +186,14 @@ class Estimate(_Model):
     @model_validator(mode="after")
     def _check(self) -> Estimate:
         quantitative = self.level in ("validated", "estimated")
+        # An ungauged reach's class may carry the value it was made from, never an interval
+        # (preregistration-values.md).
+        classed = self.level == "unvalidated" and self.fnu_class is not None
         silent = not quantitative or self.abstain_reason is not None
-        if silent and (self.value is not None or self.interval is not None):
-            raise ValueError("only a validated or estimated level, not abstaining, has a value")
+        if silent and self.interval is not None:
+            raise ValueError("only a validated or estimated level, not abstaining, has an interval")
+        if silent and self.value is not None and not (classed and self.abstain_reason is None):
+            raise ValueError("only a validated or estimated level, or a class, has a value")
         if self.relative_class is not None and self.level != "indicative":
             raise ValueError("a relative class belongs to the indicative level only")
         if self.fnu_class is not None and self.level != "unvalidated":
@@ -322,6 +327,25 @@ def json_schema() -> dict[str, Any]:
     defs["Estimate"]["allOf"] = [
         {
             "if": {"properties": {"level": {"not": quantitative}}, "required": ["level"]},
+            "then": {"properties": {"interval": {"const": None}}},
+        },
+        # A value below the estimated level only beside an ungauged reach's class
+        # (preregistration-values.md), and never while abstaining.
+        {
+            "if": {"properties": {"level": {"not": {"enum": ["validated", "estimated",
+                                                             "unvalidated"]}}},
+                   "required": ["level"]},
+            "then": {"properties": {"value": {"const": None}}},
+        },
+        {
+            "if": {"properties": {"level": {"const": "unvalidated"}}, "required": ["level"],
+                   "anyOf": [{"not": {"required": ["fnuClass"]}},
+                             {"properties": {"fnuClass": {"const": None}}}]},
+            "then": {"properties": {"value": {"const": None}}},
+        },
+        {
+            "if": {"required": ["abstainReason"],
+                   "properties": {"abstainReason": {"not": {"const": None}}}},
             "then": {"properties": {"value": {"const": None}, "interval": {"const": None}}},
         },
         {
@@ -365,7 +389,8 @@ def json_schema() -> dict[str, Any]:
         "description": (
             "One published observation of a river reach (v2). Indices are relative (never a "
             "unit); an estimate shows a value and its interval only at the validated or "
-            "estimated level and without an abstainReason. The verdict follows from the NDTI "
+            "estimated level and without an abstainReason; an ungauged reach's class may carry "
+            "the value it was made from, with no interval. The verdict follows from the NDTI "
             "D0 z-scores alone."
         ),
     }

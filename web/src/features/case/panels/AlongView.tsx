@@ -10,7 +10,8 @@ import {
   stepWindow,
   thermalPasses,
 } from "../../reaches/along.ts";
-import type { ReachData } from "../../reaches/types.ts";
+import type { AlongPass, ReachData } from "../../reaches/types.ts";
+import { primaryText, secondaryText, shownOf } from "../turbidity.ts";
 import { CASE_COPY, daysBetween, formatDate } from "../content.ts";
 import { useSize } from "./useSize.ts";
 
@@ -185,6 +186,22 @@ export function AlongView({
   const tipWindow = hover === null ? undefined : windows[hover.row];
   const tipClass =
     tip === undefined || hover === null ? null : (tip.pass.classes[hover.row] ?? null);
+  // A stretch's turbidity: its value beside its error or range (preregistration-values.md), or its
+  // class on an older record.
+  const turbidityOf = (pass: (typeof passes)[number]["pass"], row: number) => {
+    if (temperature) {
+      return null;
+    }
+    const turbidityPass = pass as AlongPass;
+    return shownOf(
+      reach,
+      turbidityPass.values?.[row],
+      turbidityPass.classes[row],
+      __TRANSFER_POOLED__.mdsa,
+    );
+  };
+  const tipShown =
+    temperature || tip === undefined || hover === null ? null : turbidityOf(tip.pass, hover.row);
   const current = column < 0 ? undefined : passes[column];
   const km = (m: number) => (m / 1000).toFixed(1);
   const stretch = (row: number) => {
@@ -325,8 +342,11 @@ export function AlongView({
             {formatDate(tip.pass.date, true)} · {stretch(hover.row)}
           </p>
           <p className={tipClass === null ? "case-series__tip-none" : "case-series__tip-value"}>
-            {words(tipClass)}
+            {temperature || tipShown === null ? words(tipClass) : primaryText(tipShown)}
           </p>
+          {secondaryText(tipShown) === null ? null : (
+            <p className="case-series__tip-gauge">{secondaryText(tipShown)}</p>
+          )}
           <p className="case-series__tip-gauge">
             {copy.read(
               tip.pass.classes.filter((c) => c !== null).length,
@@ -338,9 +358,11 @@ export function AlongView({
       <p className="case-visually-hidden" aria-live="polite">
         {current === undefined || spotRow === null
           ? ""
-          : `${formatDate(current.pass.date, true)}, ${stretch(spotRow)}: ${words(
-              current.pass.classes[spotRow] ?? null,
-            )}`}
+          : `${formatDate(current.pass.date, true)}, ${stretch(spotRow)}: ${
+              temperature
+                ? words(current.pass.classes[spotRow] ?? null)
+                : primaryText(turbidityOf(current.pass, spotRow))
+            }`}
       </p>
     </div>
   );

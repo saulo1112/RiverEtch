@@ -64,7 +64,8 @@ import { ReadingCheck } from "./panels/ReadingCheck.tsx";
 import { SpotCoords } from "./panels/SpotCoords.tsx";
 import { Timeline, type BottomTab } from "./panels/Timeline.tsx";
 import { markFlight } from "./qa.ts";
-import { alongPassOf, spotOf, turbidityAt } from "./spot.ts";
+import { alongPassOf, spotOf } from "./spot.ts";
+import { primaryText, spotShown, stretchShown } from "./turbidity.ts";
 
 /**
  * How the case view enters: `flight` starts the map at the handoff pose and flies in on `go`;
@@ -554,24 +555,20 @@ export function CaseView({
     }
     handle.showScene(file, photo);
     if (spotIndex !== null && spot !== null) {
-      // Away from the start: the stretch's class on this pass, never a value.
-      const cls = turbidityAt(shown, row.sceneId, spotIndex);
+      // Away from the start: the stretch's value on this pass (its class, on an older record).
       handle.setGauge({
-        value: cls === null ? CASE_COPY.noReading : CASE_COPY.ungauged.classes[cls],
+        value: primaryText(stretchShown(shown, row.sceneId, spotIndex, __TRANSFER_POOLED__.mdsa)),
         caption: spot.stretch,
       });
       return;
     }
     const estimate = turbidity(row);
-    // A reach with no gauge labels its window with the pass's class, never a value.
-    const cls = estimate?.fnuClass ?? null;
+    // A reach with no station labels its spot with the pass's value (or class, on an older record).
     handle.setGauge({
       value:
-        typeof estimate?.value === "number"
+        typeof estimate?.value === "number" && estimate.level !== "unvalidated"
           ? `${formatValue(estimate.value)} ${estimate.unit}`
-          : cls === null
-            ? CASE_COPY.noReading
-            : CASE_COPY.ungauged.classes[cls],
+          : primaryText(spotShown(shown, estimate, __TRANSFER_POOLED__.mdsa)),
       caption: isUngauged(reach)
         ? CASE_COPY.ungauged.mapCaption
         : reach.info.station.id.replace("USGS-", "USGS station "),
@@ -916,12 +913,15 @@ export function CaseView({
       <Inspector
         hover={hover}
         reach={reach}
-        stretchClass={
+        stretch={
           (shownMode !== "class" && !outlined) || hover?.reading == null || shown.along == null
             ? undefined
-            : (passOf(shown, selected)?.classes[
-                windowAt(shown.along, hover.reading.place, length) ?? -1
-              ] ?? null)
+            : stretchShown(
+                shown,
+                shown.series[selected]?.sceneId,
+                windowAt(shown.along, hover.reading.place, length) ?? -1,
+                __TRANSFER_POOLED__.mdsa,
+              )
         }
       />
       {/* Under the guided tour (a modal dialog) the panels are inert: seen, not reachable. */}

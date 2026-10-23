@@ -176,8 +176,14 @@ export function recordCells(dataset: DatasetId, record: JsonValue): Record<strin
   const key = dataset === "along" ? "fnuClass" : "temperatureClass";
   const windows = field(record, "windows");
   const out: Record<string, string> = { date: text(field(record, "date")) };
+  // A record with values (riveretch.along-river.v2, preregistration-values.md): each window's
+  // value in FNU beside its class.
+  const valued = dataset === "along" && text(field(record, "schema")).endsWith(".v2");
   for (const w of Array.isArray(windows) ? windows : []) {
     out[text(field(w, "id"))] = text(field(w, key));
+    if (valued) {
+      out[`${text(field(w, "id"))}_fnu`] = text(field(w, "fnuValue"));
+    }
   }
   return out;
 }

@@ -39,7 +39,7 @@ export interface Estimate {
   readonly value?: number | null;
   readonly interval?: Interval | null;
   readonly relativeClass?: "low" | "medium" | "high" | null;
-  /** An ungauged reach's class (never a value). */
+  /** An ungauged reach's class (with its value since preregistration-values.md). */
   readonly fnuClass?: FnuClass | null;
   readonly abstainReason?: string | null;
   readonly modelId?: string | null;
@@ -651,6 +651,8 @@ export interface AlongPass {
   /** The record's file in the along folder (absent in series written before it was listed). */
   readonly file?: string;
   readonly classes: readonly (FnuClass | null)[];
+  /** Each window's value in FNU beside its class (preregistration-values.md; absent before it). */
+  readonly values?: readonly (number | null)[];
   readonly reasons: readonly (string | null)[];
 }
 

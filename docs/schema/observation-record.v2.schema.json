@@ -156,6 +156,75 @@
             "properties": {
               "interval": {
                 "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "level": {
+                "not": {
+                  "enum": ["validated", "estimated", "unvalidated"]
+                }
+              }
+            },
+            "required": ["level"]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "anyOf": [
+              {
+                "not": {
+                  "required": ["fnuClass"]
+                }
+              },
+              {
+                "properties": {
+                  "fnuClass": {
+                    "const": null
+                  }
+                }
+              }
+            ],
+            "properties": {
+              "level": {
+                "const": "unvalidated"
+              }
+            },
+            "required": ["level"]
+          },
+          "then": {
+            "properties": {
+              "value": {
+                "const": null
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "abstainReason": {
+                "not": {
+                  "const": null
+                }
+              }
+            },
+            "required": ["abstainReason"]
+          },
+          "then": {
+            "properties": {
+              "interval": {
+                "const": null
               },
               "value": {
                 "const": null
@@ -814,7 +883,7 @@
   "$id": "observation-record.v2",
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "additionalProperties": false,
-  "description": "One published observation of a river reach (v2). Indices are relative (never a unit); an estimate shows a value and its interval only at the validated or estimated level and without an abstainReason. The verdict follows from the NDTI D0 z-scores alone.",
+  "description": "One published observation of a river reach (v2). Indices are relative (never a unit); an estimate shows a value and its interval only at the validated or estimated level and without an abstainReason; an ungauged reach's class may carry the value it was made from, with no interval. The verdict follows from the NDTI D0 z-scores alone.",
   "properties": {
     "climateContext": {
       "$ref": "#/$defs/ClimateContext"

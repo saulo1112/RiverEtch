@@ -608,6 +608,7 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
     lab = root / s.quality.outputs.inputs / "lab"
     hashes = {t: cards.card_hash(c) for t, c in s.cards.items()}
     guards = s.quality.window.as_calibration()
+    with_value = values_anchored(root)
     settings = config_path or root / "pipeline" / "reach.yaml"
     params = hashlib.sha256(b"".join(p.read_bytes() for p in (
         settings, root / cfg.screening_config, root / cfg.quality_config))).hexdigest()  # fmt: skip
@@ -643,7 +644,7 @@ def run(cfg: ReachConfig, root: Path, site_id: str, since: date | None, until: d
                 continue
             estimates = [
                 records.estimate(s.cards.get(t.id), hashes.get(t.id, ""), t, measure,
-                                 baseline.estimates.get(t.id, []), guards, lab)
+                                 baseline.estimates.get(t.id, []), guards, lab, with_value)
                 for t in s.quality.targets if t.id in s.reach.targets
             ]  # fmt: skip
             rec = records.record(site_id, measure, baseline, estimates,
@@ -944,11 +945,26 @@ def frozen_cards(root: Path, reach: Reach) -> set[str]:
             if "canonicalSha256" in x and Path(x["path"]).parent.as_posix() in folders}  # fmt: skip
 
 
+def values_anchored(root: Path) -> bool:
+    """Whether an ungauged class carries its value yet (preregistration-values.md is anchored).
+
+    Args:
+        root: Repository root.
+
+    Returns:
+        True once that file's line is anchored.
+    """
+    from climate_pipeline.reach.along import anchored
+
+    return anchored(root, records.VALUES_PREREGISTRATION)
+
+
 def reread(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 8,
            prepared: Setup | None = None, config_path: Path | None = None
            ) -> RunSummary:  # fmt: skip
     """Read again, with the reach's current card, every pass whose record names another card.
 
+    Also, once preregistration-values.md is anchored, every pass whose class has no value yet.
     Preregistration-four-classes.md, section 4: each pass is measured again and sealed as a new
     record that names the one it replaces (``supersedes``), appended to the same ledger. The
     earlier record stays, unchanged. The rain flags are the earlier record's (the same pass). A
@@ -979,8 +995,12 @@ def reread(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int
     sealed = [v2.ObservationRecordV2.model_validate_json(
         (folder / x["file"]).read_text(encoding="utf-8")) for x in lines]  # fmt: skip
     replaced = {r.supersedes for r in sealed if r.supersedes is not None}
+    with_value = values_anchored(root)
+    # A record to read again: it names another card, or (once preregistration-values.md is
+    # anchored) it has a class without the value it was made from.
     stale = [r for r in sealed if r.record_sha256 not in replaced and any(
-        e.model_card_sha256 and e.target in hashes and e.model_card_sha256 != hashes[e.target]
+        (e.model_card_sha256 and e.target in hashes and e.model_card_sha256 != hashes[e.target])
+        or (with_value and e.fnu_class is not None and e.value is None)
         for e in r.estimates)]  # fmt: skip
     if not stale:
         return summary
@@ -1010,7 +1030,7 @@ def reread(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int
                 continue
             estimates = [
                 records.estimate(s.cards.get(t.id), hashes.get(t.id, ""), t, measure,
-                                 baseline.estimates.get(t.id, []), guards, lab)
+                                 baseline.estimates.get(t.id, []), guards, lab, with_value)
                 for t in s.quality.targets if t.id in s.reach.targets
             ]  # fmt: skip
             rec = records.record(site_id, measure, baseline, estimates, old.rain,

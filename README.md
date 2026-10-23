@@ -78,8 +78,8 @@ turbidity, so the satellite's reading is the only one there is.
 flowchart TD
   Q{"Does a station measure<br/>turbidity on this reach?"}
   Q -->|"Yes: Mississippi at Belle Chasse,<br/>Platte at Louisville"| A["A value with a unit (FNU)<br/>and its 90 % range,<br/>tested once against that station"]
-  Q -->|"No: Mississippi above Natchez"| B["A class only (for example 30 to 50 FNU),<br/>with the error measured on<br/>rivers the model never saw"]
-  Q -->|"No, and outside the United States:<br/>the Euphrates at Birecik, Türkiye"| C["A class only;<br/>its error there<br/>has not been measured"]
+  Q -->|"No: Mississippi above Natchez"| B["A value in FNU and its class,<br/>with the typical error measured<br/>on rivers the model never saw"]
+  Q -->|"No, and outside the United States:<br/>the Euphrates at Birecik, Türkiye"| C["A value in FNU<br/>and its class's range"]
 ```
 
 ![A river with a station: the Mississippi at Belle Chasse. The map shows the reach in 3D, painted by turbidity class stretch by stretch, with the orange reading spot at the station; the panel reads 30.0 FNU with an expected range of 20.6 to 43.7 FNU, labelled Validated, fingerprinted and posted on Ethereum; at the bottom, the satellite's readings beside the station's own flow and water level](docs/img/case-gauged.jpg)
@@ -96,16 +96,16 @@ rivers the model never saw._
 
 A station sees one point of a river. So the same frozen model also reads a window every 600 m
 along each reach: 38 windows at Belle Chasse, 35 on the Platte, 29 above Natchez and 16 at Birecik.
-Each stretch gets a turbidity class (under 30, 30 to 50, 50 to 100, 100 FNU and over), or no
-reading (the record says why). The map paints the river by class, and the **Along the river** tab
+Each stretch gets a turbidity value in FNU and its class (under 30, 30 to 50, 50 to 100, 100 FNU
+and over), or no reading (the record says why). The map paints the river by class, and the **Along the river** tab
 shows the year: one column per pass, one row per stretch. Hover a stretch and the map marks it.
 
 **Move the reading spot.** Drag the amber spot along the river, click the river, or use the arrows
 in the case file: the panels follow that stretch. On the two reaches with a water-temperature
 model, the same windows also get a water-temperature class on each Landsat pass (under 10, 10 to
 15, 15 to 20, 20 to 25, 25 to 30, 30 °C and over), fixed before any was read
-([preregistration](docs/water-quality/preregistration-along-temperature.md)). The station stays marked where it stands, and only its
-window shows a value with a unit.
+([preregistration](docs/water-quality/preregistration-along-temperature.md)). The station stays marked where it stands, and its window
+shows the value tested against that station, with its 90 % range.
 
 **Earlier years.** The calendar also opens 2019 to 2025. Those years are read again with the same
 frozen models, along the river and at the station, and every panel labels them "Recomputed, not
@@ -132,9 +132,11 @@ flow can also be exported with proof, one row per day, and checked with **Check 
   anchored on Ethereum first ([preregistration](docs/water-quality/preregistration-along-river.md)).
 - **Sealed like every record.** Each pass along the river is a record in the reach's own ledger
   (`terrachain:<reach>:along`), anchored, timestamped and signed like the others.
-- **A class, never a value with a unit.** No station measures these stretches, so their error is
-  not measured there. On rivers the model never saw, its class matched the station in 160 of 298
-  test passes; at Birecik, outside the United States, its error has not been measured at all.
+- **A value beside its class.** Each stretch shows the model's value in FNU
+  ([preregistration](docs/water-quality/preregistration-values.md)). On the US reaches it comes with
+  the typical error the model had on rivers it never saw: 37 % (median symmetric accuracy over 298
+  test passes; by station, 15 % to 162 %), and its class matched the station in 160 of those 298
+  passes. At Birecik it comes with its class's range.
 
 ## Take it out with proof, check it anywhere
 

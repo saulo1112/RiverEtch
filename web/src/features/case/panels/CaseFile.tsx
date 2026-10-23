@@ -46,6 +46,14 @@ import {
 } from "../content.ts";
 import { gainOver, insideCount, leanOfTurbidity } from "../reading.ts";
 import { alongPassOf, temperatureAt, turbidityHelp, type Spot } from "../spot.ts";
+import {
+  primaryText,
+  secondaryText,
+  spotShown,
+  stretchShown,
+  stretchValued,
+  type TurbidityShown,
+} from "../turbidity.ts";
 import { DayChooser } from "./DayChooser.tsx";
 import { DisclosureButton } from "./DisclosureButton.tsx";
 import { HelpTip } from "./HelpTip.tsx";
@@ -449,6 +457,43 @@ function OwnPast({ reach, row }: { readonly reach: ReachData; readonly row: Seri
 
 // An ungauged reach's expected error (preregistration-transfer.md, section 5): the class agreement
 // as a count, the pooled median error with what it is a share of, and which way it leans.
+// A reach with no station, or a stretch along a reach (preregistration-values.md): its value in FNU
+// with its typical error and range beside it (outside the tested region, its range), or its class
+// alone on a record sealed before the value.
+function ShownValue({ shown }: { readonly shown: TurbidityShown | null }) {
+  const beside = secondaryText(shown);
+  return (
+    <>
+      <p className="case-file__value">
+        {shown === null ? (
+          <span className="case-file__none">{CASE_COPY.noReading}</span>
+        ) : shown.value !== null ? (
+          <>
+            {formatValue(shown.value)}
+            <span className="case-file__unit"> FNU</span>
+          </>
+        ) : (
+          primaryText(shown)
+        )}
+      </p>
+      {beside === null ? null : (
+        <p className="case-file__range-line">
+          <span>{beside}</span>
+          {shown?.errorPercent == null ? null : (
+            <HelpTip label={CASE_COPY.value.errorHelpLabel}>
+              {CASE_COPY.value.errorHelp(
+                __TRANSFER_POOLED__.mdsa.toFixed(1),
+                __TRANSFER_POOLED__.n,
+                Math.abs(__TRANSFER_POOLED__.sspb).toFixed(0),
+              )}
+            </HelpTip>
+          )}
+        </p>
+      )}
+    </>
+  );
+}
+
 function ExpectedErrorNote({
   error,
   baseline,
@@ -525,7 +570,20 @@ export function CaseFile({
   const level = estimate?.level ?? overall?.level ?? (noGauge ? "unvalidated" : "none");
   // Away from the start: the stretch's class on this pass, from its along-river record.
   const alongPass = spot === null ? null : alongPassOf(reach, row?.sceneId);
-  const stretchClass = spot === null ? null : (alongPass?.classes[spot.index] ?? null);
+  const stretchValue =
+    spot === null ? null : stretchShown(reach, row?.sceneId, spot.index, __TRANSFER_POOLED__.mdsa);
+  // "Turbidity" where the records carry values, "Turbidity class" where they carry a class alone
+  // (older records).
+  const stretchTitle =
+    stretchValue?.value != null || stretchValued(reach)
+      ? CASE_COPY.quality.turbidity
+      : CASE_COPY.spot.turbidity;
+  const turbidityTitle = !noGauge
+    ? CASE_COPY.turbidity
+    : typeof estimate?.value === "number" ||
+        reach.series.some((r) => typeof turbidity(r)?.value === "number")
+      ? CASE_COPY.quality.turbidity
+      : ungauged.turbidity;
   const spotRow =
     spotControls === null ? null : <SpotRow controls={spotControls} gauged={!noGauge} />;
   // The calendar, with the year above its months.
@@ -596,21 +654,11 @@ export function CaseFile({
         </header>
 
         {row !== null && spot !== null ? (
-          <section
-            className="case-file__summary"
-            data-tour="summary"
-            aria-label={CASE_COPY.spot.turbidity}
-          >
+          <section className="case-file__summary" data-tour="summary" aria-label={stretchTitle}>
             <p className="case-file__metric">
-              {CASE_COPY.spot.turbidity} · {chooser(row.date)}
+              {stretchTitle} · {chooser(row.date)}
             </p>
-            <p className="case-file__value">
-              {stretchClass === null ? (
-                <span className="case-file__none">{CASE_COPY.noReading}</span>
-              ) : (
-                ungauged.classes[stretchClass]
-              )}
-            </p>
+            <ShownValue shown={stretchValue} />
             {spotRow}
             {archiveStrip ?? (
               <Trust
@@ -634,23 +682,13 @@ export function CaseFile({
             )}
           </section>
         ) : row === null ? null : (
-          <section
-            className="case-file__summary"
-            data-tour="summary"
-            aria-label={noGauge ? ungauged.turbidity : CASE_COPY.turbidity}
-          >
+          <section className="case-file__summary" data-tour="summary" aria-label={turbidityTitle}>
             <p className="case-file__metric">
-              {noGauge ? ungauged.turbidity : CASE_COPY.turbidity} · {chooser(row.date)}
+              {turbidityTitle} · {chooser(row.date)}
             </p>
             {noGauge ? (
               <>
-                <p className="case-file__value">
-                  {fnuClass === null ? (
-                    <span className="case-file__none">{CASE_COPY.noReading}</span>
-                  ) : (
-                    ungauged.classes[fnuClass]
-                  )}
-                </p>
+                <ShownValue shown={spotShown(reach, estimate, __TRANSFER_POOLED__.mdsa)} />
                 {spotRow}
                 <OwnPast reach={reach} row={row} />
               </>

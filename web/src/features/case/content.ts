@@ -78,10 +78,10 @@ export const CASE_COPY = {
   },
   // A reach with no gauge outside the region the model was tested in
   // (preregistration-outside-us.md): the same class, and no error figure of any kind.
-  levelHelpOutside:
-    "A turbidity class read from the satellite. The model was tested on rivers in the United States; its error here has not been measured.",
+  levelHelpOutside: "Turbidity read from the satellite, in FNU, shown with the range of its class.",
   // A reach with no gauge (preregistration-transfer.md, section 5): a class only, beside the
-  // expected error that the test on rivers the model never saw measured; never a value.
+  // expected error that the test on rivers the model never saw measured; since
+  // preregistration-values.md, its value beside it.
   ungauged: {
     turbidity: "Turbidity class",
     classes: {
@@ -116,6 +116,7 @@ export const CASE_COPY = {
     noClimate:
       "No open daily flow record of this river was found, so this case has no Climate tab.",
     chartKey: "Each pass's turbidity class in FNU (the height means the class only)",
+    chartKeyValue: "Each pass's turbidity in FNU",
     noGauge: "No station on this reach, so nothing here is scored against one.",
     // The pass's turbidity index against the river's own past passes (rule D0), on the card.
     ownPast: "Against this river's own past",
@@ -383,6 +384,15 @@ export const CASE_COPY = {
     view3d: "3D",
     view2d: "2D",
   },
+  // The turbidity value beside its class, where the model's value is sealed
+  // (preregistration-values.md): its typical error on the US reaches, its class's range elsewhere.
+  value: {
+    typicalError: (percent: number) => `Typical error ${String(percent)} %`,
+    range: (cls: string) => `Range ${cls.charAt(0).toLowerCase()}${cls.slice(1)}`,
+    errorHelpLabel: "About this error",
+    errorHelp: (mdsa: string, n: number, low: string) =>
+      `Measured on ${String(n)} passes of five rivers the model never saw: half of its values were within ${mdsa} % of the station's, and it tended to read about ${low} % low.`,
+  },
   inspector: {
     ndti: "NDTI",
     relative: "relative",
@@ -484,7 +494,7 @@ export const CASE_COPY = {
     downstream: "Move the reading spot downstream",
     back: "Back to the start",
     helpLabel: "About the reading spot",
-    help: "Drag the orange spot along the river, click the river, or use these arrows. It snaps to the nearest 600 m stretch. Away from the start, each stretch shows a class from the along-river records, never a value.",
+    help: "Drag the orange spot along the river, click the river, or use these arrows. It snaps to the nearest 600 m stretch. Away from the start, each stretch shows its own turbidity from the along-river records.",
     turbidity: "Turbidity class",
     temperature: "Water temperature class",
     // Behind the class's (?), word for word as section 3 fixes them.
@@ -497,6 +507,7 @@ export const CASE_COPY = {
     classHelpLabel: "About this class",
     chartKey: (stretch: string) =>
       `Each pass's turbidity class at ${stretch} (the height means the class only)`,
+    chartKeyValue: (stretch: string) => `Each pass's turbidity at ${stretch}, in FNU`,
     temperatureKey: (stretch: string) =>
       `Each Landsat pass's water temperature class at ${stretch} (the height means the class only)`,
     noReadings: "No reading on this stretch this year.",

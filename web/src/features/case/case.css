@@ -3025,6 +3025,13 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   font-weight: 450;
 }
 
+/* Beside a stretch's value: its typical error and range, or its range. */
+.case-inspector__detail {
+  color: var(--text-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
 .case-inspector__value--off {
   color: #c9d2e4;
   font-weight: 500;

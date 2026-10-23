@@ -37,6 +37,8 @@ from climate_pipeline.screening.stac import Acquisition, group_acquisitions, sea
 log = logging.getLogger(__name__)
 
 SCHEMA = "riveretch.archive.v1"
+# Each class beside the value it was made from (preregistration-values.md).
+SCHEMA_V2 = "riveretch.archive.v2"
 SCHEMA_TEMPERATURE = "riveretch.archive-temperature.v1"
 PREREGISTRATION = "docs/water-quality/preregistration-archive.md"
 YEARS = tuple(range(2019, 2026))  # 2019 to 2025: the years before the sealed records
@@ -124,7 +126,7 @@ def write_index(root: Path, site_id: str, kind: str) -> Path:
 
 
 def _station(s: reach_run.Setup, acq: Acquisition, sun: dict[str, float],
-             card: dict[str, Any] | None, card_sha: str, lab: Path
+             card: dict[str, Any] | None, card_sha: str, lab: Path, with_value: bool = False
              ) -> dict[str, Any] | None:  # fmt: skip
     """The start's estimate for one pass, exactly as a record's (no record-level exclusion)."""
     if s.station is None or card is None:
@@ -146,7 +148,7 @@ def _station(s: reach_run.Setup, acq: Acquisition, sun: dict[str, float],
         window_problem=problem,
     )  # fmt: skip
     e = records.estimate(card, card_sha, target, measure, [], s.quality.window.as_calibration(),
-                         lab)  # fmt: skip
+                         lab, with_value)  # fmt: skip
     return {
         "level": e.level, "value": _num(e.value),
         "low": _num(e.interval.low) if e.interval else None,
@@ -196,15 +198,21 @@ def run(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 
     ungauged = s.reach.station_source != "usgs"
     commit = head()
     out = folder(root, site_id)
+    with_value = along.anchored(root, records.VALUES_PREREGISTRATION)
     summary = Summary()
     for year in years:
         path = out / f"{year}.json"
-        doc = _load(path) or {
-            "schema": SCHEMA, "reach": site_id, "year": year, "planSha256": plan_sha,
-            "card": frozen["card"], "modelCardSha256": card_sha,
+        fresh = {
+            "schema": SCHEMA_V2 if with_value else SCHEMA, "reach": site_id, "year": year,
+            "planSha256": plan_sha, "card": frozen["card"], "modelCardSha256": card_sha,
             "stationCard": s.reach.cards.get("turbidity"), "stationCardSha256": station_sha,
             "codeCommit": commit, "passes": [], "failed": {}, "notObservable": [],
         }  # fmt: skip
+        doc = _load(path) or fresh
+        # Once preregistration-values.md is anchored, a year written without values is read again
+        # once, from the start (its passes found not observable stay so: the rule is unchanged).
+        if with_value and doc.get("schema") != SCHEMA_V2:
+            doc = {**fresh, "notObservable": list(doc.get("notObservable", []))}
         # Read once: a pass already written, or already found not observable, is not read again.
         done = {p["sceneId"] for p in doc["passes"]} | set(doc.setdefault("notObservable", []))
         acqs, sun = imagery.search(s.quality, "earth-search", reach_run._bbox(s.site),
@@ -219,8 +227,9 @@ def run(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 
                     doc["notObservable"].append(scene_id)
                     _write(path, doc)
                     continue
-                classes = along._classes(s, acq, sun, grid, windows, card, card_sha, lab)
-                station = _station(s, acq, sun, station_card, station_sha, lab)
+                classes = along._classes(s, acq, sun, grid, windows, card, card_sha, lab,
+                                         with_value)  # fmt: skip
+                station = _station(s, acq, sun, station_card, station_sha, lab, with_value)
             except (httpx.HTTPError, OSError, RuntimeError) as error:  # transient: next run
                 log.warning("%s failed: %s", acq.key, error)
                 doc["failed"][acq.key] = str(error)[:200]
@@ -235,6 +244,7 @@ def run(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 
                 "sceneId": scene_id, "date": day.isoformat(),
                 "phase": phase(station_card, day, ungauged), "station": station,
                 "classes": [w.get("fnuClass") for w in classes],
+                **({"values": [w.get("fnuValue") for w in classes]} if with_value else {}),
                 "reasons": [w.get("abstainReason") for w in classes],
             })  # fmt: skip
             doc["passes"].sort(key=lambda p: (p["date"], p["sceneId"]))

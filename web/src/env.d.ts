@@ -41,7 +41,14 @@ declare const __PUBLISHED__: Readonly<
   Record<string, import("./features/reaches/types.ts").PublishedMeasurements>
 >;
 /** results/transfer/transfer_pooled.json: the class agreement on rivers the model never saw. */
-declare const __TRANSFER_POOLED__: { readonly class_agreement: number; readonly n: number };
+declare const __TRANSFER_POOLED__: {
+  readonly class_agreement: number;
+  readonly n: number;
+  /** The value's median symmetric accuracy (%) on the rivers the model never saw. */
+  readonly mdsa: number;
+  /** Its bias (%): below 0, it reads low. */
+  readonly sspb: number;
+};
 /** results/four-classes/four_classes.json: the four-class test, run once (null before it ran). */
 declare const __FOUR_CLASSES__: {
   readonly passes: boolean;

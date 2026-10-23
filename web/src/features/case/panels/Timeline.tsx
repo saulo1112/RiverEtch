@@ -2,7 +2,7 @@ import { Pause, Play, SkipBack, SkipForward } from "lucide-react";
 import { useState, type ReactNode } from "react";
 
 import type { PassStats, ProfilePoint } from "../../reaches/analysis.ts";
-import { isUngauged, thermalValidatedAt } from "../../reaches/scene.ts";
+import { isUngauged, thermalValidatedAt, turbidity } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
 import {
@@ -15,6 +15,13 @@ import {
 import { yearPhases } from "../../reaches/archive.ts";
 import { temperaturePoints, turbidityPoints, type Spot } from "../spot.ts";
 import { AlongView, type AlongVariable } from "./AlongView.tsx";
+import {
+  primaryText,
+  secondaryText,
+  stretchReach,
+  stretchShown,
+  stretchValued,
+} from "../turbidity.ts";
 import { BandChart } from "./BandChart.tsx";
 import { ClimateView, type ClimateTabView } from "./ClimateView.tsx";
 import { HelpTip } from "./HelpTip.tsx";
@@ -192,7 +199,9 @@ function Caption({
             aria-hidden="true"
           />
           {tab === "series"
-            ? CASE_COPY.spot.chartKey(spot.stretch)
+            ? stretchValued(reach)
+              ? CASE_COPY.spot.chartKeyValue(spot.stretch)
+              : CASE_COPY.spot.chartKey(spot.stretch)
             : CASE_COPY.spot.temperatureKey(spot.stretch)}
         </li>
         {tab === "thermal" ? (
@@ -213,7 +222,9 @@ function Caption({
         {recomputed}
         <li>
           <span className="case-timeline__key case-timeline__key--sat" aria-hidden="true" />
-          {CASE_COPY.ungauged.chartKey}
+          {reach.series.some((r) => typeof turbidity(r)?.value === "number")
+            ? CASE_COPY.ungauged.chartKeyValue
+            : CASE_COPY.ungauged.chartKey}
         </li>
       </ul>
     );
@@ -495,9 +506,28 @@ export function Timeline(props: TimelineProps) {
         <div className="case-timeline__view">
           {tab === "quality" ? (
             <WaterQualityView reach={reach} selected={selected} spot={spot} />
+          ) : tab === "series" && spot !== null && stretchValued(reach) ? (
+            // The stretch's values, as the station's are drawn (preregistration-values.md).
+            <SeriesChart
+              reach={stretchReach(reach, spot.index)}
+              selected={selected}
+              compared={props.compared}
+              onSelect={props.onSelect}
+            />
           ) : tab === "series" && spot !== null ? (
             <BandChart
-              points={turbidityPoints(reach, spot.index)}
+              points={turbidityPoints(reach, spot.index).map((p) => {
+                // The stretch's value beside its class, where its record carries one.
+                const shown = stretchShown(
+                  reach,
+                  reach.series[p.index]?.sceneId,
+                  spot.index,
+                  __TRANSFER_POOLED__.mdsa,
+                );
+                return shown?.value == null
+                  ? p
+                  : { ...p, text: primaryText(shown), detail: secondaryText(shown) };
+              })}
               classes={ALONG_CLASSES}
               edges={ALONG_EDGES}
               unit="FNU"

@@ -201,7 +201,7 @@ const published = existsSync(PUBLISHED)
 // Its pooled result on the sediment-carrying rivers: the class agreement an ungauged reach states.
 const transferPooled = JSON.parse(
   readFileSync(join(RESULTS, "transfer", "transfer_pooled.json"), "utf8"),
-) as { class_agreement: number; n: number };
+) as { class_agreement: number; n: number; mdsa: number; sspb: number };
 // The four-class test (preregistration-four-classes.md), run once: whether the ungauged reaches
 // show four classes, and the counts the chapter states (null before it ran).
 const fourPath = join(RESULTS, "four-classes", "four_classes.json");

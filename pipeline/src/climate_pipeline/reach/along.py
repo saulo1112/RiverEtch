@@ -49,6 +49,8 @@ log = logging.getLogger(__name__)
 SPACING_M = 600.0  # one window every 600 m: 300 m windows touch, never overlap
 FIRST_M = 300.0  # the first window's centre, downstream of the centreline's upstream end
 SCHEMA = "riveretch.along-river.v1"
+# Each window's class and the value it was made from (preregistration-values.md).
+SCHEMA_V2 = "riveretch.along-river.v2"
 # The four-class transfer card that reads a reach's windows: the US card for every US reach, the
 # reach's own card outside the tested region (preregistration-along-river.md, section 3).
 US_CARD = "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json"
@@ -278,8 +280,8 @@ def seal(doc: dict[str, Any]) -> str:
 
 def _classes(s: reach_run.Setup, acq: Acquisition, sun: dict[str, float], grid: extract.Windows,
              plan_windows: list[Window], card: dict[str, Any], card_sha: str,
-             lab: Path) -> list[dict[str, str]]:  # fmt: skip
-    """Every window's class for one pass, or why it has none, in the plan's order."""
+             lab: Path, with_value: bool = False) -> list[dict[str, Any]]:  # fmt: skip
+    """Every window's class for one pass (with its value), or why it has none, in plan order."""
     placed = [w for w in plan_windows if w.selected]
     names = [f"{w.id}|{k}" for w in placed for k in ("300m", "core")]
     stats = extract.measure_window(acq, s.reader, grid, names, s.d15, s.screening)
@@ -292,7 +294,7 @@ def _classes(s: reach_run.Setup, acq: Acquisition, sun: dict[str, float], grid: 
     target = next(t for t in s.quality.targets if t.id == "turbidity")
     guards = s.quality.window.as_calibration()
     window_name = str(card["window"])
-    out: list[dict[str, str]] = []
+    out: list[dict[str, Any]] = []
     for w in plan_windows:
         if not w.selected:
             out.append({"id": w.id, "abstainReason": NOT_PLACED})
@@ -307,8 +309,10 @@ def _classes(s: reach_run.Setup, acq: Acquisition, sun: dict[str, float], grid: 
             window=scene.features if scene else {}, stats=scene.stats if scene else {},
             window_problem="" if scene else "the window was not measured",
         )  # fmt: skip
-        e = records.estimate(card, card_sha, target, measure, [], guards, lab)
-        if e.fnu_class is not None:
+        e = records.estimate(card, card_sha, target, measure, [], guards, lab, with_value)
+        if e.fnu_class is not None and with_value and e.value is not None:
+            out.append({"id": w.id, "fnuClass": str(e.fnu_class), "fnuValue": e.value})
+        elif e.fnu_class is not None:
             out.append({"id": w.id, "fnuClass": str(e.fnu_class)})
         else:
             out.append({"id": w.id, "abstainReason": e.abstain_reason or "no class"})
@@ -387,7 +391,16 @@ def run(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 
     lab = root / s.quality.outputs.inputs / "lab"
     out = folder(cfg, root, site_id)
     ledger = out / "ledger.jsonl"
-    done = {x["sceneId"] for x in _ledger_lines(ledger)}
+    # Once preregistration-values.md is anchored, a pass is done only with a record that carries
+    # the values (each pass read once more); before, any record will do.
+    with_value = anchored(root, records.VALUES_PREREGISTRATION)
+    lines = _ledger_lines(ledger)
+    latest = {x["sceneId"]: x for x in lines}
+    done = {
+        k for k, x in latest.items()
+        if not with_value
+        or json.loads((out / x["file"]).read_text(encoding="utf-8")).get("schema") == SCHEMA_V2
+    }  # fmt: skip
     todo = sorted((r for r in _observations(cfg, root, site_id) if r.scene_id not in done),
                   key=lambda r: (r.date, r.scene_id))  # fmt: skip
     summary = Summary([], {})
@@ -407,7 +420,7 @@ def run(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 
                 summary.failed[key] = "the pass is no longer in the catalogue"
                 continue
             try:
-                classes = _classes(s, acq, sun, grid, windows, card, card_sha, lab)
+                classes = _classes(s, acq, sun, grid, windows, card, card_sha, lab, with_value)
             except (httpx.HTTPError, OSError, RuntimeError) as error:  # transient: next run
                 log.warning("%s failed: %s", key, error)
                 summary.failed[key] = str(error)
@@ -415,8 +428,10 @@ def run(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 
                 continue
             finally:
                 s.reader.forget(acq)
+            before = latest.get(rec.scene_id)
             doc: dict[str, Any] = {
-                "schema": SCHEMA, "reach": site_id, "sceneId": rec.scene_id, "date": rec.date,
+                "schema": SCHEMA_V2 if with_value else SCHEMA, "reach": site_id,
+                "sceneId": rec.scene_id, "date": rec.date,
                 "observationRecordSha256": rec.record_sha256, "planSha256": plan_sha,
                 "card": frozen["card"], "modelCardSha256": card_sha,
                 "modelId": card["modelId"], "basis": card["basis"],
@@ -424,6 +439,8 @@ def run(cfg: ReachConfig, root: Path, site_id: str, cache: Path, workers: int = 
                           for i in m.items(acq)],
                 "windows": classes, "codeCommit": commit,
             }  # fmt: skip
+            if with_value:
+                doc["replaces"] = None if before is None else before["recordSha256"]
             doc["recordSha256"] = seal(doc)
             file = f"records/{rec.date}_{key}.{doc['recordSha256'][:12]}.json"
             _write_json(out / file, doc)
@@ -442,16 +459,19 @@ def series(cfg: ReachConfig, root: Path, site_id: str) -> list[dict[str, Any]]:
         site_id: The reach.
 
     Returns:
-        One row per pass: its classes and reasons in the plan's order.
+        One row per pass (its latest record: a pass read again shows its new one): its classes,
+        values and reasons in the plan's order.
     """
     out = folder(cfg, root, site_id)
+    latest = {line["sceneId"]: line for line in _ledger_lines(out / "ledger.jsonl")}
     rows = []
-    for line in _ledger_lines(out / "ledger.jsonl"):
+    for line in latest.values():
         doc = json.loads((out / line["file"]).read_text(encoding="utf-8"))
         rows.append({
             "sceneId": doc["sceneId"], "date": doc["date"], "recordSha256": doc["recordSha256"],
             "file": line["file"],
             "classes": [w.get("fnuClass") for w in doc["windows"]],
+            "values": [w.get("fnuValue") for w in doc["windows"]],
             "reasons": [w.get("abstainReason") for w in doc["windows"]],
         })  # fmt: skip
     return sorted(rows, key=lambda r: (r["date"], r["sceneId"]))

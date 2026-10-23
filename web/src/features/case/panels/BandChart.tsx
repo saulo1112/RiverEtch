@@ -197,7 +197,7 @@ export function BandChart({
               }}
             >
               <span className="case-visually-hidden">
-                {formatDate(p.date, true)}: {label(p.cls)}
+                {formatDate(p.date, true)}: {p.text ?? label(p.cls)}
               </span>
             </button>
           ))
@@ -209,7 +209,8 @@ export function BandChart({
           style={{ left: `${String(x(tip.date))}px`, top: `${String(at(tip.cls))}px` }}
         >
           <p className="case-series__tip-date">{formatDate(tip.date, true)}</p>
-          <p className="case-series__tip-value">{label(tip.cls)}</p>
+          <p className="case-series__tip-value">{tip.text ?? label(tip.cls)}</p>
+          {tip.detail == null ? null : <p className="case-series__tip-gauge">{tip.detail}</p>}
         </div>
       )}
       {read.length === 0 && width > 0 ? (

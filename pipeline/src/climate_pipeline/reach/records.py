@@ -152,9 +152,14 @@ def relative_class(value: float, history: Sequence[float]) -> v2.RelativeClass |
     return "low" if value < low else "medium" if value < high else "high"
 
 
+# The value beside an ungauged reach's class (preregistration-values.md): written once that file's
+# line is anchored, never before.
+VALUES_PREREGISTRATION = "docs/water-quality/preregistration-values.md"
+
+
 def estimate(
     card: Mapping[str, Any] | None, card_sha256: str, target: Target, measure: Measure,
-    history: Sequence[float], window: WindowSettings, lab_dir: Path,
+    history: Sequence[float], window: WindowSettings, lab_dir: Path, with_value: bool = False,
 ) -> v2.Estimate:  # fmt: skip
     """One target's estimate for a scene, at its card's level, or why there is none.
 
@@ -166,6 +171,7 @@ def estimate(
         history: The station's historical estimates (for a relative class).
         window: D15's window guards.
         lab_dir: Where an A4 card's forest lives.
+        with_value: An ungauged class also carries its value (preregistration-values.md).
 
     Returns:
         The estimate.
@@ -181,7 +187,7 @@ def estimate(
     if not reason and not (math.isfinite(value) and value > 0):
         reason = "no estimate from the window's features"
     if card.get("basis") in v2.UNGAUGED_BASES:
-        return _ungauged(card, card_sha256, target, measure, value, reason)
+        return _ungauged(card, card_sha256, target, measure, value, reason, with_value)
     if reason:
         level, mdsa = cards.level_of(card, target, math.nan)
         overall = next((r for r in card.get("levels", []) if r["predicted_range"] == "all"), None)
@@ -216,13 +222,15 @@ def estimate(
 
 
 def _ungauged(card: Mapping[str, Any], card_sha256: str, target: Target, measure: Measure,
-              value: float, reason: str | None) -> v2.Estimate:  # fmt: skip
+              value: float, reason: str | None, with_value: bool = False
+              ) -> v2.Estimate:  # fmt: skip
     """An ungauged reach's estimate: a class in FNU, never a value (preregistration-transfer.md).
 
     The card's ``display`` is "class" only when the pooled similar-river result reached
     _indicative_; otherwise the reach shows its relative indices alone. The basis is the card's:
     ``transfer_test_ungauged``, or ``outside_tested_region`` outside the tested region
-    (preregistration-outside-us.md), where the record carries no error estimate.
+    (preregistration-outside-us.md), where the record carries no error estimate. With
+    ``with_value`` (preregistration-values.md) the class carries the value it was made from.
     """
     unit = str(card["unit"])
     if card.get("display") != "class":
@@ -239,6 +247,8 @@ def _ungauged(card: Mapping[str, Any], card_sha256: str, target: Target, measure
     }  # fmt: skip
     if cls is None:
         return v2.Estimate.model_validate({**model, "abstainReason": reason or "no class"})
+    if with_value:
+        return v2.Estimate.model_validate({**model, "fnuClass": cls, "value": round(value, 2)})
     return v2.Estimate.model_validate({**model, "fnuClass": cls})
 
 

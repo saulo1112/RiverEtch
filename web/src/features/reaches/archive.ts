@@ -33,6 +33,8 @@ export interface ArchivePass {
     readonly reason: string | null;
   } | null;
   readonly classes: readonly (FnuClass | null)[];
+  /** Each window's value in FNU beside its class (preregistration-values.md; absent before it). */
+  readonly values?: readonly (number | null)[];
   readonly reasons: readonly (string | null)[];
 }
 
@@ -191,6 +193,7 @@ export function archiveReach(
               date: p.date,
               recordSha256: "",
               classes: p.classes,
+              ...(p.values === undefined ? {} : { values: p.values }),
               reasons: p.reasons,
             })),
           },

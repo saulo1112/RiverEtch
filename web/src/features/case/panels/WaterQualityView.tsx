@@ -25,6 +25,7 @@ import {
 } from "../content.ts";
 import { leanOfTemperature, leanOfTurbidity, type Lean } from "../reading.ts";
 import { temperatureAt, turbidityAt, turbidityHelp, type Spot } from "../spot.ts";
+import { primaryText, secondaryText, spotShown, stretchShown } from "../turbidity.ts";
 import { HelpTip } from "./HelpTip.tsx";
 
 const { reading } = CASE_COPY;
@@ -128,27 +129,34 @@ interface Tile {
   readonly tone: "sat" | "thermal" | "gauge";
 }
 
-// An ungauged reach's tile: the pass's class, never a value; the sparkline steps between classes.
+// An ungauged reach's tile: the pass's value with its error or range (preregistration-values.md),
+// or its class alone on an older record; the line follows the values, else steps between classes.
 function classTile(reach: ReachData, row: SeriesRow, selected: number): Tile {
   const copy = CASE_COPY.quality;
   const { ungauged } = CASE_COPY;
   const estimate = turbidity(row);
-  const cls = estimate?.fnuClass ?? null;
+  const shown = spotShown(reach, estimate, __TRANSFER_POOLED__.mdsa);
   const error = reach.card?.expectedError;
+  const valued = reach.series.some((r) => typeof turbidity(r)?.value === "number");
   return {
     id: "turbidity",
-    title: ungauged.turbidity,
+    title: shown?.value == null && !valued ? ungauged.turbidity : copy.turbidity,
     source: `${copy.sentinel} · ${formatDate(row.date)}`,
-    value: cls === null ? null : ungauged.classes[cls],
-    unit: "",
-    detail: "",
+    value:
+      shown === null ? null : shown.value === null ? primaryText(shown) : formatValue(shown.value),
+    unit: shown?.value == null ? "" : "FNU",
+    detail: secondaryText(shown) ?? "",
     chip: LEVEL_LABELS[estimate?.level ?? "unvalidated"],
     level: estimate?.level ?? "unvalidated",
     foot: error === undefined ? "" : ungauged.agreementShort(error.classAgreement, error.n),
     footHelp: error === undefined ? undefined : ungauged.agreement(error.classAgreement, error.n),
     spark: {
       values: reach.series.map((r) => {
-        const c = turbidity(r)?.fnuClass;
+        const e = turbidity(r);
+        if (valued) {
+          return typeof e?.value === "number" ? e.value : null;
+        }
+        const c = e?.fnuClass;
         if (c == null) {
           return null;
         }
@@ -310,25 +318,35 @@ function stretchTurbidityTile(
   spot: Spot,
 ): Tile {
   const copy = CASE_COPY.quality;
-  const cls = turbidityAt(reach, row.sceneId, spot.index);
+  const shown = stretchShown(reach, row.sceneId, spot.index, __TRANSFER_POOLED__.mdsa);
   const four = __FOUR_CLASSES__;
+  // Its values where the along-river records carry them (preregistration-values.md), else its
+  // classes; outside the tested region a value shows its range, and nothing more.
+  const valued = reach.along?.passes.some((p) => p.values !== undefined) ?? false;
+  const outside = isOutside(reach);
   return {
     id: "turbidity",
-    title: CASE_COPY.spot.turbidity,
+    title: shown?.value == null && !valued ? CASE_COPY.spot.turbidity : copy.turbidity,
     source: `${copy.sentinel} · ${formatDate(row.date)}`,
-    value: cls === null ? null : CASE_COPY.ungauged.classes[cls],
-    unit: "",
-    detail: spot.stretch,
+    value:
+      shown === null ? null : shown.value === null ? primaryText(shown) : formatValue(shown.value),
+    unit: shown?.value == null ? "" : "FNU",
+    detail:
+      secondaryText(shown) === null ? spot.stretch : `${spot.stretch} · ${secondaryText(shown)}`,
     chip: LEVEL_LABELS.unvalidated,
     level: "unvalidated",
     foot:
-      four === null || isOutside(reach)
-        ? CASE_COPY.spot.classHelpLabel
-        : CASE_COPY.ungauged.agreementShort(four.model_matched, four.n),
-    footHelp: turbidityHelp(reach, four) || undefined,
+      outside && valued
+        ? ""
+        : four === null || outside
+          ? CASE_COPY.spot.classHelpLabel
+          : CASE_COPY.ungauged.agreementShort(four.model_matched, four.n),
+    footHelp: outside && valued ? undefined : turbidityHelp(reach, four) || undefined,
     spark: {
       values: reach.series.map((r) =>
-        step(ALONG_CLASSES, turbidityAt(reach, r.sceneId, spot.index)),
+        valued
+          ? (stretchShown(reach, r.sceneId, spot.index, __TRANSFER_POOLED__.mdsa)?.value ?? null)
+          : step(ALONG_CLASSES, turbidityAt(reach, r.sceneId, spot.index)),
       ),
       selected,
     },

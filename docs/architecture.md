@@ -102,12 +102,14 @@ flowchart LR
   baseline; a pass whose signal is 3 or more robust spreads from the baseline is called unusual.
 - **The estimate.** At the reading spot, the model card turns the pass into turbidity in FNU
   (Sentinel-2) or water temperature in °C (Landsat's thermal band, separate records). On a reach
-  with no station it gives a class, never a value.
+  with no station it gives a class, and its value beside it
+  ([preregistration](water-quality/preregistration-values.md)).
 - **Along the river.** The same card's class, on a window every 600 m along the reach, frozen
   in a plan per reach (`docs/water-quality/reach/<site>/along/windows.json`). Each window is made
   exactly as a station's, and one read of the scene covers them all. The US reaches use the
   four-class transfer card; Birecik its own copy of the same model. Each pass gives an
-  along-river record (`riveretch.along-river.v1`) in the reach's own ledger
+  along-river record (`riveretch.along-river.v1`; `.v2` adds each window's value and names the
+  record it replaces) in the reach's own ledger
   (`terrachain:<reach>:along`), witnessed like the others
   ([preregistration](water-quality/preregistration-along-river.md)). On the two reaches with a
   water-temperature card, each Landsat pass is read on the same windows' cores, on Landsat's
@@ -131,7 +133,7 @@ flowchart LR
   ([preregistration](water-quality/preregistration-daily-record.md)). The web app's Climate tab
   checks a year's record like a reading, and compares it with its source in the browser.
 - **The reading spot.** The web app's reading spot moves to any window of the plan; away from
-  the start it shows that window's classes from the along-river records, never a value. Where
+  the start it shows that window's value and class from the along-river records. Where
   there is no estimate, the app says "No reading"; the record keeps the reason.
 - **Isolation.** The estimate never reads a station value. Station values enter only the tests,
   the report-only check and the scoring, after the record is sealed.

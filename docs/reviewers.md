@@ -10,12 +10,16 @@ it.
 
 - **Sealing proves a number was not changed; it does not prove it was right.** The tests show how
   often it was right.
-- **On a river with no gauge, a class only** (under 30, 30 to 50, 50 to 100, 100 FNU and over),
-  with the error measured on rivers the model never saw: the class matched the gauge in 160 of 298
-  test passes, against 61 for always guessing the most common class (a comparison decided after
-  seeing the result).
-- **Values with a unit only at a validated gauge.** Along the river, each 600 m stretch gets a
-  class, never a value; no station measures those stretches.
+- **On a river with no gauge, a value beside its class** (under 30, 30 to 50, 50 to 100, 100 FNU
+  and over), with the error measured on rivers the model never saw: a typical error of 37 % (median
+  symmetric accuracy over 298 test passes; 15 % to 162 % by station, and it reads low, bias −23 %),
+  and the class matched the gauge in 160 of the 298, against 61 for always guessing the most common
+  class (a comparison decided after seeing the result). Showing the value was decided after seeing
+  the classes ([preregistration](water-quality/preregistration-values.md)).
+- **Along the river**, each 600 m stretch gets the same: a value beside its class, with the same
+  typical error on the US reaches; no station measures those stretches. At Birecik, outside the
+  United States, the value comes with its class's range and no error figure: no station there
+  measures turbidity.
 - **Clouds** hide about three passes in four (72–76 % in 2026).
 - **The 2026 records sealed before T0 are retrospective:** they were sealed after their gauge values
   were public. Only passes after T0 (the anchor of the scoring rule) can count as prospective.

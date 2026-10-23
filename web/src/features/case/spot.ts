@@ -1,6 +1,7 @@
 // The reading spot that moves (preregistration-along-temperature.md, section 3): where it is, and
 // what each stretch of river reads on each pass, for the panels that follow it. Away from the
-// start a stretch shows a class from the along-river records, never a value.
+// start a stretch shows its class from the along-river records, and its value beside it once they
+// carry one (preregistration-values.md).
 import { stretchKm } from "../reaches/along.ts";
 import { isOutside } from "../reaches/scene.ts";
 import type {
@@ -18,6 +19,9 @@ export interface BandPoint {
   readonly date: string;
   /** Its class (null: no reading, so no mark). */
   readonly cls: string | null;
+  /** Its value and what goes beside it, where the record carries one (preregistration-values.md). */
+  readonly text?: string;
+  readonly detail?: string | null;
 }
 
 /** The reading spot, away from the start: its window and its stretch of river in words. */

@@ -3,6 +3,7 @@ import { useState, type KeyboardEvent } from "react";
 import { classEdges, classSpan, gaugeAt, isUngauged, turbidity } from "../../reaches/scene.ts";
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY, daysBetween, formatDate, formatValue } from "../content.ts";
+import { secondaryText, spotShown } from "../turbidity.ts";
 import { useSize } from "./useSize.ts";
 
 /** Props of {@link SeriesChart}. */
@@ -22,13 +23,15 @@ const DOT = 4.5;
 const TICKS = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
 
 /**
- * The year's passes: turbidity values on a log scale, or, on a reach with no gauge, its classes.
+ * The year's passes: turbidity values on a log scale; on a reach with no station whose records
+ * carry no value yet (sealed before preregistration-values.md), its classes.
  *
  * @param props - The reach, the selection and its handler.
  * @returns The chart.
  */
 export function SeriesChart(props: SeriesChartProps) {
-  return isUngauged(props.reach) ? <ClassChart {...props} /> : <ValueChart {...props} />;
+  const valued = props.reach.series.some((r) => typeof turbidity(r)?.value === "number");
+  return isUngauged(props.reach) && !valued ? <ClassChart {...props} /> : <ValueChart {...props} />;
 }
 
 // The months from the first pass's January to the last pass, and the x scale over them.
@@ -242,6 +245,11 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
       high: estimate?.interval?.high ?? null,
       gauge: gauge?.value ?? null,
       approval: gauge?.approval ?? "",
+      // A reach with no station: its error or range beside the value.
+      beside:
+        estimate?.level === "unvalidated"
+          ? secondaryText(spotShown(reach, estimate, __TRANSFER_POOLED__.mdsa))
+          : null,
     };
   });
 
@@ -445,6 +453,7 @@ function ValueChart({ reach, selected, compared, onSelect }: SeriesChartProps) {
               )}
             </p>
           )}
+          {tip.beside === null ? null : <p className="case-series__tip-gauge">{tip.beside}</p>}
           {tip.gauge === null ? null : (
             <p className="case-series__tip-gauge">
               USGS {formatValue(tip.gauge)} FNU ({tip.approval.toLowerCase()})
