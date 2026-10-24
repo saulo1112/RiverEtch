@@ -62,7 +62,7 @@ export interface Indicator {
 
 /** The three indicators, in reading order. "rivers" is counted from the transfer test. */
 export const INDICATORS: readonly Indicator[] = [
-  { id: "rivers", label: "rivers tested", description: "failures shown" },
+  { id: "rivers", label: "rivers tested", description: "every result published" },
   { id: "check", label: "click to check", description: "no wallet, no account" },
   {
     id: "proofs",
