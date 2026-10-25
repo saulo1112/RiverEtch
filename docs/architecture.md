@@ -144,15 +144,16 @@ flowchart LR
 
 ## Two kinds of reach
 
-| Reach                       | A station measures turbidity? | What a record shows                                               | Its error comes from                 |
-| --------------------------- | ----------------------------- | ----------------------------------------------------------------- | ------------------------------------ |
-| Mississippi at Belle Chasse | yes                           | a value in FNU and its 90 % range                                 | the locked test against that station |
-| Platte at Louisville        | yes                           | a value in FNU and its 90 % range                                 | the locked test against that station |
-| Mississippi above Natchez   | no                            | a class (under 30, 30 to 50, 50 to 100, 100 FNU and over)         | a test on rivers the model never saw |
-| Euphrates at Birecik        | no                            | a class, labelled "Outside the tested region. No error estimate." | nothing: no such test exists there   |
+| Reach                       | A station measures turbidity? | What a record shows                                                                     | Its error comes from                 |
+| --------------------------- | ----------------------------- | --------------------------------------------------------------------------------------- | ------------------------------------ |
+| Mississippi at Belle Chasse | yes                           | a value in FNU and its 90 % range                                                       | the locked test against that station |
+| Platte at Louisville        | yes                           | a value in FNU and its 90 % range                                                       | the locked test against that station |
+| Mississippi at St. Joseph   | no                            | a value in FNU with its class's range (under 30, 30 to 50, 50 to 100, 100 FNU and over) | a test on rivers the model never saw |
+| Fırat at Birecik            | no                            | a value in FNU with its class's range, its record labelled "Outside the tested region"  | nothing: no such test exists there   |
 
-The app shows the class alone, for example "Under 30 FNU"; the label's facts sit behind its (?)
-([preregistration-along-river.md](water-quality/preregistration-along-river.md), section 6). The
+Since [preregistration-values.md](water-quality/preregistration-values.md) the app shows the value
+beside its class's range, for example "18.4 FNU, range under 30 FNU" (before it, the class alone,
+[preregistration-along-river.md](water-quality/preregistration-along-river.md), section 6). The
 sealed records keep their labels.
 
 The two reaches with a station are where RiverEtch measures how wrong the satellite is; the two

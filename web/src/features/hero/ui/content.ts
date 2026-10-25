@@ -335,8 +335,8 @@ export const HOW_IT_WORKS = {
   limits: [
     { title: "Clouds", text: "Clouds hide about three passes in four." },
     {
-      title: "No station, no number",
-      text: "Where there is no station, it shows a class, never a number.",
+      title: "No station, a value and its class",
+      text: "Where there is no station, it shows a value with the range of its class, tested on rivers the model never saw.",
     },
     {
       title: "Sealed is not the same as right",

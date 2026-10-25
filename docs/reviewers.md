@@ -44,7 +44,7 @@ Open [river-etch.vercel.app](https://river-etch.vercel.app). No account, no wall
    the case file shows how the pass compares with the river's own past. At the Fırat, published
    measurements of the river at Birecik, labelled as looked up after seeing the result. Under
    the value, the reading spot's stretch and its arrows: move it upstream or downstream (or drag
-   the amber spot on the map, or click the river) and the panels follow that stretch, as a class.
+   the amber spot on the map, or click the river) and the panels follow that stretch, with its value.
 4. **Check this reading** (the small link on the reading card), below: its verdict in one
    sentence, its steps under "Show the steps".
 5. **Export with proof** (the Proof panel, or the toolbar's Export): one zip of the readings with
