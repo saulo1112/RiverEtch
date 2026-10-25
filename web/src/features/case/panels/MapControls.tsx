@@ -15,8 +15,8 @@ export interface MapControlsProps {
 }
 
 /**
- * The map's controls, on its right edge: zoom, a compass that turns with the map (back to the
- * landed view), and 2D / 3D.
+ * The map's controls, on its right edge: zoom, a compass that turns with the map (a click points
+ * it north), and 2D / 3D.
  *
  * @returns The controls.
  */

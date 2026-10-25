@@ -262,7 +262,7 @@ export interface CaseMapHandle {
    */
   readonly zoomBy: (delta: number) => void;
   /**
-   * Turns the map back to north (and the case's tilt).
+   * Turns the map to north, as a compass does: the centre, the zoom and the tilt stay where they are.
    */
   readonly resetNorth: () => void;
   /**
@@ -1349,7 +1349,7 @@ export async function createCaseMap(
       map.easeTo({ zoom: map.getZoom() + delta, duration: 300 });
     },
     resetNorth() {
-      map.easeTo({ ...framed(lastFrame), duration: 700 });
+      map.easeTo({ bearing: 0, duration: 400 });
     },
     setSpot(at, station) {
       spotAt = at;

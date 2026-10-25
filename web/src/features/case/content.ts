@@ -380,7 +380,7 @@ export const CASE_COPY = {
   controls: {
     zoomIn: "Zoom in",
     zoomOut: "Zoom out",
-    north: "Reset the view",
+    north: "Point north",
     view3d: "3D",
     view2d: "2D",
   },
