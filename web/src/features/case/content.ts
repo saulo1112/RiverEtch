@@ -154,11 +154,11 @@ export const CASE_COPY = {
     finish: "Finish",
     summaryTitle: "One pass of the satellite",
     summary:
-      "One clear Sentinel-2 pass: the turbidity at the station spot, in FNU, with the range the station's value should fall in 9 times out of 10. The arrows under it, or the orange spot dragged on the map, read any other stretch of the river, as a class.",
+      "One clear Sentinel-2 pass: the turbidity at the station spot, in FNU, with the range the station's value should fall in 9 times out of 10. The arrows under it, or the orange spot dragged on the map, read any other stretch of the river, each with its own value.",
     summaryUngauged:
-      "One clear Sentinel-2 pass: the water's turbidity class at the reading spot, in FNU. The (?) beside it says how often such a class was right. The arrows under it, or the orange spot dragged on the map, read any stretch of the river.",
+      "One clear Sentinel-2 pass: the water's turbidity at the reading spot, in FNU, with the range of its class. Under it, how often such a class was right. The arrows under it, or the orange spot dragged on the map, read any stretch of the river, each with its own value.",
     summaryOutside:
-      "One clear Sentinel-2 pass: the water's turbidity class at the reading spot, in FNU. The (?) beside it says how the model was tested. The arrows under it, or the orange spot dragged on the map, read any stretch of the river.",
+      "One clear Sentinel-2 pass: the water's turbidity at the reading spot, in FNU, with the range of its class. The arrows under it, or the orange spot dragged on the map, read any stretch of the river, each with its own value.",
     trustTitle: "What it is worth, and what protects it",
     trust:
       "The level says how far the model was tested; the (?) explains it. Fingerprinted: the reading's SHA-256 is fixed. Posted on Ethereum: its line of the record list is stored on a public chain.",
@@ -170,14 +170,14 @@ export const CASE_COPY = {
       "Export with proof downloads the readings with what proves they have not changed since they were fixed. Check a file tells you whether a file someone sent you still matches the record. Nothing is uploaded.",
     layersTitle: "The map is relative",
     layers:
-      "NDTI per pixel, compared with this reach's own passes. It has no unit and is not validated: only the amber spot carries a value or a class.",
+      "NDTI per pixel, compared with this reach's own passes. It has no unit and is not validated: the values come from the amber spot, or from the stretch you point at.",
     tabsTitle: "The year, pass by pass",
     tabs: "The tabs hold the year's passes beside the station, the station's own readings and climate record, and the track record of readings sealed before the station's value was read.",
     tabsUngauged:
-      "The tabs hold the year's passes by class, the turbidity index against the river's own past, the image in detail and, where a station upstream measures it, the river's flow. With no station there is no track record: nothing here is scored.",
+      "The tabs hold the year's passes with their values, the turbidity index against the river's own past, the image in detail and, where a station upstream measures it, the river's flow. With no station there is no track record: nothing here is scored.",
     alongTitle: "Along the whole river",
     along:
-      "Each column is a pass and each row 600 m of river, coloured by its class. Move over a stretch to find it on the map; click a cell to open that pass and move the reading spot there.",
+      "Each column is a pass and each row 600 m of river, coloured by its class. Move over a stretch to see its value and find it on the map; click a cell to open that pass and move the reading spot there.",
     endTitle: "That is the record",
     end: "Sealing proves a number was not changed; it does not prove it was right. The tests show how often it was right.",
   },
