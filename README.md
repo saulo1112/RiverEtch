@@ -139,7 +139,7 @@ the model was trained on). The map paints the river by class, and the **Along th
 the year: one column per pass, one row per stretch. Hover a stretch and the map marks it and shows
 its value.
 
-![The Along the river tab for the Mississippi at Belle Chasse: one column per satellite pass of 2026, one row per 600 m stretch from upstream to downstream, coloured by turbidity class](docs/img/along-river.jpg)
+![The Along the river tab for the Mississippi at Belle Chasse: one column per satellite pass of 2026, one row per 600 m stretch from upstream to downstream, coloured by turbidity class. The pointer is on one cell, which gives that stretch's value on that day, 67.4 FNU, with the range of its class, 50 to 100 FNU, and marks the stretch on the map](docs/img/along-river.jpg)
 
 **Move the reading spot.** Drag the amber spot along the river, click the river, or use the arrows
 in the case file: the panels follow that stretch. On the two reaches with a water-temperature
@@ -366,6 +366,10 @@ encrypted keystore, never from committed files.
 | the record format                | [docs/schema/README.md](docs/schema/README.md)               |
 | why each choice was made         | [docs/decisions.md](docs/decisions.md)                       |
 | every document                   | [docs/README.md](docs/README.md)                             |
+
+Three folders in `docs/` (`site-screening/`, `urra-validation/`, `magdalena-validation/`) are the
+project's first, Colombian stage. They are not part of the results above; they stay only because the
+pipeline and its tests still read their settings ([docs/README.md](docs/README.md#what-is-not-part-of-the-results)).
 
 ## Frequently asked questions
 

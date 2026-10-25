@@ -68,5 +68,12 @@ Thumbs.db
 docs/plans/
 docs/submission/
 
+# The local AI-assistant setup (Claude Code skills and their lock file): tooling, not the project.
+.claude/
+skills-lock.json
+
+# Images no document shows any more (kept on disk, not published).
+docs/img/how-it-works.jpg
+
 # The earlier years' images (preregistration-archive-maps.md): published on the data branch only.
 docs/water-quality/reach/*/examples/archive-maps/
