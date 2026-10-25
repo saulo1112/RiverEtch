@@ -19,7 +19,7 @@ expect, and seals every reading so that any later change would show.</p>
 **[Open the live app](https://river-etch.vercel.app)** ·
 [Verify a record in one minute](docs/reviewers.md#check-a-reading-in-one-minute) ·
 [How it is checked](docs/trust-model.md) · [Results](docs/water-quality/report.md) ·
-[Architecture](docs/architecture.md)
+[Architecture](docs/architecture.md) ·
 [Demo Video](https://youtu.be/7XM9NeKMYoY)
 
 </div>
