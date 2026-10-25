@@ -367,10 +367,6 @@ encrypted keystore, never from committed files.
 | why each choice was made         | [docs/decisions.md](docs/decisions.md)                       |
 | every document                   | [docs/README.md](docs/README.md)                             |
 
-Three folders in `docs/` (`site-screening/`, `urra-validation/`, `magdalena-validation/`) are the
-project's first, Colombian stage. They are not part of the results above; they stay only because the
-pipeline and its tests still read their settings ([docs/README.md](docs/README.md#what-is-not-part-of-the-results)).
-
 ## Frequently asked questions
 
 - **Is this a forecast?** No. Every reading is of a pass that already happened.
