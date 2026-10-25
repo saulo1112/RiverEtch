@@ -174,7 +174,11 @@ it and shows its value.
 - **Fixed before any stretch was read:** the windows, the model and the labels were frozen and
   anchored on Ethereum first ([preregistration](docs/water-quality/preregistration-along-river.md)).
 - **Sealed like every record:** each pass along the river is a record in the reach's own ledger
-  (`terrachain:<reach>:along`), anchored, timestamped and signed like the others.
+  (for example `terrachain:mississippi-belle-chasse:along`), anchored, timestamped and signed like
+  the others. The labels start with `terrachain` because the project was first called TerraChain,
+  and the first anchors on Ethereum were made under those names. Renaming them would cut the link
+  between those anchors and their records, so every label keeps the old prefix
+  ([why](docs/trust-model.md#why-the-labels-read-terrachain)).
 - **A value on every stretch:** each stretch shows the model's value in FNU with the range of its
   class ([preregistration](docs/water-quality/preregistration-values.md)). The same model was tested
   on rivers it never saw. In half of 298 passes its value was within 36.9 % of the station's, and
