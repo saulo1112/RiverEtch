@@ -382,5 +382,29 @@
       "modelCardSha256": "d563bb7e4283205b61f27c5a1c37c112dc2051eef5c64499c58128aab4962c78",
       "basis": "preregistered_lockbox_site"
     }
+  },
+  {
+    "date": "2026-10-21",
+    "sceneId": "platte-louisville:landsat-9_2026-10-21_R028",
+    "file": "records/2026-10-21_landsat-9_2026-10-21_R028.json",
+    "recordSha256": "a95ff46d84b53cc790a446ebbd43bba0242b8688844414f81c9549fae6126e9f",
+    "platform": "landsat-9",
+    "waterPixels": 106,
+    "estimate": {
+      "target": "water_temperature",
+      "unit": "\u00b0C",
+      "level": "estimated",
+      "value": 17.33,
+      "interval": {
+        "low": 14.54,
+        "high": 20.11,
+        "coverage": 0.9,
+        "method": "split_conformal_absolute"
+      },
+      "modelId": "W1:water_temperature:core:platte-louisville",
+      "modelVersion": "1",
+      "modelCardSha256": "d563bb7e4283205b61f27c5a1c37c112dc2051eef5c64499c58128aab4962c78",
+      "basis": "preregistered_lockbox_site"
+    }
   }
 ]

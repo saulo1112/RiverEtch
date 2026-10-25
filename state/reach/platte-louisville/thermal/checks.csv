@@ -15,3 +15,4 @@ date,sceneId,datetimeUtc,estimate,gauge,value,approval
 2026-09-11,platte-louisville:landsat-8_2026-09-11_R028,2026-09-11T17:05:50+00:00,21.68,USGS-06805500,25.1,Provisional
 2026-09-27,platte-louisville:landsat-8_2026-09-27_R028,2026-09-27T17:05:59+00:00,21.12,USGS-06805500,19.65,Provisional
 2026-10-05,platte-louisville:landsat-9_2026-10-05_R028,2026-10-05T17:06:07+00:00,18.93,USGS-06805500,18.35,Provisional
+2026-10-21,platte-louisville:landsat-9_2026-10-21_R028,2026-10-21T17:06:06+00:00,17.33,USGS-06805500,15.65,Provisional

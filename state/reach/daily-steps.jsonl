@@ -4,7 +4,7 @@
 {"args":"reach thermal --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'passes': 3, 'recorded': 0, 'checked': 19}"}
 {"args":"reach context --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'context_rows': 56}"}
 {"args":"reach render --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'maps': 39, 'drawn': 0, 'missing': []}"}
-{"args":"reach thermal --site platte-louisville","exit":0,"last":"platte-louisville: {'passes': 3, 'recorded': 0, 'checked': 16}"}
+{"args":"reach thermal --site platte-louisville","exit":0,"last":"platte-louisville: {'passes': 4, 'recorded': 1, 'checked': 17}"}
 {"args":"reach context --site platte-louisville","exit":0,"last":"platte-louisville: {'context_rows': 92}"}
 {"args":"reach render --site platte-louisville","exit":0,"last":"platte-louisville: {'maps': 18, 'drawn': 0, 'missing': []}"}
 {"args":"reach reread --site mississippi-st-joseph","exit":0,"last":"mississippi-st-joseph: 0 records, 0 skipped, 0 failed, ~0.00 GB"}
@@ -16,19 +16,19 @@
 {"args":"reach along --site mississippi-st-joseph","exit":0,"last":"mississippi-st-joseph: 0 records, 0 failed"}
 {"args":"reach along --site firat-birecik","exit":0,"last":"firat-birecik: 0 records, 0 failed"}
 {"args":"reach along-temperature --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: 0 records, 0 failed"}
-{"args":"reach along-temperature --site platte-louisville","exit":0,"last":"platte-louisville: 0 records, 0 failed"}
+{"args":"reach along-temperature --site platte-louisville","exit":0,"last":"platte-louisville: 1 records, 0 failed"}
 {"args":"reach check --site all --since 2026-01-01","exit":0,"last":"platte-louisville: CheckSummary(since='2026-01-01T00:00:00+00:00', rows=15, paired=10, mdsa=44.88762749761952, sspb=24.37372247478613, approvals={'Approved': 2, 'Provisional': 8})"}
 {"args":"reach examples --site mississippi-belle-chasse --all-records","exit":0,"last":"mississippi-belle-chasse: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/mississippi-belle-chasse/examples"}
 {"args":"reach examples --site platte-louisville --all-records","exit":0,"last":"platte-louisville: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/platte-louisville/examples"}
 {"args":"reach examples --site mississippi-st-joseph --all-records","exit":0,"last":"mississippi-st-joseph: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/mississippi-st-joseph/examples"}
 {"args":"reach examples --site firat-birecik --all-records","exit":0,"last":"firat-birecik: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/firat-birecik/examples"}
 {"args":"reach examples --site missouri-hermann","exit":0,"last":"missouri-hermann: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/missouri-hermann/examples"}
-{"args":"reach daily-record --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: 0 years sealed, 19 unchanged, through 2026-10-23"}
-{"args":"reach daily-record --site platte-louisville","exit":0,"last":"platte-louisville: 0 years sealed, 74 unchanged, through 2026-10-23"}
-{"args":"reach daily-record --site mississippi-st-joseph","exit":0,"last":"mississippi-st-joseph: 0 years sealed, 19 unchanged, through 2026-10-23"}
-{"args":"reach daily-record --site firat-birecik","exit":0,"last":"firat-birecik: 1 years sealed, 29 unchanged, through 2026-10-24"}
-{"args":"reach climate --site mississippi-belle-chasse --snapshot","exit":0,"last":"mississippi-belle-chasse: {'days': {'00060': 6243}, 'through': '2026-10-23', 'rankedYears': 16}"}
-{"args":"reach climate --site platte-louisville --snapshot","exit":0,"last":"platte-louisville: {'days': {'00010': 200, '00060': 26808}, 'through': '2026-10-23', 'rankedYears': 72}"}
-{"args":"reach climate --site mississippi-st-joseph --snapshot","exit":0,"last":"mississippi-st-joseph: {'days': {'00060': 6868}, 'through': '2026-10-23', 'rankedYears': 18}"}
+{"args":"reach daily-record --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: 1 years sealed, 18 unchanged, through 2026-10-24"}
+{"args":"reach daily-record --site platte-louisville","exit":0,"last":"platte-louisville: 1 years sealed, 73 unchanged, through 2026-10-24"}
+{"args":"reach daily-record --site mississippi-st-joseph","exit":0,"last":"mississippi-st-joseph: 1 years sealed, 18 unchanged, through 2026-10-24"}
+{"args":"reach daily-record --site firat-birecik","exit":0,"last":"firat-birecik: 0 years sealed, 30 unchanged, through 2026-10-24"}
+{"args":"reach climate --site mississippi-belle-chasse --snapshot","exit":0,"last":"mississippi-belle-chasse: {'days': {'00060': 6244}, 'through': '2026-10-24', 'rankedYears': 16}"}
+{"args":"reach climate --site platte-louisville --snapshot","exit":0,"last":"platte-louisville: {'days': {'00010': 200, '00060': 26809}, 'through': '2026-10-24', 'rankedYears': 72}"}
+{"args":"reach climate --site mississippi-st-joseph --snapshot","exit":0,"last":"mississippi-st-joseph: {'days': {'00060': 6869}, 'through': '2026-10-24', 'rankedYears': 18}"}
 {"args":"reach climate --site firat-birecik --snapshot","exit":0,"last":"firat-birecik: {'days': {'river_discharge': 10889}, 'through': '2026-10-24', 'rankedYears': 29}"}
-{"args":"ledger stamp","exit":0,"last":"stamped   docs/ledgers/ots/terrachain_firat-birecik_daily-record.32.ots"}
+{"args":"ledger stamp","exit":0,"last":"stamped   docs/ledgers/ots/terrachain_mississippi-st-joseph_daily-record.22.ots"}
