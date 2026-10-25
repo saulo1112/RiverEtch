@@ -260,7 +260,8 @@ block 11952275 (2026-10-20 02:19:48 UTC) before it ran, and run **once** (02:38 
 - **Where it fails:** the Platte (162 %: it reads far too low; no cause was tested) and the
   Connecticut (88 %: a clear river it reads too high). Both are listed, not dropped.
 - **Biases stay large** on several rivers (−40 % at the Atchafalaya, +46 % at the Ohio), which is
-  why an ungauged reach shows a class, not a value with a unit.
+  why an ungauged reach's value is shown only beside its class's range (since 2026-10-23; before
+  that, as a class alone: [preregistration-values.md](preregistration-values.md)).
 - **"Class matched" is easy on clear rivers:** nearly every value there is under 30 FNU, so the
   count says little; the pooled count below, on sediment-carrying rivers, is the one that matters.
 - **The usual value (a) is the group's median,** as preregistered: for the Mississippi it pools both
@@ -292,8 +293,9 @@ main-stem water-quality gauge, at Natchez (07290880), records nitrate but not tu
   no site adjustment. Its card
   ([`ungauged/mississippi-st-joseph/turbidity.json`](ungauged/mississippi-st-joseph/turbidity.json))
   is frozen in the frozen-artifacts ledger and recomputed by CI (`quality transfer-verify`).
-- **What a record shows:** a class only, at the level _unvalidated_, beside the pooled error
-  above: under 30, 30 to 100, 100 FNU and over at first, and four classes (under 30, 30 to 50, 50 to
+- **What a record shows:** a class, and since 2026-10-23 its value beside the class's range
+  ([preregistration-values.md](preregistration-values.md)), at the level _unvalidated_, with the
+  pooled error above in this report: under 30, 30 to 100, 100 FNU and over at first, and four classes (under 30, 30 to 50, 50 to
   100, 100 FNU and over) since the class test below passed. With no gauge it is never scored. It is a reach the
   model never saw, not a river: the model learned from two other Mississippi gauges, Cape
   Girardeau upstream and Belle Chasse downstream.
@@ -318,8 +320,9 @@ eleven points on Turkish rivers, the Fırat at the Birecik Bridge (322.5 m) lies
 training widths (305 to 773 m) by the largest margin. The reach runs from about 2 km below the
 Birecik Dam to the bridge ([site file](../../pipeline/reaches/firat-birecik.yaml)).
 
-- **What a record shows:** a class only, with the label "Outside the tested region. No error
-  estimate." Every river the model was trained and tested on is in the United States, so no error
+- **What a record shows:** a class (and since 2026-10-23 its value beside the class's range, see
+  [preregistration-values.md](preregistration-values.md)), with the label "Outside the tested region.
+  No error estimate." Every river the model was trained and tested on is in the United States, so no error
   figure of any kind is shown.
 - **Dams upstream** (the Birecik Dam 8 km above the town, the Atatürk Dam 60 km above that) may
   hold back much of the sediment; the water may be clearer than the training rivers, and the model

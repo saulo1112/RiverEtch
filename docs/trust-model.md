@@ -275,6 +275,11 @@ under MIT.
   proves what the source published on the day it was fetched, not that it is right, and a year the
   source revises gets a new record beside the old one. The records start with the first daily run
   after that file's line is anchored.
+- **A value beside the class (2026-10-23).** Where there is no station, and along every reach, the
+  app shows the model's value with the range of its class
+  ([preregistration-values.md](water-quality/preregistration-values.md), decision D26). The records
+  seal the value like the class. The error measured on rivers the model never saw (a median of 37 %,
+  15 % to 162 % by station) is in the report, not on the map.
 - **Sepolia is a test network.** The posts live there; the Bitcoin timestamps and the signatures
   do not depend on it.
 

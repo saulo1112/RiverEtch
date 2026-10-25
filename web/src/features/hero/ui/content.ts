@@ -1,6 +1,6 @@
-// Every string in the hero's UI layer, in one place. A value in FNU is claimed only where a gauge
-// validated it, with its error, and a class where there is none; NDTI stays relative; nothing
-// claims causes or proof of compliance.
+// Every string in the hero's UI layer, in one place. A value in FNU is claimed with its tested range
+// where a gauge validated it, and with its class's range where there is none; NDTI stays relative;
+// nothing claims causes or proof of compliance.
 
 /**
  * Product name, in the two parts the header's wordmark colors: changing them renames the product
