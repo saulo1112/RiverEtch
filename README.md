@@ -4,8 +4,11 @@
 
 <p><strong>See the river. Verify the reading.</strong></p>
 
-<p>RiverEtch reads river water from free satellite images, says how far off each reading can be,
-and seals every reading so that any later change would show.</p>
+<p>Most of a river has no measuring station. RiverEtch reads the water from free satellite images,
+says how far off each reading can be, and seals every reading so that any later change would show.</p>
+
+<p><sub>Built for the <a href="https://ieee-climatechain-hack.devpost.com/">IEEE ClimateChain Global Hackathon</a> 2026
+· Track 4: Climate Data &amp; Environmental Monitoring</sub></p>
 
 [![CI](https://github.com/saulo1112/RiverEtch/actions/workflows/ci.yml/badge.svg)](https://github.com/saulo1112/RiverEtch/actions/workflows/ci.yml)
 [![Code: MIT](https://img.shields.io/badge/code-MIT-blue)](LICENSE)
@@ -21,21 +24,54 @@ and seals every reading so that any later change would show.</p>
 
 ![The RiverEtch start page: a globe with the rivers it follows, the title "See the river. Verify the reading.", and three facts: 9 rivers tested with their failures shown, 1 click to check with no wallet or account, and 3 separate checks (Ethereum, Bitcoin and a quantum-safe signature)](docs/img/hero.jpg)
 
-## In one minute
+## The problem
 
-- **The problem.** A measuring station sees one point of a river. Most of the river lies far from
-  any station, so when the water turns muddy or warm there, nobody measures it.
-- **What RiverEtch does.** Every few days a free satellite (Sentinel-2 or Landsat) passes over the
-  river. RiverEtch turns each clear pass into a reading of the water: how muddy it is (turbidity)
-  and how warm it is (water temperature).
-- **How far off it can be.** Every model was tested once, on years it never saw, against a USGS
-  station. The app shows that error beside each reading, and says plainly where the satellite does
-  not work.
-- **Why you can trust the record.** Each reading gets a fingerprint (a SHA-256 hash). The
+When a river floods, or runs so low that salt water creeps up it, the people who have to decide (a
+water utility, an environmental agency) need to know what the water is like: how muddy, how warm. A
+measuring station answers that for the one spot where it stands. The rest of the river, and the many
+rivers with no station at all, go unmeasured exactly when it matters.
+
+Satellites look at those rivers every few days, for free. But a number made from a picture raises
+two fair questions: **how far off can it be**, and **could someone change it later**? RiverEtch is
+built to answer both, so that a reading can be cited and not only looked at.
+
+## What RiverEtch does about it
+
+- **It reads the river, not one point of it.** Every clear pass of a free satellite (Sentinel-2 or
+  Landsat) becomes a reading of how muddy the water is (turbidity, in FNU) and how warm it is (°C),
+  at the station and on a window every 600 m along the reach.
+- **It tells you how far off it can be, including where it fails.** Every model was tested once, on
+  years it never saw, against a USGS station, and the result is published whether it was good or
+  bad: two of the ten stations it was tested on failed, and they are listed
+  ([report](docs/water-quality/report.md)). Where a station exists, a reading comes with its 90 %
+  range. Where none does, it comes with the range of its class, and the test on rivers the model
+  never saw is in the report.
+- **It makes a quiet edit impossible.** Each reading gets a fingerprint (a SHA-256 hash). The
   fingerprints are posted on two public blockchains, Ethereum and Bitcoin, and signed with a
-  quantum-safe signature. Change one number, and the fingerprint no longer matches.
+  quantum-safe signature. Change one number and the fingerprint no longer matches. Anyone can check
+  it in their browser, with no wallet and no account.
 - **Who it is for.** A water-quality analyst at an environmental agency. The analyst decides;
   RiverEtch informs, with a reading they can cite and show was never changed.
+
+## Built for the IEEE ClimateChain Hackathon
+
+RiverEtch is the entry for **Track 4: Climate Data & Environmental Monitoring**. This is how it
+meets what the track asks for, and where to look for each of the hackathon's criteria:
+
+| The track asks for                                    | RiverEtch                                                                                |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Satellite data integration for environmental tracking | Sentinel-2 and Landsat passes become turbidity and water temperature, stretch by stretch |
+| Climate data collection and verification              | Each reading is sealed, then witnessed on Ethereum, on Bitcoin and by a signature        |
+| Transparent climate data sharing                      | **Export with proof** and **Check a file**: the data leaves with the means to verify it  |
+
+| Criterion                                | Where to look                                                                                                                       |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Climate impact and environmental benefit | [Why it matters for climate](#why-it-matters-for-climate) and the [results](docs/water-quality/report.md)                           |
+| Technical innovation and blockchain use  | [Architecture](docs/architecture.md) and [why a blockchain, and why two](docs/trust-model.md#why-a-blockchain-and-why-two)          |
+| Feasibility and implementation quality   | The CI badge above, the [daily run](docs/architecture.md) on a free runner, and the [quick start](#quick-start)                     |
+| Data security and transparency           | The [trust model](docs/trust-model.md): what each check catches, and what it does not                                               |
+| User experience and design               | The [live app](https://river-etch.vercel.app), and [one minute to verify a record](docs/reviewers.md#verify-a-record-in-one-minute) |
+| Scalability and sustainability           | A new reach is a site file and a settings entry; imagery and CI are free ([reach pipeline](docs/water-quality/reach/README.md))     |
 
 ## How it works
 
@@ -78,34 +114,41 @@ turbidity, so the satellite's reading is the only one there is.
 flowchart TD
   Q{"Does a station measure<br/>turbidity on this reach?"}
   Q -->|"Yes: Mississippi at Belle Chasse,<br/>Platte at Louisville"| A["A value with a unit (FNU)<br/>and its 90 % range,<br/>tested once against that station"]
-  Q -->|"No: Mississippi above Natchez"| B["A value in FNU<br/>and its class's range"]
+  Q -->|"No: Mississippi at St. Joseph<br/>(above Natchez)"| B["A value in FNU<br/>and its class's range"]
   Q -->|"No, and outside the United States:<br/>the Euphrates at Birecik, Türkiye"| C["A value in FNU<br/>and its class's range"]
 ```
 
-![A river with a station: the Mississippi at Belle Chasse. The map shows the reach in 3D, painted by turbidity class stretch by stretch, with the orange reading spot at the station; the panel reads 30.0 FNU with an expected range of 20.6 to 43.7 FNU, labelled Validated, fingerprinted and posted on Ethereum; at the bottom, the satellite's readings beside the station's own flow and water level](docs/img/case-gauged.jpg)
+![A river with a station: the Mississippi at Belle Chasse. The map shows the reach in 3D, painted by turbidity class stretch by stretch, with the reading spot at the station; the panel reads 49.0 FNU with an expected range of 33.0 to 72.6 FNU, labelled Validated and fingerprinted; at the bottom, the satellite's turbidity and water temperature beside the station's own flow and water level](docs/img/case-gauged.jpg)
 
 _With a station (Mississippi at Belle Chasse): a value, its expected range, and the station's own
 measurements beside it._
 
-![A river with no station: the Mississippi above Natchez. The panel reads "50 to 100 FNU", a class, labelled "Satellite only"; the chart notes that in 160 of 298 test passes on rivers the model never saw, the class matched the station](docs/img/case-ungauged.jpg)
+![A river with no station: the Mississippi at St. Joseph. The panel reads 79.9 FNU with the range of its class, 50 to 100 FNU, labelled Satellite only; the pointer over a stretch of the river shows that stretch's own value, 95.3 FNU; the chart notes that the class was right in 160 of 298 tests on rivers the model never saw](docs/img/case-ungauged.jpg)
 
-_With no station (Mississippi above Natchez): a class, and how often that class was right on
-rivers the model never saw._
+_With no station (Mississippi at St. Joseph): a value, the range of its class, and how often that
+class was right on rivers the model never saw. Point at any stretch of the river and it gives its
+own value._
 
 ## Every stretch of the river
 
 A station sees one point of a river. So the same frozen model also reads a window every 600 m
-along each reach: 38 windows at Belle Chasse, 35 on the Platte, 29 above Natchez and 16 at Birecik.
+along each reach: 38 windows at Belle Chasse, 35 on the Platte, 29 at St. Joseph and 16 at Birecik.
 Each stretch gets a turbidity value in FNU and its class (under 30, 30 to 50, 50 to 100, 100 FNU
-and over), or no reading (the record says why). The map paints the river by class, and the **Along the river** tab
-shows the year: one column per pass, one row per stretch. Hover a stretch and the map marks it.
+and over), or no reading (the record says why: for example, where the river is wider than any river
+the model was trained on). The map paints the river by class, and the **Along the river** tab shows
+the year: one column per pass, one row per stretch. Hover a stretch and the map marks it and shows
+its value.
+
+![The Along the river tab for the Mississippi at Belle Chasse: one column per satellite pass of 2026, one row per 600 m stretch from upstream to downstream, coloured by turbidity class](docs/img/along-river.jpg)
 
 **Move the reading spot.** Drag the amber spot along the river, click the river, or use the arrows
 in the case file: the panels follow that stretch. On the two reaches with a water-temperature
 model, the same windows also get a water-temperature class on each Landsat pass (under 10, 10 to
 15, 15 to 20, 20 to 25, 25 to 30, 30 °C and over), fixed before any was read
-([preregistration](docs/water-quality/preregistration-along-temperature.md)). The station stays marked where it stands, and its window
-shows the value tested against that station, with its 90 % range.
+([preregistration](docs/water-quality/preregistration-along-temperature.md)). The station stays
+marked where it stands, and its window shows the value tested against that station, with its 90 %
+range. On a pass where the station's value and its own stretch's differ by more than three times,
+the app says that the station data does not allow a clear reading on that date.
 
 **Earlier years.** The calendar also opens 2019 to 2025. Those years are read again with the same
 frozen models, along the river and at the station, and every panel labels them "Recomputed, not
@@ -208,10 +251,10 @@ read the station.
 | Inside the expected range                     | Turbidity, Belle Chasse | Turbidity, Platte | Water temperature, Belle Chasse | Water temperature, Platte |
 | --------------------------------------------- | ----------------------- | ----------------- | ------------------------------- | ------------------------- |
 | 2026 passes, retrospective                    | 16 of 21                | 8 of 9            | 11 of 13                        | 11 of 13                  |
-| Sealed before the station was read (since T0) | 1 of 1                  | 1 of 1            | none yet                        | none yet                  |
+| Sealed before the station was read (since T0) | 2 of 2                  | 1 of 1            | none yet                        | none yet                  |
 | Locked test, retrospective                    | 54 of 57                | 50 of 54          | 33 of 37                        | 23 of 24                  |
 
-The prospective count is as of the 21 Oct 2026 daily run. Two passes say little, and clouds hide
+The prospective count is as of the 24 Oct 2026 daily run. A few passes say little, and clouds hide
 about three passes in four, so it grows slowly. The **Track record** tab shows counts, never
 percentages, until there are 20 passes.
 
@@ -219,8 +262,10 @@ percentages, until there are 20 passes.
 
 - **A seal proves a number was not changed, not that it was right.** The tests above show how often
   it was right.
-- **A value with a unit appears only where a station validated the model**, at its window. Along
-  the river, and on a river with no station, the reading is a class.
+- **Only the station's window is tested against a station.** Along the river, and on a river with
+  no station, the value is the model's, shown with the range of its class. On rivers it never saw, the
+  model's error was a median of 37 % (15 % at Belle Chasse, 162 % on the Platte, where it reads far
+  too low), so treat such a value as an estimate, not a measurement.
 - **Clouds hide about three passes in four** (72–76 % in 2026).
 - **The 2026 records sealed before T0 are a backtest:** they were made after their station values
   were public. And sealing first does not prove the station value was unknown: the USGS publishes
@@ -330,8 +375,10 @@ encrypted keystore, never from committed files.
 - **Why a blockchain?** A seal needs a date that RiverEtch itself cannot move. A public chain gives
   one that no single party sets and nobody can edit
   ([why a blockchain, and why two](docs/trust-model.md#why-a-blockchain-and-why-two)).
-- **Why only a class where there is no station?** Because nothing there can check a number. The
-  class comes with the error measured on rivers the model never saw.
+- **How good is a number where there is no station?** Nothing there can check it, so its error was
+  measured on rivers the model never saw: a median of 37 % over 298 passes, and the class matched the
+  station in 160 of them. The map shows the value with its class's range; the full test, by river, is
+  in the [report](docs/water-quality/report.md).
 - **Can I get the data?** Yes. The **Export** menu gives the series (CSV), the reach's geometry
   (GeoJSON), its ledger (JSONL) and its model card (JSON).
 
