@@ -3238,6 +3238,12 @@ button.case-calendar__day:hover:not(:disabled, [data-selected="true"]) {
   margin-top: 12px;
 }
 
+/* An earlier year's water-quality tab has one more line on top ("Recomputed, not sealed"): the panel
+   grows by that line, so the tiles keep the height they have in 2026 and nothing is cut. */
+.case-timeline__body[data-archive-strip="true"] {
+  height: calc(var(--timeline-body) + 34px);
+}
+
 .case-timeline__caption {
   margin: 0 0 8px;
   color: var(--text-3);

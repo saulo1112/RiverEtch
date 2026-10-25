@@ -488,7 +488,11 @@ export function Timeline(props: TimelineProps) {
           ))}
         </div>
       </header>
-      <div className="case-timeline__body" role="tabpanel">
+      <div
+        className="case-timeline__body"
+        role="tabpanel"
+        data-archive-strip={reach.archive != null && tab === "quality" ? "true" : undefined}
+      >
         <Caption
           tab={tab}
           reach={reach}
