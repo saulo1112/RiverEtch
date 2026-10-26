@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 2,
+  "reachId": "platte-louisville",
+  "date": "2026-10-25",
+  "sceneId": "platte-louisville:sentinel-2b_2026-10-25_R112",
+  "stacItemIds": [
+    "S2B_14TQL_20261025_0_L2A",
+    "S2B_15TTF_20261025_0_L2A"
+  ],
+  "indices": {
+    "ndti": {
+      "upstream": -0.0726,
+      "downstream": -0.0837,
+      "reach": -0.0781,
+      "delta": -0.0111,
+      "zScore": {
+        "rule": "D0",
+        "upstream": -0.42,
+        "downstream": -0.58,
+        "delta": -0.74
+      }
+    },
+    "nirRed": {
+      "upstream": 0.5023,
+      "downstream": 0.551,
+      "reach": 0.5266,
+      "delta": 0.0486,
+      "zScore": {
+        "rule": "D0",
+        "upstream": -0.36,
+        "downstream": -0.23,
+        "delta": 0.96
+      }
+    }
+  },
+  "verdict": {
+    "rule": "D0",
+    "threshold": 3.0,
+    "anomalous": false,
+    "signals": []
+  },
+  "rain": {
+    "point": false,
+    "catchment": null,
+    "union": "unknown"
+  },
+  "estimates": [
+    {
+      "target": "turbidity",
+      "unit": "FNU",
+      "level": "estimated",
+      "value": 29.8,
+      "interval": {
+        "low": 19.86,
+        "high": 44.72,
+        "coverage": 0.9,
+        "method": "mondrian_split_conformal_log"
+      },
+      "relativeClass": null,
+      "modelId": "H3:turbidity:core:platte-louisville",
+      "modelVersion": "1",
+      "modelCardSha256": "beeb490555bc95751f47f7e4d5d01ed1ffe547ef8a3750af0558fb195d3b7a06",
+      "validRange": [
+        18.4,
+        580.0
+      ],
+      "rangeMdsa": 4.6,
+      "abstainReason": null,
+      "basis": "preregistered_lockbox_site",
+      "atmosphericCorrection": {
+        "processor": "sen2cor",
+        "collection": "sentinel-2-l2a",
+        "processingBaseline": [
+          "05.13",
+          "05.13"
+        ]
+      }
+    }
+  ],
+  "climateContext": {
+    "status": "not_run",
+    "signal": null,
+    "modelId": null,
+    "expected": null,
+    "residual": null,
+    "residualZ": null,
+    "label": "not_evaluated",
+    "rule": "climate context not run",
+    "dischargePercentile": null,
+    "ensoPhase": null
+  },
+  "provenance": {
+    "collection": "sentinel-2-l2a",
+    "stacItems": [
+      {
+        "id": "S2B_14TQL_20261025_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/14/T/QL/2026/10/S2B_14TQL_20261025_0_L2A/S2B_14TQL_20261025_0_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      },
+      {
+        "id": "S2B_15TTF_20261025_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/T/TF/2026/10/S2B_15TTF_20261025_0_L2A/S2B_15TTF_20261025_0_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      }
+    ],
+    "codeCommit": "cb403ec7cba2707a002e84d51bcdcc0d2643344f",
+    "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
+    "boaOffsetApplied": [
+      true,
+      true
+    ],
+    "processingBaseline": [
+      "05.13",
+      "05.13"
+    ]
+  },
+  "recordSha256": "4f069918b797963a6d3f078160dae6bb60f6aa26c2eead0a22e1647d1625d61a"
+}

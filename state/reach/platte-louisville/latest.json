@@ -1,35 +1,35 @@
 {
   "schemaVersion": 2,
   "reachId": "platte-louisville",
-  "date": "2026-10-20",
-  "sceneId": "platte-louisville:sentinel-2c_2026-10-20_R112",
+  "date": "2026-10-25",
+  "sceneId": "platte-louisville:sentinel-2b_2026-10-25_R112",
   "stacItemIds": [
-    "S2C_14TQL_20261020_0_L2A",
-    "S2C_15TTF_20261020_0_L2A"
+    "S2B_14TQL_20261025_0_L2A",
+    "S2B_15TTF_20261025_0_L2A"
   ],
   "indices": {
     "ndti": {
-      "upstream": -0.0722,
-      "downstream": -0.0781,
-      "reach": -0.0752,
-      "delta": -0.006,
+      "upstream": -0.0726,
+      "downstream": -0.0837,
+      "reach": -0.0781,
+      "delta": -0.0111,
       "zScore": {
         "rule": "D0",
         "upstream": -0.42,
-        "downstream": -0.54,
-        "delta": -0.29
+        "downstream": -0.58,
+        "delta": -0.74
       }
     },
     "nirRed": {
-      "upstream": 0.364,
-      "downstream": 0.3698,
-      "reach": 0.3669,
-      "delta": 0.0058,
+      "upstream": 0.5023,
+      "downstream": 0.551,
+      "reach": 0.5266,
+      "delta": 0.0486,
       "zScore": {
         "rule": "D0",
-        "upstream": -0.78,
-        "downstream": -0.75,
-        "delta": -0.0
+        "upstream": -0.36,
+        "downstream": -0.23,
+        "delta": 0.96
       }
     }
   },
@@ -49,10 +49,10 @@
       "target": "turbidity",
       "unit": "FNU",
       "level": "estimated",
-      "value": 29.17,
+      "value": 29.8,
       "interval": {
-        "low": 19.44,
-        "high": 43.76,
+        "low": 19.86,
+        "high": 44.72,
         "coverage": 0.9,
         "method": "mondrian_split_conformal_log"
       },
@@ -93,20 +93,20 @@
     "collection": "sentinel-2-l2a",
     "stacItems": [
       {
-        "id": "S2C_14TQL_20261020_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/14/T/QL/2026/10/S2C_14TQL_20261020_0_L2A/S2C_14TQL_20261020_0_L2A.json",
+        "id": "S2B_14TQL_20261025_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/14/T/QL/2026/10/S2B_14TQL_20261025_0_L2A/S2B_14TQL_20261025_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       },
       {
-        "id": "S2C_15TTF_20261020_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/T/TF/2026/10/S2C_15TTF_20261020_0_L2A/S2C_15TTF_20261020_0_L2A.json",
+        "id": "S2B_15TTF_20261025_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/T/TF/2026/10/S2B_15TTF_20261025_0_L2A/S2B_15TTF_20261025_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       }
     ],
-    "codeCommit": "df8ef7a4c91cc52b7f2d298727080bdd4c1ad123",
-    "processingParamsSha256": "2ad6c7bde3c9edead23b14cfcc1cc1880a314fcf393cb1958d66ae7d59726abb",
+    "codeCommit": "cb403ec7cba2707a002e84d51bcdcc0d2643344f",
+    "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
     "boaOffsetApplied": [
       true,
       true
@@ -116,5 +116,5 @@
       "05.13"
     ]
   },
-  "recordSha256": "548c99ab1dae00be8dd9fe315b9f577187d8ffdce14e1d49fa49eeb34589fbb1"
+  "recordSha256": "4f069918b797963a6d3f078160dae6bb60f6aa26c2eead0a22e1647d1625d61a"
 }

@@ -1,0 +1,184 @@
+{
+  "schema": "riveretch.along-river.v2",
+  "reach": "platte-louisville",
+  "sceneId": "platte-louisville:sentinel-2b_2026-10-25_R112",
+  "date": "2026-10-25",
+  "observationRecordSha256": "4f069918b797963a6d3f078160dae6bb60f6aa26c2eead0a22e1647d1625d61a",
+  "planSha256": "b8dd8664e8d651c8a5a0acaf7b491ed4d4970b1eeb327c80307e19f19cca70b3",
+  "card": "docs/water-quality/ungauged/mississippi-st-joseph/turbidity-4.json",
+  "modelCardSha256": "eb41e8919e4a766caf83bf5bc3a94ae6bf9d70963b2398b645e83c0e9699f30a",
+  "modelId": "A4:turbidity:core:transfer-all",
+  "basis": "transfer_test_ungauged",
+  "items": [
+    {
+      "id": "S2B_14TQL_20261025_0_L2A",
+      "processingBaseline": "05.13"
+    },
+    {
+      "id": "S2B_15TTF_20261025_0_L2A",
+      "processingBaseline": "05.13"
+    }
+  ],
+  "windows": [
+    {
+      "id": "w01",
+      "fnuClass": "under_30",
+      "fnuValue": 26.46
+    },
+    {
+      "id": "w02",
+      "fnuClass": "30_to_50",
+      "fnuValue": 34.57
+    },
+    {
+      "id": "w03",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w04",
+      "abstainReason": "core_share outside the training range"
+    },
+    {
+      "id": "w05",
+      "fnuClass": "30_to_50",
+      "fnuValue": 36.46
+    },
+    {
+      "id": "w06",
+      "fnuClass": "30_to_50",
+      "fnuValue": 37.73
+    },
+    {
+      "id": "w07",
+      "fnuClass": "30_to_50",
+      "fnuValue": 40.21
+    },
+    {
+      "id": "w08",
+      "fnuClass": "30_to_50",
+      "fnuValue": 32.24
+    },
+    {
+      "id": "w09",
+      "fnuClass": "30_to_50",
+      "fnuValue": 37.13
+    },
+    {
+      "id": "w10",
+      "fnuClass": "30_to_50",
+      "fnuValue": 32.8
+    },
+    {
+      "id": "w11",
+      "fnuClass": "30_to_50",
+      "fnuValue": 31.79
+    },
+    {
+      "id": "w12",
+      "fnuClass": "30_to_50",
+      "fnuValue": 31.95
+    },
+    {
+      "id": "w13",
+      "fnuClass": "30_to_50",
+      "fnuValue": 34.62
+    },
+    {
+      "id": "w14",
+      "fnuClass": "30_to_50",
+      "fnuValue": 34.81
+    },
+    {
+      "id": "w15",
+      "fnuClass": "30_to_50",
+      "fnuValue": 37.37
+    },
+    {
+      "id": "w16",
+      "fnuClass": "30_to_50",
+      "fnuValue": 33.23
+    },
+    {
+      "id": "w17",
+      "fnuClass": "30_to_50",
+      "fnuValue": 37.21
+    },
+    {
+      "id": "w18",
+      "abstainReason": "log_width_m outside the training range"
+    },
+    {
+      "id": "w19",
+      "abstainReason": "core_share outside the training range"
+    },
+    {
+      "id": "w20",
+      "abstainReason": "core_share outside the training range"
+    },
+    {
+      "id": "w21",
+      "fnuClass": "30_to_50",
+      "fnuValue": 36.52
+    },
+    {
+      "id": "w22",
+      "fnuClass": "under_30",
+      "fnuValue": 26.92
+    },
+    {
+      "id": "w23",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w24",
+      "abstainReason": "contamination above 0.2"
+    },
+    {
+      "id": "w25",
+      "abstainReason": "fewer than 20 valid pixels"
+    },
+    {
+      "id": "w26",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w27",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w28",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w29",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w30",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w31",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w32",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w33",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w34",
+      "abstainReason": "failed water-B11 check"
+    },
+    {
+      "id": "w35",
+      "abstainReason": "failed water-B11 check"
+    }
+  ],
+  "codeCommit": "cb403ec7cba2707a002e84d51bcdcc0d2643344f",
+  "replaces": null,
+  "recordSha256": "874c3271e77ed139a96cbcad76dc2c85483485808c36415c98ab942491955664"
+}
