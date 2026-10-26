@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
   "reachId": "firat-birecik",
-  "date": "2026-10-23",
-  "sceneId": "firat-birecik:sentinel-2b_2026-10-23_R078",
+  "date": "2026-10-26",
+  "sceneId": "firat-birecik:sentinel-2b_2026-10-26_R121",
   "stacItemIds": [
-    "S2B_37SCA_20261023_0_L2A",
-    "S2B_37SCB_20261023_0_L2A",
-    "S2B_37SDA_20261023_0_L2A",
-    "S2B_37SDB_20261023_0_L2A"
+    "S2B_37SCA_20261026_0_L2A",
+    "S2B_37SCB_20261026_0_L2A",
+    "S2B_37SDA_20261026_0_L2A",
+    "S2B_37SDB_20261026_0_L2A"
   ],
   "indices": {
     "ndti": {
-      "upstream": -0.3084,
-      "downstream": -0.2872,
-      "reach": -0.2978,
-      "delta": 0.0212,
+      "upstream": -0.1429,
+      "downstream": -0.1074,
+      "reach": -0.1251,
+      "delta": 0.0355,
       "zScore": {
         "rule": "D0",
-        "upstream": 0.43,
-        "downstream": 0.7,
-        "delta": 0.31
+        "upstream": 1.05,
+        "downstream": 1.41,
+        "delta": 0.41
       }
     },
     "nirRed": {
-      "upstream": 1.0625,
-      "downstream": 0.9518,
-      "reach": 1.0072,
-      "delta": -0.1107,
+      "upstream": 1.2647,
+      "downstream": 1.3441,
+      "reach": 1.3044,
+      "delta": 0.0794,
       "zScore": {
         "rule": "D0",
-        "upstream": 0.19,
-        "downstream": -0.07,
-        "delta": -0.08
+        "upstream": 0.81,
+        "downstream": 0.52,
+        "delta": 0.38
       }
     }
   },
@@ -51,7 +51,7 @@
       "target": "turbidity",
       "unit": "FNU",
       "level": "unvalidated",
-      "value": 1.52,
+      "value": 1.5,
       "interval": null,
       "relativeClass": null,
       "fnuClass": "under_30",
@@ -90,31 +90,31 @@
     "collection": "sentinel-2-l2a",
     "stacItems": [
       {
-        "id": "S2B_37SCA_20261023_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CA/2026/10/S2B_37SCA_20261023_0_L2A/S2B_37SCA_20261023_0_L2A.json",
+        "id": "S2B_37SCA_20261026_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CA/2026/10/S2B_37SCA_20261026_0_L2A/S2B_37SCA_20261026_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       },
       {
-        "id": "S2B_37SCB_20261023_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CB/2026/10/S2B_37SCB_20261023_0_L2A/S2B_37SCB_20261023_0_L2A.json",
+        "id": "S2B_37SCB_20261026_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CB/2026/10/S2B_37SCB_20261026_0_L2A/S2B_37SCB_20261026_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       },
       {
-        "id": "S2B_37SDA_20261023_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DA/2026/10/S2B_37SDA_20261023_0_L2A/S2B_37SDA_20261023_0_L2A.json",
+        "id": "S2B_37SDA_20261026_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DA/2026/10/S2B_37SDA_20261026_0_L2A/S2B_37SDA_20261026_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       },
       {
-        "id": "S2B_37SDB_20261023_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DB/2026/10/S2B_37SDB_20261023_0_L2A/S2B_37SDB_20261023_0_L2A.json",
+        "id": "S2B_37SDB_20261026_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DB/2026/10/S2B_37SDB_20261026_0_L2A/S2B_37SDB_20261026_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       }
     ],
-    "codeCommit": "c593961b139d0c64f0f333142736f29f26f94842",
+    "codeCommit": "cb403ec7cba2707a002e84d51bcdcc0d2643344f",
     "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
     "boaOffsetApplied": [
       true,
@@ -129,5 +129,5 @@
       "05.13"
     ]
   },
-  "recordSha256": "f6a6187816c9119135c6f6f5bd06f2212e791b0ffd7eaf1dc97c3274ab3f8352"
+  "recordSha256": "e4a396fdab3ac71bed3969f40221d6940c0feb93bbc5c02bf3a56ca4173d0e7c"
 }

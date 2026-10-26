@@ -182,11 +182,11 @@
  {
   "year": 2026,
   "recordId": "mississippi-belle-chasse:daily-record:2026",
-  "file": "records/2026_20261025T171056Z.json",
-  "recordSha256": "681df3a971dfc9455d672cbe47f8c2ed86d7a146704ac4c144f49714f2e98d0d",
-  "date": "2026-10-24",
-  "fetchedUtc": "2026-10-25T17:10:56+00:00",
-  "records": 4,
-  "days": 230
+  "file": "records/2026_20261026T191441Z.json",
+  "recordSha256": "146e5531882e6f90c9d60e333f75df97ca039a227fcad19951e120c4375ad9cf",
+  "date": "2026-10-25",
+  "fetchedUtc": "2026-10-26T19:14:41+00:00",
+  "records": 5,
+  "days": 231
  }
 ]

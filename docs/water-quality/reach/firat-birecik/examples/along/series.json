@@ -5698,5 +5698,65 @@
       null,
       null
     ]
+  },
+  {
+    "sceneId": "firat-birecik:sentinel-2b_2026-10-26_R121",
+    "date": "2026-10-26",
+    "recordSha256": "bb50f346cb084ae9e2854d741ae791815e9dadc9eb2d3b15204479dd8bf89c3e",
+    "file": "records/2026-10-26_sentinel-2b_2026-10-26_R121.bb50f346cb08.json",
+    "classes": [
+      "under_30",
+      "under_30",
+      "under_30",
+      "under_30",
+      null,
+      "under_30",
+      "under_30",
+      "under_30",
+      "under_30",
+      "under_30",
+      "under_30",
+      "under_30",
+      "under_30",
+      null,
+      "under_30",
+      "under_30"
+    ],
+    "values": [
+      1.5,
+      1.53,
+      1.5,
+      3.09,
+      null,
+      2.87,
+      3.52,
+      2.87,
+      2.19,
+      3.01,
+      2.44,
+      2.04,
+      3.68,
+      null,
+      1.62,
+      1.5
+    ],
+    "reasons": [
+      null,
+      null,
+      null,
+      null,
+      "log_width_m outside the training range",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      "log_width_m outside the training range",
+      null,
+      null
+    ]
   }
 ]
