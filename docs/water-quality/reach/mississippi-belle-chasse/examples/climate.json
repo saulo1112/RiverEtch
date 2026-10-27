@@ -6,7 +6,7 @@
     "url": "https://waterdata.usgs.gov/monitoring-location/USGS-07374525/"
   },
   "source": "USGS Water Data, daily mean values (OGC API)",
-  "through": "2026-10-25",
+  "through": "2026-10-26",
   "rules": {
     "coverage": 0.9,
     "lowWindowDays": 7,
@@ -258,7 +258,7 @@
       },
       {
         "year": 2026,
-        "days": 231,
+        "days": 232,
         "complete": false,
         "toDate": true,
         "provisional": true,
@@ -1381,10 +1381,10 @@
       ]
     },
     "latest": {
-      "day": "2026-10-25",
-      "value": 8240.2,
+      "day": "2026-10-26",
+      "value": 8070.3,
       "provisional": true,
-      "higherShare": 0.42,
+      "higherShare": 0.46,
       "values": 111
     }
   },
