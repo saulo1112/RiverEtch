@@ -1,6 +1,6 @@
 {"args":"ledger upgrade","exit":0,"last":"attested  docs/ledgers/ots/terrachain_platte-louisville_daily-record.98.ots"}
 {"args":"reach score --site all","exit":0,"last":"platte-louisville: {'t0': '2026-10-19T23:21:00+00:00', 'claims': 36, 'added': {}, 'skipped': {'retrospective: acquired before T0': 33, 'scored on a provisional value; not approved yet': 3}}"}
-{"args":"reach run --site all","exit":0,"last":"firat-birecik: 0 records, 0 skipped, 0 failed, ~0.00 GB"}
+{"args":"reach run --site all","exit":0,"last":"firat-birecik: 0 records, 1 skipped, 0 failed, ~0.00 GB"}
 {"args":"reach thermal --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'passes': 2, 'recorded': 0, 'checked': 19}"}
 {"args":"reach context --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'context_rows': 56}"}
 {"args":"reach render --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: {'maps': 39, 'drawn': 0, 'missing': []}"}
@@ -23,12 +23,12 @@
 {"args":"reach examples --site mississippi-st-joseph --all-records","exit":0,"last":"mississippi-st-joseph: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/mississippi-st-joseph/examples"}
 {"args":"reach examples --site firat-birecik --all-records","exit":0,"last":"firat-birecik: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/firat-birecik/examples"}
 {"args":"reach examples --site missouri-hermann","exit":0,"last":"missouri-hermann: /home/runner/work/RiverEtch/RiverEtch/docs/water-quality/reach/missouri-hermann/examples"}
-{"args":"reach daily-record --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: 0 years sealed, 19 unchanged, through 2026-10-26"}
-{"args":"reach daily-record --site platte-louisville","exit":0,"last":"platte-louisville: 0 years sealed, 74 unchanged, through 2026-10-26"}
-{"args":"reach daily-record --site mississippi-st-joseph","exit":0,"last":"mississippi-st-joseph: 0 years sealed, 19 unchanged, through 2026-10-26"}
-{"args":"reach daily-record --site firat-birecik","exit":0,"last":"firat-birecik: 1 years sealed, 29 unchanged, through 2026-10-27"}
-{"args":"reach climate --site mississippi-belle-chasse --snapshot","exit":0,"last":"mississippi-belle-chasse: {'days': {'00060': 6246}, 'through': '2026-10-26', 'rankedYears': 16}"}
-{"args":"reach climate --site platte-louisville --snapshot","exit":0,"last":"platte-louisville: {'days': {'00010': 200, '00060': 26811}, 'through': '2026-10-26', 'rankedYears': 72}"}
-{"args":"reach climate --site mississippi-st-joseph --snapshot","exit":0,"last":"mississippi-st-joseph: {'days': {'00060': 6871}, 'through': '2026-10-26', 'rankedYears': 18}"}
+{"args":"reach daily-record --site mississippi-belle-chasse","exit":0,"last":"mississippi-belle-chasse: 1 years sealed, 18 unchanged, through 2026-10-27"}
+{"args":"reach daily-record --site platte-louisville","exit":0,"last":"platte-louisville: 1 years sealed, 73 unchanged, through 2026-10-27"}
+{"args":"reach daily-record --site mississippi-st-joseph","exit":0,"last":"mississippi-st-joseph: 1 years sealed, 18 unchanged, through 2026-10-27"}
+{"args":"reach daily-record --site firat-birecik","exit":0,"last":"firat-birecik: 0 years sealed, 30 unchanged, through 2026-10-27"}
+{"args":"reach climate --site mississippi-belle-chasse --snapshot","exit":0,"last":"mississippi-belle-chasse: {'days': {'00060': 6247}, 'through': '2026-10-27', 'rankedYears': 16}"}
+{"args":"reach climate --site platte-louisville --snapshot","exit":0,"last":"platte-louisville: {'days': {'00010': 200, '00060': 26812}, 'through': '2026-10-27', 'rankedYears': 72}"}
+{"args":"reach climate --site mississippi-st-joseph --snapshot","exit":0,"last":"mississippi-st-joseph: {'days': {'00060': 6872}, 'through': '2026-10-27', 'rankedYears': 18}"}
 {"args":"reach climate --site firat-birecik --snapshot","exit":0,"last":"firat-birecik: {'days': {'river_discharge': 10892}, 'through': '2026-10-27', 'rankedYears': 29}"}
-{"args":"ledger stamp","exit":0,"last":"stamped   docs/ledgers/ots/terrachain_firat-birecik_daily-record.35.ots"}
+{"args":"ledger stamp","exit":0,"last":"stamped   docs/ledgers/ots/terrachain_mississippi-st-joseph_daily-record.25.ots"}
