@@ -292,11 +292,11 @@
  {
   "year": 2026,
   "recordId": "firat-birecik:daily-record:2026",
-  "file": "records/2026_20261027T040721Z.json",
-  "recordSha256": "5b02a6cb955d4b84f2d8d83e991299e6eb55eaef5fada37688e26fd2fea9bddb",
-  "date": "2026-10-26",
-  "fetchedUtc": "2026-10-27T04:07:21+00:00",
-  "records": 5,
-  "days": 299
+  "file": "records/2026_20261028T040540Z.json",
+  "recordSha256": "748a59d6dedad078153fc9d8a31b2efe1dcde3de3dbb62e4eae8c3453308d61b",
+  "date": "2026-10-27",
+  "fetchedUtc": "2026-10-28T04:05:40+00:00",
+  "records": 6,
+  "days": 300
  }
 ]
