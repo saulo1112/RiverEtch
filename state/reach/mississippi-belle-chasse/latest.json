@@ -1,35 +1,35 @@
 {
   "schemaVersion": 2,
   "reachId": "mississippi-belle-chasse",
-  "date": "2026-10-23",
-  "sceneId": "mississippi-belle-chasse:sentinel-2b_2026-10-23_R083",
+  "date": "2026-10-28",
+  "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-28_R083",
   "stacItemIds": [
-    "S2B_15RYP_20261023_0_L2A",
-    "S2B_16RBU_20261023_0_L2A"
+    "S2C_15RYP_20261028_0_L2A",
+    "S2C_16RBU_20261028_0_L2A"
   ],
   "indices": {
     "ndti": {
-      "upstream": 0.0596,
-      "downstream": 0.0275,
-      "reach": 0.0436,
-      "delta": -0.0322,
+      "upstream": 0.0624,
+      "downstream": 0.0346,
+      "reach": 0.0485,
+      "delta": -0.0278,
       "zScore": {
         "rule": "D0",
-        "upstream": 0.51,
-        "downstream": 0.22,
-        "delta": -2.36
+        "upstream": 0.55,
+        "downstream": 0.31,
+        "delta": -1.92
       }
     },
     "nirRed": {
-      "upstream": 0.2449,
-      "downstream": 0.159,
-      "reach": 0.202,
-      "delta": -0.0859,
+      "upstream": 0.2111,
+      "downstream": 0.1406,
+      "reach": 0.1759,
+      "delta": -0.0704,
       "zScore": {
         "rule": "D0",
-        "upstream": -0.06,
-        "downstream": -0.48,
-        "delta": -1.9
+        "upstream": -0.35,
+        "downstream": -0.64,
+        "delta": -1.29
       }
     }
   },
@@ -49,10 +49,10 @@
       "target": "turbidity",
       "unit": "FNU",
       "level": "validated",
-      "value": 48.97,
+      "value": 44.86,
       "interval": {
-        "low": 33.03,
-        "high": 72.59,
+        "low": 30.84,
+        "high": 65.26,
         "coverage": 0.9,
         "method": "mondrian_split_conformal_log"
       },
@@ -93,19 +93,19 @@
     "collection": "sentinel-2-l2a",
     "stacItems": [
       {
-        "id": "S2B_15RYP_20261023_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/R/YP/2026/10/S2B_15RYP_20261023_0_L2A/S2B_15RYP_20261023_0_L2A.json",
+        "id": "S2C_15RYP_20261028_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/R/YP/2026/10/S2C_15RYP_20261028_0_L2A/S2C_15RYP_20261028_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       },
       {
-        "id": "S2B_16RBU_20261023_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/16/R/BU/2026/10/S2B_16RBU_20261023_0_L2A/S2B_16RBU_20261023_0_L2A.json",
+        "id": "S2C_16RBU_20261028_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/16/R/BU/2026/10/S2C_16RBU_20261028_0_L2A/S2C_16RBU_20261028_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       }
     ],
-    "codeCommit": "73f7489f21bc1f8130f8b2516a404f4522c08d5a",
+    "codeCommit": "cb403ec7cba2707a002e84d51bcdcc0d2643344f",
     "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
     "boaOffsetApplied": [
       true,
@@ -116,5 +116,5 @@
       "05.13"
     ]
   },
-  "recordSha256": "e13f4282dbc9660ad4c362ce27f520bec13d4a63b0fd788be4a1e1c9c12032b9"
+  "recordSha256": "615bb5427b95a4a32f831bfae7f745c4e238cdc6219c495592585ff0d8ea08e5"
 }
