@@ -449,5 +449,29 @@
       "modelCardSha256": "9493a61bc96b62c0292c8f1af87db9c669e9baeb86eb07e8d916962c9789bb8c",
       "basis": "preregistered_lockbox_upstream_site"
     }
+  },
+  {
+    "date": "2026-10-19",
+    "sceneId": "mississippi-belle-chasse:landsat-8_2026-10-19_R022",
+    "file": "records/2026-10-19_landsat-8_2026-10-19_R022.json",
+    "recordSha256": "908a0d35e65726dfe57f96c0bfc7fb57abad45acfc4e77c3bbfd77d597dfb24b",
+    "platform": "landsat-8",
+    "waterPixels": 287,
+    "estimate": {
+      "target": "water_temperature",
+      "unit": "\u00b0C",
+      "level": "estimated",
+      "value": 21.52,
+      "interval": {
+        "low": 19.76,
+        "high": 23.29,
+        "coverage": 0.9,
+        "method": "split_conformal_absolute"
+      },
+      "modelId": "W2:water_temperature:core:mississippi-belle-chasse",
+      "modelVersion": "1",
+      "modelCardSha256": "9493a61bc96b62c0292c8f1af87db9c669e9baeb86eb07e8d916962c9789bb8c",
+      "basis": "preregistered_lockbox_upstream_site"
+    }
   }
 ]

@@ -1,7 +1,7 @@
 {
-  "updatedUtc": "2026-10-30T05:08:12+00:00",
+  "updatedUtc": "2026-10-30T19:07:38+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/40999967464",
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/41106138370",
     "ok": true,
     "steps": [
       {
@@ -142,7 +142,7 @@
       }
     ]
   },
-  "lastSuccessUtc": "2026-10-30T05:08:12+00:00",
+  "lastSuccessUtc": "2026-10-30T19:07:38+00:00",
   "lastSealed": {
     "reach": "mississippi-belle-chasse",
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-28_R083",
@@ -156,11 +156,11 @@
     "tx": "0x72636783d953428cbb63f689ea4d2f1b536b304f463cd0f79a60e31b9c194b16"
   },
   "lastBitcoin": {
-    "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.26.ots",
-    "height": 973733,
-    "blockTime": "2026-10-29T20:22:47+00:00"
+    "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.37.ots",
+    "height": 973779,
+    "blockTime": "2026-10-30T05:38:03+00:00"
   },
-  "pendingBitcoin": 1,
+  "pendingBitcoin": 5,
   "proofs": [
     {
       "label": "terrachain:firat-birecik:along",
@@ -226,7 +226,7 @@
       "label": "terrachain:firat-birecik:daily-record",
       "lines": 37,
       "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.37.ots",
-      "height": null
+      "height": 973779
     },
     {
       "label": "terrachain:firat-birecik:observations",
@@ -283,6 +283,12 @@
       "height": 972643
     },
     {
+      "label": "terrachain:mississippi-belle-chasse:along-temperature",
+      "lines": 20,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_along-temperature.20.ots",
+      "height": null
+    },
+    {
       "label": "terrachain:mississippi-belle-chasse:daily-record",
       "lines": 19,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.19.ots",
@@ -329,6 +335,12 @@
       "lines": 26,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.26.ots",
       "height": 973733
+    },
+    {
+      "label": "terrachain:mississippi-belle-chasse:daily-record",
+      "lines": 27,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.27.ots",
+      "height": null
     },
     {
       "label": "terrachain:mississippi-belle-chasse:observations",
@@ -403,6 +415,12 @@
       "height": 972246
     },
     {
+      "label": "terrachain:mississippi-belle-chasse:water-temperature",
+      "lines": 20,
+      "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_water-temperature.20.ots",
+      "height": null
+    },
+    {
       "label": "terrachain:mississippi-st-joseph:along",
       "lines": 23,
       "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_along.23.ots",
@@ -461,6 +479,12 @@
       "lines": 26,
       "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_daily-record.26.ots",
       "height": 973733
+    },
+    {
+      "label": "terrachain:mississippi-st-joseph:daily-record",
+      "lines": 27,
+      "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_daily-record.27.ots",
+      "height": null
     },
     {
       "label": "terrachain:mississippi-st-joseph:observations",
@@ -563,6 +587,12 @@
       "lines": 100,
       "file": "docs/ledgers/ots/terrachain_platte-louisville_daily-record.100.ots",
       "height": 973733
+    },
+    {
+      "label": "terrachain:platte-louisville:daily-record",
+      "lines": 101,
+      "file": "docs/ledgers/ots/terrachain_platte-louisville_daily-record.101.ots",
+      "height": null
     },
     {
       "label": "terrachain:platte-louisville:observations",
