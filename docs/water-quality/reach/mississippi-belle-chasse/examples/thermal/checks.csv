@@ -19,3 +19,4 @@ date,sceneId,datetimeUtc,estimate,gauge,value,approval
 2026-09-25,mississippi-belle-chasse:landsat-9_2026-09-25_R022,2026-09-25T16:32:09+00:00,29.08,USGS-07374000,29.9,Provisional
 2026-10-11,mississippi-belle-chasse:landsat-9_2026-10-11_R022,2026-10-11T16:32:14+00:00,25.23,USGS-07374000,24.4,Provisional
 2026-10-19,mississippi-belle-chasse:landsat-8_2026-10-19_R022,2026-10-19T16:32:07+00:00,21.52,USGS-07374000,21.9,Provisional
+2026-10-27,mississippi-belle-chasse:landsat-9_2026-10-27_R022,2026-10-27T16:32:10+00:00,21.69,USGS-07374000,21.0,Provisional
