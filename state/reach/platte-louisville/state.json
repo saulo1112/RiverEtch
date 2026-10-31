@@ -69,6 +69,7 @@
     "sentinel-2c_2026-09-20_R112": "not observable",
     "sentinel-2c_2026-09-30_R112": "not observable",
     "sentinel-2c_2026-10-10_R112": "recorded",
-    "sentinel-2c_2026-10-20_R112": "recorded"
+    "sentinel-2c_2026-10-20_R112": "recorded",
+    "sentinel-2c_2026-10-30_R112": "not observable"
   }
 }
