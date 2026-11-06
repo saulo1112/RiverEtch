@@ -7,7 +7,7 @@
     "context": true
   },
   "source": "USGS Water Data, daily mean values (OGC API)",
-  "through": "2026-11-04",
+  "through": "2026-11-05",
   "rules": {
     "coverage": 0.9,
     "lowWindowDays": 7,
@@ -259,7 +259,7 @@
       },
       {
         "year": 2026,
-        "days": 305,
+        "days": 306,
         "complete": false,
         "toDate": true,
         "provisional": true,
@@ -1382,10 +1382,10 @@
       ]
     },
     "latest": {
-      "day": "2026-11-04",
-      "value": 8013.7,
+      "day": "2026-11-05",
+      "value": 7928.7,
       "provisional": true,
-      "higherShare": 0.67,
+      "higherShare": 0.7,
       "values": 126
     }
   },
