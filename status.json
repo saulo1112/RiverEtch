@@ -1,7 +1,7 @@
 {
-  "updatedUtc": "2026-11-06T20:29:00+00:00",
+  "updatedUtc": "2026-11-07T05:13:51+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/42282557915",
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/42336797605",
     "ok": true,
     "steps": [
       {
@@ -142,7 +142,7 @@
       }
     ]
   },
-  "lastSuccessUtc": "2026-11-06T20:29:00+00:00",
+  "lastSuccessUtc": "2026-11-07T05:13:51+00:00",
   "lastSealed": {
     "reach": "mississippi-belle-chasse",
     "sceneId": "mississippi-belle-chasse:sentinel-2c_2026-10-28_R083",
@@ -156,11 +156,11 @@
     "tx": "0x72636783d953428cbb63f689ea4d2f1b536b304f463cd0f79a60e31b9c194b16"
   },
   "lastBitcoin": {
-    "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.44.ots",
-    "height": 974764,
-    "blockTime": "2026-11-06T05:13:19+00:00"
+    "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.34.ots",
+    "height": 974855,
+    "blockTime": "2026-11-06T20:42:28+00:00"
   },
-  "pendingBitcoin": 3,
+  "pendingBitcoin": 1,
   "proofs": [
     {
       "label": "terrachain:firat-birecik:along",
@@ -269,6 +269,12 @@
       "lines": 44,
       "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.44.ots",
       "height": 974764
+    },
+    {
+      "label": "terrachain:firat-birecik:daily-record",
+      "lines": 45,
+      "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.45.ots",
+      "height": null
     },
     {
       "label": "terrachain:firat-birecik:observations",
@@ -430,7 +436,7 @@
       "label": "terrachain:mississippi-belle-chasse:daily-record",
       "lines": 34,
       "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.34.ots",
-      "height": null
+      "height": 974855
     },
     {
       "label": "terrachain:mississippi-belle-chasse:observations",
@@ -628,7 +634,7 @@
       "label": "terrachain:mississippi-st-joseph:daily-record",
       "lines": 34,
       "file": "docs/ledgers/ots/terrachain_mississippi-st-joseph_daily-record.34.ots",
-      "height": null
+      "height": 974855
     },
     {
       "label": "terrachain:mississippi-st-joseph:observations",
@@ -778,7 +784,7 @@
       "label": "terrachain:platte-louisville:daily-record",
       "lines": 108,
       "file": "docs/ledgers/ots/terrachain_platte-louisville_daily-record.108.ots",
-      "height": null
+      "height": 974855
     },
     {
       "label": "terrachain:platte-louisville:observations",
