@@ -1,16 +1,16 @@
 {
   "since": "2026-01-01T00:00:00+00:00",
-  "rows": 36,
-  "paired": 24,
-  "mdsa": 18.49654629369133,
-  "sspb": -6.105357163405167,
+  "rows": 37,
+  "paired": 25,
+  "mdsa": 17.567500000000003,
+  "sspb": -4.749898031072708,
   "approvals": {
     "Approved": 0,
-    "Provisional": 24
+    "Provisional": 25
   },
   "site": "mississippi-belle-chasse",
   "station": "USGS-07374525",
   "unit": "FNU",
   "note": "report-only; never a level (values may be provisional); --since: scenes before the card's commit too (their approved values were in the lock box)",
-  "checksSha256": "09a7baf57082939d65176b8561e31d2eb83a3c5cff5c287d7ff48a07630320bb"
+  "checksSha256": "8a0facfa211c896ab1453719337c34ab4fc106fe6d7842d3f035b77dbce8d99b"
 }
