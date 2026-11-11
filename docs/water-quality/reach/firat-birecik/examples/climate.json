@@ -8,7 +8,7 @@
     "modelled": true
   },
   "source": "GloFAS v4 river discharge (Global Flood Awareness System, Copernicus Emergency Management Service), through the Open-Meteo flood API: modelled, not measured",
-  "through": "2026-11-09",
+  "through": "2026-11-10",
   "rules": {
     "coverage": 0.9,
     "lowWindowDays": 7,
@@ -403,7 +403,7 @@
       },
       {
         "year": 2026,
-        "days": 313,
+        "days": 314,
         "complete": false,
         "toDate": true,
         "provisional": false,
@@ -1528,8 +1528,8 @@
       ]
     },
     "latest": {
-      "day": "2026-11-09",
-      "value": 894.4,
+      "day": "2026-11-10",
+      "value": 735.2,
       "provisional": false,
       "higherShare": 0.04,
       "values": 203
