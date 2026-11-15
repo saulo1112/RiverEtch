@@ -182,11 +182,11 @@
  {
   "year": 2026,
   "recordId": "mississippi-st-joseph:daily-record:2026",
-  "file": "records/2026_20261114T193005Z.json",
-  "recordSha256": "e7e4726b0b4a30669687b727015c46662858371ead76ea33c50d000faf27a606",
-  "date": "2026-11-13",
-  "fetchedUtc": "2026-11-14T19:30:05+00:00",
-  "records": 24,
-  "days": 314
+  "file": "records/2026_20261115T201558Z.json",
+  "recordSha256": "99bb05bd5e8d207e4c743786f5f62378c55035216956ef2abc0d07fbc66e75a4",
+  "date": "2026-11-14",
+  "fetchedUtc": "2026-11-15T20:15:58+00:00",
+  "records": 25,
+  "days": 315
  }
 ]

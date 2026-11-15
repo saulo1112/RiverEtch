@@ -5461,5 +5461,60 @@
         "fnuClass": "under_30"
       }
     ]
+  },
+  {
+    "date": "2026-11-15",
+    "sceneId": "firat-birecik:sentinel-2b_2026-11-15_R121",
+    "file": "records/2026-11-15_sentinel-2b_2026-11-15_R121.json",
+    "recordSha256": "f03f6dca9994389f2b8c57f72829c16f58d65ef152cf980d8a2b0a759daabd04",
+    "indices": {
+      "ndti": {
+        "upstream": -0.1571,
+        "downstream": -0.1285,
+        "reach": -0.1428,
+        "delta": 0.0286,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.04,
+          "downstream": 1.65,
+          "delta": 0.46
+        }
+      },
+      "nirRed": {
+        "upstream": 1.232,
+        "downstream": 1.2096,
+        "reach": 1.2208,
+        "delta": -0.0225,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.39,
+          "downstream": 1.16,
+          "delta": 0.57
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "unvalidated",
+        "value": 2.64,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null,
+        "fnuClass": "under_30"
+      }
+    ]
   }
 ]

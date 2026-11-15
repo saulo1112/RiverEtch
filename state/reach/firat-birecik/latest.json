@@ -1,37 +1,37 @@
 {
   "schemaVersion": 2,
   "reachId": "firat-birecik",
-  "date": "2026-11-10",
-  "sceneId": "firat-birecik:sentinel-2c_2026-11-10_R121",
+  "date": "2026-11-15",
+  "sceneId": "firat-birecik:sentinel-2b_2026-11-15_R121",
   "stacItemIds": [
-    "S2C_37SCA_20261110_0_L2A",
-    "S2C_37SCB_20261110_0_L2A",
-    "S2C_37SDA_20261110_0_L2A",
-    "S2C_37SDB_20261110_0_L2A"
+    "S2B_37SCA_20261115_0_L2A",
+    "S2B_37SCB_20261115_0_L2A",
+    "S2B_37SDA_20261115_0_L2A",
+    "S2B_37SDB_20261115_0_L2A"
   ],
   "indices": {
     "ndti": {
-      "upstream": -0.303,
-      "downstream": -0.3529,
-      "reach": -0.328,
-      "delta": -0.0499,
+      "upstream": -0.1571,
+      "downstream": -0.1285,
+      "reach": -0.1428,
+      "delta": 0.0286,
       "zScore": {
         "rule": "D0",
-        "upstream": 0.47,
-        "downstream": 0.61,
-        "delta": -0.4
+        "upstream": 1.04,
+        "downstream": 1.65,
+        "delta": 0.46
       }
     },
     "nirRed": {
-      "upstream": 1.1264,
-      "downstream": 1.254,
-      "reach": 1.1902,
-      "delta": 0.1275,
+      "upstream": 1.232,
+      "downstream": 1.2096,
+      "reach": 1.2208,
+      "delta": -0.0225,
       "zScore": {
         "rule": "D0",
-        "upstream": 1.07,
-        "downstream": 1.24,
-        "delta": 1.26
+        "upstream": 1.39,
+        "downstream": 1.16,
+        "delta": 0.57
       }
     }
   },
@@ -51,7 +51,7 @@
       "target": "turbidity",
       "unit": "FNU",
       "level": "unvalidated",
-      "value": 1.06,
+      "value": 2.64,
       "interval": null,
       "relativeClass": null,
       "fnuClass": "under_30",
@@ -90,26 +90,26 @@
     "collection": "sentinel-2-l2a",
     "stacItems": [
       {
-        "id": "S2C_37SCA_20261110_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CA/2026/11/S2C_37SCA_20261110_0_L2A/S2C_37SCA_20261110_0_L2A.json",
+        "id": "S2B_37SCA_20261115_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CA/2026/11/S2B_37SCA_20261115_0_L2A/S2B_37SCA_20261115_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       },
       {
-        "id": "S2C_37SCB_20261110_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CB/2026/11/S2C_37SCB_20261110_0_L2A/S2C_37SCB_20261110_0_L2A.json",
+        "id": "S2B_37SCB_20261115_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/CB/2026/11/S2B_37SCB_20261115_0_L2A/S2B_37SCB_20261115_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       },
       {
-        "id": "S2C_37SDA_20261110_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DA/2026/11/S2C_37SDA_20261110_0_L2A/S2C_37SDA_20261110_0_L2A.json",
+        "id": "S2B_37SDA_20261115_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DA/2026/11/S2B_37SDA_20261115_0_L2A/S2B_37SDA_20261115_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       },
       {
-        "id": "S2C_37SDB_20261110_0_L2A",
-        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DB/2026/11/S2C_37SDB_20261110_0_L2A/S2C_37SDB_20261110_0_L2A.json",
+        "id": "S2B_37SDB_20261115_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/37/S/DB/2026/11/S2B_37SDB_20261115_0_L2A/S2B_37SDB_20261115_0_L2A.json",
         "sha256": null,
         "retrievedUtc": null
       }
@@ -129,5 +129,5 @@
       "05.13"
     ]
   },
-  "recordSha256": "adca831ff1d1f93fe15e4fea2339850adc03c11cbf1dd38223b35db35e3beec2"
+  "recordSha256": "f03f6dca9994389f2b8c57f72829c16f58d65ef152cf980d8a2b0a759daabd04"
 }
