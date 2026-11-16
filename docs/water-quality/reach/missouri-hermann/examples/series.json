@@ -1188,5 +1188,59 @@
         "abstainReason": null
       }
     ]
+  },
+  {
+    "date": "2026-11-15",
+    "sceneId": "missouri-hermann:sentinel-2a_2026-11-15_R026",
+    "file": "records/2026-11-15_sentinel-2a_2026-11-15_R026.json",
+    "recordSha256": "e418551aff04c7a0c65324d140bacfbd7b8856fb729b69c9ac8baba7d0aafa08",
+    "indices": {
+      "ndti": {
+        "upstream": 0.0955,
+        "downstream": 0.0831,
+        "reach": 0.0893,
+        "delta": -0.0124,
+        "zScore": {
+          "rule": "D0",
+          "upstream": 1.96,
+          "downstream": 1.97,
+          "delta": -1.17
+        }
+      },
+      "nirRed": {
+        "upstream": 0.2578,
+        "downstream": 0.2591,
+        "reach": 0.2584,
+        "delta": 0.0013,
+        "zScore": {
+          "rule": "D0",
+          "upstream": -0.6,
+          "downstream": -0.7,
+          "delta": -0.43
+        }
+      }
+    },
+    "verdict": {
+      "rule": "D0",
+      "threshold": 3.0,
+      "anomalous": false,
+      "signals": []
+    },
+    "rain": {
+      "point": false,
+      "catchment": null,
+      "union": "unknown"
+    },
+    "estimates": [
+      {
+        "target": "turbidity",
+        "unit": "FNU",
+        "level": "none",
+        "value": null,
+        "interval": null,
+        "relativeClass": null,
+        "abstainReason": null
+      }
+    ]
   }
 ]
