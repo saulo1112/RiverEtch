@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 2,
+  "reachId": "missouri-hermann",
+  "date": "2026-11-23",
+  "sceneId": "missouri-hermann:sentinel-2c_2026-11-23_R026",
+  "stacItemIds": [
+    "S2C_15SXC_20261123_0_L2A"
+  ],
+  "indices": {
+    "ndti": {
+      "upstream": 0.0384,
+      "downstream": 0.037,
+      "reach": 0.0377,
+      "delta": -0.0014,
+      "zScore": {
+        "rule": "D0",
+        "upstream": 1.36,
+        "downstream": 1.44,
+        "delta": -0.06
+      }
+    },
+    "nirRed": {
+      "upstream": 0.1693,
+      "downstream": 0.1972,
+      "reach": 0.1833,
+      "delta": 0.0279,
+      "zScore": {
+        "rule": "D0",
+        "upstream": -1.03,
+        "downstream": -1.02,
+        "delta": 0.3
+      }
+    }
+  },
+  "verdict": {
+    "rule": "D0",
+    "threshold": 3.0,
+    "anomalous": false,
+    "signals": []
+  },
+  "rain": {
+    "point": false,
+    "catchment": null,
+    "union": "unknown"
+  },
+  "estimates": [
+    {
+      "target": "turbidity",
+      "unit": "FNU",
+      "level": "none",
+      "value": null,
+      "interval": null,
+      "relativeClass": null,
+      "modelId": null,
+      "modelVersion": null,
+      "modelCardSha256": null,
+      "validRange": null,
+      "rangeMdsa": null,
+      "abstainReason": null,
+      "basis": null,
+      "atmosphericCorrection": null
+    }
+  ],
+  "climateContext": {
+    "status": "not_run",
+    "signal": null,
+    "modelId": null,
+    "expected": null,
+    "residual": null,
+    "residualZ": null,
+    "label": "not_evaluated",
+    "rule": "climate context not run",
+    "dischargePercentile": null,
+    "ensoPhase": null
+  },
+  "provenance": {
+    "collection": "sentinel-2-l2a",
+    "stacItems": [
+      {
+        "id": "S2C_15SXC_20261123_0_L2A",
+        "url": "https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/15/S/XC/2026/11/S2C_15SXC_20261123_0_L2A/S2C_15SXC_20261123_0_L2A.json",
+        "sha256": null,
+        "retrievedUtc": null
+      }
+    ],
+    "codeCommit": "cb403ec7cba2707a002e84d51bcdcc0d2643344f",
+    "processingParamsSha256": "8a812db0b0802046ad289e44862d746f8b4e6f9e9c7752f7bf8bbc25ed0062f3",
+    "boaOffsetApplied": [
+      true
+    ],
+    "processingBaseline": [
+      "05.13"
+    ]
+  },
+  "recordSha256": "1ca4c8f746ac4b9ffb7d46307e59656e6a024bea020f8547e5e9a6cc05bf06ad"
+}
