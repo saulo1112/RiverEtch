@@ -1,4 +1,4 @@
-import { Compass, Minus, Plus } from "lucide-react";
+import { Compass, Minus, Plus, Scan } from "lucide-react";
 
 import type { ReachData } from "../../reaches/types.ts";
 import { CASE_COPY } from "../content.ts";
@@ -11,12 +11,13 @@ export interface MapControlsProps {
   readonly terrain3d: boolean;
   readonly onZoom: (delta: number) => void;
   readonly onNorth: () => void;
+  readonly onFit: () => void;
   readonly onTerrain3d: (on: boolean) => void;
 }
 
 /**
  * The map's controls, on its right edge: zoom, a compass that turns with the map (a click points
- * it north), and 2D / 3D.
+ * it north), a button that frames the whole reach again, and 2D / 3D.
  *
  * @returns The controls.
  */
@@ -25,6 +26,7 @@ export function MapControls({
   terrain3d,
   onZoom,
   onNorth,
+  onFit,
   onTerrain3d,
 }: MapControlsProps) {
   const { controls } = CASE_COPY;
@@ -62,6 +64,10 @@ export function MapControls({
           style={{ transform: `rotate(${String(-bearing)}deg)` }}
         />
         <span className="case-visually-hidden">{controls.north}</span>
+      </button>
+      <button type="button" className="case-controls__btn" onClick={onFit} title={controls.fit}>
+        <Scan size={16} strokeWidth={1.8} aria-hidden="true" />
+        <span className="case-visually-hidden">{controls.fit}</span>
       </button>
       <button
         type="button"

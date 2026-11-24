@@ -323,6 +323,32 @@ export function loadStatus(): Promise<RunStatus | null> {
 }
 
 /**
+ * The daily run's published ledgers of some reaches (Sentinel-2, and Landsat where the reach has
+ * one), for counting their sealed passes after the build.
+ *
+ * @param ids - The reaches' site ids.
+ * @returns Each reach's two ledgers (the Landsat one null where the reach has none), or null when
+ *   the live copy is off or any reach's Sentinel-2 ledger cannot be read.
+ */
+export async function loadLiveLedgers(
+  ids: readonly string[],
+): Promise<{ readonly sentinel: string; readonly landsat: string | null }[] | null> {
+  if (!LIVE || ids.length === 0) {
+    return null;
+  }
+  const found = await Promise.all(
+    ids.map(async (id) => {
+      const [sentinel, landsat] = await Promise.all([
+        fetchText(`${liveBase(id)}ledger.jsonl`),
+        fetchText(`${liveBase(id)}thermal/ledger.jsonl`),
+      ]);
+      return sentinel === null ? null : { sentinel, landsat };
+    }),
+  );
+  return found.every((f) => f !== null) ? found : null;
+}
+
+/**
  * The signatures of ledger heads (`docs/ledgers/signatures.jsonl` on the data branch).
  *
  * @returns Its lines (empty when none is published or it cannot be read).

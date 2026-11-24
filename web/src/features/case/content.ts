@@ -381,6 +381,7 @@ export const CASE_COPY = {
     zoomIn: "Zoom in",
     zoomOut: "Zoom out",
     north: "Point north",
+    fit: "Fit the river",
     view3d: "3D",
     view2d: "2D",
   },

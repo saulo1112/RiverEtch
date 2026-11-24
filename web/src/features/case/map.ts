@@ -266,6 +266,11 @@ export interface CaseMapHandle {
    */
   readonly resetNorth: () => void;
   /**
+   * Frames the whole reach again, as the case lands: its bearing, its tilt in 3D and the zoom that
+   * fits it between the panels.
+   */
+  readonly fitReach: () => void;
+  /**
    * Moves the reading spot (the amber marker and its window's outline) to a window along the
    * river, or back to the start; away from the start, the station is marked on its own.
    *
@@ -1012,8 +1017,17 @@ export async function createCaseMap(
   let lastFrame: FinalFrame = { padding: { top: 0, bottom: 0, left: 0, right: 0 }, zoomOffset: 0 };
   const framed = (frame: FinalFrame) => {
     lastFrame = frame;
+    // MapLibre fits inside the map's own padding plus the one given here, and the map keeps the
+    // frame's padding once it has landed: only the part it does not hold yet is added, so framing
+    // again does not count the panels twice.
+    const held = map.getPadding();
     const fitted = map.cameraForBounds(bounds, {
-      padding: frame.padding,
+      padding: {
+        top: Math.max(0, frame.padding.top - (held.top ?? 0)),
+        bottom: Math.max(0, frame.padding.bottom - (held.bottom ?? 0)),
+        left: Math.max(0, frame.padding.left - (held.left ?? 0)),
+        right: Math.max(0, frame.padding.right - (held.right ?? 0)),
+      },
       bearing: reachCase.bearing,
       maxZoom: MAP_LOOK.maxZoom,
     });
@@ -1350,6 +1364,9 @@ export async function createCaseMap(
     },
     resetNorth() {
       map.easeTo({ bearing: 0, duration: 400 });
+    },
+    fitReach() {
+      map.easeTo({ ...framed(lastFrame), duration: 700 });
     },
     setSpot(at, station) {
       spotAt = at;

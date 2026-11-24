@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 
 import { explorerUrl, LEDGER_ANCHOR_ADDRESS } from "../../chain/config.ts";
 import { REACH_CASES } from "../../reaches/catalog.ts";
-import { loadStatus, type RunStatus } from "../../reaches/data.ts";
+import { loadLiveLedgers, loadStatus, type RunStatus } from "../../reaches/data.ts";
 import { ATTRIBUTION, EVIDENCE, RUN_STATUS, STATUS } from "./content.ts";
-import { evidenceOf } from "./evidence.ts";
+import { evidenceOf, passesOf } from "./evidence.ts";
 import { StatusDialog } from "./StatusDialog.tsx";
 
 // "20 Oct" from an ISO time (UTC).
@@ -15,10 +15,10 @@ const dayMonth = (iso: string) =>
   );
 
 // Counted once: the build's facts over the catalog's cases.
-const EVIDENCE_FIGURES = evidenceOf(
-  REACH_CASES.map((c) => c.id),
-  __REACH_FACTS__,
-);
+const CASE_IDS = REACH_CASES.map((c) => c.id);
+const EVIDENCE_FIGURES = evidenceOf(CASE_IDS, __REACH_FACTS__);
+// The live count waits until the page is up: the globe and the text come first.
+const LIVE_COUNT_DELAY_MS = 1500;
 
 /**
  * The hero's bottom row: the evidence strip (the demo's sealed readings and, once the anchor
@@ -30,6 +30,7 @@ const EVIDENCE_FIGURES = evidenceOf(
  */
 export function Footer() {
   const [status, setStatus] = useState<RunStatus | null>(null);
+  const [livePasses, setLivePasses] = useState<number | null>(null);
   const [open, setOpen] = useState(false);
   useEffect(() => {
     let live = true;
@@ -40,10 +41,27 @@ export function Footer() {
         }
       })
       .catch(() => undefined);
+    // The sealed passes as the daily run has published them since the build; the build's count
+    // stays when they cannot be read.
+    const timer = window.setTimeout(() => {
+      loadLiveLedgers(CASE_IDS)
+        .then((ledgers) => {
+          if (live && ledgers !== null) {
+            setLivePasses(
+              ledgers.reduce((sum, l) => sum + passesOf(l.sentinel) + passesOf(l.landsat), 0),
+            );
+          }
+        })
+        .catch(() => undefined);
+    }, LIVE_COUNT_DELAY_MS);
     return () => {
       live = false;
+      window.clearTimeout(timer);
     };
   }, []);
+  // A sealed pass is never taken out of a ledger, so the live count can only add to the build's.
+  const sealedPasses =
+    EVIDENCE_FIGURES === null ? null : Math.max(EVIDENCE_FIGURES.sealedPasses, livePasses ?? 0);
   // Live once the record has updated at least once; until the status can be read, the bundled
   // snapshot ("Demo workspace").
   const updated = status?.lastSuccessUtc ?? null;
@@ -51,11 +69,10 @@ export function Footer() {
   return (
     <div className="hero-foot">
       <div className="hero-foot__row">
-        {EVIDENCE_FIGURES === null ? null : (
+        {sealedPasses === null ? null : (
           <ul className="hero-evidence" aria-label={EVIDENCE.label}>
             <li className="hero-evidence__item">
-              <strong>{String(EVIDENCE_FIGURES.sealedPasses)}</strong>{" "}
-              {EVIDENCE.sealed(EVIDENCE_FIGURES.sealedPasses)}
+              <strong>{String(sealedPasses)}</strong> {EVIDENCE.sealed(sealedPasses)}
             </li>
             {LEDGER_ANCHOR_ADDRESS === null ? null : (
               <li className="hero-evidence__item">

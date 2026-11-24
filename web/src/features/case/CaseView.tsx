@@ -1029,6 +1029,9 @@ export function CaseView({
           onNorth={() => {
             handleRef.current?.resetNorth();
           }}
+          onFit={() => {
+            handleRef.current?.fitReach();
+          }}
           onTerrain3d={setTerrain3d}
         />
         <ScaleBar metresPerPixel={camera.metresPerPixel} hover={hover} />

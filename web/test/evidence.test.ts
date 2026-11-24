@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import { test } from "node:test";
 
-import { evidenceOf, type ReachFacts } from "../src/features/hero/ui/evidence.ts";
+import { evidenceOf, passesOf, type ReachFacts } from "../src/features/hero/ui/evidence.ts";
 import { REACH_CASES } from "../src/features/reaches/catalog.ts";
 
 const REACHES = new URL("../../docs/water-quality/reach/", import.meta.url);
@@ -53,4 +53,18 @@ void test("the demo's figures match its committed records", () => {
     22,
     "St. Joseph's 22 passes, each sealed twice (three, then four classes), count once",
   );
+});
+
+void test("a live ledger counts its passes as the build does", () => {
+  const line = (sceneId: string) => JSON.stringify({ sceneId, recordSha256: "x" });
+  // A pass read again with a newer card adds a line, not a pass.
+  assert.equal(passesOf([line("a"), line("b"), line("a"), ""].join("\n")), 2);
+  // A ledger whose lines name no scene counts its lines.
+  assert.equal(passesOf(['{"file":"2019.json"}', '{"file":"2020.json"}'].join("\n")), 2);
+  assert.equal(passesOf(null), 0, "a reach with no Landsat ledger");
+  const text = readFileSync(
+    new URL("mississippi-st-joseph/examples/ledger.jsonl", REACHES),
+    "utf8",
+  );
+  assert.equal(passesOf(text), factsOf("mississippi-st-joseph").sealed);
 });
