@@ -732,11 +732,11 @@
  {
   "year": 2026,
   "recordId": "platte-louisville:daily-record:2026",
-  "file": "records/2026_20261124T005609Z.json",
-  "recordSha256": "6d5285a6c830fced3074556305de08926239baf1dc5d6bbf7982e84f4e3e12d6",
-  "date": "2026-11-22",
-  "fetchedUtc": "2026-11-24T00:56:09+00:00",
-  "records": 33,
-  "days": 326
+  "file": "records/2026_20261124T082013Z.json",
+  "recordSha256": "d9879dfce594382149132699ee31f999dbd463eb3fed468be58fd2982fae9809",
+  "date": "2026-11-23",
+  "fetchedUtc": "2026-11-24T08:20:13+00:00",
+  "records": 34,
+  "days": 327
  }
 ]
