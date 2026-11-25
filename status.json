@@ -1,7 +1,7 @@
 {
-  "updatedUtc": "2026-11-25T00:13:36+00:00",
+  "updatedUtc": "2026-11-25T07:38:00+00:00",
   "run": {
-    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/45504732516",
+    "url": "https://github.com/saulo1112/RiverEtch/actions/runs/45560943602",
     "ok": true,
     "steps": [
       {
@@ -142,7 +142,7 @@
       }
     ]
   },
-  "lastSuccessUtc": "2026-11-25T00:13:36+00:00",
+  "lastSuccessUtc": "2026-11-25T07:38:00+00:00",
   "lastSealed": {
     "reach": "platte-louisville",
     "sceneId": "platte-louisville:sentinel-2c_2026-11-19_R112",
@@ -156,11 +156,11 @@
     "tx": "0x72636783d953428cbb63f689ea4d2f1b536b304f463cd0f79a60e31b9c194b16"
   },
   "lastBitcoin": {
-    "file": "docs/ledgers/ots/terrachain_mississippi-belle-chasse_daily-record.51.ots",
-    "height": 977351,
-    "blockTime": "2026-11-24T09:19:42+00:00"
+    "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.63.ots",
+    "height": 977441,
+    "blockTime": "2026-11-25T00:22:19+00:00"
   },
-  "pendingBitcoin": 1,
+  "pendingBitcoin": 0,
   "proofs": [
     {
       "label": "terrachain:firat-birecik:along",
@@ -400,7 +400,7 @@
       "label": "terrachain:firat-birecik:daily-record",
       "lines": 63,
       "file": "docs/ledgers/ots/terrachain_firat-birecik_daily-record.63.ots",
-      "height": null
+      "height": 977441
     },
     {
       "label": "terrachain:firat-birecik:observations",
